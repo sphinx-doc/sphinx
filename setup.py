@@ -52,6 +52,7 @@ requires = [
     'imagesize',
     'requests>=2.0.0',
     'typing',
+    'setuptools',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later

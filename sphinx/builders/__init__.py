@@ -49,9 +49,9 @@ class Builder(object):
     Builds target formats from the reST sources.
     """
 
-    # builder's name, for the -b command line options
+    #: The builder's name, for the -b command line option.
     name = ''  # type: unicode
-    # builder's output format, or '' if no document output is produced
+    #: The builder's output format, or '' if no document output is produced.
     format = ''  # type: unicode
     # doctree versioning method
     versioning_method = 'none'  # type: unicode
@@ -157,6 +157,8 @@ class Builder(object):
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
 
+    #: The list of MIME types of image formats supported by the builder.
+    #: Image files are searched in the order in which they appear here.
     supported_image_types = []  # type: List[unicode]
 
     def post_process_images(self, doctree):
