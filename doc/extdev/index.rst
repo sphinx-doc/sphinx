@@ -28,25 +28,27 @@ Discovery of builders by entry point
 .. versionadded:: 1.6
 
 :term:`Builder` extensions can be discovered by means of `entry points`_ so
-they do not have to be listed in the :confval:`extensions` configuration value.
+that they do not have to be listed in the :confval:`extensions` configuration
+value.
 
-Builder extensions need to define an entry point in the ``sphinx.builders``
-group. The name of the entry point needs to be set to the name of the builder,
-which is the name passed to the :option:`sphinx-build -b` option. Here is an
-example of how an entry point for 'mybuilder' can be defined in ``setup.py``::
+Builder extensions should define an entry point in the ``sphinx.builders``
+group. The name of the entry point needs to match your builder's
+:attr:`~.Builder.name` attribute, which is the name passed to the
+:option:`sphinx-build -b` option. The entry point value should equal the
+dotted name of the extension module. Here is an example of how an entry point
+for 'mybuilder' can be defined in the extension's ``setup.py``::
 
     setup(
         # ...
         entry_points={
             'sphinx.builders': [
-                'mybuilder = mypackage.mymodule:MyBuilder',
+                'mybuilder = my.extension.module',
             ],
         }
     )
 
-It is no longer strictly necessary to register the builder using
-:meth:`~.Sphinx.add_builder` in the extension's ``setup()`` function, but it is
-recommended to not remove this in order to ensure backward compatiblity.
+Note that it is still necessary to register the builder using
+:meth:`~.Sphinx.add_builder` in the extension's :func:`setup` function.
 
 .. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 

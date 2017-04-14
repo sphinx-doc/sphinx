@@ -299,18 +299,15 @@ class Sphinx(object):
         if buildername is None:
             logger.info(_('No builder selected, using default: html'))
             buildername = 'html'
-        if buildername in self.builderclasses:
-            builderclass = self.builderclasses[buildername]
-        else:
+        if buildername not in self.builderclasses:
             entry_points = iter_entry_points('sphinx.builders', buildername)
             try:
                 entry_point = next(entry_points)
             except StopIteration:
                 raise SphinxError('Builder name %s not registered or available'
                                   ' through entry point' % buildername)
-            else:
-                builderclass = entry_point.load()
-                load_extension(self, builderclass.__module__)
+            load_extension(self, entry_point.module_name)
+        builderclass = self.builderclasses[buildername]
         return builderclass(self)
 
     def _init_builder(self):
