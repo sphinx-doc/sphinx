@@ -47,7 +47,7 @@ class InventoryFileReader(object):
     def read_buffer(self):
         # type: () -> None
         chunk = self.stream.read(BUFSIZE)
-        if chunk == '':
+        if chunk == b'':
             self.eof = True
         self.buffer += chunk
 
