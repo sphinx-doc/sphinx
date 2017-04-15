@@ -31,13 +31,11 @@
 %
 \renewcommand{\maketitle}{%
   \noindent\rule{\textwidth}{1pt}\par
-  % FIXME: use \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}
-  \ifdefined\pdfinfo
-    \begingroup
-     %\pdfstringdefDisableCommands{\def\\{, }\def\endgraf{ }\def\and{, }}%
-     %\hypersetup{pdfauthor={\@author}, pdftitle={\@title}}%
+    \begingroup % for PDF information dictionary
+       \def\endgraf{ }\def\and{\& }%
+       \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
+       \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}%
     \endgroup
-  \fi
   \begin{flushright}
     \sphinxlogo
     \py@HeaderFamily

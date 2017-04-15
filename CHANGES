@@ -116,6 +116,7 @@ Bugs fixed
   for latex+dvi(ps,pdf,pdfmx)
 * C++, properly look up ``any`` references.
 * #3624: sphinx.ext.intersphinx couldn't load inventories compressed with gzip
+* #3551: PDF information dictionary is lacking author and title data
 
 Deprecated
 ----------
