@@ -6,7 +6,7 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -238,6 +238,13 @@ class Domain(object):
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         """Process a document after it is read by the environment."""
+        pass
+
+    def process_field_xref(self, pnode):
+        # type: (nodes.Node) -> None
+        """Process a pending xref created in a doc field.
+        For example, attach information about the current scope.
+        """
         pass
 
     def resolve_xref(self, env, fromdocname, builder,

@@ -6,7 +6,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -497,7 +497,7 @@ def test_gettext_buildr_ignores_only_directive(app):
 def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     # --- don't rebuild by .mo mtime
     def get_number_of_update_targets(app_):
-        updated = app_.env.update(app_.config, app_.srcdir, app_.doctreedir, app_)
+        updated = app_.env.update(app_.config, app_.srcdir, app_.doctreedir)
         return len(updated)
 
     # setup new directory
@@ -680,12 +680,12 @@ def test_html_rebuild_mo(app):
     app.build()
     # --- rebuild by .mo mtime
     app.builder.build_update()
-    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir)
     assert len(updated) == 0
 
     mtime = (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
     (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
-    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir)
     assert len(updated) == 1
 
 

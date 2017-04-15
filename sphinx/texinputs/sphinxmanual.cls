@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2016/10/12 v1.5 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2017/03/26 v1.6 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -40,20 +40,12 @@
   \begin{titlepage}%
     \let\footnotesize\small
     \let\footnoterule\relax
-    \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
-    \ifsphinxpdfoutput
-      \begingroup
-      % These \defs are required to deal with multi-line authors; it
-      % changes \\ to ', ' (comma-space), making it pass muster for
-      % generating document info in the PDF file.
-      \def\\{, }%
-      \def\and{and }%
-      \pdfinfo{
-        /Author (\@author)
-        /Title (\@title)
-      }%
+    \noindent\rule{\textwidth}{1pt}\par
+      \begingroup % for PDF information dictionary
+       \def\endgraf{ }\def\and{\& }%
+       \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
+       \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}%
       \endgroup
-    \fi
     \begin{flushright}%
       \sphinxlogo
       \py@HeaderFamily

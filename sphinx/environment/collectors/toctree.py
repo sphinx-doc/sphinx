@@ -5,7 +5,7 @@
 
     Toctree collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -284,5 +284,11 @@ class TocTreeCollector(EnvironmentCollector):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict
     app.add_env_collector(TocTreeCollector)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

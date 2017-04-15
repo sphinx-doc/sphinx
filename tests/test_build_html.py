@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,6 @@ from six import PY3
 
 from sphinx import __display_version__
 from sphinx.util.inventory import InventoryFile
-
 from util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
 from html5lib import getTreeBuilder, HTMLParser
@@ -443,6 +442,10 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
+@pytest.mark.sphinx('html', testroot='build-html-translator')
+def test_html_translator(app):
+    app.build()
+    assert app.builder.docwriter.visitor.depart_with_node == 10
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
@@ -1178,6 +1181,21 @@ def test_html_inventory(app):
                                            'http://example.com/index.html',
                                            'The basic Sphinx documentation for testing')
 
+    
+@pytest.mark.sphinx('html', testroot='directives-raw')
+def test_html_raw_directive(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+
+    # standard case
+    assert 'standalone raw directive (HTML)' in result
+    assert 'standalone raw directive (LaTeX)' not in result
+
+    # with substitution
+    assert '<p>HTML: abc def ghi</p>' in result
+    assert '<p>LaTeX: abc  ghi</p>' in result
+                                       
+    
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"

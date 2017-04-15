@@ -5,13 +5,12 @@
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
 import os
 import zlib
-import codecs
 
 from six import PY3
 
@@ -30,29 +29,63 @@ if False:
 
 
 BUFSIZE = 16 * 1024
-UTF8StreamReader = codecs.lookup('utf-8')[2]
-
 logger = logging.getLogger(__name__)
 
 
-class ZlibReader(object):
-    """Compressed file reader."""
+class InventoryFileReader(object):
+    """A file reader for inventory file.
+
+    This reader supports mixture of texts and compressed texts.
+    """
 
     def __init__(self, stream):
         # type: (IO) -> None
         self.stream = stream
+        self.buffer = b''
+        self.eof = False
 
-    def read_chunks(self):
+    def read_buffer(self):
+        # type: () -> None
+        chunk = self.stream.read(BUFSIZE)
+        if chunk == b'':
+            self.eof = True
+        self.buffer += chunk
+
+    def readline(self):
+        # type: () -> unicode
+        pos = self.buffer.find(b'\n')
+        if pos != -1:
+            line = self.buffer[:pos].decode('utf-8')
+            self.buffer = self.buffer[pos + 1:]
+        elif self.eof:
+            line = self.buffer.decode('utf-8')
+            self.buffer = b''
+        else:
+            self.read_buffer()
+            line = self.readline()
+
+        return line
+
+    def readlines(self):
+        # type: () -> Iterator[unicode]
+        while not self.eof:
+            line = self.readline()
+            if line:
+                yield line
+
+    def read_compressed_chunks(self):
         # type: () -> Iterator[bytes]
         decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: self.stream.read(BUFSIZE), b''):
-            yield decompressor.decompress(chunk)
+        while not self.eof:
+            self.read_buffer()
+            yield decompressor.decompress(self.buffer)
+            self.buffer = b''
         yield decompressor.flush()
 
-    def __iter__(self):
+    def read_compressed_lines(self):
         # type: () -> Iterator[unicode]
         buf = b''
-        for chunk in self.read_chunks():
+        for chunk in self.read_compressed_chunks():
             buf += chunk
             pos = buf.find(b'\n')
             while pos != -1:
@@ -60,33 +93,27 @@ class ZlibReader(object):
                 buf = buf[pos + 1:]
                 pos = buf.find(b'\n')
 
-        assert not buf
-
-    def readlines(self):
-        # type: () -> Iterator[unicode]
-        return iter(self)  # type: ignore
-
 
 class InventoryFile(object):
     @classmethod
     def load(cls, stream, uri, joinfunc):
         # type: (IO, unicode, Callable) -> Inventory
-        line = stream.readline().rstrip().decode('utf-8')
+        reader = InventoryFileReader(stream)
+        line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
-            return cls.load_v1(stream, uri, joinfunc)
+            return cls.load_v1(reader, uri, joinfunc)
         elif line == '# Sphinx inventory version 2':
-            return cls.load_v2(stream, uri, joinfunc)
+            return cls.load_v2(reader, uri, joinfunc)
         else:
             raise ValueError('invalid inventory header: %s' % line)
 
     @classmethod
     def load_v1(cls, stream, uri, join):
-        # type: (IO, unicode, Callable) -> Inventory
-        stream = UTF8StreamReader(stream)
+        # type: (InventoryFileReader, unicode, Callable) -> Inventory
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
-        for line in stream:
+        for line in stream.readlines():
             name, type, location = line.rstrip().split(None, 2)
             location = join(uri, location)
             # version 1 did not add anchors to the location
@@ -101,15 +128,15 @@ class InventoryFile(object):
 
     @classmethod
     def load_v2(cls, stream, uri, join):
-        # type: (IO, unicode, Callable) -> Inventory
+        # type: (InventoryFileReader, unicode, Callable) -> Inventory
         invdata = {}  # type: Inventory
-        projname = stream.readline().decode('utf-8').rstrip()[11:]
-        version = stream.readline().decode('utf-8').rstrip()[11:]
-        line = stream.readline().decode('utf-8')
+        projname = stream.readline().rstrip()[11:]
+        version = stream.readline().rstrip()[11:]
+        line = stream.readline()
         if 'zlib' not in line:
             raise ValueError('invalid inventory header (not compressed): %s' % line)
 
-        for line in ZlibReader(stream).readlines():
+        for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
             m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
                          line.rstrip())

@@ -5,7 +5,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,7 +31,7 @@ def teardown_module():
 # afford to not run update() in the setup but in its own test
 
 def test_first_update():
-    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
+    updated = env.update(app.config, app.srcdir, app.doctreedir)
     assert set(updated) == env.found_docs == set(env.all_docs)
     # test if exclude_patterns works ok
     assert 'subdir/excluded' not in env.found_docs
@@ -45,6 +45,8 @@ def test_images():
 
     tree = env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)
+    htmlbuilder.set_environment(app.env)
+    htmlbuilder.init()
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     assert set(htmlbuilder.images.keys()) == \
@@ -54,6 +56,8 @@ def test_images():
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     latexbuilder = LaTeXBuilder(app)
+    latexbuilder.set_environment(app.env)
+    latexbuilder.init()
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
@@ -71,7 +75,7 @@ def test_second_update():
     # the contents.txt toctree; otherwise section numbers would shift
     (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
-    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
+    updated = env.update(app.config, app.srcdir, app.doctreedir)
     # "includes" and "images" are in there because they contain references
     # to nonexisting downloadable or image files, which are given another
     # chance to exist
@@ -87,7 +91,7 @@ def test_env_read_docs():
 
     app.connect('env-before-read-docs', on_env_read_docs_1)
 
-    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir)
     assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
 
     def on_env_read_docs_2(app, env, docnames):
@@ -95,7 +99,7 @@ def test_env_read_docs():
 
     app.connect('env-before-read-docs', on_env_read_docs_2)
 
-    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir)
     assert len(read_docnames) == 2
 
 

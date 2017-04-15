@@ -11,6 +11,12 @@ Builder API
 
    This is the base class for all builders.
 
+   These attributes should be set on builder classes:
+
+   .. autoattribute:: name
+   .. autoattribute:: format
+   .. autoattribute:: supported_image_types
+
    These methods are predefined and will be called from the application:
 
    .. automethod:: get_relative_uri

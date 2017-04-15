@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,7 +72,6 @@ DEFAULT_SETTINGS = {
     'polyglossia':     '',
     'fontpkg':         '\\usepackage{times}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
-    'longtable':       '\\usepackage{longtable}',
     'hyperref':        ('% Include hyperref last.\n'
                         '\\usepackage{hyperref}\n'
                         '% Fix anchor placement for figures with captions.\n'
@@ -87,7 +86,7 @@ DEFAULT_SETTINGS = {
     'date':            '',
     'release':         '',
     'author':          '',
-    'logo':            '',
+    'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
@@ -186,9 +185,10 @@ class ExtBabel(Babel):
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
                          'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
                          'italian'):
-            return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
+            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
+            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
+            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):
@@ -360,7 +360,7 @@ class Table(object):
 
         * longtable
         * tabular
-        * taburary
+        * tabulary
         """
         if self.is_longtable():
             return 'longtable'
@@ -1991,8 +1991,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         # type: (nodes.Node) -> None
+        if not self.is_inline(node):
+            self.body.append('\n')
         if 'latex' in node.get('format', '').split():
             self.body.append(node.astext())
+        if not self.is_inline(node):
+            self.body.append('\n')
         raise nodes.SkipNode
 
     def visit_reference(self, node):
@@ -2009,12 +2013,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif uri.startswith(URI_SCHEMES):
             if len(node) == 1 and uri == node[0]:
                 if node.get('nolinkurl'):
-                    self.body.append('\\nolinkurl{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxnolinkurl{%s}' % self.encode_uri(uri))
                 else:
-                    self.body.append('\\url{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxurl{%s}' % self.encode_uri(uri))
                 raise nodes.SkipNode
             else:
-                self.body.append('\\href{%s}{' % self.encode_uri(uri))
+                self.body.append('\\sphinxhref{%s}{' % self.encode_uri(uri))
                 self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
@@ -2532,7 +2536,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
         if not self.no_contractions and not self.in_parsed_literal:
-            text = educate_quotes_latex(text)  # type: ignore
+            text = educate_quotes_latex(text,  # type: ignore
+                                        dquotes=("\\sphinxquotedblleft{}",
+                                                 "\\sphinxquotedblright{}"))
         self.body.append(text)
 
     def depart_Text(self, node):

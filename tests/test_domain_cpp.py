@@ -5,7 +5,7 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -408,12 +408,6 @@ def test_templates():
     check('class', "template<int T = 42> A", None, "I_iE1A")
     check('class', "template<int = 42> A", None, "I_iE1A")
 
-    # from breathe#218
-    check('function',
-          "template<typename F> "
-          "void allow(F *f, typename func<F, B, G!=1>::type tt)",
-          None, "I0E5allowP1FN4funcI1F1BXG!=1EE4typeE")
-
     # from #2058
     check('function',
           "template<typename Char, typename Traits> "
@@ -457,6 +451,16 @@ def test_templates():
     check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
           None, 'IDpE8Numerics')
 
+def test_template_args():
+    # from breathe#218
+    check('function',
+          "template<typename F> "
+          "void allow(F *f, typename func<F, B, G!=1>::type tt)",
+          None, "I0E5allowP1FN4funcI1F1BXG!=1EE4typeE")
+    # from #3542
+    check('type', "template<typename T> "
+          "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
+          None, "I0E21enable_if_not_array_t")
 
 def test_attributes():
     # style: C++

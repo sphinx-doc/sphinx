@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,10 +20,9 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import itervalues, class_types, next
+from six import StringIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
@@ -35,7 +34,7 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import WarningStream, is_translatable, process_only_nodes
+from sphinx.util.nodes import WarningStream, is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
@@ -44,14 +43,17 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.locale import _
+from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+    from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -104,51 +106,77 @@ class BuildEnvironment(object):
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
 
     @staticmethod
-    def frompickle(srcdir, config, filename):
-        # type: (unicode, Config, unicode) -> BuildEnvironment
-        with open(filename, 'rb') as picklefile:
-            env = pickle.load(picklefile)
+    def load(f, app=None):
+        # type: (IO, Sphinx) -> BuildEnvironment
+        env = pickle.load(f)
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
-        if env.srcdir != srcdir:
-            raise IOError('source directory has changed')
-        env.config.values = config.values
+        if app:
+            env.app = app
+            env.config.values = app.config.values
+            if env.srcdir != app.srcdir:
+                raise IOError('source directory has changed')
         return env
 
-    def topickle(self, filename):
-        # type: (unicode) -> None
+    @classmethod
+    def loads(cls, string, app=None):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        io = StringIO(string)
+        return cls.load(io, app)
+
+    @classmethod
+    def frompickle(cls, filename, app):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        with open(filename, 'rb') as f:
+            return cls.load(f, app)
+
+    @staticmethod
+    def dump(env, f):
+        # type: (BuildEnvironment, IO) -> None
         # remove unpicklable attributes
-        values = self.config.values
-        del self.config.values
-        domains = self.domains
-        del self.domains
+        app = env.app
+        del env.app
+        values = env.config.values
+        del env.config.values
+        domains = env.domains
+        del env.domains
         # remove potentially pickling-problematic values from config
-        for key, val in list(vars(self.config).items()):
+        for key, val in list(vars(env.config).items()):
             if key.startswith('_') or \
                isinstance(val, types.ModuleType) or \
                isinstance(val, types.FunctionType) or \
                isinstance(val, class_types):
-                del self.config[key]
-        with open(filename, 'wb') as picklefile:
-            pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
+                del env.config[key]
+        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
         # reset attributes
-        self.domains = domains
-        self.config.values = values
+        env.domains = domains
+        env.config.values = values
+        env.app = app
+
+    @classmethod
+    def dumps(cls, env):
+        # type: (BuildEnvironment) -> unicode
+        io = StringIO()
+        cls.dump(env, io)
+        return io.getvalue()
+
+    def topickle(self, filename):
+        # type: (unicode) -> None
+        with open(filename, 'wb') as f:
+            self.dump(self, f)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, srcdir, doctreedir, config):
-        # type: (unicode, unicode, Config) -> None
-        self.doctreedir = doctreedir
-        self.srcdir = srcdir  # type: unicode
-        self.config = config  # type: Config
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        self.app = app
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
+        self.config = app.config
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
         self.versioning_compare = None  # type: bool
-
-        # the application object; only set while update() runs
-        self.app = None  # type: Sphinx
 
         # all the registered domains, set by the application
         self.domains = {}
@@ -378,15 +406,15 @@ class BuildEnvironment(object):
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
-    def find_files(self, config, buildername):
-        # type: (Config, unicode) -> None
+    def find_files(self, config, builder):
+        # type: (Config, Builder) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
             config.templates_path +
-            config.html_extra_path +
+            builder.get_asset_paths() +
             ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
         self.found_docs = set()
@@ -403,7 +431,7 @@ class BuildEnvironment(object):
         # is set for the doc source and the mo file, it is processed again from
         # the reading phase when mo is updated. In the future, we would like to
         # move i18n process into the writing phase, and remove these lines.
-        if buildername != 'gettext':
+        if builder.use_message_catalog:
             # add catalog mo file dependency
             for docname in self.found_docs:
                 catalog_files = find_catalog_files(
@@ -466,8 +494,8 @@ class BuildEnvironment(object):
 
         return added, changed, removed
 
-    def update(self, config, srcdir, doctreedir, app):
-        # type: (Config, unicode, unicode, Sphinx) -> List[unicode]
+    def update(self, config, srcdir, doctreedir):
+        # type: (Config, unicode, unicode) -> List[unicode]
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -495,7 +523,7 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config, app.buildername)
+        self.find_files(config, self.app.builder)
         self.config = config
 
         # this cache also needs to be updated every time
@@ -506,7 +534,7 @@ class BuildEnvironment(object):
         added, changed, removed = self.get_outdated_files(config_changed)
 
         # allow user intervention as well
-        for docs in app.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
             changed.update(set(docs) & self.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -519,49 +547,43 @@ class BuildEnvironment(object):
                                                      len(removed))
         logger.info(msg)
 
-        self.app = app
-
         # clear all files no longer present
         for docname in removed:
-            app.emit('env-purge-doc', self, docname)
+            self.app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
 
         # read all new and changed files
         docnames = sorted(added | changed)
         # allow changing and reordering the list of docs to read
-        app.emit('env-before-read-docs', self, docnames)
+        self.app.emit('env-before-read-docs', self, docnames)
 
         # check if we should do parallel or serial read
         par_ok = False
-        if parallel_available and len(docnames) > 5 and app.parallel > 1:
-            par_ok = True
-            for extname, md in app._extension_metadata.items():
-                ext_ok = md.get('parallel_read_safe')
-                if ext_ok:
-                    continue
-                if ext_ok is None:
-                    logger.warning('the %s extension does not declare if it '
-                                   'is safe for parallel reading, assuming it '
-                                   'isn\'t - please ask the extension author to '
-                                   'check and make it explicit', extname)
+        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+            for ext in itervalues(self.app.extensions):
+                if ext.parallel_read_safe is None:
+                    logger.warning(_('the %s extension does not declare if it is safe '
+                                     'for parallel reading, assuming it isn\'t - please '
+                                     'ask the extension author to check and make it '
+                                     'explicit'), ext.name)
                     logger.warning('doing serial read')
-                else:
-                    logger.warning('the %s extension is not safe for parallel '
-                                   'reading, doing serial read', extname)
-                par_ok = False
-                break
+                    break
+                elif ext.parallel_read_safe is False:
+                    break
+            else:
+                # all extensions support parallel-read
+                par_ok = True
+
         if par_ok:
-            self._read_parallel(docnames, app, nproc=app.parallel)
+            self._read_parallel(docnames, self.app, nproc=self.app.parallel)
         else:
-            self._read_serial(docnames, app)
+            self._read_serial(docnames, self.app)
 
         if config.master_doc not in self.all_docs:
             raise SphinxError('master file %s not found' %
                               self.doc2path(config.master_doc))
 
-        self.app = None
-
-        for retval in app.emit('env-updated', self):
+        for retval in self.app.emit('env-updated', self):
             if retval is not None:
                 docnames.extend(retval)
 
@@ -584,20 +606,17 @@ class BuildEnvironment(object):
             self.clear_doc(docname)
 
         def read_process(docs):
-            # type: (List[unicode]) -> BuildEnvironment
+            # type: (List[unicode]) -> unicode
             self.app = app
             for docname in docs:
                 self.read_doc(docname, app)
             # allow pickling self to send it back
-            del self.app
-            del self.domains
-            del self.config.values
-            del self.config
-            return self
+            return BuildEnvironment.dumps(self)
 
         def merge(docs, otherenv):
-            # type: (List[unicode], BuildEnvironment) -> None
-            self.merge_info_from(docs, otherenv, app)
+            # type: (List[unicode], unicode) -> None
+            env = BuildEnvironment.loads(otherenv)
+            self.merge_info_from(docs, env, app)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
@@ -748,18 +767,18 @@ class BuildEnvironment(object):
     def currmodule(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currmodule is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currmodule is deprecated. '
+                      'Use env.ref_context["py:module"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currclass is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currclass is deprecated. '
+                      'Use env.ref_context["py:class"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
@@ -867,7 +886,7 @@ class BuildEnvironment(object):
             doctree = self.get_doctree(docname)
 
         # resolve all pending cross-references
-        self.resolve_references(doctree, docname, builder)
+        self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
@@ -901,113 +920,25 @@ class BuildEnvironment(object):
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
-        for node in doctree.traverse(addnodes.pending_xref):
-            contnode = node[0].deepcopy()
-            newnode = None
+        self.apply_post_transforms(doctree, fromdocname)
 
-            typ = node['reftype']
-            target = node['reftarget']
-            refdoc = node.get('refdoc', fromdocname)
-            domain = None
+    def apply_post_transforms(self, doctree, docname):
+        # type: (nodes.Node, unicode) -> None
+        """Apply all post-transforms."""
+        try:
+            # set env.docname during applying post-transforms
+            self.temp_data['docname'] = docname
+            if hasattr(doctree, 'settings'):
+                doctree.settings.env = self
 
-            try:
-                if 'refdomain' in node and node['refdomain']:
-                    # let the domain try to resolve the reference
-                    try:
-                        domain = self.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri
-                    newnode = domain.resolve_xref(self, refdoc, builder,
-                                                  typ, target, node, contnode)
-                # really hardwired reference types
-                elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
-                # no new node found? try the missing-reference event
-                if newnode is None:
-                    newnode = builder.app.emit_firstresult(
-                        'missing-reference', self, node, contnode)
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
-                    if newnode is None:
-                        self._warn_missing_reference(refdoc, typ, target, node, domain)
-            except NoUri:
-                newnode = contnode
-            node.replace_self(newnode or contnode)
-
-        # remove only-nodes that do not belong to our builder
-        process_only_nodes(doctree, builder.tags)
+            transformer = SphinxTransformer(doctree)
+            transformer.add_transforms(self.app.post_transforms)
+            transformer.apply_transforms()
+        finally:
+            self.temp_data.clear()
 
         # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
-
-    def _warn_missing_reference(self, refdoc, typ, target, node, domain):
-        # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None
-        warn = node.get('refwarn')
-        if self.config.nitpicky:
-            warn = True
-            if self._nitpick_ignore:
-                dtype = domain and '%s:%s' % (domain.name, typ) or typ
-                if (dtype, target) in self._nitpick_ignore:
-                    warn = False
-                # for "std" types also try without domain name
-                if (not domain or domain.name == 'std') and \
-                   (typ, target) in self._nitpick_ignore:
-                    warn = False
-        if not warn:
-            return
-        if domain and typ in domain.dangling_warnings:
-            msg = domain.dangling_warnings[typ]
-        elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = '%s:%s reference target not found: %%(target)s' % \
-                  (node['refdomain'], typ)
-        else:
-            msg = '%r reference target not found: %%(target)s' % typ
-        logger.warning(msg % {'target': target},
-                       location=node, type='ref', subtype=typ)
-
-    def _resolve_any_reference(self, builder, refdoc, node, contnode):
-        # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
-        """Resolve reference generated by the "any" role."""
-        target = node['reftarget']
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
-        # first, try resolving as :doc:
-        doc_ref = self.domains['std'].resolve_xref(self, refdoc, builder, 'doc',
-                                                   target, node, contnode)
-        if doc_ref:
-            results.append(('doc', doc_ref))
-        # next, do the standard domain (makes this a priority)
-        results.extend(self.domains['std'].resolve_any_xref(
-            self, refdoc, builder, target, node, contnode))
-        for domain in self.domains.values():
-            if domain.name == 'std':
-                continue  # we did this one already
-            try:
-                results.extend(domain.resolve_any_xref(self, refdoc, builder,
-                                                       target, node, contnode))
-            except NotImplementedError:
-                # the domain doesn't yet support the new interface
-                # we have to manually collect possible references (SLOW)
-                for role in domain.roles:
-                    res = domain.resolve_xref(self, refdoc, builder, role, target,
-                                              node, contnode)
-                    if res and isinstance(res[0], nodes.Element):
-                        results.append(('%s:%s' % (domain.name, role), res))
-        # now, see how many matches we got...
-        if not results:
-            return None
-        if len(results) > 1:
-            nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            logger.warning('more than one target found for \'any\' cross-'
-                           'reference %r: could be %s', target, nice_results,
-                           location=node)
-        res_role, newnode = results[0]
-        # Override "any" class with the actual role type to get the styling
-        # approximately correct.
-        res_domain = res_role.split(':')[0]
-        if newnode and newnode[0].get('classes'):
-            newnode[0]['classes'].append(res_domain)
-            newnode[0]['classes'].append(res_role.replace(':', '-'))
-        return newnode
+        self.app.emit('doctree-resolved', doctree, docname)
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):

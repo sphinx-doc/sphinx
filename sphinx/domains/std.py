@@ -5,7 +5,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -571,7 +571,7 @@ class StandardDomain(Domain):
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
                 logger.warning('duplicate citation %s, other instance in %s', label, path,
-                               location=node)
+                               location=node, type='ref', subtype='citation')
             self.data['citations'][label] = (docname, node['ids'][0])
 
     def note_labels(self, env, docname, document):

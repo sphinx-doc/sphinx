@@ -5,7 +5,7 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -96,11 +96,17 @@ def _pseudo_parse_arglist(signode, arglist):
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin(object):
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
-                  contnode=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node
+    def make_xref(self,
+                  rolename,                  # type: unicode
+                  domain,                    # type: unicode
+                  target,                    # type: unicode
+                  innernode=nodes.emphasis,  # type: nodes.Node
+                  contnode=None,             # type: nodes.Node
+                  env=None,                  # type: BuildEnvironment
+                  ):
+        # type: (...) -> nodes.Node
         result = super(PyXrefMixin, self).make_xref(rolename, domain, target,  # type: ignore
-                                                    innernode, contnode)
+                                                    innernode, contnode, env)
         result['refspecific'] = True
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
@@ -113,9 +119,15 @@ class PyXrefMixin(object):
                 break
         return result
 
-    def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
-                   contnode=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]
+    def make_xrefs(self,
+                   rolename,                  # type: unicode
+                   domain,                    # type: unicode
+                   target,                    # type: unicode
+                   innernode=nodes.emphasis,  # type: nodes.Node
+                   contnode=None,             # type: nodes.Node
+                   env=None,                  # type: BuildEnvironment
+                   ):
+        # type: (...) -> List[nodes.Node]
         delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
@@ -131,7 +143,7 @@ class PyXrefMixin(object):
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
-                                              innernode, contnode))
+                                              innernode, contnode, env))
 
         return results
 
@@ -151,6 +163,9 @@ class PyTypedField(PyXrefMixin, TypedField):
 class PyObject(ObjectDescription):
     """
     Description of a general Python object.
+
+    :cvar allow_nesting: Class is an object that allows for nested namespaces
+    :vartype allow_nesting: bool
     """
     option_spec = {
         'noindex': directives.flag,
@@ -176,6 +191,8 @@ class PyObject(ObjectDescription):
         PyField('returntype', label=l_('Return type'), has_arg=False,
                 names=('rtype',), bodyrolename='obj'),
     ]
+
+    allow_nesting = False
 
     def get_signature_prefix(self, sig):
         # type: (unicode) -> unicode
@@ -304,13 +321,53 @@ class PyObject(ObjectDescription):
 
     def before_content(self):
         # type: () -> None
-        # needed for automatic qualification of members (reset in subclasses)
-        self.clsname_set = False
+        """Handle object nesting before content
+
+        :py:class:`PyObject` represents Python language constructs. For
+        constructs that are nestable, such as a Python classes, this method will
+        build up a stack of the nesting heirarchy so that it can be later
+        de-nested correctly, in :py:meth:`after_content`.
+
+        For constructs that aren't nestable, the stack is bypassed, and instead
+        only the most recent object is tracked. This object prefix name will be
+        removed with :py:meth:`after_content`.
+        """
+        prefix = None
+        if self.names:
+            # fullname and name_prefix come from the `handle_signature` method.
+            # fullname represents the full object name that is constructed using
+            # object nesting and explicit prefixes. `name_prefix` is the
+            # explicit prefix given in a signature
+            (fullname, name_prefix) = self.names[-1]
+            if self.allow_nesting:
+                prefix = fullname
+            elif name_prefix:
+                prefix = name_prefix.strip('.')
+        if prefix:
+            self.env.ref_context['py:class'] = prefix
+            if self.allow_nesting:
+                classes = self.env.ref_context.setdefault('py:classes', [])
+                classes.append(prefix)
 
     def after_content(self):
         # type: () -> None
-        if self.clsname_set:
-            self.env.ref_context.pop('py:class', None)
+        """Handle object de-nesting after content
+
+        If this class is a nestable object, removing the last nested class prefix
+        ends further nesting in the object.
+
+        If this class is not a nestable object, the list of classes should not
+        be altered as we didn't affect the nesting levels in
+        :py:meth:`before_content`.
+        """
+        classes = self.env.ref_context.setdefault('py:classes', [])
+        if self.allow_nesting:
+            try:
+                classes.pop()
+            except IndexError:
+                pass
+        self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
+                                            else None)
 
 
 class PyModulelevel(PyObject):
@@ -341,6 +398,8 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
+    allow_nesting = True
+
     def get_signature_prefix(self, sig):
         # type: (unicode) -> unicode
         return self.objtype + ' '
@@ -355,13 +414,6 @@ class PyClasslike(PyObject):
             return name_cls[0]
         else:
             return ''
-
-    def before_content(self):
-        # type: () -> None
-        PyObject.before_content(self)
-        if self.names:
-            self.env.ref_context['py:class'] = self.names[0][0]
-            self.clsname_set = True
 
 
 class PyClassmember(PyObject):
@@ -437,14 +489,6 @@ class PyClassmember(PyObject):
                 return _('%s (%s attribute)') % (attrname, clsname)
         else:
             return ''
-
-    def before_content(self):
-        # type: () -> None
-        PyObject.before_content(self)
-        lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.ref_context.get('py:class'):
-            self.env.ref_context['py:class'] = lastname.strip('.')
-            self.clsname_set = True
 
 
 class PyDecoratorMixin(object):

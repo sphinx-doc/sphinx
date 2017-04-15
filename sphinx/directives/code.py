@@ -3,7 +3,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -314,6 +314,11 @@ class LiteralIncludeReader(object):
                             self.lineno_start += lineno
 
                         return lines[lineno:]
+            else:
+                if inclusive is True:
+                    raise ValueError('start-after pattern not found: %s' % start)
+                else:
+                    raise ValueError('start-at pattern not found: %s' % start)
 
         return lines
 
@@ -338,6 +343,11 @@ class LiteralIncludeReader(object):
                             return []
                         else:
                             return lines[:lineno]
+            else:
+                if inclusive is True:
+                    raise ValueError('end-at pattern not found: %s' % end)
+                else:
+                    raise ValueError('end-before pattern not found: %s' % end)
 
         return lines
 
@@ -424,7 +434,7 @@ class LiteralInclude(Directive):
                                   'lineno-match' in self.options)
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
-            if 'empahsize-lines' in self.options:
+            if 'emphasize-lines' in self.options:
                 hl_lines = parselinenos(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
                     logger.warning('line number spec is out of range(1-%d): %r' %

@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -22,7 +22,7 @@ from os import path
 from codecs import BOM_UTF8
 from collections import deque
 
-from six import iteritems, text_type, binary_type
+from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 from docutils.utils import relative_path
@@ -227,14 +227,13 @@ def save_traceback(app):
                    jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
-        for extname, extmod in iteritems(app._extensions):
-            modfile = getattr(extmod, '__file__', 'unknown')
+        for ext in itervalues(app.extensions):
+            modfile = getattr(ext.module, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
-            version = app._extension_metadata[extname]['version']
-            if version != 'builtin':
+            if ext.version != 'builtin':
                 os.write(fd, ('#   %s (%s) from %s\n' %
-                              (extname, version, modfile)).encode('utf-8'))
+                              (ext.name, ext.version, modfile)).encode('utf-8'))
     os.write(fd, exc_format.encode('utf-8'))
     os.close(fd)
     return path
@@ -282,6 +281,10 @@ def get_module_source(modname):
 
 def get_full_modname(modname, attribute):
     # type: (str, unicode) -> unicode
+    if modname is None:
+        # Prevents a TypeError: if the last getattr() call will return None
+        # then it's better to return it directly
+        return None
     __import__(modname)
     module = sys.modules[modname]
 

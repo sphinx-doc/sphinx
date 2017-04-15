@@ -1,9 +1,9 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2017/02/25 v1.6 hyperref aware footnote.sty for sphinx (JFB)]
+ [2017/03/07 v1.6 hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
-%% Version: based on footnotehyper.sty 2017/02/16 v0.99
+%% Version: based on footnotehyper.sty 2017/03/07 v1.0
 %% as available at http://www.ctan.org/pkg/footnotehyper
 %% License: the one applying to Sphinx
 %%
@@ -11,12 +11,11 @@
 %% the code comments.
 %%
 %% Differences:
-%% 1. Error message if hyperref not loaded or with hyperfootnotes=false,
-%% 2. a partial tabulary compatibility layer added (enough for Sphinx mark-up),
-%% 3. use of \spx@opt@BeforeFootnote from sphinx.sty,
-%% 4. use of \sphinxunactivateextrasandspace from sphinx.sty,
-%% 5. macro definition \sphinxfootnotemark,
-%% 6. macro definition \sphinxlongtablepatch
+%% 1. a partial tabulary compatibility layer added (enough for Sphinx mark-up),
+%% 2. use of \spx@opt@BeforeFootnote from sphinx.sty,
+%% 3. use of \sphinxunactivateextrasandspace from sphinx.sty,
+%% 4. macro definition \sphinxfootnotemark,
+%% 5. macro definition \sphinxlongtablepatch
 \DeclareOption*{\PackageWarning{footnotehyper-sphinx}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
@@ -24,10 +23,9 @@
 \let\FNH@colwidth\columnwidth
 \newif\ifFNH@savingnotes
 \AtBeginDocument {%
-  \@ifpackageloaded{hyperref}
-  {\ifHy@hyperfootnotes
     \let\FNH@latex@footnote    \footnote
     \let\FNH@latex@footnotetext\footnotetext
+    \let\FNH@H@@footnotetext   \@footnotetext
     \newenvironment{savenotes}
         {\FNH@savenotes\ignorespaces}{\FNH@spewnotes\ignorespacesafterend}%
     \let\spewnotes      \FNH@spewnotes
@@ -35,14 +33,13 @@
     \let\footnotetext   \FNH@footnotetext
     \let\endfootnote    \FNH@endfntext
     \let\endfootnotetext\FNH@endfntext
-   \else
-    \PackageError{sphinx}
-       {^^J\@spaces\@spaces******^^J%
-        hyperref option "hyperfootnotes=false" is incompatible with Sphinx!^^J}%
-   \fi}%
-  {\PackageError{sphinx}{^^J\@spaces\@spaces******^^J%
-                           hyperref is required by Sphinx!^^J}%
-  }%
+    \@ifpackageloaded{hyperref}
+     {\ifHy@hyperfootnotes
+         \let\FNH@H@@footnotetext\H@@footnotetext
+      \else
+         \let\FNH@hyper@fntext\FNH@nohyp@fntext
+      \fi}%
+     {\let\FNH@hyper@fntext\FNH@nohyp@fntext}%
 }%
 \def\FNH@hyper@fntext{\FNH@fntext\FNH@hyper@fntext@i}%
 \def\FNH@nohyp@fntext{\FNH@fntext\FNH@nohyp@fntext@i}%
@@ -120,7 +117,7 @@
      \let\@makefntext\@empty
      \let\@finalstrut\@gobble
      \let\rule\@gobbletwo
-     \H@@footnotetext{\unvbox\FNH@notes}%
+     \FNH@H@@footnotetext{\unvbox\FNH@notes}%
     \endgroup
    \fi
   \fi
@@ -138,7 +135,7 @@
 }%
 \def\FNH@footnoteenv{%
 % this line added for Sphinx (footnotes in parsed literal blocks):
-    \catcode13=5\sphinxunactivateextrasandspace
+    \catcode13=5 \sphinxunactivateextrasandspace
     \@ifnextchar[%
       \FNH@footnoteenv@i %]
       {\stepcounter\@mpfn
@@ -178,7 +175,7 @@
     \ifFNH@savingnotes
       \def\FNH@endfntext@fntext{\FNH@nohyp@fntext}%
     \else
-      \def\FNH@endfntext@fntext{\H@@footnotetext}%
+      \def\FNH@endfntext@fntext{\FNH@H@@footnotetext}%
     \fi
     \FNH@startfntext
 }%

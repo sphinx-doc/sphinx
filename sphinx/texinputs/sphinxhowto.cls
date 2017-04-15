@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2016/10/12 v1.5 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2017/03/26 v1.6 Document class (Sphinx HOWTO)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -30,20 +30,12 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
-  \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
-  \ifsphinxpdfoutput
-    \begingroup
-    % These \defs are required to deal with multi-line authors; it
-    % changes \\ to ', ' (comma-space), making it pass muster for
-    % generating document info in the PDF file.
-    \def\\{, }%
-    \def\and{and }%
-    \pdfinfo{
-      /Author (\@author)
-      /Title (\@title)
-    }%
+  \noindent\rule{\textwidth}{1pt}\par
+    \begingroup % for PDF information dictionary
+       \def\endgraf{ }\def\and{\& }%
+       \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
+       \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}%
     \endgroup
-  \fi
   \begin{flushright}
     \sphinxlogo
     \py@HeaderFamily

@@ -5,7 +5,7 @@
 
     The title collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +16,7 @@ from sphinx.transforms import SphinxContentsFilter
 
 if False:
     # For type annotation
-    from typing import Set  # NOQA
+    from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -62,5 +62,11 @@ class TitleCollector(EnvironmentCollector):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict
     app.add_env_collector(TitleCollector)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
