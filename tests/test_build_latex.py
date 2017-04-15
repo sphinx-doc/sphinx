@@ -5,7 +5,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -1027,3 +1027,18 @@ def test_latex_table_complex_tables(app, status, warning):
             '\\sphinxtablestrut{6}&\\sphinxtablestrut{4}&\ncell3-5\n'
             '\\\\\n\\hline\n\\end{tabulary}\n'
             in table)
+
+
+@pytest.mark.sphinx('latex', testroot='directives-raw')
+def test_latex_raw_directive(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+
+    # standard case
+    assert 'standalone raw directive (HTML)' not in result
+    assert ('\\label{\\detokenize{index:id1}}\n'
+            'standalone raw directive (LaTeX)' in result)
+
+    # with substitution
+    assert 'HTML: abc  ghi' in result
+    assert 'LaTeX: abc def ghi' in result

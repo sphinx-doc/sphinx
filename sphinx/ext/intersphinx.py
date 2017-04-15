@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -372,4 +372,7 @@ def debug(argv):
 
 
 if __name__ == '__main__':
+    import logging  # type: ignore
+    logging.basicConfig()
+
     debug(argv=sys.argv)  # type: ignore

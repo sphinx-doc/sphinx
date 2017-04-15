@@ -41,6 +41,7 @@ Incompatible changes
   ``xcolor`` packages should be used by extensions of Sphinx latex writer.
   (refs #3550)
 * ``Builder.env`` is not filled at instantiation
+* #3594: LaTeX: single raw directive has been considered as block level element
 
 Features removed
 ----------------
@@ -97,6 +98,11 @@ Features added
   and docutils 0.13 and newer is installed.
 * LaTeX macros to customize space before and after tables in PDF output (refs #3504)
 * #3348: Show decorators in literalinclude and viewcode directives
+* #3108: Show warning if :start-at: and other literalinclude options does not
+  match to the text
+* #3609: Allow to suppress "duplicate citation" warnings using
+  ``suppress_warnings``
+* #2803: Discovery of builders by entry point
 
 Bugs fixed
 ----------
@@ -109,6 +115,7 @@ Bugs fixed
 * #2693: Sphinx latex style file wrongly inhibits colours for section headings
   for latex+dvi(ps,pdf,pdfmx)
 * C++, properly look up ``any`` references.
+* #3624: sphinx.ext.intersphinx couldn't load inventories compressed with gzip
 * #3551: PDF information dictionary is lacking author and title data
 
 Deprecated
@@ -139,8 +146,9 @@ Deprecated
 * #3429: deprecate config setting ``latex_keep_old_macro_names``. It will be
   removed at 1.7, and already its default value has changed from ``True`` to
   ``False``.
+* #3221: epub2 builder is deprecated
 
-Release 1.5.4 (in development)
+Release 1.5.6 (in development)
 ==============================
 
 Incompatible changes
@@ -152,8 +160,28 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.5 (released Apr 03, 2017)
+=====================================
+
+Bugs fixed
+----------
+
+* #3597: python domain raises UnboundLocalError if invalid name given
+* #3599: Move to new Mathjax CDN
+
+Release 1.5.4 (released Apr 02, 2017)
+=====================================
+
+Features added
+--------------
+
 * #3470: Make genindex support all kinds of letters, not only Latin ones
-* latex macros for directional double quotes (refs #3527)
 
 Bugs fixed
 ----------
@@ -179,9 +207,6 @@ Bugs fixed
 * #3577: Fix intersphinx debug tool
 * A LaTeX command such as ``\\large`` inserted in the title items of
   :confval:`latex_documents` causes failed PDF build (refs #3551, #3567)
-
-Testing
---------
 
 Release 1.5.3 (released Feb 26, 2017)
 =====================================

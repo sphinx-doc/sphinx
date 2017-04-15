@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -17,7 +17,6 @@ import sys
 import types
 import warnings
 import posixpath
-import traceback
 from os import path
 from collections import deque
 
@@ -27,6 +26,7 @@ from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
     directives, roles
+from pkg_resources import iter_entry_points
 
 import sphinx
 from sphinx import package_dir, locale
@@ -38,6 +38,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
+from sphinx.extension import load_extension, verify_required_extensions
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
 from sphinx.roles import XRefRole
@@ -59,6 +60,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
+    from sphinx.extension import Extension  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -97,14 +99,13 @@ builtin_extensions = (
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
     'sphinx.environment.collectors.indexentries',
+    # Strictly, alabaster theme is not a builtin extension,
+    # but it is loaded automatically to use it as default theme.
+    'alabaster',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
-
-# list of deprecated extensions. Keys are extension name.
-# Values are Sphinx version that merge the extension.
-EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}  # type: Dict[unicode, unicode]
 
 logger = logging.getLogger(__name__)
 
@@ -117,8 +118,7 @@ class Sphinx(object):
                  parallel=0):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
-        self._extensions = {}                   # type: Dict[unicode, Any]
-        self._extension_metadata = {}           # type: Dict[unicode, Dict[unicode, Any]]
+        self.extensions = {}                    # type: Dict[unicode, Extension]
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]
@@ -154,6 +154,7 @@ class Sphinx(object):
         self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
 
         # keep last few messages for traceback
+        # This will be filled by sphinx.util.logging.LastMessagesWriter
         self.messagelog = deque(maxlen=10)  # type: deque
 
         # say hello to the world
@@ -195,12 +196,6 @@ class Sphinx(object):
         for extension in builtin_extensions:
             self.setup_extension(extension)
 
-        # extension loading support for alabaster theme
-        # self.config.html_theme is not set from conf.py at here
-        # for now, sphinx always load a 'alabaster' extension.
-        if 'alabaster' not in self.config.extensions:
-            self.config.extensions.append('alabaster')
-
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
@@ -221,19 +216,7 @@ class Sphinx(object):
         self.config.init_values()
 
         # check extension versions if requested
-        if self.config.needs_extensions:
-            for extname, needs_ver in self.config.needs_extensions.items():
-                if extname not in self._extensions:
-                    logger.warning(_('needs_extensions config value specifies a '
-                                     'version requirement for extension %s, but it is '
-                                     'not loaded'), extname)
-                    continue
-                has_ver = self._extension_metadata[extname]['version']
-                if has_ver == 'unknown version' or needs_ver > has_ver:
-                    raise VersionRequirementError(
-                        _('This project needs the extension %s at least in '
-                          'version %s and therefore cannot be built with the '
-                          'loaded version (%s).') % (extname, needs_ver, has_ver))
+        verify_required_extensions(self, self.config.needs_extensions)
 
         # check primary_domain if requested
         if self.config.primary_domain and self.config.primary_domain not in self.domains:
@@ -317,8 +300,13 @@ class Sphinx(object):
             logger.info(_('No builder selected, using default: html'))
             buildername = 'html'
         if buildername not in self.builderclasses:
-            raise SphinxError(_('Builder name %s not registered') % buildername)
-
+            entry_points = iter_entry_points('sphinx.builders', buildername)
+            try:
+                entry_point = next(entry_points)
+            except StopIteration:
+                raise SphinxError('Builder name %s not registered or available'
+                                  ' through entry point' % buildername)
+            load_extension(self, entry_point.module_name)
         builderclass = self.builderclasses[buildername]
         return builderclass(self)
 
@@ -466,53 +454,11 @@ class Sphinx(object):
 
     # ---- general extensibility interface -------------------------------------
 
-    def setup_extension(self, extension):
+    def setup_extension(self, extname):
         # type: (unicode) -> None
         """Import and setup a Sphinx extension module. No-op if called twice."""
-        logger.debug('[app] setting up extension: %r', extension)
-        if extension in self._extensions:
-            return
-        if extension in EXTENSION_BLACKLIST:
-            logger.warning(_('the extension %r was already merged with Sphinx since '
-                             'version %s; this extension is ignored.'),
-                           extension, EXTENSION_BLACKLIST[extension])
-            return
-        self._setting_up_extension.append(extension)
-        try:
-            mod = __import__(extension, None, None, ['setup'])
-        except ImportError as err:
-            logger.verbose(_('Original exception:\n') + traceback.format_exc())
-            raise ExtensionError(_('Could not import extension %s') % extension,
-                                 err)
-        if not hasattr(mod, 'setup'):
-            logger.warning(_('extension %r has no setup() function; is it really '
-                             'a Sphinx extension module?'), extension)
-            ext_meta = None
-        else:
-            try:
-                ext_meta = mod.setup(self)
-            except VersionRequirementError as err:
-                # add the extension name to the version required
-                raise VersionRequirementError(
-                    _('The %s extension used by this project needs at least '
-                      'Sphinx v%s; it therefore cannot be built with this '
-                      'version.') % (extension, err))
-        if ext_meta is None:
-            ext_meta = {}
-            # special-case for compatibility
-            if extension == 'rst2pdf.pdfbuilder':
-                ext_meta = {'parallel_read_safe': True}
-        try:
-            if not ext_meta.get('version'):
-                ext_meta['version'] = 'unknown version'
-        except Exception:
-            logger.warning(_('extension %r returned an unsupported object from '
-                             'its setup() function; it should return None or a '
-                             'metadata dictionary'), extension)
-            ext_meta = {'version': 'unknown version'}
-        self._extensions[extension] = mod
-        self._extension_metadata[extension] = ext_meta
-        self._setting_up_extension.pop()
+        logger.debug('[app] setting up extension: %r', extname)
+        load_extension(self, extname)
 
     def require_sphinx(self, version):
         # type: (unicode) -> None

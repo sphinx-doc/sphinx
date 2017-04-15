@@ -5,7 +5,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -159,6 +159,28 @@ def test_LiteralIncludeReader_start_at_and_lines():
                        "class Foo:\n"
                        "\n")
     assert reader.lineno_start == 1
+
+
+def test_LiteralIncludeReader_missing_start_and_end():
+    options = {'start-at': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'end-at': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'start-after': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'end-before': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
 
 
 def test_LiteralIncludeReader_prepend():
