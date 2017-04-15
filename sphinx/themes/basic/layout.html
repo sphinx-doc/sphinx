@@ -105,24 +105,8 @@
 {%- macro css() %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
-    {#- Process the custom css files, with their alternate and title properties if available #}
-    {%- for cssfile in css_files %}
-        {%- if css_props[cssfile] is not defined %}
-            {%- set alt = False %}
-            {%- set csstitle = undefined %}
-        {%- else %}
-            {%- set csstitle = css_props[cssfile].title %}
-            {%- set alt = (csstitle is defined) %}
-            {%- if css_props[cssfile].alternate is defined %}
-                {%- set alt = css_props[cssfile].alternate %}
-            {%- endif %}
-        {%- endif %}
-        {%- if alt %}
-            {%- set rel = "alternate stylesheet" %}
-        {%- else %}
-            {%- set rel = "stylesheet" %}
-        {%- endif %}
-    <link rel="{{ rel }}" href="{{ pathto(cssfile, 1) }}" type="text/css"{% if csstitle is defined %} title="{{ csstitle }}"{% endif %} />
+    {%- for css in css_files %}
+    <link rel="{{ css.rel }}" href="{{ pathto(css.filename, 1) }}" type="text/css"{% if css.title is not none %} title="{{ css.title }}"{% endif %} />
     {%- endfor %}
 {%- endmacro %}
 
@@ -133,9 +117,13 @@
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
     {%- endblock %}
+    {%- block csss %}
     {{ css() }}
+    {%- endblock %}
     {%- if not embedded %}
+    {%- block scripts %}
     {{ script() }}
+    {%- endblock %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
           title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"

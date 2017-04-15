@@ -200,27 +200,6 @@ Overriding works like this::
 
       {% set script_files = script_files + ["_static/myscript.js"] %}
 
-.. data:: css_files
-
-   Similar to :data:`script_files`, for CSS files::
-
-      {% set css_files = css_files + ["_static/mystyle.css"] %}
-
-.. data:: css_props
-
-   .. versionadded:: 1.6
-
-   An optional dict where you can specify ``alternate`` and/or ``title``
-   attributes for the css files. The keys are the css filenames, the values
-   are dicts themselves:
-
-      {% set _dummy = css_props.update( {"_static/mystyle.css": {"alternate":False, "title":"Default"} }) %}
-
-   The default is no title and ``alternate=False``, but if only ``title`` is
-   given, the default is ``alternate=True``. If ``alternate`` is ``True``, it
-   will be translated to ``rel="alternate stylesheet"``, otherwise it will be
-   ``rel="stylesheet"``.
-
 Helper Functions
 ~~~~~~~~~~~~~~~~
 

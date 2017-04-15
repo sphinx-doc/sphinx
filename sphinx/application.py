@@ -724,21 +724,18 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename, alternate=None, title=None):
-        # type: (unicode, unicode, unicode) -> None
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
         logger.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
-        props = {}  # type: Dict[unicode, Union[unicode, bool]]
-        if alternate is not None:
-            props['alternate'] = bool(alternate)
-        if title is not None:
-            props['title'] = title
-        if '://' in filename:
-            fname = filename
-        else:
-            fname = posixpath.join('_static', filename)
-        StandaloneHTMLBuilder.css_files.append(fname)
-        StandaloneHTMLBuilder.css_props[fname] = props
+        props = {'rel': 'stylesheet',
+                 'filename': filename,
+                 'title': title}  # type: Dict[unicode, unicode]
+        if '://' not in filename:
+            props['filename'] = posixpath.join('_static', filename)
+        if alternate:
+            props['rel'] = 'alternate stylesheet'
+        StandaloneHTMLBuilder.css_files.append(props)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None

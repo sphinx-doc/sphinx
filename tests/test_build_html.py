@@ -1181,7 +1181,7 @@ def test_html_inventory(app):
                                            'http://example.com/index.html',
                                            'The basic Sphinx documentation for testing')
 
-    
+
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()
@@ -1194,8 +1194,8 @@ def test_html_raw_directive(app, status, warning):
     # with substitution
     assert '<p>HTML: abc def ghi</p>' in result
     assert '<p>LaTeX: abc  ghi</p>' in result
-                                       
-    
+
+
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"

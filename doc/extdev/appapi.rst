@@ -310,9 +310,11 @@ package.
 
    .. versionadded:: 1.0
 
-   .. versionchanged:: 1.4
+   .. versionchanged:: 1.6
       Optional ``alternate`` and/or ``title`` attributes can be supplied with
-      the *alternate* (of boolean type) and *title* (a string) arguments.
+      the *alternate* (of boolean type) and *title* (a string) arguments. The
+      default is no title and *alternate*=``False`` (see `this explanation
+      <https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets>`_).
 
 .. method:: Sphinx.add_latex_package(packagename, options=None)
 
