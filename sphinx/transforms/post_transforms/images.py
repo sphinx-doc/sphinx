@@ -69,6 +69,8 @@ class ImageDownloader(BaseImageConverter):
                 logger.warning('Could not fetch remote image: %s [%d]' %
                                (node['uri'], r.status_code))
             else:
+                self.app.env.original_image_uri[path] = node['uri']
+
                 with open(path, 'wb') as f:
                     f.write(r.content)
 

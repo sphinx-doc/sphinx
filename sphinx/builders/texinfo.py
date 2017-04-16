@@ -11,8 +11,6 @@
 
 from os import path
 
-from six import iteritems
-
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -22,9 +20,12 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import logging
+from sphinx.util import status_iterator
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile, make_filename
+from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.texinfo import TexinfoWriter
 
@@ -223,14 +224,7 @@ class TexinfoBuilder(Builder):
 
     def finish(self):
         # type: () -> None
-        # copy image files
-        if self.images:
-            logger.info(bold('copying images...'), nonl=1)
-            for src, dest in iteritems(self.images):
-                logger.info(' ' + src, nonl=1)
-                copyfile(path.join(self.srcdir, src),
-                         path.join(self.outdir, dest))
-            logger.info('')
+        self.copy_image_files()
 
         logger.info(bold('copying Texinfo support files... '), nonl=True)
         # copy Makefile
@@ -242,6 +236,21 @@ class TexinfoBuilder(Builder):
         except (IOError, OSError) as err:
             logger.warning("error writing file %s: %s", fn, err)
         logger.info(' done')
+
+    def copy_image_files(self):
+        # type: () -> None
+        if self.images:
+            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            for src in status_iterator(self.images, 'copying images... ', "brown",
+                                       len(self.images), self.app.verbosity,
+                                       stringify_func=stringify_func):
+                dest = self.images[src]
+                try:
+                    copy_asset_file(path.join(self.srcdir, src),
+                                    path.join(self.outdir, dest))
+                except Exception as err:
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
 
 def setup(app):
