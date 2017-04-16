@@ -32,7 +32,7 @@ from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
-from sphinx.extension import load_extension, verify_required_extensions
+from sphinx.extension import verify_required_extensions
 from sphinx.factory import SphinxFactory
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
@@ -452,7 +452,7 @@ class Sphinx(object):
         # type: (unicode) -> None
         """Import and setup a Sphinx extension module. No-op if called twice."""
         logger.debug('[app] setting up extension: %r', extname)
-        load_extension(self, extname)
+        self.factory.load_extension(self, extname)
 
     def require_sphinx(self, version):
         # type: (unicode) -> None

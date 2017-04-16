@@ -12,15 +12,18 @@
 """
 from __future__ import print_function
 
+import traceback
+
 from pkg_resources import iter_entry_points
 from six import itervalues
 
-from sphinx.errors import ExtensionError, SphinxError
+from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
+from sphinx.extension import Extension
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
-from sphinx.extension import load_extension
 from sphinx.locale import _
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.docutils import directive_helper
 
 if False:
@@ -32,6 +35,14 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
+
+# list of deprecated extensions. Keys are extension name.
+# Values are Sphinx version that merge the extension.
+EXTENSION_BLACKLIST = {
+    "sphinxjp.themecore": "1.2"
+}  # type: Dict[unicode, unicode]
 
 
 class SphinxFactory(object):
@@ -62,7 +73,8 @@ class SphinxFactory(object):
             except StopIteration:
                 raise SphinxError(_('Builder name %s not registered or available'
                                     ' through entry point') % name)
-            load_extension(app, entry_point.module_name)
+
+            self.load_extension(app, entry_point.module_name)
 
     def create_builder(self, app, name):
         # type: (Sphinx, unicode) -> Builder
@@ -167,3 +179,50 @@ class SphinxFactory(object):
         # type: (Builder, nodes.Node) -> nodes.NodeVisitor
         translator_class = self.get_translator_class(builder)
         return translator_class(builder, document)
+
+    def load_extension(self, app, extname):
+        # type: (Sphinx, unicode) -> None
+        """Load a Sphinx extension."""
+        if extname in app.extensions:  # alread loaded
+            return
+        if extname in EXTENSION_BLACKLIST:
+            logger.warning(_('the extension %r was already merged with Sphinx since '
+                             'version %s; this extension is ignored.'),
+                           extname, EXTENSION_BLACKLIST[extname])
+            return
+
+        # update loading context
+        app._setting_up_extension.append(extname)
+
+        try:
+            mod = __import__(extname, None, None, ['setup'])
+        except ImportError as err:
+            logger.verbose(_('Original exception:\n') + traceback.format_exc())
+            raise ExtensionError(_('Could not import extension %s') % extname, err)
+
+        if not hasattr(mod, 'setup'):
+            logger.warning(_('extension %r has no setup() function; is it really '
+                             'a Sphinx extension module?'), extname)
+            metadata = {}  # type: Dict[unicode, Any]
+        else:
+            try:
+                metadata = mod.setup(app)
+            except VersionRequirementError as err:
+                # add the extension name to the version required
+                raise VersionRequirementError(
+                    _('The %s extension used by this project needs at least '
+                      'Sphinx v%s; it therefore cannot be built with this '
+                      'version.') % (extname, err)
+                )
+
+        if metadata is None:
+            metadata = {}
+            if extname == 'rst2pdf.pdfbuilder':
+                metadata['parallel_read_safe'] = True
+        elif not isinstance(metadata, dict):
+            logger.warning(_('extension %r returned an unsupported object from '
+                             'its setup() function; it should return None or a '
+                             'metadata dictionary'), extname)
+
+        app.extensions[extname] = Extension(extname, mod, **metadata)
+        app._setting_up_extension.pop()
