@@ -304,8 +304,8 @@ class Sphinx(object):
             try:
                 entry_point = next(entry_points)
             except StopIteration:
-                raise SphinxError('Builder name %s not registered or available'
-                                  ' through entry point' % buildername)
+                raise SphinxError(_('Builder name %s not registered or available'
+                                    ' through entry point') % buildername)
             load_extension(self, entry_point.module_name)
         builderclass = self.builderclasses[buildername]
         return builderclass(self)
