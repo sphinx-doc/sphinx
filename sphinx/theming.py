@@ -15,13 +15,9 @@ import zipfile
 import tempfile
 from os import path
 
+import pkg_resources
 from six import string_types, iteritems
 from six.moves import configparser
-
-try:
-    import pkg_resources
-except ImportError:
-    pkg_resources = False
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -230,10 +226,6 @@ def load_theme_plugins():
     """load plugins by using``sphinx_themes`` section in setuptools entry_points.
     This API will return list of directory that contain some theme directory.
     """
-
-    if not pkg_resources:
-        return []
-
     theme_paths = []  # type: List[unicode]
 
     for plugin in pkg_resources.iter_entry_points('sphinx_themes'):
