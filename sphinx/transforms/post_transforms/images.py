@@ -16,6 +16,7 @@ from docutils import nodes
 
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
+from sphinx.util.images import guess_mimetype
 from sphinx.util.osutil import ensuredir
 
 if False:
@@ -74,8 +75,9 @@ class ImageDownloader(BaseImageConverter):
                 with open(path, 'wb') as f:
                     f.write(r.content)
 
+                mimetype = guess_mimetype(path, default='*')
                 node['candidates'].pop('?')
-                node['candidates']['*'] = path
+                node['candidates'][mimetype] = path
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:

@@ -52,8 +52,8 @@ def get_image_size(filename):
         return None
 
 
-def guess_mimetype(filename):
-    # type: (unicode) -> unicode
+def guess_mimetype(filename, default=None):
+    # type: (unicode, unicode) -> unicode
     _, ext = path.splitext(filename)
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -63,4 +63,4 @@ def guess_mimetype(filename):
             if imgtype:
                 return 'image/' + imgtype
 
-    return None
+    return default
