@@ -236,6 +236,7 @@ General configuration
    * ref.keyword
    * ref.option
    * ref.citation
+   * ref.footnote
    * ref.doc
    * misc.highlighting_failure
    * toc.secnum
@@ -254,6 +255,10 @@ General configuration
    .. versionchanged:: 1.5.1
 
       Added ``epub.unknown_project_files``
+
+   .. versionchanged:: 1.6
+
+      Added ``ref.footnote``
 
 .. confval:: needs_sphinx
 
