@@ -141,3 +141,9 @@ if docutils_version < (0, 13, 2):
     # Monkey patch the old docutils versions to fix the issue mentioned
     # at https://sourceforge.net/p/docutils/bugs/313/
     smartquotes.educateQuotes = educateQuotes
+
+    # Fix the issue with French quotes mentioned at
+    # https://sourceforge.net/p/docutils/mailman/message/35760696/
+    quotes = smartquotes.smartchars.quotes
+    quotes['fr'] = (u'«\u00a0', u'\u00a0»', u'“', u'”')
+    quotes['fr-ch'] = u'«»‹›'
