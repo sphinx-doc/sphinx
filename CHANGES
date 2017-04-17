@@ -42,6 +42,7 @@ Incompatible changes
   (refs #3550)
 * ``Builder.env`` is not filled at instantiation
 * #3594: LaTeX: single raw directive has been considered as block level element
+* #3639: If ``html5_experimental_writer`` is available, epub builder use it by default.
 
 Features removed
 ----------------

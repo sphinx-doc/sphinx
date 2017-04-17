@@ -132,6 +132,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
+    # use html5 translator by default
+    default_html5_translator = True
 
     coverpage_name = COVERPAGE_NAME
     toctree_template = TOCTREE_TEMPLATE
