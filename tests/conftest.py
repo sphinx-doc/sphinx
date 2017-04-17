@@ -117,7 +117,7 @@ def app(test_params, app_params, make_app, shared_result):
     yield app_
 
     print('# testroot:', kwargs.get('testroot', 'root'))
-    print('# builder:', app_.buildername)
+    print('# builder:', app_.builder.name)
     print('# srcdir:', app_.srcdir)
     print('# outdir:', app_.outdir)
     print('# status:', '\n' + app_._status.getvalue())

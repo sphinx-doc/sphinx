@@ -37,6 +37,13 @@ Incompatible changes
 * #3082: Use latexmk for pdf (and dvi) targets (Unix-like platforms only)
 * #3558: Emit warnings if footnotes and citations are not referenced.  The
   warnings can be suppressed by ``suppress_warnings``.
+* latex made available (non documented) colour macros from a file distributed
+  with pdftex engine for Plain TeX. This is removed in order to provide better
+  support for multiple TeX engines. Only interface from ``color`` or
+  ``xcolor`` packages should be used by extensions of Sphinx latex writer.
+  (refs #3550)
+* ``Builder.env`` is not filled at instantiation
+* #3594: LaTeX: single raw directive has been considered as block level element
 
 Features removed
 ----------------
@@ -93,6 +100,11 @@ Features added
   and docutils 0.13 and newer is installed.
 * LaTeX macros to customize space before and after tables in PDF output (refs #3504)
 * #3348: Show decorators in literalinclude and viewcode directives
+* #3108: Show warning if :start-at: and other literalinclude options does not
+  match to the text
+* #3609: Allow to suppress "duplicate citation" warnings using
+  ``suppress_warnings``
+* #2803: Discovery of builders by entry point
 
 Bugs fixed
 ----------
@@ -102,6 +114,11 @@ Bugs fixed
 * #3288: Table with merged headers not wrapping text
 * #3491: Inconsistent vertical space around table and longtable in PDF
 * #3506: Depart functions for all admonitions in HTML writer now properly pass ``node`` to ``depart_admonition``.
+* #2693: Sphinx latex style file wrongly inhibits colours for section headings
+  for latex+dvi(ps,pdf,pdfmx)
+* C++, properly look up ``any`` references.
+* #3624: sphinx.ext.intersphinx couldn't load inventories compressed with gzip
+* #3551: PDF information dictionary is lacking author and title data
 
 Deprecated
 ----------
@@ -131,8 +148,9 @@ Deprecated
 * #3429: deprecate config setting ``latex_keep_old_macro_names``. It will be
   removed at 1.7, and already its default value has changed from ``True`` to
   ``False``.
+* #3221: epub2 builder is deprecated
 
-Release 1.5.4 (in development)
+Release 1.5.6 (in development)
 ==============================
 
 Incompatible changes
@@ -144,8 +162,28 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.5 (released Apr 03, 2017)
+=====================================
+
+Bugs fixed
+----------
+
+* #3597: python domain raises UnboundLocalError if invalid name given
+* #3599: Move to new Mathjax CDN
+
+Release 1.5.4 (released Apr 02, 2017)
+=====================================
+
+Features added
+--------------
+
 * #3470: Make genindex support all kinds of letters, not only Latin ones
-* latex macros for directional double quotes (refs #3527)
 
 Bugs fixed
 ----------
@@ -165,9 +203,12 @@ Bugs fixed
   rendered as code
 * #2665, #2607: Link names in C++ docfields, and make it possible for other domains.
 * #3542: C++, fix parsing error of non-type template argument with template.
-
-Testing
---------
+* #3065, #3520: python domain fails to recognize nested class
+* #3575: Problems with pdflatex in a Turkish document built with sphinx has
+  reappeared (refs #2997, #2397)
+* #3577: Fix intersphinx debug tool
+* A LaTeX command such as ``\\large`` inserted in the title items of
+  :confval:`latex_documents` causes failed PDF build (refs #3551, #3567)
 
 Release 1.5.3 (released Feb 26, 2017)
 =====================================
@@ -202,6 +243,7 @@ Bugs fixed
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
 * #3421: Could not translate a caption of tables
+* #3552: linkcheck raises UnboundLocalError
 
 Release 1.5.2 (released Jan 22, 2017)
 =====================================

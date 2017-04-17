@@ -7,12 +7,12 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 
 from six import itervalues
 
@@ -47,7 +47,7 @@ class EventManager(object):
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()
-        self.listeners = defaultdict(dict)  # type: Dict[unicode, Dict[int, Callable]]
+        self.listeners = defaultdict(OrderedDict)  # type: Dict[unicode, Dict[int, Callable]]
         self.next_listener_id = 0
 
     def add(self, name):

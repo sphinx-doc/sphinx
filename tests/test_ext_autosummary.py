@@ -5,13 +5,15 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
+
+from util import etree_parse
 
 import pytest
 
@@ -103,3 +105,24 @@ def test_get_items_summary(app, status, warning):
                   'Test function take an argument ended with underscore.',
                   'dummy_module.func')
     assert autosummary_items['func'] == func_attrs
+
+def str_content(elem):
+    if elem.text is not None:
+        return elem.text
+    else:
+        return ''.join(str_content(e) for e in elem)
+
+@pytest.mark.sphinx('xml', **default_kw)
+def test_escaping(app, status, warning):
+    from xml.etree import ElementTree
+
+    app.builder.build_all()
+
+    outdir = app.builder.outdir
+
+    docpage = outdir / 'underscore_module_.xml'
+    assert docpage.exists()
+
+    title = etree_parse(docpage).find('section/title')
+
+    assert str_content(title) == 'underscore_module_'

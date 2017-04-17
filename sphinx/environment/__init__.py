@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,9 +43,10 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.locale import _
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -405,15 +406,15 @@ class BuildEnvironment(object):
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
-    def find_files(self, config, buildername):
-        # type: (Config, unicode) -> None
+    def find_files(self, config, builder):
+        # type: (Config, Builder) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
             config.templates_path +
-            config.html_extra_path +
+            builder.get_asset_paths() +
             ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
         self.found_docs = set()
@@ -430,7 +431,7 @@ class BuildEnvironment(object):
         # is set for the doc source and the mo file, it is processed again from
         # the reading phase when mo is updated. In the future, we would like to
         # move i18n process into the writing phase, and remove these lines.
-        if buildername != 'gettext':
+        if builder.use_message_catalog:
             # add catalog mo file dependency
             for docname in self.found_docs:
                 catalog_files = find_catalog_files(
@@ -522,7 +523,7 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config, self.app.buildername)
+        self.find_files(config, self.app.builder)
         self.config = config
 
         # this cache also needs to be updated every time
@@ -559,22 +560,20 @@ class BuildEnvironment(object):
         # check if we should do parallel or serial read
         par_ok = False
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            par_ok = True
-            for extname, md in self.app._extension_metadata.items():
-                ext_ok = md.get('parallel_read_safe')
-                if ext_ok:
-                    continue
-                if ext_ok is None:
-                    logger.warning('the %s extension does not declare if it '
-                                   'is safe for parallel reading, assuming it '
-                                   'isn\'t - please ask the extension author to '
-                                   'check and make it explicit', extname)
+            for ext in itervalues(self.app.extensions):
+                if ext.parallel_read_safe is None:
+                    logger.warning(_('the %s extension does not declare if it is safe '
+                                     'for parallel reading, assuming it isn\'t - please '
+                                     'ask the extension author to check and make it '
+                                     'explicit'), ext.name)
                     logger.warning('doing serial read')
-                else:
-                    logger.warning('the %s extension is not safe for parallel '
-                                   'reading, doing serial read', extname)
-                par_ok = False
-                break
+                    break
+                elif ext.parallel_read_safe is False:
+                    break
+            else:
+                # all extensions support parallel-read
+                par_ok = True
+
         if par_ok:
             self._read_parallel(docnames, self.app, nproc=self.app.parallel)
         else:
@@ -768,18 +767,18 @@ class BuildEnvironment(object):
     def currmodule(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currmodule is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currmodule is deprecated. '
+                      'Use env.ref_context["py:module"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currclass is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currclass is deprecated. '
+                      'Use env.ref_context["py:class"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):

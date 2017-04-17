@@ -1,5 +1,5 @@
-test-image-glob/subdir
-======================
+test-images/subdir
+==================
 
 .. image:: rimg.png
 

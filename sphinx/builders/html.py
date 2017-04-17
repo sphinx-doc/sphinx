@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -118,9 +118,6 @@ class StandaloneHTMLBuilder(Builder):
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
-
-    default_sidebars = ['localtoc.html', 'relations.html',
-                        'sourcelink.html', 'searchbox.html']
 
     # cached publisher object for snippets
     _publisher = None
@@ -263,6 +260,10 @@ class StandaloneHTMLBuilder(Builder):
             except EnvironmentError:
                 # source doesn't exist anymore
                 pass
+
+    def get_asset_paths(self):
+        # type: () -> List[unicode]
+        return self.config.html_extra_path
 
     def render_partial(self, node):
         # type: (nodes.Nodes) -> Dict[unicode, unicode]
@@ -1020,7 +1021,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
         toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
-        self.fix_refuris(toctree)
+        if toctree is not None:
+            self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self):

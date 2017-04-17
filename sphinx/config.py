@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -56,7 +56,7 @@ class ENUM(object):
     """represents the config value should be a one of candidates.
 
     Example:
-        app.add_config_value('latex_show_urls', 'no', ENUM('no', 'footnote', 'inline'))
+        app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
         # type: (unicode) -> None

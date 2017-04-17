@@ -11,7 +11,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     http://www.sat.qc.ca/
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -23,9 +23,10 @@ from os import path
 from six import binary_type
 from fnmatch import fnmatch
 
-from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
 from sphinx.quickstart import EXTENSIONS
+from sphinx.util import rst
+from sphinx.util.osutil import FileAvoidWrite, walk
 
 if False:
     # For type annotation
@@ -74,9 +75,11 @@ def write_file(name, text, opts):
             f.write(text)
 
 
-def format_heading(level, text):
-    # type: (int, unicode) -> unicode
+def format_heading(level, text, escape=True):
+    # type: (int, unicode, bool) -> unicode
     """Create a heading of <level> [1, 2 or 3 supported]."""
+    if escape:
+        text = rst.escape(text)
     underlining = ['=', '-', '~', ][level - 1] * len(text)
     return '%s\n%s\n\n' % (text, underlining)
 
@@ -161,7 +164,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
 def create_modules_toc_file(modules, opts, name='modules'):
     # type: (List[unicode], Any, unicode) -> None
     """Create the module's index."""
-    text = format_heading(1, '%s' % opts.header)
+    text = format_heading(1, '%s' % opts.header, escape=False)
     text += '.. toctree::\n'
     text += '   :maxdepth: %s\n\n' % opts.maxdepth
 

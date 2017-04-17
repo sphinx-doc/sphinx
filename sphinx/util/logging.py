@@ -5,7 +5,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -406,6 +406,17 @@ class SafeEncodingWriter(object):
             self.stream.flush()
 
 
+class LastMessagesWriter(object):
+    """Stream writer which memories last 10 messages to save trackback"""
+    def __init__(self, app, stream):
+        # type: (Sphinx, IO) -> None
+        self.app = app
+
+    def write(self, data):
+        # type: (unicode) -> None
+        self.app.messagelog.append(data)
+
+
 def setup(app, status, warning):
     # type: (Sphinx, IO, IO) -> None
     """Setup root logger for Sphinx"""
@@ -427,5 +438,12 @@ def setup(app, status, warning):
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
+
+    messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))  # type: ignore
+    messagelog_handler.addFilter(InfoFilter())
+    messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
+    messagelog_handler.setFormatter(ColorizeFormatter())
+
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)
+    logger.addHandler(messagelog_handler)

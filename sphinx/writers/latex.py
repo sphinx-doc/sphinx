@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -86,7 +86,7 @@ DEFAULT_SETTINGS = {
     'date':            '',
     'release':         '',
     'author':          '',
-    'logo':            '',
+    'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
@@ -185,9 +185,10 @@ class ExtBabel(Babel):
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
                          'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
                          'italian'):
-            return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
+            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
+            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
+            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):
@@ -1990,8 +1991,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         # type: (nodes.Node) -> None
+        if not self.is_inline(node):
+            self.body.append('\n')
         if 'latex' in node.get('format', '').split():
             self.body.append(node.astext())
+        if not self.is_inline(node):
+            self.body.append('\n')
         raise nodes.SkipNode
 
     def visit_reference(self, node):

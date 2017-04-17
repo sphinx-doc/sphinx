@@ -5,7 +5,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -134,10 +134,6 @@ def execfile_(filepath, _globals, open=open):
     mode = 'rb' if PY3 else 'rbU'
     with open(filepath, mode) as f:
         source = f.read()
-
-    # py26 accept only LF eol instead of CRLF
-    if sys.version_info[:2] == (2, 6):
-        source = source.replace(b'\r\n', b'\n')
 
     # compile to a code object, handle syntax errors
     filepath_enc = filepath.encode(fs_encoding)

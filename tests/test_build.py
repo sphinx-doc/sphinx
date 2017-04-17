@@ -5,7 +5,7 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -102,7 +102,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='images')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 

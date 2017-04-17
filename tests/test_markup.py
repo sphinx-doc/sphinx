@@ -5,7 +5,7 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -97,9 +97,9 @@ def verify_re_latex(app, parse):
 def verify_re(verify_re_html, verify_re_latex):
     def verify_re_(rst, html_expected, latex_expected):
         if html_expected:
-            return verify_re_html(rst, html_expected)
+            verify_re_html(rst, html_expected)
         if latex_expected:
-            return verify_re_latex(rst, latex_expected)
+            verify_re_latex(rst, latex_expected)
     return verify_re_
 
 
@@ -107,9 +107,9 @@ def verify_re(verify_re_html, verify_re_latex):
 def verify(verify_re_html, verify_re_latex):
     def verify_(rst, html_expected, latex_expected):
         if html_expected:
-            return verify_re_html(rst, re.escape(html_expected) + '$')
+            verify_re_html(rst, re.escape(html_expected) + '$')
         if latex_expected:
-            return verify_re_latex(rst, re.escape(latex_expected) + '$')
+            verify_re_latex(rst, re.escape(latex_expected) + '$')
     return verify_
 
 
@@ -179,7 +179,7 @@ def get_verifier(verify, verify_re):
         'verify',
         '"John"',
         '<p>&#8220;John&#8221;</p>',
-        "``John''",
+        r'\sphinxquotedblleft{}John\sphinxquotedblright{}',
     ),
     (
         # ... but not in literal text

@@ -5,7 +5,7 @@
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -82,8 +82,8 @@ def test_domain_py_xrefs(app, status, warning):
                    u'subchild_2', u'meth')
     assert_refnode(refnodes[8], None, u'NestedParentA.NestedChildA',
                    u'NestedParentA.child_1', u'meth')
-    assert_refnode(refnodes[9], None, None, u'NestedChildA.subchild_1',
-                   u'meth')
+    assert_refnode(refnodes[9], None, u'NestedParentA',
+                   u'NestedChildA.subchild_1', u'meth')
     assert_refnode(refnodes[10], None, u'NestedParentB', u'child_1', u'meth')
     assert_refnode(refnodes[11], None, u'NestedParentB', u'NestedParentB',
                    u'class')
@@ -125,6 +125,7 @@ def test_domain_py_objects(app, status, warning):
     assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
     assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
     assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
+    assert 'ModTopLevel.ModNoModule' not in objects
     assert objects['ModNoModule'] == ('module', 'class')
     assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
 
@@ -136,7 +137,7 @@ def test_domain_py_objects(app, status, warning):
     assert objects['NestedParentA.NestedChildA'] == ('roles', 'class')
     assert objects['NestedParentA.NestedChildA.subchild_1'] == ('roles', 'method')
     assert objects['NestedParentA.NestedChildA.subchild_2'] == ('roles', 'method')
-    assert objects['child_2'] == ('roles', 'method')
+    assert objects['NestedParentA.child_2'] == ('roles', 'method')
     assert objects['NestedParentB'] == ('roles', 'class')
     assert objects['NestedParentB.child_1'] == ('roles', 'method')
 

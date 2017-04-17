@@ -7,7 +7,7 @@
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -74,7 +74,7 @@ def setup(app):
     # more information for mathjax secure url is here:
     # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
-                         'https://cdn.mathjax.org/mathjax/latest/MathJax.js?'
+                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
