@@ -24,6 +24,7 @@ except ImportError:
     pkg_resources = False
 
 from sphinx import package_dir
+from sphinx.util.osutil import abspath
 from sphinx.errors import ThemeError
 
 NODEFAULT = object()
@@ -39,7 +40,7 @@ class Theme(object):
     @classmethod
     def init_themes(cls, confdir, theme_path, warn=None):
         """Search all theme paths for available themes."""
-        cls.themepath = list(theme_path)
+        cls.themepath = [abspath(path.join(confdir, x)) for x in theme_path]
         cls.themepath.append(path.join(package_dir, 'themes'))
 
         for themedir in cls.themepath[::-1]:
