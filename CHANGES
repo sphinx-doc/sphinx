@@ -105,6 +105,7 @@ Features added
 * #3609: Allow to suppress "duplicate citation" warnings using
   ``suppress_warnings``
 * #2803: Discovery of builders by entry point
+* #1764, #1676: Allow setting 'rel' and 'title' attributes for stylesheets
 
 Bugs fixed
 ----------
