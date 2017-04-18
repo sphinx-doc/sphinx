@@ -100,3 +100,9 @@ def test_double_inheriting_theme(make_app, app_params):
     with mock.patch('sphinx.theming.load_theme_plugins', side_effect=load_themes):
         args, kwargs = app_params
         make_app(*args, **kwargs)
+
+
+@pytest.mark.sphinx(testroot='theming',
+                    confoverrides={'html_theme': 'child'})
+def test_nested_zipped_theme(app, status, warning):
+    app.build()  # => not raises TemplateNotFound

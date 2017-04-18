@@ -22,6 +22,7 @@ from six.moves import configparser
 from sphinx import package_dir
 from sphinx.errors import ThemeError
 from sphinx.util import logging
+from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
@@ -127,12 +128,15 @@ class Theme(object):
         tdir, tinfo = self.themes[name]
         if tinfo is None:
             # already a directory, do nothing
+            self.rootdir = None
             self.themedir = tdir
             self.themedir_created = False
         else:
             # extract the theme to a temp directory
-            self.themedir = tempfile.mkdtemp('sxt')
+            self.rootdir = tempfile.mkdtemp('sxt')
+            self.themedir = path.join(self.rootdir, name)
             self.themedir_created = True
+            ensuredir(self.themedir)
             for name in tinfo.namelist():
                 if name.endswith('/'):
                     continue
@@ -214,7 +218,7 @@ class Theme(object):
         """Remove temporary directories."""
         if self.themedir_created:
             try:
-                shutil.rmtree(self.themedir)
+                shutil.rmtree(self.rootdir)
             except Exception:
                 pass
         if self.base:

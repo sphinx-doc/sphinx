@@ -135,8 +135,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         if theme:
             # the theme's own dir and its bases' dirs
             pathchain = theme.get_dirchain()
-            # then the theme parent paths
-            loaderchain = pathchain + theme.themepath
+            # the loader dirs: pathchain + the parent directories for all themes
+            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
         elif dirs:
             pathchain = list(dirs)
             loaderchain = list(dirs)
