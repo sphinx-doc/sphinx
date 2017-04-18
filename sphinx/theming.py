@@ -21,6 +21,7 @@ from six.moves import configparser
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
@@ -35,19 +36,32 @@ THEMECONF = 'theme.conf'
 
 
 class _Theme(object):
+    def __init__(self):
+        # type: () -> None
+        self.name = None
+        self.base = None
+        self.themedir = None
+        self.themeconf = None
+
+    @property
+    def dirs(self):
+        # type: () -> List[unicode]
+        """Return a list of theme directories, beginning with this theme's,
+        then the base theme's, then that one's base theme's, etc.
+        """
+        if self.base is None:
+            return [self.themedir]
+        else:
+            return [self.themedir] + self.base.get_dirchain()
+
     def get_dirchain(self):
         # type: () -> List[unicode]
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
-        chain = [self.themedir]
-        base = self.base
-        while base is not None:
-            chain.append(base.themedir)
-            base = base.base
-        return chain
+        return self.dirs
 
-    def get_confstr(self, section, name, default=NODEFAULT):
+    def get_config(self, section, name, default=NODEFAULT):
         # type: (unicode, unicode, Any) -> Any
         """Return the value for a theme configuration setting, searching the
         base theme chain.
@@ -55,32 +69,40 @@ class _Theme(object):
         try:
             return self.themeconf.get(section, name)  # type: ignore
         except (configparser.NoOptionError, configparser.NoSectionError):
-            if self.base is not None:
-                return self.base.get_confstr(section, name, default)
+            if self.base:
+                return self.base.get_config(section, name, default)
+
             if default is NODEFAULT:
-                raise ThemeError('setting %s.%s occurs in none of the '
-                                 'searched theme configs' % (section, name))
+                raise ThemeError(_('setting %s.%s occurs in none of the '
+                                   'searched theme configs') % (section, name))
             else:
                 return default
 
-    def get_options(self, overrides):
-        # type: (Dict) -> Any
+    def get_confstr(self, section, name, default=NODEFAULT):
+        # type: (unicode, unicode, Any) -> Any
+        """Return the value for a theme configuration setting, searching the
+        base theme chain.
+        """
+        return self.get_config(section, name, default)
+
+    def get_options(self, overrides={}):
+        # type: (Dict[unicode, Any]) -> Dict[unicode, Any]
         """Return a dictionary of theme options and their values."""
-        chain = [self.themeconf]
-        base = self.base
-        while base is not None:
-            chain.append(base.themeconf)
-            base = base.base
-        options = {}  # type: Dict[unicode, Any]
-        for conf in reversed(chain):
-            try:
-                options.update(conf.items('options'))
-            except configparser.NoSectionError:
-                pass
+        if self.base:
+            options = self.base.get_options()
+        else:
+            options = {}  # type: Dict[unicode, Any]
+
+        try:
+            options.update(self.themeconf.items('options'))
+        except configparser.NoSectionError:
+            pass
+
         for option, value in iteritems(overrides):
             if option not in options:
                 raise ThemeError('unsupported theme option %r given' % option)
             options[option] = value
+
         return options
 
     def cleanup(self):
