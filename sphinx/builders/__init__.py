@@ -64,7 +64,7 @@ class Builder(object):
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types = []  # type: List[unicode]
-    supported_remote_images = True
+    supported_remote_images = False
     supported_data_uri_images = False
 
     def __init__(self, app):

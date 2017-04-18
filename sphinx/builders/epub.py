@@ -119,6 +119,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     copysource = False
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
+    supported_remote_images = False
 
     # don't add links
     add_permalinks = False
