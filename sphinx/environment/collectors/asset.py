@@ -59,8 +59,6 @@ class ImageCollector(EnvironmentCollector):
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
-                logger.warning('image data URI found. some builders might not support',
-                               location=node, type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:

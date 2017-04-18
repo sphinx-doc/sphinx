@@ -103,6 +103,7 @@ class StandaloneHTMLBuilder(Builder):
     html_scaled_image_link = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
+    supported_data_uri_images = True
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     allow_sharp_as_current_path = True

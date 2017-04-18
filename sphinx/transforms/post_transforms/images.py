@@ -10,13 +10,14 @@
 """
 
 import os
+from hashlib import sha1
 
 from six import text_type
 from docutils import nodes
 
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
-from sphinx.util.images import guess_mimetype
+from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir
 
 if False:
@@ -43,6 +44,11 @@ class BaseImageConverter(SphinxTransform):
         # type: (nodes.Node) -> None
         pass
 
+    @property
+    def imagedir(self):
+        # type: () -> unicode
+        return os.path.join(self.app.doctreedir, 'images')
+
 
 class ImageDownloader(BaseImageConverter):
     default_priority = 100
@@ -56,14 +62,13 @@ class ImageDownloader(BaseImageConverter):
 
     def handle(self, node):
         # type: (nodes.Node) -> None
-        imgdir = os.path.join(self.app.doctreedir, 'images')
         basename = os.path.basename(node['uri'])
         if '?' in basename:
             basename = basename.split('?')[0]
         dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
                                                              ord("&"): u"/"})
-        ensuredir(os.path.join(imgdir, dirname))
-        path = os.path.join(imgdir, dirname, basename)
+        ensuredir(os.path.join(self.imagedir, dirname))
+        path = os.path.join(self.imagedir, dirname, basename)
         try:
             r = requests.get(node['uri'])
             if r.status_code != 200:
@@ -85,9 +90,43 @@ class ImageDownloader(BaseImageConverter):
                            (node['uri'], text_type(exc)))
 
 
+class DataURIExtractor(BaseImageConverter):
+    default_priority = 150
+
+    def match(self, node):
+        # type: (nodes.Node) -> bool
+        if self.app.builder.supported_data_uri_images:
+            return False
+        else:
+            return 'data:' in node['uri']
+
+    def handle(self, node):
+        # type: (nodes.Node) -> None
+        image = parse_data_uri(node['uri'])
+        ext = get_image_extension(image.mimetype)
+        if ext is None:
+            logger.warning('Unknown image format: %s...', node['uri'][:32],
+                           location=node)
+            return
+
+        ensuredir(os.path.join(self.imagedir, 'embeded'))
+        digest = sha1(image.data).hexdigest()
+        path = os.path.join(self.imagedir, 'embeded', digest + ext)
+        self.app.env.original_image_uri[path] = node['uri']
+
+        with open(path, 'wb') as f:
+            f.write(image.data)
+
+        node['candidates'].pop('?')
+        node['candidates'][image.mimetype] = path
+        node['uri'] = path
+        self.app.env.images.add_file(self.env.docname, path)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(ImageDownloader)
+    app.add_post_transform(DataURIExtractor)
 
     return {
         'version': 'builtin',

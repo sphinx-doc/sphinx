@@ -106,7 +106,8 @@ Features added
   ``suppress_warnings``
 * #2803: Discovery of builders by entry point
 * #1764, #1676: Allow setting 'rel' and 'title' attributes for stylesheets
-* #3589: Support remote images
+* #3589: Support remote images on non-HTML builders
+* #3589: Support images in Data URI on non-HTML builders
 
 Bugs fixed
 ----------
