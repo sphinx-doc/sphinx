@@ -117,6 +117,7 @@ Bugs fixed
 * C++, properly look up ``any`` references.
 * #3624: sphinx.ext.intersphinx couldn't load inventories compressed with gzip
 * #3551: PDF information dictionary is lacking author and title data
+* Fail to load template file if the parent template is archived
 
 Deprecated
 ----------
