@@ -113,8 +113,8 @@ class StandaloneHTMLBuilder(Builder):
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
-    # Dito for this one.
-    css_files = []  # type: List[unicode]
+    # Ditto for this one (Sphinx.add_stylesheet).
+    css_files = []  # type: List[Dict[unicode, unicode]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA

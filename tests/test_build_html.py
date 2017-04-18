@@ -1194,3 +1194,33 @@ def test_html_raw_directive(app, status, warning):
     # with substitution
     assert '<p>HTML: abc def ghi</p>' in result
     assert '<p>LaTeX: abc  ghi</p>' in result
+
+
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//link[@href='_static/persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+        (".//link[@href='_static/more_persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/more_default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/more_alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/more_alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='stylesheets')
+def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)

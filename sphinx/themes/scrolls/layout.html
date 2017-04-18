@@ -10,7 +10,10 @@
 #}
 {%- extends "basic/layout.html" %}
 {% set script_files = script_files + ['_static/theme_extras.js'] %}
-{% set css_files = css_files + ['_static/print.css'] %}
+{%- block csss %}
+  {{ super() }}
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+{%- endblock %}
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
 {% block relbar2 %}{% endblock %}
