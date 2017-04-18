@@ -20,6 +20,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from typing import Any, Callable, Iterator, Tuple  # NOQA
 
 from sphinx.application import TemplateBridge
+from sphinx.theming import Theme
 from sphinx.util.osutil import mtimes_of_files
 
 if False:

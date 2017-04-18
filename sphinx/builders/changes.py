@@ -43,7 +43,7 @@ class ChangesBuilder(Builder):
         # type: () -> None
         self.create_template_bridge()
         Theme.init_themes(self.confdir, self.config.html_theme_path)
-        self.theme = Theme('default')
+        self.theme = Theme.create('default')
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self):

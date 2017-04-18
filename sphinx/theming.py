@@ -34,6 +34,67 @@ NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
 
+class _Theme(object):
+    def get_dirchain(self):
+        # type: () -> List[unicode]
+        """Return a list of theme directories, beginning with this theme's,
+        then the base theme's, then that one's base theme's, etc.
+        """
+        chain = [self.themedir]
+        base = self.base
+        while base is not None:
+            chain.append(base.themedir)
+            base = base.base
+        return chain
+
+    def get_confstr(self, section, name, default=NODEFAULT):
+        # type: (unicode, unicode, Any) -> Any
+        """Return the value for a theme configuration setting, searching the
+        base theme chain.
+        """
+        try:
+            return self.themeconf.get(section, name)  # type: ignore
+        except (configparser.NoOptionError, configparser.NoSectionError):
+            if self.base is not None:
+                return self.base.get_confstr(section, name, default)
+            if default is NODEFAULT:
+                raise ThemeError('setting %s.%s occurs in none of the '
+                                 'searched theme configs' % (section, name))
+            else:
+                return default
+
+    def get_options(self, overrides):
+        # type: (Dict) -> Any
+        """Return a dictionary of theme options and their values."""
+        chain = [self.themeconf]
+        base = self.base
+        while base is not None:
+            chain.append(base.themeconf)
+            base = base.base
+        options = {}  # type: Dict[unicode, Any]
+        for conf in reversed(chain):
+            try:
+                options.update(conf.items('options'))
+            except configparser.NoSectionError:
+                pass
+        for option, value in iteritems(overrides):
+            if option not in options:
+                raise ThemeError('unsupported theme option %r given' % option)
+            options[option] = value
+        return options
+
+    def cleanup(self):
+        # type: () -> None
+        """Remove temporary directories."""
+        if self.themedir_created:
+            try:
+                shutil.rmtree(self.rootdir)
+            except Exception:
+                pass
+        if self.base:
+            self.base.cleanup()
+
+
 class Theme(object):
     """
     Represents the theme chosen in the configuration.
@@ -103,11 +164,12 @@ class Theme(object):
         cls.themes[name] = (path.join(themedir, name), None)
         return
 
-    def __init__(self, name):
+    @classmethod
+    def create(cls, name):
         # type: (unicode) -> None
-        if name not in self.themes:
-            self.load_extra_theme(name)
-            if name not in self.themes:
+        if name not in cls.themes:
+            cls.load_extra_theme(name)
+            if name not in cls.themes:
                 if name == 'sphinx_rtd_theme':
                     raise ThemeError('sphinx_rtd_theme is no longer a hard dependency '
                                      'since version 1.4.0. Please install it manually.'
@@ -115,7 +177,9 @@ class Theme(object):
                 else:
                     raise ThemeError('no theme named %r found '
                                      '(missing theme.conf?)' % name)
-        self.name = name
+
+        theme = _Theme()
+        theme.name = name
 
         # Do not warn yet -- to be compatible with old Sphinxes, people *have*
         # to use "default".
@@ -125,104 +189,48 @@ class Theme(object):
         #          "the new 'alabaster' default theme, or to 'classic' "
         #          "to keep using the old default.")
 
-        tdir, tinfo = self.themes[name]
+        tdir, tinfo = cls.themes[name]
         if tinfo is None:
             # already a directory, do nothing
-            self.rootdir = None
-            self.themedir = tdir
-            self.themedir_created = False
+            theme.rootdir = None
+            theme.themedir = tdir
+            theme.themedir_created = False
         else:
             # extract the theme to a temp directory
-            self.rootdir = tempfile.mkdtemp('sxt')
-            self.themedir = path.join(self.rootdir, name)
-            self.themedir_created = True
-            ensuredir(self.themedir)
+            theme.rootdir = tempfile.mkdtemp('sxt')
+            theme.themedir = path.join(theme.rootdir, name)
+            theme.themedir_created = True
+            ensuredir(theme.themedir)
+
             for name in tinfo.namelist():
                 if name.endswith('/'):
                     continue
                 dirname = path.dirname(name)
-                if not path.isdir(path.join(self.themedir, dirname)):
-                    os.makedirs(path.join(self.themedir, dirname))
-                with open(path.join(self.themedir, name), 'wb') as fp:
+                if not path.isdir(path.join(theme.themedir, dirname)):
+                    os.makedirs(path.join(theme.themedir, dirname))
+                with open(path.join(theme.themedir, name), 'wb') as fp:
                     fp.write(tinfo.read(name))
 
-        self.themeconf = configparser.RawConfigParser()
-        self.themeconf.read(path.join(self.themedir, THEMECONF))  # type: ignore
+        theme.themeconf = configparser.RawConfigParser()
+        theme.themeconf.read(path.join(theme.themedir, THEMECONF))  # type: ignore
 
         try:
-            inherit = self.themeconf.get('theme', 'inherit')
+            inherit = theme.themeconf.get('theme', 'inherit')
         except configparser.NoOptionError:
             raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
 
         # load inherited theme automatically #1794, #1884, #1885
-        self.load_extra_theme(inherit)
+        cls.load_extra_theme(inherit)
 
         if inherit == 'none':
-            self.base = None
-        elif inherit not in self.themes:
+            theme.base = None
+        elif inherit not in cls.themes:
             raise ThemeError('no theme named %r found, inherited by %r' %
                              (inherit, name))
         else:
-            self.base = Theme(inherit)
+            theme.base = cls.create(inherit)
 
-    def get_confstr(self, section, name, default=NODEFAULT):
-        # type: (unicode, unicode, Any) -> Any
-        """Return the value for a theme configuration setting, searching the
-        base theme chain.
-        """
-        try:
-            return self.themeconf.get(section, name)  # type: ignore
-        except (configparser.NoOptionError, configparser.NoSectionError):
-            if self.base is not None:
-                return self.base.get_confstr(section, name, default)
-            if default is NODEFAULT:
-                raise ThemeError('setting %s.%s occurs in none of the '
-                                 'searched theme configs' % (section, name))
-            else:
-                return default
-
-    def get_options(self, overrides):
-        # type: (Dict) -> Any
-        """Return a dictionary of theme options and their values."""
-        chain = [self.themeconf]
-        base = self.base
-        while base is not None:
-            chain.append(base.themeconf)
-            base = base.base
-        options = {}  # type: Dict[unicode, Any]
-        for conf in reversed(chain):
-            try:
-                options.update(conf.items('options'))
-            except configparser.NoSectionError:
-                pass
-        for option, value in iteritems(overrides):
-            if option not in options:
-                raise ThemeError('unsupported theme option %r given' % option)
-            options[option] = value
-        return options
-
-    def get_dirchain(self):
-        # type: () -> List[unicode]
-        """Return a list of theme directories, beginning with this theme's,
-        then the base theme's, then that one's base theme's, etc.
-        """
-        chain = [self.themedir]
-        base = self.base
-        while base is not None:
-            chain.append(base.themedir)
-            base = base.base
-        return chain
-
-    def cleanup(self):
-        # type: () -> None
-        """Remove temporary directories."""
-        if self.themedir_created:
-            try:
-                shutil.rmtree(self.rootdir)
-            except Exception:
-                pass
-        if self.base:
-            self.base.cleanup()
+        return theme
 
 
 def load_theme_plugins():
