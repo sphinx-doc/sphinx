@@ -109,6 +109,8 @@ Features added
 * #2961: improve :confval:`autodoc_mock_imports`. Now the config value only
   requires to declare the top-level modules that should be mocked.
   Thanks to Robin Jarry.
+* #3449: On py3, autodoc use inspect.signature for more accurate signature
+  calculation. Thanks to Nathaniel J. Smith.
 
 Bugs fixed
 ----------
