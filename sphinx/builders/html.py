@@ -109,6 +109,8 @@ class StandaloneHTMLBuilder(Builder):
     search = True  # for things like HTML help and Apple help: suppress search
     use_index = False
     download_support = True  # enable download role
+    # use html5 translator by default
+    default_html5_translator = False
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
@@ -199,7 +201,11 @@ class StandaloneHTMLBuilder(Builder):
     def init_translator_class(self):
         # type: () -> None
         if self.translator_class is None:
-            if self.config.html_experimental_html5_writer and html5_ready:
+            use_html5_writer = self.config.html_experimental_html5_writer
+            if use_html5_writer is None:
+                use_html5_writer = self.default_html5_translator and html5_ready
+
+            if use_html5_writer and html5_ready:
                 if self.config.html_use_smartypants:
                     self.translator_class = SmartyPantsHTML5Translator
                 else:
@@ -1322,7 +1328,7 @@ def setup(app):
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
-    app.add_config_value('html_experimental_html5_writer', False, 'html')
+    app.add_config_value('html_experimental_html5_writer', None, 'html')
 
     return {
         'version': 'builtin',
