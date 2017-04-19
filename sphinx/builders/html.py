@@ -86,6 +86,23 @@ def get_stable_hash(obj):
     return md5(text_type(obj).encode('utf8')).hexdigest()
 
 
+class Stylesheet(text_type):
+    """The metadata of stylesheet.
+
+    To keep compatibility with old themes, an instance of stylesheet behaves as
+    its filename (str).
+    """
+
+    def __new__(cls, filename, title, rel):
+        # type: (unicode, unicode, unicode) -> None
+        self = text_type.__new__(cls, filename)  # type: ignore
+        self.filename = filename
+        self.title = title
+        self.rel = rel
+
+        return self
+
+
 class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
