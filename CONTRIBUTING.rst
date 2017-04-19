@@ -12,7 +12,7 @@ Sphinx Developer's Guide
 .. contents::
    :local:
 
-The Sphinx source code is managed using Git and is hosted on Github.
+The Sphinx source code is managed using Git and is hosted on GitHub.
 
     git clone git://github.com/sphinx-doc/sphinx
 
@@ -32,7 +32,7 @@ Bug Reports and Feature Requests
 --------------------------------
 
 If you have encountered a problem with Sphinx or have an idea for a new
-feature, please submit it to the `issue tracker`_ on Github or discuss it
+feature, please submit it to the `issue tracker`_ on GitHub or discuss it
 on the sphinx-dev mailing list.
 
 For bug reports, please include the output produced during the build process
@@ -51,7 +51,7 @@ Contributing to Sphinx
 ----------------------
 
 The recommended way for new contributors to submit code to Sphinx is to fork
-the repository on Github and then submit a pull request after
+the repository on GitHub and then submit a pull request after
 committing the changes.  The pull request will then need to be approved by one
 of the core developers before it is merged into the main repository.
 
@@ -59,7 +59,7 @@ of the core developers before it is merged into the main repository.
    feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email sphinx-dev@googlegroups.com.
-#. Fork `the repository`_ on Github to start making your changes to the
+#. Fork `the repository`_ on GitHub to start making your changes to the
    **master** branch for next major version, or **stable** branch for next
    minor version.
 #. Write a test which shows that the bug was fixed or that the feature works
@@ -78,10 +78,10 @@ Getting Started
 
 These are the basic steps needed to start developing on Sphinx.
 
-#. Create an account on Github.
+#. Create an account on GitHub.
 
 #. Fork the main Sphinx repository (`sphinx-doc/sphinx
-   <https://github.com/sphinx-doc/sphinx>`_) using the Github interface.
+   <https://github.com/sphinx-doc/sphinx>`_) using the GitHub interface.
 
 #. Clone the forked repository to your machine. ::
 
@@ -155,7 +155,7 @@ These are the basic steps needed to start developing on Sphinx.
 
        git commit -m '#42: Add useful new feature that does this.'
 
-   Github recognizes certain phrases that can be used to automatically
+   GitHub recognizes certain phrases that can be used to automatically
    update the issue tracker.
 
    For example::
@@ -164,12 +164,12 @@ These are the basic steps needed to start developing on Sphinx.
 
    would close issue #42.
 
-#. Push changes in the branch to your forked repository on Github. ::
+#. Push changes in the branch to your forked repository on GitHub. ::
 
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``stable``) on ``sphinx-doc/sphinx`` using the Github interface.
+   or ``stable``) on ``sphinx-doc/sphinx`` using the GitHub interface.
 
 #. Wait for a core developer to review your changes.
 
