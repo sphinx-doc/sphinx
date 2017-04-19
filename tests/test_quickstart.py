@@ -189,6 +189,7 @@ def test_quickstart_all_answers(tempdir):
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
+        'entries to add to index TOC': 'modules,todo',
     }
     qs.term_input = mock_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
@@ -203,6 +204,13 @@ def test_quickstart_all_answers(tempdir):
     assert ns['extensions'] == [
         'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
     ]
+
+    with open(tempdir / 'source' / 'contents.txt') as master_file:
+        indent = ' ' * len('.. ')
+        entries = ['modules', 'todo']
+        entries = [indent + e for e in entries]
+        assert '\n'.join(entries) in master_file.read()
+
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
