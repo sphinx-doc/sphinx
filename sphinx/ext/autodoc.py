@@ -16,7 +16,7 @@ import sys
 import inspect
 import traceback
 import warnings
-from types import FunctionType, BuiltinFunctionType, MethodType, ModuleType
+from types import FunctionType, MethodType, ModuleType
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
     string_types, StringIO
@@ -35,7 +35,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumclass, isenumattribute
+    isenumclass, isenumattribute, isfunction
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -1341,17 +1341,17 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, (FunctionType, BuiltinFunctionType))
+        return isfunction(member)
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
-            # cannot introspect arguments of a C function or method
-            return None
         try:
             argspec = getargspec(self.object)
         except TypeError:
+            if inspect.isbuiltin(self.object) or \
+                    inspect.ismethoddescriptor(self.object):
+                # cannot introspect arguments of a C function or method
+                return None
             if (is_builtin_class_method(self.object, '__new__') and
                is_builtin_class_method(self.object, '__init__')):
                 raise TypeError('%r is a builtin class' % self.object)
@@ -1607,11 +1607,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
-            # can never get arguments of a C function or method
-            return None
-        argspec = getargspec(self.object)
+        try:
+            argspec = getargspec(self.object)
+        except TypeError:
+            if inspect.isbuiltin(self.object) or \
+                    inspect.ismethoddescriptor(self.object):
+                # can never get arguments of a C function or method
+                return None
+            raise
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
         args = formatargspec(self.object, *argspec)
@@ -1637,13 +1640,16 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     # some non-data descriptors as methods
     priority = 10
 
-    method_types = (FunctionType, BuiltinFunctionType, MethodType)
+    @staticmethod
+    def is_function_or_method(obj):
+        return isfunction(obj) or inspect.ismethod(obj)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        non_attr_types = cls.method_types + (type, MethodDescriptorType)
+        non_attr_types = (type, MethodDescriptorType)
         isdatadesc = isdescriptor(member) and not \
+            cls.is_function_or_method(member) and not \
             isinstance(member, non_attr_types) and not \
             type(member).__name__ == "instancemethod"
         # That last condition addresses an obscure case of C-defined
@@ -1663,7 +1669,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         if isenumattribute(self.object):
             self.object = self.object.value
         if isdescriptor(self.object) and \
-                not isinstance(self.object, self.method_types):
+                not self.is_function_or_method(self.object):
             self._datadescriptor = True
         else:
             # if it's not a data descriptor
