@@ -334,6 +334,8 @@ div.figure p.caption span.caption-text {
 
 /* -- field list styles ----------------------------------------------------- */
 
+/* -- for html4 -- */
+
 table.field-list td, table.field-list th {
     border: 0 !important;
 }
@@ -347,7 +349,74 @@ table.field-list td, table.field-list th {
     margin: 0;
 }
 
-/* -- other body styles ----------------------------------------------------- */
+/* -- for html5 -- */
+
+/* bold field name, content starts on the same line */
+
+dl.field-list > dt,
+dl.option-list > dt,
+dl.docinfo > dt,
+dl.footnote > dt,
+dl.citation > dt {
+    font-weight: bold;
+    clear: left;
+    float: left;
+    margin: 0;
+    padding: 0;
+    padding-right: 0.5em;
+}
+
+/* Offset for field content (corresponds to the --field-name-limit option) */
+
+dl.field-list > dd,
+dl.option-list > dd,
+dl.docinfo > dd {
+    margin-left:  9em; /* ca. 14 chars in the test examples */
+}
+
+/* start field-body on a new line after long field names */
+
+dl.field-list > dd > *:first-child,
+dl.option-list > dd > *:first-child
+{
+    display: inline-block;
+    width: 100%;
+    margin: 0;
+}
+
+dl.field-list > dt:after,
+dl.docinfo > dt:after {
+    content: ":";
+}
+
+/* -- option lists ---------------------------------------------------------- */
+
+dl.option-list {
+    margin-left: 40px;
+}
+
+dl.option-list > dt {
+    font-weight: normal;
+}
+
+span.option {
+    white-space: nowrap;
+}
+
+/* -- lists ----------------------------------------------------------------- */
+
+/* -- compact and simple lists: no margin between items -- */
+
+.simple  li, .compact li,
+.simple  ul, .compact ul,
+.simple  ol, .compact ol,
+.simple > li p, .compact > li p,
+dl.simple > dd, dl.compact > dd {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* -- enumerated lists ------------------------------------------------------ */
 
 ol.arabic {
     list-style: decimal;
@@ -368,6 +437,18 @@ ol.lowerroman {
 ol.upperroman {
     list-style: upper-roman;
 }
+
+dt span.classifier {
+    font-style: italic;
+}
+
+dt span.classifier:before {
+    font-style: normal;
+    margin: 0.5em;
+    content: ":";
+}
+
+/* -- other body styles ----------------------------------------------------- */
 
 dl {
     margin-bottom: 15px;
@@ -414,9 +495,52 @@ dl.glossary dt {
     border: 3px solid red;
 }
 
+/* -- footnotes and citations ----------------------------------------------- */
+
+/* -- for html4 -- */
 .footnote:target  {
     background-color: #dddddd;
 }
+
+/* -- for html5 -- */
+
+dl.footnote.superscript > dd {
+    margin-left: 1em;
+}
+
+dl.footnote.brackets > dd {
+    margin-left: 2em;
+}
+
+dl > dt.label {
+    font-weight: normal;
+}
+
+a.footnote-reference.brackets:before,
+dt.label > span.brackets:before {
+    content: "[";
+}
+
+a.footnote-reference.brackets:after,
+dt.label > span.brackets:after {
+    content: "]";
+}
+
+a.footnote-reference.superscript,
+dl.footnote.superscript > dt.label {
+    vertical-align: super;
+    font-size: smaller;
+}
+
+dt.label > span.fn-backref {
+    margin-left: 0.2em;
+}
+
+dt.label > span.fn-backref > a {
+    font-style: italic;
+}
+
+/* -- line blocks ----------------------------------------------------------- */
 
 .line-block {
     display: block;
