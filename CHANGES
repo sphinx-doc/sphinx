@@ -108,6 +108,9 @@ Features added
 * #1764, #1676: Allow setting 'rel' and 'title' attributes for stylesheets
 * #3589: Support remote images on non-HTML builders
 * #3589: Support images in Data URI on non-HTML builders
+* #2961: improve :confval:`autodoc_mock_imports`. Now the config value only
+  requires to declare the top-level modules that should be mocked.
+  Thanks to Robin Jarry.
 
 Bugs fixed
 ----------
@@ -2825,5 +2828,5 @@ Previous versions
 =================
 
 The changelog for versions before 1.0 can be found in the file ``CHANGES.old``
-in the source distribution or `at Github
+in the source distribution or `at GitHub
 <https://github.com/sphinx-doc/sphinx/raw/master/CHANGES.old>`__.
