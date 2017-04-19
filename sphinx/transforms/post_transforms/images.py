@@ -10,6 +10,7 @@
 """
 
 import os
+from math import ceil
 from hashlib import sha1
 
 from six import text_type
@@ -17,6 +18,7 @@ from docutils import nodes
 
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
+from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir
 
@@ -70,8 +72,13 @@ class ImageDownloader(BaseImageConverter):
         ensuredir(os.path.join(self.imagedir, dirname))
         path = os.path.join(self.imagedir, dirname, basename)
         try:
-            r = requests.get(node['uri'])
-            if r.status_code != 200:
+            headers = {}
+            if os.path.exists(path):
+                timestamp = ceil(os.stat(path).st_mtime)
+                headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
+
+            r = requests.get(node['uri'], headers=headers)
+            if r.status_code >= 400:
                 logger.warning('Could not fetch remote image: %s [%d]' %
                                (node['uri'], r.status_code))
             else:
@@ -79,6 +86,11 @@ class ImageDownloader(BaseImageConverter):
 
                 with open(path, 'wb') as f:
                     f.write(r.content)
+
+                last_modified = r.headers.get('last-modified')
+                if last_modified:
+                    timestamp = rfc1123_to_epoch(last_modified)
+                    os.utime(path, (timestamp, timestamp))
 
                 mimetype = guess_mimetype(path, default='*')
                 node['candidates'].pop('?')
