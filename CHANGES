@@ -106,6 +106,9 @@ Features added
   ``suppress_warnings``
 * #2803: Discovery of builders by entry point
 * #1764, #1676: Allow setting 'rel' and 'title' attributes for stylesheets
+* #2961: improve :confval:`autodoc_mock_imports`. Now the config value only
+  requires to declare the top-level modules that should be mocked.
+  Thanks to Robin Jarry.
 
 Bugs fixed
 ----------

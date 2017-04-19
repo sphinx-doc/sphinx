@@ -382,6 +382,9 @@ There are also new config values that you can set:
 
    .. versionadded:: 1.3
 
+   .. versionchanged:: 1.6
+      This config value only requires to declare the top-level modules that
+      should be mocked.
 
 Docstring preprocessing
 -----------------------
