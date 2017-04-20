@@ -38,6 +38,7 @@ THEMECONF = 'theme.conf'
 
 def extract_zip(filename, targetdir):
     # type: (unicode, unicode) -> None
+    """Extract zip file to target directory."""
     ensuredir(targetdir)
 
     with ZipFile(filename) as archive:  # type: ignore
@@ -51,6 +52,10 @@ def extract_zip(filename, targetdir):
 
 
 class Theme(object):
+    """A Theme is a set of HTML templates and configurations.
+
+    This class supports both theme directory and theme archive (zipped theme)."""
+
     def __init__(self, name, theme_path, factory):
         # type: (unicode, unicode, HTMLThemeFactory) -> None
         self.name = name
@@ -143,6 +148,7 @@ class Theme(object):
 
 def is_archived_theme(filename):
     # type: (unicode) -> bool
+    """Check the specified file is an archived theme file or not."""
     try:
         with ZipFile(filename) as f:  # type: ignore
             return THEMECONF in f.namelist()
@@ -163,12 +169,14 @@ class HTMLThemeFactory(object):
 
     def load_builtin_themes(self):
         # type: () -> None
+        """Load built-in themes."""
         themes = self.find_themes(path.join(package_dir, 'themes'))
         for name, theme in iteritems(themes):
             self.themes[name] = theme
 
     def load_additional_themes(self, theme_paths):
         # type: (unicode) -> None
+        """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self.confdir, theme_path))
             themes = self.find_themes(abs_theme_path)
@@ -177,6 +185,7 @@ class HTMLThemeFactory(object):
 
     def load_extra_theme(self, name):
         # type: (unicode) -> None
+        """Try to load a theme having specifed name."""
         if name == 'alabaster':
             self.load_alabaster_theme()
         elif name == 'sphinx_rtd_theme':
@@ -186,11 +195,13 @@ class HTMLThemeFactory(object):
 
     def load_alabaster_theme(self):
         # type: () -> None
+        """Load alabaster theme."""
         import alabaster
         self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
 
     def load_sphinx_rtd_theme(self):
         # type: () -> None
+        """Load sphinx_rtd_theme theme (if exists)."""
         try:
             import sphinx_rtd_theme
             theme_path = sphinx_rtd_theme.get_html_theme_path()
@@ -200,6 +211,10 @@ class HTMLThemeFactory(object):
 
     def load_external_theme(self, name):
         # type: (unicode) -> None
+        """Try to load a theme using entry_points.
+
+        Sphinx refers to ``sphinx_themes`` entry_points.
+        """
         for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
             target = entry_point.load()
             if callable(target):
@@ -217,6 +232,7 @@ class HTMLThemeFactory(object):
 
     def find_themes(self, theme_path):
         # type: (unicode) -> Dict[unicode, unicode]
+        """Search themes from specified directory."""
         themes = {}  # type: Dict[unicode, unicode]
         if not path.isdir(theme_path):
             return themes
@@ -238,6 +254,7 @@ class HTMLThemeFactory(object):
 
     def create(self, name):
         # type: (unicode) -> Theme
+        """Create an instance of theme."""
         if name not in self.themes:
             self.load_extra_theme(name)
 
