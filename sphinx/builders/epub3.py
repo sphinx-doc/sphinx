@@ -16,7 +16,7 @@ from collections import namedtuple
 
 from sphinx import package_dir
 from sphinx.config import string_classes, ENUM
-from sphinx.builders.epub import EpubBuilder
+from sphinx.builders import _epub_base
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
 
@@ -45,10 +45,10 @@ THEME_WRITING_MODES = {
     'horizontal': 'horizontal-tb',
 }
 
-DOCTYPE = u'''<!DOCTYPE html>'''
+DOCTYPE = '''<!DOCTYPE html>'''
 
 
-class Epub3Builder(EpubBuilder):
+class Epub3Builder(_epub_base.EpubBuilder):
     """
     Builder that outputs epub3 files.
 
@@ -215,9 +215,12 @@ class Epub3Builder(EpubBuilder):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.setup_extension('sphinx.builders.epub')
+
+    app.setup_extension('sphinx.builders.epub2')
+
     app.add_builder(Epub3Builder)
 
+    # config values
     app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
