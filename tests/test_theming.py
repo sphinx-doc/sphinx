@@ -35,16 +35,16 @@ def test_theme_api(app, status, warning):
     assert theme.name == 'ziptheme'
     themedir = theme.themedir
     assert theme.base.name == 'basic'
-    assert len(theme.get_dirchain()) == 2
+    assert len(theme.get_theme_dirs()) == 2
 
     # direct setting
-    assert theme.get_confstr('theme', 'stylesheet') == 'custom.css'
+    assert theme.get_config('theme', 'stylesheet') == 'custom.css'
     # inherited setting
-    assert theme.get_confstr('options', 'nosidebar') == 'false'
+    assert theme.get_config('options', 'nosidebar') == 'false'
     # nonexisting setting
-    assert theme.get_confstr('theme', 'foobar', 'def') == 'def'
+    assert theme.get_config('theme', 'foobar', 'def') == 'def'
     with pytest.raises(ThemeError):
-        theme.get_confstr('theme', 'foobar')
+        theme.get_config('theme', 'foobar')
 
     # options API
     with pytest.raises(ThemeError):

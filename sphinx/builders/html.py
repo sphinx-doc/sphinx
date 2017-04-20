@@ -209,7 +209,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_confstr('theme', 'pygments_style', 'none')
+            style = self.theme.get_config('theme', 'pygments_style', 'none')
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style,
@@ -387,7 +387,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_style is not None:
             stylename = self.config.html_style
         elif self.theme:
-            stylename = self.theme.get_confstr('theme', 'stylesheet')
+            stylename = self.theme.get_config('theme', 'stylesheet')
         else:
             stylename = 'default.css'
 
@@ -690,7 +690,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # then, copy over theme-supplied static files
         if self.theme:
-            for theme_path in self.theme.get_dirchain()[::-1]:
+            for theme_path in self.theme.get_theme_dirs()[::-1]:
                 entry = path.join(theme_path, 'static')
                 copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
                            context=ctx, renderer=self.templates)

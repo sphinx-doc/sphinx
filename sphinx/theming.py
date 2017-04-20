@@ -81,8 +81,7 @@ class Theme(object):
                 raise ThemeError(_('no theme named %r found, inherited by %r') %
                                  (inherit, name))
 
-    @property
-    def dirs(self):
+    def get_theme_dirs(self):
         # type: () -> List[unicode]
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
@@ -90,14 +89,7 @@ class Theme(object):
         if self.base is None:
             return [self.themedir]
         else:
-            return [self.themedir] + self.base.get_dirchain()
-
-    def get_dirchain(self):
-        # type: () -> List[unicode]
-        """Return a list of theme directories, beginning with this theme's,
-        then the base theme's, then that one's base theme's, etc.
-        """
-        return self.dirs
+            return [self.themedir] + self.base.get_theme_dirs()
 
     def get_config(self, section, name, default=NODEFAULT):
         # type: (unicode, unicode, Any) -> Any
@@ -115,13 +107,6 @@ class Theme(object):
                                    'searched theme configs') % (section, name))
             else:
                 return default
-
-    def get_confstr(self, section, name, default=NODEFAULT):
-        # type: (unicode, unicode, Any) -> Any
-        """Return the value for a theme configuration setting, searching the
-        base theme chain.
-        """
-        return self.get_config(section, name, default)
 
     def get_options(self, overrides={}):
         # type: (Dict[unicode, Any]) -> Dict[unicode, Any]
