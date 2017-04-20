@@ -61,6 +61,7 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.theming import Theme  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -806,7 +807,7 @@ class TemplateBridge(object):
     """
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, unicode, List[unicode]) -> None
+        # type: (Builder, Theme, List[unicode]) -> None
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the

@@ -20,7 +20,6 @@ from jinja2.sandbox import SandboxedEnvironment
 from typing import Any, Callable, Iterator, Tuple  # NOQA
 
 from sphinx.application import TemplateBridge
-from sphinx.theming import Theme
 from sphinx.util.osutil import mtimes_of_files
 
 if False:
@@ -28,7 +27,7 @@ if False:
     from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.themes import Theme  # NOQA
+    from sphinx.theming import Theme  # NOQA
 
 
 def _tobool(val):

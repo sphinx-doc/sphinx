@@ -37,6 +37,7 @@ THEMECONF = 'theme.conf'
 
 
 def extract_zip(filename, targetdir):
+    # type: (unicode, unicode) -> None
     ensuredir(targetdir)
 
     with ZipFile(filename) as archive:  # type: ignore
@@ -114,7 +115,7 @@ class Theme(object):
         if self.base:
             options = self.base.get_options()
         else:
-            options = {}  # type: Dict[unicode, Any]
+            options = {}
 
         try:
             options.update(self.config.items('options'))
@@ -197,7 +198,7 @@ class HTMLThemeFactory(object):
         except ImportError:
             pass
 
-    def load_external_themes(self, name):
+    def load_external_theme(self, name):
         # type: (unicode) -> None
         for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
             target = entry_point.load()
@@ -216,7 +217,7 @@ class HTMLThemeFactory(object):
 
     def find_themes(self, theme_path):
         # type: (unicode) -> Dict[unicode, unicode]
-        themes = {}
+        themes = {}  # type: Dict[unicode, unicode]
         if not path.isdir(theme_path):
             return themes
 
