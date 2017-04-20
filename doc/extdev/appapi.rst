@@ -370,6 +370,13 @@ package.
 
    .. versionadded:: 1.4
 
+.. method:: Sphinx.add_html_theme(name, theme_path)
+
+   Register a HTML Theme.  The *name* is a name of theme, and *path* is a
+   full path to the theme (refs: :ref:`distribute-your-theme`).
+
+   .. versionadded:: 1.6
+
 .. method:: Sphinx.add_env_collector(collector)
 
    Register an environment collector class (refs: :ref:`collector-api`)

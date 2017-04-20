@@ -800,6 +800,11 @@ class Sphinx(object):
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
+    def add_html_theme(self, name, theme_path):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
+        self.html_themes[name] = theme_path
+
 
 class TemplateBridge(object):
     """
