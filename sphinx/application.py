@@ -127,6 +127,7 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.post_transforms = []               # type: List[Transform]
+        self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
         self.confdir = confdir

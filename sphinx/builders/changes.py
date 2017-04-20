@@ -16,7 +16,7 @@ from six import iteritems
 
 from sphinx import package_dir
 from sphinx.locale import _
-from sphinx.theming import Theme
+from sphinx.theming import HTMLThemeFactory
 from sphinx.builders import Builder
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
@@ -42,8 +42,8 @@ class ChangesBuilder(Builder):
     def init(self):
         # type: () -> None
         self.create_template_bridge()
-        Theme.init_themes(self.confdir, self.config.html_theme_path)
-        self.theme = Theme.create('default')
+        theme_factory = HTMLThemeFactory(self.app)
+        self.theme = theme_factory.create('default')
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self):

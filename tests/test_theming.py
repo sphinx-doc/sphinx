@@ -10,14 +10,10 @@
 """
 
 import os
-import zipfile
 
-import mock
 import pytest
 
-from sphinx.theming import Theme, ThemeError
-
-from util import path
+from sphinx.theming import ThemeError
 
 
 @pytest.mark.sphinx(
@@ -27,12 +23,12 @@ def test_theme_api(app, status, warning):
     cfg = app.config
 
     # test Theme class API
-    assert set(Theme.themes.keys()) == \
+    assert set(app.html_themes.keys()) == \
         set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
              'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
              'pyramid', 'bizstyle', 'classic', 'nonav'])
-    assert Theme.themes['testtheme'] == app.srcdir / 'testtheme'
-    assert Theme.themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
+    assert app.html_themes['testtheme'] == app.srcdir / 'testtheme'
+    assert app.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
 
     # test Theme instance API
     theme = app.builder.theme

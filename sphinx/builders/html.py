@@ -40,7 +40,7 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
 from sphinx.locale import _, l_
 from sphinx.search import js_index
-from sphinx.theming import Theme
+from sphinx.theming import HTMLThemeFactory
 from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
@@ -196,9 +196,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self):
         # type: () -> None
-        Theme.init_themes(self.confdir, self.config.html_theme_path)
+        theme_factory = HTMLThemeFactory(self.app)
         themename, themeoptions = self.get_theme_config()
-        self.theme = Theme.create(themename)
+        self.theme = theme_factory.create(themename)
         self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)

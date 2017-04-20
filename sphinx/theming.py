@@ -30,12 +30,13 @@ logger = logging.getLogger(__name__)
 if False:
     # For type annotation
     from typing import Any, Dict, Iterator, List, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
 
-class _Theme(object):
+class Theme(object):
     def __init__(self):
         # type: () -> None
         self.name = None
@@ -126,69 +127,56 @@ def is_archived_theme(filename):
         return False
 
 
-def find_theme_entries(themedir):
-    # type: (unicode) -> Iterator[Tuple[unicode, unicode]]
-    for entry in os.listdir(themedir):
-        pathname = path.join(themedir, entry)
-        if path.isfile(pathname) and entry.lower().endswith('.zip'):
-            if is_archived_theme(pathname):
-                name = entry[:-4]
-                yield name, pathname
-            else:
-                logger.warning(_('file %r on theme path is not a valid '
-                                 'zipfile or contains no theme'), entry)
-        else:
-            if path.isfile(path.join(pathname, THEMECONF)):
-                yield entry, pathname
+class HTMLThemeFactory(object):
+    """A factory class for HTML Themes."""
 
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        self.confdir = app.confdir
+        self.themes = app.html_themes
+        self.load_builtin_themes()
+        if getattr(app.config, 'html_theme_path', None):
+            self.load_additional_themes(app.config.html_theme_path)
 
-class Theme(object):
-    """
-    Represents the theme chosen in the configuration.
-    """
-    themes = {}     # type: Dict[unicode, unicode]
+    def load_builtin_themes(self):
+        # type: () -> None
+        themes = self.find_themes(path.join(package_dir, 'themes'))
+        for name, theme in iteritems(themes):
+            self.themes[name] = theme
 
-    @classmethod
-    def init_themes(cls, confdir, theme_path):
-        # type: (unicode, unicode) -> None
-        """Search all theme paths for available themes."""
-        themepath = list(theme_path)
-        themepath.append(path.join(package_dir, 'themes'))
+    def load_additional_themes(self, theme_paths):
+        # type: (unicode) -> None
+        for theme_path in theme_paths:
+            abs_theme_path = path.abspath(path.join(self.confdir, theme_path))
+            themes = self.find_themes(abs_theme_path)
+            for name, theme in iteritems(themes):
+                self.themes[name] = theme
 
-        # search themes from theme_paths
-        for themedir in themepath:
-            themedir = path.abspath(path.join(confdir, themedir))
-            if not path.isdir(themedir):
-                continue
-            else:
-                for name, theme in find_theme_entries(themedir):
-                    cls.themes[name] = theme
-
-    @classmethod
-    def load_extra_theme(cls, name):
+    def load_extra_theme(self, name):
+        # type: (unicode) -> None
         if name == 'alabaster':
-            cls.load_alabaster()
+            self.load_alabaster_theme()
         elif name == 'sphinx_rtd_theme':
-            cls.load_sphinx_rtd_theme()
+            self.load_sphinx_rtd_theme()
         else:
-            pass
+            self.load_external_theme(name)
 
-    @classmethod
-    def load_alabaster(cls):
+    def load_alabaster_theme(self):
+        # type: () -> None
         import alabaster
-        cls.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
+        self.themes['alabaster'] = path.join(alabaster.get_path(), 'alabaster')
 
-    @classmethod
-    def load_sphinx_rtd_theme(cls):
+    def load_sphinx_rtd_theme(self):
+        # type: () -> None
         try:
             import sphinx_rtd_theme
-            cls.themes['sphinx_rtd_theme'] = path.join(sphinx_rtd_theme.get_html_theme_path(),
-                                                       'sphinx_rtd_theme')
+            theme_path = sphinx_rtd_theme.get_html_theme_path()
+            self.themes['sphinx_rtd_theme'] = path.join(theme_path, 'sphinx_rtd_theme')
         except ImportError:
             pass
 
-    @classmethod
-    def load_external_themes(cls, name):
+    def load_external_themes(self, name):
+        # type: (unicode) -> None
         for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
             target = entry_point.load()
             if callable(target):
@@ -199,17 +187,38 @@ class Theme(object):
             else:
                 themedir = target
 
-            for entry, theme in find_theme_entries(themedir):
+            themes = self.find_themes(themedir)
+            for entry, theme in iteritems(themes):
                 if name == entry:
-                    cls.themes[entry] = theme
+                    self.themes[name] = theme
 
-    @classmethod
-    def create(cls, name):
-        # type: (unicode) -> None
-        if name not in cls.themes:
-            cls.load_extra_theme(name)
+    def find_themes(self, theme_path):
+        # type: (unicode) -> Dict[unicode, unicode]
+        themes = {}
+        if not path.isdir(theme_path):
+            return themes
 
-        if name not in cls.themes:
+        for entry in os.listdir(theme_path):
+            pathname = path.join(theme_path, entry)
+            if path.isfile(pathname) and entry.lower().endswith('.zip'):
+                if is_archived_theme(pathname):
+                    name = entry[:-4]
+                    themes[name] = pathname
+                else:
+                    logger.warning(_('file %r on theme path is not a valid '
+                                     'zipfile or contains no theme'), entry)
+            else:
+                if path.isfile(path.join(pathname, THEMECONF)):
+                    themes[entry] = pathname
+
+        return themes
+
+    def create(self, name):
+        # type: (unicode) -> Theme
+        if name not in self.themes:
+            self.load_extra_theme(name)
+
+        if name not in self.themes:
             if name == 'sphinx_rtd_theme':
                 raise ThemeError(_('sphinx_rtd_theme is no longer a hard dependency '
                                    'since version 1.4.0. Please install it manually.'
@@ -218,10 +227,10 @@ class Theme(object):
                 raise ThemeError(_('no theme named %r found '
                                    '(missing theme.conf?)') % name)
 
-        theme = _Theme()
+        theme = Theme()
         theme.name = name
 
-        themedir = cls.themes[name]
+        themedir = self.themes[name]
         if path.isdir(themedir):
             # already a directory, do nothing
             theme.rootdir = None
@@ -253,10 +262,10 @@ class Theme(object):
 
         if inherit == 'none':
             theme.base = None
-        elif inherit not in cls.themes:
+        elif inherit not in self.themes:
             raise ThemeError('no theme named %r found, inherited by %r' %
                              (inherit, name))
         else:
-            theme.base = cls.create(inherit)
+            theme.base = self.create(inherit)
 
         return theme
