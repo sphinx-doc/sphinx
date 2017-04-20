@@ -36,13 +36,50 @@ NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
 
+def extract_zip(filename, targetdir):
+    ensuredir(targetdir)
+
+    with ZipFile(filename) as archive:  # type: ignore
+        for name in archive.namelist():
+            if name.endswith('/'):
+                continue
+            entry = path.join(targetdir, name)
+            ensuredir(path.dirname(entry))
+            with open(path.join(entry), 'wb') as fp:
+                fp.write(archive.read(name))
+
+
 class Theme(object):
-    def __init__(self):
-        # type: () -> None
-        self.name = None
+    def __init__(self, name, theme_path, factory):
+        # type: (unicode, unicode, HTMLThemeFactory) -> None
+        self.name = name
         self.base = None
-        self.themedir = None
-        self.themeconf = None
+        self.rootdir = None
+
+        if path.isdir(theme_path):
+            # already a directory, do nothing
+            self.rootdir = None
+            self.themedir = theme_path
+        else:
+            # extract the theme to a temp directory
+            self.rootdir = tempfile.mkdtemp('sxt')
+            self.themedir = path.join(self.rootdir, name)
+            extract_zip(theme_path, self.themedir)
+
+        self.config = configparser.RawConfigParser()
+        self.config.read(path.join(self.themedir, THEMECONF))  # type: ignore
+
+        try:
+            inherit = self.config.get('theme', 'inherit')
+        except configparser.NoOptionError:
+            raise ThemeError(_('theme %r doesn\'t have "inherit" setting') % name)
+
+        if inherit != 'none':
+            try:
+                self.base = factory.create(inherit)
+            except ThemeError:
+                raise ThemeError(_('no theme named %r found, inherited by %r') %
+                                 (inherit, name))
 
     @property
     def dirs(self):
@@ -68,7 +105,7 @@ class Theme(object):
         base theme chain.
         """
         try:
-            return self.themeconf.get(section, name)  # type: ignore
+            return self.config.get(section, name)  # type: ignore
         except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base:
                 return self.base.get_config(section, name, default)
@@ -95,7 +132,7 @@ class Theme(object):
             options = {}  # type: Dict[unicode, Any]
 
         try:
-            options.update(self.themeconf.items('options'))
+            options.update(self.config.items('options'))
         except configparser.NoSectionError:
             pass
 
@@ -109,7 +146,7 @@ class Theme(object):
     def cleanup(self):
         # type: () -> None
         """Remove temporary directories."""
-        if self.themedir_created:
+        if self.rootdir:
             try:
                 shutil.rmtree(self.rootdir)
             except Exception:
@@ -227,45 +264,4 @@ class HTMLThemeFactory(object):
                 raise ThemeError(_('no theme named %r found '
                                    '(missing theme.conf?)') % name)
 
-        theme = Theme()
-        theme.name = name
-
-        themedir = self.themes[name]
-        if path.isdir(themedir):
-            # already a directory, do nothing
-            theme.rootdir = None
-            theme.themedir = themedir
-            theme.themedir_created = False
-        else:
-            # extract the theme to a temp directory
-            theme.rootdir = tempfile.mkdtemp('sxt')
-            theme.themedir = path.join(theme.rootdir, name)
-            theme.themedir_created = True
-            ensuredir(theme.themedir)
-
-            with ZipFile(themedir) as archive:  # type: ignore
-                for name in archive.namelist():
-                    if name.endswith('/'):
-                        continue
-                    filename = path.join(theme.themedir, name)
-                    ensuredir(path.dirname(filename))
-                    with open(path.join(filename), 'wb') as fp:
-                        fp.write(archive.read(name))
-
-        theme.themeconf = configparser.RawConfigParser()
-        theme.themeconf.read(path.join(theme.themedir, THEMECONF))  # type: ignore
-
-        try:
-            inherit = theme.themeconf.get('theme', 'inherit')
-        except configparser.NoOptionError:
-            raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
-
-        if inherit == 'none':
-            theme.base = None
-        elif inherit not in self.themes:
-            raise ThemeError('no theme named %r found, inherited by %r' %
-                             (inherit, name))
-        else:
-            theme.base = self.create(inherit)
-
-        return theme
+        return Theme(name, self.themes[name], factory=self)

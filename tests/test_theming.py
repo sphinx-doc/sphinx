@@ -33,7 +33,6 @@ def test_theme_api(app, status, warning):
     # test Theme instance API
     theme = app.builder.theme
     assert theme.name == 'ziptheme'
-    assert theme.themedir_created
     themedir = theme.themedir
     assert theme.base.name == 'basic'
     assert len(theme.get_dirchain()) == 2
