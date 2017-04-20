@@ -31,8 +31,8 @@ def test_theme_api(app, status, warning):
         set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
              'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
              'pyramid', 'bizstyle', 'classic', 'nonav'])
-    assert Theme.themes['testtheme'][1] is None
-    assert isinstance(Theme.themes['ziptheme'][1], zipfile.ZipFile)
+    assert Theme.themes['testtheme'] == app.srcdir / 'testtheme'
+    assert Theme.themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
 
     # test Theme instance API
     theme = app.builder.theme
@@ -88,21 +88,13 @@ def test_js_source(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
-def test_double_inheriting_theme(make_app, app_params):
-    from sphinx.theming import load_theme_plugins  # load original before patching
-
-    def load_themes():
-        roots = path(__file__).abspath().parent / 'roots'
-        yield roots / 'test-double-inheriting-theme' / 'base_themes_dir'
-        for t in load_theme_plugins():
-            yield t
-
-    with mock.patch('sphinx.theming.load_theme_plugins', side_effect=load_themes):
-        args, kwargs = app_params
-        make_app(*args, **kwargs)
+def test_double_inheriting_theme(app, status, warning):
+    assert app.builder.theme.name == 'base_theme2'
+    app.build()  # => not raises TemplateNotFound
 
 
 @pytest.mark.sphinx(testroot='theming',
                     confoverrides={'html_theme': 'child'})
 def test_nested_zipped_theme(app, status, warning):
+    assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
