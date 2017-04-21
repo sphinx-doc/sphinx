@@ -12,6 +12,7 @@
 import os
 import warnings
 from os import path
+import subprocess
 
 from six import iteritems
 
@@ -57,6 +58,17 @@ class LaTeXBuilder(Builder):
         self.docnames = []          # type: Iterable[unicode]
         self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
         self.usepackages = []       # type: List[unicode]
+        self.svg_support = False
+        with open(os.devnull, 'w') as FNULL:
+            try:
+                retcode = subprocess.call(['inkscape', '--version'],
+                                          stdout=FNULL,
+                                          stderr=subprocess.STDOUT)
+                if retcode == 0:
+                    self.supported_image_types.append('image/svg+xml')
+                    self.svg_support = True
+            except OSError:
+                pass
         texescape.init()
 
     def get_outdated_docs(self):
@@ -139,6 +151,11 @@ class LaTeXBuilder(Builder):
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
             doctree['tocdepth'] = tocdepth
             self.post_process_images(doctree)
+            if self.svg_support:
+                for img_src, img_dest in iteritems(self.images):
+                    img_name, ext = path.splitext(img_dest)
+                    if ext == '.svg':
+                        self.images[img_src] = "{0}_svg2pdf.pdf".format(img_name)
             logger.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
@@ -207,9 +224,19 @@ class LaTeXBuilder(Builder):
     def finish(self):
         # type: () -> None
         # copy image files
+        been_warned = False
         if self.images:
             logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
+                destname, ext = path.splitext(dest)
+                if self.svg_support and destname.endswith('_svg2pdf') and ext == '.pdf':
+                    self.svg2pdf(src, dest)
+                    continue
+                elif not self.svg_support and ext == '.svg' and not been_warned:
+                    self.info("LaTeX builder initialized without SVG support."
+                              " You can enable SVG support by installing"
+                              " Inkscape (https://inkscape.org/)")
+                    been_warned = True
                 logger.info(' ' + src, nonl=1)
                 copy_asset_file(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
@@ -239,6 +266,31 @@ class LaTeXBuilder(Builder):
             else:
                 copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
         logger.info('done')
+
+    def svg2pdf(self, img_src, img_dest):
+        """
+        LaTeX can't handle SVG images directly, so this method calls Inkscape to
+        convert SVG to pdf images.
+        """
+        cmd = ['inkscape',
+               '-z',
+               '-C',
+               '-f',
+               path.join(self.srcdir, img_src),
+               '-A',
+               path.join(self.outdir, img_dest)]
+        success = False
+        with open(os.devnull, 'w') as FNULL:
+            try:
+                returncode = subprocess.call(cmd, stdout=FNULL, stderr=subprocess.STDOUT)
+                if returncode == 0:
+                    success = True
+            except OSError:
+                pass
+        if not success:
+            _, imgname = path.split(img_src)
+            self.warn("SVG to PDF conversion failed: '{}' will not be rendered"
+                      .format(imgname))
 
 
 def validate_config_values(app):
