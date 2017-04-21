@@ -13,6 +13,11 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #2720: Images and downloads with non unique names now end up in unique
+  subdirectories. Previously they would get new unique names, so you could get
+  ``CMakeLists5.txt`` etc. This confuses users of the documentation, since the file
+  name is required to be ``CMakeLists.txt``. The new file layout will cause broken
+  links if non Sphinx web pages link directly to an image or a download.
 * #1061, #2336, #3235: Now generation of autosummary doesn't contain imported
   members by default. Thanks to Luc Saffre.
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``

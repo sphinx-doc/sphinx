@@ -169,13 +169,13 @@ def test_static_output(app):
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
-        (".//img[@src='_images/img1.png']", ''),
+        (".//img[@src='_images/subdir1/img.png']", ''),
         (".//img[@src='_images/simg.png']", ''),
         (".//img[@src='_images/svgimg.svg']", ''),
         (".//a[@href='_sources/images.txt']", ''),
     ],
     'subdir/images.html': [
-        (".//img[@src='../_images/img1.png']", ''),
+        (".//img[@src='../_images/subdir1/img.png']", ''),
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
@@ -188,7 +188,7 @@ def test_static_output(app):
     'includes.html': [
         (".//pre", u'Max Strauß'),
         (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
+        (".//a[@href='_downloads/subdir1/img.png']", ''),
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),

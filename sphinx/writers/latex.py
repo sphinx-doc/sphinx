@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import split_into, logging
+from sphinx.util import split_into, logging, flat_file_name
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
@@ -1735,6 +1735,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if uri.find('://') != -1:
             # ignore remote images
             return
+        uri = flat_file_name(uri)
         self.body.extend(pre)
         options = ''
         if include_graphics_options:

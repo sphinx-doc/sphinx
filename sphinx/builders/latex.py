@@ -22,7 +22,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.deprecation import RemovedInSphinx17Warning
-from sphinx.util import texescape, logging
+from sphinx.util import texescape, logging, flat_file_name
 from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -211,6 +211,7 @@ class LaTeXBuilder(Builder):
             logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
                 logger.info(' ' + src, nonl=1)
+                dest = flat_file_name(dest)
                 copy_asset_file(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
             logger.info('')

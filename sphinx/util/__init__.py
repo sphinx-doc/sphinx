@@ -130,11 +130,11 @@ class FilenameUniqDict(dict):
             self[newfile][0].add(docname)
             return self[newfile][1]
         uniquename = path.basename(newfile)
-        base, ext = path.splitext(uniquename)
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = '%s%s%s' % (base, i, ext)
+            # Make file path unique while leaving file name unchanged
+            uniquename = path.join('subdir%s' % i, path.basename(newfile))
         self[newfile] = (set([docname]), uniquename)
         self._existing.add(uniquename)
         return uniquename
@@ -160,6 +160,19 @@ class FilenameUniqDict(dict):
     def __setstate__(self, state):
         # type: (Set[unicode]) -> None
         self._existing = state
+
+
+def flat_file_name(file_name):
+    """
+    FilenameUniqDict.add_file() may introduce subdirs to an image path. We
+    remove these for latex and texinfor builders that expects a flat file
+    structure. This function provides a canonical way to do that
+    """
+    subdir, fn = path.split(file_name)
+    if subdir:
+        return subdir + '__slash__' + fn
+    else:
+        return file_name
 
 
 def copy_static_entry(source, targetdir, builder, context={},
