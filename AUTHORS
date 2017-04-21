@@ -12,6 +12,7 @@ Other co-maintainers:
 * Robert Lehmann <@lehmannro>
 * Roland Meister <@rolmei>
 * Takeshi Komiya <@tk0miya>
+* Yoshiki Shibukawa <@shibu_jp>
 
 Other contributors, listed alphabetically, are:
 
@@ -55,7 +56,6 @@ Other contributors, listed alphabetically, are:
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
-* Shibukawa Yoshiki -- pluggable search API and Japanese search, epub3 builder improvements
 * Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
 * Filip Vavera -- napoleon todo directive
