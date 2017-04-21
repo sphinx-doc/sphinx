@@ -47,6 +47,11 @@ THEME_WRITING_MODES = {
 
 DOCTYPE = '''<!DOCTYPE html>'''
 
+HTML_TAG = (
+    u'<html xmlns="http://www.w3.org/1999/xhtml" '
+    u'xmlns:epub="http://www.idpf.org/2007/ops">'
+)
+
 
 class Epub3Builder(_epub_base.EpubBuilder):
     """
@@ -60,6 +65,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
     template_dir = path.join(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
+    html_tag = HTML_TAG
+    use_meta_charset = True
 
     # Finish by building the epub file
     def handle_finish(self):
@@ -134,6 +141,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         writing_mode = self.config.epub_writing_mode
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
+        self.globalcontext['html_tag'] = self.html_tag
+        self.globalcontext['use_meta_charset'] = self.use_meta_charset
 
     def build_navlist(self, navnodes):
         # type: (List[nodes.Node]) -> List[NavPoint]
