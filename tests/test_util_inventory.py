@@ -37,6 +37,10 @@ CFunc c:function 2 cfunc.html#CFunc -
 a term std:term -1 glossary.html#term-a-term -
 ls.-l std:cmdoption 1 index.html#cmdoption-ls-l -
 docname std:doc -1 docname.html -
+foo js:module 1 index.html#foo -
+foo.bar js:class 1 index.html#foo.bar -
+foo.bar.baz js:method 1 index.html#foo.bar.baz -
+foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 '''.encode('utf-8'))
 

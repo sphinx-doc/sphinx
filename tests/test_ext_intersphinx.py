@@ -212,6 +212,30 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     assert rn.astext() == 'ls -l'
 
 
+def test_missing_reference_jsdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # js:module and js:object context helps to search objects
+    kwargs = {'js:module': 'foo', 'js:object': 'bar'}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'baz()'
+
+
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
