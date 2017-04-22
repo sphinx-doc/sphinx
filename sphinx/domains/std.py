@@ -849,7 +849,11 @@ class StandardDomain(Domain):
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in iteritems(self.data['progoptions']):
-            yield (option, option, 'cmdoption', info[0], info[1], 1)
+            if prog:
+                fullname = ".".join([prog, option])
+                yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
+            else:
+                yield (option, option, 'cmdoption', info[0], info[1], 1)
         for (type, name), info in iteritems(self.data['objects']):
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
@@ -924,6 +928,15 @@ class StandardDomain(Domain):
                 # target_node is found, but fignumber is not assigned.
                 # Maybe it is defined in orphaned document.
                 raise ValueError
+
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        progname = node.get('std:program')
+        target = node.get('reftarget')
+        if progname is None or target is None:
+            return None
+        else:
+            return '.'.join([progname, target])
 
 
 def setup(app):

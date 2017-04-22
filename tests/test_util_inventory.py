@@ -35,6 +35,7 @@ module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
 a term std:term -1 glossary.html#term-a-term -
+ls.-l std:cmdoption 1 index.html#cmdoption-ls-l -
 docname std:doc -1 docname.html -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 '''.encode('utf-8'))
