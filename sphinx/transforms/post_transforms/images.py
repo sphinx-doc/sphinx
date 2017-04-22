@@ -24,7 +24,7 @@ from sphinx.util.osutil import ensuredir
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -156,12 +156,14 @@ class ImageConverter(BaseImageConverter):
     default_priority = 200
 
     #: A conversion rules between two mimetypes which this converters supports
-    conversion_rules = []
+    conversion_rules = []  # type: List[Tuple[unicode, unicode]]
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
-        self.available = None  # not checked yet
-        BaseImageConverter.__init__(self, *args, **kwargs)
+        self.available = None   # type: bool
+                                # the converter is available or not.
+                                # Will be checked at first conversion
+        BaseImageConverter.__init__(self, *args, **kwargs)  # type: ignore
 
     def match(self, node):
         # type: (nodes.Node) -> bool
@@ -196,7 +198,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplemented
 
     def guess_mimetypes(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Node) -> List[unicode]
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -230,7 +232,7 @@ class ImageConverter(BaseImageConverter):
             self.env.images.add_file(self.env.docname, destpath)
 
     def convert(self, _from, _to):
-        # type: (unicode, unicode) -> None
+        # type: (unicode, unicode) -> bool
         """Converts the image to expected one."""
         raise NotImplemented
 

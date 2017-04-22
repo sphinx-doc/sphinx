@@ -48,7 +48,7 @@ class ImagemagickConverter(ImageConverter):
             return False
 
     def convert(self, _from, _to):
-        # type: (unicode, unicode) -> None
+        # type: (unicode, unicode) -> bool
         """Converts the image to expected one."""
         try:
             args = ([self.config.image_converter] +
