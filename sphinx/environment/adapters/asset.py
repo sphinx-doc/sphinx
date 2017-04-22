@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.environment.adapters.assets
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.environment.adapters.asset
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Assets adapter for sphinx.environment.
 
