@@ -19,12 +19,15 @@ import posixpath
 import traceback
 import unicodedata
 from os import path
+from time import mktime, strptime
 from codecs import BOM_UTF8
+from datetime import datetime
 from collections import deque
 
 from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
+from babel.dates import format_datetime
 from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
@@ -615,3 +618,14 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
         yield item
     if l > 0:
         logger.info('')
+
+
+def epoch_to_rfc1123(epoch):
+    """Convert datetime format epoch to RFC1123."""
+    dt = datetime.fromtimestamp(epoch)
+    fmt = 'EEE, dd LLL yyyy hh:mm:ss'
+    return format_datetime(dt, fmt, locale='en') + ' GMT'
+
+
+def rfc1123_to_epoch(rfc1123):
+    return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))

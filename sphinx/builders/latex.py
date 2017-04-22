@@ -13,8 +13,6 @@ import os
 import warnings
 from os import path
 
-from six import iteritems
-
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -22,12 +20,13 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.deprecation import RemovedInSphinx17Warning
-from sphinx.util import texescape, logging
 from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import SEP, make_filename
@@ -51,6 +50,7 @@ class LaTeXBuilder(Builder):
     name = 'latex'
     format = 'latex'
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
+    supported_remote_images = False
 
     def init(self):
         # type: () -> None
@@ -206,14 +206,7 @@ class LaTeXBuilder(Builder):
 
     def finish(self):
         # type: () -> None
-        # copy image files
-        if self.images:
-            logger.info(bold('copying images...'), nonl=1)
-            for src, dest in iteritems(self.images):
-                logger.info(' ' + src, nonl=1)
-                copy_asset_file(path.join(self.srcdir, src),
-                                path.join(self.outdir, dest))
-            logger.info('')
+        self.copy_image_files()
 
         # copy TeX support files from texinputs
         context = {'latex_engine': self.config.latex_engine}
@@ -239,6 +232,21 @@ class LaTeXBuilder(Builder):
             else:
                 copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
         logger.info('done')
+
+    def copy_image_files(self):
+        # type: () -> None
+        if self.images:
+            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            for src in status_iterator(self.images, 'copying images... ', "brown",
+                                       len(self.images), self.app.verbosity,
+                                       stringify_func=stringify_func):
+                dest = self.images[src]
+                try:
+                    copy_asset_file(path.join(self.srcdir, src),
+                                    path.join(self.outdir, dest))
+                except Exception as err:
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
 
 def validate_config_values(app):

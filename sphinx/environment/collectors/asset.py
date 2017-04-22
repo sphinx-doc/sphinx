@@ -59,14 +59,9 @@ class ImageCollector(EnvironmentCollector):
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
-                logger.warning('image data URI found. some builders might not support',
-                               location=node, type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                logger.warning('nonlocal image URI found: %s' % imguri,
-                               location=node,
-                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)

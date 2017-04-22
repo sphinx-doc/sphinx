@@ -47,6 +47,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
+from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.adapters.indexentries import IndexEntries
 
@@ -119,6 +120,8 @@ class StandaloneHTMLBuilder(Builder):
     html_scaled_image_link = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
+    supported_remote_images = True
+    supported_data_uri_images = True
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     allow_sharp_as_current_path = True
@@ -629,11 +632,12 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_image_files(self):
         # type: () -> None
-        # copy image files
         if self.images:
+            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             ensuredir(path.join(self.outdir, self.imagedir))
             for src in status_iterator(self.images, 'copying images... ', "brown",
-                                       len(self.images), self.app.verbosity):
+                                       len(self.images), self.app.verbosity,
+                                       stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),

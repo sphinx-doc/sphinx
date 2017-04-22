@@ -40,8 +40,6 @@ def test_first_update():
 def test_images():
     assert ('image file not readable: foo.png'
             in app._warning.getvalue())
-    assert ('nonlocal image URI found: http://www.python.org/logo.png'
-            in app._warning.getvalue())
 
     tree = env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)

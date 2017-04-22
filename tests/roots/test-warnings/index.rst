@@ -15,9 +15,6 @@ test-warnings
 .. an SVG image (for HTML at least)
 .. image:: svgimg.*
 
-.. a non-local image URI
-.. image:: http://www.python.org/logo.png
-
 .. should give a warning
 .. literalinclude:: wrongenc.inc
    :language: none

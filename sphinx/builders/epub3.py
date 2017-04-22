@@ -63,6 +63,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     """
     name = 'epub'
 
+    supported_remote_images = False
     template_dir = path.join(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
     html_tag = HTML_TAG
