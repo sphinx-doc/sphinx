@@ -15,3 +15,4 @@ requests
 html5lib
 enum34
 typing
+https://github.com/sphinx-doc/sphinxcontrib-websupport/archive/master.zip
