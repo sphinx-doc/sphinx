@@ -1,6 +1,6 @@
 .. _websupportapi:
 
-.. currentmodule:: sphinx.websupport
+.. currentmodule:: sphinxcontrib.websupport
 
 The WebSupport Class
 ====================
@@ -49,17 +49,24 @@ The WebSupport Class
        should be a string specifying that path (e.g. ``'docs'``).
 
 
+.. versionchanged:: 1.6
+
+   WebSupport class is moved to sphinxcontrib.websupport from sphinx.websupport.
+   Please add ``sphinxcontrib-websupport`` package in your dependency and use
+   moved class instead.
+
+
 Methods
 ~~~~~~~
 
-.. automethod:: sphinx.websupport.WebSupport.build
+.. automethod:: sphinxcontrib.websupport.WebSupport.build
 
-.. automethod:: sphinx.websupport.WebSupport.get_document
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_document
 
-.. automethod:: sphinx.websupport.WebSupport.get_data
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_data
 
-.. automethod:: sphinx.websupport.WebSupport.add_comment
+.. automethod:: sphinxcontrib.websupport.WebSupport.add_comment
 
-.. automethod:: sphinx.websupport.WebSupport.process_vote
+.. automethod:: sphinxcontrib.websupport.WebSupport.process_vote
 
-.. automethod:: sphinx.websupport.WebSupport.get_search_results
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_search_results
