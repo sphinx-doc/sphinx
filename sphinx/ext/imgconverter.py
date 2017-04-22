@@ -51,8 +51,10 @@ class ImagemagickConverter(ImageConverter):
         # type: (unicode, unicode) -> None
         """Converts the image to expected one."""
         try:
-            p = subprocess.Popen([self.config.image_converter, _from, _to],
-                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            args = ([self.config.image_converter] +
+                    self.config.image_converter_args +
+                    [_from, _to])
+            p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         except OSError as err:
             if err.errno != ENOENT:  # No such file or directory
                 raise
@@ -80,6 +82,7 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(ImagemagickConverter)
     app.add_config_value('image_converter', 'convert', 'env')
+    app.add_config_value('image_converter_args', [], 'env')
 
     return {
         'version': 'builtin',

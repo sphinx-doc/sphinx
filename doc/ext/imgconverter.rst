@@ -23,3 +23,8 @@ Configuration
 
    A path to :command:`convert` command.  By default, the imgconverter uses
    the command from search paths.
+
+.. confval:: image_converter_args
+
+   Additional command-line arguments to give to :command:`convert`, as a list.
+   The default is an empty list ``[]``.
