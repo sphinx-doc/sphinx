@@ -48,17 +48,6 @@ def test_html_with_set_translator_for_html_(app, status, warning):
     assert translator_class.__name__ == 'ConfHTMLTranslator'
 
 
-# this test break test_websupport.test_comments test. why?
-# @pytest.mark.sphinx(
-#     buildername='dirhtml',
-#     srcdir=(test_roots / 'test-api-set-translator'),
-# )
-# def test_dirhtml_set_translator_for_dirhtml(app, status, warning):
-#     translator_class = app.builder.translator_class
-#     assert translator_class
-#     assert translator_class.__name__ == 'ConfDirHTMLTranslator'
-
-
 @pytest.mark.sphinx('singlehtml', testroot='api-set-translator')
 def test_singlehtml_set_translator_for_singlehtml(app, status, warning):
     translator_class = app.builder.translator_class
