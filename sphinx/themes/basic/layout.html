@@ -110,9 +110,17 @@
     {%- endfor %}
 {%- endmacro %}
 
+{%- if html_tag %}
+{{ html_tag }}
+{%- else %}
 <html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
+{%- endif %}
   <head>
+    {%- if use_meta_charset %}
+    <meta charset="{{ encoding }}" />
+    {%- else %}
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
+    {%- endif %}
     {{ metatags }}
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>

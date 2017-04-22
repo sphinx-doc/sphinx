@@ -61,11 +61,12 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.theming import Theme  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
-    'sphinx.builders.epub',
+    'sphinx.builders.epub2',
     'sphinx.builders.epub3',
     'sphinx.builders.devhelp',
     'sphinx.builders.dummy',
@@ -128,6 +129,7 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.post_transforms = []               # type: List[Transform]
+        self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -739,15 +741,15 @@ class Sphinx(object):
     def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
         logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder
-        props = {'rel': 'stylesheet',
-                 'filename': filename,
-                 'title': title}  # type: Dict[unicode, unicode]
+        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
         if '://' not in filename:
-            props['filename'] = posixpath.join('_static', filename)
+            filename = posixpath.join('_static', filename)
         if alternate:
-            props['rel'] = 'alternate stylesheet'
-        StandaloneHTMLBuilder.css_files.append(props)
+            rel = u'alternate stylesheet'
+        else:
+            rel = u'stylesheet'
+        css = Stylesheet(filename, title, rel)  # type: ignore
+        StandaloneHTMLBuilder.css_files.append(css)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
@@ -806,7 +808,7 @@ class TemplateBridge(object):
     """
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, unicode, List[unicode]) -> None
+        # type: (Builder, Theme, List[unicode]) -> None
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the

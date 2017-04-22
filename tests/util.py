@@ -24,7 +24,6 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import application
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.deprecation import RemovedInSphinx17Warning
@@ -168,7 +167,6 @@ class SphinxTestApp(application.Sphinx):
             raise
 
     def cleanup(self, doctrees=False):
-        Theme.themes.clear()
         AutoDirective._registry.clear()
         ModuleAnalyzer.cache.clear()
         LaTeXBuilder.usepackages = []

@@ -125,8 +125,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-.. module:: sphinx.builders.epub
-.. class:: EpubBuilder
+.. module:: sphinx.builders.epub2
+.. class:: Epub2Builder
 
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
