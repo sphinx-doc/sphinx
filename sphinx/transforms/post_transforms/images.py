@@ -84,8 +84,9 @@ class ImageDownloader(BaseImageConverter):
             else:
                 self.app.env.original_image_uri[path] = node['uri']
 
-                with open(path, 'wb') as f:
-                    f.write(r.content)
+                if r.status_code == 200:
+                    with open(path, 'wb') as f:
+                        f.write(r.content)
 
                 last_modified = r.headers.get('last-modified')
                 if last_modified:
