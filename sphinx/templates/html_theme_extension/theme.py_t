@@ -1,0 +1,5 @@
+import os
+
+
+def setup(app):
+    app.add_html_theme('{{ name }}', os.path.dirname(os.path.abspath(__file__)))

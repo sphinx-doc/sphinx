@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
+
+setup(
+    name='sphinxcontrib-themes-{{ name }}',
+    version='1.0',
+    packages=find_packages(),
+    include_package_data=True,
+    entry_points="""
+        [sphinx.html_themes]
+        {{ name }} = sphinxcontrib.themes.{{ name }}
+    """,
+)

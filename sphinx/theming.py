@@ -10,7 +10,9 @@
 """
 
 import os
+import sys
 import shutil
+import optparse
 import tempfile
 import warnings
 from os import path
@@ -25,6 +27,7 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
@@ -286,3 +289,50 @@ class HTMLThemeFactory(object):
                                     '(missing theme.conf?)') % name)
 
         return Theme(name, self.themes[name], factory=self)
+
+
+def generator_main(argv=sys.argv):
+    # type: (List[str]) -> int
+    from sphinx import __display_version__, package_dir
+
+    USAGE = ('Sphinx v%s\n'
+             'Usage: %%prog [options] [name]\n' % __display_version__)
+
+    parser = optparse.OptionParser(USAGE, version='Sphinx v%s' % __display_version__)
+
+    try:
+        opts, args = parser.parse_args(argv[1:])
+    except SystemExit as err:
+        return err.code
+
+    if len(args) == 0:
+        print(USAGE)
+        return 0
+
+    name = args[0]
+    outdir = name
+    templvars = {'name': name}
+    template_dir = os.path.join(package_dir, 'templates', 'html_theme_extension')
+
+    if os.path.exists(outdir):
+        print('directory "%s" is already exists. exited.' % name)
+        return -1
+
+    def copyfile(src, dest=None):
+        if dest is None:
+            dest = src
+        print("copying %s ..." % dest)
+        copy_asset_file(os.path.join(template_dir, src),
+                        os.path.join(outdir, dest),
+                        context=templvars)
+
+    ensuredir(os.path.join(outdir, 'sphinxcontrib', 'themes', name))
+    copyfile('MANIFEST.in')
+    copyfile('setup.py_t', 'setup.py')
+    copyfile('sphinxcontrib/__init__.py')
+    copyfile('sphinxcontrib/themes/__init__.py')
+    copyfile('theme.py_t', 'sphinxcontrib/themes/%s/__init__.py' % name)
+    copyfile('theme.conf', 'sphinxcontrib/themes/%s/theme.conf' % name)
+    print('Finished.')
+
+    return 0
