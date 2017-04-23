@@ -87,6 +87,14 @@ def compile_latex_document(app):
                     app.config.latex_engine, p.returncode)
 
 
+def skip_if_requested(testfunc):
+    if 'SKIP_LATEX_BUILD' in os.environ:
+        msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
+        return skip_if(True, msg)(testfunc)
+    else:
+        return testfunc
+
+
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
         msg = 'not running latex, the required styles do not seem to be installed'
@@ -95,6 +103,7 @@ def skip_if_stylefiles_notfound(testfunc):
         return testfunc
 
 
+@skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
     "engine,docclass",

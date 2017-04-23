@@ -46,34 +46,14 @@ file :file:`blue.zip`, you can put it right in the directory containing
     html_theme = "blue"
     html_theme_path = ["."]
 
-The third form provides your theme path dynamically to Sphinx if the
-``setuptools`` package is installed.  You can provide an entry point section
-called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
-that has to return the directory with themes in it::
+The third form is a python package.  If a theme you want to use is distributed
+as a python package, you can use it after installing::
 
-    # 'setup.py'
+    # installing theme package
+    $ pip install sphinxjp.themes.dotted
 
-    setup(
-        ...
-        entry_points = {
-            'sphinx_themes': [
-                'path = your_package:get_path',
-            ]
-        },
-        ...
-    )
-
-    # 'your_package.py'
-
-    from os import path
-    package_dir = path.abspath(path.dirname(__file__))
-    template_path = path.join(package_dir, 'themes')
-
-    def get_path():
-        return template_path
-
-.. versionadded:: 1.2
-   'sphinx_themes' entry_points feature.
+    # use it in your conf.py
+    html_theme = "dotted"
 
 
 .. _builtin-themes:
@@ -309,6 +289,48 @@ Python :mod:`ConfigParser` module) and has the following structure:
   These options can be overridden by the user in :confval:`html_theme_options`
   and are accessible from all templates as ``theme_<name>``.
 
+
+.. _distribute-your-theme:
+
+Distribute your theme as a python package
+-----------------------------------------
+
+As a way to distribute your theme, you can use python package.  Python package
+brings to users easy setting up ways.
+
+To distribute your theme as a python package, please define an entry point
+called ``sphinx.html_themes`` in your setup.py file, and write a ``setup()``
+function to register your themes using ``add_html_theme()`` API in it::
+
+    # 'setup.py'
+    setup(
+        ...
+        entry_points = {
+            'sphinx.html_themes': [
+                'name_of_theme = your_package',
+            ]
+        },
+        ...
+    )
+
+    # 'your_package.py'
+    from os import path
+
+    def setup(app):
+        app.add_html_theme('name_of_theme', path.abspath(path.dirname(__file__)))
+
+
+If your theme package contains two or more themes, please call ``add_html_theme()``
+twice or more.
+
+.. versionadded:: 1.2
+   'sphinx_themes' entry_points feature.
+
+.. deprecated:: 1.6
+   ``sphinx_themes`` entry_points has been deprecated.
+
+.. versionadded:: 1.6
+   ``sphinx.html_themes`` entry_points feature.
 
 Templating
 ~~~~~~~~~~
