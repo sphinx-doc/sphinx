@@ -292,6 +292,10 @@ def missing_reference(app, env, node, contnode):
         # until Sphinx-1.6, cmdoptions are stored as std:option
         objtypes.append('std:option')
     to_try = [(inventories.main_inventory, target)]
+    if domain:
+        full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
+        if full_qualified_name:
+            to_try.append((inventories.main_inventory, full_qualified_name))
     in_set = None
     if ':' in target:
         # first part may be the foreign doc set name
@@ -299,6 +303,10 @@ def missing_reference(app, env, node, contnode):
         if setname in inventories.named_inventory:
             in_set = setname
             to_try.append((inventories.named_inventory[setname], newtarget))
+            if domain:
+                full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
+                if full_qualified_name:
+                    to_try.append((inventories.named_inventory[setname], full_qualified_name))
     for inventory, target in to_try:
         for objtype in objtypes:
             if objtype not in inventory or target not in inventory[objtype]:

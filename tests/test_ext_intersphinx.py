@@ -145,6 +145,18 @@ def test_missing_reference(tempdir, app, status, warning):
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'
 
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # context data (like py:module) help to search objects
+    kwargs = {'py:module': 'module1'}
+    node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn[0].astext() == 'func()'
+
     # check relative paths
     rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
     assert rn['refuri'] == 'py3k/foo.html#module-module1'
