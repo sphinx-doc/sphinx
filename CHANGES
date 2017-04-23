@@ -169,6 +169,9 @@ Deprecated
   removed at 1.7, and already its default value has changed from ``True`` to
   ``False``.
 * #3221: epub2 builder is deprecated
+* #3254: ``sphinx.websupport`` is now separated into independent package;
+  ``sphinxcontrib-websupport``.  ``sphinx.websupport`` will be removed in
+  Sphinx-2.0.
 * #3628: ``sphinx_themes`` entry_point is deprecated.  Please use
   ``sphinx.html_themes`` instead.
 
