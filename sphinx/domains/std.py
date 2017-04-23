@@ -494,14 +494,30 @@ class StandardDomain(Domain):
         'objects': {},      # (type, name) -> docname, labelid
         'citations': {},    # name -> docname, labelid
         'labels': {         # labelname -> docname, labelid, sectionname
-            'genindex': ('genindex', '', l_('Index')),
-            'modindex': ('py-modindex', '', l_('Module Index')),
-            'search':   ('search', '', l_('Search Page')),
+            'genindex':   ('genindex',      '', l_('Index')),
+            'search':     ('search',        '', l_('Search Page')),
+            'modindex':        ('py-modindex',        '', l_('Module Index')),
+            'classindex':      ('py-classindex',      '', l_('Python Class Index')),
+            'funcindex':       ('py-funcindex',       '', l_('Python Function Index')),
+            'dataindex':       ('py-dataindex',       '', l_('Python Data Index')),
+            'excindex':        ('py-excindex',        '', l_('Python Exception Index')),
+            'methindex':       ('py-methindex',       '', l_('Python Method Index')),
+            'classmethindex':  ('py-classmethindex',  '', l_('Python Class Method Index')),
+            'staticmethindex': ('py-staticmethindex', '', l_('Python Static Method Index')),
+            'attrindex':       ('py-attrindex',       '', l_('Python Attribute Index')),
         },
         'anonlabels': {     # labelname -> docname, labelid
-            'genindex': ('genindex', ''),
-            'modindex': ('py-modindex', ''),
-            'search':   ('search', ''),
+            'genindex':   ('genindex',      ''),
+            'search':     ('search',        ''),
+            'modindex':        ('py-modindex',        ''),
+            'classindex':      ('py-classindex',      ''),
+            'funcindex':       ('py-funcindex',       ''),
+            'dataindex':       ('py-dataindex',       ''),
+            'excindex':        ('py-excindex',        ''),
+            'methindex':       ('py-methindex',       ''),
+            'classmethindex':  ('py-classmethindex',  ''),
+            'staticmethindex': ('py-staticmethindex', ''),
+            'attrindex':       ('py-attrindex',       ''),
         },
     }
 
