@@ -23,7 +23,6 @@ from six.moves import configparser
 from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
-from sphinx.extension import load_extension
 from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
@@ -224,7 +223,7 @@ class HTMLThemeFactory(object):
         entry_points = pkg_resources.iter_entry_points('sphinx.html_themes', name)
         try:
             entry_point = next(entry_points)
-            load_extension(self.app, entry_point.module_name)
+            self.app.registry.load_extension(self.app, entry_point.module_name)
             return
         except StopIteration:
             pass

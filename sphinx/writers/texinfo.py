@@ -133,13 +133,10 @@ class TexinfoWriter(writers.Writer):
         # type: (TexinfoBuilder) -> None
         writers.Writer.__init__(self)
         self.builder = builder
-        self.translator_class = (
-            self.builder.translator_class or TexinfoTranslator)
 
     def translate(self):
         # type: () -> None
-        self.visitor = visitor = self.translator_class(
-            self.document, self.builder)
+        self.visitor = visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         visitor.finish()
         for attr in self.visitor_attributes:

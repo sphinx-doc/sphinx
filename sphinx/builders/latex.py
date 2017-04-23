@@ -31,7 +31,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.writers.latex import LaTeXWriter
+from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 if False:
     # For type annotation
@@ -51,6 +51,7 @@ class LaTeXBuilder(Builder):
     format = 'latex'
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
+    default_translator_class = LaTeXTranslator
 
     def init(self):
         # type: () -> None

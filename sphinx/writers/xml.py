@@ -24,8 +24,7 @@ class XMLWriter(BaseXMLWriter):
         # type: (Builder) -> None
         BaseXMLWriter.__init__(self)
         self.builder = builder
-        if self.builder.translator_class:
-            self.translator_class = self.builder.translator_class
+        self.translator_class = self.builder.get_translator_class()
 
     def translate(self, *args, **kwargs):
         # type: (Any, Any) -> None

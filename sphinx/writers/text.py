@@ -159,11 +159,10 @@ class TextWriter(writers.Writer):
         # type: (TextBuilder) -> None
         writers.Writer.__init__(self)
         self.builder = builder
-        self.translator_class = self.builder.translator_class or TextTranslator
 
     def translate(self):
         # type: () -> None
-        visitor = self.translator_class(self.document, self.builder)
+        visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.body
 

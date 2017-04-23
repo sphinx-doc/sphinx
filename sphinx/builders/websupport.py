@@ -34,6 +34,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
     name = 'websupport'
     versioning_method = 'commentable'
     versioning_compare = True  # for commentable node's uuid stability.
+    default_translator_class = WebSupportTranslator
 
     def init(self):
         # type: () -> None
@@ -53,11 +54,6 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.virtual_staticdir = virtual_staticdir
         self.search = search
         self.storage = storage
-
-    def init_translator_class(self):
-        # type: () -> None
-        if self.translator_class is None:
-            self.translator_class = WebSupportTranslator
 
     def prepare_writing(self, docnames):
         # type: (Iterable[unicode]) -> None
