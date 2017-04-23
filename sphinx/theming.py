@@ -12,6 +12,7 @@
 import os
 import shutil
 import tempfile
+import warnings
 from os import path
 from zipfile import ZipFile
 
@@ -20,6 +21,7 @@ from six import string_types, iteritems
 from six.moves import configparser
 
 from sphinx import package_dir
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import _
 from sphinx.util import logging
@@ -77,6 +79,8 @@ class Theme(object):
 
         try:
             inherit = self.config.get('theme', 'inherit')
+        except configparser.NoSectionError:
+            raise ThemeError(_('theme %r doesn\'t have "theme" setting') % name)
         except configparser.NoOptionError:
             raise ThemeError(_('theme %r doesn\'t have "inherit" setting') % name)
 
@@ -161,7 +165,7 @@ class HTMLThemeFactory(object):
 
     def __init__(self, app):
         # type: (Sphinx) -> None
-        self.confdir = app.confdir
+        self.app = app
         self.themes = app.html_themes
         self.load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
@@ -178,7 +182,7 @@ class HTMLThemeFactory(object):
         # type: (unicode) -> None
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
-            abs_theme_path = path.abspath(path.join(self.confdir, theme_path))
+            abs_theme_path = path.abspath(path.join(self.app.confdir, theme_path))
             themes = self.find_themes(abs_theme_path)
             for name, theme in iteritems(themes):
                 self.themes[name] = theme
@@ -215,6 +219,16 @@ class HTMLThemeFactory(object):
 
         Sphinx refers to ``sphinx_themes`` entry_points.
         """
+        # look up for new styled entry_points at first
+        entry_points = pkg_resources.iter_entry_points('sphinx.html_themes', name)
+        try:
+            entry_point = next(entry_points)
+            self.app.registry.load_extension(self.app, entry_point.module_name)
+            return
+        except StopIteration:
+            pass
+
+        # look up for old styled entry_points
         for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
             target = entry_point.load()
             if callable(target):
@@ -228,6 +242,9 @@ class HTMLThemeFactory(object):
             themes = self.find_themes(themedir)
             for entry, theme in iteritems(themes):
                 if name == entry:
+                    warnings.warn('``sphinx_themes`` entry point is now deprecated. '
+                                  'Please use ``sphinx.html_themes`` instead.',
+                                  RemovedInSphinx20Warning)
                     self.themes[name] = theme
 
     def find_themes(self, theme_path):

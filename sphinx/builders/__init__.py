@@ -11,6 +11,7 @@
 
 import os
 from os import path
+import warnings
 
 try:
     import multiprocessing
@@ -20,6 +21,7 @@ except ImportError:
 from six import itervalues
 from docutils import nodes
 
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
 from sphinx.util.osutil import SEP, relative_uri
 from sphinx.util.i18n import find_catalog
@@ -53,6 +55,9 @@ class Builder(object):
     name = ''  # type: unicode
     #: The builder's output format, or '' if no document output is produced.
     format = ''  # type: unicode
+    # default translator class for the builder.  This will be overrided by
+    # ``app.set_translator()``.
+    default_translator_class = None  # type: nodes.NodeVisitor
     # doctree versioning method
     versioning_method = 'none'  # type: unicode
     versioning_compare = False
@@ -101,15 +106,44 @@ class Builder(object):
         self.parallel_ok = False
         self.finish_tasks = None  # type: Any
 
-        # load default translator class
-        self.translator_class = app._translators.get(self.name)
-
     def set_environment(self, env):
         # type: (BuildEnvironment) -> None
         """Store BuildEnvironment object."""
         self.env = env
         self.env.set_versioning_method(self.versioning_method,
                                        self.versioning_compare)
+
+    def get_translator_class(self, *args):
+        # type: (Any) -> nodes.NodeVisitor
+        """Return a class of translator."""
+        return self.app.registry.get_translator_class(self)
+
+    def create_translator(self, *args):
+        # type: (Any) -> nodes.NodeVisitor
+        """Return an instance of translator.
+
+        This method returns an instance of ``default_translator_class`` by default.
+        Users can replace the translator class with ``app.set_translator()`` API.
+        """
+        translator_class = self.app.registry.get_translator_class(self)
+        assert translator_class, "translator not found for %s" % self.__class__.__name__
+        return translator_class(*args)
+
+    @property
+    def translator_class(self):
+        # type: () -> Callable[[Any], nodes.NodeVisitor]
+        """Return a class of translator.
+
+        .. deprecated:: 1.6
+        """
+        translator_class = self.app.registry.get_translator_class(self)
+        if translator_class is None and self.default_translator_class is None:
+            warnings.warn('builder.translator_class() is now deprecated. '
+                          'Please use builder.create_translator() and '
+                          'builder.default_translator_class instead.',
+                          RemovedInSphinx20Warning)
+            return None
+        return self.create_translator
 
     # helper methods
     def init(self):

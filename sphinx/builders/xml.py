@@ -14,6 +14,7 @@ from os import path
 
 from docutils import nodes
 from docutils.io import StringOutput
+from docutils.writers.docutils_xml import XMLTranslator
 
 from sphinx.builders import Builder
 from sphinx.util import logging
@@ -38,6 +39,7 @@ class XMLBuilder(Builder):
     allow_parallel = True
 
     _writer_class = XMLWriter
+    default_translator_class = XMLTranslator
 
     def init(self):
         # type: () -> None

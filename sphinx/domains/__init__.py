@@ -308,3 +308,8 @@ class Domain(object):
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
+
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        """Return full qualified name for given node."""
+        return None

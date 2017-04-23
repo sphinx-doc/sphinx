@@ -5032,6 +5032,20 @@ class CPPDomain(Domain):
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
 
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        target = node.get('reftarget', None)
+        if target is None:
+            return None
+        parentKey = node.get("cpp:parent_key", None)
+        if parentKey is None:
+            return None
+
+        rootSymbol = self.data['root_symbol']
+        parentSymbol = rootSymbol.direct_lookup(parentKey)
+        parentName = parentSymbol.get_full_nested_name()
+        return '::'.join([text_type(parentName), target])
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]

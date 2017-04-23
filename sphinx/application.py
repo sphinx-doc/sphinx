@@ -14,7 +14,6 @@ from __future__ import print_function
 
 import os
 import sys
-import types
 import warnings
 import posixpath
 from os import path
@@ -24,24 +23,19 @@ from six import iteritems
 from six.moves import cStringIO
 
 from docutils import nodes
-from docutils.parsers.rst import convert_directive_function, \
-    directives, roles
-from pkg_resources import iter_entry_points
+from docutils.parsers.rst import directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, \
-    ConfigError
-from sphinx.domains import ObjType
-from sphinx.domains.std import GenericObject, Target, StandardDomain
+from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
-from sphinx.extension import load_extension, verify_required_extensions
+from sphinx.extension import verify_required_extensions
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
-from sphinx.roles import XRefRole
+from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
@@ -49,7 +43,7 @@ from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.util.docutils import is_html5_writer_available
+from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
 
 if False:
@@ -121,12 +115,10 @@ class Sphinx(object):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
-        self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
-        self.domains = {}                       # type: Dict[unicode, Type[Domain]]
-        self.builderclasses = {}                # type: Dict[unicode, Type[Builder]]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
+        self.registry = SphinxComponentRegistry()
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.post_transforms = []               # type: List[Transform]
         self.html_themes = {}                   # type: Dict[unicode, unicode]
@@ -154,7 +146,6 @@ class Sphinx(object):
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager()
-        self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
@@ -226,9 +217,9 @@ class Sphinx(object):
         verify_required_extensions(self, self.config.needs_extensions)
 
         # check primary_domain if requested
-        if self.config.primary_domain and self.config.primary_domain not in self.domains:
-            logger.warning(_('primary_domain %r not found, ignored.'),
-                           self.config.primary_domain)
+        primary_domain = self.config.primary_domain
+        if primary_domain and not self.registry.has_domain(primary_domain):
+            logger.warning(_('primary_domain %r not found, ignored.'), primary_domain)
 
         # create the builder
         self.builder = self.create_builder(buildername)
@@ -271,28 +262,28 @@ class Sphinx(object):
 
     def _init_source_parsers(self):
         # type: () -> None
-        for suffix, parser in iteritems(self._additional_source_parsers):
+        for suffix, parser in iteritems(self.config.source_parsers):
+            self.add_source_parser(suffix, parser)
+        for suffix, parser in iteritems(self.registry.get_source_parsers()):
             if suffix not in self.config.source_suffix:
                 self.config.source_suffix.append(suffix)
-            if suffix not in self.config.source_parsers:
-                self.config.source_parsers[suffix] = parser
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
         if freshenv:
             self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
-            for domain in self.domains.keys():
-                self.env.domains[domain] = self.domains[domain](self.env)
+            for domain in self.registry.create_domains(self.env):
+                self.env.domains[domain.name] = domain
         else:
             try:
                 logger.info(bold(_('loading pickled environment... ')), nonl=True)
                 filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
                 self.env.domains = {}
-                for domain in self.domains.keys():
+                for domain in self.registry.create_domains(self.env):
                     # this can raise if the data version doesn't fit
-                    self.env.domains[domain] = self.domains[domain](self.env)
+                    self.env.domains[domain.name] = domain
                 logger.info(_('done'))
             except Exception as err:
                 if isinstance(err, IOError) and err.errno == ENOENT:
@@ -301,28 +292,17 @@ class Sphinx(object):
                     logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def preload_builder(self, buildername):
+    def preload_builder(self, name):
         # type: (unicode) -> None
-        if buildername is None:
-            return
+        self.registry.preload_builder(self, name)
 
-        if buildername not in self.builderclasses:
-            entry_points = iter_entry_points('sphinx.builders', buildername)
-            try:
-                entry_point = next(entry_points)
-            except StopIteration:
-                raise SphinxError(_('Builder name %s not registered or available'
-                                    ' through entry point') % buildername)
-            load_extension(self, entry_point.module_name)
-
-    def create_builder(self, buildername):
+    def create_builder(self, name):
         # type: (unicode) -> Builder
-        if buildername is None:
-            buildername = 'html'
-        if buildername not in self.builderclasses:
-            raise SphinxError(_('Builder name %s not registered') % buildername)
+        if name is None:
+            logger.info(_('No builder selected, using default: html'))
+            name = 'html'
 
-        return self.builderclasses[buildername](self)
+        return self.registry.create_builder(self, name)
 
     def _init_builder(self):
         # type: () -> None
@@ -472,7 +452,7 @@ class Sphinx(object):
         # type: (unicode) -> None
         """Import and setup a Sphinx extension module. No-op if called twice."""
         logger.debug('[app] setting up extension: %r', extname)
-        load_extension(self, extname)
+        self.registry.load_extension(self, extname)
 
     def require_sphinx(self, version):
         # type: (unicode) -> None
@@ -516,13 +496,7 @@ class Sphinx(object):
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
         logger.debug('[app] adding builder: %r', builder)
-        if not hasattr(builder, 'name'):
-            raise ExtensionError(_('Builder class %s has no "name" attribute')
-                                 % builder)
-        if builder.name in self.builderclasses:
-            raise ExtensionError(_('Builder %r already exists (in module %s)') %
-                                 (builder.name, self.builderclasses[builder.name].__module__))
-        self.builderclasses[builder.name] = builder
+        self.registry.add_builder(builder)
 
     def add_config_value(self, name, default, rebuild, types=()):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
@@ -540,9 +514,9 @@ class Sphinx(object):
         self.events.add(name)
 
     def set_translator(self, name, translator_class):
-        # type: (unicode, Any) -> None
+        # type: (unicode, Type[nodes.NodeVisitor]) -> None
         logger.info(bold(_('A Translator for the %s builder is changed.') % name))
-        self._translators[name] = translator_class
+        self.registry.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
         # type: (nodes.Node, Any) -> None
@@ -560,7 +534,7 @@ class Sphinx(object):
             except ValueError:
                 raise ExtensionError(_('Value for key %r must be a '
                                        '(visit, depart) function tuple') % key)
-            translator = self._translators.get(key)
+            translator = self.registry.translators.get(key)
             translators = []
             if translator is not None:
                 translators.append(translator)
@@ -593,21 +567,15 @@ class Sphinx(object):
         self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
 
-    def _directive_helper(self, obj, content=None, arguments=None, **options):
-        # type: (Any, unicode, Any, Any) -> Any
-        if isinstance(obj, (types.FunctionType, types.MethodType)):
-            obj.content = content                       # type: ignore
-            obj.arguments = arguments or (0, 0, False)  # type: ignore
-            obj.options = options                       # type: ignore
-            return convert_directive_function(obj)
-        else:
-            if content or arguments or options:
-                raise ExtensionError(_('when adding directive classes, no '
-                                       'additional arguments may be given'))
-            return obj
+    def _directive_helper(self, obj, has_content=None, argument_spec=None, **option_spec):
+        # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+        warnings.warn('_directive_helper() is now deprecated. '
+                      'Please use sphinx.util.docutils.directive_helper() instead.',
+                      RemovedInSphinx17Warning)
+        return directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
-        # type: (unicode, Any, unicode, Any, Any) -> None
+        # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
         if name in directives._directives:
@@ -615,8 +583,8 @@ class Sphinx(object):
                              'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
-        directives.register_directive(
-            name, self._directive_helper(obj, content, arguments, **options))
+        directive = directive_helper(obj, content, arguments, **options)
+        directives.register_directive(name, directive)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None
@@ -644,43 +612,30 @@ class Sphinx(object):
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
         logger.debug('[app] adding domain: %r', domain)
-        if domain.name in self.domains:
-            raise ExtensionError(_('domain %s already registered') % domain.name)
-        self.domains[domain.name] = domain
+        self.registry.add_domain(domain)
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
         logger.debug('[app] overriding domain: %r', domain)
-        if domain.name not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain.name)
-        if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError(_('new domain not a subclass of registered %s '
-                                   'domain') % domain.name)
-        self.domains[domain.name] = domain
+        self.registry.override_domain(domain)
 
     def add_directive_to_domain(self, domain, name, obj,
-                                content=None, arguments=None, **options):
-        # type: (unicode, unicode, Any, unicode, Any, Any) -> None
+                                has_content=None, argument_spec=None, **option_spec):
+        # type: (unicode, unicode, Any, bool, Any, Any) -> None
         logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, content, arguments, options))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].directives[name] = \
-            self._directive_helper(obj, content, arguments, **options)
+                     (domain, name, obj, has_content, argument_spec, option_spec))
+        self.registry.add_directive_to_domain(domain, name, obj,
+                                              has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].roles[name] = role
+        self.registry.add_role_to_domain(domain, name, role)
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].indices.append(index)
+        self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
@@ -689,19 +644,18 @@ class Sphinx(object):
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
-        StandardDomain.object_types[directivename] = \
-            ObjType(objname or directivename, rolename)
-        # create a subclass of GenericObject as the new directive
-        new_directive = type(directivename, (GenericObject, object),  # type: ignore
-                             {'indextemplate': indextemplate,
-                              'parse_node': staticmethod(parse_node),  # type: ignore
-                              'doc_field_types': doc_field_types})
-        StandardDomain.directives[directivename] = new_directive
-        # XXX support more options?
-        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
+        self.registry.add_object_type(directivename, rolename, indextemplate, parse_node,
+                                      ref_nodeclass, objname, doc_field_types)
 
-    # backwards compatible alias
-    add_description_unit = add_object_type
+    def add_description_unit(self, directivename, rolename, indextemplate='',
+                             parse_node=None, ref_nodeclass=None, objname='',
+                             doc_field_types=[]):
+        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
+        warnings.warn('app.add_description_unit() is now deprecated. '
+                      'Use app.add_object_type() instead.',
+                      RemovedInSphinx20Warning)
+        self.add_object_type(directivename, rolename, indextemplate, parse_node,
+                             ref_nodeclass, objname, doc_field_types)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
@@ -709,14 +663,8 @@ class Sphinx(object):
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass,
                       objname))
-        StandardDomain.object_types[directivename] = \
-            ObjType(objname or directivename, rolename)
-        # create a subclass of Target as the new directive
-        new_directive = type(directivename, (Target, object),  # type: ignore
-                             {'indextemplate': indextemplate})
-        StandardDomain.directives[directivename] = new_directive
-        # XXX support more options?
-        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
+        self.registry.add_crossref_type(directivename, rolename,
+                                        indextemplate, ref_nodeclass, objname)
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
@@ -788,17 +736,17 @@ class Sphinx(object):
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
         logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
-        if suffix in self._additional_source_parsers:
-            logger.warning(_('while setting up extension %s: source_parser for %r is '
-                             'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], suffix,
-                           type='app', subtype='add_source_parser')
-        self._additional_source_parsers[suffix] = parser
+        self.registry.add_source_parser(suffix, parser)
 
     def add_env_collector(self, collector):
         # type: (Type[EnvironmentCollector]) -> None
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
+
+    def add_html_theme(self, name, theme_path):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
+        self.html_themes[name] = theme_path
 
 
 class TemplateBridge(object):

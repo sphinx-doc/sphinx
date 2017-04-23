@@ -27,7 +27,7 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.writers.texinfo import TexinfoWriter
+from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
 if False:
     # For type annotation
@@ -99,6 +99,7 @@ class TexinfoBuilder(Builder):
     format = 'texinfo'
     supported_image_types = ['image/png', 'image/jpeg',
                              'image/gif']
+    default_translator_class = TexinfoTranslator
 
     def init(self):
         # type: () -> None

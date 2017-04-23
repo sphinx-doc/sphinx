@@ -10,9 +10,12 @@
 """
 
 import pytest
+from mock import Mock
 from six import text_type
+from docutils import nodes
+
 from sphinx import addnodes
-from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist
+from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
 
 from util import assert_node
 
@@ -28,7 +31,6 @@ def parse(sig):
 
 
 def test_function_signatures():
-
     rv = parse('func(a=1) -> int object')
     assert text_type(rv) == u'a=1'
 
@@ -165,3 +167,31 @@ def test_domain_py_find_obj(app, status, warning):
             [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
     assert (find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'meth') ==
             [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
+
+
+def test_get_full_qualified_name():
+    env = Mock(domaindata={})
+    domain = PythonDomain(env)
+
+    # non-python references
+    node = nodes.reference()
+    assert domain.get_full_qualified_name(node) is None
+
+    # simple reference
+    node = nodes.reference(reftarget='func')
+    assert domain.get_full_qualified_name(node) == 'func'
+
+    # with py:module context
+    kwargs = {'py:module': 'module1'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.func'
+
+    # with py:class context
+    kwargs = {'py:class': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'Class.func'
+
+    # with both py:module and py:class context
+    kwargs = {'py:module': 'module1', 'py:class': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.Class.func'

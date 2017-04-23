@@ -52,7 +52,7 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     from sphinx.io import SphinxI18nReader
     reader = SphinxI18nReader(
         app=app,
-        parsers=config.source_parsers,
+        parsers=app.registry.get_source_parsers(),
         parser_name='restructuredtext',  # default parser
     )
     reader.set_lineno_for_reporter(source_line)

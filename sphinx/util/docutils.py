@@ -11,13 +11,16 @@
 from __future__ import absolute_import
 
 import re
+import types
 from copy import copy
 from contextlib import contextmanager
 
 import docutils
 from docutils.utils import Reporter
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import directives, roles, convert_directive_function
 
+from sphinx.errors import ExtensionError
+from sphinx.locale import _
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
@@ -154,3 +157,17 @@ class LoggingReporter(Reporter):
 def is_html5_writer_available():
     # type: () -> bool
     return __version_info__ > (0, 13, 0)
+
+
+def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
+    # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+    if isinstance(obj, (types.FunctionType, types.MethodType)):
+        obj.content = has_content                       # type: ignore
+        obj.arguments = argument_spec or (0, 0, False)  # type: ignore
+        obj.options = option_spec                       # type: ignore
+        return convert_directive_function(obj)
+    else:
+        if has_content or argument_spec or option_spec:
+            raise ExtensionError(_('when adding directive classes, no '
+                                   'additional arguments may be given'))
+        return obj

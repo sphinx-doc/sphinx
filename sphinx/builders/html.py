@@ -158,7 +158,6 @@ class StandaloneHTMLBuilder(Builder):
 
         self.init_templates()
         self.init_highlighter()
-        self.init_translator_class()
         if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
@@ -218,23 +217,18 @@ class StandaloneHTMLBuilder(Builder):
         self.highlighter = PygmentsBridge('html', style,
                                           self.config.trim_doctest_flags)
 
-    def init_translator_class(self):
-        # type: () -> None
-        if self.translator_class is None:
-            use_html5_writer = self.config.html_experimental_html5_writer
-            if use_html5_writer is None:
-                use_html5_writer = self.default_html5_translator and html5_ready
-
-            if use_html5_writer and html5_ready:
-                if self.config.html_use_smartypants:
-                    self.translator_class = SmartyPantsHTML5Translator
-                else:
-                    self.translator_class = HTML5Translator
+    @property
+    def default_translator_class(self):
+        if self.config.html_experimental_html5_writer and html5_ready:
+            if self.config.html_use_smartypants:
+                return SmartyPantsHTML5Translator
             else:
-                if self.config.html_use_smartypants:
-                    self.translator_class = SmartyPantsHTMLTranslator
-                else:
-                    self.translator_class = HTMLTranslator
+                return HTML5Translator
+        else:
+            if self.config.html_use_smartypants:
+                return SmartyPantsHTMLTranslator
+            else:
+                return HTMLTranslator
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
@@ -1200,7 +1194,6 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.current_docname = None
         self.theme = None       # no theme necessary
         self.templates = None   # no template bridge necessary
-        self.init_translator_class()
         self.init_templates()
         self.init_highlighter()
         self.use_index = self.get_builder_config('use_index', 'html')
