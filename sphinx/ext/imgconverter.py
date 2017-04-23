@@ -35,8 +35,9 @@ class ImagemagickConverter(ImageConverter):
         # type: () -> bool
         """Confirms the converter is available or not."""
         try:
-            ret = subprocess.call([self.config.image_converter, '-version'],
-                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            args = [self.config.image_converter, '-version']
+            logger.debug('Invoking %r ...', args)
+            ret = subprocess.call(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             if ret == 0:
                 return True
             else:
@@ -54,6 +55,7 @@ class ImagemagickConverter(ImageConverter):
             args = ([self.config.image_converter] +
                     self.config.image_converter_args +
                     [_from, _to])
+            logger.debug('Invoking %r ...', args)
             p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         except OSError as err:
             if err.errno != ENOENT:  # No such file or directory
