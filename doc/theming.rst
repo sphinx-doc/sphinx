@@ -300,7 +300,7 @@ brings to users easy setting up ways.
 
 To distribute your theme as a python package, please define an entry point
 called ``sphinx.html_themes`` in your setup.py file, and write a ``setup()``
-function to register your themes in it::
+function to register your themes using ``add_html_theme()`` API in it::
 
     # 'setup.py'
     setup(
@@ -318,6 +318,10 @@ function to register your themes in it::
 
     def setup(app):
         app.add_html_theme('name_of_theme', path.abspath(path.dirname(__file__)))
+
+
+If your theme package contains two or more themes, please call ``add_html_theme()``
+twice or more.
 
 .. versionadded:: 1.2
    'sphinx_themes' entry_points feature.
