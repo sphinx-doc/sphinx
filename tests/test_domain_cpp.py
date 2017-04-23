@@ -13,6 +13,8 @@ import re
 
 from six import text_type
 import pytest
+from mock import Mock
+from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError

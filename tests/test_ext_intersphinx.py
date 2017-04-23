@@ -212,6 +212,26 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     assert rn.astext() == 'ls -l'
 
 
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
+def test_missing_reference_cppdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    app.build()
+    html = (app.outdir / 'index.html').text()
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#cpp_foo_bar"'
+            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            '<span class="pre">Bar</span></code></a>' in html)
+
+
 def test_missing_reference_jsdomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
