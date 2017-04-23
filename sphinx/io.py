@@ -158,7 +158,7 @@ class SphinxFileInput(FileInput):
         # type: () -> unicode
         def get_parser_type(source_path):
             # type: (unicode) -> Tuple[unicode]
-            for suffix, parser_class in iteritems(self.app.factory.get_source_parsers()):
+            for suffix, parser_class in iteritems(self.app.registry.get_source_parsers()):
                 if source_path.endswith(suffix):
                     if isinstance(parser_class, string_types):
                         parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA

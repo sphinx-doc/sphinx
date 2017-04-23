@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.factory
-    ~~~~~~~~~~~~~~
+    sphinx.registory
+    ~~~~~~~~~~~~~~~~
 
-    Sphinx component factory.
-
-    Gracefully adapted from the TextPress system by Armin.
+    Sphinx component registory.
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -45,7 +43,7 @@ EXTENSION_BLACKLIST = {
 }  # type: Dict[unicode, unicode]
 
 
-class SphinxFactory(object):
+class SphinxComponentRegistry(object):
     def __init__(self):
         self.builders = {}          # type: Dict[unicode, Type[Builder]]
         self.domains = {}           # type: Dict[unicode, Type[Domain]]

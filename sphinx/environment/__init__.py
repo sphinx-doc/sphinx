@@ -692,7 +692,7 @@ class BuildEnvironment(object):
 
             # publish manually
             reader = SphinxStandaloneReader(self.app,
-                                            parsers=self.app.factory.get_source_parsers())
+                                            parsers=self.app.registry.get_source_parsers())
             pub = Publisher(reader=reader,
                             writer=SphinxDummyWriter(),
                             destination_class=NullOutput)

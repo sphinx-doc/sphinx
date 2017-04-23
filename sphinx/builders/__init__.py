@@ -116,7 +116,7 @@ class Builder(object):
     def get_translator_class(self, *args):
         # type: (Any) -> nodes.NodeVisitor
         """Return a class of translator."""
-        return self.app.factory.get_translator_class(self)
+        return self.app.registry.get_translator_class(self)
 
     def create_translator(self, *args):
         # type: (Any) -> nodes.NodeVisitor
@@ -125,7 +125,7 @@ class Builder(object):
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        translator_class = self.app.factory.get_translator_class(self)
+        translator_class = self.app.registry.get_translator_class(self)
         assert translator_class, "translator not found for %s" % self.__class__.__name__
         return translator_class(*args)
 
@@ -136,7 +136,7 @@ class Builder(object):
 
         .. deprecated:: 1.6
         """
-        translator_class = self.app.factory.get_translator_class(self)
+        translator_class = self.app.registry.get_translator_class(self)
         if translator_class is None and self.default_translator_class is None:
             warnings.warn('builder.translator_class() is now deprecated. '
                           'Please use builder.create_translator() and '
