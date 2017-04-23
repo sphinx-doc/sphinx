@@ -52,4 +52,4 @@ install:
 script:
   - flake8
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check type-check test-async; fi
-  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then SKIP_LATEX_BUILD=1 make test; fi
