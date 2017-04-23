@@ -27,7 +27,6 @@ from collections import deque
 from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
-from babel.dates import format_datetime
 from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
@@ -622,6 +621,8 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
 
 def epoch_to_rfc1123(epoch):
     """Convert datetime format epoch to RFC1123."""
+    from babel.dates import format_datetime
+
     dt = datetime.fromtimestamp(epoch)
     fmt = 'EEE, dd LLL yyyy hh:mm:ss'
     return format_datetime(dt, fmt, locale='en') + ' GMT'
