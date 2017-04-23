@@ -398,6 +398,16 @@ class JavaScriptDomain(Domain):
             yield refname, refname, type, docname, \
                 refname.replace('$', '_S_'), 1
 
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        modname = node.get('js:module')
+        prefix = node.get('js:object')
+        target = node.get('reftarget')
+        if target is None:
+            return None
+        else:
+            return '.'.join(filter(None, [modname, prefix, target]))
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]

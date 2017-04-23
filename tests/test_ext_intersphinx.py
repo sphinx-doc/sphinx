@@ -26,6 +26,22 @@ from sphinx.ext.intersphinx import (
 from test_util_inventory import inventory_v2
 
 
+def fake_node(domain, type, target, content, **attrs):
+    contnode = nodes.emphasis(content, content)
+    node = addnodes.pending_xref('')
+    node['reftarget'] = target
+    node['reftype'] = type
+    node['refdomain'] = domain
+    node.attributes.update(attrs)
+    node += contnode
+    return node, contnode
+
+
+def reference_check(app, *args, **kwds):
+    node, contnode = fake_node(*args, **kwds)
+    return missing_reference(app, app.env, node, contnode)
+
+
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
@@ -88,46 +104,30 @@ def test_missing_reference(tempdir, app, status, warning):
     assert inv['py:module']['module2'] == \
         ('foo', '2.0', 'https://docs.python.org/foo.html#module-module2', '-')
 
-    # create fake nodes and check referencing
-
-    def fake_node(domain, type, target, content, **attrs):
-        contnode = nodes.emphasis(content, content)
-        node = addnodes.pending_xref('')
-        node['reftarget'] = target
-        node['reftype'] = type
-        node['refdomain'] = domain
-        node.attributes.update(attrs)
-        node += contnode
-        return node, contnode
-
-    def reference_check(*args, **kwds):
-        node, contnode = fake_node(*args, **kwds)
-        return missing_reference(app, app.env, node, contnode)
-
     # check resolution when a target is found
-    rn = reference_check('py', 'func', 'module1.func', 'foo')
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
     assert rn['refuri'] == 'https://docs.python.org/sub/foo.html#module1.func'
     assert rn['reftitle'] == '(in foo v2.0)'
     assert rn[0].astext() == 'foo'
 
     # create unresolvable nodes and check None return value
-    assert reference_check('py', 'foo', 'module1.func', 'foo') is None
-    assert reference_check('py', 'func', 'foo', 'foo') is None
-    assert reference_check('py', 'func', 'foo', 'foo') is None
+    assert reference_check(app, 'py', 'foo', 'module1.func', 'foo') is None
+    assert reference_check(app, 'py', 'func', 'foo', 'foo') is None
+    assert reference_check(app, 'py', 'func', 'foo', 'foo') is None
 
     # check handling of prefixes
 
     # prefix given, target found: prefix is stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2')
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'py3k:module2')
     assert rn[0].astext() == 'module2'
 
     # prefix given, but not in title: nothing stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'module2')
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'module2')
     assert rn[0].astext() == 'module2'
 
     # prefix given, but explicit: nothing stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2',
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'py3k:module2',
                          refexplicit=True)
     assert rn[0].astext() == 'py3k:module2'
 
@@ -145,34 +145,115 @@ def test_missing_reference(tempdir, app, status, warning):
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'
 
+    # check relative paths
+    rn = reference_check(app, 'py', 'mod', 'py3krel:module1', 'foo')
+    assert rn['refuri'] == 'py3k/foo.html#module-module1'
+
+    rn = reference_check(app, 'py', 'mod', 'py3krelparent:module1', 'foo')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check(app, 'py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check(app, 'py', 'mod', 'py3krelparent:module1', 'foo',
+                         refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
+
+    # check refs of standard domain
+    rn = reference_check(app, 'std', 'doc', 'docname', 'docname')
+    assert rn['refuri'] == 'https://docs.python.org/docname.html'
+
+
+def test_missing_reference_pydomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
     # no context data
     kwargs = {}
     node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
 
-    # context data (like py:module) help to search objects
+    # py:module context helps to search objects
     kwargs = {'py:module': 'module1'}
     node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
-    assert rn[0].astext() == 'func()'
+    assert rn.astext() == 'func()'
 
-    # check relative paths
-    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
-    assert rn['refuri'] == 'py3k/foo.html#module-module1'
 
-    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo')
-    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+def test_missing_reference_stddomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
 
-    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
-    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
 
-    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
-    assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('std', 'option', '-l', '-l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
 
-    # check refs of standard domain
-    rn = reference_check('std', 'doc', 'docname', 'docname')
-    assert rn['refuri'] == 'https://docs.python.org/docname.html'
+    # std:program context helps to search objects
+    kwargs = {'std:program': 'ls'}
+    node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'ls -l'
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
+def test_missing_reference_cppdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    app.build()
+    html = (app.outdir / 'index.html').text()
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#cpp_foo_bar"'
+            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            '<span class="pre">Bar</span></code></a>' in html)
+
+
+def test_missing_reference_jsdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # js:module and js:object context helps to search objects
+    kwargs = {'js:module': 'foo', 'js:object': 'bar'}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'baz()'
 
 
 def test_load_mappings_warnings(tempdir, app, status, warning):

@@ -10,7 +10,11 @@
 """
 
 import pytest
+from mock import Mock
+from docutils import nodes
+
 from sphinx import addnodes
+from sphinx.domains.javascript import JavaScriptDomain
 
 from util import assert_node
 
@@ -133,3 +137,31 @@ def test_domain_js_find_obj(app, status, warning):
             ( u'module_a.submodule.ModTopLevel.mod_child_2', (u'module', u'method')))
     assert (find_obj(u'module_b.submodule', u'ModTopLevel', u'module_a.submodule', u'mod') ==
             ( u'module_a.submodule', (u'module', u'module')))
+
+
+def test_get_full_qualified_name():
+    env = Mock(domaindata={})
+    domain = JavaScriptDomain(env)
+
+    # non-js references
+    node = nodes.reference()
+    assert domain.get_full_qualified_name(node) is None
+
+    # simple reference
+    node = nodes.reference(reftarget='func')
+    assert domain.get_full_qualified_name(node) == 'func'
+
+    # with js:module context
+    kwargs = {'js:module': 'module1'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.func'
+
+    # with js:object context
+    kwargs = {'js:object': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'Class.func'
+
+    # with both js:module and js:object context
+    kwargs = {'js:module': 'module1', 'js:object': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.Class.func'
