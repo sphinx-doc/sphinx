@@ -17,6 +17,6 @@ def test_ext_imgconverter(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'Python.tex').text()
-    assert '\sphinxincludegraphics{{svgimg}.png}' in content
+    assert '\\sphinxincludegraphics{{svgimg}.png}' in content
     assert not (app.outdir / 'svgimg.svg').exists()
     assert (app.outdir / 'svgimg.png').exists()
