@@ -93,8 +93,8 @@ class Graphviz(Directive):
             document = self.state.document
             if self.content:
                 return [document.reporter.warning(
-                    'Graphviz directive cannot have both content and '
-                    'a filename argument', line=self.lineno)]
+                    _('Graphviz directive cannot have both content and '
+                      'a filename argument'), line=self.lineno)]
             env = self.state.document.settings.env
             argument = search_image_for_language(self.arguments[0], env)
             rel_filename, filename = env.relfn2path(argument)
@@ -104,13 +104,13 @@ class Graphviz(Directive):
                     dotcode = fp.read()
             except (IOError, OSError):
                 return [document.reporter.warning(
-                    'External Graphviz file %r not found or reading '
-                    'it failed' % filename, line=self.lineno)]
+                    _('External Graphviz file %r not found or reading '
+                      'it failed') % filename, line=self.lineno)]
         else:
             dotcode = '\n'.join(self.content)
             if not dotcode.strip():
                 return [self.state_machine.reporter.warning(
-                    'Ignoring "graphviz" directive without content.',
+                    _('Ignoring "graphviz" directive without content.'),
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
@@ -201,8 +201,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        logger.warning('dot command %r cannot be run (needed for graphviz '
-                       'output), check the graphviz_dot setting', graphviz_dot)
+        logger.warning(_('dot command %r cannot be run (needed for graphviz '
+                         'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}
         self.builder._graphviz_warned_dot[graphviz_dot] = True
@@ -219,11 +219,11 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         stdout, stderr = p.stdout.read(), p.stderr.read()
         p.wait()
     if p.returncode != 0:
-        raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
-                            '[stdout]\n%s' % (stderr, stdout))
+        raise GraphvizError(_('dot exited with error:\n[stderr]\n%s\n'
+                              '[stdout]\n%s') % (stderr, stdout))
     if not path.isfile(outfn):
-        raise GraphvizError('dot did not produce an output file:\n[stderr]\n%s\n'
-                            '[stdout]\n%s' % (stderr, stdout))
+        raise GraphvizError(_('dot did not produce an output file:\n[stderr]\n%s\n'
+                              '[stdout]\n%s') % (stderr, stdout))
     return relfn, outfn
 
 
@@ -233,8 +233,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
-            raise GraphvizError("graphviz_output_format must be one of 'png', "
-                                "'svg', but is %r" % format)
+            raise GraphvizError(_("graphviz_output_format must be one of 'png', "
+                                  "'svg', but is %r") % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
         logger.warning('dot code %r: ' % code + str(exc))

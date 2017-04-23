@@ -102,7 +102,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='images')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 

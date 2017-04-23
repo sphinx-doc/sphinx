@@ -32,7 +32,6 @@ WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
-%(root)s/index.rst:\\d+: WARNING: nonlocal image URI found: http://www.python.org/logo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
@@ -587,7 +586,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
-    index = re.sub(':numbered:.*', '', index, re.MULTILINE)
+    index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
 
@@ -685,7 +684,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
-    index = re.sub(':numbered:.*', '', index, re.MULTILINE)
+    index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
 
     if not app.outdir.listdir():
@@ -1194,3 +1193,43 @@ def test_html_raw_directive(app, status, warning):
     # with substitution
     assert '<p>HTML: abc def ghi</p>' in result
     assert '<p>LaTeX: abc  ghi</p>' in result
+
+
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//link[@href='_static/persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+        (".//link[@href='_static/more_persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/more_default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/more_alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/more_alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='stylesheets')
+def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='images')
+def test_html_remote_images(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
+            'src="https://www.python.org/static/img/python-logo.png" />' in result)
+    assert not (app.outdir / 'python-logo.png').exists()

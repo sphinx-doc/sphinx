@@ -257,6 +257,9 @@ class BuildEnvironment(object):
         self.images = FilenameUniqDict()
         self.dlfiles = FilenameUniqDict()
 
+        # the original URI for images
+        self.original_image_uri = {}  # type: Dict[unicode, unicode]
+
         # temporary data storage while reading a document
         self.temp_data = {}         # type: Dict[unicode, Any]
         # context for cross-references (e.g. current module or class)

@@ -302,13 +302,19 @@ package.
 
    .. versionadded:: 0.5
 
-.. method:: Sphinx.add_stylesheet(filename)
+.. method:: Sphinx.add_stylesheet(filename, alternate=None, title=None)
 
    Add *filename* to the list of CSS files that the default HTML template will
    include.  Like for :meth:`add_javascript`, the filename must be relative to
    the HTML static path, or a full URI with scheme.
 
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.6
+      Optional ``alternate`` and/or ``title`` attributes can be supplied with
+      the *alternate* (of boolean type) and *title* (a string) arguments. The
+      default is no title and *alternate* = ``False`` (see `this explanation
+      <https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets>`_).
 
 .. method:: Sphinx.add_latex_package(packagename, options=None)
 

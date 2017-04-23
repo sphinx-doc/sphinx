@@ -324,7 +324,11 @@ class WarningIsErrorFilter(logging.Filter):
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
         if self.app.warningiserror:
-            raise SphinxWarning(record.msg % record.args)
+            location = getattr(record, 'location', '')
+            if location:
+                raise SphinxWarning(location + ":" + record.msg % record.args)
+            else:
+                raise SphinxWarning(record.msg % record.args)
         else:
             return True
 
@@ -434,8 +438,8 @@ def setup(app, status, warning):
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))  # type: ignore
     warning_handler.addFilter(WarningSuppressor(app))
-    warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
+    warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 

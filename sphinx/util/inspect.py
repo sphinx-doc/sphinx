@@ -28,41 +28,73 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 
 if PY3:
-    from functools import partial
-
+    # Copied from the definition of inspect.getfullargspec from Python master,
+    # and modified to remove the use of special flags that break decorated
+    # callables and bound methods in the name of backwards compatibility. Used
+    # under the terms of PSF license v2, which requires the above statement
+    # and the following:
+    #
+    #   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+    #   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
+    #   Foundation; All Rights Reserved
     def getargspec(func):
-        """Like inspect.getargspec but supports functools.partial as well."""
-        if inspect.ismethod(func):
-            func = func.__func__
-        if type(func) is partial:
-            orig_func = func.func
-            argspec = getargspec(orig_func)
-            args = list(argspec[0])
-            defaults = list(argspec[3] or ())
-            kwoargs = list(argspec[4])
-            kwodefs = dict(argspec[5] or {})
-            if func.args:
-                args = args[len(func.args):]
-            for arg in func.keywords or ():
-                try:
-                    i = args.index(arg) - len(args)
-                    del args[i]
-                    try:
-                        del defaults[i]
-                    except IndexError:
-                        pass
-                except ValueError:   # must be a kwonly arg
-                    i = kwoargs.index(arg)
-                    del kwoargs[i]
-                    del kwodefs[arg]
-            return inspect.FullArgSpec(args, argspec[1], argspec[2],
-                                       tuple(defaults), kwoargs,
-                                       kwodefs, argspec[6])
-        while hasattr(func, '__wrapped__'):
-            func = func.__wrapped__
-        if not inspect.isfunction(func):
-            raise TypeError('%r is not a Python function' % func)
-        return inspect.getfullargspec(func)
+        """Like inspect.getfullargspec but supports bound methods, and wrapped
+        methods."""
+        # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
+        # succeeds with a bogus signature. We want a TypeError uniformly, to
+        # match historical behavior.
+        if (isinstance(func, type) and
+                is_builtin_class_method(func, "__new__") and
+                is_builtin_class_method(func, "__init__")):
+            raise TypeError(
+                "can't compute signature for built-in type {}".format(func))
+
+        sig = inspect.signature(func)
+
+        args = []
+        varargs = None
+        varkw = None
+        kwonlyargs = []
+        defaults = ()
+        annotations = {}
+        defaults = ()
+        kwdefaults = {}
+
+        if sig.return_annotation is not sig.empty:
+            annotations['return'] = sig.return_annotation
+
+        for param in sig.parameters.values():
+            kind = param.kind
+            name = param.name
+
+            if kind is inspect.Parameter.POSITIONAL_ONLY:
+                args.append(name)
+            elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                args.append(name)
+                if param.default is not param.empty:
+                    defaults += (param.default,)
+            elif kind is inspect.Parameter.VAR_POSITIONAL:
+                varargs = name
+            elif kind is inspect.Parameter.KEYWORD_ONLY:
+                kwonlyargs.append(name)
+                if param.default is not param.empty:
+                    kwdefaults[name] = param.default
+            elif kind is inspect.Parameter.VAR_KEYWORD:
+                varkw = name
+
+            if param.annotation is not param.empty:
+                annotations[name] = param.annotation
+
+        if not kwdefaults:
+            # compatibility with 'func.__kwdefaults__'
+            kwdefaults = None
+
+        if not defaults:
+            # compatibility with 'func.__defaults__'
+            defaults = None
+
+        return inspect.FullArgSpec(args, varargs, varkw, defaults,
+                                   kwonlyargs, kwdefaults, annotations)
 
 else:  # 2.7
     from functools import partial

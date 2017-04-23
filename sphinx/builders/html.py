@@ -40,13 +40,14 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
 from sphinx.locale import _, l_
 from sphinx.search import js_index
-from sphinx.theming import Theme
+from sphinx.theming import HTMLThemeFactory
 from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
+from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.adapters.indexentries import IndexEntries
 
@@ -86,6 +87,23 @@ def get_stable_hash(obj):
     return md5(text_type(obj).encode('utf8')).hexdigest()
 
 
+class Stylesheet(text_type):
+    """The metadata of stylesheet.
+
+    To keep compatibility with old themes, an instance of stylesheet behaves as
+    its filename (str).
+    """
+
+    def __new__(cls, filename, title, rel):
+        # type: (unicode, unicode, unicode) -> None
+        self = text_type.__new__(cls, filename)  # type: ignore
+        self.filename = filename
+        self.title = title
+        self.rel = rel
+
+        return self
+
+
 class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
@@ -102,6 +120,8 @@ class StandaloneHTMLBuilder(Builder):
     html_scaled_image_link = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
+    supported_remote_images = True
+    supported_data_uri_images = True
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     allow_sharp_as_current_path = True
@@ -109,12 +129,14 @@ class StandaloneHTMLBuilder(Builder):
     search = True  # for things like HTML help and Apple help: suppress search
     use_index = False
     download_support = True  # enable download role
+    # use html5 translator by default
+    default_html5_translator = False
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
-    # Dito for this one.
-    css_files = []  # type: List[unicode]
+    # Ditto for this one (Sphinx.add_stylesheet).
+    css_files = []  # type: List[Dict[unicode, unicode]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
@@ -177,9 +199,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self):
         # type: () -> None
-        Theme.init_themes(self.confdir, self.config.html_theme_path)
+        theme_factory = HTMLThemeFactory(self.app)
         themename, themeoptions = self.get_theme_config()
-        self.theme = Theme(themename)
+        self.theme = theme_factory.create(themename)
         self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
@@ -190,7 +212,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_confstr('theme', 'pygments_style', 'none')
+            style = self.theme.get_config('theme', 'pygments_style', 'none')
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style,
@@ -199,7 +221,11 @@ class StandaloneHTMLBuilder(Builder):
     def init_translator_class(self):
         # type: () -> None
         if self.translator_class is None:
-            if self.config.html_experimental_html5_writer and html5_ready:
+            use_html5_writer = self.config.html_experimental_html5_writer
+            if use_html5_writer is None:
+                use_html5_writer = self.default_html5_translator and html5_ready
+
+            if use_html5_writer and html5_ready:
                 if self.config.html_use_smartypants:
                     self.translator_class = SmartyPantsHTML5Translator
                 else:
@@ -364,7 +390,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_style is not None:
             stylename = self.config.html_style
         elif self.theme:
-            stylename = self.theme.get_confstr('theme', 'stylesheet')
+            stylename = self.theme.get_config('theme', 'stylesheet')
         else:
             stylename = 'default.css'
 
@@ -606,11 +632,12 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_image_files(self):
         # type: () -> None
-        # copy image files
         if self.images:
+            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
             ensuredir(path.join(self.outdir, self.imagedir))
             for src in status_iterator(self.images, 'copying images... ', "brown",
-                                       len(self.images), self.app.verbosity):
+                                       len(self.images), self.app.verbosity,
+                                       stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
@@ -667,7 +694,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # then, copy over theme-supplied static files
         if self.theme:
-            for theme_path in self.theme.get_dirchain()[::-1]:
+            for theme_path in self.theme.get_theme_dirs()[::-1]:
                 entry = path.join(theme_path, 'static')
                 copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
                            context=ctx, renderer=self.templates)
@@ -1322,7 +1349,7 @@ def setup(app):
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
-    app.add_config_value('html_experimental_html5_writer', False, 'html')
+    app.add_config_value('html_experimental_html5_writer', None, 'html')
 
     return {
         'version': 'builtin',

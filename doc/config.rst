@@ -227,8 +227,6 @@ General configuration
    * app.add_generic_role
    * app.add_source_parser
    * download.not_readable
-   * image.data_uri
-   * image.nonlocal_uri
    * image.not_readable
    * ref.term
    * ref.ref
@@ -236,6 +234,7 @@ General configuration
    * ref.keyword
    * ref.option
    * ref.citation
+   * ref.footnote
    * ref.doc
    * misc.highlighting_failure
    * toc.secnum
@@ -254,6 +253,10 @@ General configuration
    .. versionchanged:: 1.5.1
 
       Added ``epub.unknown_project_files``
+
+   .. versionchanged:: 1.6
+
+      Added ``ref.footnote``
 
 .. confval:: needs_sphinx
 

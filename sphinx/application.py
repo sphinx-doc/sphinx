@@ -61,11 +61,12 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.theming import Theme  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
-    'sphinx.builders.epub',
+    'sphinx.builders.epub2',
     'sphinx.builders.epub3',
     'sphinx.builders.devhelp',
     'sphinx.builders.dummy',
@@ -92,6 +93,7 @@ builtin_extensions = (
     'sphinx.directives.patches',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
+    'sphinx.transforms.post_transforms.images',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
@@ -127,6 +129,7 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.post_transforms = []               # type: List[Transform]
+        self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -199,6 +202,10 @@ class Sphinx(object):
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
+
+        # preload builder module (before init config values)
+        self.preload_builder(buildername)
+
         # the config file itself can be an extension
         if self.config.setup:
             self._setting_up_extension = ['conf.py']
@@ -294,11 +301,11 @@ class Sphinx(object):
                     logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def create_builder(self, buildername):
-        # type: (unicode) -> Builder
+    def preload_builder(self, buildername):
+        # type: (unicode) -> None
         if buildername is None:
-            logger.info(_('No builder selected, using default: html'))
-            buildername = 'html'
+            return
+
         if buildername not in self.builderclasses:
             entry_points = iter_entry_points('sphinx.builders', buildername)
             try:
@@ -307,8 +314,15 @@ class Sphinx(object):
                 raise SphinxError(_('Builder name %s not registered or available'
                                     ' through entry point') % buildername)
             load_extension(self, entry_point.module_name)
-        builderclass = self.builderclasses[buildername]
-        return builderclass(self)
+
+    def create_builder(self, buildername):
+        # type: (unicode) -> Builder
+        if buildername is None:
+            buildername = 'html'
+        if buildername not in self.builderclasses:
+            raise SphinxError(_('Builder name %s not registered') % buildername)
+
+        return self.builderclasses[buildername](self)
 
     def _init_builder(self):
         # type: () -> None
@@ -724,15 +738,18 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename):
-        # type: (unicode) -> None
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
         logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder
-        if '://' in filename:
-            StandaloneHTMLBuilder.css_files.append(filename)
+        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
+        if '://' not in filename:
+            filename = posixpath.join('_static', filename)
+        if alternate:
+            rel = u'alternate stylesheet'
         else:
-            StandaloneHTMLBuilder.css_files.append(
-                posixpath.join('_static', filename))
+            rel = u'stylesheet'
+        css = Stylesheet(filename, title, rel)  # type: ignore
+        StandaloneHTMLBuilder.css_files.append(css)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
@@ -791,7 +808,7 @@ class TemplateBridge(object):
     """
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, unicode, List[unicode]) -> None
+        # type: (Builder, Theme, List[unicode]) -> None
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the

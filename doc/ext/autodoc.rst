@@ -371,10 +371,20 @@ There are also new config values that you can set:
 
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
-   process.
+   process. You may only specify the root package of the dependencies
+   themselves and ommit the sub-modules:
+
+   .. code-block:: python
+
+      autodoc_mock_imports = ["django"]
+
+   Will mock all imports under the ``django`` package.
 
    .. versionadded:: 1.3
 
+   .. versionchanged:: 1.6
+      This config value only requires to declare the top-level modules that
+      should be mocked.
 
 Docstring preprocessing
 -----------------------

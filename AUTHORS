@@ -12,6 +12,8 @@ Other co-maintainers:
 * Robert Lehmann <@lehmannro>
 * Roland Meister <@rolmei>
 * Takeshi Komiya <@tk0miya>
+* Jean-François Burnol <@jfbu>
+* Yoshiki Shibukawa <@shibu_jp>
 
 Other contributors, listed alphabetically, are:
 
@@ -20,7 +22,6 @@ Other contributors, listed alphabetically, are:
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
-* Jean-François Burnol -- LaTeX improvements
 * Marco Buttu -- doctest extension (pyversion option)
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
@@ -55,7 +56,6 @@ Other contributors, listed alphabetically, are:
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
-* Shibukawa Yoshiki -- pluggable search API and Japanese search, epub3 builder improvements
 * Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
 * Filip Vavera -- napoleon todo directive

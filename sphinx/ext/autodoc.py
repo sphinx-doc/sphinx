@@ -16,7 +16,7 @@ import sys
 import inspect
 import traceback
 import warnings
-from types import FunctionType, BuiltinFunctionType, MethodType
+from types import FunctionType, MethodType, ModuleType
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
     string_types, StringIO
@@ -41,7 +41,6 @@ from sphinx.util.docstrings import prepare_docstring
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
-    from types import ModuleType  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -107,49 +106,102 @@ class Options(dict):
             return None
 
 
-class _MockModule(object):
+class _MockObject(object):
     """Used by autodoc_mock_imports."""
-    __file__ = '/dev/null'
-    __path__ = '/dev/null'
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
-        self.__all__ = []  # type: List[str]
+        pass
 
-    def __call__(self, *args, **kwargs):
-        # type: (Any, Any) -> _MockModule
+    def __len__(self):
+        # type: () -> int
+        return 0
+
+    def __contains__(self, key):
+        # type: (str) -> bool
+        return False
+
+    def __iter__(self):
+        # type: () -> None
+        pass
+
+    def __getitem__(self, key):
+        # type: (str) -> _MockObject
+        return self
+
+    def __getattr__(self, key):
+        # type: (str) -> _MockObject
+        return self
+
+    def __call__(self, *args, **kw):
+        # type: (Any, Any) -> Any
         if args and type(args[0]) in [FunctionType, MethodType]:
             # Appears to be a decorator, pass through unchanged
             return args[0]
-        return _MockModule()
+        return self
 
-    def _append_submodule(self, submod):
-        # type: (str) -> None
-        self.__all__.append(submod)
 
-    @classmethod
-    def __getattr__(cls, name):
-        # type: (unicode) -> Any
-        if name[0] == name[0].upper():
-            # Not very good, we assume Uppercase names are classes...
-            mocktype = type(name, (), {})  # type: ignore
-            mocktype.__module__ = __name__
-            return mocktype
+class _MockModule(ModuleType):
+    """Used by autodoc_mock_imports."""
+    __file__ = '/dev/null'
+
+    def __init__(self, name, loader):
+        # type: (str, _MockImporter) -> None
+        self.__name__ = self.__package__ = name
+        self.__loader__ = loader
+        self.__all__ = []  # type: List[str]
+        self.__path__ = []  # type: List[str]
+
+    def __getattr__(self, name):
+        # type: (str) -> _MockObject
+        o = _MockObject()
+        o.__module__ = self.__name__
+        return o
+
+
+class _MockImporter(object):
+
+    def __init__(self, names):
+        # type: (List[str]) -> None
+        self.base_packages = set()  # type: Set[str]
+        for n in names:
+            # Convert module names:
+            #     ['a.b.c', 'd.e']
+            # to a set of base packages:
+            #     set(['a', 'd'])
+            self.base_packages.add(n.split('.')[0])
+        self.mocked_modules = []  # type: List[str]
+        self.orig_meta_path = sys.meta_path
+        # enable hook by adding itself to meta_path
+        sys.meta_path = sys.meta_path + [self]
+
+    def disable(self):
+        # restore original meta_path to disable import hook
+        sys.meta_path = self.orig_meta_path
+        # remove mocked modules from sys.modules to avoid side effects after
+        # running auto-documenter
+        for m in self.mocked_modules:
+            if m in sys.modules:
+                del sys.modules[m]
+
+    def find_module(self, name, path=None):
+        # type: (str, str) -> Any
+        base_package = name.split('.')[0]
+        if base_package in self.base_packages:
+            return self
+        return None
+
+    def load_module(self, name):
+        # type: (str) -> ModuleType
+        if name in sys.modules:
+            # module has already been imported, return it
+            return sys.modules[name]
         else:
-            return _MockModule()
-
-
-def mock_import(modname):
-    # type: (str) -> None
-    if '.' in modname:
-        pkg, _n, mods = modname.rpartition('.')
-        mock_import(pkg)
-        if isinstance(sys.modules[pkg], _MockModule):
-            sys.modules[pkg]._append_submodule(mods)  # type: ignore
-
-    if modname not in sys.modules:
-        mod = _MockModule()
-        sys.modules[modname] = mod  # type: ignore
+            logger.debug('[autodoc] adding a mock module %s!', name)
+            module = _MockModule(name, self)
+            sys.modules[name] = module
+            self.mocked_modules.append(name)
+            return module
 
 
 ALL = object()
@@ -587,11 +639,11 @@ class Documenter(object):
         if self.objpath:
             logger.debug('[autodoc] from %s import %s',
                          self.modname, '.'.join(self.objpath))
+        # always enable mock import hook
+        # it will do nothing if autodoc_mock_imports is empty
+        import_hook = _MockImporter(self.env.config.autodoc_mock_imports)
         try:
             logger.debug('[autodoc] import %s', self.modname)
-            for modname in self.env.config.autodoc_mock_imports:
-                logger.debug('[autodoc] adding a mock module %s!', modname)
-                mock_import(modname)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=ImportWarning)
                 __import__(self.modname)
@@ -628,6 +680,8 @@ class Documenter(object):
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
+        finally:
+            import_hook.disable()
 
     def get_real_modname(self):
         # type: () -> str
@@ -1287,7 +1341,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, (FunctionType, BuiltinFunctionType))
+        return inspect.isfunction(member) or inspect.isbuiltin(member)
 
     def format_args(self):
         # type: () -> unicode
@@ -1583,13 +1637,16 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     # some non-data descriptors as methods
     priority = 10
 
-    method_types = (FunctionType, BuiltinFunctionType, MethodType)
+    @staticmethod
+    def is_function_or_method(obj):
+        return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        non_attr_types = cls.method_types + (type, MethodDescriptorType)
+        non_attr_types = (type, MethodDescriptorType)
         isdatadesc = isdescriptor(member) and not \
+            cls.is_function_or_method(member) and not \
             isinstance(member, non_attr_types) and not \
             type(member).__name__ == "instancemethod"
         # That last condition addresses an obscure case of C-defined
@@ -1609,7 +1666,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         if isenumattribute(self.object):
             self.object = self.object.value
         if isdescriptor(self.object) and \
-                not isinstance(self.object, self.method_types):
+                not self.is_function_or_method(self.object):
             self._datadescriptor = True
         else:
             # if it's not a data descriptor

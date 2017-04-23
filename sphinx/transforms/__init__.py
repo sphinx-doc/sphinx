@@ -277,6 +277,32 @@ class ExtraTranslatableNodes(SphinxTransform):
             node['translatable'] = True
 
 
+class UnreferencedFootnotesDetector(SphinxTransform):
+    """
+    detect unreferenced footnotes and citations, and emit warnings
+    """
+    default_priority = 200
+
+    def apply(self):
+        for node in self.document.footnotes:
+            if node['names'][0] not in self.document.footnote_refs:
+                logger.warning('Footnote [%s] is not referenced.', node['names'][0],
+                               type='ref', subtype='footnote',
+                               location=node)
+
+        for node in self.document.autofootnotes:
+            if not any(ref['auto'] == node['auto'] for ref in self.document.autofootnote_refs):
+                logger.warning('Footnote [#] is not referenced.',
+                               type='ref', subtype='footnote',
+                               location=node)
+
+        for node in self.document.citations:
+            if node['names'][0] not in self.document.citation_refs:
+                logger.warning('Citation [%s] is not referenced.', node['names'][0],
+                               type='ref', subtype='citation',
+                               location=node)
+
+
 class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999

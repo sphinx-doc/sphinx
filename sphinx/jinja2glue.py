@@ -27,7 +27,7 @@ if False:
     from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.themes import Theme  # NOQA
+    from sphinx.theming import Theme  # NOQA
 
 
 def _tobool(val):
@@ -134,9 +134,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
-            pathchain = theme.get_dirchain()
-            # then the theme parent paths
-            loaderchain = pathchain + theme.themepath
+            pathchain = theme.get_theme_dirs()
+            # the loader dirs: pathchain + the parent directories for all themes
+            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
         elif dirs:
             pathchain = list(dirs)
             loaderchain = list(dirs)

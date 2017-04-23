@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.builders.epub
-    ~~~~~~~~~~~~~~~~~~~~
+    sphinx.builders._epub_base
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Build epub files.
-    Originally derived from qthelp.py.
+    Base class of epub2/epub3 builders.
 
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -12,7 +11,6 @@
 
 import os
 import re
-import warnings
 from os import path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from datetime import datetime
@@ -29,12 +27,10 @@ except ImportError:
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.util import logging
 from sphinx.util import status_iterator
-from sphinx.util.osutil import ensuredir, copyfile, make_filename
+from sphinx.util.osutil import ensuredir, copyfile
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
@@ -56,9 +52,6 @@ logger = logging.getLogger(__name__)
 COVERPAGE_NAME = u'epub-cover.xhtml'
 
 TOCTREE_TEMPLATE = u'toctree-l%d'
-
-DOCTYPE = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'''
 
 LINK_TARGET_TEMPLATE = u' [%(uri)s]'
 
@@ -111,14 +104,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an
     epub file.
     """
-    name = 'epub2'
-
-    template_dir = path.join(package_dir, 'templates', 'epub2')
 
     # don't copy the reST source
     copysource = False
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
                              'image/jpeg']
+    supported_remote_images = False
 
     # don't add links
     add_permalinks = False
@@ -132,15 +123,18 @@ class EpubBuilder(StandaloneHTMLBuilder):
     html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
+    # use html5 translator by default
+    default_html5_translator = True
 
     coverpage_name = COVERPAGE_NAME
     toctree_template = TOCTREE_TEMPLATE
-    doctype = DOCTYPE
     link_target_template = LINK_TARGET_TEMPLATE
     css_link_target_class = CSS_LINK_TARGET_CLASS
     guide_titles = GUIDE_TITLES
     media_types = MEDIA_TYPES
     refuri_re = REFURI_RE
+    template_dir = ""
+    doctype = ""
 
     def init(self):
         # type: () -> None
@@ -451,17 +445,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
                                           outfilename, event_arg)
 
-    # Finish by building the epub file
-    def handle_finish(self):
-        # type: () -> None
-        """Create the metainfo files and finally the epub."""
-        self.get_toc()
-        self.build_mimetype(self.outdir, 'mimetype')
-        self.build_container(self.outdir, 'META-INF/container.xml')
-        self.build_content(self.outdir, 'content.opf')
-        self.build_toc(self.outdir, 'toc.ncx')
-        self.build_epub(self.outdir, self.config.epub_basename + '.epub')
-
     def build_mimetype(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
@@ -713,48 +696,3 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
             for filename in self.files:
                 epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
-
-
-def emit_deprecation_warning(app):
-    # type: (Sphinx) -> None
-    if app.builder.__class__ is EpubBuilder:
-        warnings.warn('epub2 builder is deprecated.  Please use epub3 builder instead.',
-                      RemovedInSphinx17Warning)
-
-
-def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
-    app.setup_extension('sphinx.builders.html')
-    app.add_builder(EpubBuilder)
-    app.connect('builder-inited', emit_deprecation_warning)
-
-    # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
-    app.add_config_value('epub_theme', 'epub', 'html')
-    app.add_config_value('epub_theme_options', {}, 'html')
-    app.add_config_value('epub_title', lambda self: self.html_title, 'html')
-    app.add_config_value('epub_author', 'unknown', 'html')
-    app.add_config_value('epub_language', lambda self: self.language or 'en', 'html')
-    app.add_config_value('epub_publisher', 'unknown', 'html')
-    app.add_config_value('epub_copyright', lambda self: self.copyright, 'html')
-    app.add_config_value('epub_identifier', 'unknown', 'html')
-    app.add_config_value('epub_scheme', 'unknown', 'html')
-    app.add_config_value('epub_uid', 'unknown', 'env')
-    app.add_config_value('epub_cover', (), 'env')
-    app.add_config_value('epub_guide', (), 'env')
-    app.add_config_value('epub_pre_files', [], 'env')
-    app.add_config_value('epub_post_files', [], 'env')
-    app.add_config_value('epub_exclude_files', [], 'env')
-    app.add_config_value('epub_tocdepth', 3, 'env')
-    app.add_config_value('epub_tocdup', True, 'env')
-    app.add_config_value('epub_tocscope', 'default', 'env')
-    app.add_config_value('epub_fix_images', False, 'env')
-    app.add_config_value('epub_max_image_width', 0, 'env')
-    app.add_config_value('epub_show_urls', 'inline', 'html')
-    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')
-
-    return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
-    }

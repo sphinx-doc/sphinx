@@ -200,11 +200,6 @@ Overriding works like this::
 
       {% set script_files = script_files + ["_static/myscript.js"] %}
 
-.. data:: css_files
-
-   Similar to :data:`script_files`, for CSS files.
-
-
 Helper Functions
 ~~~~~~~~~~~~~~~~
 

@@ -61,6 +61,12 @@ class Builder(object):
     # support translation
     use_message_catalog = True
 
+    #: The list of MIME types of image formats supported by the builder.
+    #: Image files are searched in the order in which they appear here.
+    supported_image_types = []  # type: List[unicode]
+    supported_remote_images = False
+    supported_data_uri_images = False
+
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.srcdir = app.srcdir
@@ -156,10 +162,6 @@ class Builder(object):
         # type: () -> List[unicode]
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
-
-    #: The list of MIME types of image formats supported by the builder.
-    #: Image files are searched in the order in which they appear here.
-    supported_image_types = []  # type: List[unicode]
 
     def post_process_images(self, doctree):
         # type: (nodes.Node) -> None

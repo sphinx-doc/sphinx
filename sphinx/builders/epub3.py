@@ -16,7 +16,7 @@ from collections import namedtuple
 
 from sphinx import package_dir
 from sphinx.config import string_classes, ENUM
-from sphinx.builders.epub import EpubBuilder
+from sphinx.builders import _epub_base
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
 
@@ -45,10 +45,15 @@ THEME_WRITING_MODES = {
     'horizontal': 'horizontal-tb',
 }
 
-DOCTYPE = u'''<!DOCTYPE html>'''
+DOCTYPE = '''<!DOCTYPE html>'''
+
+HTML_TAG = (
+    u'<html xmlns="http://www.w3.org/1999/xhtml" '
+    u'xmlns:epub="http://www.idpf.org/2007/ops">'
+)
 
 
-class Epub3Builder(EpubBuilder):
+class Epub3Builder(_epub_base.EpubBuilder):
     """
     Builder that outputs epub3 files.
 
@@ -58,8 +63,11 @@ class Epub3Builder(EpubBuilder):
     """
     name = 'epub'
 
+    supported_remote_images = False
     template_dir = path.join(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
+    html_tag = HTML_TAG
+    use_meta_charset = True
 
     # Finish by building the epub file
     def handle_finish(self):
@@ -134,6 +142,8 @@ class Epub3Builder(EpubBuilder):
 
         writing_mode = self.config.epub_writing_mode
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
+        self.globalcontext['html_tag'] = self.html_tag
+        self.globalcontext['use_meta_charset'] = self.use_meta_charset
 
     def build_navlist(self, navnodes):
         # type: (List[nodes.Node]) -> List[NavPoint]
@@ -215,9 +225,12 @@ class Epub3Builder(EpubBuilder):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.setup_extension('sphinx.builders.epub')
+
+    app.setup_extension('sphinx.builders.epub2')
+
     app.add_builder(Epub3Builder)
 
+    # config values
     app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
