@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.registory
-    ~~~~~~~~~~~~~~~~
+    sphinx.registry
+    ~~~~~~~~~~~~~~~
 
-    Sphinx component registory.
+    Sphinx component registry.
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
