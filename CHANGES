@@ -210,6 +210,9 @@ Features added
 Bugs fixed
 ----------
 
+* #3614: Sphinx crashes with requests-2.5.0
+* #3618: autodoc crashes with tupled arguments
+
 Testing
 --------
 
