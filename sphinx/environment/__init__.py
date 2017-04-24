@@ -20,7 +20,7 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import StringIO, itervalues, class_types, next
+from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils.io import NullOutput
@@ -121,7 +121,7 @@ class BuildEnvironment(object):
     @classmethod
     def loads(cls, string, app=None):
         # type: (unicode, Sphinx) -> BuildEnvironment
-        io = StringIO(string)
+        io = BytesIO(string)
         return cls.load(io, app)
 
     @classmethod
@@ -156,7 +156,7 @@ class BuildEnvironment(object):
     @classmethod
     def dumps(cls, env):
         # type: (BuildEnvironment) -> unicode
-        io = StringIO()
+        io = BytesIO()
         cls.dump(env, io)
         return io.getvalue()
 
