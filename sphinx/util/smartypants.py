@@ -27,6 +27,9 @@ import re
 from docutils.utils import smartquotes
 from sphinx.util.docutils import __version_info__ as docutils_version
 
+if False:  # For type annotation
+    from typing import Iterable, Iterator, Tuple  # NOQA
+
 
 def educateQuotes(text, language='en'):
     # type: (unicode, unicode) -> unicode
@@ -137,10 +140,138 @@ def educateQuotes(text, language='en'):
     return text
 
 
+def educate_tokens(text_tokens, attr='1', language='en'):
+    # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
+    """Return iterator that "educates" the items of `text_tokens`.
+    """
+
+    # Parse attributes:
+    # 0 : do nothing
+    # 1 : set all
+    # 2 : set all, using old school en- and em- dash shortcuts
+    # 3 : set all, using inverted old school en and em- dash shortcuts
+    #
+    # q : quotes
+    # b : backtick quotes (``double'' only)
+    # B : backtick quotes (``double'' and `single')
+    # d : dashes
+    # D : old school dashes
+    # i : inverted old school dashes
+    # e : ellipses
+    # w : convert &quot; entities to " for Dreamweaver users
+
+    convert_quot = False  # translate &quot; entities into normal quotes?
+    do_dashes = 0
+    do_backticks = 0
+    do_quotes = False
+    do_ellipses = False
+    do_stupefy = False
+
+    if attr == "0":  # Do nothing.
+        pass
+    elif attr == "1":  # Do everything, turn all options on.
+        do_quotes = True
+        do_backticks = 1
+        do_dashes = 1
+        do_ellipses = True
+    elif attr == "2":
+        # Do everything, turn all options on, use old school dash shorthand.
+        do_quotes = True
+        do_backticks = 1
+        do_dashes = 2
+        do_ellipses = True
+    elif attr == "3":
+        # Do everything, use inverted old school dash shorthand.
+        do_quotes = True
+        do_backticks = 1
+        do_dashes = 3
+        do_ellipses = True
+    elif attr == "-1":  # Special "stupefy" mode.
+        do_stupefy = True
+    else:
+        if "q" in attr:
+            do_quotes = True
+        if "b" in attr:
+            do_backticks = 1
+        if "B" in attr:
+            do_backticks = 2
+        if "d" in attr:
+            do_dashes = 1
+        if "D" in attr:
+            do_dashes = 2
+        if "i" in attr:
+            do_dashes = 3
+        if "e" in attr:
+            do_ellipses = True
+        if "w" in attr:
+            convert_quot = True
+
+    prev_token_last_char = " "
+    # Last character of the previous text token. Used as
+    # context to curl leading quote characters correctly.
+
+    for (ttype, text) in text_tokens:
+
+        # skip HTML and/or XML tags as well as emtpy text tokens
+        # without updating the last character
+        if ttype == 'tag' or not text:
+            yield text
+            continue
+
+        # skip literal text (math, literal, raw, ...)
+        if ttype == 'literal':
+            prev_token_last_char = text[-1:]
+            yield text
+            continue
+
+        last_char = text[-1:]  # Remember last char before processing.
+
+        text = smartquotes.processEscapes(text)
+
+        if convert_quot:
+            text = re.sub('&quot;', '"', text)
+
+        if do_dashes == 1:
+            text = smartquotes.educateDashes(text)
+        elif do_dashes == 2:
+            text = smartquotes.educateDashesOldSchool(text)
+        elif do_dashes == 3:
+            text = smartquotes.educateDashesOldSchoolInverted(text)
+
+        if do_ellipses:
+            text = smartquotes.educateEllipses(text)
+
+        # Note: backticks need to be processed before quotes.
+        if do_backticks:
+            text = smartquotes.educateBackticks(text, language)
+
+        if do_backticks == 2:
+            text = smartquotes.educateSingleBackticks(text, language)
+
+        if do_quotes:
+            # Replace plain quotes to prevent converstion to
+            # 2-character sequence in French.
+            context = prev_token_last_char.replace('"', ';').replace("'", ';')
+            text = educateQuotes(context + text, language)[1:]
+
+        if do_stupefy:
+            text = smartquotes.stupefyEntities(text, language)
+
+        # Remember last char as context for the next token
+        prev_token_last_char = last_char
+
+        text = smartquotes.processEscapes(text, restore=True)
+
+        yield text
+
+
 if docutils_version < (0, 13, 2):
     # Monkey patch the old docutils versions to fix the issue mentioned
     # at https://sourceforge.net/p/docutils/bugs/313/
     smartquotes.educateQuotes = educateQuotes
+
+    # And the one mentioned at https://sourceforge.net/p/docutils/bugs/317/
+    smartquotes.educate_tokens = educate_tokens
 
     # Fix the issue with French quotes mentioned at
     # https://sourceforge.net/p/docutils/mailman/message/35760696/
