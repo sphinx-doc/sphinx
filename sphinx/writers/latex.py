@@ -47,13 +47,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-BEGIN_DOC = r'''
-\begin{document}
-%(shorthandoff)s
-%(maketitle)s
-%(tableofcontents)s
-'''
-
 SHORTHANDOFF = r'''
 \ifdefined\shorthandoff
   \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
@@ -901,7 +894,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.curfilestack.append(node.get('docname', ''))
         if self.first_document == 1:
             # the first document is all the regular content ...
-            self.body.append(BEGIN_DOC % self.elements)
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
