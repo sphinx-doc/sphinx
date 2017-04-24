@@ -7,6 +7,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* #3662: ``builder.css_files`` is deprecated.  Please use ``add_stylesheet()``
+  API instead.
+
 Features added
 --------------
 
