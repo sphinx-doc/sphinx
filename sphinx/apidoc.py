@@ -282,7 +282,7 @@ def is_excluded(root, excludes):
     return False
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Parse and check the command line arguments."""
     parser = optparse.OptionParser(
@@ -356,7 +356,7 @@ Note: By default this script will not overwrite already created files.""")
                          dest='ext_' + ext, default=False,
                          help='enable %s extension' % ext)
 
-    (opts, args) = parser.parse_args(argv[1:])
+    (opts, args) = parser.parse_args(argv)
 
     if opts.show_version:
         print('Sphinx (sphinx-apidoc) %s' % __display_version__)
