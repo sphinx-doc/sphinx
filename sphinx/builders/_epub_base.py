@@ -25,6 +25,7 @@ except ImportError:
         Image = None
 
 from docutils import nodes
+from docutils.utils import smartquotes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -32,7 +33,6 @@ from sphinx.util import logging
 from sphinx.util import status_iterator
 from sphinx.util.osutil import ensuredir, copyfile
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 if False:
     # For type annotation
@@ -92,6 +92,18 @@ ManifestItem = namedtuple('ManifestItem', ['href', 'id', 'media_type'])
 Spine = namedtuple('Spine', ['idref', 'linear'])
 Guide = namedtuple('Guide', ['type', 'title', 'uri'])
 NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'children'])
+
+
+def sphinx_smarty_pants(t, language='en'):
+    # type: (unicode, str) -> unicode
+    t = t.replace('&quot;', '"')
+    t = smartquotes.educateDashesOldSchool(t)
+    t = smartquotes.educateQuotes(t, language)
+    t = t.replace('"', '&quot;')
+    return t
+
+
+ssp = sphinx_smarty_pants
 
 
 # The epub publisher

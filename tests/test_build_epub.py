@@ -162,7 +162,7 @@ def test_nested_toc(app):
     app.build()
 
     # toc.ncx
-    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
     assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
 
     # toc.ncx / navPoint
@@ -175,7 +175,7 @@ def test_nested_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     "Welcome to Sphinx Tests's documentation!")
+                                     u"Welcome to Sphinx Tests’s documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -192,11 +192,11 @@ def test_nested_toc(app):
         anchor = elem.find("./xhtml:a")
         return (anchor.get('href'), anchor.text)
 
-    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').text())
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
-                               "Welcome to Sphinx Tests's documentation!")
+                               u"Welcome to Sphinx Tests’s documentation!")
     assert toc[0].findall("./xhtml:ol") == []
 
     # nav.xhtml / nested toc

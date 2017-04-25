@@ -34,14 +34,14 @@ def test_docinfo(app, status, warning):
         'field name': u'This is a generic bibliographic field.',
         'field name 2': (u'Generic bibliographic fields may contain multiple '
                          u'body elements.\n\nLike this.'),
-        'status': u'This is a "work in progress"',
+        'status': u'This is a “work in progress”',
         'version': u'1',
         'copyright': (u'This document has been placed in the public domain. '
                       u'You\nmay do with it as you wish. You may copy, modify,'
                       u'\nredistribute, reattribute, sell, buy, rent, lease,\n'
                       u'destroy, or improve it, quote it at length, excerpt,\n'
                       u'incorporate, collate, fold, staple, or mutilate it, or '
-                      u'do\nanything else to it that your or anyone else\'s '
+                      u'do\nanything else to it that your or anyone else’s '
                       u'heart\ndesires.'),
         'contact': u'goodger@python.org',
         'date': u'2006-05-21',
