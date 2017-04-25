@@ -4,6 +4,8 @@ Release 1.6 beta2 (in development)
 Incompatible changes
 --------------------
 
+* #3345: Replace the custom smartypants code with docutils' smart_quotes
+
 Deprecated
 ----------
 
