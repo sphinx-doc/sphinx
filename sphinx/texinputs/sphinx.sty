@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/03/26 v1.5.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/04/25 v1.5.6 LaTeX package (Sphinx markup)]
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
 % kvoptions (and later by hyperref), but the first release of
@@ -1164,25 +1164,18 @@
 % {fulllineitems} is the main environment for object descriptions.
 %
 \newcommand{\py@itemnewline}[1]{%
+  \kern\labelsep
   \@tempdima\linewidth
-  \advance\@tempdima \leftmargin\makebox[\@tempdima][l]{#1}%
+  \advance\@tempdima \labelwidth\makebox[\@tempdima][l]{#1}%
+  \kern-\labelsep
 }
 
-\newenvironment{fulllineitems}{
-  \begin{list}{}{\labelwidth \leftmargin \labelsep \z@
+\newenvironment{fulllineitems}{%
+  \begin{list}{}{\labelwidth \leftmargin
                  \rightmargin \z@ \topsep -\parskip \partopsep \parskip
                  \itemsep -\parsep
-                 \let\makelabel=\py@itemnewline}
+                 \let\makelabel=\py@itemnewline}%
 }{\end{list}}
-
-% Redefine description environment so that it is usable inside fulllineitems.
-%
-% FIXME: use sphinxdescription, do not redefine description environment!
-\renewcommand{\description}{%
-  \list{}{\labelwidth\z@
-          \itemindent-\leftmargin
-	  \labelsep5pt\relax
-          \let\makelabel=\descriptionlabel}}
 
 % Signatures, possibly multi-line
 %

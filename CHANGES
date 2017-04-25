@@ -15,6 +15,7 @@ Bugs fixed
 
 * #3614: Sphinx crashes with requests-2.5.0
 * #3618: autodoc crashes with tupled arguments
+* #3664: No space after the bullet in items of a latex list produced by Sphinx
 
 Testing
 --------
