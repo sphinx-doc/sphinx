@@ -41,7 +41,7 @@ try:
 except ImportError:
     try:
         # for Debian-jessie
-        from urllib3.exceptions import InsecurePlatformWarning
+        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
     except ImportError:
         # for requests < 2.4.0
         InsecurePlatformWarning = None
