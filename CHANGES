@@ -16,6 +16,7 @@ Bugs fixed
 ----------
 
 * #3661: sphinx-build crashes on parallel build
+* #3669: gettext builder fails with "ValueError: substring not found"
 
 Testing
 --------
