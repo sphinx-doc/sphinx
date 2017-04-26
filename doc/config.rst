@@ -50,6 +50,9 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
+.. seealso:: Aditional configurations, such as adding stylesheets, javascripts,
+   builders, ect... can be made through the :doc:`/extdev/appapi`.
+
 
 General configuration
 ---------------------
