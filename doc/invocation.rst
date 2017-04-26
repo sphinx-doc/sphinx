@@ -480,6 +480,18 @@ The :program:`sphinx-apidoc` script has several options:
 
    With this option given, no files will be written at all.
 
+.. option:: -e, --separate
+
+   Put documentation for each module on its own page.
+
+   .. versionadded:: 1.2
+
+.. option:: -P, --private
+
+   Include "_private" modules.
+
+   .. versionadded:: 1.2
+
 .. option:: -s suffix
 
    This option selects the file name suffix of output files.  By default, this
@@ -504,6 +516,13 @@ The :program:`sphinx-apidoc` script has several options:
 
    This prevents the generation of a table-of-contents file ``modules.rst``.
    This has no effect when :option:`--full` is given.
+
+.. option:: -E, --no-headings
+
+   Don't create headings for the module/package packages (e.g. when the
+   docstrings already contain them).
+
+   .. versionadded:: 1.2
 
 .. option:: -F, --full
 
