@@ -96,19 +96,22 @@ class CSSContainer(list):
     the entry with Stylesheet class.
     """
     def append(self, obj):
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).append(obj)
         else:
             super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))
 
     def extend(self, other):
+        warnings.warn('builder.css_files is deprecated. '
+                      'Please use app.add_stylesheet() instead.',
+                      RemovedInSphinx20Warning)
         for item in other:
             self.append(item)
 
     def __iadd__(self, other):
+        warnings.warn('builder.css_files is deprecated. '
+                      'Please use app.add_stylesheet() instead.',
+                      RemovedInSphinx20Warning)
         for item in other:
             self.append(item)
 
