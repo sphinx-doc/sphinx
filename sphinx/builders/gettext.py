@@ -194,14 +194,18 @@ ltz = LocalTimeZone()
 def should_write(filepath, new_content):
     if not path.exists(filepath):
         return True
-    with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
-        old_content = oldpot.read()
-        old_header_index = old_content.index('"POT-Creation-Date:')
-        new_header_index = new_content.index('"POT-Creation-Date:')
-        old_body_index = old_content.index('"PO-Revision-Date:')
-        new_body_index = new_content.index('"PO-Revision-Date:')
-        return ((old_content[:old_header_index] != new_content[:new_header_index]) or
-                (new_content[new_body_index:] != old_content[old_body_index:]))
+    try:
+        with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
+            old_content = oldpot.read()
+            old_header_index = old_content.index('"POT-Creation-Date:')
+            new_header_index = new_content.index('"POT-Creation-Date:')
+            old_body_index = old_content.index('"PO-Revision-Date:')
+            new_body_index = new_content.index('"PO-Revision-Date:')
+            return ((old_content[:old_header_index] != new_content[:new_header_index]) or
+                    (new_content[new_body_index:] != old_content[old_body_index:]))
+    except ValueError:
+        pass
+
     return True
 
 
