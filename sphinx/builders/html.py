@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import codecs
+import warnings
 import posixpath
 from os import path
 from hashlib import md5
@@ -38,6 +39,7 @@ from sphinx.util.docutils import is_html5_writer_available, __version_info__
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.locale import _, l_
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
@@ -84,6 +86,38 @@ def get_stable_hash(obj):
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
     return md5(text_type(obj).encode('utf8')).hexdigest()
+
+
+class CSSContainer(list):
+    """The container of stylesheets.
+
+    To support the extensions which access the container directly, this wraps
+    the entry with Stylesheet class.
+    """
+    def append(self, obj):
+        if isinstance(obj, Stylesheet):
+            super(CSSContainer, self).append(obj)
+        else:
+            super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))
+
+    def extend(self, other):
+        warnings.warn('builder.css_files is deprecated. '
+                      'Please use app.add_stylesheet() instead.',
+                      RemovedInSphinx20Warning)
+        for item in other:
+            self.append(item)
+
+    def __iadd__(self, other):
+        warnings.warn('builder.css_files is deprecated. '
+                      'Please use app.add_stylesheet() instead.',
+                      RemovedInSphinx20Warning)
+        for item in other:
+            self.append(item)
+
+    def __add__(self, other):
+        ret = CSSContainer(self)
+        ret += other
+        return ret
 
 
 class Stylesheet(text_type):
@@ -135,7 +169,7 @@ class StandaloneHTMLBuilder(Builder):
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
     # Ditto for this one (Sphinx.add_stylesheet).
-    css_files = []  # type: List[Dict[unicode, unicode]]
+    css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
