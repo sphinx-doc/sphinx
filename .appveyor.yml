@@ -1,0 +1,27 @@
+environment:
+  global:
+    TEST: -v --durations 25
+    PYTHONFAULTHANDLER: x
+    PYTHONWARNINGS: all
+
+  matrix:
+    - PYTHON: 27
+      DOCUTILS: 0.12
+    - PYTHON: 27
+      DOCUTILS: 0.13.1
+    - PYTHON: 36
+      DOCUTILS: 0.13.1
+    - PYTHON: 36-x64
+      DOCUTILS: 0.13.1
+
+install:
+  - C:\Python%PYTHON%\python.exe -m pip install -U pip setuptools
+  - C:\Python%PYTHON%\python.exe -m pip install docutils==%DOCUTILS%
+  - C:\Python%PYTHON%\python.exe -m pip install -r test-reqs.txt
+
+# No automatic build, just run python tests
+build: off
+
+test_script:
+  - cd tests
+  - C:\Python%PYTHON%\python.exe run.py --ignore py35 --color=no %TEST%
