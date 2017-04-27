@@ -10,7 +10,6 @@
 """
 
 import os
-import warnings
 from os import path
 
 from docutils import nodes
@@ -19,7 +18,6 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -257,21 +255,6 @@ def validate_config_values(app):
                        app.config.latex_toplevel_sectioning)
         app.config.latex_toplevel_sectioning = None  # type: ignore
 
-    if 'footer' in app.config.latex_elements:
-        if 'postamble' in app.config.latex_elements:
-            logger.warning("latex_elements['footer'] conflicts with "
-                           "latex_elements['postamble'], ignored.")
-        else:
-            warnings.warn("latex_elements['footer'] is deprecated. "
-                          "Use latex_elements['preamble'] instead.",
-                          RemovedInSphinx17Warning)
-            app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
-
-    if app.config.latex_keep_old_macro_names:
-        warnings.warn("latex_keep_old_macro_names is deprecated. "
-                      "LaTeX markup since Sphinx 1.4.5 uses only prefixed macro names.",
-                      RemovedInSphinx17Warning)
-
 
 def default_latex_engine(config):
     # type: (Config) -> unicode
@@ -305,7 +288,6 @@ def setup(app):
                          None)
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
-    app.add_config_value('latex_keep_old_macro_names', False, None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None, [str])
     app.add_config_value('latex_domain_indices', True, None, [list])

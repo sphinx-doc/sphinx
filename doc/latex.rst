@@ -414,10 +414,7 @@ Let us now list some macros from the package file
 - text styling commands (they have one argument): ``\sphinx<foo>`` with
   ``<foo>`` being one of ``strong``, ``bfcode``, ``email``, ``tablecontinued``,
   ``titleref``, ``menuselection``, ``accelerator``, ``crossref``, ``termref``,
-  ``optional``. The non-prefixed macros will still be defined if option
-  :confval:`latex_keep_old_macro_names` has been set to ``True`` (default is
-  ``False``), in which case the prefixed macros expand to the
-  non-prefixed ones.
+  ``optional``.
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
