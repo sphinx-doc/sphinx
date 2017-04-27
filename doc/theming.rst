@@ -47,7 +47,9 @@ file :file:`blue.zip`, you can put it right in the directory containing
     html_theme_path = ["."]
 
 The third form is a python package.  If a theme you want to use is distributed
-as a python package, you can use it after installing::
+as a python package, you can use it after installing
+
+.. code-block:: bash
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
