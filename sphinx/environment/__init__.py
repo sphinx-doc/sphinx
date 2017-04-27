@@ -20,12 +20,13 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import StringIO, itervalues, class_types, next
+from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
+from docutils.utils.smartquotes import smartchars
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
@@ -121,7 +122,7 @@ class BuildEnvironment(object):
     @classmethod
     def loads(cls, string, app=None):
         # type: (unicode, Sphinx) -> BuildEnvironment
-        io = StringIO(string)
+        io = BytesIO(string)
         return cls.load(io, app)
 
     @classmethod
@@ -156,7 +157,7 @@ class BuildEnvironment(object):
     @classmethod
     def dumps(cls, env):
         # type: (BuildEnvironment) -> unicode
-        io = StringIO()
+        io = BytesIO()
         cls.dump(env, io)
         return io.getvalue()
 
@@ -671,6 +672,16 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
+        language = (self.config.language or 'en').replace('_', '-')
+        self.settings['language_code'] = language
+        if self.config.html_use_smartypants is not None:
+            warnings.warn("html_use_smartypants option is deprecated. Use the "
+                          "smart_quotes option in docutils.conf instead.",
+                          RemovedInSphinx17Warning)
+            if language in smartchars.quotes:
+                self.settings['smart_quotes'] = self.config.html_use_smartypants
+        elif language in smartchars.quotes:  # We enable smartypants by default
+            self.settings['smart_quotes'] = True
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir

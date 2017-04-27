@@ -34,6 +34,7 @@ from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
+from sphinx.util import smartypants  # noqa
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately

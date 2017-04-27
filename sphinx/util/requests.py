@@ -36,6 +36,16 @@ except ImportError:
         # for requests < 2.4.0
         InsecureRequestWarning = None
 
+try:
+    from requests.packages.urllib3.exceptions import InsecurePlatformWarning
+except ImportError:
+    try:
+        # for Debian-jessie
+        from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
+    except ImportError:
+        # for requests < 2.4.0
+        InsecurePlatformWarning = None
+
 # try to load requests[security] (but only if SSL is available)
 try:
     import ssl
@@ -48,8 +58,8 @@ else:
             pkg_resources.VersionConflict):
         if not getattr(ssl, 'HAS_SNI', False):
             # don't complain on each url processed about the SSL issue
-            requests.packages.urllib3.disable_warnings(
-                requests.packages.urllib3.exceptions.InsecurePlatformWarning)
+            if InsecurePlatformWarning:
+                requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
             warnings.warn(
                 'Some links may return broken results due to being unable to '
                 'check the Server Name Indication (SNI) in the returned SSL cert '

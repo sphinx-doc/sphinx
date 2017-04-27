@@ -14,11 +14,12 @@ import pickle
 
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
+from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
+from sphinx.writers.html import HTMLWriter, HTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 import pytest
 
@@ -31,6 +32,7 @@ def settings(app):
     optparser = frontend.OptionParser(
         components=(RstParser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
+    settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     domain_context = sphinx_domains(settings.env)
@@ -46,6 +48,7 @@ def parse(settings):
         document['file'] = 'dummy'
         parser = RstParser()
         parser.parse(rst, document)
+        SmartQuotes(document, startnode=None).apply()
         for msg in document.traverse(nodes.system_message):
             if msg['level'] == 1:
                 msg.replace_self([])
@@ -62,7 +65,7 @@ class ForgivingTranslator:
         pass
 
 
-class ForgivingHTMLTranslator(SmartyPantsHTMLTranslator, ForgivingTranslator):
+class ForgivingHTMLTranslator(HTMLTranslator, ForgivingTranslator):
     pass
 
 
@@ -178,8 +181,8 @@ def get_verifier(verify, verify_re):
         # verify smarty-pants quotes
         'verify',
         '"John"',
-        '<p>&#8220;John&#8221;</p>',
-        r'\sphinxquotedblleft{}John\sphinxquotedblright{}',
+        u'<p>“John”</p>',
+        u"“John”",
     ),
     (
         # ... but not in literal text
