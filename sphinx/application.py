@@ -29,7 +29,7 @@ import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
-from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
@@ -39,10 +39,9 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
-from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
 
@@ -314,13 +313,6 @@ class Sphinx(object):
         for node, settings in iteritems(self.enumerable_nodes):
             self.env.get_domain('std').enumerable_nodes[node] = settings  # type: ignore
 
-    @property
-    def buildername(self):
-        # type: () -> unicode
-        warnings.warn('app.buildername is deprecated. Please use app.builder.name instead',
-                      RemovedInSphinx17Warning)
-        return self.builder.name
-
     # ---- main "build" method -------------------------------------------------
 
     def build(self, force_all=False, filenames=None):
@@ -356,31 +348,15 @@ class Sphinx(object):
         self.builder.cleanup()
 
     # ---- logging handling ----------------------------------------------------
-    def warn(self, message, location=None, prefix=None,
-             type=None, subtype=None, colorfunc=None):
-        # type: (unicode, unicode, unicode, unicode, unicode, Callable) -> None
+    def warn(self, message, location=None, type=None, subtype=None):
+        # type: (unicode, unicode, unicode, unicode) -> None
         """Emit a warning.
 
         If *location* is given, it should either be a tuple of (docname, lineno)
         or a string describing the location of the warning as well as possible.
 
-        *prefix* usually should not be changed.
-
         *type* and *subtype* are used to suppress warnings with :confval:`suppress_warnings`.
-
-        .. note::
-
-           For warnings emitted during parsing, you should use
-           :meth:`.BuildEnvironment.warn` since that will collect all
-           warnings during parsing for later output.
         """
-        if prefix:
-            warnings.warn('prefix option of warn() is now deprecated.',
-                          RemovedInSphinx17Warning)
-        if colorfunc:
-            warnings.warn('colorfunc option of warn() is now deprecated.',
-                          RemovedInSphinx17Warning)
-
         warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
                       RemovedInSphinx20Warning)
         logger.warning(message, type=type, subtype=subtype, location=location)
@@ -416,34 +392,6 @@ class Sphinx(object):
         warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
                       RemovedInSphinx20Warning)
         logger.debug(message, *args, **kwargs)
-
-    def _display_chunk(chunk):
-        # type: (Any) -> unicode
-        warnings.warn('app._display_chunk() is now deprecated. '
-                      'Use sphinx.util.display_chunk() instead.',
-                      RemovedInSphinx17Warning)
-        return display_chunk(chunk)
-
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=display_chunk):
-        # type: (Iterable, unicode, Callable, Callable[[Any], unicode]) -> Iterator
-        warnings.warn('app.old_status_iterator() is now deprecated. '
-                      'Use sphinx.util.status_iterator() instead.',
-                      RemovedInSphinx17Warning)
-        for item in old_status_iterator(iterable, summary,
-                                        color="darkgreen", stringify_func=stringify_func):
-            yield item
-
-    # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
-                        stringify_func=_display_chunk):
-        # type: (Iterable, unicode, Callable, int, Callable[[Any], unicode]) -> Iterable
-        warnings.warn('app.status_iterator() is now deprecated. '
-                      'Use sphinx.util.status_iterator() instead.',
-                      RemovedInSphinx17Warning)
-        for item in status_iterator(iterable, summary, length=length, verbosity=self.verbosity,
-                                    color="darkgreen", stringify_func=stringify_func):
-            yield item
 
     # ---- general extensibility interface -------------------------------------
 
@@ -565,13 +513,6 @@ class Sphinx(object):
         # type: (nodes.Node, unicode, Callable, Any) -> None
         self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
-
-    def _directive_helper(self, obj, has_content=None, argument_spec=None, **option_spec):
-        # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
-        warnings.warn('_directive_helper() is now deprecated. '
-                      'Please use sphinx.util.docutils.directive_helper() instead.',
-                      RemovedInSphinx17Warning)
-        return directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
