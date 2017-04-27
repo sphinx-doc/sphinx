@@ -15,7 +15,7 @@ ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 # Prefix for archive names
 ARCHIVEPRREFIX =
 # Additional LaTeX options
-LATEXOPTS =
+LATEXOPTS = -halt-on-error -interaction batchmode
 # format: pdf or dvi
 FMT = pdf
 
