@@ -117,3 +117,26 @@ def test_math_number_all_latex(app, status, warning):
 
     macro = r'Referencing equation \\eqref{equation:math:foo}.'
     assert re.search(macro, content, re.S)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'math_eqref_format': 'Eq.{number}'})
+def test_math_eqref_format_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'math.html').text()
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">Eq.1</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('latex', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'math_eqref_format': 'Eq.{number}'})
+def test_math_eqref_format_latex(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'test.tex').text()
+    macro = r'Referencing equation Eq.\\ref{equation:math:foo}.'
+    assert re.search(macro, content, re.S)

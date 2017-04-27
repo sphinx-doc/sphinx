@@ -10,6 +10,9 @@ Deprecated
 Features added
 --------------
 
+* #3638: Allow to change a label of reference to equation using
+  ``math_eqref_format``
+
 Bugs fixed
 ----------
 
