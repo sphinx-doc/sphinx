@@ -24,4 +24,4 @@ build: off
 
 test_script:
   - cd tests
-  - C:\Python%PYTHON%\python.exe run.py --ignore py35 --color=no %TEST%
+  - C:\Python%PYTHON%\python.exe run.py --ignore py35 %TEST%
