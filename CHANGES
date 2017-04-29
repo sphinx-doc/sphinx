@@ -12,18 +12,12 @@ Deprecated
 * #3662: ``builder.css_files`` is deprecated.  Please use ``add_stylesheet()``
   API instead.
 
-Features added
---------------
-
 Bugs fixed
 ----------
 
 * #3661: sphinx-build crashes on parallel build
 * #3669: gettext builder fails with "ValueError: substring not found"
 * #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
-
-Testing
---------
 
 Release 1.6 beta1 (released Apr 24, 2017)
 =========================================
