@@ -10,11 +10,13 @@
 """
 
 import os
+
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
+from sphinx.util.urepr import urepr
 
 if False:
     # For type annotation
@@ -26,7 +28,7 @@ class BaseRenderer(object):
     def __init__(self, loader=None):
         # type: (BaseLoader) -> None
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
-        self.env.filters['repr'] = repr
+        self.env.filters['repr'] = urepr
         self.env.install_gettext_translations(get_translator())  # type: ignore
 
     def render(self, template_name, context):
