@@ -449,7 +449,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         This method is overwritten for genindex pages in order to fix href link
         attributes.
         """
-        if pagename.startswith('genindex'):
+        if pagename.startswith('genindex') and 'genindexentries' in addctx:
             if not self.use_index:
                 return
             self.fix_genindex(addctx['genindexentries'])
