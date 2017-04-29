@@ -5,6 +5,7 @@ Incompatible changes
 --------------------
 
 * #3345: Replace the custom smartypants code with docutils' smart_quotes
+* Add line numbers to citation data in std domain
 
 Deprecated
 ----------
@@ -15,12 +16,16 @@ Deprecated
 Features added
 --------------
 
+* Add a new event `env-check-consistency` to check consistency to extensions
+* Add `Domain.check_consistency()` to check consistency
+
 Bugs fixed
 ----------
 
 * #3661: sphinx-build crashes on parallel build
 * #3669: gettext builder fails with "ValueError: substring not found"
 * #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
+* #3633: misdetect unreferenced citations
 
 Testing
 --------

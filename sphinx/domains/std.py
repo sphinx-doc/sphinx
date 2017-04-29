@@ -490,15 +490,16 @@ class StandardDomain(Domain):
     }  # type: Dict[unicode, Union[RoleFunction, XRefRole]]
 
     initial_data = {
-        'progoptions': {},  # (program, name) -> docname, labelid
-        'objects': {},      # (type, name) -> docname, labelid
-        'citations': {},    # name -> docname, labelid
-        'labels': {         # labelname -> docname, labelid, sectionname
+        'progoptions': {},      # (program, name) -> docname, labelid
+        'objects': {},          # (type, name) -> docname, labelid
+        'citations': {},        # name -> docname, labelid, lineno
+        'citation_refs': {},    # name -> list of docnames
+        'labels': {             # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', l_('Index')),
             'modindex': ('py-modindex', '', l_('Module Index')),
             'search':   ('search', '', l_('Search Page')),
         },
-        'anonlabels': {     # labelname -> docname, labelid
+        'anonlabels': {         # labelname -> docname, labelid
             'genindex': ('genindex', ''),
             'modindex': ('py-modindex', ''),
             'search':   ('search', ''),
@@ -530,9 +531,14 @@ class StandardDomain(Domain):
         for key, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][key]
-        for key, (fn, _l) in list(self.data['citations'].items()):
+        for key, (fn, _l, lineno) in list(self.data['citations'].items()):
             if fn == docname:
                 del self.data['citations'][key]
+        for key, docnames in list(self.data['citation_refs'].items()):
+            if docnames == [docname]:
+                del self.data['citation_refs'][key]
+            elif docname in docnames:
+                docnames.pop(docname)
         for key, (fn, _l, _l) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]
@@ -552,6 +558,11 @@ class StandardDomain(Domain):
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
                 self.data['citations'][key] = data
+        for key, data in otherdata['citation_refs'].items():
+            citation_refs = self.data['citation_refs'].setdefault(key, [])
+            for docname in data:
+                if docname in docnames:
+                    citation_refs.append(docname)
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
                 self.data['labels'][key] = data
@@ -562,6 +573,7 @@ class StandardDomain(Domain):
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         self.note_citations(env, docname, document)
+        self.note_citation_refs(env, docname, document)
         self.note_labels(env, docname, document)
 
     def note_citations(self, env, docname, document):
@@ -572,7 +584,13 @@ class StandardDomain(Domain):
                 path = env.doc2path(self.data['citations'][label][0])
                 logger.warning('duplicate citation %s, other instance in %s', label, path,
                                location=node, type='ref', subtype='citation')
-            self.data['citations'][label] = (docname, node['ids'][0])
+            self.data['citations'][label] = (docname, node['ids'][0], node.line)
+
+    def note_citation_refs(self, env, docname, document):
+        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        for name, refs in iteritems(document.citation_refs):
+            citation_refs = self.data['citation_refs'].setdefault(name, [])
+            citation_refs.append(docname)
 
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
@@ -613,6 +631,14 @@ class StandardDomain(Domain):
                 # anonymous-only labels
                 continue
             labels[name] = docname, labelid, sectname
+
+    def check_consistency(self):
+        # type: () -> None
+        for name, (docname, labelid, lineno) in iteritems(self.data['citations']):
+            if labelid not in self.data['citation_refs']:
+                logger.warning('Citation [%s] is not referenced.', name,
+                               type='ref', subtype='citation',
+                               location=(docname, lineno))
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
@@ -788,7 +814,7 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         from sphinx.environment import NoUri
 
-        docname, labelid = self.data['citations'].get(target, ('', ''))
+        docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))
         if not docname:
             if 'ids' in node:
                 # remove ids attribute that annotated at
