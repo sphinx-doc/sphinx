@@ -16,7 +16,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.6 beta2 (in development)
+Release 1.6 beta3 (in development)
 ==================================
 
 Incompatible changes
@@ -33,6 +33,27 @@ Bugs fixed
 
 Testing
 --------
+
+Release 1.6 beta2 (released Apr 29, 2017)
+=========================================
+
+Incompatible changes
+--------------------
+
+* #3345: Replace the custom smartypants code with docutils' smart_quotes
+
+Deprecated
+----------
+
+* #3662: ``builder.css_files`` is deprecated.  Please use ``add_stylesheet()``
+  API instead.
+
+Bugs fixed
+----------
+
+* #3661: sphinx-build crashes on parallel build
+* #3669: gettext builder fails with "ValueError: substring not found"
+* #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
 
 Release 1.6 beta1 (released Apr 24, 2017)
 =========================================
@@ -225,6 +246,11 @@ Features added
 
 Bugs fixed
 ----------
+
+* #3614: Sphinx crashes with requests-2.5.0
+* #3618: autodoc crashes with tupled arguments
+* #3664: No space after the bullet in items of a latex list produced by Sphinx
+* #3657: EPUB builder crashes if document startswith genindex exists
 
 Testing
 --------

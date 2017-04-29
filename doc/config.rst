@@ -771,6 +771,12 @@ that use Sphinx's HTMLWriter class.
    will be used to convert quotes and dashes to typographically correct
    entities.  Default: ``True``.
 
+   .. deprecated:: 1.6
+      Use the `smart_quotes option`_ in the Docutils configuration file
+      (``docutils.conf``) instead.
+
+      .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+
 .. confval:: html_add_permalinks
 
    Sphinx will add "permalinks" for each heading and description environment as
