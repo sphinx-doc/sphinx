@@ -7,4 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinxcontrib.websupport.utils import is_commentable  # NOQA
+try:
+    from sphinxcontrib.websupport.utils import is_commentable  # NOQA
+except ImportError:
+    def is_commentable(node):
+        raise RuntimeError

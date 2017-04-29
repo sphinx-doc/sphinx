@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinxcontrib.websupport.builder import WebSupportBuilder
-
 if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
@@ -19,7 +17,11 @@ if False:
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.add_builder(WebSupportBuilder)
+    try:
+        from sphinxcontrib.websupport.builder import WebSupportBuilder
+        app.add_builder(WebSupportBuilder)
+    except ImportError:
+        pass
 
     return {
         'version': 'builtin',
