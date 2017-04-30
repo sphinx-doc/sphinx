@@ -916,6 +916,13 @@ def test_latex_table_tabulars(app, status, warning):
     table = tables['table having both :widths: and problematic cell']
     assert ('\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
 
+    # table having both stub columns and problematic cell
+    table = tables['table having both stub columns and problematic cell']
+    assert ('&\\sphinxstylethead{\\sphinxstyletheadfamily \n'
+            'instub1-2\n\\unskip}\\relax &\nnotinstub1-3\n\\\\\n'
+            '\\hline\\sphinxstylethead{\\sphinxstyletheadfamily \n'
+            'cell2-1\n\\unskip}\\relax &' in table)
+
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
@@ -981,6 +988,13 @@ def test_latex_table_longtable(app, status, warning):
     # longtable having both :widths: and problematic cell
     table = tables['longtable having both :widths: and problematic cell']
     assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable having both stub columns and problematic cell
+    table = tables['longtable having both stub columns and problematic cell']
+    assert ('&\\sphinxstylethead{\\sphinxstyletheadfamily \n'
+            'instub1-2\n\\unskip}\\relax &\nnotinstub1-3\n\\\\\n'
+            '\\hline\\sphinxstylethead{\\sphinxstyletheadfamily \n'
+            'cell2-1\n\\unskip}\\relax &' in table)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
