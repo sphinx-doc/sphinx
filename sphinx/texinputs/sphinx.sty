@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/04/25 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/04/30 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -57,40 +57,55 @@
       #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
+% For tables allowing pagebreaks
 \RequirePackage{longtable}
-% For table captions.
-\RequirePackage{threeparttable}
-% fixing the LaTeX mess of vertical spaces with threeparttable and longtable
-% The user interface:
+% User interface to set-up whitespace before and after tables:
 \newcommand*\sphinxtablepre {0pt}%
 \newcommand*\sphinxtablepost{\medskipamount}%
+\newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
 % as one can not use \baselineskip from inside longtable (it is zero there)
 % we need \sphinxbaselineskip, which defaults to \baselineskip
-\newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
 \def\sphinxbaselineskip{\baselineskip}%
-% Helper macros, not a priori for user customization
+% These commands are inserted by the table templates
 \def\sphinxatlongtablestart
    {\par
     \vskip\parskip
     \vskip\dimexpr\sphinxtablepre\relax % adjust vertical position
     \vbox{}% get correct baseline from above
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
-    \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}}%
+    \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
+   }%
 \def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
-% the longtable template inserts a \strut at caption's end
 \def\sphinxlongtablecapskipadjust
-   {\dimexpr-\dp\strutbox-\sphinxbaselineskip
-            +\sphinxbelowcaptionspace\relax}%
-% tabular(y) with or without threeparttable
+   {\dimexpr-\dp\strutbox-\sphinxbaselineskip+\sphinxbelowcaptionspace\relax}%
+% Now for tables not using longtable
 \def\sphinxattablestart
    {\par
     \vskip\dimexpr\sphinxtablepre\relax
-    \belowcaptionskip\sphinx@TPTbelowcaptionskip}%
+   }%
 \let\sphinxattableend\sphinxatlongtableend
-% the tabular(y) templates use [t] vertical placement parameter
-\def\sphinx@TPTbelowcaptionskip
-   {\dimexpr-1.2\baselineskip % .2\baselineskip hardcoded in threeparttable
-            +\sphinxbelowcaptionspace\relax }%
+% longtable's wraps captions to a maximal width of \LTcapwidth
+% so we do the same for all tables
+\newcommand\sphinxcaptionof[2]{%
+   \noindent\makebox[\linewidth]{%
+      \vtop{\hsize\LTcapwidth
+            \def\@captype{#1}%
+            \capstart % must be after setting \@captype
+% longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
+            \abovecaptionskip\z@skip
+            \belowcaptionskip\z@skip
+            \caption[{#2}]%
+               {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
+           }}%
+   \par\prevdepth\dp\strutbox
+}%
+\newcommand\sphinxaftercaption
+{% the default definition serves with a caption above a table, to make sure its
+ % last baseline is \sphinxbelowcaptionspace above table top rule
+ \nobreak
+   \vskip\dimexpr\sphinxbelowcaptionspace\relax
+   \vskip-\baselineskip\vskip-\parskip
+}%
 % varwidth is crucial for our handling of general contents in merged cells
 \RequirePackage{varwidth}
 % but addition of a compatibility patch with hyperref is needed
