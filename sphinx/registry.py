@@ -24,6 +24,7 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util import import_object
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
 if False:
@@ -56,6 +57,7 @@ class SphinxComponentRegistry(object):
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
+        logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
             raise ExtensionError(__('Builder class %s has no "name" attribute') % builder)
         if builder.name in self.builders:
@@ -87,6 +89,7 @@ class SphinxComponentRegistry(object):
 
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
+        logger.debug('[app] adding domain: %r', domain)
         if domain.name in self.domains:
             raise ExtensionError(__('domain %s already registered') % domain.name)
         self.domains[domain.name] = domain
@@ -102,6 +105,7 @@ class SphinxComponentRegistry(object):
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
+        logger.debug('[app] overriding domain: %r', domain)
         if domain.name not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
@@ -112,6 +116,8 @@ class SphinxComponentRegistry(object):
     def add_directive_to_domain(self, domain, name, obj,
                                 has_content=None, argument_spec=None, **option_spec):
         # type: (unicode, unicode, Any, bool, Any, Any) -> None
+        logger.debug('[app] adding directive to domain: %r',
+                     (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
         directive = directive_helper(obj, has_content, argument_spec, **option_spec)
@@ -119,12 +125,14 @@ class SphinxComponentRegistry(object):
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
+        logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
+        logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
         self.domains[domain].indices.append(index)
@@ -133,6 +141,10 @@ class SphinxComponentRegistry(object):
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[]):
         # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
+        logger.debug('[app] adding object type: %r',
+                     (directivename, rolename, indextemplate, parse_node,
+                      ref_nodeclass, objname, doc_field_types))
+
         # create a subclass of GenericObject as the new directive
         directive = type(directivename,  # type: ignore
                          (GenericObject, object),
@@ -148,6 +160,9 @@ class SphinxComponentRegistry(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
         # type: (unicode, unicode, unicode, nodes.Node, unicode) -> None
+        logger.debug('[app] adding crossref type: %r',
+                     (directivename, rolename, indextemplate, ref_nodeclass, objname))
+
         # create a subclass of Target as the new directive
         directive = type(directivename,  # type: ignore
                          (Target, object),
@@ -160,6 +175,7 @@ class SphinxComponentRegistry(object):
 
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Type[Parser]) -> None
+        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self.source_parsers:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         self.source_parsers[suffix] = parser
@@ -216,6 +232,7 @@ class SphinxComponentRegistry(object):
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
+        logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.translators[name] = translator
 
     def get_translator_class(self, builder):
