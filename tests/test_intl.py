@@ -14,6 +14,7 @@ from __future__ import print_function
 import os
 import re
 import pickle
+import platform
 from docutils import nodes
 
 from babel.messages import pofile, mofile
@@ -151,7 +152,7 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+@pytest.mark.xfail(platform.system() == 'Windows', reason='Skipped on windows, issue with unicode characters')
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
@@ -1084,7 +1085,6 @@ def test_text_references(app, warning):
     srcdir='test_intl_image_glob',
     confoverrides={'language': 'xx'}
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
     app.build()
     # index.rst
@@ -1132,7 +1132,6 @@ def test_image_glob_intl(app):
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
     # index.rst
