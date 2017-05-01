@@ -33,6 +33,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
+    from docutils.transform import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
@@ -54,6 +55,7 @@ class SphinxComponentRegistry(object):
         self.source_parsers = {}    # type: Dict[unicode, Parser]
         self.source_inputs = {}     # type: Dict[unicode, Input]
         self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
+        self.transforms = []        # type: List[Type[Transform]]
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
@@ -244,6 +246,15 @@ class SphinxComponentRegistry(object):
         # type: (Builder, nodes.Node) -> nodes.NodeVisitor
         translator_class = self.get_translator_class(builder)
         return translator_class(builder, document)
+
+    def add_transform(self, transform):
+        # type: (Type[Transform]) -> None
+        logger.debug('[app] adding transform: %r', transform)
+        self.transforms.append(transform)
+
+    def get_transforms(self):
+        # type: () -> List[Type[Transform]]
+        return self.transforms
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None

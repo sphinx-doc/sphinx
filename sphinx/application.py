@@ -596,8 +596,7 @@ class Sphinx(object):
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding transform: %r', transform)
-        SphinxStandaloneReader.transforms.append(transform)
+        self.registry.add_transform(transform)
 
     def add_post_transform(self, transform):
         # type: (Type[Transform]) -> None
