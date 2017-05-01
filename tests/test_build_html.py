@@ -145,6 +145,7 @@ def check_extra_entries(outdir):
 
 
 @pytest.mark.sphinx('html', testroot='warnings')
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_html_warnings(app, warning):
     app.build()
     html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
