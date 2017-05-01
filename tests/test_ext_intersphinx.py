@@ -19,7 +19,6 @@ import mock
 import pytest
 import requests
 from io import BytesIO
-import os
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
@@ -54,7 +53,7 @@ a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 
 def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
-    invdata = read_inventory(f, '/util', posixpath.join)
+    invdata = read_inventory(f, '/util')
     assert invdata['py:module']['module'] == \
         ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
@@ -63,11 +62,11 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    invdata1 = read_inventory(f, '/util', posixpath.join)
+    invdata1 = read_inventory(f, '/util')
 
     # try again with a small buffer size to test the chunking algorithm
     f = BytesIO(inventory_v2)
-    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
+    invdata2 = read_inventory(f, '/util', bufsize=5)
 
     assert invdata1 == invdata2
 
@@ -129,7 +128,6 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
     assert read_inventory.call_args[0][1] == 'http://hostname/'
 
 
-@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
 def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)

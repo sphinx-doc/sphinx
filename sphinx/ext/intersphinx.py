@@ -49,7 +49,7 @@ from sphinx.util import requests
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
 
-def read_inventory_v1(f, uri, join):
+def read_inventory_v1(f, uri):
     f = UTF8StreamReader(f)
     invdata = {}
     line = next(f)
@@ -58,7 +58,7 @@ def read_inventory_v1(f, uri, join):
     version = line.rstrip()[11:]
     for line in f:
         name, type, location = line.rstrip().split(None, 2)
-        location = join(uri, location)
+        location = posixpath.join(uri, location)
         # version 1 did not add anchors to the location
         if type == 'mod':
             type = 'py:module'
@@ -70,7 +70,7 @@ def read_inventory_v1(f, uri, join):
     return invdata
 
 
-def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
+def read_inventory_v2(f, uri, bufsize=16 * 1024):
     invdata = {}
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
@@ -112,18 +112,18 @@ def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
             continue
         if location.endswith(u'$'):
             location = location[:-1] + name
-        location = join(uri, location)
+        location = posixpath.join(uri, location)
         invdata.setdefault(type, {})[name] = (projname, version,
                                               location, dispname)
     return invdata
 
 
-def read_inventory(f, uri, join, bufsize=16 * 1024):
+def read_inventory(f, uri, bufsize=16 * 1024):
     line = f.readline().rstrip().decode('utf-8')
     if line == '# Sphinx inventory version 1':
-        return read_inventory_v1(f, uri, join)
+        return read_inventory_v1(f, uri)
     elif line == '# Sphinx inventory version 2':
-        return read_inventory_v2(f, uri, join, bufsize=bufsize)
+        return read_inventory_v2(f, uri, bufsize=bufsize)
 
 
 def _strip_basic_auth(url):
@@ -224,8 +224,7 @@ def fetch_inventory(app, uri, inv):
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = localuri and path.join or posixpath.join
-                invdata = read_inventory(f, uri, join)
+                invdata = read_inventory(f, uri)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
@@ -340,7 +339,7 @@ def missing_reference(app, env, node, contnode):
             proj, version, uri, dispname = inventory[objtype][target]
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
-                uri = path.join(relative_path(node['refdoc'], '.'), uri)
+                uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
