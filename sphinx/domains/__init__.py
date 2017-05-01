@@ -161,6 +161,14 @@ class Domain(object):
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env              # type: BuildEnvironment
+        self._role_cache = {}       # type: Dict[unicode, Callable]
+        self._directive_cache = {}  # type: Dict[unicode, Callable]
+        self._role2type = {}        # type: Dict[unicode, List[unicode]]
+        self._type2role = {}        # type: Dict[unicode, unicode]
+
+        # convert class variables to instance one (to enhance through API)
+        self.directives = dict(self.directives)
+
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
@@ -170,10 +178,6 @@ class Domain(object):
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
-        self._role_cache = {}       # type: Dict[unicode, Callable]
-        self._directive_cache = {}  # type: Dict[unicode, Callable]
-        self._role2type = {}        # type: Dict[unicode, List[unicode]]
-        self._type2role = {}        # type: Dict[unicode, unicode]
         for name, obj in iteritems(self.object_types):
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)

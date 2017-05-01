@@ -50,13 +50,14 @@ EXTENSION_BLACKLIST = {
 
 class SphinxComponentRegistry(object):
     def __init__(self):
-        self.builders = {}          # type: Dict[unicode, Type[Builder]]
-        self.domains = {}           # type: Dict[unicode, Type[Domain]]
-        self.post_transforms = []   # type: List[Type[Transform]]
-        self.source_parsers = {}    # type: Dict[unicode, Parser]
-        self.source_inputs = {}     # type: Dict[unicode, Input]
-        self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
-        self.transforms = []        # type: List[Type[Transform]]
+        self.builders = {}              # type: Dict[unicode, Type[Builder]]
+        self.domains = {}               # type: Dict[unicode, Type[Domain]]
+        self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
+        self.post_transforms = []       # type: List[Type[Transform]]
+        self.source_parsers = {}        # type: Dict[unicode, Parser]
+        self.source_inputs = {}         # type: Dict[unicode, Input]
+        self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+        self.transforms = []            # type: List[Type[Transform]]
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
@@ -104,7 +105,12 @@ class SphinxComponentRegistry(object):
     def create_domains(self, env):
         # type: (BuildEnvironment) -> Iterator[Domain]
         for DomainClass in itervalues(self.domains):
-            yield DomainClass(env)
+            domain = DomainClass(env)
+
+            # transplant components added by extensions
+            domain.directives.update(self.domain_directives.get(domain.name, {}))
+
+            yield domain
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
@@ -123,8 +129,8 @@ class SphinxComponentRegistry(object):
                      (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
-        directive = directive_helper(obj, has_content, argument_spec, **option_spec)
-        self.domains[domain].directives[name] = directive
+        directives = self.domain_directives.setdefault(domain, {})
+        directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
