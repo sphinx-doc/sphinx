@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/04/25 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/05/01 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -41,10 +41,29 @@
 \RequirePackage{textcomp}
 \RequirePackage{titlesec}
 \@ifpackagelater{titlesec}{2016/03/15}%
- {\@ifpackagelater{titlesec}{2016/03/21}{}%
-  {\AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
-******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
-******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
+ {\@ifpackagelater{titlesec}{2016/03/21}%
+  {}%
+  {\newif\ifsphinx@ttlpatch@ok
+   \IfFileExists{etoolbox.sty}{%
+     \RequirePackage{etoolbox}%
+     \patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}%
+                                {\sphinx@ttlpatch@oktrue}{}%
+     \ifsphinx@ttlpatch@ok
+     \patchcmd{\ttlh@hang}{\noindent}{}{}{\sphinx@ttlpatch@okfalse}%
+     \fi
+   }{}%
+   \ifsphinx@ttlpatch@ok
+     \typeout{^^J Package Sphinx Info: ^^J
+              **** titlesec 2.10.1 successfully patched for bugfix ****^^J}%
+   \else
+     \AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
+******** titlesec 2.10.1 has a bug, (section numbers disappear) ......|^^J%
+******** and Sphinx could not patch it, perhaps because your local ...|^^J%
+******** copy is already fixed without a changed release date. .......|^^J%
+******** If not, you must update titlesec! ...........................|}}%
+   \fi
+  }%
+ }{}
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass
 % which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its

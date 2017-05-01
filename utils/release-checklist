@@ -26,7 +26,7 @@ Release checklist
 * `git push origin stable --tags`
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Add new version/milestone to tracker categories
-* `python utils/bump_version.py a.b.cb0` (ex. 1.5.3b0)
+* `python utils/bump_version.py --in-develop a.b.cb0` (ex. 1.5.3b0)
 * Check diff by `git diff`
 * `git commit -am 'Bump version'`
 * `git push origin stable`

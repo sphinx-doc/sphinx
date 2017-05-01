@@ -31,6 +31,9 @@ Features added
 Bugs fixed
 ----------
 
+* #3588: No compact (p tag) html output in the i18n document build even when
+  :confval:`html_compact_lists` is True.
+
 Testing
 --------
 
@@ -251,6 +254,8 @@ Bugs fixed
 * #3618: autodoc crashes with tupled arguments
 * #3664: No space after the bullet in items of a latex list produced by Sphinx
 * #3657: EPUB builder crashes if document startswith genindex exists
+* #3588: No compact (p tag) html output in the i18n document build even when
+  :confval:`html_compact_lists` is True.
 
 Testing
 --------
