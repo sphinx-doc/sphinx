@@ -204,12 +204,12 @@ class Locale(Transform):
                 for child in patch.children:
                     child.parent = node
                 node.children = patch.children
-                node['translated'] = True
+                node['translated'] = True  # to avoid double translation
 
         # phase2: translation
         for node, msg in extract_messages(self.document):
-            if node.get('translated', False):
-                continue
+            if node.get('translated', False):  # to avoid double translation
+                continue  # skip if the node is already translated by phase1
 
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -379,7 +379,7 @@ class Locale(Transform):
             if isinstance(node, IMAGE_TYPE_NODES):
                 node.update_all_atts(patch)
 
-            node['translated'] = True
+            node['translated'] = True  # to avoid double translation
 
         if 'index' in env.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
@@ -398,6 +398,12 @@ class Locale(Transform):
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries
+
+        # remove translated attribute that is used for avoiding double translation.
+        def has_translatable(node):
+            return isinstance(node, nodes.Element) and 'translated' in node
+        for node in self.document.traverse(has_translatable):
+            node.delattr('translated')
 
 
 class RemoveTranslatableInline(Transform):
