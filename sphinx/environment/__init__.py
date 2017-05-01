@@ -878,7 +878,7 @@ class BuildEnvironment(object):
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
-            transformer.add_transforms(self.app.post_transforms)
+            transformer.add_transforms(self.app.registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
             self.temp_data = backup

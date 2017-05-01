@@ -52,6 +52,7 @@ class SphinxComponentRegistry(object):
     def __init__(self):
         self.builders = {}          # type: Dict[unicode, Type[Builder]]
         self.domains = {}           # type: Dict[unicode, Type[Domain]]
+        self.post_transforms = []   # type: List[Type[Transform]]
         self.source_parsers = {}    # type: Dict[unicode, Parser]
         self.source_inputs = {}     # type: Dict[unicode, Input]
         self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
@@ -255,6 +256,15 @@ class SphinxComponentRegistry(object):
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
         return self.transforms
+
+    def add_post_transform(self, transform):
+        # type: (Type[Transform]) -> None
+        logger.debug('[app] adding post transform: %r', transform)
+        self.post_transforms.append(transform)
+
+    def get_post_transforms(self):
+        # type: () -> List[Type[Transform]]
+        return self.post_transforms
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None

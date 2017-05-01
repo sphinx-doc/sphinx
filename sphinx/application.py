@@ -120,7 +120,6 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.registry = SphinxComponentRegistry()
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
-        self.post_transforms = []               # type: List[Transform]
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
@@ -600,8 +599,7 @@ class Sphinx(object):
 
     def add_post_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding post transform: %r', transform)
-        self.post_transforms.append(transform)
+        self.registry.add_post_transform(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None
