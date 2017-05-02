@@ -17,7 +17,7 @@ from docutils.io import StringOutput
 from sphinx.builders import Builder
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.writers.text import TextWriter, TextTranslator
+from sphinx.writers.text import TextWriter, TextTranslator, MAXWIDTH
 
 if False:
     # For type annotation
@@ -93,6 +93,7 @@ def setup(app):
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
     app.add_config_value('text_newlines', 'unix', 'env')
+    app.add_config_value('text_maxwidth', MAXWIDTH, 'env')
 
     return {
         'version': 'builtin',

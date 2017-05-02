@@ -1940,6 +1940,13 @@ These options influence text output.
 
    .. versionadded:: 1.1
 
+.. confval:: text_maxwidth
+
+   The maximum width of line.
+
+   The default is ``70``.
+
+   .. versionadded:: 1.6
 
 .. _man-options:
 

@@ -169,6 +169,7 @@ class TextWriter(writers.Writer):
 
 class TextTranslator(nodes.NodeVisitor):
     sectionchars = '*=-~"+`'
+    maxwidth = MAXWIDTH
 
     def __init__(self, document, builder):
         # type: (nodes.Node, TextBuilder) -> None
@@ -183,6 +184,7 @@ class TextTranslator(nodes.NodeVisitor):
         else:
             self.nl = '\n'
         self.sectionchars = builder.config.text_sectionchars
+        self.maxwidth = builder.config.text_maxwidth
         self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]
@@ -212,7 +214,8 @@ class TextTranslator(nodes.NodeVisitor):
             if not toformat:
                 return
             if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH - maxindent)
+                res = my_wrap(''.join(toformat),
+                              width=self.maxwidth - maxindent)
             else:
                 res = ''.join(toformat).splitlines()
             if end:

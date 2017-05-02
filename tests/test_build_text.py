@@ -43,6 +43,17 @@ def test_maxwitdh_with_prefix(app, status, warning):
     assert lines[8] == ''
     assert lines[9].startswith('spam egg')
 
+@with_text_app()
+def test_custom_maxwitdh_with_prefix(app, status, warning):
+    app.config['text_maxwidth'] = 50
+    app.builder.build_update()
+    result = (app.outdir / 'maxwidth.txt').text(encoding='utf-8')
+
+    lines = result.splitlines()
+    line_widths = [column_width(line) for line in lines]
+    assert max(line_widths) < 50
+    assert lines[0] == 'See also: ham ham ham ham ham ham ham ham ham'
+
 
 @with_text_app()
 def test_lineblock(app, status, warning):
