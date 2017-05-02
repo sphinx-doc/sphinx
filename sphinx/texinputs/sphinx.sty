@@ -106,16 +106,21 @@
 % longtable's wraps captions to a maximal width of \LTcapwidth
 % so we do the same for all tables
 \newcommand\sphinxcaptionof[2]{%
-   \noindent\makebox[\linewidth]{%
+   \noindent\hb@xt@\linewidth{\hss
       \vtop{\hsize\LTcapwidth
             \def\@captype{#1}%
             \capstart % must be after setting \@captype
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
             \abovecaptionskip\z@skip
             \belowcaptionskip\z@skip
+% hyperref anchor (and a \write) cause the \vtop to have zero height. Hence if
+% the caption is first thing in a list item, the item label (which gets
+% inserted indirectly by the \noindent) will have its baseline same as top of
+% box which is \ht\strutbox above the caption text baseline. This avoids a
+% wide caption overwriting the item label.
             \caption[{#2}]%
                {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
-           }}%
+           }\hss}%
    \par\prevdepth\dp\strutbox
 }%
 \newcommand\sphinxaftercaption
