@@ -310,7 +310,8 @@ class DocFieldTransformer(object):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
+                env = self.directive.state.document.settings.env
                 new_list += fieldtype.make_field(fieldtypes, self.directive.domain,
-                                                 content, env=self.directive.env)
+                                                 content, env=env)
 
         node.replace_self(new_list)

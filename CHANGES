@@ -19,6 +19,7 @@ Bugs fixed
 * #3657: EPUB builder crashes if document startswith genindex exists
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
+* #3685: AttributeError when using 3rd party domains
 
 Testing
 --------
