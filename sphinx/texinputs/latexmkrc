@@ -1,7 +1,7 @@
-$latex = 'latex --halt-on-error --interaction=nonstopmode %O %S';
-$pdflatex = 'pdflatex --halt-on-error --interaction=nonstopmode %O %S';
-$lualatex = 'lualatex --halt-on-error --interaction=nonstopmode %O %S';
-$xelatex = 'xelatex --no-pdf --halt-on-error --interaction=nonstopmode %O %S';
+$latex = 'latex %O %S';
+$pdflatex = 'pdflatex %O %S';
+$lualatex = 'lualatex %O %S';
+$xelatex = 'xelatex --no-pdf %O %S';
 $makeindex = 'makeindex -s python.ist %O -o %D %S';
 add_cus_dep( "glo", "gls", 0, "makeglo" );
 sub makeglo {

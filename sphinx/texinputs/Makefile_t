@@ -15,7 +15,7 @@ ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 # Prefix for archive names
 ARCHIVEPRREFIX =
 # Additional LaTeX options
-LATEXOPTS =
+LATEXOPTS = -f --interaction=nonstopmode
 # format: pdf or dvi
 FMT = pdf
 
@@ -58,13 +58,13 @@ PDFLATEX = $(LATEX)
 {%- endif %}
 	$(PDFLATEX) $(LATEXOPTS) '$<'
 
+all: $(ALLPDF)
+
 all-dvi: $(ALLDVI)
 
 all-ps: $(ALLPS)
 
 all-pdf: $(ALLPDF)
-
-all: $(ALLPDF)
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)

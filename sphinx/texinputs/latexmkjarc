@@ -1,4 +1,4 @@
-$latex = 'platex --halt-on-error --interaction=nonstopmode -kanji=utf8 %O %S';
+$latex = 'platex -kanji=utf8 %O %S';
 $dvipdf = 'dvipdfmx %O -o %D %S';
 $makeindex = 'rm -f %D; mendex -U -f -d %B.dic -s python.ist %S || echo "mendex exited with error code $? (ignoring)" && : >> %D';
 add_cus_dep( "glo", "gls", 0, "makeglo" );

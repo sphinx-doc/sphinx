@@ -202,6 +202,17 @@ The builder's "name" must be given to the **-b** command-line option of
       .. versionchanged:: 1.6
          Use of ``latexmk`` on GNU/Linux or Mac OS X.
 
+      Since 1.6, ``make latexpdf`` (or ``make -C "<builddir>/latex"`` after a
+      run of ``sphinx-build``) uses ``latexmk`` (on GNU/Linux and Mac OS X)
+      and it invokes it with options ``-f --interaction=nonstopmode``. This
+      tries to force compilation to PDF even if some types of LaTeX errors
+      arise. It can be overridden by appending ``LATEXOPTS="<options>"`` to
+      the command, for example
+      ``LATEXOPTS="--halt-on-error --interaction=nonstopmode"`` will halt on
+      first LaTeX error, but still report the copious console output from
+      LaTeX while e.g. ``LATEXOPTS="-silent --halt-on-error"`` would reduce
+      console output to a minimum.
+      
    .. autoattribute:: name
 
    .. autoattribute:: format
