@@ -85,10 +85,9 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
 def test_fundamental_types():
     # see http://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
-        if t == "decltype(auto)":
-            continue
-
         def makeIdV1():
+            if t == 'decltype(auto)':
+                return None
             id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
             id = id.replace("bool", "b").replace("char", "c")
             id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")

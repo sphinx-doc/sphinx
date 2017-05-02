@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
           It is not the actual old code, but a replication of the behaviour.
     - v2: 1.3 <= version < now
           Standardised mangling scheme from
-          http://mentorembedded.github.io/cxx-abi/abi.html#mangling
+          http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
@@ -1438,6 +1438,21 @@ class ASTTrailingTypeSpecName(ASTBase):
             signode += addnodes.desc_annotation(self.prefix, self.prefix)
             signode += nodes.Text(' ')
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
+
+
+class ASTTrailingTypeSpecDecltypeAuto(ASTBase):
+    def __unicode__(self):
+        return u'decltype(auto)'
+
+    def get_id_v1(self):
+        raise NoOldIdError()
+
+    def get_id_v2(self):
+        return 'Dc'
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        signode.append(nodes.Text(text_type(self)))
 
 
 class ASTFunctionParameter(ASTBase):
@@ -3642,7 +3657,14 @@ class DefinitionParser(object):
         # decltype
         self.skip_ws()
         if self.skip_word_and_ws('decltype'):
-            self.fail('"decltype(.)" in trailing_type_spec not implemented')
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after 'decltype'.")
+            if self.skip_word_and_ws('auto'):
+                if not self.skip_string(')'):
+                    self.fail("Expected ')' after 'decltype(auto'.")
+                return ASTTrailingTypeSpecDecltypeAuto()
+            self.fail('"decltype(<expr>)" in trailing_type_spec not implemented')
+            #return ASTTrailingTypeSpecDecltype()
 
         # prefixed
         prefix = None
