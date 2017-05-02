@@ -19,9 +19,9 @@ try:
     from sphinxcontrib.websupport.search import BaseSearch, SEARCH_ADAPTERS  # NOQA
     from sphinxcontrib.websupport.storage import StorageBackend  # NOQA
 
-    warnings.warn('sphinx.websupport module is now provided as sphinxcontrib-webuspport. '
+    warnings.warn('sphinx.websupport module is now provided as sphinxcontrib-websupport. '
                   'sphinx.websupport will be removed in Sphinx-2.0.  Please use it instaed',
                   RemovedInSphinx20Warning)
 except ImportError:
     warnings.warn('Since Sphinx-1.6, sphinx.websupport module is now separated to '
-                  'sphinxcontrib-webuspport package. Please add it into your dependency list.')
+                  'sphinxcontrib-websupport package. Please add it into your dependency list.')
