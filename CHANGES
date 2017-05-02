@@ -25,7 +25,8 @@ Release 1.6 beta2 (released Apr 29, 2017)
 Incompatible changes
 --------------------
 
-* #3345: Replace the custom smartypants code with docutils' smart_quotes
+* #3345: Replace the custom smartypants code with Docutils' smart_quotes.
+  Thanks to Dmitry Shachnev, and to Günter Milde at Docutils.
 
 Deprecated
 ----------
