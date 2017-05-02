@@ -20,7 +20,7 @@ try:
     from sphinxcontrib.websupport.storage import StorageBackend  # NOQA
 
     warnings.warn('sphinx.websupport module is now provided as sphinxcontrib-websupport. '
-                  'sphinx.websupport will be removed in Sphinx-2.0. '
+                  'sphinx.websupport will be removed at Sphinx-2.0. '
                   'Please use the package instead.',
                   RemovedInSphinx20Warning)
 except ImportError:
