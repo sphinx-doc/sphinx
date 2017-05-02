@@ -218,10 +218,8 @@ Incompatible changes
 * QtHelpBuilder doens't generate search page (ref: #2352)
 * QtHelpBuilder uses ``nonav`` theme instead of default one
   to improve readability.
-* latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbook``
-  as a docclass by default if the ``language`` is ``ja``.
-* latex: To provide good default settings to Japanese docs, Sphinx uses
-  ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
+* latex: To provide good default settings to Japanese documents, Sphinx uses
+  ``jreport`` and ``jsbook`` as docclass if :confval:`language` is
   ``ja``.
 * ``sphinx-quickstart`` now allows a project version is empty
 * Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
