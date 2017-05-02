@@ -259,6 +259,7 @@ Incompatible changes
 * Emit warnings that will be deprecated in Sphinx 1.6 by default.
   Users can change the behavior by setting the environment variable
   PYTHONWARNINGS. Please refer :ref:`when-deprecation-warnings-are-displayed`.
+* #2454: new JavaScript variable ``SOURCELINK_SUFFIX`` is added
 
 Deprecated
 ----------
