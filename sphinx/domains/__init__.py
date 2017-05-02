@@ -168,6 +168,7 @@ class Domain(object):
 
         # convert class variables to instance one (to enhance through API)
         self.directives = dict(self.directives)
+        self.roles = dict(self.roles)
 
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
