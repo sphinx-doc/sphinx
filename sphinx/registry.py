@@ -54,6 +54,7 @@ class SphinxComponentRegistry(object):
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
         self.domain_indices = {}        # type: Dict[unicode, List[Index]]
+        self.domain_object_types = {}   # type: Dict[unicode, Dict[unicode, ObjType]]
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Any]]
         self.post_transforms = []       # type: List[Type[Transform]]
         self.source_parsers = {}        # type: Dict[unicode, Parser]
@@ -110,6 +111,7 @@ class SphinxComponentRegistry(object):
             domain = DomainClass(env)
 
             # transplant components added by extensions
+            domain.object_types.update(self.domain_object_types.get(domain.name, {}))
             domain.directives.update(self.domain_directives.get(domain.name, {}))
             domain.roles.update(self.domain_roles.get(domain.name, {}))
             domain.indices.extend(self.domain_indices.get(domain.name, []))
@@ -167,10 +169,11 @@ class SphinxComponentRegistry(object):
                           'parse_node': staticmethod(parse_node),
                           'doc_field_types': doc_field_types})
 
-        stddomain = self.domains['std']
-        stddomain.directives[directivename] = directive
-        stddomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
-        stddomain.object_types[directivename] = ObjType(objname or directivename, rolename)
+        self.add_directive_to_domain('std', directivename, directive)
+        self.add_role_to_domain('std', rolename, XRefRole(innernodeclass=ref_nodeclass))
+
+        object_types = self.domain_object_types.setdefault('std', {})
+        object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
@@ -183,10 +186,11 @@ class SphinxComponentRegistry(object):
                          (Target, object),
                          {'indextemplate': indextemplate})
 
-        stddomain = self.domains['std']
-        stddomain.directives[directivename] = directive
-        stddomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
-        stddomain.object_types[directivename] = ObjType(objname or directivename, rolename)
+        self.add_directive_to_domain('std', directive)
+        self.add_role_to_domain('std', XRefRole(innernodeclass=ref_nodeclass))
+
+        object_types = self.domain_object_types.setdefault('std', {})
+        object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Type[Parser]) -> None

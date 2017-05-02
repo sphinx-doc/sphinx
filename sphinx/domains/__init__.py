@@ -167,6 +167,7 @@ class Domain(object):
         self._type2role = {}        # type: Dict[unicode, unicode]
 
         # convert class variables to instance one (to enhance through API)
+        self.object_types = dict(self.object_types)
         self.directives = dict(self.directives)
         self.roles = dict(self.roles)
         self.indices = list(self.indices)
