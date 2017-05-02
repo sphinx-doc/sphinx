@@ -53,6 +53,7 @@ class SphinxComponentRegistry(object):
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
+        self.domain_indices = {}        # type: Dict[unicode, List[Index]]
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Any]]
         self.post_transforms = []       # type: List[Type[Transform]]
         self.source_parsers = {}        # type: Dict[unicode, Parser]
@@ -111,6 +112,7 @@ class SphinxComponentRegistry(object):
             # transplant components added by extensions
             domain.directives.update(self.domain_directives.get(domain.name, {}))
             domain.roles.update(self.domain_roles.get(domain.name, {}))
+            domain.indices.extend(self.domain_indices.get(domain.name, []))
 
             yield domain
 
@@ -147,7 +149,8 @@ class SphinxComponentRegistry(object):
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
-        self.domains[domain].indices.append(index)
+        indices = self.domain_indices.setdefault(domain, [])
+        indices.append(index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
