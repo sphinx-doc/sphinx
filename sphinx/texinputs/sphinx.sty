@@ -105,10 +105,12 @@
 \let\sphinxattableend\sphinxatlongtableend
 % longtable's wraps captions to a maximal width of \LTcapwidth
 % so we do the same for all tables
-\newcommand\sphinxcaptionof[2]{%
+\newcommand\sphinxcaptionof[3][\LTcapwidth]{%
    \noindent\hb@xt@\linewidth{\hss
-      \vtop{\hsize\LTcapwidth
-            \def\@captype{#1}%
+      \vtop{\@tempdima\dimexpr#1\relax
+% don't exceed linewidth for the caption width
+            \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
+            \def\@captype{#2}%
             \capstart % must be after setting \@captype
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
             \abovecaptionskip\z@skip
@@ -118,8 +120,8 @@
 % inserted indirectly by the \noindent) will have its baseline same as top of
 % box which is \ht\strutbox above the caption text baseline. This avoids a
 % wide caption overwriting the item label.
-            \caption[{#2}]%
-               {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
+            \caption[{#3}]%
+               {\strut\ignorespaces#3\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
