@@ -212,7 +212,7 @@ The builder's "name" must be given to the **-b** command-line option of
       first LaTeX error, but still report the copious console output from
       LaTeX while e.g. ``LATEXOPTS="-silent --halt-on-error"`` would reduce
       console output to a minimum.
-      
+
    .. autoattribute:: name
 
    .. autoattribute:: format
