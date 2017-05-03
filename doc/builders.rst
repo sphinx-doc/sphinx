@@ -203,15 +203,29 @@ The builder's "name" must be given to the **-b** command-line option of
          Use of ``latexmk`` on GNU/Linux or Mac OS X.
 
       Since 1.6, ``make latexpdf`` (or ``make -C "<builddir>/latex"`` after a
-      run of ``sphinx-build``) uses ``latexmk`` (on GNU/Linux and Mac OS X)
-      and it invokes it with options ``-f --interaction=nonstopmode``. This
-      tries to force compilation to PDF even if some types of LaTeX errors
-      arise. It can be overridden by appending ``LATEXOPTS="<options>"`` to
-      the command, for example
-      ``LATEXOPTS="--halt-on-error --interaction=nonstopmode"`` will halt on
-      first LaTeX error, but still report the copious console output from
-      LaTeX while e.g. ``LATEXOPTS="-silent --halt-on-error"`` would reduce
-      console output to a minimum.
+      ``sphinx-build`` run) uses ``latexmk`` (on GNU/Linux and Mac OS X).
+      It invokes it with option ``-f`` which attempts to complete targets
+      even in case of LaTeX processing errors. This can be overridden via
+      ``LATEXMKOPTS`` variable, for example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS=""
+
+      The ``pdflatex`` calls themselves obey the ``LATEXOPTS`` variable whose
+      default is ``--interaction=nonstopmode`` (same as ``-interaction
+      nonstopmode``.) In order to stop the
+      compilation on first error one can use ``--halt-on-error``.
+
+      Example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS="-silent" LATEXOPTS="--halt-on-error"
+
+      In case the first ``pdflatex`` run aborts with an error, this will stop
+      further ``latexmk`` processing (no ``-f`` option). The console output
+      will be kept to a bare minimum during target processing (``-silent``).
 
    .. autoattribute:: name
 
