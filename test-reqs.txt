@@ -10,6 +10,7 @@ snowballstemmer>=1.1
 babel
 alabaster
 sphinx_rtd_theme
+sphinxcontrib-websupport
 imagesize
 requests
 html5lib
