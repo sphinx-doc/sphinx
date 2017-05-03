@@ -15,6 +15,10 @@ Bugs fixed
 
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
+* The ``make latexpdf`` (which uses ``latexmk``) aborted earlier in case of
+  LaTeX errors than was the case with 1.5 series. Now, ``LATEXMKOPTS``
+  variable is provided whose default value ``-f`` mimics former behaviour.
+  (refs #3695)
 
 Testing
 --------
