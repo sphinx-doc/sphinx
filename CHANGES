@@ -12,6 +12,33 @@ Features added
 
 - C++, handle ``decltype(auto)``.
 
+Features removed
+----------------
+
+* Configuration variables
+
+  - html_use_smartypants
+  - latex_keep_old_macro_names
+  - latex_elements['footer']
+
+* utility methods of ``sphinx.application.Sphinx`` class
+
+  - buildername (property)
+  - _display_chunk()
+  - old_status_iterator()
+  - status_iterator()
+  - _directive_helper()
+
+* utility methods of ``sphinx.environment.BuildEnvironment`` class
+
+  - currmodule (property)
+  - currclass (property)
+
+* epub2 builder
+* prefix and colorfunc parameter for warn()
+* ``sphinx.util.compat`` module
+* ``sphinx.util.nodes.process_only_nodes()``
+
 Bugs fixed
 ----------
 
