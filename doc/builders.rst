@@ -182,6 +182,31 @@ The builder's "name" must be given to the **-b** command-line option of
       .. versionchanged:: 1.6
          Use of ``latexmk`` on GNU/Linux or Mac OS X.
 
+      Since 1.6, ``make latexpdf`` (or ``make -C "<builddir>/latex"`` after a
+      ``sphinx-build`` run) uses ``latexmk`` (on GNU/Linux and Mac OS X).
+      It invokes it with option ``-f`` which attempts to complete targets
+      even in case of LaTeX processing errors. This can be overridden via
+      ``LATEXMKOPTS`` variable, for example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS=""
+
+      The ``pdflatex`` calls themselves obey the ``LATEXOPTS`` variable whose
+      default is ``--interaction=nonstopmode`` (same as ``-interaction
+      nonstopmode``.) In order to stop the
+      compilation on first error one can use ``--halt-on-error``.
+
+      Example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS="-silent" LATEXOPTS="--halt-on-error"
+
+      In case the first ``pdflatex`` run aborts with an error, this will stop
+      further ``latexmk`` processing (no ``-f`` option). The console output
+      will be kept to a bare minimum during target processing (``-silent``).
+
    .. autoattribute:: name
 
    .. autoattribute:: format

@@ -51,6 +51,9 @@ Release 1.6 beta3 (in development)
 Incompatible changes
 --------------------
 
+* LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
+* LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
+
 Deprecated
 ----------
 
@@ -62,6 +65,10 @@ Bugs fixed
 
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
+* The ``make latexpdf`` (which uses ``latexmk``) aborted earlier in case of
+  LaTeX errors than was the case with 1.5 series. Now, ``LATEXMKOPTS``
+  variable is provided whose default value ``-f`` mimics former behaviour.
+  (refs #3695)
 
 Testing
 --------
@@ -72,7 +79,8 @@ Release 1.6 beta2 (released Apr 29, 2017)
 Incompatible changes
 --------------------
 
-* #3345: Replace the custom smartypants code with docutils' smart_quotes
+* #3345: Replace the custom smartypants code with Docutils' smart_quotes.
+  Thanks to Dmitry Shachnev, and to Günter Milde at Docutils.
 
 Deprecated
 ----------
