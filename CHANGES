@@ -13,15 +13,18 @@ Deprecated
 Features added
 --------------
 
+* New ``LATEXMKOPTS`` variable to pass options to ``latexmk`` when executing
+  ``make latexpdf``. Default is ``-f``. (refs #3695)
+
 Bugs fixed
 ----------
 
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
-* The ``make latexpdf`` (which uses ``latexmk``) aborted earlier in case of
-  LaTeX errors than was the case with 1.5 series. Now, ``LATEXMKOPTS``
-  variable is provided whose default value ``-f`` mimics former behaviour.
-  (refs #3695)
+
+* The ``make latexpdf`` from 1.6b1 (for GNU/Linux and Mac OS, using
+  ``latexmk``) aborted earlier in case of LaTeX errors than was the case with
+  1.5 series, due to hard-coded usage of ``--halt-on-error`` option. (refs #3695)
 
 Testing
 --------
