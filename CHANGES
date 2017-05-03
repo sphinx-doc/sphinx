@@ -4,6 +4,9 @@ Release 1.6 beta3 (in development)
 Incompatible changes
 --------------------
 
+* LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
+* LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
+
 Deprecated
 ----------
 
