@@ -47,7 +47,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -777,24 +777,6 @@ class BuildEnvironment(object):
         # type: () -> unicode
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
-
-    @property
-    def currmodule(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currmodule is deprecated. '
-                      'Use env.ref_context["py:module"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:module')
-
-    @property
-    def currclass(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currclass is deprecated. '
-                      'Use env.ref_context["py:class"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
         # type: (unicode) -> int

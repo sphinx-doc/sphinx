@@ -19,7 +19,7 @@ import pytest
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import SkipTest, remove_unicode_literals, strip_escseq
+from util import remove_unicode_literals, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -58,7 +58,7 @@ def test_texinfo(app, status, warning):
             p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            raise SkipTest  # most likely makeinfo was not found
+            raise pytest.skip.Exception  # most likely makeinfo was not found
         else:
             stdout, stderr = p.communicate()
             retcode = p.returncode

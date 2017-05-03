@@ -91,9 +91,6 @@ class Builder(object):
         self.tags.add(self.name)
         self.tags.add("format_%s" % self.format)
         self.tags.add("builder_%s" % self.name)
-        # compatibility aliases
-        self.status_iterator = app.status_iterator
-        self.old_status_iterator = app.old_status_iterator
 
         # images that need to be copied over (source -> dest)
         self.images = {}  # type: Dict[unicode, unicode]

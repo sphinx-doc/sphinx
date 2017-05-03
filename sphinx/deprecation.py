@@ -10,11 +10,11 @@
 """
 
 
-class RemovedInSphinx17Warning(DeprecationWarning):
+class RemovedInSphinx18Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx18Warning(PendingDeprecationWarning):
+class RemovedInSphinx19Warning(PendingDeprecationWarning):
     pass
 
 
@@ -22,4 +22,4 @@ class RemovedInSphinx20Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx17Warning
+RemovedInNextVersionWarning = RemovedInSphinx18Warning
