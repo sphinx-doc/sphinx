@@ -13,8 +13,9 @@ Deprecated
 Features added
 --------------
 
-* New ``LATEXMKOPTS`` variable to pass options to ``latexmk`` when executing
-  ``make latexpdf``. Default is ``-f``. (refs #3695)
+* ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
+  options to ``latexmk`` when executing ``make latexpdf``. Default is ``-f``.
+  (refs #3695)
 
 Bugs fixed
 ----------
