@@ -617,6 +617,7 @@
 %
 \newenvironment{sphinxfigure-in-table}[1][\linewidth]{%
   \def\@captype{figure}%
+  \sphinxsetvskipsforfigintablecaption
   \begin{minipage}{#1}%
 }{\end{minipage}}
 % store original \caption macro for use with figures in longtable and tabulary
@@ -625,7 +626,9 @@
   {\ifx\equation$%$% this is trick to identify tabulary first pass
        \firstchoice@false\else\firstchoice@true\fi
    \spx@originalcaption }
-
+\newcommand*\sphinxsetvskipsforfigintablecaption
+  {\abovecaptionskip\smallskipamount
+   \belowcaptionskip\smallskipamount}
 
 %% FOOTNOTES
 %
