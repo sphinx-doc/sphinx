@@ -3664,7 +3664,7 @@ class DefinitionParser(object):
                     self.fail("Expected ')' after 'decltype(auto'.")
                 return ASTTrailingTypeSpecDecltypeAuto()
             self.fail('"decltype(<expr>)" in trailing_type_spec not implemented')
-            #return ASTTrailingTypeSpecDecltype()
+            # return ASTTrailingTypeSpecDecltype()
 
         # prefixed
         prefix = None
