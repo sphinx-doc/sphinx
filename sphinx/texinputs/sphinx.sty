@@ -1158,14 +1158,6 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% Sphinx 1.7.
-\newenvironment{notice}
-  {\sphinxdeprecationwarning {notice}{1.6}{1.7}{%
-  This document was probably built with a Sphinx extension using ``notice''^^J
-  environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
-  report to extension author to use ``sphinxadmonition'' instead.^^J%
-  ****}\begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 
 %% PYTHON DOCS MACROS AND ENVIRONMENTS
