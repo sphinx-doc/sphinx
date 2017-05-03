@@ -301,6 +301,9 @@ _operator_re = re.compile(r'''(?x)
     |   (<<|>>)=? | && | \|\|
     |   [!<>=/*%+|&^~-]=?
 ''')
+# for anonymous namespaces. We document the former, but the latter is what
+# doxygen uses.
+_anonname_re = re.compile(r'(?:anonymous|anonymous_namespace)\{([^{}]+)\}')
 # see http://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
@@ -719,6 +722,24 @@ class ASTIdentifier(ASTBase):
             signode += nodes.Text(self.identifier)
         else:
             raise Exception('Unknown description mode: %s' % mode)
+
+class ASTAnonymousIdentifier(ASTIdentifier):
+    """ For anonymous C++ namespaces """
+    def __init__(self, compilation_unit):
+        self.compilation_unit = compilation_unit
+
+    @property
+    def identifier(self):
+        raise ValueError
+
+    def __unicode__(self):
+        return "anonymous (in {})".format(self.compilation_unit)
+
+    def get_id_v1(self):
+        raise NoOldIdError()
+
+    def get_id_v2(self):
+        return '12_GLOBAL__N_1'
 
 
 class ASTTemplateKeyParamPackIdDefault(ASTBase):
@@ -3604,18 +3625,22 @@ class DefinitionParser(object):
                 op = self._parse_operator()
                 names.append(op)
             else:
-                if not self.match(_identifier_re):
+                if self.match(_anonname_re):
+                    identifier = ASTAnonymousIdentifier(self.last_match.group(1))
+                    names.append(ASTNestedNameElement(identifier, None))
+                elif self.match(_identifier_re):
+                    identifier = self.matched_text
+                    # make sure there isn't a keyword
+                    if identifier in _keywords:
+                        self.fail("Expected identifier in nested name, "
+                                  "got keyword: %s" % identifier)
+                    templateArgs = self._parse_template_argument_list()
+                    identifier = ASTIdentifier(identifier)  # type: ignore
+                    names.append(ASTNestedNameElement(identifier, templateArgs))
+                else:
                     if memberPointer and len(names) > 0:
                         break
                     self.fail("Expected identifier in nested name.")
-                identifier = self.matched_text
-                # make sure there isn't a keyword
-                if identifier in _keywords:
-                    self.fail("Expected identifier in nested name, "
-                              "got keyword: %s" % identifier)
-                templateArgs = self._parse_template_argument_list()
-                identifier = ASTIdentifier(identifier)  # type: ignore
-                names.append(ASTNestedNameElement(identifier, templateArgs))
 
             self.skip_ws()
             if not self.skip_string('::'):

@@ -833,6 +833,9 @@ directive.
 
    Using ``NULL``, ``0``, or ``nullptr`` as the scope will change to global scope.
 
+   A special name of the form ``anonymous{compilation unit}`` can be used to
+   represent C++ anonymous ``namespace``s.
+
    A namespace declaration can also be templated, e.g.,::
 
       .. cpp:class:: template<typename T> \

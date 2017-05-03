@@ -37,6 +37,19 @@ directives
    A scoped enum with non-default visibility, and with a specified underlying type.
 
 
+.. cpp:var:: int some_namespace::anonymous{my_file.cpp}::some_var
+
+   A variable in an anonymous namespace, such as:
+
+   .. code::
+
+      namespace some_namespace {
+          namespace {
+              int some_var;
+          }
+      }
+
+
 .. cpp:function:: void paren_1(int, float)
 .. cpp:function:: void paren_2(int, float)
 .. cpp:function:: void paren_3(int, float)
