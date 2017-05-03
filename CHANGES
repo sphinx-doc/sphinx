@@ -19,6 +19,7 @@ Bugs fixed
   LaTeX errors than was the case with 1.5 series. Now, ``LATEXMKOPTS``
   variable is provided whose default value ``-f`` mimics former behaviour.
   (refs #3695)
+* #3698: Moving :doc: to std domain broke backwards compatibility
 
 Testing
 --------
