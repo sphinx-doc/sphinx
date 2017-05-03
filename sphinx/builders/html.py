@@ -104,7 +104,7 @@ class CSSContainer(list):
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
                       RemovedInSphinx20Warning)
-        self.insert(index, other)
+        super(CSSContainer, self).insert(index, other)
 
     def extend(self, other):
         warnings.warn('builder.css_files is deprecated. '
