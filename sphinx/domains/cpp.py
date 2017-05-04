@@ -588,11 +588,6 @@ class ASTBase(UnicodeMixin):
         """Clone a definition expression node."""
         return deepcopy(self)
 
-    def get_id(self, version):
-        # type: (int) -> unicode
-        """Return the id for the node."""
-        raise NotImplementedError(repr(self))
-
     def get_name(self):
         # type: () -> unicode
         """Return the name.
@@ -805,19 +800,19 @@ class ASTFoldExpr(ASTBase):
         self.rightExpr = rightExpr
 
     def __unicode__(self):
-        res = ['(']
+        res = [u'(']
         if self.leftExpr:
             res.append(text_type(self.leftExpr))
-            res.append(' ')
+            res.append(u' ')
             res.append(text_type(self.op))
-            res.append(' ')
-        res.append('...')
+            res.append(u' ')
+        res.append(u'...')
         if self.rightExpr:
-            res.append(' ')
+            res.append(u' ')
             res.append(text_type(self.op))
-            res.append(' ')
+            res.append(u' ')
             res.append(text_type(self.rightExpr))
-        res.append(')')
+        res.append(u')')
         return u''.join(res)
 
     def get_id(self, version):
@@ -918,9 +913,9 @@ class ASTCastExpr(ASTBase):
         self.expr = expr
 
     def __unicode__(self):
-        res = ['(']
+        res = [u'(']
         res.append(text_type(self.typ))
-        res.append(')')
+        res.append(u')')
         res.append(text_type(self.expr))
         return u''.join(res)
 
@@ -955,14 +950,14 @@ class ASTPostfixCallExpr(ASTBase):
         self.exprs = exprs
 
     def __unicode__(self):
-        res = ['(']
+        res = [u'(']
         first = True
         for e in self.exprs:
             if not first:
-                res.append(', ')
+                res.append(u', ')
             first = False
             res.append(text_type(e))
-        res.append(')')
+        res.append(u')')
         return u''.join(res)
 
     def get_id(self, idPrefix, version):
@@ -1200,7 +1195,7 @@ class ASTTemplateParamType(ASTBase):
         return self.data.get_identifier()
 
     def get_id(self, version, objectType=None, symbol=None):
-        # type: (unicode, Symbol) -> unicode
+        # type: (int, unicode, Symbol) -> unicode
         # this is not part of the normal name mangling in C++
         assert version >= 2
         if symbol:
@@ -2142,7 +2137,6 @@ class ASTDeclSpecs(ASTBase):
 
 class ASTArray(ASTBase):
     def __init__(self, size):
-        # type: (unicode) -> None
         self.size = size
 
     def __unicode__(self):
@@ -2218,14 +2212,15 @@ class ASTDeclaratorPtr(ASTBase):
     def get_ptr_suffix_id(self, version):
         # type: (int) -> unicode
         if version == 1:
-            res = 'P'
+            res = ['P']
             if self.volatile:
-                res += 'V'
+                res.append('V')
             if self.const:
-                res += 'C'
-            return res + self.next.get_ptr_suffix_id(version)
+                res.append('C')
+            res.append(self.next.get_ptr_suffix_id(version))
+            return u''.join(res)
 
-        res = [self.next.get_ptr_suffix_id(version)]  # type: List[unicode]
+        res = [self.next.get_ptr_suffix_id(version)]
         res.append('P')
         if self.volatile:
             res.append('V')
@@ -2612,7 +2607,6 @@ class ASTDeclaratorNameParamQual(ASTBase):
 
 class ASTInitializer(ASTBase):
     def __init__(self, value):
-        # type: (unicode) -> None
         self.value = value
 
     def __unicode__(self):
@@ -2620,7 +2614,7 @@ class ASTInitializer(ASTBase):
         return u''.join([' = ', text_type(self.value)])
 
     def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode) -> None
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         signode.append(nodes.Text(' = '))
         self.value.describe_signature(signode, 'markType', env, symbol)
@@ -2989,7 +2983,7 @@ class ASTDeclaration(ASTBase):
         return self.declaration.name
 
     def get_id(self, version, prefixed=True):
-        # type: (int) -> unicode
+        # type: (int, bool) -> unicode
         if version == 1:
             if self.templatePrefix:
                 raise NoOldIdError()
@@ -3907,7 +3901,7 @@ class DefinitionParser(object):
                         self.pos -= 2
                     else:
                         name = self._parse_nested_name()
-                        postFixes.append(ASTPostfixMember(name))
+                        postFixes.append(ASTPostfixMember(name))  # type: ignore
                         continue
                 if self.skip_string('->'):
                     if self.skip_string('*'):
@@ -3915,13 +3909,13 @@ class DefinitionParser(object):
                         self.pos -= 3
                     else:
                         name = self._parse_nested_name()
-                        postFixes.append(ASTPostfixMemberOfPointer(name))
+                        postFixes.append(ASTPostfixMemberOfPointer(name))  # type: ignore
                         continue
                 if self.skip_string('++'):
-                    postFixes.append(ASTPostfixInc())
+                    postFixes.append(ASTPostfixInc())  # type: ignore
                     continue
                 if self.skip_string('--'):
-                    postFixes.append(ASTPostfixDec())
+                    postFixes.append(ASTPostfixDec())  # type: ignore
                     continue
             if self.skip_string_and_ws('('):
                 # TODO: handled braced init
@@ -3937,7 +3931,7 @@ class DefinitionParser(object):
                             break
                         if not self.skip_string(','):
                             self.fail("Error in cast or call, expected ',' or ')'.")
-                postFixes.append(ASTPostfixCallExpr(exprs))
+                postFixes.append(ASTPostfixCallExpr(exprs))  # type: ignore
                 continue
             break
         if len(postFixes) == 0:
@@ -5493,7 +5487,7 @@ class CPPDomain(Domain):
         'namespace-push': CPPNamespacePushObject,
         'namespace-pop': CPPNamespacePopObject
     }
-    roles = {
+    roles = {  # type: ignore
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
