@@ -105,29 +105,30 @@
 \let\sphinxattableend\sphinxatlongtableend
 % longtable's wraps captions to a maximal width of \LTcapwidth
 % so we do the same for all tables
+\newcommand*\sphinxcapstartof[1]{%
+   \vskip\parskip
+   \vbox{}% force baselineskip for good positioning by capstart of hyperanchor
+   \def\@captype{#1}%
+   \capstart
+% move back vertically to compensate space inserted by next paragraph
+   \vskip-\baselineskip\vskip-\parskip
+}%
 \newcommand\sphinxcaptionof[3][\LTcapwidth]{%
    \noindent\hb@xt@\linewidth{\hss
       \vtop{\@tempdima\dimexpr#1\relax
 % don't exceed linewidth for the caption width
             \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
-            \def\@captype{#2}%
-            \capstart % must be after setting \@captype
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
             \abovecaptionskip\z@skip
             \belowcaptionskip\z@skip
-% hyperref anchor (and a \write) cause the \vtop to have zero height. Hence if
-% the caption is first thing in a list item, the item label (which gets
-% inserted indirectly by the \noindent) will have its baseline same as top of
-% box which is \ht\strutbox above the caption text baseline. This avoids a
-% wide caption overwriting the item label.
             \caption[{#3}]%
                {\strut\ignorespaces#3\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
 \newcommand\sphinxaftercaption
-{% the default definition serves with a caption above a table, to make sure its
- % last baseline is \sphinxbelowcaptionspace above table top rule
+{% this default definition serves with a caption *above* a table, to make sure
+ % its last baseline is \sphinxbelowcaptionspace above table top
  \nobreak
    \vskip\dimexpr\sphinxbelowcaptionspace\relax
    \vskip-\baselineskip\vskip-\parskip

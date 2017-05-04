@@ -895,6 +895,7 @@ def test_latex_table_tabulars(app, status, warning):
     # table having caption
     table = tables['table having caption']
     assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
+            '\\sphinxcapstartof{table}\n'
             '\\sphinxcaptionof{table}{caption for table}'
             '\\label{\\detokenize{tabular:id1}}\n'
             '\\sphinxaftercaption' in table)

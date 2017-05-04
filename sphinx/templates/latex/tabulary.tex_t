@@ -11,6 +11,7 @@
   \centering
 <%- endif %>
 <% if table.caption -%>
+\sphinxcapstartof{table}
 \sphinxcaptionof{table}{<%= ''.join(table.caption) %>}<%= labels %>
 \sphinxaftercaption
 <% endif -%>
