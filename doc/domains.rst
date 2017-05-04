@@ -563,7 +563,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: OuterScope::MyClass : public MyBase, MyOtherBase
 
-   A template class can be declared::
+   A class template can be declared::
 
       .. cpp:class:: template<typename T, std::size_t N> std::array
 
@@ -728,6 +728,17 @@ a visibility statement (``public``, ``private`` or ``protected``).
          Proxy to an element of a notional sequence that can be compared,
          indirected, or incremented.
 
+         **Notation**
+
+         .. cpp:var:: It r
+
+            An lvalue.
+
+         **Valid Expressions**
+
+         - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
+         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
+
       .. cpp:concept:: template<typename Cont> std::Container()
 
          Holder of elements, to which it can provide access via
@@ -739,6 +750,17 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       Proxy to an element of a notional sequence that can be compared,
       indirected, or incremented.
+
+      **Notation**
+
+      .. cpp:var:: It r
+
+         An lvalue.
+
+      **Valid Expressions**
+
+      - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
+      - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
 
    .. cpp:concept:: template<typename Cont> std::Container()
 
@@ -807,6 +829,30 @@ compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
 
+Inline Expressions and Tpes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. rst:role:: cpp:expr
+
+   A role for inserting a C++ expression or type as inline text.
+   For example::
+
+      .. cpp:var:: int a = 42
+
+      .. cpp:function:: int f(int i)
+
+      An expression: :cpp:expr:`a * f(a)`.
+      A type: :cpp:expr:`const MySortedContainer<int>&`.
+
+   will be rendered as follows:
+
+  .. cpp:var:: int a = 42
+
+  .. cpp:function:: int f(int i)
+
+  An expression: :cpp:expr:`a * f(a)`.
+  A type: :cpp:expr:`const MySortedContainer<int>&`.
+
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
@@ -842,7 +888,7 @@ directive.
 
       .. cpp:function:: std::size_t size() const
 
-   declares ``size`` as a member function of the template class ``std::vector``.
+   declares ``size`` as a member function of the class template ``std::vector``.
    Equivalently this could have been declared using::
 
       .. cpp:class:: template<typename T> \
@@ -922,7 +968,7 @@ These roles link to the given declaration types:
 .. admonition:: Note on References with Templates Parameters/Arguments
 
    Sphinx's syntax to give references a custom title can interfere with
-   linking to template classes, if nothing follows the closing angle
+   linking to class templates, if nothing follows the closing angle
    bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<int>```.
    This is interpreted as a link to ``int`` with a title of ``MyClass``.
    In this case, please escape the opening angle bracket with a backslash,
@@ -961,7 +1007,7 @@ In general the reference must include the template paraemter declarations, e.g.,
 Currently the lookup only succeed if the template parameter identifiers are equal strings. That is,
 ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
-The inner template class can not be directly referenced, unless the current namespace
+The inner class template can not be directly referenced, unless the current namespace
 is changed or the following shorthand is used.
 If a template parameter list is omitted, then the lookup will assume either a template or a non-template,
 but not a partial template specialisation.
