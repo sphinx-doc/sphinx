@@ -1383,6 +1383,8 @@
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
+% figure legend comes after caption and may contain arbitrary body elements
+\newenvironment{sphinxlegend}{\par\small}{\par}
 
 % LaTeX writer uses macros to hide double quotes from \sphinxcode's \@noligs
 \protected\def\sphinxquotedblleft{``}
