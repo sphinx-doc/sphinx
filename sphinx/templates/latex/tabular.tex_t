@@ -12,7 +12,7 @@
 <%- endif %>
 <% if table.caption -%>
 \sphinxcapstartof{table}
-\sphinxcaptionof{table}{<%= ''.join(table.caption) %>}<%= labels %>
+\sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
 \sphinxaftercaption
 <% endif -%>
 \begin{tabular}[t]<%= table.get_colspec() -%>

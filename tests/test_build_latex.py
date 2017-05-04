@@ -492,7 +492,7 @@ def test_footnote(app, status, warning):
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
             '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
-    assert '\\sphinxcaptionof{table}{Table caption \\sphinxfootnotemark[4]' in result
+    assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
@@ -517,7 +517,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
-    assert ('\\sphinxcaptionof{table}{The table title with a reference'
+    assert ('\\sphinxcaption{The table title with a reference'
             ' to {[}AuthorYear{]}}' in result)
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[4]}\n'
@@ -528,7 +528,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '\\sphinxfootnotemark[6].}\\label{\\detokenize{index:id27}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
-    assert ('\\sphinxcaptionof{table}{footnote \\sphinxfootnotemark[7] in '
+    assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[7] in '
             'caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption \\sphinxfootnotemark[9] of longtable\\strut}') in result
@@ -896,7 +896,7 @@ def test_latex_table_tabulars(app, status, warning):
     table = tables['table having caption']
     assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
             '\\sphinxcapstartof{table}\n'
-            '\\sphinxcaptionof{table}{caption for table}'
+            '\\sphinxcaption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}\n'
             '\\sphinxaftercaption' in table)
     assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)

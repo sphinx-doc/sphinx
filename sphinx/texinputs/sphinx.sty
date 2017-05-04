@@ -113,7 +113,7 @@
 % move back vertically to compensate space inserted by next paragraph
    \vskip-\baselineskip\vskip-\parskip
 }%
-\newcommand\sphinxcaptionof[3][\LTcapwidth]{%
+\newcommand\sphinxcaption[2][\LTcapwidth]{%
    \noindent\hb@xt@\linewidth{\hss
       \vtop{\@tempdima\dimexpr#1\relax
 % don't exceed linewidth for the caption width
@@ -121,8 +121,8 @@
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
             \abovecaptionskip\z@skip
             \belowcaptionskip\z@skip
-            \caption[{#3}]%
-               {\strut\ignorespaces#3\ifhmode\unskip\@finalstrut\strutbox\fi}%
+            \caption[{#2}]%
+               {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
