@@ -16,15 +16,16 @@
 
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
-% #2 = version when deprecated, #3 = version when removed, #4 = message
+% #2 = when deprecated, #3 = when removed, #4 = additional info
   \edef\spx@tempa{\detokenize{#1}}%
   \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
      \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
      \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
          \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
          \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
-         \sphinxdeprecatedmacro\space will be (or has been)
-         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         \sphinxdeprecatedmacro^^J
+         \@spaces- is deprecated at Sphinx #2^^J
+         \@spaces- and removed at Sphinx #3.^^J
          #4^^J****}}%
   }{% warning already emitted (at end of latex log), don't repeat
   }}
@@ -1383,8 +1384,10 @@
         Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
      % and also at end of log for better visibility
      \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
-       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
-         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
+       {\sphinxdeprecatedmacro already existed at Sphinx loading time! Not redefined!^^J
+         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.^^J
+         Note: if this warning is about macro \string\strong, it presumably results^^J
+         from fontspec 2.6 having defined it prior to Sphinx. No need for alarm!}%
     }%
   \fi
   \sphinxdeprecationwarning{latex_keep_old_macro_names=True}{1.6}{1.7}{}%
