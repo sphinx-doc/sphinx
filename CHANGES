@@ -20,6 +20,7 @@ Bugs fixed
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
 * #3685: AttributeError when using 3rd party domains
+* #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
 
 Testing
 --------
