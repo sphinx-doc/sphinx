@@ -426,7 +426,14 @@ Let us now list some macros from the package file
      the new macros are wrappers of the formerly hard-coded ``\texttt``,
      ``\emph``, ... The default definitions can be found in
      :file:`sphinx.sty`.
-- paragraph level environments: for each admonition type ``<foo>``, the
+- a :dudir:`figure` may have an optional legend with arbitrary body
+  elements: they are rendered in a ``sphinxlegend`` environment. The default
+  definition issues ``\small``, and ends with ``\par``.
+
+  .. versionadded:: 1.5.6
+     formerly, the ``\small`` was hardcoded in LaTeX writer and the ending
+     ``\par`` was lacking.
+- for each admonition type ``<foo>``, the
   used environment is named ``sphinx<foo>``. They may be ``\renewenvironment``
   'd individually, and must then be defined with one argument (it is the heading
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
