@@ -1599,10 +1599,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
-        self.body.append('{\\small ')
+        self.body.append('\n\\begin{sphinxlegend}')
 
     def depart_legend(self, node):
-        self.body.append('}')
+        self.body.append('\\end{sphinxlegend}\n')
 
     def visit_admonition(self, node):
         self.body.append('\n\\begin{sphinxadmonition}{note}')
