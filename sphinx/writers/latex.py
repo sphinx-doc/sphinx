@@ -30,6 +30,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
+from sphinx.util.smartypants import educate_quotes_latex
 
 if False:
     # For type annotation
@@ -2528,6 +2529,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
+        if not self.no_contractions and not self.in_parsed_literal:
+            text = educate_quotes_latex(text,  # type: ignore
+                                        dquotes=("\\sphinxquotedblleft{}",
+                                                 "\\sphinxquotedblright{}"))
         self.body.append(text)
 
     def depart_Text(self, node):

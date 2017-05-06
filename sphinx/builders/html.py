@@ -47,7 +47,8 @@ from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.writers.html import HTMLWriter, HTMLTranslator
+from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
+    SmartyPantsHTMLTranslator
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -60,7 +61,7 @@ if False:
 
 # Experimental HTML5 Writer
 if is_html5_writer_available():
-    from sphinx.writers.html5 import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator, SmartyPantsHTML5Translator
     html5_ready = True
 else:
     html5_ready = False
@@ -262,9 +263,15 @@ class StandaloneHTMLBuilder(Builder):
     @property
     def default_translator_class(self):
         if self.config.html_experimental_html5_writer and html5_ready:
-            return HTML5Translator
+            if self.config.html_use_smartypants:
+                return SmartyPantsHTML5Translator
+            else:
+                return HTML5Translator
         else:
-            return HTMLTranslator
+            if self.config.html_use_smartypants:
+                return SmartyPantsHTMLTranslator
+            else:
+                return HTMLTranslator
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
