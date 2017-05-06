@@ -674,8 +674,8 @@ class BuildEnvironment(object):
         self.settings['gettext_compact'] = self.config.gettext_compact
         language = (self.config.language or 'en').replace('_', '-')
         self.settings['language_code'] = language
-        if language in smartchars.quotes:  # We enable smartypants by default
-            self.settings['smart_quotes'] = True
+        if language in smartchars.quotes:
+            self.settings['smart_quotes'] = self.config.html_use_smartypants
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
