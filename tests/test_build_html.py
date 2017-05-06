@@ -303,7 +303,7 @@ def test_static_output(app):
         (".//li", u'Ellipsis…'),
         (".//li//code//span[@class='pre']", 'foo--"bar"...'),
         (".//p", u'Этот «абзац» должен использовать „русские“ кавычки.'),
-        (".//p", u'Il dit : « C’est “super” ! »'),
+        (".//p", u'Il dit : « C’est ‹ super › ! »'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
