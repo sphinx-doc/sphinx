@@ -1753,16 +1753,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
         if self.in_title or not uri:
             self.context.append('')
-        elif uri.startswith(URI_SCHEMES):
-            if len(node) == 1 and uri == node[0]:
-                if node.get('nolinkurl'):
-                    self.body.append('\\sphinxnolinkurl{%s}' % self.encode_uri(uri))
-                else:
-                    self.body.append('\\sphinxurl{%s}' % self.encode_uri(uri))
-                raise nodes.SkipNode
-            else:
-                self.body.append('\\sphinxhref{%s}{' % self.encode_uri(uri))
-                self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
@@ -1797,9 +1787,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 else:
                     self.context.append('}}}')
         else:
-            self.builder.warn('unusable reference target found: %s' % uri,
-                              (self.curfilestack[-1], node.line))
-            self.context.append('')
+            if len(node) == 1 and uri == node[0]:
+                if node.get('nolinkurl'):
+                    self.body.append('\\sphinxnolinkurl{%s}' % self.encode_uri(uri))
+                else:
+                    self.body.append('\\sphinxurl{%s}' % self.encode_uri(uri))
+                raise nodes.SkipNode
+            else:
+                self.body.append('\\sphinxhref{%s}{' % self.encode_uri(uri))
+                self.context.append('}')
 
     def depart_reference(self, node):
         self.body.append(self.context.pop())
