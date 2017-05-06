@@ -626,6 +626,10 @@ class HTML5Translator(BaseTranslator):
         # type: (nodes.Node) -> None
         self.body.append('</td>')
 
+    def bulk_text_processor(self, text):
+        # type: (unicode) -> unicode
+        return text
+
     # overwritten
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
@@ -647,6 +651,8 @@ class HTML5Translator(BaseTranslator):
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
+            else:
+                encoded = self.bulk_text_processor(encoded)
             self.body.append(encoded)
 
     def visit_note(self, node):
