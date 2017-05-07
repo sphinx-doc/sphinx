@@ -858,9 +858,8 @@ def test_latex_table_tabulars(app, status, warning):
     assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
             '\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
     assert ('\\hline\n'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader2\n\\unskip}\\relax'
-            in table)
+            '\\sphinxstyletheadfamily \nheader1\n&'
+            '\\sphinxstyletheadfamily \nheader2\n' in table)
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
@@ -931,15 +930,13 @@ def test_latex_table_longtable(app, status, warning):
     assert ('\\begin{savenotes}\\sphinxatlongtablestart'
             '\\begin{longtable}{|l|l|}\n\\hline' in table)
     assert ('\\hline\n'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader2\n\\unskip}\\relax '
-            '\\\\\n\\hline\n\\endfirsthead' in table)
+            '\\sphinxstyletheadfamily \nheader1\n&'
+            '\\sphinxstyletheadfamily \nheader2\n\\\\\n\\hline\n\\endfirsthead' in table)
     assert ('\\multicolumn{2}{c}%\n'
             '{\\makebox[0pt]{\\sphinxtablecontinued{\\tablename\\ \\thetable{} -- '
             'continued from previous page}}}\\\\\n\\hline\n'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader2\n\\unskip}\\relax '
-            '\\\\\n\\hline\n\\endhead' in table)
+            '\\sphinxstyletheadfamily \nheader1\n&'
+            '\\sphinxstyletheadfamily \nheader2\n\\\\\n\\hline\n\\endhead' in table)
     assert ('\\hline\n\\multicolumn{2}{r}'
             '{\\makebox[0pt][r]{\\sphinxtablecontinued{Continued on next page}}}\\\\\n'
             '\\endfoot\n\n\\endlastfoot' in table)
@@ -996,10 +993,9 @@ def test_latex_table_complex_tables(app, status, warning):
     table = tables['grid table']
     assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|T|}' in table)
     assert ('\\hline\n'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader2\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\sphinxstyletheadfamily \nheader3\n\\unskip}\\relax '
-            '\\\\' in table)
+            '\\sphinxstyletheadfamily \nheader1\n&'
+            '\\sphinxstyletheadfamily \nheader2\n&'
+            '\\sphinxstyletheadfamily \nheader3\n\\\\' in table)
     assert ('\\hline\ncell1-1\n&\\sphinxmultirow{2}{5}{%\n\\begin{varwidth}[t]'
             '{\\sphinxcolwidth{1}{3}}\n'
             'cell1-2\n\\par\n' in table)

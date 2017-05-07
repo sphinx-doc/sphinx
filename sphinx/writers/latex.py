@@ -1446,8 +1446,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
-                self.body.append('\\sphinxstylethead{\\sphinxstyletheadfamily ')
-                context = '\\unskip}\\relax ' + context
+                self.body.append('\\sphinxstyletheadfamily ')
         if self.needs_linetrimming:
             self.pushbody([])
         self.context.append(context)

@@ -43,6 +43,7 @@ Features removed
 * ``sphinx.util.compat`` module
 * ``sphinx.util.nodes.process_only_nodes()``
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
+* LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
 
 Bugs fixed
 ----------
