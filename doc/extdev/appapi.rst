@@ -597,6 +597,8 @@ handlers to the events.  Example:
 
    .. versionadded:: 1.6
 
+      As a **experimental** event
+
 .. event:: html-collect-pages (app)
 
    Emitted when the HTML builder is starting to write non-document pages.  You

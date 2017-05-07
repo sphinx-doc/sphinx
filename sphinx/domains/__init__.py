@@ -242,7 +242,7 @@ class Domain(object):
 
     def check_consistency(self):
         # type: () -> None
-        """Do consistency checks."""
+        """Do consistency checks (**experimental**)."""
         pass
 
     def process_field_xref(self, pnode):
