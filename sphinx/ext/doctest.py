@@ -307,7 +307,7 @@ class DocTestBuilder(Builder):
         self.outfile = None  # type: IO
         self.outfile = codecs.open(path.join(self.outdir, 'output.txt'),  # type: ignore
                                    'w', encoding='utf-8')
-        self.outfile.write(('Results of doctest builder run on %s\n'  # type: ignore
+        self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 

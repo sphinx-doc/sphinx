@@ -9,9 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
+from docutils.utils import get_source_line
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import NoUri
 from sphinx.locale import _
 from sphinx.transforms import SphinxTransform
@@ -25,6 +29,35 @@ if False:
 
 
 logger = logging.getLogger(__name__)
+
+
+class DocReferenceMigrator(SphinxTransform):
+    """Migrate :doc: reference to std domain."""
+
+    default_priority = 5  # before ReferencesResolver
+
+    def apply(self):
+        # type: () -> None
+        for node in self.document.traverse(addnodes.pending_xref):
+            if node.get('reftype') == 'doc' and node.get('refdomain') is None:
+                source, line = get_source_line(node)
+                if source and line:
+                    location = "%s:%s" % (source, line)
+                elif source:
+                    location = "%s:" % source
+                elif line:
+                    location = "<unknown>:%s" % line
+                else:
+                    location = None
+
+                message = ('Invalid pendig_xref node detected. '
+                           ':doc: reference should have refdomain=std attribute.')
+                if location:
+                    warnings.warn("%s: %s" % (location, message),
+                                  RemovedInSphinx20Warning)
+                else:
+                    warnings.warn(message, RemovedInSphinx20Warning)
+                node['refdomain'] = 'std'
 
 
 class ReferencesResolver(SphinxTransform):
@@ -165,6 +198,7 @@ class OnlyNodeTransform(SphinxTransform):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
+    app.add_post_transform(DocReferenceMigrator)
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
 

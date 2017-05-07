@@ -557,7 +557,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
@@ -1833,12 +1833,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
-        # type: (nodes.Node) -> None
-        self.body.append('{\\small ')
+        self.body.append('\n\\begin{sphinxlegend}')
 
     def depart_legend(self, node):
-        # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('\\end{sphinxlegend}\n')
 
     def visit_admonition(self, node):
         # type: (nodes.Node) -> None

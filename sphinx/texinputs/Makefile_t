@@ -14,8 +14,10 @@ ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 
 # Prefix for archive names
 ARCHIVEPRREFIX =
-# Additional LaTeX options
-LATEXOPTS =
+# Additional LaTeX options (used via latexmkrc/latexmkjarc file)
+LATEXOPTS = --interaction=nonstopmode
+# Additional latexmk options
+LATEXMKOPTS = -f
 # format: pdf or dvi
 FMT = pdf
 
@@ -40,11 +42,11 @@ PDFLATEX = $(LATEX)
 {% if latex_engine == 'platex' -%}
 %.dvi: %.tex $(ALLIMGS) FORCE_MAKE
 	for f in *.pdf; do extractbb "$$f"; done
-	$(LATEX) $(LATEXOPTS) '$<'
+	$(LATEX) $(LATEXMKOPTS) '$<'
 
 {% elif latex_engine != 'xelatex' -%}
 %.dvi: %.tex FORCE_MAKE
-	$(LATEX) $(LATEXOPTS) '$<'
+	$(LATEX) $(LATEXMKOPTS) '$<'
 
 {% endif -%}
 %.ps: %.dvi
@@ -56,15 +58,15 @@ PDFLATEX = $(LATEX)
 {%- else -%}
 %.pdf: %.tex FORCE_MAKE
 {%- endif %}
-	$(PDFLATEX) $(LATEXOPTS) '$<'
+	$(PDFLATEX) $(LATEXMKOPTS) '$<'
+
+all: $(ALLPDF)
 
 all-dvi: $(ALLDVI)
 
 all-ps: $(ALLPS)
 
 all-pdf: $(ALLPDF)
-
-all: $(ALLPDF)
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)

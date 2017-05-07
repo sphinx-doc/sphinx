@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/04/25 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/05/01 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -16,15 +16,16 @@
 
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
-% #2 = version when deprecated, #3 = version when removed, #4 = message
+% #2 = when deprecated, #3 = when removed, #4 = additional info
   \edef\spx@tempa{\detokenize{#1}}%
   \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
      \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
      \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
          \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
          \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
-         \sphinxdeprecatedmacro\space will be (or has been)
-         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         \sphinxdeprecatedmacro^^J
+         \@spaces- is deprecated at Sphinx #2^^J
+         \@spaces- and removed at Sphinx #3.^^J
          #4^^J****}}%
   }{% warning already emitted (at end of latex log), don't repeat
   }}
@@ -41,10 +42,29 @@
 \RequirePackage{textcomp}
 \RequirePackage{titlesec}
 \@ifpackagelater{titlesec}{2016/03/15}%
- {\@ifpackagelater{titlesec}{2016/03/21}{}%
-  {\AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
-******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
-******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
+ {\@ifpackagelater{titlesec}{2016/03/21}%
+  {}%
+  {\newif\ifsphinx@ttlpatch@ok
+   \IfFileExists{etoolbox.sty}{%
+     \RequirePackage{etoolbox}%
+     \patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}%
+                                {\sphinx@ttlpatch@oktrue}{}%
+     \ifsphinx@ttlpatch@ok
+     \patchcmd{\ttlh@hang}{\noindent}{}{}{\sphinx@ttlpatch@okfalse}%
+     \fi
+   }{}%
+   \ifsphinx@ttlpatch@ok
+     \typeout{^^J Package Sphinx Info: ^^J
+              **** titlesec 2.10.1 successfully patched for bugfix ****^^J}%
+   \else
+     \AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
+******** titlesec 2.10.1 has a bug, (section numbers disappear) ......|^^J%
+******** and Sphinx could not patch it, perhaps because your local ...|^^J%
+******** copy is already fixed without a changed release date. .......|^^J%
+******** If not, you must update titlesec! ...........................|}}%
+   \fi
+  }%
+ }{}
 \RequirePackage{tabulary}
 % tabulary has a bug with its re-definition of \multicolumn in its first pass
 % which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
@@ -1364,8 +1384,10 @@
         Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
      % and also at end of log for better visibility
      \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
-       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
-         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
+       {\sphinxdeprecatedmacro already existed at Sphinx loading time! Not redefined!^^J
+         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.^^J
+         Note: if this warning is about macro \string\strong, it presumably results^^J
+         from fontspec 2.6 having defined it prior to Sphinx. No need for alarm!}%
     }%
   \fi
   \sphinxdeprecationwarning{latex_keep_old_macro_names=True}{1.6}{1.7}{}%
@@ -1387,6 +1409,8 @@
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
+% figure legend comes after caption and may contain arbitrary body elements
+\newenvironment{sphinxlegend}{\par\small}{\par}
 
 % Tell TeX about pathological hyphenation cases:
 \hyphenation{Base-HTTP-Re-quest-Hand-ler}

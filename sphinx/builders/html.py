@@ -100,6 +100,15 @@ class CSSContainer(list):
         else:
             super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))
 
+    def insert(self, index, obj):
+        warnings.warn('builder.css_files is deprecated. '
+                      'Please use app.add_stylesheet() instead.',
+                      RemovedInSphinx20Warning)
+        if isinstance(obj, Stylesheet):
+            super(CSSContainer, self).insert(index, obj)
+        else:
+            super(CSSContainer, self).insert(index, Stylesheet(obj, None, 'stylesheet'))
+
     def extend(self, other):
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
@@ -381,7 +390,7 @@ class StandaloneHTMLBuilder(Builder):
         # typically doesn't include the time of day
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
+            self.last_updated = format_date(lufmt or _('%b %d, %Y'),  # type: ignore
                                             language=self.config.language)
         else:
             self.last_updated = None
@@ -814,7 +823,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 f = open(searchindexfn, 'rb')  # type: ignore
             with f:
-                self.indexer.load(f, self.indexer_format)  # type: ignore
+                self.indexer.load(f, self.indexer_format)
         except (IOError, OSError, ValueError):
             if keep:
                 logger.warning('search index couldn\'t be loaded, but not all '
@@ -984,7 +993,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             f = open(searchindexfn + '.tmp', 'wb')  # type: ignore
         with f:
-            self.indexer.dump(f, self.indexer_format)  # type: ignore
+            self.indexer.dump(f, self.indexer_format)
         movefile(searchindexfn + '.tmp', searchindexfn)
         logger.info('done')
 
