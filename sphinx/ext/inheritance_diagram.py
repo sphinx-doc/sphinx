@@ -42,7 +42,7 @@ import inspect
 try:
     from hashlib import md5
 except ImportError:
-    from md5 import md5  # type: ignore
+    from md5 import md5
 
 from six import text_type
 from six.moves import builtins

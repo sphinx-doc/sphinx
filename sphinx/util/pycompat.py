@@ -79,7 +79,7 @@ if PY3:
         return text_type(tree)
 else:
     # no need to refactor on 2.x versions
-    convert_with_2to3 = None  # type: ignore
+    convert_with_2to3 = None
 
 
 # htmlescape()

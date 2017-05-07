@@ -120,7 +120,7 @@ def _get_tls_cacert(url, config):
     certs = getattr(config, 'tls_cacerts', None)
     if not certs:
         return True
-    elif isinstance(certs, (string_types, tuple)):  # type: ignore
+    elif isinstance(certs, (string_types, tuple)):
         return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]

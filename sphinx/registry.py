@@ -133,7 +133,7 @@ class SphinxComponentRegistry(object):
         directive = type(directivename,  # type: ignore
                          (GenericObject, object),
                          {'indextemplate': indextemplate,
-                          'parse_node': staticmethod(parse_node),  # type: ignore
+                          'parse_node': staticmethod(parse_node),
                           'doc_field_types': doc_field_types})
 
         stddomain = self.domains['std']

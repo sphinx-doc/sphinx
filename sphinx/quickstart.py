@@ -557,7 +557,7 @@ def valid_dir(d):
 
 
 class MyFormatter(optparse.IndentedHelpFormatter):
-    def format_usage(self, usage):
+    def format_usage(self, usage):  # type: ignore
         # type: (str) -> str
         return usage
 

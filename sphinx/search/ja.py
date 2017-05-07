@@ -41,7 +41,7 @@ from sphinx.util import import_object
 
 if False:
     # For type annotation
-    from typing import Dict, List  # NOQA
+    from typing import Any, Dict, List  # NOQA
 
 
 class BaseSplitter(object):
@@ -65,8 +65,8 @@ class MecabSplitter(BaseSplitter):
     def __init__(self, options):
         # type: (Dict) -> None
         super(MecabSplitter, self).__init__(options)
-        self.ctypes_libmecab = None     # type: ignore
-        self.ctypes_mecab = None        # type: ignore
+        self.ctypes_libmecab = None     # type: Any
+        self.ctypes_mecab = None        # type: Any
         if not native_module:
             self.init_ctypes(options)
         else:
