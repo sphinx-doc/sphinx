@@ -7,11 +7,16 @@ Incompatible changes
 Deprecated
 ----------
 
+* LaTeX ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
+  Please move customization into new macro ``\sphinxstyletheadfamily``.
+
 Features added
 --------------
 
 Bugs fixed
 ----------
+
+* LaTeX tables do not allow multiple paragraphs in a header cell
 
 Testing
 --------
@@ -28,9 +33,6 @@ Incompatible changes
 
 Deprecated
 ----------
-
-* LaTeX ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
-  Please move customization into new macro ``\sphinxstyletheadfamily``.
 
 Features added
 --------------
@@ -54,7 +56,6 @@ Bugs fixed
 * #3714: viewcode extension not taking ``highlight_code='none'`` in account
 * #3698: Moving :doc: to std domain broke backwards compatibility
 * #3633: misdetect unreferenced citations
-* LaTeX tables do not allow multiple paragraphs in a header cell
 
 Release 1.6 beta2 (released Apr 29, 2017)
 =========================================
