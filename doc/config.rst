@@ -50,6 +50,9 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
+.. seealso:: Additional configurations, such as adding stylesheets,
+   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
+
 
 General configuration
 ---------------------
@@ -761,18 +764,6 @@ that use Sphinx's HTMLWriter class.
    at every page bottom, using the given :func:`strftime` format.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
-
-.. confval:: html_use_smartypants
-
-   If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
-   will be used to convert quotes and dashes to typographically correct
-   entities.  Default: ``True``.
-
-   .. deprecated:: 1.6
-      Use the `smart_quotes option`_ in the Docutils configuration file
-      (``docutils.conf``) instead.
-
-      .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 
 .. confval:: html_add_permalinks
 
@@ -1617,26 +1608,6 @@ These options influence LaTeX output. See further :doc:`latex`.
       This value is now a string; previously it was a boolean value, and a true
       value selected the ``'inline'`` display.  For backwards compatibility,
       ``True`` is still accepted.
-
-.. confval:: latex_keep_old_macro_names
-
-   If ``True`` the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
-   ``\tablecontinued``, ``\titleref``, ``\menuselection``, ``\accelerator``,
-   ``\crossref``, ``\termref``, and ``\optional`` text styling macros are
-   pre-defined by Sphinx and may be user-customized by some
-   ``\renewcommand``'s inserted either via ``'preamble'`` key or :dudir:`raw
-   <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
-   etc... macros are defined (and may be redefined by user).
-
-   The default is ``False`` as it prevents macro name conflicts caused by
-   latex packages. For example (``lualatex`` or ``xelatex``) ``fontspec v2.6``
-   has its own ``\strong`` macro.
-
-   .. versionadded:: 1.4.5
-   .. versionchanged:: 1.6
-      Default was changed from ``True`` to ``False``.
-   .. deprecated:: 1.6
-      This setting will be removed at Sphinx 1.7.
 
 .. confval:: latex_use_latex_multicolumn
 

@@ -16,15 +16,16 @@
 
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
-% #2 = version when deprecated, #3 = version when removed, #4 = message
+% #2 = when deprecated, #3 = when removed, #4 = additional info
   \edef\spx@tempa{\detokenize{#1}}%
   \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
      \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
      \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
          \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
          \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
-         \sphinxdeprecatedmacro\space will be (or has been)
-         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         \sphinxdeprecatedmacro^^J
+         \@spaces- is deprecated at Sphinx #2^^J
+         \@spaces- and removed at Sphinx #3.^^J
          #4^^J****}}%
   }{% warning already emitted (at end of latex log), don't repeat
   }}
@@ -204,7 +205,6 @@
 \DeclareStringOption[.5\dimexpr\inv@mag in\relax]{marginpar}
 \fi
 
-\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
 
 % dimensions, we declare the \dimen registers here.
@@ -1159,14 +1159,6 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% Sphinx 1.7.
-\newenvironment{notice}
-  {\sphinxdeprecationwarning {notice}{1.6}{1.7}{%
-  This document was probably built with a Sphinx extension using ``notice''^^J
-  environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
-  report to extension author to use ``sphinxadmonition'' instead.^^J%
-  ****}\begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 
 %% PYTHON DOCS MACROS AND ENVIRONMENTS
@@ -1323,7 +1315,6 @@
 %% TEXT STYLING
 %
 % Some custom font markup commands.
-% *** the macros without \sphinx prefix are still defined farther down ***
 \protected\def\sphinxstrong#1{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
@@ -1359,37 +1350,6 @@
 \long\protected\def\sphinxoptional#1{%
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
-\ifspx@opt@dontkeepoldnames\else
-  \let\spx@alreadydefinedlist\@empty
-  \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
-  \typeout{** if clashes with packages, do not set latex_keep_old_macro_names=True
-    in conf.py}
-  \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
-                menuselection,accelerator,crossref,termref,optional\do
- {% first, check if command with no prefix already exists
-  \ltx@ifundefined{\@tempa}{%
-  % give it the meaning defined so far with \sphinx prefix
-  \expandafter\let\csname\@tempa\expandafter\endcsname
-                  \csname sphinx\@tempa\endcsname
-  % redefine the \sphinx prefixed macro to expand to non-prefixed one
-  \expandafter\def\csname sphinx\@tempa\expandafter\endcsname
-                  \expandafter{\csname\@tempa\endcsname}%
-  }{\edef\spx@alreadydefinedlist{\spx@alreadydefinedlist{\@tempa}}}%
- }%
-  \ifx\spx@alreadydefinedlist\@empty\else
-    \expandafter\@tfor\expandafter\@tempa\expandafter:\expandafter=\spx@alreadydefinedlist\do
-    {% emit warning now
-     \PackageWarning{sphinx}{not redefining already existing \@backslashchar\@tempa\space!^^J%
-        Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
-     % and also at end of log for better visibility
-     \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
-       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
-         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
-    }%
-  \fi
-  \sphinxdeprecationwarning{latex_keep_old_macro_names=True}{1.6}{1.7}{}%
-\fi
-
 % additional customizable styling
 % FIXME: convert this to package options ?
 \protected\def\sphinxstyleindexentry     {\texttt}
@@ -1406,6 +1366,8 @@
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
+% figure legend comes after caption and may contain arbitrary body elements
+\newenvironment{sphinxlegend}{\par\small}{\par}
 
 % Tell TeX about pathological hyphenation cases:
 \hyphenation{Base-HTTP-Re-quest-Hand-ler}

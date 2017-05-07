@@ -58,7 +58,7 @@ def nonascii_srcdir(request):
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
         'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
+        'htmlhelp', 'qthelp', 'epub', 'applehelp', 'changes', 'xml',
         'pseudoxml', 'man', 'linkcheck',
     ],
 )

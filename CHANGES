@@ -1,5 +1,5 @@
-Release 1.6 beta3 (in development)
-==================================
+Release 1.7 (in development)
+============================
 
 Incompatible changes
 --------------------
@@ -10,15 +10,73 @@ Deprecated
 Features added
 --------------
 
+- C++, handle ``decltype(auto)``.
+- #2406: C++, add proper parsing of expressions, including linking of identifiers.
+- C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
+
+Features removed
+----------------
+
+* Configuration variables
+
+  - html_use_smartypants
+  - latex_keep_old_macro_names
+  - latex_elements['footer']
+
+* utility methods of ``sphinx.application.Sphinx`` class
+
+  - buildername (property)
+  - _display_chunk()
+  - old_status_iterator()
+  - status_iterator()
+  - _directive_helper()
+
+* utility methods of ``sphinx.environment.BuildEnvironment`` class
+
+  - currmodule (property)
+  - currclass (property)
+
+* epub2 builder
+* prefix and colorfunc parameter for warn()
+* ``sphinx.util.compat`` module
+* ``sphinx.util.nodes.process_only_nodes()``
+* LaTeX environment ``notice``, use ``sphinxadmonition`` instead
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6 beta3 (in development)
+==================================
+
+Incompatible changes
+--------------------
+
+* LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
+* LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
+  options to ``latexmk`` when executing ``make latexpdf``. Default is ``-f``.
+  (refs #3695)
+
 Bugs fixed
 ----------
 
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
-* The ``make latexpdf`` (which uses ``latexmk``) aborted earlier in case of
-  LaTeX errors than was the case with 1.5 series. Now, ``LATEXMKOPTS``
-  variable is provided whose default value ``-f`` mimics former behaviour.
-  (refs #3695)
+* The ``make latexpdf`` from 1.6b1 (for GNU/Linux and Mac OS, using
+  ``latexmk``) aborted earlier in case of LaTeX errors than was the case with
+  1.5 series, due to hard-coded usage of ``--halt-on-error`` option. (refs #3695)
+* #3683: sphinx.websupport module is not provided by default
+* #3683: Failed to build document if builder.css_file.insert() is called
 * #3698: Moving :doc: to std domain broke backwards compatibility
 
 Testing
@@ -244,6 +302,8 @@ Bugs fixed
 * #3657: EPUB builder crashes if document startswith genindex exists
 * #3588: No compact (p tag) html output in the i18n document build even when
   :confval:`html_compact_lists` is True.
+* #3685: AttributeError when using 3rd party domains
+* #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
 
 Testing
 --------
@@ -444,10 +504,8 @@ Incompatible changes
 * QtHelpBuilder doens't generate search page (ref: #2352)
 * QtHelpBuilder uses ``nonav`` theme instead of default one
   to improve readability.
-* latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbook``
-  as a docclass by default if the ``language`` is ``ja``.
-* latex: To provide good default settings to Japanese docs, Sphinx uses
-  ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
+* latex: To provide good default settings to Japanese documents, Sphinx uses
+  ``jreport`` and ``jsbook`` as docclass if :confval:`language` is
   ``ja``.
 * ``sphinx-quickstart`` now allows a project version is empty
 * Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
@@ -487,6 +545,7 @@ Incompatible changes
 * Emit warnings that will be deprecated in Sphinx 1.6 by default.
   Users can change the behavior by setting the environment variable
   PYTHONWARNINGS. Please refer :ref:`when-deprecation-warnings-are-displayed`.
+* #2454: new JavaScript variable ``SOURCELINK_SUFFIX`` is added
 
 Deprecated
 ----------

@@ -12,7 +12,7 @@
 import re
 
 import pytest
-from util import path, SkipTest
+from util import path
 
 
 def regex_count(expr, result):
@@ -78,7 +78,7 @@ def test_docutils_source_link_with_nonascii_file(app, status, warning):
         (srcdir / (mb_name + '.txt')).write_text('')
     except UnicodeEncodeError:
         from path import FILESYSTEMENCODING
-        raise SkipTest(
+        raise pytest.skip.Exception(
             'nonascii filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
 

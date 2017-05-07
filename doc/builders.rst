@@ -125,26 +125,6 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-.. module:: sphinx.builders.epub2
-.. class:: Epub2Builder
-
-   This builder produces the same output as the standalone HTML builder, but
-   also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
-   details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
-   The builder creates *EPUB 2* files.
-
-   .. autoattribute:: name
-
-   .. autoattribute:: format
-
-   .. autoattribute:: supported_image_types
-
-   .. deprecated:: 1.5
-
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
-      Now EpubBuilder is renamed to epub2.
-
 .. module:: sphinx.builders.epub3
 .. class:: Epub3Builder
 

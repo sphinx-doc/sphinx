@@ -53,6 +53,7 @@ requires = [
     'requests>=2.0.0',
     'typing',
     'setuptools',
+    'sphinxcontrib-websupport',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
@@ -60,7 +61,8 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     'websupport': [
-        'sphinxcontrib-websupport',
+        'sqlalchemy>=0.9',
+        'whoosh>=2.0',
     ],
     'test': [
         'pytest',
