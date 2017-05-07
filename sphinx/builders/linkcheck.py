@@ -16,7 +16,7 @@ import threading
 from os import path
 
 from requests.exceptions import HTTPError
-from six.moves import queue, html_parser  # type: ignore
+from six.moves import queue, html_parser
 from six.moves.urllib.parse import unquote
 from docutils import nodes
 
@@ -105,8 +105,8 @@ class CheckExternalLinksBuilder(Builder):
         open(path.join(self.outdir, 'output.txt'), 'w').close()
 
         # create queues and worker threads
-        self.wqueue = queue.Queue()
-        self.rqueue = queue.Queue()
+        self.wqueue = queue.Queue()  # type: queue.Queue
+        self.rqueue = queue.Queue()  # type: queue.Queue
         self.workers = []  # type: List[threading.Thread]
         for i in range(self.app.config.linkcheck_workers):
             thread = threading.Thread(target=self.check_thread)
