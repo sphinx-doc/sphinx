@@ -20,7 +20,7 @@ from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.parallel import ParallelTasks
 
 import pytest
-from util import strip_escseq
+from sphinx.testing.util import strip_escseq
 
 
 def test_info_and_warning(app, status, warning):

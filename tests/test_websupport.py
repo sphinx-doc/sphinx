@@ -16,17 +16,16 @@ except ImportError:
     sqlalchemy_missing = True
 
 import pytest
-from util import rootdir, tempdir
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-def test_build(request):
+def test_build(request, rootdir, sphinx_test_tempdir):
     settings = {
-        'srcdir': rootdir / 'roots' / 'test-basic',
+        'srcdir': rootdir / 'test-basic',
         # to use same directory for 'builddir' in each 'support' fixture, using
-        # 'tempdir' (static) value instead of 'tempdir' fixture value.
+        # 'sphinx_test_tempdir' (static) value instead of 'tempdir' fixture value.
         # each test expect result of db value at previous test case.
-        'builddir': tempdir / 'websupport'
+        'builddir': sphinx_test_tempdir / 'websupport'
     }
     marker = request.node.get_marker('support')
     if marker:

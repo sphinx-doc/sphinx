@@ -19,7 +19,7 @@ import pytest
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import SkipTest, remove_unicode_literals, strip_escseq
+from sphinx.testing.util import SkipTest, remove_unicode_literals, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 

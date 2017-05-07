@@ -21,7 +21,7 @@ from html5lib import getTreeBuilder, HTMLParser
 
 from sphinx.util.docutils import is_html5_writer_available
 
-from util import skip_unless
+from sphinx.testing.util import skip_unless
 from test_build_html import flat_dict, tail_check, check_xpath
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)

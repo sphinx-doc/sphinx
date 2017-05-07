@@ -24,7 +24,7 @@ from sphinx.util.osutil import cd, ensuredir
 from sphinx.util import docutils
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
+from sphinx.testing.util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
 from test_build_html import ENV_WARNINGS
 
 

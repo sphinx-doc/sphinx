@@ -17,7 +17,7 @@ from six import PY3
 
 from sphinx import __display_version__
 from sphinx.util.inventory import InventoryFile
-from util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
 from html5lib import getTreeBuilder, HTMLParser
 import pytest

@@ -14,7 +14,7 @@
 import plistlib
 
 import pytest
-from path import path
+from sphinx.testing.path import path
 
 # Use plistlib.load in 3.4 and above
 try:

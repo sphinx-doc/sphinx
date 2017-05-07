@@ -16,7 +16,7 @@ from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
 import pytest
 
-from util import assert_node
+from sphinx.testing.util import assert_node
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')

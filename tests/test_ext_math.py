@@ -12,7 +12,7 @@
 import re
 
 import pytest
-from util import SkipTest
+from sphinx.testing.util import SkipTest
 
 
 @pytest.mark.sphinx(

@@ -17,7 +17,7 @@ from sphinx.util import (
     display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator
 )
 
-from util import strip_escseq
+from sphinx.testing.util import strip_escseq
 
 
 def test_encode_uri():

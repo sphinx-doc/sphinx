@@ -11,28 +11,31 @@
 
 import pickle
 
+import pytest
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
 from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
-from util import SphinxTestApp
+from sphinx.testing.util import SphinxTestApp
 
 
 app = original = original_uids = None
 
 
-def setup_module():
+@pytest.fixture(scope='module', autouse=True)
+def setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
-    app = SphinxTestApp(testroot='versioning')
+    srcdir = sphinx_test_tempdir / 'test-versioning'
+    if not srcdir.exists():
+        (rootdir/'test-versioning').copytree(srcdir)
+    app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()
     original = doctrees['original']
     original_uids = [n.uid for n in add_uids(original, is_paragraph)]
-
-
-def teardown_module():
+    yield
     app.cleanup()
 
 

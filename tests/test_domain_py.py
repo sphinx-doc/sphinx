@@ -17,7 +17,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
 
-from util import assert_node
+from sphinx.testing.util import assert_node
 
 
 def parse(sig):

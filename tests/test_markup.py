@@ -23,7 +23,7 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 import pytest
 
-from util import assert_node
+from sphinx.testing.util import assert_node
 
 
 @pytest.fixture

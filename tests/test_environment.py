@@ -8,22 +8,24 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pytest
 
-from util import SphinxTestApp, path
-
+from sphinx.testing.util import SphinxTestApp, path
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 
 app = env = None
 
 
-def setup_module():
+@pytest.fixture(scope='module', autouse=True)
+def setup_module(rootdir, sphinx_test_tempdir):
     global app, env
-    app = SphinxTestApp(srcdir='root-envtest')
+    srcdir = sphinx_test_tempdir / 'root-envtest'
+    if not srcdir.exists():
+        (rootdir/'test-root').copytree(srcdir)
+    app = SphinxTestApp(srcdir=srcdir)
     env = app.env
-
-
-def teardown_module():
+    yield
     app.cleanup()
 
 

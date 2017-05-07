@@ -13,7 +13,7 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import strip_escseq
+from sphinx.testing.util import strip_escseq
 import pytest
 
 

@@ -337,3 +337,28 @@ warnings with:
 * ``PYTHONWARNINGS= make html`` (Linux/Mac)
 * ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
 * ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
+
+Unit Testing
+------------
+
+Sphinx has been tested with pytest runner. Sphinx developers write unit tests
+using pytest notation. Utility functions and pytest fixtures for testing are
+provided in ``sphinx.testing``. If you are a developer of Sphinx extensions,
+you can write unit tests with using pytest. At this time, ``sphinx.testing``
+will help your test implementation.
+
+How to use pytest fixtures that are provided by ``sphinx.teting``?
+You can require ``'sphinx.testing.fixtures'`` in your test modules or
+``conftest.py`` files like this::
+
+   pytest_plugins = 'sphinx.testing.fixtures'
+
+If you want to know more detailed usage, please refer to ``tests/conftest.py``
+and other ``test_*.py`` files under ``tests`` directory.
+
+.. note::
+
+   Prior to Sphinx - 1.5.2, Sphinx was running the test with nose.
+
+.. versionadded:: 1.6
+   ``sphinx.testing`` as a experimental.
