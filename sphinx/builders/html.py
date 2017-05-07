@@ -305,8 +305,6 @@ class StandaloneHTMLBuilder(Builder):
 
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
-        if favicon and os.path.splitext(favicon)[1] != '.ico':
-            self.warn('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, string_types):
             self.warn('html_use_opensearch config value must now be a string')
