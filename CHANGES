@@ -77,6 +77,7 @@ Bugs fixed
   1.5 series, due to hard-coded usage of ``--halt-on-error`` option. (refs #3695)
 * #3683: sphinx.websupport module is not provided by default
 * #3683: Failed to build document if builder.css_file.insert() is called
+* #3698: Moving :doc: to std domain broke backwards compatibility
 
 Testing
 --------
