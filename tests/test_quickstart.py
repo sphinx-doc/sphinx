@@ -16,8 +16,6 @@ from six import PY2, text_type, StringIO
 from six.moves import input
 import pytest
 
-from util import SkipTest
-
 from sphinx import application
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
@@ -121,7 +119,7 @@ def test_do_prompt_with_nonascii():
     try:
         qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
-        raise SkipTest(
+        raise pytest.skip.Exception(
             'non-ASCII console input not supported on this encoding: %s',
             qs.TERM_ENCODING)
     assert d['k1'] == u'\u30c9\u30a4\u30c4'

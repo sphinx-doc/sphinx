@@ -125,26 +125,6 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-.. module:: sphinx.builders.epub2
-.. class:: Epub2Builder
-
-   This builder produces the same output as the standalone HTML builder, but
-   also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
-   details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
-   The builder creates *EPUB 2* files.
-
-   .. autoattribute:: name
-
-   .. autoattribute:: format
-
-   .. autoattribute:: supported_image_types
-
-   .. deprecated:: 1.5
-
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
-      Now EpubBuilder is renamed to epub2.
-
 .. module:: sphinx.builders.epub3
 .. class:: Epub3Builder
 
@@ -201,6 +181,31 @@ The builder's "name" must be given to the **-b** command-line option of
          (based on TeXLive 2009).
       .. versionchanged:: 1.6
          Use of ``latexmk`` on GNU/Linux or Mac OS X.
+
+      Since 1.6, ``make latexpdf`` (or ``make -C "<builddir>/latex"`` after a
+      ``sphinx-build`` run) uses ``latexmk`` (on GNU/Linux and Mac OS X).
+      It invokes it with option ``-f`` which attempts to complete targets
+      even in case of LaTeX processing errors. This can be overridden via
+      ``LATEXMKOPTS`` variable, for example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS=""
+
+      The ``pdflatex`` calls themselves obey the ``LATEXOPTS`` variable whose
+      default is ``--interaction=nonstopmode`` (same as ``-interaction
+      nonstopmode``.) In order to stop the
+      compilation on first error one can use ``--halt-on-error``.
+
+      Example:
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS="-silent" LATEXOPTS="--halt-on-error"
+
+      In case the first ``pdflatex`` run aborts with an error, this will stop
+      further ``latexmk`` processing (no ``-f`` option). The console output
+      will be kept to a bare minimum during target processing (``-silent``).
 
    .. autoattribute:: name
 

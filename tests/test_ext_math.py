@@ -12,7 +12,6 @@
 import re
 
 import pytest
-from util import SkipTest
 
 
 @pytest.mark.sphinx(
@@ -40,9 +39,9 @@ def test_jsmath(app, status, warning):
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        raise pytest.skip.Exception('LaTeX command "latex" is not available')
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise SkipTest('dvipng command "dvipng" is not available')
+        raise pytest.skip.Exception('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
@@ -56,9 +55,9 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        raise pytest.skip.Exception('LaTeX command "latex" is not available')
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise SkipTest('dvisvgm command "dvisvgm" is not available')
+        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'

@@ -30,7 +30,6 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
-from sphinx.util.smartypants import educate_quotes_latex
 
 if False:
     # For type annotation
@@ -58,7 +57,7 @@ DEFAULT_SETTINGS = {
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
-    'sphinxpkgoptions':     'dontkeepoldnames',
+    'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
@@ -548,8 +547,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements.update({
                 'releasename':  _('Release'),
             })
-        if builder.config.latex_keep_old_macro_names:
-            self.elements['sphinxpkgoptions'] = ''
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -558,7 +555,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
@@ -1834,12 +1831,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
-        # type: (nodes.Node) -> None
-        self.body.append('{\\small ')
+        self.body.append('\n\\begin{sphinxlegend}')
 
     def depart_legend(self, node):
-        # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('\\end{sphinxlegend}\n')
 
     def visit_admonition(self, node):
         # type: (nodes.Node) -> None
@@ -2533,10 +2528,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
-        if not self.no_contractions and not self.in_parsed_literal:
-            text = educate_quotes_latex(text,  # type: ignore
-                                        dquotes=("\\sphinxquotedblleft{}",
-                                                 "\\sphinxquotedblright{}"))
         self.body.append(text)
 
     def depart_Text(self, node):

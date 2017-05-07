@@ -66,7 +66,7 @@ def process_ifconfig_nodes(app, doctree, docname):
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
-            msg = ''.join(format_exception_only(err.__class__, err))  # type: ignore
+            msg = ''.join(format_exception_only(err.__class__, err))
             newnode = doctree.reporter.error('Exception occured in '
                                              'ifconfig expression: \n%s' %
                                              msg, base_node=node)

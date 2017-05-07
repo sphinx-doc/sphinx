@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import argparse
 from datetime import datetime
 from contextlib import contextmanager
 
@@ -14,17 +15,22 @@ package_dir = os.path.abspath(os.path.join(script_dir, '..'))
 RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
 
-def stringify_version(version_info):
+def stringify_version(version_info, in_develop=True):
     if version_info[2] == 0:
-        return '.'.join(str(v) for v in version_info[:2])
+        version = '.'.join(str(v) for v in version_info[:2])
     else:
-        return '.'.join(str(v) for v in version_info[:3])
+        version = '.'.join(str(v) for v in version_info[:3])
+
+    if not in_develop and version_info[3] != 'final':
+        version += version_info[3][0] + str(version_info[4])
+
+    return version
 
 
-def bump_version(path, version_info):
-    version = stringify_version(version_info)
+def bump_version(path, version_info, in_develop=True):
+    version = stringify_version(version_info, in_develop)
     release = version
-    if version_info[3] != 'final':
+    if in_develop:
         version += '+'
 
     with open(path, 'r+') as f:
@@ -143,19 +149,25 @@ class Changes(object):
             f.write(body)
 
 
-def main():
-    if len(sys.argv) != 2:
-        print("bump_version.py [version]")
-        return -1
+def parse_options(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('version', help='A version number (cf. 1.6b0)')
+    parser.add_argument('--in-develop', action='store_true')
+    options = parser.parse_args(argv)
+    options.version = parse_version(options.version)
+    return options
 
-    version_info = parse_version(sys.argv[-1])
+
+def main():
+    options = parse_options(sys.argv[1:])
 
     with processing("Rewriting sphinx/__init__.py"):
-        bump_version(os.path.join(package_dir, 'sphinx/__init__.py'), version_info)
+        bump_version(os.path.join(package_dir, 'sphinx/__init__.py'),
+                     options.version, options.in_develop)
 
     with processing('Rewriting CHANGES'):
         changes = Changes(os.path.join(package_dir, 'CHANGES'))
-        if changes.version_info == version_info:
+        if changes.version_info == options.version:
             if changes.in_development:
                 changes.finalize_release_date()
             else:
@@ -163,7 +175,7 @@ def main():
         else:
             if changes.in_development:
                 print('WARNING: last version is not released yet: %s' % changes.version)
-            changes.add_release(version_info)
+            changes.add_release(options.version)
 
 
 if __name__ == '__main__':

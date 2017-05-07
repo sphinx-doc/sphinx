@@ -661,7 +661,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(''.join(out) + self.nl)
 
         def writerow(row):
-            # type: (list[List[unicode]]) -> None
+            # type: (List[List[unicode]]) -> None
             lines = zip_longest(*row)
             for line in lines:
                 out = ['|']

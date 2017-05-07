@@ -426,6 +426,26 @@ More domains:
 .. default-role::
 
 
+Smart quotes
+------------
+
+* Smart "quotes" in English 'text'.
+* Smart --- long and -- short dashes.
+* Ellipsis...
+* No smartypants in literal blocks: ``foo--"bar"...``.
+
+.. only:: html
+
+   .. LaTeX does not like Cyrillic letters in this test, so it is HTML only.
+
+   .. rst-class:: language-ru
+
+   Этот "абзац" должен использовать 'русские' кавычки.
+
+   .. rst-class:: language-fr
+
+   Il dit : "C'est 'super' !"
+
 .. rubric:: Footnotes
 
 .. [#] Like footnotes.

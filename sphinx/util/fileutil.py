@@ -51,7 +51,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
             if destination.lower().endswith('_t'):
                 destination = destination[:-2]
             with codecs.open(destination, 'w', encoding='utf-8') as fdst:  # type: ignore
-                fdst.write(renderer.render_string(fsrc.read(), context))  # type: ignore
+                fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 

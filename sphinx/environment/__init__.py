@@ -20,12 +20,13 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import StringIO, itervalues, class_types, next
+from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
+from docutils.utils.smartquotes import smartchars
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
@@ -46,7 +47,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -121,7 +122,7 @@ class BuildEnvironment(object):
     @classmethod
     def loads(cls, string, app=None):
         # type: (unicode, Sphinx) -> BuildEnvironment
-        io = StringIO(string)
+        io = BytesIO(string)
         return cls.load(io, app)
 
     @classmethod
@@ -156,7 +157,7 @@ class BuildEnvironment(object):
     @classmethod
     def dumps(cls, env):
         # type: (BuildEnvironment) -> unicode
-        io = StringIO()
+        io = BytesIO()
         cls.dump(env, io)
         return io.getvalue()
 
@@ -671,6 +672,10 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
+        language = (self.config.language or 'en').replace('_', '-')
+        self.settings['language_code'] = language
+        if language in smartchars.quotes:  # We enable smartypants by default
+            self.settings['smart_quotes'] = True
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
@@ -766,24 +771,6 @@ class BuildEnvironment(object):
         # type: () -> unicode
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
-
-    @property
-    def currmodule(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currmodule is deprecated. '
-                      'Use env.ref_context["py:module"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:module')
-
-    @property
-    def currclass(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currclass is deprecated. '
-                      'Use env.ref_context["py:class"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
         # type: (unicode) -> int

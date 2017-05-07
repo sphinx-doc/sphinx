@@ -4,7 +4,12 @@ Release checklist
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check stable branch is green
 * Check `git status`
 * Run `make style-check`
-* if final major release ...
+* Update sphinx/locale/sphinx.pot if first major release (beta1)
+
+  * Run `pytho nsetup.py extract_messages`
+  * Run `(cd sphinx/locale; tx push -s)`
+
+* Update sphinx/locale/<lang>/ files if final major release ...
 
   * Run `(cd sphinx/locale; tx pull -a -f)`
   * Run `python setup.py compile_catalog`
@@ -21,7 +26,7 @@ Release checklist
 * `git push origin stable --tags`
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Add new version/milestone to tracker categories
-* `python utils/bump_version.py a.b.cb0` (ex. 1.5.3b0)
+* `python utils/bump_version.py --in-develop a.b.cb0` (ex. 1.5.3b0)
 * Check diff by `git diff`
 * `git commit -am 'Bump version'`
 * `git push origin stable`

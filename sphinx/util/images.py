@@ -118,5 +118,5 @@ def parse_data_uri(uri):
         elif prop:
             mimetype = prop
 
-    image_data = base64.b64decode(data)  # type: ignore
+    image_data = base64.b64decode(data)
     return DataURI(mimetype, charset, image_data)
