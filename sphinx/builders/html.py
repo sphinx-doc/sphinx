@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
 import sys
 import codecs
@@ -400,8 +399,6 @@ class StandaloneHTMLBuilder(Builder):
 
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
-        if favicon and os.path.splitext(favicon)[1] != '.ico':
-            logger.warning('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, string_types):
             logger.warning('html_use_opensearch config value must now be a string')

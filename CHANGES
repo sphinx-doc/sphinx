@@ -259,6 +259,8 @@ Bugs fixed
   :confval:`html_compact_lists` is True.
 * #3685: AttributeError when using 3rd party domains
 * #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
+* #3708: LaTeX writer allows irc scheme
+* #3717: Stop enforcing that favicon's must be .ico
 
 Testing
 --------
