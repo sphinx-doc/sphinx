@@ -1,7 +1,7 @@
-$latex = 'latex ' . $ENV{'LATEXOPTS'} . ' %O %S';
-$pdflatex = 'pdflatex ' . $ENV{'LATEXOPTS'} . ' %O %S';
-$lualatex = 'lualatex ' . $ENV{'LATEXOPTS'} . ' %O %S';
-$xelatex = 'xelatex --no-pdf ' . $ENV{'LATEXOPTS'} . ' %O %S';
+$latex = 'latex $LATEXOPTS %O %S';
+$pdflatex = 'pdflatex $LATEXOPTS %O %S';
+$lualatex = 'lualatex $LATEXOPTS %O %S';
+$xelatex = 'xelatex --no-pdf $LATEXOPTS %O %S';
 $makeindex = 'makeindex -s python.ist %O -o %D %S';
 add_cus_dep( "glo", "gls", 0, "makeglo" );
 sub makeglo {
