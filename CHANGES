@@ -56,9 +56,6 @@ Bugs fixed
 * #3633: misdetect unreferenced citations
 * LaTeX tables do not allow multiple paragraphs in a header cell
 
-Testing
---------
-
 Release 1.6 beta2 (released Apr 29, 2017)
 =========================================
 
