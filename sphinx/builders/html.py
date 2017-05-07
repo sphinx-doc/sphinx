@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
 import sys
 import zlib
