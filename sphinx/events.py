@@ -31,6 +31,7 @@ core_events = {
     'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
+    'env-check-consistency': 'env',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',

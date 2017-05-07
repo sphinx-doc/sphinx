@@ -296,12 +296,6 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                                type='ref', subtype='footnote',
                                location=node)
 
-        for node in self.document.citations:
-            if node['names'][0] not in self.document.citation_refs:
-                logger.warning('Citation [%s] is not referenced.', node['names'][0],
-                               type='ref', subtype='citation',
-                               location=node)
-
 
 class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""

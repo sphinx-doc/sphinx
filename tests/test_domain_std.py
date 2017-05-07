@@ -25,6 +25,7 @@ def test_process_doc_handle_figure_caption():
         nametypes={'testname': True},
         nameids={'testname': 'testid'},
         ids={'testid': figure_node},
+        citation_refs={},
     )
     document.traverse.return_value = []
 
@@ -47,6 +48,7 @@ def test_process_doc_handle_table_title():
         nametypes={'testname': True},
         nameids={'testname': 'testid'},
         ids={'testid': table_node},
+        citation_refs={},
     )
     document.traverse.return_value = []
 

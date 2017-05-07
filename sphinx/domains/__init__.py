@@ -240,6 +240,11 @@ class Domain(object):
         """Process a document after it is read by the environment."""
         pass
 
+    def check_consistency(self):
+        # type: () -> None
+        """Do consistency checks (**experimental**)."""
+        pass
+
     def process_field_xref(self, pnode):
         # type: (nodes.Node) -> None
         """Process a pending xref created in a doc field.

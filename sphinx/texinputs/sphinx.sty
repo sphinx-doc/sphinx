@@ -1359,7 +1359,17 @@
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle     {\textbf}
 \protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
-\protected\def\sphinxstylethead          {\textsf}
+% \text.. commands do not allow multiple paragraphs
+\let\sphinxstylethead\empty
+\protected\def\sphinxstyletheadfamily {\ifx\sphinxstylethead\empty\sffamily\fi}
+\AtBeginDocument{\ifx\sphinxstylethead\empty\else
+\sphinxdeprecationwarning{\sphinxstylethead}{1.6}{1.7}{%
+    \string\sphinxstyletheadfamily\space replaces it
+    (it defaults to \string\sffamily) to allow use^^J
+    with multiple paragraphs. Backwards compatibility is maintained, but please^^J
+    move customization into \string\sphinxstyletheadfamily\space
+    in time for 1.7.^^J
+    And if you do it now, you will spare yourself this warning!}\fi}
 \protected\def\sphinxstyleemphasis       {\emph}
 \protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
 \protected\def\sphinxstylestrong         {\textbf}

@@ -58,9 +58,13 @@ Incompatible changes
 
 * LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
 * LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
+* Add line numbers to citation data in std domain
 
 Deprecated
 ----------
+
+* LaTeX ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
+  Please move customization into new macro ``\sphinxstyletheadfamily``.
 
 Features added
 --------------
@@ -68,6 +72,8 @@ Features added
 * ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
   options to ``latexmk`` when executing ``make latexpdf``. Default is ``-f``.
   (refs #3695)
+* Add a new event `env-check-consistency` to check consistency to extensions
+* Add `Domain.check_consistency()` to check consistency
 
 Bugs fixed
 ----------
@@ -81,6 +87,8 @@ Bugs fixed
 * #3683: Failed to build document if builder.css_file.insert() is called
 * #3714: viewcode extension not taking ``highlight_code='none'`` in account
 * #3698: Moving :doc: to std domain broke backwards compatibility
+* #3633: misdetect unreferenced citations
+* LaTeX tables do not allow multiple paragraphs in a header cell
 
 Testing
 --------
@@ -307,6 +315,8 @@ Bugs fixed
   :confval:`html_compact_lists` is True.
 * #3685: AttributeError when using 3rd party domains
 * #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
+* #3708: LaTeX writer allows irc scheme
+* #3717: Stop enforcing that favicon's must be .ico
 
 Testing
 --------
