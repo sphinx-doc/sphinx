@@ -206,7 +206,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         # write the project file
         with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            f.write(project_template % {  # type: ignore
+            f.write(project_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
                 'version': htmlescape(self.config.version),
@@ -223,7 +223,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info('writing collection project file...')
         with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            f.write(collection_template % {  # type: ignore
+            f.write(collection_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
                 'homepage': htmlescape(homepage),

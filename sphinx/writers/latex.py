@@ -555,7 +555,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright

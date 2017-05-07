@@ -48,7 +48,7 @@ try:
     if sys.version_info >= (3,):
         import typing
     else:
-        typing = None  # type: ignore
+        typing = None
 except ImportError:
     typing = None
 

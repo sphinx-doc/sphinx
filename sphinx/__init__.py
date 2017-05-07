@@ -58,7 +58,7 @@ if __version__.endswith('+'):
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __display_version__ += '/' + out.decode().strip()  # type: ignore
+            __display_version__ += '/' + out.decode().strip()
     except Exception:
         pass
 

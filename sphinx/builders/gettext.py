@@ -31,7 +31,7 @@ from sphinx.locale import pairindextypes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
+    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -122,7 +122,7 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: defaultdict[unicode, Catalog]
+        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[unicode, Catalog]
 
     def get_target_uri(self, docname, typ=None):
         # type: (unicode, unicode) -> unicode

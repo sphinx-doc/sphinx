@@ -190,7 +190,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         logger.info(bold('building access page...'), nonl=True)
-        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:
+        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:  # type: ignore
             f.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)

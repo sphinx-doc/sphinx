@@ -156,7 +156,7 @@ def collect_pages(app):
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
-        if env.config.highlight_language in ('python3', 'default'):
+        if env.config.highlight_language in ('python3', 'default', 'none'):
             lexer = env.config.highlight_language
         else:
             lexer = 'python'

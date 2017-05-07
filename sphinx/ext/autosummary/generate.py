@@ -259,8 +259,7 @@ def find_autosummary_in_files(filenames):
         with codecs.open(filename, 'r', encoding='utf-8',  # type: ignore
                          errors='ignore') as f:
             lines = f.read().splitlines()
-            documented.extend(find_autosummary_in_lines(lines,  # type: ignore
-                                                        filename=filename))
+            documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented
 
 
@@ -273,7 +272,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
-        return find_autosummary_in_lines(lines, module=name, filename=filename)
+        return find_autosummary_in_lines(lines, module=name, filename=filename)  # type: ignore
     except AttributeError:
         pass
     except ImportError as e:
