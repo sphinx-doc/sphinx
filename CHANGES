@@ -10,9 +10,11 @@ Deprecated
 Features added
 --------------
 
-- C++, handle ``decltype(auto)``.
-- #2406: C++, add proper parsing of expressions, including linking of identifiers.
-- C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
+* C++, handle ``decltype(auto)``.
+* #2406: C++, add proper parsing of expressions, including linking of identifiers.
+* C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
+* #3638: Allow to change a label of reference to equation using
+  ``math_eqref_format``
 
 Features removed
 ----------------

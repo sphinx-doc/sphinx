@@ -12,9 +12,11 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import Directive, directives
 
+from sphinx.config import string_classes
 from sphinx.roles import XRefRole
 from sphinx.locale import _
 from sphinx.domains import Domain
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode, set_source_info
 
 if False:
@@ -24,6 +26,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class math(nodes.Inline, nodes.TextElement):
@@ -80,7 +84,13 @@ class MathDomain(Domain):
                 newnode['target'] = target
                 return newnode
             else:
-                title = nodes.Text("(%d)" % number)
+                try:
+                    eqref_format = env.config.math_eqref_format or "({number})"
+                    title = nodes.Text(eqref_format.format(number=number))
+                except KeyError as exc:
+                    logger.warning('Invalid math_eqref_format: %r', exc,
+                                   location=node)
+                    title = nodes.Text("(%d)" % number)
                 return make_refnode(builder, fromdocname, docname,
                                     "equation-" + target, title)
         else:
@@ -264,7 +274,17 @@ def latex_visit_displaymath(self, node):
 def latex_visit_eqref(self, node):
     # type: (nodes.NodeVisitor, eqref) -> None
     label = "equation:%s:%s" % (node['docname'], node['target'])
-    self.body.append('\\eqref{%s}' % label)
+    eqref_format = self.builder.config.math_eqref_format
+    if eqref_format:
+        try:
+            ref = '\\ref{%s}' % label
+            self.body.append(eqref_format.format(number=ref))
+        except KeyError as exc:
+            logger.warning('Invalid math_eqref_format: %r', exc,
+                           location=node)
+            self.body.append('\\eqref{%s}' % label)
+    else:
+        self.body.append('\\eqref{%s}' % label)
     raise nodes.SkipNode
 
 
@@ -320,6 +340,7 @@ def texinfo_depart_displaymath(self, node):
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_number_all', False, 'env')
+    app.add_config_value('math_eqref_format', None, 'env', string_classes)
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
