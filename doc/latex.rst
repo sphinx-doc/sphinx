@@ -418,8 +418,8 @@ Let us now list some macros from the package file
 
 - more text styling commands: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
-  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``thead``,
-  ``theadfamily``, ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
+  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``theadfamily``,
+  ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
   ``abbreviation``, ``literalintitle``.
 
   .. versionadded:: 1.5
@@ -427,10 +427,7 @@ Let us now list some macros from the package file
      ``\emph``, ... The default definitions can be found in
      :file:`sphinx.sty`.
   .. versionadded:: 1.6
-     ``\sphinxstyletheadfamily`` which defaults to ``\sffamily`` and allows
-     multiple paragraphs in header cells of tables.
-  .. deprecated:: 1.6
-     macro ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
+     ``\sphinxstyletheadfamily`` which defaults to ``\sffamily``.
 - a :dudir:`figure` may have an optional legend with arbitrary body
   elements: they are rendered in a ``sphinxlegend`` environment. The default
   definition issues ``\small``, and ends with ``\par``.
