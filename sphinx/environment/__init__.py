@@ -78,7 +78,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 51 + (sys.version_info[0] - 2)
+ENV_VERSION = 52 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -1014,3 +1014,8 @@ class BuildEnvironment(object):
                     continue
                 logger.warning('document isn\'t included in any toctree',
                                location=docname)
+
+        # call check-consistency for all extensions
+        for domain in self.domains.values():
+            domain.check_consistency()
+        self.app.emit('env-check-consistency', self)

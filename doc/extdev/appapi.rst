@@ -590,6 +590,15 @@ handlers to the events.  Example:
    .. versionchanged:: 1.3
       The handlers' return value is now used.
 
+.. event:: env-check-consistency (env)
+
+   Emmited when Consistency checks phase.  You can check consistency of
+   metadata for whole of documents.
+
+   .. versionadded:: 1.6
+
+      As a **experimental** event
+
 .. event:: html-collect-pages (app)
 
    Emitted when the HTML builder is starting to write non-document pages.  You
