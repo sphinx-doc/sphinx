@@ -181,7 +181,7 @@ def main(argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args(list(argv[1:]))
+        opts, args = parser.parse_args(argv)
     except SystemExit as err:
         return err.code
 

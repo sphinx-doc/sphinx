@@ -570,7 +570,7 @@ class MyFormatter(optparse.IndentedHelpFormatter):
         return "\n".join(result)
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     if not color_terminal():
         nocolor()
@@ -642,7 +642,7 @@ def main(argv=sys.argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args(argv[1:])
+        opts, args = parser.parse_args(argv)
     except SystemExit as err:
         return err.code
 
