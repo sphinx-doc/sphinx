@@ -12,4 +12,4 @@ import sys
 
 if __name__ == '__main__':
     from sphinx.ext.autosummary.generate import main
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv[1:]))

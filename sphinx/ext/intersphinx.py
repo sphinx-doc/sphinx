@@ -383,4 +383,4 @@ if __name__ == '__main__':
     import logging  # type: ignore
     logging.basicConfig()
 
-    debug(argv=sys.argv)  # type: ignore
+    debug(argv=sys.argv[1:])  # type: ignore
