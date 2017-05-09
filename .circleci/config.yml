@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: sphinxdoc/docker-ci
+    working_directory: /sphinx
+    steps:
+      - checkout
+      - run: make test PYTHON=/python3.4/bin/python
