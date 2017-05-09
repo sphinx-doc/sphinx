@@ -208,6 +208,7 @@ Features added
   Jeroen Demeyer.
 * Add a new extension; ``sphinx.ext.imgconverter``. It converts images in the
   document to appropriate format for builders
+* latex: Use templates to render tables (refs #3389, 2a37b0e)
 
 Bugs fixed
 ----------
