@@ -4,6 +4,9 @@ Release 1.6 beta4 (in development)
 Incompatible changes
 --------------------
 
+* LaTeX package ``threeparttable`` is not used and not loaded by Sphinx
+  anymore (refs #3686, #3532, #3377)
+
 Deprecated
 ----------
 
@@ -18,6 +21,10 @@ Bugs fixed
 
 * LaTeX tables do not allow multiple paragraphs in a header cell
 * LATEXOPTS is not passed over correctly to pdflatex since 1.6b3
+* #3532: Figure or literal block captions in cells of short tables cause havoc
+  in PDF output
+* Fix: in PDF captions of tables are rendered differently whether table is of
+  longtable class or not (refs #3686)
 
 Testing
 --------
