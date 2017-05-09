@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * LaTeX tables do not allow multiple paragraphs in a header cell
+* LATEXOPTS is not passed over correctly to pdflatex since 1.6b3
 
 Testing
 --------
@@ -38,8 +39,7 @@ Features added
 --------------
 
 * ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
-  options to ``latexmk`` when executing ``make latexpdf``. Default is ``-f``.
-  (refs #3695)
+  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695)
 * Add a new event `env-check-consistency` to check consistency to extensions
 * Add `Domain.check_consistency()` to check consistency
 
