@@ -39,7 +39,7 @@ Features added
 --------------
 
 * ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
-  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695)
+  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695, #3720)
 * Add a new event `env-check-consistency` to check consistency to extensions
 * Add `Domain.check_consistency()` to check consistency
 
