@@ -17,6 +17,7 @@ import pytest
 
 from sphinx.util import inspect
 
+
 class TestGetArgSpec(TestCase):
     def test_getargspec_builtin_type(self):
         with pytest.raises(TypeError):

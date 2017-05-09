@@ -122,21 +122,21 @@ def test_domain_js_find_obj(app, status, warning):
     assert (find_obj(None, None, u'NONEXISTANT', u'class') ==
             (None, None))
     assert (find_obj(None, None, u'NestedParentA', u'class') ==
-            ( u'NestedParentA', (u'roles', u'class')))
+            (u'NestedParentA', (u'roles', u'class')))
     assert (find_obj(None, None, u'NestedParentA.NestedChildA', u'class') ==
-            ( u'NestedParentA.NestedChildA', (u'roles', u'class')))
+            (u'NestedParentA.NestedChildA', (u'roles', u'class')))
     assert (find_obj(None, 'NestedParentA', u'NestedChildA', u'class') ==
-            ( u'NestedParentA.NestedChildA', (u'roles', u'class')))
+            (u'NestedParentA.NestedChildA', (u'roles', u'class')))
     assert (find_obj(None, None, u'NestedParentA.NestedChildA.subchild_1', u'func') ==
-            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+            (u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
     assert (find_obj(None, u'NestedParentA', u'NestedChildA.subchild_1', u'func') ==
-            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+            (u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
     assert (find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'func') ==
-            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+            (u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
     assert (find_obj(u'module_a.submodule', u'ModTopLevel', u'mod_child_2', u'meth') ==
-            ( u'module_a.submodule.ModTopLevel.mod_child_2', (u'module', u'method')))
+            (u'module_a.submodule.ModTopLevel.mod_child_2', (u'module', u'method')))
     assert (find_obj(u'module_b.submodule', u'ModTopLevel', u'module_a.submodule', u'mod') ==
-            ( u'module_a.submodule', (u'module', u'module')))
+            (u'module_a.submodule', (u'module', u'module')))
 
 
 def test_get_full_qualified_name():

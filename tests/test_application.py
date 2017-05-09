@@ -8,8 +8,6 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import codecs
-
 from docutils import nodes
 
 from sphinx.application import ExtensionError

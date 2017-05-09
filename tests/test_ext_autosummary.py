@@ -106,16 +106,16 @@ def test_get_items_summary(app, status, warning):
                   'dummy_module.func')
     assert autosummary_items['func'] == func_attrs
 
+
 def str_content(elem):
     if elem.text is not None:
         return elem.text
     else:
         return ''.join(str_content(e) for e in elem)
 
+
 @pytest.mark.sphinx('xml', **default_kw)
 def test_escaping(app, status, warning):
-    from xml.etree import ElementTree
-
     app.builder.build_all()
 
     outdir = app.builder.outdir

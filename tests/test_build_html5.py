@@ -14,19 +14,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-import re
-from itertools import cycle, chain
 import xml.etree.cElementTree as ElementTree
 
-from six import PY3
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
 
-from sphinx import __display_version__
 from sphinx.util.docutils import is_html5_writer_available
 
-from util import remove_unicode_literals, strip_escseq, skip_unless
+from util import skip_unless
 from test_build_html import flat_dict, tail_check, check_xpath
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
@@ -34,6 +29,7 @@ HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 
 etree_cache = {}
+
 
 @skip_unless(is_html5_writer_available())
 @pytest.fixture(scope='module')
