@@ -6,14 +6,17 @@ Just testing a few autodoc possibilities...
 .. automodule:: util
 
 .. automodule:: test_autodoc
-   :members:
 
 .. autofunction:: function
 
 .. autoclass:: Class
-   :inherited-members:
+   :members:
 
    Additional content.
+
+   .. automethod:: extradocmeth()
+
+      Here is some extra documentation to add.
 
 .. autoclass:: Outer
    :members: Inner

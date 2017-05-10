@@ -165,6 +165,12 @@ def test_static_output(app):
     check_extra_entries(app.builder.outdir)
 
 
+def check_node_texts(texts):
+    def check(nodes):
+        assert [n.text for n in nodes] == texts
+    return check
+
+
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
@@ -210,6 +216,14 @@ def test_static_output(app):
     ],
     'autodoc.html': [
         (".//dt[@id='test_autodoc.Class']", ''),
+        (".//dt[@id='test_autodoc.Class']/../"
+         "dd/dl[@class='method']/dt/code[@class='descname']",
+         check_node_texts([
+             'meth', 'skipmeth', 'excludemeth', 'extradocmeth'])),
+        (".//dt[@id='test_autodoc.Class.extradocmeth']/../dd/p",
+         check_node_texts([
+             'A method that will have some extra documentation added.',
+             'Here is some extra documentation to add.'])),
         (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],

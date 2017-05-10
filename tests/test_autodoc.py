@@ -683,6 +683,7 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.inst_attr_inline'),
                    ('attribute', 'test_autodoc.Class.inst_attr_string'),
                    ('method', 'test_autodoc.Class.moore'),
+                   ('method', 'test_autodoc.Class.extradocmeth'),
                    ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
@@ -756,6 +757,7 @@ def test_generate():
                   '   .. py:attribute:: Class.descr',
                   '   .. py:method:: Class.meth()',
                   '   .. py:method:: Class.undocmeth()',
+                  '   .. py:method:: Class.extradocmeth()',
                   '   .. py:attribute:: Class.attr',
                   '   .. py:attribute:: Class.prop',
                   '   .. py:attribute:: Class.docattr',
@@ -949,6 +951,9 @@ class Class(Base):
 
     def excludemeth(self):
         """Method that should be excluded."""
+
+    def extradocmeth(self):
+        """A method that will have some extra documentation added."""
 
     # should not be documented
     skipattr = 'foo'

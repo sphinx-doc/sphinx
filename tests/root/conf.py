@@ -78,6 +78,8 @@ autodoc_mock_imports = [
     'missing_package3.missing_module3',
 ]
 
+autodoc_member_order = 'bysource'
+
 # modify tags from conf.py
 tags.add('confpytag')
 
