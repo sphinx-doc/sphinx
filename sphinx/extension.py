@@ -50,9 +50,8 @@ def verify_required_extensions(app, requirements):
     for extname, reqversion in iteritems(requirements):
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(_('needs_extensions config value specifies a '
-                             'version requirement for extension %s, but it is '
-                             'not loaded'), extname)
+            logger.warning(_('The %s extension is required by needs_extensions settings,'
+                             'but it is not loaded.'), extname)
             continue
 
         if extension.version == 'unknown version' or reqversion > extension.version:
