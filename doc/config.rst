@@ -1648,7 +1648,7 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    Setting to ``True`` means to use LaTeX's standard ``\multicolumn``; this is
    incompatible with literal blocks in the horizontally merged cell, and also
-   with multiple paragraph in such cell if the table is rendered using
+   with multiple paragraphs in such cell if the table is rendered using
    ``tabulary``.
 
    .. versionadded:: 1.6
