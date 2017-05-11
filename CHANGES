@@ -25,6 +25,7 @@ Bugs fixed
   in PDF output
 * Fix: in PDF captions of tables are rendered differently whether table is of
   longtable class or not (refs #3686)
+* #3725: Todo looks different from note in LaTeX output
 
 Testing
 --------
