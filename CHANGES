@@ -23,6 +23,7 @@ Bugs fixed
 * #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
 * #3708: LaTeX writer allows irc scheme
 * #3717: Stop enforcing that favicon's must be .ico
+* #3731, #3732: Protect isenumclass predicate against non-class arguments
 
 Testing
 --------
