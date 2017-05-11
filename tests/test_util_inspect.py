@@ -10,12 +10,14 @@
 """
 from unittest import TestCase
 
+import sys
 from six import PY3
 import functools
 from textwrap import dedent
 import pytest
 
 from sphinx.util import inspect
+
 
 class TestGetArgSpec(TestCase):
     def test_getargspec_builtin_type(self):
@@ -64,7 +66,7 @@ class TestGetArgSpec(TestCase):
             pass
 
         assert expected_unbound == inspect.getargspec(Foo.method)
-        if PY3:
+        if PY3 and sys.version_info >= (3, 4, 4):
             # On py2, the inspect functions don't properly handle bound
             # methods (they include a spurious 'self' argument)
             assert expected_bound == inspect.getargspec(bound_method)

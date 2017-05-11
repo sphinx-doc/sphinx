@@ -517,4 +517,3 @@ def test_literalinclude_pydecorators(app, status, warning):
         '    pass\n'
     )
     assert actual == expect
-

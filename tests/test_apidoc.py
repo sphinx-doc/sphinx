@@ -129,6 +129,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     print(app._status.getvalue())
     print(app._warning.getvalue())
 
+
 @pytest.mark.apidoc(
     coderoot=(rootdir / 'roots' / 'test-apidoc-trailing-underscore'))
 def test_trailing_underscore(make_app, apidoc):
@@ -146,6 +147,7 @@ def test_trailing_underscore(make_app, apidoc):
         rst = f.read()
         assert "package_ package\n" in rst
         assert "package_.module_ module\n" in rst
+
 
 @pytest.mark.apidoc(
     coderoot=(rootdir / 'root'),

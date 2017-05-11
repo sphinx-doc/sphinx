@@ -332,6 +332,7 @@ class Table(object):
         self.caption = None                     # type: List[unicode]
         self.caption_footnotetexts = []         # type: List[unicode]
         self.header_footnotetexts = []          # type: List[unicode]
+        self.stubs = []                         # type: List[int]
 
         # current position
         self.col = 0
@@ -1332,6 +1333,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.colcount += 1
         if 'colwidth' in node:
             self.table.colwidths.append(node['colwidth'])
+        if 'stub' in node:
+            self.table.stubs.append(self.table.colcount - 1)
 
     def depart_colspec(self, node):
         # type: (nodes.Node) -> None
@@ -1442,7 +1445,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_oldproblematic = True
-        if isinstance(node.parent.parent, nodes.thead):
+        if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:

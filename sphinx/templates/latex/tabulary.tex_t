@@ -11,8 +11,9 @@
   \centering
 <%- endif %>
 <% if table.caption -%>
-\begin{threeparttable}
-\capstart\caption{<%= ''.join(table.caption) %>}<%= labels %>
+\sphinxcapstartof{table}
+\sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
+\sphinxaftercaption
 <% endif -%>
 \begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
 \hline
@@ -22,8 +23,5 @@
 <%- endif -%>
 <%=- ''.join(table.body) %>
 \end{tabulary}
-<%- if table.caption %>
-\end{threeparttable}
-<%- endif %>
 \par
 \sphinxattableend\end{savenotes}

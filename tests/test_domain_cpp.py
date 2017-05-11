@@ -537,6 +537,7 @@ def test_templates():
           {2:'IDpE8Numerics'})
 
 
+
 def test_template_args():
     # from breathe#218
     check('function',
@@ -548,6 +549,7 @@ def test_template_args():
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
           {2:"I0E21enable_if_not_array_t"})
+
 
 
 def test_attributes():

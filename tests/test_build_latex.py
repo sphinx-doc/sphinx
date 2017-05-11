@@ -31,7 +31,7 @@ from test_build_html import ENV_WARNINGS
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
 STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
-              'framed.sty', 'color.sty', 'fancyvrb.sty', 'threeparttable.sty',
+              'framed.sty', 'color.sty', 'fancyvrb.sty',
               'fncychap.sty', 'geometry.sty', 'kvoptions.sty', 'hyperref.sty']
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
@@ -492,7 +492,7 @@ def test_footnote(app, status, warning):
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
             '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
-    assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
+    assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
@@ -501,7 +501,7 @@ def test_footnote(app, status, warning):
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
-            '\\end{tabulary}\n\\end{threeparttable}\n'
+            '\\end{tabulary}\n'
             '\\par\n\\sphinxattableend\\end{savenotes}\n') in result
 
 
@@ -517,7 +517,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
-    assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
+    assert ('\\sphinxcaption{The table title with a reference'
+            ' to {[}AuthorYear{]}}' in result)
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[4]}\n'
             '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
@@ -527,8 +528,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '\\sphinxfootnotemark[6].}\\label{\\detokenize{index:id27}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
-    assert ('\\caption{footnote \\sphinxfootnotemark[7] '
-            'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
+    assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[7] in '
+            'caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption \\sphinxfootnotemark[9] of longtable\\strut}') in result
     assert ('\\endlastfoot\n%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
@@ -894,10 +895,12 @@ def test_latex_table_tabulars(app, status, warning):
     # table having caption
     table = tables['table having caption']
     assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
-            '\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
-            '\\label{\\detokenize{tabular:id1}}' in table)
+            '\\sphinxcapstartof{table}\n'
+            '\\sphinxcaption{caption for table}'
+            '\\label{\\detokenize{tabular:id1}}\n'
+            '\\sphinxaftercaption' in table)
     assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}'
+    assert ('\\hline\n\\end{tabulary}'
             '\n\\par\n\\sphinxattableend\\end{savenotes}' in table)
 
     # table having verbatim
@@ -911,6 +914,13 @@ def test_latex_table_tabulars(app, status, warning):
     # table having both :widths: and problematic cell
     table = tables['table having both :widths: and problematic cell']
     assert ('\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # table having both stub columns and problematic cell
+    table = tables['table having both stub columns and problematic cell']
+    assert ('&\\sphinxstyletheadfamily \n'
+            'instub1-2\n&\nnotinstub1-3\n\\\\\n'
+            '\\hline\\sphinxstyletheadfamily \n'
+            'cell2-1\n&' in table)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -975,6 +985,13 @@ def test_latex_table_longtable(app, status, warning):
     # longtable having both :widths: and problematic cell
     table = tables['longtable having both :widths: and problematic cell']
     assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable having both stub columns and problematic cell
+    table = tables['longtable having both stub columns and problematic cell']
+    assert ('&\\sphinxstyletheadfamily \n'
+            'instub1-2\n&\nnotinstub1-3\n\\\\\n'
+            '\\hline\\sphinxstyletheadfamily \n'
+            'cell2-1\n&' in table)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),

@@ -1611,17 +1611,16 @@ These options influence LaTeX output. See further :doc:`latex`.
 
 .. confval:: latex_use_latex_multicolumn
 
-   If ``False`` (default), the LaTeX writer uses for merged cells in grid
-   tables Sphinx's own macros. They have the advantage to allow the same
-   contents as in non-merged cells (inclusive of literal blocks, lists,
-   blockquotes, ...). But they assume that the columns are separated by the
-   standard vertical rule. Further, in case the :rst:dir:`tabularcolumns`
-   directive was employed to inject more macros (using LaTeX's mark-up of the
-   type ``>{..}``, ``<{..}``, ``@{..}``) the multicolumn cannot ignore these
-   extra macros, contrarily to LaTeX's own ``\multicolumn``; but Sphinx's
-   version does arrange for ignoring ``\columncolor`` like the standard
-   ``\multicolumn`` does. Setting to ``True`` means to use LaTeX's standard
-   ``\multicolumn`` macro.
+   The default is ``False``: it means that Sphinx's own macros are used for
+   merged cells from grid tables. They allow general contents (literal blocks,
+   lists, blockquotes, ...) but may have problems if the
+   :rst:dir:`tabularcolumns` directive was used to inject LaTeX mark-up of the
+   type ``>{..}``, ``<{..}``, ``@{..}`` as column specification.
+
+   Setting to ``True`` means to use LaTeX's standard ``\multicolumn``; this is
+   incompatible with literal blocks in the horizontally merged cell, and also
+   with multiple paragraphs in such cell if the table is rendered using
+   ``tabulary``.
 
    .. versionadded:: 1.6
 

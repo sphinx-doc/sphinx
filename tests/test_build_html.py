@@ -448,10 +448,12 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
+
 @pytest.mark.sphinx('html', testroot='build-html-translator')
 def test_html_translator(app):
     app.build()
     assert app.builder.docwriter.visitor.depart_with_node == 10
+
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
@@ -1205,25 +1207,25 @@ def test_html_raw_directive(app, status, warning):
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"
-                "[@rel='stylesheet']", '', True),
+         "[@rel='stylesheet']", '', True),
         (".//link[@href='_static/default.css']"
-                "[@rel='stylesheet']"
-                "[@title='Default']", '', True),
+         "[@rel='stylesheet']"
+         "[@title='Default']", '', True),
         (".//link[@href='_static/alternate1.css']"
-                "[@rel='alternate stylesheet']"
-                "[@title='Alternate']", '', True),
+         "[@rel='alternate stylesheet']"
+         "[@title='Alternate']", '', True),
         (".//link[@href='_static/alternate2.css']"
-                "[@rel='alternate stylesheet']", '', True),
+         "[@rel='alternate stylesheet']", '', True),
         (".//link[@href='_static/more_persistent.css']"
-                "[@rel='stylesheet']", '', True),
+         "[@rel='stylesheet']", '', True),
         (".//link[@href='_static/more_default.css']"
-                "[@rel='stylesheet']"
-                "[@title='Default']", '', True),
+         "[@rel='stylesheet']"
+         "[@title='Default']", '', True),
         (".//link[@href='_static/more_alternate1.css']"
-                "[@rel='alternate stylesheet']"
-                "[@title='Alternate']", '', True),
+         "[@rel='alternate stylesheet']"
+         "[@title='Alternate']", '', True),
         (".//link[@href='_static/more_alternate2.css']"
-                "[@rel='alternate stylesheet']", '', True),
+         "[@rel='alternate stylesheet']", '', True),
     ],
 }))
 @pytest.mark.sphinx('html', testroot='stylesheets')

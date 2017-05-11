@@ -57,6 +57,9 @@ Release 1.6 beta4 (in development)
 Incompatible changes
 --------------------
 
+* LaTeX package ``threeparttable`` is not used and not loaded by Sphinx
+  anymore (refs #3686, #3532, #3377)
+
 Deprecated
 ----------
 
@@ -70,6 +73,13 @@ Bugs fixed
 ----------
 
 * LaTeX tables do not allow multiple paragraphs in a header cell
+* LATEXOPTS is not passed over correctly to pdflatex since 1.6b3
+* #3532: Figure or literal block captions in cells of short tables cause havoc
+  in PDF output
+* Fix: in PDF captions of tables are rendered differently whether table is of
+  longtable class or not (refs #3686)
+* #3725: Todo looks different from note in LaTeX output
+* #3479: stub-columns have no effect in LaTeX output
 
 Testing
 --------
@@ -91,8 +101,7 @@ Features added
 --------------
 
 * ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
-  options to ``latexmk`` when executing ``make latexpdf``. Default is ``-f``.
-  (refs #3695)
+  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695, #3720)
 * Add a new event `env-check-consistency` to check consistency to extensions
 * Add `Domain.check_consistency()` to check consistency
 
@@ -141,7 +150,7 @@ Dependencies
 * (updated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
   2014) and earlier tex installations may not be fully compliant, particularly
   regarding Unicode engines xelatex and lualatex
-* (added) latexmk is requirement for ``make latexpdf`` on Unix-like platforms
+* (added) latexmk is required for ``make latexpdf`` on Unix-like platforms
   (refs: #3082)
 
 Incompatible changes
@@ -232,8 +241,8 @@ Features added
 * #3476: setuptools: Support multiple builders
 * latex: merged cells in LaTeX tables allow code-blocks, lists, blockquotes...
   as do normal cells (refs: #3435)
-* HTML buildre uses experimental HTML5 writer if ``html_experimental_html5_writer`` is True
-  and docutils 0.13 and newer is installed.
+* HTML builder uses experimental HTML5 writer if ``html_experimental_html5_writer`` is True
+  and docutils 0.13 or later is installed.
 * LaTeX macros to customize space before and after tables in PDF output (refs #3504)
 * #3348: Show decorators in literalinclude and viewcode directives
 * #3108: Show warning if :start-at: and other literalinclude options does not
@@ -254,6 +263,7 @@ Features added
   Jeroen Demeyer.
 * Add a new extension; ``sphinx.ext.imgconverter``. It converts images in the
   document to appropriate format for builders
+* latex: Use templates to render tables (refs #3389, 2a37b0e)
 
 Bugs fixed
 ----------
@@ -284,7 +294,7 @@ Deprecated
   removed at Sphinx 1.7. Extension authors please use ``sphinxadmonition``
   instead (as Sphinx does since 1.5.)
 * ``Sphinx.status_iterator()`` and ``Sphinx.old_status_iterator()`` is now
-  deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
+  deprecated.  Please use ``sphinx.util:status_iterator()`` instead.
 * ``Sphinx._directive_helper()`` is deprecated. Please use
   ``sphinx.util.docutils.directive_helper()`` instead.
 * ``BuildEnvironment.set_warnfunc()`` is now deprecated
