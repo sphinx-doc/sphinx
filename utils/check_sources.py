@@ -179,13 +179,13 @@ def check_xhtml(fn, lines):
                 yield lno + 1, "used " + bad_tag
 
 
-def main(argv):
+def main(argv=sys.argv[1:]):
     parser = OptionParser(usage='Usage: %prog [-v] [-i ignorepath]* [path]')
     parser.add_option('-v', '--verbose', dest='verbose', default=False,
                       action='store_true')
     parser.add_option('-i', '--ignore-path', dest='ignored_paths',
                       default=[], action='append')
-    options, args = parser.parse_args(argv[1:])
+    options, args = parser.parse_args(argv)
 
     if len(args) == 0:
         path = '.'

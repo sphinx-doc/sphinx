@@ -117,7 +117,7 @@ def make_main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx import make_mode
-    return make_mode.run_make_mode(argv[2:])  # type: ignore
+    return make_mode.run_make_mode(argv[1:])  # type: ignore
 
 
 if __name__ == '__main__':

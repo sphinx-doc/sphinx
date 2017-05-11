@@ -298,8 +298,7 @@ def test_default_filename(tempdir):
 
 
 def test_extensions(tempdir):
-    qs.main(['sphinx-quickstart', '-q',
-             '-p', 'project_name', '-a', 'author',
+    qs.main(['-q', '-p', 'project_name', '-a', 'author',
              '--extensions', 'foo,bar,baz', tempdir])
 
     conffile = tempdir / 'conf.py'
