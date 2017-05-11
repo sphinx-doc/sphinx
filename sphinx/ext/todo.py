@@ -20,6 +20,7 @@ from sphinx.locale import _
 from sphinx.environment import NoUri
 from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
+from sphinx.util.texescape import tex_escape_map
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
@@ -209,6 +210,17 @@ def depart_todo_node(self, node):
     self.depart_admonition(node)
 
 
+def latex_visit_todo_node(self, node):
+    # type: (nodes.NodeVisitor, todo_node) -> None
+    title = node.pop(0).astext().translate(tex_escape_map)
+    self.body.append(u'\n\\begin{sphinxadmonition}{note}{%s:}' % title)
+
+
+def latex_depart_todo_node(self, node):
+    # type: (nodes.NodeVisitor, todo_node) -> None
+    self.body.append('\\end{sphinxadmonition}\n')
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_event('todo-defined')
@@ -219,7 +231,7 @@ def setup(app):
     app.add_node(todolist)
     app.add_node(todo_node,
                  html=(visit_todo_node, depart_todo_node),
-                 latex=(visit_todo_node, depart_todo_node),
+                 latex=(latex_visit_todo_node, latex_depart_todo_node),
                  text=(visit_todo_node, depart_todo_node),
                  man=(visit_todo_node, depart_todo_node),
                  texinfo=(visit_todo_node, depart_todo_node))
