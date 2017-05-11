@@ -469,7 +469,7 @@ class Sphinx(object):
     def connect(self, event, callback):
         # type: (unicode, Callable) -> int
         listener_id = self.events.connect(event, callback)
-        logger.debug('[app] connecting event %r: %r', event, callback, listener_id)
+        logger.debug('[app] connecting event %r: %r [id=%s]', event, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id):
