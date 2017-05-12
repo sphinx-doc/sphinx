@@ -398,9 +398,9 @@ Makefile options
 ----------------
 
 The :file:`Makefile` and :file:`make.bat` files created by
-:program:`sphinx-quickstart` usually run :program:`sphinx-build` only with the
-:option:`-b` and :option:`-d` options.  However, they support the following
-variables to customize behavior:
+:program:`sphinx-quickstart` by default run :program:`sphinx-build` only
+with the :option:`-b` and :option:`-d` options.  However, they support
+the following environment variables to customize behavior:
 
 .. describe:: PAPER
 
@@ -418,6 +418,25 @@ variables to customize behavior:
 .. describe:: SPHINXOPTS
 
    Additional options for :program:`sphinx-build`.
+
+On Linux, ``make`` supports the typical chaining of make targets::
+
+    ~/git/foo/doc$ make clean html
+
+On Windows, ``make.bat`` has been upgraded to support similar behavior
+(previously it could only process a single build target)::
+
+    C:\git\foo\doc> make clean html
+
+Additionally, the above :program:`sphinx-build` options (except ``-b``)
+can be supplied as arguments to ``make.bat``::
+
+    C:\git\foo\doc> make html latex text -E
+
+In the above example, the documentation would be built with the ``-E`` option
+on all three of the ``html``, ``latex`` and ``text`` targets.
+
+.. versionchanged:: 1.6.3
 
 .. _when-deprecation-warnings-are-displayed:
 

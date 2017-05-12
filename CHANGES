@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #3741: Add support to Windows make.bat for multiple make targets in one
+  invocation, with pass-through of sphinx-build command line options
+
 Bugs fixed
 ----------
 

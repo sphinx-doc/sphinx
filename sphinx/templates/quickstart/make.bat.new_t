@@ -4,6 +4,107 @@ pushd %~dp0
 
 REM Command file for Sphinx documentation
 
+REM Parsing of multiple commandline options and targets
+
+REM If no arguments passed at all, skip entirely
+if "%1"=="" goto make_main
+
+setlocal
+
+set TARGETS=
+set OPTIONS=
+
+:arg_loop
+if "%1"=="" goto arg_continue
+
+set WORK=%1
+set TAKESARG=0
+set KEYVALUE=0
+
+REM Have to have these outside the main IF block, else they don't store correctly
+if "%WORK:~,1%"=="-" (
+   if "%WORK:~-1%"=="b" (
+      echo ERROR: Do not use '-b' option to specify make targets. Exiting...
+      endlocal
+      goto end_error
+      )
+   rem This list needs to be updated if new options are implemented
+   rem  that take values
+   if "%WORK:~-1%"=="d" set TAKESARG=1
+   if "%WORK:~-1%"=="j" set TAKESARG=1
+   if "%WORK:~-1%"=="c" set TAKESARG=1
+   if "%WORK:~-1%"=="D" set TAKESARG=2
+   if "%WORK:~-1%"=="t" set TAKESARG=1
+   if "%WORK:~-1%"=="A" set TAKESARG=2
+   if "%WORK:~-1%"=="w" set TAKESARG=1
+   )
+
+REM Handle options versus targets
+if "%WORK:~,1%"=="-" (
+   REM It's an option
+   if "%TAKESARG%"=="1" (
+      REM Option takes an argument; needs extra shift
+      set OPTIONS=%OPTIONS% %1 %2
+      shift /1
+      goto arg_shift
+      )
+
+   if "%TAKESARG%"=="2" (
+      REM Option takes a key-value argument pair; needs two extra shifts
+      set OPTIONS=%OPTIONS% %1 %2=%3
+      shift /1
+      shift /1
+      goto arg_shift
+      )
+
+   REM Option doesn't take an argument; no extra shift
+   set OPTIONS=%OPTIONS% %1
+   goto arg_shift
+   )
+
+REM Is a target, not an option; just store (comma-delimited) and shift
+set TARGETS=%TARGETS%,%1
+goto arg_shift
+
+:arg_shift
+REM Shift once
+shift /1
+goto arg_loop
+
+:arg_continue
+REM Strip leading comma from the targets, if any present
+if not "%TARGETS%"==""  set TARGETS=%TARGETS:~1%
+
+REM Check if single target; if not, loop and rerun make.bat once per target
+echo %TARGETS% | findstr "," 1>nul 2>nul
+set MULTITARGET=%ERRORLEVEL%
+if "%MULTITARGET%"=="0" (
+   REM Multiple targets; loop over targets and re-execute
+   for %%G in (%TARGETS%) DO (
+      echo.
+      echo Making target '%%G' with options '%OPTIONS%':
+      echo.
+      call make %%G %OPTIONS%
+      REM Exit if error
+      if %ERRORLEVEL% GTR 0 (
+         echo.
+         echo Make error detected. Exiting...
+         echo.
+         endlocal
+         goto end
+         )
+      )
+   REM Done once looping finished
+   endlocal
+   goto end
+   )
+
+REM Executed with single target, so fall through to main make.bat commands
+endlocal & set MAKETARGET=%TARGETS% & set MAKEOPTIONS=%OPTIONS%
+
+:make_main
+
+
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=python -msphinx
 )
@@ -11,7 +112,7 @@ set SOURCEDIR={{ rsrcdir }}
 set BUILDDIR={{ rbuilddir }}
 set SPHINXPROJ={{ project_fn }}
 
-if "%1" == "" goto help
+if "%MAKETARGET%" == "" goto help
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -26,12 +127,17 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+%SPHINXBUILD% -M %MAKETARGET% %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %MAKEOPTIONS%
 goto end
 
 :help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %MAKEOPTIONS%
 
 :end
 popd
+exit /b
+
+:end_error
+popd
+exit /b 1
 
