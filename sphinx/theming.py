@@ -234,7 +234,7 @@ class HTMLThemeFactory(object):
             if callable(target):
                 themedir = target()
                 if not isinstance(themedir, string_types):
-                    logger.warning(_('Theme extension %r does not response correctly.') %
+                    logger.warning(_('Theme extension %r does not respond correctly.') %
                                    entry_point.module_name)
             else:
                 themedir = target
