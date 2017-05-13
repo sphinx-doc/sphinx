@@ -510,11 +510,18 @@ Let us now list some macros from the package file
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex_t`` on your
-   project.  Now all template variables are unstable and undocumented.  They
-   will be changed in future version.
+   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
+   project.
 
    .. versionadded:: 1.5
+      currently all template variables are unstable and undocumented.
+
+   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
+   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
+   of table rendering (such as the caption position).
+
+   .. versionadded:: 1.6
+      currently all template variables are unstable and undocumented.
 
 .. raw:: latex
 

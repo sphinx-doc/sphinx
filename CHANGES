@@ -80,6 +80,7 @@ Bugs fixed
   longtable class or not (refs #3686)
 * #3725: Todo looks different from note in LaTeX output
 * #3479: stub-columns have no effect in LaTeX output
+* #3738: Nonsensical code in theming.py
 
 Testing
 --------
@@ -344,6 +345,8 @@ Bugs fixed
 * #3702: LaTeX writer styles figure legends with a hard-coded ``\small``
 * #3708: LaTeX writer allows irc scheme
 * #3717: Stop enforcing that favicon's must be .ico
+* #3731, #3732: Protect isenumclass predicate against non-class arguments
+* #3320: Warning about reference target not being found for container types
 
 Testing
 --------

@@ -29,3 +29,10 @@ module
 .. py:class:: ModTopLevel
 
     * Link to :py:class:`ModNoModule`
+
+.. py:function:: foo(x, y)
+
+   :param x: param x
+   :type  x: int
+   :param y: param y
+   :type  y: tuple(str, float)

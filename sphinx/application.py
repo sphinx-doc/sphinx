@@ -203,9 +203,9 @@ class Sphinx(object):
                 self.config.setup(self)
             else:
                 raise ConfigError(
-                    _("'setup' that is specified in the conf.py has not been "
-                      "callable. Please provide a callable `setup` function "
-                      "in order to behave as a sphinx extension conf.py itself.")
+                    _("'setup' as currently defined in conf.py isn't a Python callable. "
+                      "Please modify its definition to make it a callable function. This is "
+                      "needed for conf.py to behave as a Sphinx extension.")
                 )
 
         # now that we know all config values, collect them from conf.py
@@ -416,7 +416,7 @@ class Sphinx(object):
     def connect(self, event, callback):
         # type: (unicode, Callable) -> int
         listener_id = self.events.connect(event, callback)
-        logger.debug('[app] connecting event %r: %r', event, callback, listener_id)
+        logger.debug('[app] connecting event %r: %r [id=%s]', event, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id):
@@ -462,7 +462,7 @@ class Sphinx(object):
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(_('A Translator for the %s builder is changed.') % name))
+        logger.info(bold(_('Change of translator for the %s builder.') % name))
         self.registry.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
