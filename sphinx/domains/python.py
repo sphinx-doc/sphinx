@@ -135,7 +135,7 @@ class PyXrefMixin(object):
         split_contnode = bool(contnode and contnode.astext() == target)
 
         results = []
-        for sub_target in sub_targets:
+        for sub_target in filter(None, sub_targets):
             if split_contnode:
                 contnode = nodes.Text(sub_target)
 

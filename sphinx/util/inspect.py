@@ -142,7 +142,7 @@ def isenumclass(x):
     """Check if the object is subclass of enum."""
     if enum is None:
         return False
-    return issubclass(x, enum.Enum)
+    return inspect.isclass(x) and issubclass(x, enum.Enum)
 
 
 def isenumattribute(x):
