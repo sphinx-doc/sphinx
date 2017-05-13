@@ -239,6 +239,7 @@ General configuration
    * misc.highlighting_failure
    * toc.secnum
    * epub.unknown_project_files
+   * latex.wrapfig
 
    You can choose from these types.
 

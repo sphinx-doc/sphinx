@@ -6,6 +6,8 @@ Incompatible changes
 
 * LaTeX package ``threeparttable`` is not used and not loaded by Sphinx
   anymore (refs #3686, #3532, #3377)
+* #3289: LaTeX builder: Emit warnings if the document contains aligned figures
+  because it might not be layouted well by wrapfig-macro's limitation.
 
 Deprecated
 ----------

@@ -1787,6 +1787,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
+
+            # emit a warning about wrapfig (refs: #3289)
+            logger.warning(_('A figure having :align: option has detected. '
+                             'LaTeX might not layout it well. Please check generated PDF.'),
+                           location=node, type='latex', subtype='wrapfig')
         elif self.in_minipage:
             if ('align' not in node.attributes or
                     node.attributes['align'] == 'center'):
