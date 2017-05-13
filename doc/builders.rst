@@ -211,8 +211,12 @@ The builder's "name" must be given to the **-b** command-line option of
 
          make latexpdf LATEXMKOPTS="-silent"
 
-      reduces console output to a minimum. To pass options directly to the
-      ``pdflatex`` executable, use variable ``LATEXOPTS`` (for example
+      reduces console output to a minimum. Also, if ``latexmk`` version is
+      4.52b or higher (Jan 17) and ``xelatex`` is the :confval:`latex_engine`,
+      then ``LATEXMKOPTS="-xelatex"`` will speed up PDF builds.
+
+      To pass options directly to the
+      ``(pdf|xe|lua)latex`` executable, use variable ``LATEXOPTS`` (for example
       ``LATEXOPTS="--interaction=nonstopmode"``).
 
    .. autoattribute:: name

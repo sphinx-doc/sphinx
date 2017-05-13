@@ -17,23 +17,21 @@ ARCHIVEPRREFIX =
 # Additional LaTeX options (passed via variables in latexmkrc/latexmkjarc file)
 export LATEXOPTS =
 # Additional latexmk options
+{% if latex_engine == 'xelatex' -%}
+# with latexmk version 4.52b or higher set LATEXMKOPTS to -xelatex either here
+# or on command line for faster builds.
+{% endif -%}
 LATEXMKOPTS =
-# format: pdf or dvi
+# format: pdf or dvi (used only by archive targets)
 FMT = pdf
 
 {% if latex_engine == 'platex' -%}
 # latexmkrc is read then overridden by latexmkjarc
 LATEX = latexmk -r latexmkjarc -dvi
 PDFLATEX = latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
-{% elif latex_engine == 'pdflatex' -%}
+{% else -%}
 LATEX = latexmk -dvi
 PDFLATEX = latexmk -pdf -dvi- -ps-
-{% elif latex_engine == 'lualatex' -%}
-LATEX = latexmk -lualatex
-PDFLATEX = latexmk -pdflua -dvi- -ps-
-{% elif latex_engine == 'xelatex' -%}
-LATEX = latexmk -pdfxe -dvi- -ps-
-PDFLATEX = $(LATEX)
 {% endif %}
 
 %.png %.gif %.jpg %.jpeg: FORCE_MAKE
