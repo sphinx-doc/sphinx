@@ -24,6 +24,7 @@ Bugs fixed
 * #3708: LaTeX writer allows irc scheme
 * #3717: Stop enforcing that favicon's must be .ico
 * #3731, #3732: Protect isenumclass predicate against non-class arguments
+* #3320: Warning about reference target not being found for container types
 
 Testing
 --------
