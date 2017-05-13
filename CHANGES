@@ -28,6 +28,8 @@ Bugs fixed
 * #3725: Todo looks different from note in LaTeX output
 * #3479: stub-columns have no effect in LaTeX output
 * #3738: Nonsensical code in theming.py
+* #3746: PDF builds fail with latexmk 4.48 or earlier due to undefined
+  options ``-pdfxe`` and ``-pdflua``
 
 Testing
 --------
