@@ -30,9 +30,9 @@ LATEX = latexmk -dvi
 PDFLATEX = latexmk -pdf -dvi- -ps-
 {% elif latex_engine == 'lualatex' -%}
 LATEX = latexmk -lualatex
-PDFLATEX = latexmk -pdflua -dvi- -ps-
+PDFLATEX = latexmk -lualatex -dvi- -ps-
 {% elif latex_engine == 'xelatex' -%}
-LATEX = latexmk -pdfxe -dvi- -ps-
+LATEX = latexmk -xelatex -dvi- -ps-
 PDFLATEX = $(LATEX)
 {% endif %}
 
