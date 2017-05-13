@@ -114,7 +114,7 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
                   file=stderr)
 
 
-def main(argv=sys.argv[1:]):  # typing: ignore
+def main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
     parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
