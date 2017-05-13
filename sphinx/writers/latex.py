@@ -1711,14 +1711,35 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\capstart')
             self.context.append(labels + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
-            length = None
-            if 'width' in node:
-                length = self.latex_image_length(node['width'])
-            elif 'width' in node[0]:
-                length = self.latex_image_length(node[0]['width'])
-            self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
-            self.context.append(labels + '\\end{wrapfigure}\n')
+            if self.builder.config.latex_use_wrapfig:
+                length = None
+                if 'width' in node:
+                    length = self.latex_image_length(node['width'])
+                elif 'width' in node[0]:
+                    length = self.latex_image_length(node[0]['width'])
+                self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
+                                 (node['align'] == 'right' and 'r' or 'l',
+                                  length or '0pt'))
+                self.context.append(labels + '\\end{wrapfigure}\n')
+
+                # emit an information about wrapfig usage (refs: #3289)
+                logger.info(__('A figure requiring left or right alignment '
+                               'has been detected. LaTeX uses wrapfig macros '
+                               '(cf. ``latex_use_wrapfig`` config variable), '
+                               'please check layout in generated PDF.'),
+                            location=node, type='latex')
+            else:
+                if self.in_minipage:
+                    self.body.append('\n\\begin{flush%s}' % node.attributes['align'])
+                    self.context.append('\\end{flush%s}\n' % node.attributes['align'])
+                else:
+                    self.body.append('\n\\begin{figure}[%s]\\begin{flush%s}\n' %
+                                     (self.elements['figure_align'],
+                                      node.attributes['align']))
+                    if any(isinstance(child, nodes.caption) for child in node):
+                        self.body.append('\\capstart\n')
+                    self.context.append(labels + '\\end{flush%s}\\end{figure}\n' %
+                                        node.attributes['align'])
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')

@@ -40,6 +40,9 @@ __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 * #4182: autodoc: Support :confval:`suppress_warnings`
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
   :confval:`htmlhelp_link_suffix`
+* #3289: LaTeX builder: emit warnings for aligned figures due to wrapfig
+  limitations (e.g. if a list follows.)
+* #4430: Add :confval:`latex_use_wrapfig` (refs: #3289)
 
 Bugs fixed
 ----------

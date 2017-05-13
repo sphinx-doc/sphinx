@@ -467,6 +467,7 @@ def setup(app):
     app.add_config_value('latex_show_pagerefs', False, None)
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
+    app.add_config_value('latex_use_wrapfig', True, None)
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)
 

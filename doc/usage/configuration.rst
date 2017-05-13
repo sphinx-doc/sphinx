@@ -1984,6 +1984,16 @@ information.
 
    .. versionadded:: 1.8
 
+.. confval:: latex_use_wrapfig
+
+   The default is ``True``: figures with ``:align:`` option will be rendered
+   using ``wrapfig`` macros for flowing text. But, this is known to have
+   layouting issues in some cases. Set the option to ``False`` to replace
+   usage of ``wrapfig`` by standard LaTeX ``figure``: text will precede or
+   follow image, but not flow around it.
+
+   .. versionadded:: 2.0
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
