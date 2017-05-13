@@ -4,6 +4,8 @@ Release 1.7 (in development)
 Incompatible changes
 --------------------
 
+* #3668: The arguments has changed of main functions for each command
+
 Deprecated
 ----------
 
