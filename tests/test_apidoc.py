@@ -25,7 +25,7 @@ def apidoc(tempdir, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = kwargs.get('coderoot', (rootdir / 'root'))
     outdir = tempdir / 'out'
-    args = ['sphinx-apidoc', '-o', outdir, '-F', coderoot] + kwargs.get('options', [])
+    args = ['-o', outdir, '-F', coderoot] + kwargs.get('options', [])
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 

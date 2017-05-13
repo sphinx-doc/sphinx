@@ -302,8 +302,7 @@ class Make(object):
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
 
-        args = [sys.argv[0],
-                '-b', builder,
+        args = ['-b', builder,
                 '-d', doctreedir,
                 self.srcdir,
                 self.builddir_join(builder)]
