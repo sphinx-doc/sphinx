@@ -14,6 +14,7 @@ from __future__ import print_function
 import os
 import re
 import pickle
+import platform
 from docutils import nodes
 
 from babel.messages import pofile, mofile
@@ -151,6 +152,8 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
+@pytest.mark.xfail(platform.system() == 'Windows',
+                   reason='Skipped on windows, issue with unicode characters')
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines

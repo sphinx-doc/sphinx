@@ -196,7 +196,8 @@ class path(text_type):
         """
         Joins the path with the argument given and returns the result.
         """
-        return self.__class__(os.path.join(self, *map(self.__class__, args)))
+        joined = os.path.join(self, *map(self.__class__, args)).replace(os.sep, '/')
+        return self.__class__(joined)
 
     def listdir(self):
         return os.listdir(self)

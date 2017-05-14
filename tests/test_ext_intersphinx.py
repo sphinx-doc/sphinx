@@ -53,7 +53,7 @@ a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 
 def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
-    invdata = read_inventory(f, '/util', posixpath.join)
+    invdata = read_inventory(f, '/util')
     assert invdata['py:module']['module'] == \
         ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
@@ -62,11 +62,11 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    invdata1 = read_inventory(f, '/util', posixpath.join)
+    invdata1 = read_inventory(f, '/util')
 
     # try again with a small buffer size to test the chunking algorithm
     f = BytesIO(inventory_v2)
-    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
+    invdata2 = read_inventory(f, '/util', bufsize=5)
 
     assert invdata1 == invdata2
 
