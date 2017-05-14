@@ -13,7 +13,7 @@ ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 
 # Prefix for archive names
-ARCHIVEPRREFIX =
+ARCHIVEPREFIX =
 # Additional LaTeX options (passed via variables in latexmkrc/latexmkjarc file)
 export LATEXOPTS =
 # Additional latexmk options

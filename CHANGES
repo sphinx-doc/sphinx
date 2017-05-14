@@ -269,17 +269,8 @@ Deprecated
 * #3628: ``sphinx_themes`` entry_point is deprecated.  Please use
   ``sphinx.html_themes`` instead.
 
-Release 1.5.6 (in development)
-==============================
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.5.6 (released May 15, 2017)
+=====================================
 
 Bugs fixed
 ----------
@@ -296,9 +287,7 @@ Bugs fixed
 * #3717: Stop enforcing that favicon's must be .ico
 * #3731, #3732: Protect isenumclass predicate against non-class arguments
 * #3320: Warning about reference target not being found for container types
-
-Testing
---------
+* Misspelled ARCHIVEPREFIX in Makefile for latex build repertory
 
 Release 1.5.5 (released Apr 03, 2017)
 =====================================
