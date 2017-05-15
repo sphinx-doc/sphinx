@@ -297,13 +297,6 @@ def test_static_output(app):
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
-        # tests for smartypants
-        (".//li", u'Smart “quotes” in English ‘text’.'),
-        (".//li", u'Smart — long and – short dashes.'),
-        (".//li", u'Ellipsis…'),
-        (".//li//code//span[@class='pre']", 'foo--"bar"...'),
-        (".//p", u'Этот «абзац» должен использовать „русские“ кавычки.'),
-        (".//p", u'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
