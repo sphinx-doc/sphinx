@@ -17,6 +17,11 @@ Bugs fixed
 * #3756: epub: Entity 'mdash' not defined
 * #3758: Sphinx crashed if logs are emitted in conf.py
 * #3755: incorrectly warns about dedent with literalinclude
+* #3742: `RTD <https://readthedocs.org/>`_ PDF builds of Sphinx own docs are
+  missing an index entry in the bookmarks and table of contents. This is
+  `rtfd/readthedocs.org#2857
+  <https://github.com/rtfd/readthedocs.org/issues/2857>`_ issue, a workaround
+  is obtained using some extra LaTeX code in Sphinx's own :file:`conf.py`
 
 Testing
 --------
