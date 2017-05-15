@@ -105,9 +105,13 @@ class LaTeXBuilder(Builder):
                     '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
             f.write(highlighter.get_stylesheet())  # type: ignore
 
+    def get_docwriter(self):
+        # type: () -> LaTeXWriter
+        return LaTeXWriter(self)
+
     def write(self, *ignored):
         # type: (Any) -> None
-        docwriter = LaTeXWriter(self)
+        docwriter = self.get_docwriter()
         docsettings = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
