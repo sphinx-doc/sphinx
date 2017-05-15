@@ -765,6 +765,12 @@ that use Sphinx's HTMLWriter class.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
+.. confval:: html_use_smartypants
+
+   If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
+   will be used to convert quotes and dashes to typographically correct
+   entities.  Default: ``True``.
+
 .. confval:: html_add_permalinks
 
    Sphinx will add "permalinks" for each heading and description environment as

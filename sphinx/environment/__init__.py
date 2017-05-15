@@ -26,7 +26,6 @@ from six.moves import cPickle as pickle
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
-from docutils.utils.smartquotes import smartchars
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
@@ -672,10 +671,6 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
-        language = (self.config.language or 'en').replace('_', '-')
-        self.settings['language_code'] = language
-        if language in smartchars.quotes:  # We enable smartypants by default
-            self.settings['smart_quotes'] = True
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir

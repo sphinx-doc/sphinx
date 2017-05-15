@@ -28,6 +28,15 @@ def test_html_translator(app, status, warning):
     # no set_translator()
     translator_class = app.builder.get_translator_class()
     assert translator_class
+    assert translator_class.__name__ == 'SmartyPantsHTMLTranslator'
+
+
+@pytest.mark.sphinx('html', confoverrides={
+    'html_use_smartypants': False})
+def test_html_with_smartypants(app, status, warning):
+    # no set_translator(), html_use_smartypants=False
+    translator_class = app.builder.get_translator_class()
+    assert translator_class
     assert translator_class.__name__ == 'HTMLTranslator'
 
 
