@@ -217,8 +217,8 @@ class LiteralIncludeReader(object):
         except (IOError, OSError):
             raise IOError(_('Include file %r not found or reading it failed') % filename)
         except UnicodeError:
-            raise UnicodeError(_('Encoding %r used for reading included file %r seems to '
-                                 'be wrong, try giving an :encoding: option') %
+            raise UnicodeError(_("Encoding %r used for reading included file '%s' seems to "
+                                 "be wrong, try giving an :encoding: option") %
                                (self.encoding, filename))
 
     def read(self, location=None):

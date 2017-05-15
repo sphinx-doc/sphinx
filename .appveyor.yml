@@ -1,0 +1,17 @@
+# ref: https://packaging.python.org/appveyor/
+
+environment:
+  matrix:
+    - PYTHON: 36-x64
+
+install:
+  - "SET PATH=C:\\Python%PYTHON%;c:\\Python%PYTHON%\\scripts;%PATH%"
+  - python -m pip install -U pip setuptools
+  - python -m pip install -r test-reqs.txt
+
+build: off
+
+test_script:
+  - cd tests
+  - python run.py -vvv
+

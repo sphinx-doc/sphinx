@@ -17,6 +17,7 @@ import types
 import codecs
 import fnmatch
 import warnings
+import posixpath
 from os import path
 from collections import defaultdict
 
@@ -399,16 +400,16 @@ class BuildEnvironment(object):
         else:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=None))
-            rel_fn = path.join(docdir, filename)
+            rel_fn = posixpath.join(docdir, filename)
         try:
             # the path.abspath() might seem redundant, but otherwise artifacts
             # such as ".." will remain in the path
-            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
+            return rel_fn, path.abspath(posixpath.join(self.srcdir, rel_fn))
         except UnicodeDecodeError:
             # the source directory is a bytestring with non-ASCII characters;
             # let's try to encode the rel_fn in the file system encoding
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
+            return rel_fn, path.abspath(posixpath.join(self.srcdir, enc_rel_fn))
 
     def find_files(self, config, builder):
         # type: (Config, Builder) -> None

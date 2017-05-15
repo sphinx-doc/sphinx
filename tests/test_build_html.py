@@ -11,6 +11,7 @@
 
 import os
 import re
+import posixpath
 from itertools import cycle, chain
 
 from six import PY3
@@ -30,7 +31,7 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
-file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
@@ -1168,7 +1169,7 @@ def test_html_entity(app):
 def test_html_inventory(app):
     app.builder.build_all()
     with open(app.outdir / 'objects.inv', 'rb') as f:
-        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+        invdata = InventoryFile.load(f, 'http://example.com', posixpath.join)
     assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',

@@ -10,6 +10,7 @@
 """
 
 import os
+import posixpath
 from os import path
 from glob import glob
 
@@ -70,7 +71,7 @@ class ImageCollector(EnvironmentCollector):
                 i18n_full_imgpath = search_image_for_language(full_imgpath, app.env)
                 if i18n_full_imgpath != full_imgpath:
                     full_imgpath = i18n_full_imgpath
-                    rel_imgpath = relative_path(path.join(app.srcdir, 'dummy'),
+                    rel_imgpath = relative_path(posixpath.join(app.srcdir, 'dummy'),
                                                 i18n_full_imgpath)
             # set imgpath as default URI
             node['uri'] = rel_imgpath

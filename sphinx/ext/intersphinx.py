@@ -192,8 +192,7 @@ def fetch_inventory(app, uri, inv):
                     uri = path.dirname(newinv)
         with f:
             try:
-                join = localuri and path.join or posixpath.join
-                invdata = InventoryFile.load(f, uri, join)
+                invdata = InventoryFile.load(f, uri, posixpath.join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
@@ -314,7 +313,7 @@ def missing_reference(app, env, node, contnode):
             proj, version, uri, dispname = inventory[objtype][target]
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
-                uri = path.join(relative_path(node['refdoc'], '.'), uri)
+                uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
