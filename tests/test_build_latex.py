@@ -310,19 +310,19 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert u'\\renewcommand{\\figurename}{\u56f3}' in result
-    assert '\\renewcommand{\\tablename}{TABLE}' in result
-    assert '\\renewcommand{\\literalblockname}{LIST}' in result
+    assert u'\\renewcommand{\\figurename}{\u56f3}' in result  # 図
+    assert u'\\renewcommand{\\tablename}{\u8868}' in result  # 表
+    assert u'\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
     assert (u'\\hyperref[\\detokenize{index:fig1}]'
             u'{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
             '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
-    assert ('\\hyperref[\\detokenize{index:table-1}]'
-            '{TABLE \\ref{\\detokenize{index:table-1}}}') in result
+    assert (u'\\hyperref[\\detokenize{index:table-1}]'
+            u'{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert ('\\hyperref[\\detokenize{index:code-1}]'
-            '{LIST \\ref{\\detokenize{index:code-1}}}') in result
+    assert (u'\\hyperref[\\detokenize{index:code-1}]'
+            u'{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
     assert (u'\\hyperref[\\detokenize{foo:foo}]'
