@@ -16,8 +16,6 @@ from xml.etree import ElementTree
 
 from six import string_types
 
-import pytest
-
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
