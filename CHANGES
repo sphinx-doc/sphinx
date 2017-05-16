@@ -1,5 +1,5 @@
-Release 1.6 (released May 16, 2017)
-===================================
+Release 1.6.1 (released May 16, 2017)
+=====================================
 
 Dependencies
 ------------
@@ -258,6 +258,11 @@ Testing
 1.6 final
 
 * #3458: Add ``sphinx.testing` (experimental)
+
+Release 1.6 (unreleased)
+========================
+
+* not released (because of package script error)
 
 Release 1.5.6 (released May 15, 2017)
 =====================================
