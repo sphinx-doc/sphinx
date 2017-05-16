@@ -12,7 +12,7 @@
 from docutils.utils import column_width
 from sphinx.writers.text import MAXWIDTH
 
-from util import with_app
+from sphinx.testing.util import with_app
 
 
 def with_text_app(*args, **kw):

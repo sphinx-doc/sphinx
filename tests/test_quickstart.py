@@ -16,7 +16,7 @@ from six import PY2, text_type, StringIO
 from six.moves import input
 import pytest
 
-from util import SkipTest
+from sphinx.testing.util import SkipTest
 
 from sphinx import application
 from sphinx import quickstart as qs

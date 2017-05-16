@@ -20,7 +20,7 @@ from babel.messages import pofile, mofile
 from six import string_types
 import pytest
 
-from util import (
+from sphinx.testing.util import (
     path, etree_parse, strip_escseq,
     assert_re_search, assert_not_re_search, assert_startswith, assert_node
 )
@@ -494,15 +494,15 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
+# use individual shared_result directory to avoid "incompatible doctree" error
+@pytest.mark.test_params(shared_result='test_gettext_dont_rebuild_mo')
 def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     # --- don't rebuild by .mo mtime
     def get_number_of_update_targets(app_):
         updated = app_.env.update(app_.config, app_.srcdir, app_.doctreedir)
         return len(updated)
 
-    # setup new directory
     args, kwargs = app_params
-    kwargs['srcdir'] = 'test_gettext_dont_rebuild_mo'
 
     # phase1: build document with non-gettext builder and generate mo file in srcdir
     app0 = make_app('dummy', *args, **kwargs)
