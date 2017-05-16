@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
@@ -11,13 +10,13 @@ msgstr ""
 "POT-Creation-Date: 2017-04-28 15:54+0000\n"
 "PO-Revision-Date: 2017-04-28 15:59+0000\n"
 "Last-Translator: Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>\n"
-"Language-Team: Bengali (http://www.transifex.com/sphinx-doc/sphinx-1/language/bn/)\n"
+"Language-Team: Serbian (http://www.transifex.com/sphinx-doc/sphinx-1/language/sr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"Language: bn\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: sr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: sphinx/application.py:181
 #, python-format
@@ -265,7 +264,7 @@ msgstr ""
 #: sphinx/roles.py:200
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "পাইথন উন্নয়ন পরামর্শ; PEP %s"
+msgstr ""
 
 #: sphinx/theming.py:83
 #, python-format
@@ -310,34 +309,34 @@ msgstr ""
 
 #: sphinx/builders/changes.py:86
 msgid "Builtins"
-msgstr "বিল্টইন সমূহ"
+msgstr ""
 
 #: sphinx/builders/changes.py:88
 msgid "Module level"
-msgstr "মডিউল লেভেল"
+msgstr ""
 
 #: sphinx/builders/html.py:357 sphinx/transforms/__init__.py:119
 #: sphinx/writers/latex.py:561 sphinx/writers/manpage.py:110
 #: sphinx/writers/texinfo.py:241
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%b %d, %Y"
+msgstr ""
 
 #: sphinx/builders/html.py:377 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
-msgstr "সাধারণ ইনডেক্স"
+msgstr ""
 
 #: sphinx/builders/html.py:377
 msgid "index"
-msgstr "ইনডেক্স"
+msgstr ""
 
 #: sphinx/builders/html.py:441
 msgid "next"
-msgstr "পরবর্তী"
+msgstr ""
 
 #: sphinx/builders/html.py:450
 msgid "previous"
-msgstr "পূর্ববর্তী"
+msgstr ""
 
 #: sphinx/builders/html.py:1313
 #, python-format
@@ -346,7 +345,7 @@ msgstr ""
 
 #: sphinx/builders/latex.py:199 sphinx/builders/texinfo.py:217
 msgid " (in "
-msgstr "(-"
+msgstr ""
 
 #: sphinx/directives/code.py:66
 msgid "Over dedent has detected"
@@ -390,11 +389,11 @@ msgstr ""
 
 #: sphinx/directives/other.py:158
 msgid "Section author: "
-msgstr "অনুচ্ছেদ লেখক:"
+msgstr ""
 
 #: sphinx/directives/other.py:160
 msgid "Module author: "
-msgstr "মডিউল লেখক:"
+msgstr ""
 
 #: sphinx/directives/other.py:162
 msgid "Code author: "
@@ -402,7 +401,7 @@ msgstr ""
 
 #: sphinx/directives/other.py:164
 msgid "Author: "
-msgstr "লেখক:"
+msgstr ""
 
 #: sphinx/domains/__init__.py:310
 #, python-format
@@ -412,47 +411,47 @@ msgstr ""
 #: sphinx/domains/c.py:65 sphinx/domains/cpp.py:4436
 #: sphinx/domains/python.py:177
 msgid "Parameters"
-msgstr "প্যারামিটার"
+msgstr ""
 
 #: sphinx/domains/c.py:68 sphinx/domains/cpp.py:4445
 #: sphinx/domains/javascript.py:210 sphinx/domains/python.py:189
 msgid "Returns"
-msgstr "রিটার্নস"
+msgstr ""
 
 #: sphinx/domains/c.py:70 sphinx/domains/javascript.py:212
 #: sphinx/domains/python.py:191
 msgid "Return type"
-msgstr "রিটার্ন টাইপ"
+msgstr ""
 
 #: sphinx/domains/c.py:188
 #, python-format
 msgid "%s (C function)"
-msgstr "%s (C ফাংশন)"
+msgstr ""
 
 #: sphinx/domains/c.py:190
 #, python-format
 msgid "%s (C member)"
-msgstr "%s (C মেম্বার)"
+msgstr ""
 
 #: sphinx/domains/c.py:192
 #, python-format
 msgid "%s (C macro)"
-msgstr "%s (C ম্যাক্রো)"
+msgstr ""
 
 #: sphinx/domains/c.py:194
 #, python-format
 msgid "%s (C type)"
-msgstr "%s (C টাইপ)"
+msgstr ""
 
 #: sphinx/domains/c.py:196
 #, python-format
 msgid "%s (C variable)"
-msgstr "%s (C ভ্যারিয়েবল)"
+msgstr ""
 
 #: sphinx/domains/c.py:257 sphinx/domains/cpp.py:4820
 #: sphinx/domains/javascript.py:299 sphinx/domains/python.py:696
 msgid "function"
-msgstr "ফাংশন"
+msgstr ""
 
 #: sphinx/domains/c.py:258 sphinx/domains/cpp.py:4821
 msgid "member"
@@ -481,7 +480,7 @@ msgstr ""
 #: sphinx/domains/cpp.py:4607
 #, python-format
 msgid "%s (C++ type)"
-msgstr "%s (C++ টাইপ)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4617
 #, python-format
@@ -491,17 +490,17 @@ msgstr ""
 #: sphinx/domains/cpp.py:4627
 #, python-format
 msgid "%s (C++ member)"
-msgstr "%s (C++ মেম্বার)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4637
 #, python-format
 msgid "%s (C++ function)"
-msgstr "%s (C++ ফাংশন)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4647
 #, python-format
 msgid "%s (C++ class)"
-msgstr "%s (C++ ক্লাসে)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4657
 #, python-format
@@ -516,7 +515,7 @@ msgstr ""
 #: sphinx/domains/cpp.py:4819 sphinx/domains/javascript.py:301
 #: sphinx/domains/python.py:698
 msgid "class"
-msgstr "ক্লাস"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4823
 msgid "concept"
@@ -533,17 +532,17 @@ msgstr ""
 #: sphinx/domains/javascript.py:131 sphinx/domains/python.py:386
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() (বিল্ট-ইন ফাংশন)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:132 sphinx/domains/python.py:451
 #, python-format
 msgid "%s() (%s method)"
-msgstr "%s() (%s মেথড)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:134
 #, python-format
 msgid "%s() (class)"
-msgstr "%s() (ক্লাসে)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:136
 #, python-format
@@ -553,7 +552,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:138 sphinx/domains/python.py:489
 #, python-format
 msgid "%s (%s attribute)"
-msgstr "%s (%s এ্যট্রিবিউট)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:204
 msgid "Arguments"
@@ -562,24 +561,24 @@ msgstr ""
 #: sphinx/domains/javascript.py:266 sphinx/domains/python.py:566
 #, python-format
 msgid "%s (module)"
-msgstr "%s (মডিউল)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:300 sphinx/domains/python.py:700
 msgid "method"
-msgstr "মেথড"
+msgstr ""
 
 #: sphinx/domains/javascript.py:302 sphinx/domains/python.py:697
 msgid "data"
-msgstr "ডাটা"
+msgstr ""
 
 #: sphinx/domains/javascript.py:303 sphinx/domains/python.py:703
 msgid "attribute"
-msgstr "এ্যট্রিবিউট"
+msgstr ""
 
 #: sphinx/domains/javascript.py:304 sphinx/domains/python.py:704
 #: sphinx/locale/__init__.py:218
 msgid "module"
-msgstr "মডিউল"
+msgstr ""
 
 #: sphinx/domains/python.py:182
 msgid "Variables"
@@ -587,63 +586,63 @@ msgstr ""
 
 #: sphinx/domains/python.py:186
 msgid "Raises"
-msgstr "রেইজেস"
+msgstr ""
 
 #: sphinx/domains/python.py:387 sphinx/domains/python.py:445
 #: sphinx/domains/python.py:457 sphinx/domains/python.py:470
 #, python-format
 msgid "%s() (in module %s)"
-msgstr "%s() (%s মডিউলে)"
+msgstr ""
 
 #: sphinx/domains/python.py:390
 #, python-format
 msgid "%s (built-in variable)"
-msgstr "%s (বিল্ট-ইন ভ্যারিয়েবল)"
+msgstr ""
 
 #: sphinx/domains/python.py:391 sphinx/domains/python.py:483
 #, python-format
 msgid "%s (in module %s)"
-msgstr "%s (%s মডিউলে)"
+msgstr ""
 
 #: sphinx/domains/python.py:411
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (বিল্ট-ইন ক্লাস)"
+msgstr ""
 
 #: sphinx/domains/python.py:412
 #, python-format
 msgid "%s (class in %s)"
-msgstr "%s (%s ক্লাসে)"
+msgstr ""
 
 #: sphinx/domains/python.py:449
 #, python-format
 msgid "%s() (%s.%s method)"
-msgstr "%s (%s.%s মেথড)"
+msgstr ""
 
 #: sphinx/domains/python.py:461
 #, python-format
 msgid "%s() (%s.%s static method)"
-msgstr "%s (%s.%s স্ট্যাটিক মেথড)"
+msgstr ""
 
 #: sphinx/domains/python.py:464
 #, python-format
 msgid "%s() (%s static method)"
-msgstr "%s() (%s স্ট্যাটিক মেথড)"
+msgstr ""
 
 #: sphinx/domains/python.py:474
 #, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s ক্লাস মেথড)"
+msgstr ""
 
 #: sphinx/domains/python.py:477
 #, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s ক্লাস মেথড)"
+msgstr ""
 
 #: sphinx/domains/python.py:487
 #, python-format
 msgid "%s (%s.%s attribute)"
-msgstr "%s (%s.%s এ্যট্রিবিউট)"
+msgstr ""
 
 #: sphinx/domains/python.py:625
 msgid "Python Module Index"
@@ -651,23 +650,23 @@ msgstr ""
 
 #: sphinx/domains/python.py:626
 msgid "modules"
-msgstr "মডিউল সমূহ"
+msgstr ""
 
 #: sphinx/domains/python.py:674
 msgid "Deprecated"
-msgstr "ডেপ্রিকেটেড"
+msgstr ""
 
 #: sphinx/domains/python.py:699 sphinx/locale/__init__.py:222
 msgid "exception"
-msgstr "এক্সেপশন"
+msgstr ""
 
 #: sphinx/domains/python.py:701
 msgid "class method"
-msgstr "ক্লাস মেথড"
+msgstr ""
 
 #: sphinx/domains/python.py:702
 msgid "static method"
-msgstr "স্ট্যাটিক মেথড"
+msgstr ""
 
 #: sphinx/domains/python.py:874
 msgid " (deprecated)"
@@ -694,20 +693,20 @@ msgstr ""
 #: sphinx/domains/std.py:84 sphinx/domains/std.py:101
 #, python-format
 msgid "environment variable; %s"
-msgstr "এনভায়রনমেন্ট ভ্যারিয়েবল; %s"
+msgstr ""
 
 #: sphinx/domains/std.py:200
 #, python-format
 msgid "%scommand line option; %s"
-msgstr "%sকমান্ড লাইন অপশন; %s"
+msgstr ""
 
 #: sphinx/domains/std.py:455
 msgid "glossary term"
-msgstr "শব্দকোষ"
+msgstr ""
 
 #: sphinx/domains/std.py:456
 msgid "grammar token"
-msgstr "ব্যকরণ টোকেন"
+msgstr ""
 
 #: sphinx/domains/std.py:457
 msgid "reference label"
@@ -715,11 +714,11 @@ msgstr ""
 
 #: sphinx/domains/std.py:459
 msgid "environment variable"
-msgstr "এনভায়রনমেন্ট ভ্যারিয়েবল"
+msgstr ""
 
 #: sphinx/domains/std.py:460
 msgid "program option"
-msgstr "প্রোগ্রাম অপশন"
+msgstr ""
 
 #: sphinx/domains/std.py:461
 msgid "document"
@@ -733,15 +732,15 @@ msgstr ""
 #: sphinx/themes/basic/genindex.html:66 sphinx/themes/basic/layout.html:149
 #: sphinx/writers/latex.py:545 sphinx/writers/texinfo.py:517
 msgid "Index"
-msgstr "ইনডেক্স"
+msgstr ""
 
 #: sphinx/domains/std.py:498
 msgid "Module Index"
-msgstr "মডিউল ইনডেক্স"
+msgstr ""
 
 #: sphinx/domains/std.py:499 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr "অনুসন্ধান পাতা"
+msgstr ""
 
 #: sphinx/environment/__init__.py:568
 #, python-format
@@ -773,7 +772,7 @@ msgstr ""
 #: sphinx/ext/autodoc.py:1506
 #, python-format
 msgid "alias of :class:`%s`"
-msgstr ":class:`%s` এর উপনাম"
+msgstr ""
 
 #: sphinx/ext/doctest.py:134
 #, python-format
@@ -879,7 +878,7 @@ msgstr ""
 
 #: sphinx/ext/todo.py:66
 msgid "Todo"
-msgstr "অসমাপ্ত কাজ"
+msgstr ""
 
 #: sphinx/ext/todo.py:148
 msgid "<<original entry>>"
@@ -921,101 +920,101 @@ msgstr ""
 
 #: sphinx/locale/__init__.py:198
 msgid "Attention"
-msgstr "দৃষ্টি আকর্ষণ"
+msgstr ""
 
 #: sphinx/locale/__init__.py:199
 msgid "Caution"
-msgstr "সতর্কীকরণ"
+msgstr ""
 
 #: sphinx/locale/__init__.py:200
 msgid "Danger"
-msgstr "বিপজ্জনক"
+msgstr ""
 
 #: sphinx/locale/__init__.py:201
 msgid "Error"
-msgstr "ভুল (এরর)"
+msgstr ""
 
 #: sphinx/locale/__init__.py:202
 msgid "Hint"
-msgstr "আভাস"
+msgstr ""
 
 #: sphinx/locale/__init__.py:203
 msgid "Important"
-msgstr "গুরুত্বপূর্ণ"
+msgstr ""
 
 #: sphinx/locale/__init__.py:204
 msgid "Note"
-msgstr "নোট"
+msgstr ""
 
 #: sphinx/locale/__init__.py:205
 msgid "See also"
-msgstr "আরও দেখুন"
+msgstr ""
 
 #: sphinx/locale/__init__.py:206
 msgid "Tip"
-msgstr "পরামর্শ"
+msgstr ""
 
 #: sphinx/locale/__init__.py:207
 msgid "Warning"
-msgstr "সতর্কতা"
+msgstr ""
 
 #: sphinx/locale/__init__.py:211
 #, python-format
 msgid "New in version %s"
-msgstr "%s ভার্সনে নতুন"
+msgstr ""
 
 #: sphinx/locale/__init__.py:212
 #, python-format
 msgid "Changed in version %s"
-msgstr "%s ভার্সনে পরিবর্তিত"
+msgstr ""
 
 #: sphinx/locale/__init__.py:213
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "%s ভার্সন থেকে ডেপ্রিকেটেড"
+msgstr ""
 
 #: sphinx/locale/__init__.py:219
 msgid "keyword"
-msgstr "কিওয়ার্ড"
+msgstr ""
 
 #: sphinx/locale/__init__.py:220
 msgid "operator"
-msgstr "অপারেটর"
+msgstr ""
 
 #: sphinx/locale/__init__.py:221
 msgid "object"
-msgstr "অবজেক্ট"
+msgstr ""
 
 #: sphinx/locale/__init__.py:223
 msgid "statement"
-msgstr "স্ট্যাটমেন্ট"
+msgstr ""
 
 #: sphinx/locale/__init__.py:224
 msgid "built-in function"
-msgstr "বিল্ট-ইন ফাংশন"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:38
 msgid "Table Of Contents"
-msgstr "সূচীপত্র"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:152
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
-msgstr "অনুসন্ধান"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
-msgstr "যান"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
-msgstr "সোর্স দেখুন"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
-msgstr "ভুমিকা"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
@@ -1031,68 +1030,68 @@ msgstr ""
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
-msgstr "ইনডেক্স ও টেবিল সমূহ:"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
-msgstr "পূর্ণাঙ্গ সূচীপত্র"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:24
 msgid "lists all sections and subsections"
-msgstr "সকল অনুচ্ছেদ সমূহের তালিকা"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
-msgstr "এই সহায়িকাতে অনুসন্ধা করুন"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
-msgstr "গ্লোবাল মডিউল ইনডেক্স"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
-msgstr "সকল মডিউলে দ্রুত প্রবেশ"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:31
 msgid "all functions, classes, terms"
-msgstr "সকল ফাংশন, ক্লাস, টার্ম"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-single.html:33
 #, python-format
 msgid "Index &ndash; %(key)s"
-msgstr "ইনডেক্স &ndash; %(key)s"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-single.html:61
 #: sphinx/themes/basic/genindex-split.html:24
 #: sphinx/themes/basic/genindex-split.html:38
 #: sphinx/themes/basic/genindex.html:72
 msgid "Full index on one page"
-msgstr "এক পাতায় সম্পূর্ণ ইনডেক্স"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "বর্ণানুসারে ইনডেক্স পাতা"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
-msgstr "খুব বড় হতে পারে"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:31
 msgid "Navigation"
-msgstr "নেভিগেশন"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:137
 #, python-format
 msgid "Search within %(docstitle)s"
-msgstr "%(docstitle)s এর মধ্যে খুঁজুন"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:146
 msgid "About these documents"
-msgstr "এই ডকুমেন্ট সম্পর্কে"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:155
 msgid "Copyright"
-msgstr "কপিরাইট"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:200
 #, python-format
@@ -1107,41 +1106,41 @@ msgstr ""
 #: sphinx/themes/basic/layout.html:206
 #, python-format
 msgid "Last updated on %(last_updated)s."
-msgstr "%(last_updated)s সর্বশেষ পরিবর্তন করা হয়েছে।"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:209
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s দিয়ে তৈরী।"
+msgstr ""
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
-msgstr "%(docstitle)s-এ খুঁজুন"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
-msgstr "পূর্ববর্তী টপিক"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:13
 msgid "previous chapter"
-msgstr "পূর্ববর্তী অধ্যায়"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:16
 msgid "Next topic"
-msgstr "পরবর্তী টপিক"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:18
 msgid "next chapter"
-msgstr "পরবর্তী অধ্যায়"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:27
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "অনুসন্ধান করার জন্য অনুগ্রহপূর্বক জাভাস্ক্রিপ্ট \n   সক্রিয় করুন।"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -1149,18 +1148,18 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr "এখান থেকে এই নথিগুলোতে আপনি অনুসন্ধান করতে পারবেন। \n   আপনার কাঙ্ক্ষিত শব্দসমূহ নিচের বাক্সে লিখুন এবং \"অনুসন্ধান\" বাটনে ক্লিক করুন।\n   উল্লেখ্য, সকল শব্দসমূহের উপস্থিতি নিয়ে অনুসন্ধান করা হবে। যেসব পাতায় সকল\n   শব্দ নেই সেগুলো বাদ দেয়া হবে।"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:39
 #: sphinx/themes/basic/searchresults.html:17
 msgid "search"
-msgstr "খুঁজুন"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:43
 #: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:336
 msgid "Search Results"
-msgstr "অনুসন্ধানের ফলাফল"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:45
 #: sphinx/themes/basic/searchresults.html:23
@@ -1172,11 +1171,11 @@ msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
-msgstr "দ্রুত অনুসন্ধান"
+msgstr ""
 
 #: sphinx/themes/basic/sourcelink.html:12
 msgid "This Page"
-msgstr "এই পাতা"
+msgstr ""
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
@@ -1192,35 +1191,35 @@ msgstr ""
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "স্বয়ংক্রিয়ভাবে তৈরী %(version)s-এ পরিবর্তন সমূহের তালিকা।"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr "লাইব্রেরির পরিবর্তন"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr "C API পরিবর্তন"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
-msgstr "অন্যান্য পরিবর্তন"
+msgstr ""
 
 #: sphinx/themes/basic/static/doctools.js_t:171 sphinx/writers/html.py:405
 #: sphinx/writers/html.py:410 sphinx/writers/html5.py:352
 #: sphinx/writers/html5.py:357
 msgid "Permalink to this headline"
-msgstr "এই শিরোনামের পার্মালিঙ্ক"
+msgstr ""
 
 #: sphinx/themes/basic/static/doctools.js_t:177 sphinx/writers/html.py:126
 #: sphinx/writers/html.py:137 sphinx/writers/html5.py:96
 #: sphinx/writers/html5.py:107
 msgid "Permalink to this definition"
-msgstr "এই সংজ্ঞার পার্মালিঙ্ক"
+msgstr ""
 
 #: sphinx/themes/basic/static/doctools.js_t:210
 msgid "Hide Search Matches"
-msgstr "অনুসন্ধানের ম্যাচগুলো লুকান"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:142
 msgid "Searching"
@@ -1289,7 +1288,7 @@ msgstr ""
 
 #: sphinx/writers/latex.py:549
 msgid "Release"
-msgstr "রিলিজ"
+msgstr ""
 
 #: sphinx/writers/latex.py:654
 msgid "page"
@@ -1303,7 +1302,7 @@ msgstr ""
 #: sphinx/writers/latex.py:1252 sphinx/writers/manpage.py:275
 #: sphinx/writers/texinfo.py:670
 msgid "Footnotes"
-msgstr "পাদটীকা"
+msgstr ""
 
 #: sphinx/writers/manpage.py:331 sphinx/writers/text.py:699
 #, python-format
@@ -1312,4 +1311,4 @@ msgstr ""
 
 #: sphinx/writers/manpage.py:332 sphinx/writers/text.py:700
 msgid "[image]"
-msgstr "[ছবি]"
+msgstr ""

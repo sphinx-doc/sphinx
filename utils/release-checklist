@@ -6,13 +6,15 @@ Release checklist
 * Run `make style-check`
 * Update sphinx/locale/sphinx.pot if first major release (beta1)
 
-  * Run `pytho nsetup.py extract_messages`
+  * Run `python setup.py extract_messages`
   * Run `(cd sphinx/locale; tx push -s)`
 
 * Update sphinx/locale/<lang>/ files if final major release ...
 
   * Run `(cd sphinx/locale; tx pull -a -f)`
   * Run `python setup.py compile_catalog`
+  * Run `git add sphinx`
+  * Run `git commit -am 'Update message catalogs'`
 
 * `python utils/bump_version.py x.y.z`
 * Check diff by `git diff`
