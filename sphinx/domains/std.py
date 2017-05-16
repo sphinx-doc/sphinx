@@ -542,7 +542,7 @@ class StandardDomain(Domain):
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
                 env.warn_node('duplicate citation %s, other instance in %s' %
-                              (label, path), node)
+                              (label, path), node, type='ref', subtype='citation')
             self.data['citations'][label] = (docname, node['ids'][0])
 
     def note_labels(self, env, docname, document):
