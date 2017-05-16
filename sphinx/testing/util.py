@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
+    sphinx.testing.util
+    ~~~~~~~~~~~~~~~~~~~
+
     Sphinx test suite utilities
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import re
 import sys
@@ -25,20 +26,17 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path
+from sphinx.testing.path import path
+
+if False:
+    from typing import List  # NOQA
 
 
 __all__ = [
-    'rootdir', 'tempdir',
-    'skip_unless_importable', 'Struct',
-    'SphinxTestApp',
-    'path',
+    'Struct',
+    'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding',
     'remove_unicode_literals',
 ]
-
-
-rootdir = path(os.path.dirname(__file__) or '.').abspath()
-tempdir = path(os.environ['SPHINX_TEST_TEMPDIR']).abspath()
 
 
 def assert_re_search(regex, text, flags=0):
@@ -85,16 +83,6 @@ def assert_node(node, cls=None, xpath="", **kwargs):
             'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
 
 
-def skip_unless_importable(module, msg=None):
-    """Decorator to skip test if module is not importable."""
-    try:
-        __import__(module)
-    except ImportError:
-        return pytest.mark.skipif(True, reason=(msg or 'conditional skip'))
-    else:
-        return pytest.mark.skipif(False, reason=(msg or 'conditional skip'))
-
-
 def etree_parse(path):
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -112,22 +100,9 @@ class SphinxTestApp(application.Sphinx):
     better default values for the initialization parameters.
     """
 
-    def __init__(self, buildername='html', testroot=None, srcdir=None,
+    def __init__(self, buildername='html', srcdir=None,
                  freshenv=False, confoverrides=None, status=None, warning=None,
                  tags=None, docutilsconf=None):
-        if testroot is None:
-            defaultsrcdir = 'root'
-            testroot = rootdir / 'root'
-        else:
-            defaultsrcdir = 'test-' + testroot
-            testroot = rootdir / 'roots' / ('test-' + testroot)
-        if srcdir is None:
-            srcdir = tempdir / defaultsrcdir
-        else:
-            srcdir = tempdir / srcdir
-
-        if not srcdir.exists():
-            testroot.copytree(srcdir)
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -179,6 +154,26 @@ class SphinxTestApp(application.Sphinx):
 
     def __repr__(self):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
+
+
+class SphinxTestAppWrapperForSkipBuilding(object):
+    """
+    This class is a wrapper for SphinxTestApp to speed up the test by skipping
+    `app.build` process if it is already built and there is even one output
+    file.
+    """
+
+    def __init__(self, app_):
+        self.app = app_
+
+    def __getattr__(self, name):
+        return getattr(self.app, name)
+
+    def build(self, *args, **kw):
+        if not self.app.outdir.listdir():
+            # if listdir is empty, do build.
+            self.app.build(*args, **kw)
+            # otherwise, we can use built cache
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')

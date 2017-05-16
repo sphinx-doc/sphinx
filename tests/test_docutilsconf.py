@@ -12,7 +12,7 @@
 import re
 
 import pytest
-from util import path
+from sphinx.testing.path import path
 
 
 def regex_count(expr, result):
@@ -77,7 +77,7 @@ def test_docutils_source_link_with_nonascii_file(app, status, warning):
     try:
         (srcdir / (mb_name + '.txt')).write_text('')
     except UnicodeEncodeError:
-        from path import FILESYSTEMENCODING
+        from sphinx.testing.path import FILESYSTEMENCODING
         raise pytest.skip.Exception(
             'nonascii filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)

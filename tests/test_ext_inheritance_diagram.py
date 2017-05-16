@@ -11,7 +11,6 @@
 
 import re
 import sys
-from util import rootdir
 from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
 import pytest
 
@@ -44,12 +43,12 @@ def test_inheritance_diagram_latex(app, status, warning):
     assert re.search(pattern, content, re.M)
 
 
-def test_import_classes():
+def test_import_classes(rootdir):
     from sphinx.application import Sphinx, TemplateBridge
     from sphinx.util.i18n import CatalogInfo
 
     try:
-        sys.path.append(rootdir / 'roots/test-ext-inheritance_diagram')
+        sys.path.append(rootdir / 'test-ext-inheritance_diagram')
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module

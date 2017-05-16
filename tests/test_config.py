@@ -16,6 +16,7 @@ import mock
 import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
+from sphinx.testing.path import path
 
 
 @pytest.mark.sphinx(confoverrides={
@@ -129,8 +130,19 @@ def test_errors_if_setup_is_not_callable(tempdir, make_app):
     assert 'callable' in str(excinfo.value)
 
 
+@pytest.fixture
+def make_app_with_empty_project(make_app, tempdir):
+    (tempdir / 'conf.py').write_text('')
+
+    def _make_app(*args, **kw):
+        kw.setdefault('srcdir', path(tempdir))
+        return make_app(*args, **kw)
+    return _make_app
+
+
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
-def test_needs_sphinx(make_app):
+def test_needs_sphinx(make_app_with_empty_project):
+    make_app = make_app_with_empty_project
     # micro version
     app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
     app.cleanup()

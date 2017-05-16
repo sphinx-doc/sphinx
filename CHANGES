@@ -53,104 +53,31 @@ Bugs fixed
 Testing
 --------
 
-Release 1.6 beta4 (in development)
-==================================
+Release 1.6.2 (in development)
+==============================
 
 Incompatible changes
 --------------------
 
-* LaTeX package ``threeparttable`` is not used and not loaded by Sphinx
-  anymore (refs #3686, #3532, #3377)
-
 Deprecated
 ----------
-
-* LaTeX ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
-  Please move customization into new macro ``\sphinxstyletheadfamily``.
 
 Features added
 --------------
 
 Bugs fixed
 ----------
-
-* LaTeX tables do not allow multiple paragraphs in a header cell
-* LATEXOPTS is not passed over correctly to pdflatex since 1.6b3
-* #3532: Figure or literal block captions in cells of short tables cause havoc
-  in PDF output
-* Fix: in PDF captions of tables are rendered differently whether table is of
-  longtable class or not (refs #3686)
-* #3725: Todo looks different from note in LaTeX output
-* #3479: stub-columns have no effect in LaTeX output
-* #3738: Nonsensical code in theming.py
-* #3746: PDF builds fail with latexmk 4.48 or earlier due to undefined
-  options ``-pdfxe`` and ``-pdflua``
 
 Testing
 --------
 
-Release 1.6 beta3 (released May 07, 2017)
-=========================================
-
-Incompatible changes
---------------------
-
-* LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
-* LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
-* Add line numbers to citation data in std domain
-
-Deprecated
-----------
-
-Features added
---------------
-
-* ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
-  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695, #3720)
-* Add a new event `env-check-consistency` to check consistency to extensions
-* Add `Domain.check_consistency()` to check consistency
-
-Bugs fixed
-----------
-
-* #3588: No compact (p tag) html output in the i18n document build even when
-  :confval:`html_compact_lists` is True.
-* The ``make latexpdf`` from 1.6b1 (for GNU/Linux and Mac OS, using
-  ``latexmk``) aborted earlier in case of LaTeX errors than was the case with
-  1.5 series, due to hard-coded usage of ``--halt-on-error`` option. (refs #3695)
-* #3683: sphinx.websupport module is not provided by default
-* #3683: Failed to build document if builder.css_file.insert() is called
-* #3714: viewcode extension not taking ``highlight_code='none'`` in account
-* #3698: Moving :doc: to std domain broke backwards compatibility
-* #3633: misdetect unreferenced citations
-
-Release 1.6 beta2 (released Apr 29, 2017)
-=========================================
-
-Incompatible changes
---------------------
-
-* #3345: Replace the custom smartypants code with Docutils' smart_quotes.
-  Thanks to Dmitry Shachnev, and to Günter Milde at Docutils.
-
-Deprecated
-----------
-
-* #3662: ``builder.css_files`` is deprecated.  Please use ``add_stylesheet()``
-  API instead.
-
-Bugs fixed
-----------
-
-* #3661: sphinx-build crashes on parallel build
-* #3669: gettext builder fails with "ValueError: substring not found"
-* #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
-
-Release 1.6 beta1 (released Apr 24, 2017)
-=========================================
+Release 1.6.1 (released May 16, 2017)
+=====================================
 
 Dependencies
 ------------
+
+1.6b1
 
 * (updated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
   2014) and earlier tex installations may not be fully compliant, particularly
@@ -160,6 +87,8 @@ Dependencies
 
 Incompatible changes
 --------------------
+
+1.6b1
 
 * #1061, #2336, #3235: Now generation of autosummary doesn't contain imported
   members by default. Thanks to Luc Saffre.
@@ -195,6 +124,22 @@ Incompatible changes
 * #3639: If ``html_experimental_html5_writer`` is available, epub builder use it by default.
 * ``Sphinx.add_source_parser()`` raises an error if duplicated
 
+1.6b2
+
+* #3345: Replace the custom smartypants code with Docutils' smart_quotes.
+  Thanks to Dmitry Shachnev, and to Günter Milde at Docutils.
+
+1.6b3
+
+* LaTeX package ``eqparbox`` is not used and not loaded by Sphinx anymore
+* LaTeX package ``multirow`` is not used and not loaded by Sphinx anymore
+* Add line numbers to citation data in std domain
+
+1.6 final
+
+* LaTeX package ``threeparttable`` is not used and not loaded by Sphinx
+  anymore (refs #3686, #3532, #3377)
+
 Features removed
 ----------------
 
@@ -220,6 +165,8 @@ Features removed
 
 Features added
 --------------
+
+1.6b1
 
 * #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
 * #2336: Add ``imported_members`` option to ``sphinx-autogen`` command to document
@@ -270,8 +217,17 @@ Features added
   document to appropriate format for builders
 * latex: Use templates to render tables (refs #3389, 2a37b0e)
 
+1.6b2
+
+* ``LATEXMKOPTS`` variable for the Makefile in ``$BUILDDIR/latex`` to pass
+  options to ``latexmk`` when executing ``make latexpdf`` (refs #3695, #3720)
+* Add a new event `env-check-consistency` to check consistency to extensions
+* Add `Domain.check_consistency()` to check consistency
+
 Bugs fixed
 ----------
+
+1.6b1
 
 * ``literalinclude`` directive expands tabs after dedent-ing (refs: #3416)
 * #1574: Paragraphs in table cell doesn't work in Latex output
@@ -287,8 +243,43 @@ Bugs fixed
   and so on.
 * Fail to load template file if the parent template is archived
 
+1.6b2
+
+* #3661: sphinx-build crashes on parallel build
+* #3669: gettext builder fails with "ValueError: substring not found"
+* #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
+
+1.6b3
+
+* #3588: No compact (p tag) html output in the i18n document build even when
+  :confval:`html_compact_lists` is True.
+* The ``make latexpdf`` from 1.6b1 (for GNU/Linux and Mac OS, using
+  ``latexmk``) aborted earlier in case of LaTeX errors than was the case with
+  1.5 series, due to hard-coded usage of ``--halt-on-error`` option. (refs #3695)
+* #3683: sphinx.websupport module is not provided by default
+* #3683: Failed to build document if builder.css_file.insert() is called
+* #3714: viewcode extension not taking ``highlight_code='none'`` in account
+* #3698: Moving :doc: to std domain broke backwards compatibility
+* #3633: misdetect unreferenced citations
+
+1.6 final
+
+* LaTeX tables do not allow multiple paragraphs in a header cell
+* LATEXOPTS is not passed over correctly to pdflatex since 1.6b3
+* #3532: Figure or literal block captions in cells of short tables cause havoc
+  in PDF output
+* Fix: in PDF captions of tables are rendered differently whether table is of
+  longtable class or not (refs #3686)
+* #3725: Todo looks different from note in LaTeX output
+* #3479: stub-columns have no effect in LaTeX output
+* #3738: Nonsensical code in theming.py
+* #3746: PDF builds fail with latexmk 4.48 or earlier due to undefined
+  options ``-pdfxe`` and ``-pdflua``
+
 Deprecated
 ----------
+
+1.6b1
 
 * ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
   ``docutils.parsers.rsr.Directive``
@@ -323,6 +314,28 @@ Deprecated
   Sphinx-2.0.
 * #3628: ``sphinx_themes`` entry_point is deprecated.  Please use
   ``sphinx.html_themes`` instead.
+
+1.6b2
+
+* #3662: ``builder.css_files`` is deprecated.  Please use ``add_stylesheet()``
+  API instead.
+
+1.6 final
+
+* LaTeX ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
+  Please move customization into new macro ``\sphinxstyletheadfamily``.
+
+Testing
+--------
+
+1.6 final
+
+* #3458: Add ``sphinx.testing` (experimental)
+
+Release 1.6 (unreleased)
+========================
+
+* not released (because of package script error)
 
 Release 1.5.6 (released May 15, 2017)
 =====================================

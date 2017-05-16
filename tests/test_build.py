@@ -16,7 +16,7 @@ import pytest
 from textwrap import dedent
 from sphinx.errors import SphinxError
 
-from util import rootdir, tempdir, path
+from sphinx.testing.path import path
 
 
 def request_session_head(url, **kwargs):
@@ -27,14 +27,14 @@ def request_session_head(url, **kwargs):
 
 
 @pytest.fixture
-def nonascii_srcdir(request):
+def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
-    basedir = tempdir / request.node.originalname
+    basedir = sphinx_test_tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
-            (rootdir / 'root').copytree(srcdir)
+            (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
         srcdir = basedir / 'all'
     else:

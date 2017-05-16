@@ -13,7 +13,7 @@ from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
 
-from util import etree_parse
+from sphinx.testing.util import etree_parse
 
 import pytest
 

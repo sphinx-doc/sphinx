@@ -12,37 +12,36 @@ import shutil
 
 import pytest
 
-from util import find_files, rootdir, tempdir
-
-root = tempdir / 'test-intl'
-build_dir = root / '_build'
-locale_dir = build_dir / 'locale'
+from sphinx.testing.util import find_files
 
 
 @pytest.fixture
-def setup_test():
-    # delete remnants left over after failed build
-    root.rmtree(True)
-    (rootdir / 'roots' / 'test-intl').copytree(root)
+def setup_test(app_params):
+    srcdir = app_params.kwargs['srcdir']
+    locale_dir = srcdir / 'locale'
     # copy all catalogs into locale layout directory
-    for po in find_files(root, '.po'):
+    for po in find_files(srcdir, '.po'):
         copy_po = (locale_dir / 'en' / 'LC_MESSAGES' / po)
         if not copy_po.parent.exists():
             copy_po.parent.makedirs()
-        shutil.copy(root / po, copy_po)
+        shutil.copy(srcdir / po, copy_po)
 
     yield
 
-    build_dir.rmtree(True)
+    # delete remnants left over after failed build
+    locale_dir.rmtree(True)
+    (srcdir / '_build').rmtree(True)
 
 
 @pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
     'html', testroot='intl',
-    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_all_catalogs(app, status, warning):
     app.builder.compile_all_catalogs()
 
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
     expect = set([
         x.replace('.po', '.mo')
@@ -54,10 +53,12 @@ def test_compile_all_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
-    'html',  testroot='intl',
-    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_specific_catalogs(app, status, warning):
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
     def get_actual():
@@ -70,12 +71,14 @@ def test_compile_specific_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
+@pytest.mark.test_params(shared_result='test-catalogs')
 @pytest.mark.sphinx(
-    'html',  testroot='intl',
-    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
 def test_compile_update_catalogs(app, status, warning):
     app.builder.compile_update_catalogs()
 
+    locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
     expect = set([
         x.replace('.po', '.mo')

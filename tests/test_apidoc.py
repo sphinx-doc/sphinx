@@ -17,13 +17,13 @@ import pytest
 
 from sphinx.apidoc import main as apidoc_main
 
-from util import rootdir, remove_unicode_literals
+from sphinx.testing.util import remove_unicode_literals
 
 
 @pytest.fixture()
-def apidoc(tempdir, apidoc_params):
+def apidoc(rootdir, tempdir, apidoc_params):
     _, kwargs = apidoc_params
-    coderoot = kwargs.get('coderoot', (rootdir / 'root'))
+    coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tempdir / 'out'
     args = ['-o', outdir, '-F', coderoot] + kwargs.get('options', [])
     apidoc_main(args)
@@ -46,7 +46,7 @@ def apidoc_params(request):
     return args, kwargs
 
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root'))
+@pytest.mark.apidoc(coderoot='test-root')
 def test_simple(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -60,7 +60,7 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'),
+    coderoot='test-apidoc-pep420',
     options=["--implicit-namespaces"],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -97,7 +97,7 @@ def test_pep_0420_enabled(make_app, apidoc):
         assert "a.b.x namespace\n" in txt
 
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'))
+@pytest.mark.apidoc(coderoot='test-apidoc-pep420')
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -111,7 +111,7 @@ def test_pep_0420_disabled(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420' / 'a' / 'b'))
+    coderoot='test-apidoc-pep420/a/b')
 def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -131,7 +131,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'roots' / 'test-apidoc-trailing-underscore'))
+    coderoot='test-apidoc-trailing-underscore')
 def test_trailing_underscore(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -150,7 +150,7 @@ def test_trailing_underscore(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'root'),
+    coderoot='test-root',
     options=[
         '--doc-project', u'プロジェクト名'.encode('utf-8'),
         '--doc-author', u'著者名'.encode('utf-8'),
@@ -178,7 +178,7 @@ def test_multibyte_parameters(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'root'),
+    coderoot='test-root',
     options=['--ext-mathjax'],
 )
 def test_extension_parsed(make_app, apidoc):

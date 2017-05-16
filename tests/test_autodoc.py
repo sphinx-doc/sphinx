@@ -12,7 +12,7 @@
 
 from six import PY3
 
-from util import SphinxTestApp, Struct  # NOQA
+from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 import pytest
 
 import enum
@@ -25,17 +25,19 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
 app = None
 
 
-def setup_module():
+@pytest.fixture(scope='module', autouse=True)
+def setup_module(rootdir, sphinx_test_tempdir):
     global app
-    app = SphinxTestApp()
+    srcdir = sphinx_test_tempdir / 'autodoc-root'
+    if not srcdir.exists():
+        (rootdir/'test-root').copytree(srcdir)
+    app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
-
-
-def teardown_module():
+    yield
     app.cleanup()
 
 

@@ -24,7 +24,7 @@ from sphinx.util.osutil import cd, ensuredir
 from sphinx.util import docutils
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import remove_unicode_literals, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -310,19 +310,19 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert u'\\renewcommand{\\figurename}{\u56f3}' in result
-    assert '\\renewcommand{\\tablename}{TABLE}' in result
-    assert '\\renewcommand{\\literalblockname}{LIST}' in result
+    assert u'\\renewcommand{\\figurename}{\u56f3}' in result  # 図
+    assert u'\\renewcommand{\\tablename}{\u8868}' in result  # 表
+    assert u'\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
     assert (u'\\hyperref[\\detokenize{index:fig1}]'
             u'{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
             '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
-    assert ('\\hyperref[\\detokenize{index:table-1}]'
-            '{TABLE \\ref{\\detokenize{index:table-1}}}') in result
+    assert (u'\\hyperref[\\detokenize{index:table-1}]'
+            u'{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert ('\\hyperref[\\detokenize{index:code-1}]'
-            '{LIST \\ref{\\detokenize{index:code-1}}}') in result
+    assert (u'\\hyperref[\\detokenize{index:code-1}]'
+            u'{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
     assert (u'\\hyperref[\\detokenize{foo:foo}]'
@@ -850,77 +850,62 @@ def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     tables = {}
-    for chap in re.split(r'\\section{', result)[1:]:
+    for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
         tables[sectname] = content.strip()
 
+    def get_expected(name):
+        return (app.srcdir / 'expects' / (name + '.tex')).text().strip()
+
     # simple_table
-    table = tables['simple table']
-    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
-            '\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
-    assert ('\\hline\n'
-            '\\sphinxstyletheadfamily \nheader1\n&'
-            '\\sphinxstyletheadfamily \nheader2\n' in table)
-    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\par\n'
-            '\\sphinxattableend\\end{savenotes}' in table)
+    actual = tables['simple table']
+    expected = get_expected('simple_table')
+    assert actual == expected
 
     # table having :widths: option
-    table = tables['table having :widths: option']
-    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
-            '\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
-    assert ('\\hline\n\\end{tabular}\n\\par\n'
-            '\\sphinxattableend\\end{savenotes}' in table)
+    actual = tables['table having :widths: option']
+    expected = get_expected('table_having_widths')
+    assert actual == expected
 
     # table having :align: option (tabulary)
-    table = tables['table having :align: option (tabulary)']
-    assert ('\\begin{savenotes}\\sphinxattablestart\n\\raggedleft\n'
-            '\\begin{tabulary}{\\linewidth}[t]{|T|T|}\n' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\par\n'
-            '\\sphinxattableend\\end{savenotes}' in table)
+    actual = tables['table having :align: option (tabulary)']
+    expected = get_expected('tabulary_having_widths')
+    assert actual == expected
 
     # table having :align: option (tabular)
-    table = tables['table having :align: option (tabular)']
-    assert ('\\begin{savenotes}\\sphinxattablestart\n\\raggedright\n'
-            '\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}\n' in table)
-    assert ('\\hline\n\\end{tabular}\n\\par\n'
-            '\\sphinxattableend\\end{savenotes}' in table)
+    actual = tables['table having :align: option (tabular)']
+    expected = get_expected('tabular_having_widths')
+    assert actual == expected
 
     # table with tabularcolumn
-    table = tables['table with tabularcolumn']
-    assert ('\\begin{tabulary}{\\linewidth}[t]{|c|c|}' in table)
+    actual = tables['table with tabularcolumn']
+    expected = get_expected('tabularcolumn')
+    assert actual == expected
 
     # table having caption
-    table = tables['table having caption']
-    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
-            '\\sphinxcapstartof{table}\n'
-            '\\sphinxcaption{caption for table}'
-            '\\label{\\detokenize{tabular:id1}}\n'
-            '\\sphinxaftercaption' in table)
-    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
-    assert ('\\hline\n\\end{tabulary}'
-            '\n\\par\n\\sphinxattableend\\end{savenotes}' in table)
+    actual = tables['table having caption']
+    expected = get_expected('table_having_caption')
+    assert actual == expected
 
     # table having verbatim
-    table = tables['table having verbatim']
-    assert ('\\begin{tabular}[t]{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    actual = tables['table having verbatim']
+    expected = get_expected('table_having_verbatim')
+    assert actual == expected
 
     # table having problematic cell
-    table = tables['table having problematic cell']
-    assert ('\\begin{tabular}[t]{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    actual = tables['table having problematic cell']
+    expected = get_expected('table_having_problematic_cell')
+    assert actual == expected
 
     # table having both :widths: and problematic cell
-    table = tables['table having both :widths: and problematic cell']
-    assert ('\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    actual = tables['table having both :widths: and problematic cell']
+    expected = get_expected('table_having_widths_and_problematic_cell')
+    assert actual == expected
 
     # table having both stub columns and problematic cell
-    table = tables['table having both stub columns and problematic cell']
-    assert ('&\\sphinxstyletheadfamily \n'
-            'instub1-2\n&\nnotinstub1-3\n\\\\\n'
-            '\\hline\\sphinxstyletheadfamily \n'
-            'cell2-1\n&' in table)
+    actual = tables['table having both stub columns and problematic cell']
+    expected = get_expected('table_having_stub_columns_and_problematic_cell')
+    assert actual == expected
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -931,67 +916,57 @@ def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     tables = {}
-    for chap in re.split(r'\\section{', result)[1:]:
+    for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
         tables[sectname] = content.strip()
 
+    def get_expected(name):
+        return (app.srcdir / 'expects' / (name + '.tex')).text().strip()
+
     # longtable
-    table = tables['longtable']
-    assert ('\\begin{savenotes}\\sphinxatlongtablestart'
-            '\\begin{longtable}{|l|l|}\n\\hline' in table)
-    assert ('\\hline\n'
-            '\\sphinxstyletheadfamily \nheader1\n&'
-            '\\sphinxstyletheadfamily \nheader2\n\\\\\n\\hline\n\\endfirsthead' in table)
-    assert ('\\multicolumn{2}{c}%\n'
-            '{\\makebox[0pt]{\\sphinxtablecontinued{\\tablename\\ \\thetable{} -- '
-            'continued from previous page}}}\\\\\n\\hline\n'
-            '\\sphinxstyletheadfamily \nheader1\n&'
-            '\\sphinxstyletheadfamily \nheader2\n\\\\\n\\hline\n\\endhead' in table)
-    assert ('\\hline\n\\multicolumn{2}{r}'
-            '{\\makebox[0pt][r]{\\sphinxtablecontinued{Continued on next page}}}\\\\\n'
-            '\\endfoot\n\n\\endlastfoot' in table)
-    assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{longtable}\\sphinxatlongtableend\\end{savenotes}' in table)
+    actual = tables['longtable']
+    expected = get_expected('longtable')
+    assert actual == expected
 
     # longtable having :widths: option
-    table = tables['longtable having :widths: option']
-    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    actual = tables['longtable having :widths: option']
+    expected = get_expected('longtable_having_widths')
+    assert actual == expected
 
     # longtable having :align: option
-    table = tables['longtable having :align: option']
-    assert ('\\begin{longtable}[r]{|l|l|}\n' in table)
-    assert ('\\hline\n\\end{longtable}' in table)
+    actual = tables['longtable having :align: option']
+    expected = get_expected('longtable_having_align')
+    assert actual == expected
 
     # longtable with tabularcolumn
-    table = tables['longtable with tabularcolumn']
-    assert ('\\begin{longtable}{|c|c|}' in table)
+    actual = tables['longtable with tabularcolumn']
+    expected = get_expected('longtable_with_tabularcolumn')
+    assert actual == expected
 
     # longtable having caption
-    table = tables['longtable having caption']
-    assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable\\strut}'
-            '\\label{\\detokenize{longtable:id1}}'
-            '\\\\*[\\sphinxlongtablecapskipadjust]\n\\hline' in table)
+    actual = tables['longtable having caption']
+    expected = get_expected('longtable_having_caption')
+    assert actual == expected
 
     # longtable having verbatim
-    table = tables['longtable having verbatim']
-    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    actual = tables['longtable having verbatim']
+    expected = get_expected('longtable_having_verbatim')
+    assert actual == expected
 
     # longtable having problematic cell
-    table = tables['longtable having problematic cell']
-    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    actual = tables['longtable having problematic cell']
+    expected = get_expected('longtable_having_problematic_cell')
+    assert actual == expected
 
     # longtable having both :widths: and problematic cell
-    table = tables['longtable having both :widths: and problematic cell']
-    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    actual = tables['longtable having both :widths: and problematic cell']
+    expected = get_expected('longtable_having_widths_and_problematic_cell')
+    assert actual == expected
 
     # longtable having both stub columns and problematic cell
-    table = tables['longtable having both stub columns and problematic cell']
-    assert ('&\\sphinxstyletheadfamily \n'
-            'instub1-2\n&\nnotinstub1-3\n\\\\\n'
-            '\\hline\\sphinxstyletheadfamily \n'
-            'cell2-1\n&' in table)
+    actual = tables['longtable having both stub columns and problematic cell']
+    expected = get_expected('longtable_having_stub_columns_and_problematic_cell')
+    assert actual == expected
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -1002,55 +977,22 @@ def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     tables = {}
-    for chap in re.split(r'\\section{', result)[1:]:
+    for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
         sectname, content = chap.split('}', 1)
         tables[sectname] = content.strip()
 
+    def get_expected(name):
+        return (app.srcdir / 'expects' / (name + '.tex')).text().strip()
+
     # grid table
-    table = tables['grid table']
-    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|T|}' in table)
-    assert ('\\hline\n'
-            '\\sphinxstyletheadfamily \nheader1\n&'
-            '\\sphinxstyletheadfamily \nheader2\n&'
-            '\\sphinxstyletheadfamily \nheader3\n\\\\' in table)
-    assert ('\\hline\ncell1-1\n&\\sphinxmultirow{2}{5}{%\n\\begin{varwidth}[t]'
-            '{\\sphinxcolwidth{1}{3}}\n'
-            'cell1-2\n\\par\n' in table)
-    assert ('\\cline{1-1}\\cline{3-3}\\sphinxmultirow{2}{7}{%\n' in table)
-    assert ('&\\sphinxtablestrut{5}&\ncell2-3\n\\\\\n'
-            '\\cline{2-3}\\sphinxtablestrut{7}&\\sphinxstartmulticolumn{2}%\n'
-            '\\sphinxmultirow{2}{9}{%\n\\begin{varwidth}' in table)
-    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}'
-            '{\\sphinxtablestrut{9}}\\\\' in table)
-    assert ('\\hline\\sphinxstartmulticolumn{3}%\n'
-            in table)
+    actual = tables['grid table']
+    expected = get_expected('gridtable')
+    assert actual == expected
 
     # complex spanning cell
-    table = tables['complex spanning cell']
-    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|T|T|T|}' in table)
-    assert ('\\sphinxmultirow{3}{1}{%\n'
-            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
-            'cell1-1\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
-            '}%\n'
-            '&\\sphinxmultirow{3}{2}{%\n'
-            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
-            'cell1-2\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
-            '}%\n&\ncell1-3\n&\\sphinxmultirow{3}{4}{%\n'
-            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
-            'cell1-4\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
-            '}%\n'
-            '&\\sphinxmultirow{2}{5}{%\n'
-            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
-            'cell1-5\n'
-            in table)
-    assert ('\\cline{3-3}\\sphinxtablestrut{1}&\\sphinxtablestrut{2}&'
-            '\\sphinxmultirow{2}{6}{%\n'
-            in table)
-    assert ('&\\sphinxtablestrut{4}&\\sphinxtablestrut{5}\\\\\n'
-            '\\cline{5-5}\\sphinxtablestrut{1}&\\sphinxtablestrut{2}&'
-            '\\sphinxtablestrut{6}&\\sphinxtablestrut{4}&\ncell3-5\n'
-            '\\\\\n\\hline\n\\end{tabulary}\n'
-            in table)
+    actual = tables['complex spanning cell']
+    expected = get_expected('complex_spanning_cell')
+    assert actual == expected
 
 
 @pytest.mark.sphinx('latex', testroot='directives-raw')

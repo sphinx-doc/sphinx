@@ -1,8 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    path
-    ~~~~
+    sphinx.testing.path
+    ~~~~~~~~~~~~~~~~~~~
 
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -26,8 +25,8 @@ class path(text_type):
         def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
             if isinstance(s, str):
                 s = s.decode(encoding, errors)
-                return text_type.__new__(cls, s)
-            return text_type.__new__(cls, s)
+                return text_type.__new__(cls, s)  # type: ignore
+            return text_type.__new__(cls, s)  # type: ignore
 
     @property
     def parent(self):
