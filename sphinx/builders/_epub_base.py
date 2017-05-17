@@ -347,6 +347,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     footnote.add_backref(footnote_ref['ids'][0])
                     fn_idx += 1
 
+    def prepare_writing(self, docnames):
+        # type: (Iterable[unicode]) -> nodes.Node
+        StandaloneHTMLBuilder.prepare_writing(self, docnames)
+        print(self.docwriter)
+        print(type(self.docwriter))
+
     def write_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         """Write one document file.

@@ -261,7 +261,11 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self):
-        if self.config.html_experimental_html5_writer and html5_ready:
+        use_html5_writer = self.config.html_experimental_html5_writer
+        if use_html5_writer is None:
+            use_html5_writer = self.default_html5_translator
+
+        if use_html5_writer and html5_ready:
             return HTML5Translator
         else:
             return HTMLTranslator
