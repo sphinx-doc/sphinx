@@ -13,6 +13,8 @@ Features added
 Bugs fixed
 ----------
 
+* #3754: HTML builder crashes if HTML theme appends own stylesheets
+
 Testing
 --------
 

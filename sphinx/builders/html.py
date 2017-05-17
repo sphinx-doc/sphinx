@@ -121,6 +121,7 @@ class CSSContainer(list):
                       RemovedInSphinx20Warning)
         for item in other:
             self.append(item)
+        return self
 
     def __add__(self, other):
         ret = CSSContainer(self)
