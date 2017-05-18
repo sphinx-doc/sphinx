@@ -306,7 +306,13 @@ class WarningSuppressor(logging.Filter):
         type = getattr(record, 'type', None)
         subtype = getattr(record, 'subtype', None)
 
-        if is_suppressed_warning(type, subtype, self.app.config.suppress_warnings):
+        try:
+            suppress_warnings = self.app.config.suppress_warnings
+        except AttributeError:
+            # config is not initialized yet (ex. in conf.py)
+            suppress_warnings = []
+
+        if is_suppressed_warning(type, subtype, suppress_warnings):
             return False
         else:
             self.app._warncount += 1
