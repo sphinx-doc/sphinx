@@ -209,11 +209,7 @@ class LiteralIncludeReader(object):
                 if 'tab-width' in self.options:
                     text = text.expandtabs(self.options['tab-width'])
 
-                lines = text.splitlines(True)
-                if 'dedent' in self.options:
-                    return dedent_lines(lines, self.options.get('dedent'), location=location)
-                else:
-                    return lines
+                return text.splitlines(True)
         except (IOError, OSError):
             raise IOError(_('Include file %r not found or reading it failed') % filename)
         except UnicodeError:
@@ -231,7 +227,8 @@ class LiteralIncludeReader(object):
                        self.end_filter,
                        self.lines_filter,
                        self.prepend_filter,
-                       self.append_filter]
+                       self.append_filter,
+                       self.dedent_filter]
             lines = self.read_file(self.filename, location=location)
             for func in filters:
                 lines = func(lines, location=location)
@@ -366,6 +363,12 @@ class LiteralIncludeReader(object):
             lines.append(append + '\n')
 
         return lines
+
+    def dedent_filter(self, lines, location=None):
+        if 'dedent' in self.options:
+            return dedent_lines(lines, self.options.get('dedent'), location=location)
+        else:
+            return lines
 
 
 class LiteralInclude(Directive):

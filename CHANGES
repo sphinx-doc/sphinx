@@ -68,6 +68,11 @@ Features added
 Bugs fixed
 ----------
 
+* #3754: HTML builder crashes if HTML theme appends own stylesheets
+* #3756: epub: Entity 'mdash' not defined
+* #3758: Sphinx crashed if logs are emitted in conf.py
+* #3755: incorrectly warns about dedent with literalinclude
+
 Testing
 --------
 
