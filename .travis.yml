@@ -16,6 +16,7 @@ env:
     - TEST='-v --durations 25'
     - PYTHONFAULTHANDLER=x
     - PYTHONWARNINGS=all
+    - SKIP_LATEX_BUILD=1
   matrix:
     - DOCUTILS=0.12
     - DOCUTILS=0.13.1
@@ -34,16 +35,8 @@ matrix:
 addons:
   apt:
     packages:
-    - graphviz
-    - texlive-latex-recommended
-    - texlive-latex-extra
-    - texlive-fonts-recommended
-    - texlive-fonts-extra
-    - texlive-luatex
-    - texlive-xetex
-    - lmodern
-    - latex-xcolor
-    - imagemagick
+      - graphviz
+      - imagemagick
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
@@ -52,4 +45,4 @@ install:
 script:
   - flake8
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check type-check test-async; fi
-  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then SKIP_LATEX_BUILD=1 make test; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
