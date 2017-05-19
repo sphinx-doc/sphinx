@@ -288,6 +288,41 @@ def missing_reference(app, env, node, contnode):
         if not objtypes:
             return
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
+
+        if domain == 'std' and node['reftype'] == 'option':
+            # Options are stored in the inventory as "program-name.--option".
+            # In order to look up the option, the target will need to be
+            # converted to this format.
+            #
+            # Ideally, we'd be able to utilize the same logic as found in
+            # StandardDomain._resolve_option_xref, but we don't have any
+            # information on the progoptions data stored there. Instead, we
+            # try to determine if the target already has a program name or
+            # an intersphinx doc set and normalize the contents to match the
+            # option reference name format.
+            i = target.rfind(' ')
+
+            if i != -1:
+                # The option target contains a program name and an option
+                # name. We can easily normalize this to be in
+                # <progname>.<option> format.
+                target = '%s.%s' % (target[:i], target[i + 1:])
+                target = target.replace(' ', '-')
+            else:
+                # Since a space was not found, and a program name is needed
+                # to complete the reference, we'll see if a ".. program::"
+                # has been set in this file. If so, we'll put that into the
+                # target name (being careful to consider any intersphinx doc
+                # set name that may be prefixed).
+                progname = node.get('std:program')
+
+                if progname:
+                    if ':' in target:
+                        setname, newtarget = target.split(':', 1)
+                        target = '%s:%s.%s' % (setname, progname, newtarget)
+                    else:
+                        target = '%s.%s' % (progname, target)
+
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
         objtypes.append('std:option')
