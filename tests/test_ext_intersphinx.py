@@ -192,7 +192,7 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'https://docs.python.org/': inv_file,
+        'foo': ('https://docs.python.org/', inv_file),
     }
     app.config.intersphinx_cache_limit = 0
 
@@ -205,11 +205,68 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
 
-    # std:program context helps to search objects
+    # std:option reference with std:program context and no intersphinx prefix
+    # prefix
     kwargs = {'std:program': 'ls'}
     node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-ls-l'
+    assert rn['reftitle'] == '(in foo v2.0)'
     assert rn.astext() == 'ls -l'
+
+    # std:option reference with std:program context and an intersphinx prefix
+    kwargs = {'std:program': 'ls'}
+    node, contnode = fake_node('std', 'option', 'foo:-l', 'ls -l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-ls-l'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn.astext() == 'ls -l'
+
+    # std:option reference with explicit program name and no intersphinx
+    # prefix
+    node, contnode = fake_node('std', 'option', 'ls -l', 'ls -l')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-ls-l'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn.astext() == 'ls -l'
+
+    # std:option reference with explicit program name and an intersphinx
+    # prefix
+    node, contnode = fake_node('std', 'option', 'foo:ls -l', 'ls -l')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-ls-l'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn.astext() == 'ls -l'
+
+    # std:option reference with explicit multi-word program name and no
+    # intersphinx prefix
+    node, contnode = fake_node('std', 'option', 'foo bar --field',
+                               'foo bar --field')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-foo-bar-field'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn.astext() == 'foo bar --field'
+
+    # std:option reference with explicit multi-word program name and an
+    # intersphinx prefix
+    node, contnode = fake_node('std', 'option', 'foo:foo bar --field',
+                               'foo bar --field')
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is not None
+    assert rn['refuri'] == \
+           'https://docs.python.org/index.html#cmdoption-foo-bar-field'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn.astext() == 'foo bar --field'
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')

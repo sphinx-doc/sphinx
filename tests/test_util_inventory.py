@@ -38,6 +38,7 @@ foo::Bar cpp:class 1 index.html#cpp_foo_bar -
 foo::Bar::baz cpp:function 1 index.html#cpp_foo_bar_baz -
 a term std:term -1 glossary.html#term-a-term -
 ls.-l std:cmdoption 1 index.html#cmdoption-ls-l -
+foo-bar.--field std:cmdoption 1 index.html#cmdoption-foo-bar-field -
 docname std:doc -1 docname.html -
 foo js:module 1 index.html#foo -
 foo.bar js:class 1 index.html#foo.bar -
