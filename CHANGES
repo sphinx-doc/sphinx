@@ -24,6 +24,7 @@ Bugs fixed
   is obtained using some extra LaTeX code in Sphinx's own :file:`conf.py`
 * #3770: Build fails when a "code-block" has the option emphasize-lines and the
   number indicated is higher than the number of lines
+* #3774: Incremental HTML building broken when using citations
 
 Testing
 --------
