@@ -22,6 +22,8 @@ Bugs fixed
   `rtfd/readthedocs.org#2857
   <https://github.com/rtfd/readthedocs.org/issues/2857>`_ issue, a workaround
   is obtained using some extra LaTeX code in Sphinx's own :file:`conf.py`
+* #3770: Build fails when a "code-block" has the option emphasize-lines and the
+  number indicated is higher than the number of lines
 
 Testing
 --------

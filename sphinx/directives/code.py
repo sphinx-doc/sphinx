@@ -127,7 +127,7 @@ class CodeBlock(Directive):
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
                     logger.warning('line number spec is out of range(1-%d): %r' %
-                                   (nlines, self.options['emphasize_lines']),
+                                   (nlines, self.options['emphasize-lines']),
                                    location=location)
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
@@ -441,7 +441,7 @@ class LiteralInclude(Directive):
                 hl_lines = parselinenos(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
                     logger.warning('line number spec is out of range(1-%d): %r' %
-                                   (lines, self.options['emphasize_lines']),
+                                   (lines, self.options['emphasize-lines']),
                                    location=location)
                 extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < lines]
             extra_args['linenostart'] = reader.lineno_start
