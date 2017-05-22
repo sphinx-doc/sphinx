@@ -347,7 +347,7 @@ provided in ``sphinx.testing``. If you are a developer of Sphinx extensions,
 you can write unit tests with using pytest. At this time, ``sphinx.testing``
 will help your test implementation.
 
-How to use pytest fixtures that are provided by ``sphinx.teting``?
+How to use pytest fixtures that are provided by ``sphinx.testing``?
 You can require ``'sphinx.testing.fixtures'`` in your test modules or
 ``conftest.py`` files like this::
 
