@@ -26,6 +26,7 @@ Bugs fixed
   number indicated is higher than the number of lines
 * #3774: Incremental HTML building broken when using citations
 * #3772: 'str object' has no attribute 'filename'
+* #3763: got epubcheck validations error if epub_cover is set
 
 Testing
 --------
