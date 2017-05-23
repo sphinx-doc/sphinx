@@ -13,6 +13,9 @@ Features added
 Bugs fixed
 ----------
 
+* #3781: Arguments to ``.. option::`` directive now render as literal,
+  bypassing smartypants, resulting in two hyphens instead of one
+  endash in output for long-style options (e.g., "--help")
 * #3754: HTML builder crashes if HTML theme appends own stylesheets
 * #3756: epub: Entity 'mdash' not defined
 * #3758: Sphinx crashed if logs are emitted in conf.py
