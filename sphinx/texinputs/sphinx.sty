@@ -722,6 +722,11 @@
 
 % Inspired and adapted from framed.sty's \CustomFBox with extra handling
 % of a non separable by pagebreak caption.
+% The sole purpose of this macro is to add the framing and the title. The #1
+% already has the typeset contents with background color, and took into
+% account the \sphinxverbatimsep. The \fboxsep parameter is here zero
+% (see \spx@fcolorbox definition) in order for the frame borders to exactly
+% fit the colored contents.
 \long\def\spx@VerbatimFBox#1{%
   \leavevmode
   \begingroup
