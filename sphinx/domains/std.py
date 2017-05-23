@@ -166,8 +166,7 @@ class Cmdoption(ObjectDescription):
             optname, args = m.groups()
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
-            signode += addnodes.literal_strong(optname, optname)
-##            signode += addnodes.desc_name(optname, optname)
+            signode += addnodes.desc_name_literal(optname, optname)
             signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname

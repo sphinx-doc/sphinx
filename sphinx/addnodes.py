@@ -124,6 +124,12 @@ class desc_name(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for the main object name."""
 
 
+class desc_name_literal(nodes.Part, nodes.literal, nodes.Inline,
+                        nodes.TextElement):
+    """Node for the main object name, but further text processors are not
+    applied (e.g. smartypants for HTML output)."""
+
+
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
