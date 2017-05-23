@@ -51,10 +51,10 @@ requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.0.0',
-    'typing',
     'setuptools',
     'sphinxcontrib-websupport',
 ]
+
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
     ':sys_platform=="win32"': [
@@ -64,6 +64,7 @@ extras_require = {
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
     ],
+    ':python_version<"3.5"': ['typing'],
     'test': [
         'pytest',
         'mock',  # it would be better for 'test:python_version in 2.7'
