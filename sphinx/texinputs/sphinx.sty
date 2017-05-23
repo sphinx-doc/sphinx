@@ -257,6 +257,7 @@
 % verbatim
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
+\DeclareBoolOption[false]{verbatimhintsturnover}
 \DeclareBoolOption[true]{inlineliteralwraps}
 % parsed literal
 \DeclareBoolOption[true]{parsedliteralwraps}
@@ -683,7 +684,7 @@
 % \sphinxVerbatimTitle is reset to empty after each use of Verbatim.
 \newcommand*\sphinxVerbatimTitle {}
 % This box to typeset the caption before framed.sty multiple passes for framing.
-\newbox\spx@VerbatimTitleBox
+\newbox\spx@Verbatim@TitleBox
 % Holder macro for labels of literal blocks. Set-up by LaTeX writer.
 \newcommand*\sphinxLiteralBlockLabel {}
 \newcommand*\sphinxSetupCaptionForVerbatim [1]
@@ -707,55 +708,78 @@
 \newif\ifspx@inframed % flag set if we are already in a framed environment
 % if forced use of minipage encapsulation is needed (e.g. table cells)
 \newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
-\newcommand\spx@colorbox [2]{%
-% #1 will be \fcolorbox or, for first part of frame: \spx@fcolorbox
+\long\def\spx@colorbox #1#2#3{%
 % let the framing obey the current indentation (adapted from framed.sty's code).
   \hskip\@totalleftmargin
   \hskip-\fboxsep\hskip-\fboxrule
-  #1{VerbatimBorderColor}{VerbatimColor}{#2}%
+  \spx@fcolorbox{VerbatimBorderColor}{VerbatimColor}{#1}{#2}{#3}%
   \hskip-\fboxsep\hskip-\fboxrule
   \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }
 % use of \color@b@x here is compatible with both xcolor.sty and color.sty
-\def\spx@fcolorbox #1#2%
-  {\color@b@x {\fboxsep\z@\color{#1}\spx@VerbatimFBox}{\color{#2}}}%
-
-% Inspired and adapted from framed.sty's \CustomFBox with extra handling
-% of a non separable by pagebreak caption.
-% The sole purpose of this macro is to add the framing and the title. The #1
-% already has the typeset contents with background color, and took into
-% account the \sphinxverbatimsep. The \fboxsep parameter is here zero
-% (see \spx@fcolorbox definition) in order for the frame borders to exactly
-% fit the colored contents.
-\long\def\spx@VerbatimFBox#1{%
+\long\def\spx@fcolorbox #1#2#3#4%
+  {\color@b@x {\color{#1}\spx@VerbatimFBox{#3}{#4}}{\color{#2}}}%
+% Frame drawing macro
+% #1 = used by default for title above frame, may contain "continued" hint
+% #2 = for material underneath frame, used for "continues on next page" hint
+% #3 = actual contents with background color
+\long\def\spx@VerbatimFBox#1#2#3{%
   \leavevmode
   \begingroup
-  \setbox\@tempboxa\hbox{\kern\fboxsep{#1}\kern\fboxsep}%
-   \hbox
-   {\lower\dimexpr\fboxrule+\fboxsep+\dp\@tempboxa
-    \hbox{%
-      \vbox{\ifvoid\spx@VerbatimTitleBox\else
-            % add the caption in a centered way above possibly indented frame
-            % hide its width from framed.sty's measuring step
-            % note that the caption brings \abovecaptionskip top vertical space
-            \moveright\dimexpr\fboxrule+.5\wd\@tempboxa
-                  \hb@xt@\z@{\hss\unhcopy\spx@VerbatimTitleBox\hss}\fi
+  \setbox\@tempboxa\hbox{{#3}}% inner braces to avoid color leaks
+  \hbox
+   {\lower\dimexpr\fboxrule+\dp\@tempboxa\hbox{%
+      \vbox{#1% above frame
             % draw frame border _latest_ to avoid pdf viewer issue
             \kern\fboxrule
             \hbox{\kern\fboxrule
-                  \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
+                  \copy\@tempboxa
                   \kern-\wd\@tempboxa\kern-\fboxrule
                   \vrule\@width\fboxrule
                   \kern\wd\@tempboxa
                   \vrule\@width\fboxrule}%
-            \kern-\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa
-                                  +\fboxsep+\fboxrule\relax
+            \kern-\dimexpr\ht\@tempboxa+\dp\@tempboxa+\fboxrule\relax
             \hrule\@height\fboxrule
-            \kern\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa+\fboxsep\relax
-            \hrule\@height\fboxrule}%
-   }}%
+            \kern\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
+            \hrule\@height\fboxrule
+            #2% below frame
+          }%
+    }%
+   }%
   \endgroup
 }
+
+% Customize framed.sty \MakeFramed to glue caption to literal block
+% and add optional hint "continued on next page"
+\def\spx@Verbatim@FrameCommand
+   {\spx@colorbox\spx@Verbatim@Title{}}%
+% Macros for a frame with page breaks:
+\def\spx@Verbatim@FirstFrameCommand
+   {\spx@colorbox\spx@Verbatim@Title\spx@Verbatim@Continues}%
+\def\spx@Verbatim@MidFrameCommand
+   {\spx@colorbox\spx@Verbatim@Continued\spx@Verbatim@Continues}%
+\def\spx@Verbatim@LastFrameCommand
+   {\spx@colorbox\spx@Verbatim@Continued{}}%
+
+\def\spx@Verbatim@Title{% hide width from framed.sty measuring
+  \moveright\dimexpr\fboxrule+.5\wd\@tempboxa
+  \hb@xt@\z@{\hss\unhcopy\spx@Verbatim@TitleBox\hss}%
+}%
+\def\spx@Verbatim@Continued{%
+  \moveright\dimexpr\fboxrule+\wd\@tempboxa-\fboxsep
+  \hb@xt@\z@{\hss
+             {\normalcolor\sphinxstylecodecontinued\literalblockcontinuedname}}%
+}%
+\def\spx@Verbatim@Continues{%
+  \moveright\dimexpr\fboxrule+\wd\@tempboxa-\fboxsep
+  \hb@xt@\z@{\hss
+             {\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}%
+}%
+\newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
+\newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
+% Defaults are redefined in document preamble according to language
+\newcommand*\literalblockcontinuedname{continued from previous page}%
+\newcommand*\literalblockcontinuesname{continues on next page}%
 
 % For linebreaks inside Verbatim environment from package fancyvrb.
 \newbox\sphinxcontinuationbox
@@ -833,10 +857,10 @@
           \needspace{\sphinxliteralblockwithoutcaptionneedspace}%
           \phantomsection\sphinxLiteralBlockLabel
       \fi
-      \setbox\spx@VerbatimTitleBox\box\voidb@x
+      \let\spx@Verbatim@Title\@empty
   \else
   % non-empty \sphinxVerbatimTitle has label inside it (in case there is one)
-     \setbox\spx@VerbatimTitleBox
+     \setbox\spx@Verbatim@TitleBox
             \hbox{\begin{minipage}{\linewidth}%
                     \sphinxVerbatimTitle
                   \end{minipage}}%
@@ -844,13 +868,14 @@
   \fboxsep\sphinxverbatimsep \fboxrule\sphinxverbatimborder
   % setting borderwidth to zero is simplest for no-frame effect with same pagebreaks
   \ifspx@opt@verbatimwithframe\else\fboxrule\z@\fi
-  % Customize framed.sty \MakeFramed to glue caption to literal block
-  % via \spx@fcolorbox, will use \spx@VerbatimFBox which inserts title
-  \def\FrameCommand   {\spx@colorbox\spx@fcolorbox }%
-  \let\FirstFrameCommand\FrameCommand
-  % for mid pages and last page portion of (long) split frame:
-  \def\MidFrameCommand{\spx@colorbox\fcolorbox }%
-  \let\LastFrameCommand\MidFrameCommand
+  \let\FrameCommand     \spx@Verbatim@FrameCommand
+  \let\FirstFrameCommand\spx@Verbatim@FirstFrameCommand
+  \let\MidFrameCommand  \spx@Verbatim@MidFrameCommand
+  \let\LastFrameCommand \spx@Verbatim@LastFrameCommand
+  \ifspx@opt@verbatimhintsturnover\else
+      \let\spx@Verbatim@Continued\@empty
+      \let\spx@Verbatim@Continues\@empty
+  \fi
   \ifspx@opt@verbatimwrapslines
   % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
   % This customization wraps each line from the input in a \vtop, thus
