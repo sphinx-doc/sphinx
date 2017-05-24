@@ -675,8 +675,10 @@ class BuildEnvironment(object):
         language = (self.config.language or 'en').replace('_', '-')
         self.settings['language_code'] = language
         if self.config.html_use_smartypants is not None:
-            warnings.warn("html_use_smartypants option is deprecated. Use the "
-                          "smart_quotes option in docutils.conf instead.",
+            warnings.warn("html_use_smartypants option is deprecated. Smart "
+                          "quotes are on by default; if you want to disable "
+                          "or customize them, use the smart_quotes option in "
+                          "docutils.conf.",
                           RemovedInSphinx17Warning)
             if language in smartchars.quotes:
                 self.settings['smart_quotes'] = self.config.html_use_smartypants
