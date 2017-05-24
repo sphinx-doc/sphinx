@@ -28,6 +28,7 @@ Bugs fixed
 * #3772: 'str object' has no attribute 'filename'
 * #3763: got epubcheck validations error if epub_cover is set
 * #3779: 'ImportError' in sphinx.ext.autodoc due to broken 'sys.meta_path'
+* #3796: env.resolve_references() crashes when non-document node given
 
 Testing
 --------

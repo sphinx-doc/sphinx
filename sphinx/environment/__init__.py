@@ -943,10 +943,9 @@ class BuildEnvironment(object):
         try:
             # set env.docname during applying post-transforms
             self.temp_data['docname'] = docname
-            if hasattr(doctree, 'settings'):
-                doctree.settings.env = self
 
             transformer = SphinxTransformer(doctree)
+            transformer.set_environment(self)
             transformer.add_transforms(self.app.post_transforms)
             transformer.apply_transforms()
         finally:
