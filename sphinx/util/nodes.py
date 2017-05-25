@@ -38,6 +38,8 @@ class WarningStream(object):
 
     def write(self, text):
         # type: (str) -> None
+        if self.warnfunc is None:
+            return
         text = text.strip()
         if text:
             self.warnfunc(self._re.sub(r'\1:', text), None, '')
