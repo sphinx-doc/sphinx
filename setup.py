@@ -60,11 +60,13 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
+    ':python_version<"3.5"': [
+        'typing'
+    ],
     'websupport': [
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
     ],
-    ':python_version<"3.5"': ['typing'],
     'test': [
         'pytest',
         'mock',  # it would be better for 'test:python_version in 2.7'
