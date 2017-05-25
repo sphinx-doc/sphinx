@@ -31,6 +31,7 @@ Bugs fixed
   Thanks to Tatiana Tereshchenko.
 * #3796: env.resolve_references() crashes when non-document node given
 * #3803: Sphinx crashes with invalid PO files
+* #3791: PDF "continued on next page" for long tables isn't internationalized
 
 Testing
 --------
