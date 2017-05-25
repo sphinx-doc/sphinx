@@ -538,7 +538,7 @@ class StandardDomain(Domain):
             if docnames == [docname]:
                 del self.data['citation_refs'][key]
             elif docname in docnames:
-                docnames.pop(docname)
+                docnames.remove(docname)
         for key, (fn, _l, _l) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]

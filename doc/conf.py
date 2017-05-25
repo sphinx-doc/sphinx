@@ -56,7 +56,12 @@ latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
-    'printindex': '\\footnotesize\\raggedright\\printindex',
+    # fix missing index entry due to RTD doing only once pdflatex after makeindex
+    'printindex': r'''
+\IfFileExists{\jobname.ind}
+             {\footnotesize\raggedright\printindex}
+             {\begin{sphinxtheindex}\end{sphinxtheindex}}
+''',
 }
 latex_show_urls = 'footnote'
 

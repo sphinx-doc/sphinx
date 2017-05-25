@@ -29,20 +29,6 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class WarningStream(object):
-
-    def __init__(self, warnfunc):
-        # type: (Callable) -> None
-        self.warnfunc = warnfunc
-        self._re = re.compile(r'\((DEBUG|INFO|WARNING|ERROR|SEVERE)/[0-4]\)')
-
-    def write(self, text):
-        # type: (str) -> None
-        text = text.strip()
-        if text:
-            self.warnfunc(self._re.sub(r'\1:', text), None, '')
-
-
 # \x00 means the "<" was backslash-escaped
 explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias

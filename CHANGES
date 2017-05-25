@@ -59,6 +59,8 @@ Release 1.6.2 (in development)
 Incompatible changes
 --------------------
 
+* #3789: Do not require typing module for python>=3.5
+
 Deprecated
 ----------
 
@@ -72,6 +74,21 @@ Bugs fixed
 * #3756: epub: Entity 'mdash' not defined
 * #3758: Sphinx crashed if logs are emitted in conf.py
 * #3755: incorrectly warns about dedent with literalinclude
+* #3742: `RTD <https://readthedocs.org/>`_ PDF builds of Sphinx own docs are
+  missing an index entry in the bookmarks and table of contents. This is
+  `rtfd/readthedocs.org#2857
+  <https://github.com/rtfd/readthedocs.org/issues/2857>`_ issue, a workaround
+  is obtained using some extra LaTeX code in Sphinx's own :file:`conf.py`
+* #3770: Build fails when a "code-block" has the option emphasize-lines and the
+  number indicated is higher than the number of lines
+* #3774: Incremental HTML building broken when using citations
+* #3772: 'str object' has no attribute 'filename'
+* #3763: got epubcheck validations error if epub_cover is set
+* #3779: 'ImportError' in sphinx.ext.autodoc due to broken 'sys.meta_path'.
+  Thanks to Tatiana Tereshchenko.
+* #3796: env.resolve_references() crashes when non-document node given
+* #3803: Sphinx crashes with invalid PO files
+* #3791: PDF "continued on next page" for long tables isn't internationalized
 
 Testing
 --------

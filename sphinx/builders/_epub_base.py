@@ -568,8 +568,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if self.coverpage_name not in self.files:
                     ext = path.splitext(self.coverpage_name)[-1]
                     self.files.append(self.coverpage_name)
-                    item = ManifestItem(self.esc(filename),
-                                        self.esc(self.make_id(filename)),
+                    item = ManifestItem(self.esc(self.coverpage_name),
+                                        self.esc(self.make_id(self.coverpage_name)),
                                         self.esc(self.media_types[ext]))
                     metadata['manifest_items'].append(item)
                 ctx = {'image': self.esc(image), 'title': self.config.project}

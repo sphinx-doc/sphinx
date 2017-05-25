@@ -35,11 +35,11 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import WarningStream, is_translatable
+from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import sphinx_domains
+from sphinx.util.docutils import sphinx_domains, WarningStream
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
@@ -863,8 +863,7 @@ class BuildEnvironment(object):
         with open(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
         doctree.settings.env = self
-        doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
-                                    stream=WarningStream(self._warnfunc))
+        doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
@@ -919,10 +918,9 @@ class BuildEnvironment(object):
         try:
             # set env.docname during applying post-transforms
             self.temp_data['docname'] = docname
-            if hasattr(doctree, 'settings'):
-                doctree.settings.env = self
 
             transformer = SphinxTransformer(doctree)
+            transformer.set_environment(self)
             transformer.add_transforms(self.app.post_transforms)
             transformer.apply_transforms()
         finally:
