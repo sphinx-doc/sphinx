@@ -67,7 +67,6 @@ extras_require = {
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
     ],
-    ':python_version<"3.5"': ['typing'],
     'test': [
         'pytest',
         'mock',  # it would be better for 'test:python_version in 2.7'
