@@ -30,6 +30,7 @@ Bugs fixed
 * #3779: 'ImportError' in sphinx.ext.autodoc due to broken 'sys.meta_path'.
   Thanks to Tatiana Tereshchenko.
 * #3796: env.resolve_references() crashes when non-document node given
+* #3803: Sphinx crashes with invalid PO files
 
 Testing
 --------

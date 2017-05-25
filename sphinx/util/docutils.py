@@ -24,7 +24,7 @@ from sphinx.locale import _
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-report_re = re.compile('^(.+?:\\d+): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
+report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
                        '(.+?)\n?$')
 
 if False:
