@@ -4,6 +4,8 @@ Release 1.6.2 (in development)
 Incompatible changes
 --------------------
 
+* #3789: Do not require typing module for python>=3.5
+
 Deprecated
 ----------
 
