@@ -39,7 +39,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util.docutils import sphinx_domains, is_supported_language, WarningStream
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
@@ -672,18 +672,20 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
-        language = (self.config.language or 'en').replace('_', '-')
-        self.settings['language_code'] = language
-        if self.config.html_use_smartypants is not None:
-            warnings.warn("html_use_smartypants option is deprecated. Smart "
-                          "quotes are on by default; if you want to disable "
-                          "or customize them, use the smart_quotes option in "
-                          "docutils.conf.",
-                          RemovedInSphinx17Warning)
-            if language in smartchars.quotes:
-                self.settings['smart_quotes'] = self.config.html_use_smartypants
-        elif language in smartchars.quotes:  # We enable smartypants by default
-            self.settings['smart_quotes'] = True
+
+        language = self.config.language or 'en'
+        if is_supported_language(language):
+            self.settings['language_code'] = language
+            if self.config.html_use_smartypants is not None:
+                warnings.warn("html_use_smartypants option is deprecated. Smart "
+                              "quotes are on by default; if you want to disable "
+                              "or customize them, use the smart_quotes option in "
+                              "docutils.conf.",
+                              RemovedInSphinx17Warning)
+                if language in smartchars.quotes:
+                    self.settings['smart_quotes'] = self.config.html_use_smartypants
+            elif language in smartchars.quotes:  # We enable smartypants by default
+                self.settings['smart_quotes'] = True
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
