@@ -16,6 +16,7 @@ from copy import copy
 from contextlib import contextmanager
 
 import docutils
+from docutils.languages import get_language
 from docutils.utils import Reporter
 from docutils.parsers.rst import directives, roles, convert_directive_function
 
@@ -171,3 +172,11 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
             raise ExtensionError(_('when adding directive classes, no '
                                    'additional arguments may be given'))
         return obj
+
+
+def is_supported_language(name):
+    # type: (unicode) -> bool
+    """Check a specified language is supported by docutils."""
+    language = get_language(name)
+    modname = language.__name__.rsplit('.')[-1]  # docutils.language.en => en
+    return modname == name or modname != 'en'
