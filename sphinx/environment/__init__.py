@@ -686,6 +686,9 @@ class BuildEnvironment(object):
                     self.settings['smart_quotes'] = self.config.html_use_smartypants
             elif language in smartchars.quotes:  # We enable smartypants by default
                 self.settings['smart_quotes'] = True
+        else:
+            self.settings.pop('language_code', None)
+            self.settings['smart_quotes'] = False
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
