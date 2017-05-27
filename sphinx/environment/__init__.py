@@ -672,18 +672,23 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
-        language = (self.config.language or 'en').replace('_', '-')
-        self.settings['language_code'] = language
+        self.settings['language_code'] = 'en'
+        self.settings['smart_quotes'] = True  # We enable smartypants by default
         if self.config.html_use_smartypants is not None:
             warnings.warn("html_use_smartypants option is deprecated. Smart "
                           "quotes are on by default; if you want to disable "
                           "or customize them, use the smart_quotes option in "
                           "docutils.conf.",
                           RemovedInSphinx17Warning)
-            if language in smartchars.quotes:
-                self.settings['smart_quotes'] = self.config.html_use_smartypants
-        elif language in smartchars.quotes:  # We enable smartypants by default
-            self.settings['smart_quotes'] = True
+            self.settings['smart_quotes'] = self.config.html_use_smartypants
+        language = self.config.language or 'en'
+        if self.settings['smart_quotes'] and language in smartchars.quotes:
+            # trick Docutils smartquotes transform to apply even if document
+            # language is not available for Docutils's own localisation
+            smartchars.quotes['en'] = smartchars.quotes[language]
+        else:
+            self.settings.pop('language_code')
+            self.settings.pop('smart_quotes')
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
