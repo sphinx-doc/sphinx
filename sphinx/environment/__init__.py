@@ -25,7 +25,7 @@ from six.moves import cPickle as pickle
 
 from docutils.io import NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, get_source_line
+from docutils.utils import Reporter, get_source_line, normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
@@ -672,18 +672,22 @@ class BuildEnvironment(object):
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
-        language = (self.config.language or 'en').replace('_', '-')
+
+        language = self.config.language or 'en'
         self.settings['language_code'] = language
+        self.settings['smart_quotes'] = True
         if self.config.html_use_smartypants is not None:
             warnings.warn("html_use_smartypants option is deprecated. Smart "
                           "quotes are on by default; if you want to disable "
                           "or customize them, use the smart_quotes option in "
                           "docutils.conf.",
                           RemovedInSphinx17Warning)
-            if language in smartchars.quotes:
-                self.settings['smart_quotes'] = self.config.html_use_smartypants
-        elif language in smartchars.quotes:  # We enable smartypants by default
-            self.settings['smart_quotes'] = True
+            self.settings['smart_quotes'] = self.config.html_use_smartypants
+        for tag in normalize_language_tag(language):
+            if tag in smartchars.quotes:
+                    break
+        else:
+            self.settings['smart_quotes'] = False
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
