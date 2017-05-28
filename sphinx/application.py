@@ -83,6 +83,7 @@ builtin_extensions = (
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',
+    'sphinx.parsers',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.images',
@@ -263,7 +264,7 @@ class Sphinx(object):
         for suffix, parser in iteritems(self.config.source_parsers):
             self.add_source_parser(suffix, parser)
         for suffix, parser in iteritems(self.registry.get_source_parsers()):
-            if suffix not in self.config.source_suffix:
+            if suffix not in self.config.source_suffix and suffix != '*':
                 self.config.source_suffix.append(suffix)
 
     def _init_env(self, freshenv):
