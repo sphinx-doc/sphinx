@@ -36,6 +36,7 @@ Bugs fixed
 * #3791: PDF "continued on next page" for long tables isn't internationalized
 * #3788: smartquotes emits warnings for unsupported languages
 * #3807: docs do not say Latexmk is dependency on Windows for ``make latexpdf``
+* #3781: double hyphens in option directive are compiled as endashes
 
 Testing
 --------
