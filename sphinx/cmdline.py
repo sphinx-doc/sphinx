@@ -24,7 +24,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
-from sphinx.util.docutils import docutils_namespace
+from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
@@ -299,7 +299,7 @@ def main(argv):
 
     app = None
     try:
-        with docutils_namespace():
+        with patch_docutils(), docutils_namespace():
             app = Sphinx(srcdir, confdir, outdir, doctreedir, opts.builder,
                          confoverrides, status, warning, opts.freshenv,
                          opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)

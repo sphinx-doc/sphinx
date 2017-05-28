@@ -24,7 +24,6 @@ from six.moves import cStringIO
 
 import docutils
 from docutils import nodes
-from docutils.languages import get_language as docutils_get_language
 from docutils.parsers.rst import directives, roles
 
 import sphinx
@@ -106,14 +105,6 @@ CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
 logger = logging.getLogger(__name__)
-
-
-# monkey patch docutils get_language
-def patched_docutils_get_language(language_code, reporter=None):  # NOQA
-    return docutils_get_language(language_code)
-
-
-docutils.languages.get_language = patched_docutils_get_language
 
 
 class Sphinx(object):

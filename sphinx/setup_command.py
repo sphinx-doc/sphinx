@@ -23,7 +23,7 @@ from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: i
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception
 from sphinx.util.console import nocolor, color_terminal
-from sphinx.util.docutils import docutils_namespace
+from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
 if False:
@@ -183,7 +183,7 @@ class BuildDoc(Command):
             app = None
 
             try:
-                with docutils_namespace():
+                with patch_docutils(), docutils_namespace():
                     app = Sphinx(self.source_dir, self.config_dir,
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,
