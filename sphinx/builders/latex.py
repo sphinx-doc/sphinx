@@ -218,6 +218,12 @@ class LaTeXBuilder(Builder):
                 copy_asset_file(path.join(staticdirname, filename),
                                 self.outdir, context=context)
 
+        # use pre-1.6.x Makefile for make latexpdf on Windows
+        if os.name == 'nt':
+            staticdirname = path.join(package_dir, 'texinputs_win')
+            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
+                            self.outdir, context=context)
+
         # copy additional files
         if self.config.latex_additional_files:
             logger.info(bold('copying additional files...'), nonl=1)
