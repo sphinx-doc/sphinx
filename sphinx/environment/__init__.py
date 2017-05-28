@@ -678,7 +678,7 @@ class BuildEnvironment(object):
         self.settings['smart_quotes'] = True
         for tag in normalize_language_tag(language):
             if tag in smartchars.quotes:
-                    break
+                break
         else:
             self.settings['smart_quotes'] = False
 
