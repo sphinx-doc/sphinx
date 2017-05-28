@@ -1204,6 +1204,15 @@ def test_html_raw_directive(app, status, warning):
     assert '<p>LaTeX: abc  ghi</p>' in result
 
 
+@pytest.mark.sphinx('html', testroot='directive-option')
+def test_html_option_directive(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+
+    # Assert that the '--help' option argument is rendered with two hyphens
+    assert '--help' in result
+
+
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
         (".//link[@href='_static/persistent.css']"

@@ -167,6 +167,14 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         self.body.append('</code>')
 
+    def visit_desc_name_literal(self, node):
+        # type: (nodes.Node) -> None
+        self.visit_desc_name(node)
+
+    def depart_desc_name_literal(self, node):
+        # type: (nodes.Node) -> None
+        self.depart_desc_name(node)
+
     def visit_desc_parameterlist(self, node):
         # type: (nodes.Node) -> None
         self.body.append('<span class="sig-paren">(</span>')

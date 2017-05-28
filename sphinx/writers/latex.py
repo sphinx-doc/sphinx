@@ -1187,6 +1187,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.literal_whitespace -= 1
         self.no_contractions -= 1
 
+    def visit_desc_name_literal(self, node):
+        # type: (nodes.Node) -> None
+        self.visit_desc_name(node)
+
+    def depart_desc_name_literal(self, node):
+        # type: (nodes.Node) -> None
+        self.depart_desc_name(node)
+
     def visit_desc_parameterlist(self, node):
         # type: (nodes.Node) -> None
         # close name, open parameterlist
