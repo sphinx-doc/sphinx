@@ -83,6 +83,6 @@ def test_domain_override(app, status, warning):
 @pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
-    assert set(app.registry.get_source_parsers().keys()) == set(['.md', '.test'])
+    assert set(app.registry.get_source_parsers().keys()) == set(['*', '.md', '.test'])
     assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
     assert app.registry.get_source_parsers()['.test'].__name__ == 'TestSourceParser'

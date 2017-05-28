@@ -9,12 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import docutils
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.utils import new_document
-from docutils.transforms.universal import SmartQuotes as DocutilsSmartQuotes
+from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
 from sphinx.locale import _
@@ -331,9 +330,11 @@ class SphinxContentsFilter(ContentsFilter):
         raise nodes.SkipNode
 
 
-class SphinxSmartQuotes(DocutilsSmartQuotes):  # NOQA
+class SphinxSmartQuotes(SmartQuotes):
     """
     Customized SmartQuotes to avoid transform for some extra node types.
+
+    refs: sphinx.parsers.RSTParser
     """
     def get_tokens(self, txtnodes):
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
@@ -356,6 +357,3 @@ class SphinxSmartQuotes(DocutilsSmartQuotes):  # NOQA
                                             nodes.raw,
                                             nodes.problematic))]
             yield (nodetype, txtnode.astext())
-
-
-docutils.transforms.universal.SmartQuotes = SphinxSmartQuotes
