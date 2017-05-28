@@ -37,6 +37,8 @@ Bugs fixed
 * #3788: smartquotes emits warnings for unsupported languages
 * #3807: docs do not say Latexmk is dependency on Windows for ``make latexpdf``
 * #3781: double hyphens in option directive are compiled as endashes
+* #3817: latex builder raises AttributeError
+
 
 Testing
 --------
