@@ -12,6 +12,7 @@
 from sphinx.websupport import WebSupport
 try:
     sqlalchemy_missing = False
+    import sqlalchemy  # NOQA
 except ImportError:
     sqlalchemy_missing = True
 
