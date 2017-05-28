@@ -20,6 +20,7 @@ from hashlib import md5
 from six import iteritems, text_type, string_types
 from six.moves import cPickle as pickle
 
+import docutils
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
@@ -34,7 +35,7 @@ from sphinx.util.inventory import InventoryFile
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.docutils import is_html5_writer_available, __version_info__
+from sphinx.util.docutils import is_html5_writer_available
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
@@ -214,10 +215,9 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
         if self.config.html_experimental_html5_writer and not html5_ready:
-            self.app.warn(' '.join((
-                'html_experimental_html5_writer is set, but current version is old.',
-                'Docutils\' version should be or newer than 0.13, but %s.',
-            )) % '.'.join(map(str, __version_info__)))
+            self.app.warn(('html_experimental_html5_writer is set, but current version '
+                           'is old. Docutils\' version should be 0.13 or newer, but %s.') %
+                          docutils.__version__)
 
     def _get_translations_js(self):
         # type: () -> unicode
