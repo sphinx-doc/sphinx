@@ -53,19 +53,34 @@ Bugs fixed
 Testing
 --------
 
-Release 1.6.2 (in development)
+Release 1.6.3 (in development)
 ==============================
+
+Dependencies
+------------
 
 Incompatible changes
 --------------------
-
-* #3789: Do not require typing module for python>=3.5
 
 Deprecated
 ----------
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6.2 (released May 28, 2017)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #3789: Do not require typing module for python>=3.5
 
 Bugs fixed
 ----------
@@ -90,13 +105,9 @@ Bugs fixed
 * #3803: Sphinx crashes with invalid PO files
 * #3791: PDF "continued on next page" for long tables isn't internationalized
 * #3788: smartquotes emits warnings for unsupported languages
-* #3807: docs do not say Latexmk is dependency on Windows for ``make latexpdf``
+* #3807: latex Makefile for ``make latexpdf`` is only for unixen
 * #3781: double hyphens in option directive are compiled as endashes
 * #3817: latex builder raises AttributeError
-
-
-Testing
---------
 
 Release 1.6.1 (released May 16, 2017)
 =====================================
@@ -109,7 +120,7 @@ Dependencies
 * (updated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
   2014) and earlier tex installations may not be fully compliant, particularly
   regarding Unicode engines xelatex and lualatex
-* (added) latexmk is required for ``make latexpdf``
+* (added) latexmk is required for ``make latexpdf`` on GNU/Linux and Mac OS X
   (refs: #3082)
 
 Incompatible changes

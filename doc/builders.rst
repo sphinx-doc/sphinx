@@ -180,11 +180,12 @@ The builder's "name" must be given to the **-b** command-line option of
          Formerly, testing had been done for some years on Ubuntu precise
          (based on TeXLive 2009).
       .. versionchanged:: 1.6
-         Use of ``latexmk`` for ``make latexpdf``
+         Use of ``latexmk`` for ``make latexpdf`` on GNU/Linux and Mac OS X
 
       Since 1.6, ``make latexpdf`` (or
       ``make -C "<builddir>/latex"`` after a ``sphinx-build`` run) uses
-      ``latexmk``. One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
+      ``latexmk`` (not on Windows).
+      One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
       Makefile variable. For example:
 
       .. code-block:: console
