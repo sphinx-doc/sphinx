@@ -9,10 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import docutils
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.utils import new_document
+from docutils.transforms.universal import SmartQuotes as DocutilsSmartQuotes
 
 from sphinx import addnodes
 from sphinx.locale import _
@@ -327,3 +329,33 @@ class SphinxContentsFilter(ContentsFilter):
     def visit_image(self, node):
         # type: (nodes.Node) -> None
         raise nodes.SkipNode
+
+
+class SphinxSmartQuotes(DocutilsSmartQuotes):  # NOQA
+    """
+    Customized SmartQuotes to avoid transform for some extra node types.
+    """
+    def get_tokens(self, txtnodes):
+        # A generator that yields ``(texttype, nodetext)`` tuples for a list
+        # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
+
+        texttype = {True: 'literal',  # "literal" text is not changed:
+                    False: 'plain'}
+        for txtnode in txtnodes:
+            nodetype = texttype[isinstance(txtnode.parent,
+                                           (nodes.literal,
+                                            nodes.literal_block,
+                                            addnodes.literal_emphasis,
+                                            addnodes.literal_strong,
+                                            addnodes.desc_signature,
+                                            addnodes.productionlist,
+                                            addnodes.desc_optional,
+                                            addnodes.desc_name,
+                                            nodes.math,
+                                            nodes.image,
+                                            nodes.raw,
+                                            nodes.problematic))]
+            yield (nodetype, txtnode.astext())
+
+
+docutils.transforms.universal.SmartQuotes = SphinxSmartQuotes
