@@ -21,7 +21,6 @@ from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround
-from sphinx import addnodes
 
 if False:
     # For type annotation
@@ -340,7 +339,7 @@ class SphinxSmartQuotes(DocutilsSmartQuotes):  # NOQA
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 
-        texttype = {True: 'literal', # "literal" text is not changed:
+        texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
             nodetype = texttype[isinstance(txtnode.parent,
