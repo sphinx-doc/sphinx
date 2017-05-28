@@ -265,7 +265,7 @@ Deprecated
 1.6b1
 
 * ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
-  ``docutils.parsers.rsr.Directive``
+  ``docutils.parsers.rst.Directive``
 * ``sphinx.util.compat.docutils_version`` is now deprecated
 * #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
   deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
