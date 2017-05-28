@@ -17,7 +17,7 @@ from sphinx.transforms import SphinxSmartQuotes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Type  # NOQA
+    from typing import Any, Dict, List, Type  # NOQA
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
