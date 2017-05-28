@@ -35,6 +35,7 @@ Bugs fixed
 * #3803: Sphinx crashes with invalid PO files
 * #3791: PDF "continued on next page" for long tables isn't internationalized
 * #3788: smartquotes emits warnings for unsupported languages
+* #3807: docs do not say Latexmk is dependency on Windows for ``make latexpdf``
 
 Testing
 --------
@@ -50,7 +51,7 @@ Dependencies
 * (updated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
   2014) and earlier tex installations may not be fully compliant, particularly
   regarding Unicode engines xelatex and lualatex
-* (added) latexmk is required for ``make latexpdf`` on Unix-like platforms
+* (added) latexmk is required for ``make latexpdf``
   (refs: #3082)
 
 Incompatible changes
