@@ -13,9 +13,11 @@ from __future__ import absolute_import
 import re
 import types
 from copy import copy
+from distutils.version import LooseVersion
 from contextlib import contextmanager
 
 import docutils
+from docutils.languages import get_language
 from docutils.utils import Reporter
 from docutils.parsers.rst import directives, roles, convert_directive_function
 
@@ -34,7 +36,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-__version_info__ = tuple(map(int, docutils.__version__.split('.')))
+__version_info__ = tuple(LooseVersion(docutils.__version__).version)
 
 
 @contextmanager
@@ -49,6 +51,29 @@ def docutils_namespace():
     finally:
         directives._directives = _directives
         roles._roles = _roles
+
+
+def patched_get_language(language_code, reporter=None):
+    # type: (unicode, Reporter) -> Any
+    """A wrapper for docutils.languages.get_language().
+
+    This ignores the second argument ``reporter`` to suppress warnings.
+    refs: https://github.com/sphinx-doc/sphinx/issues/3788
+    """
+    return get_language(language_code)
+
+
+@contextmanager
+def patch_docutils():
+    # type: () -> Iterator[None]
+    """Patch to docutils temporarily."""
+    try:
+        docutils.languages.get_language = patched_get_language
+
+        yield
+    finally:
+        # restore original implementations
+        docutils.languages.get_language = get_language
 
 
 class ElementLookupError(Exception):
