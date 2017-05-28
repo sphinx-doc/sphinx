@@ -22,7 +22,6 @@ from collections import deque
 from six import iteritems
 from six.moves import cStringIO
 
-import docutils
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
