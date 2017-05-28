@@ -63,6 +63,9 @@ class SphinxBaseReader(standalone.Reader):
             if source.source_path.endswith(suffix):
                 self.parser = self.parser_map[suffix]
                 break
+        else:
+            # use special parser for unknown file-extension '*' (if exists)
+            self.parser = self.parser_map.get('*')
 
         if not self.parser:
             self.parser = parser
