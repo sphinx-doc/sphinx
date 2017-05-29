@@ -12,13 +12,14 @@ from __future__ import absolute_import
 
 import sys
 import warnings
+from distutils.version import LooseVersion
 
 from docutils.parsers.rst import Directive  # noqa
 from docutils import __version__ as _du_version
 
 from sphinx.deprecation import RemovedInSphinx17Warning
 
-docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])
+docutils_version = tuple(LooseVersion(_du_version).version)[:2]
 
 if False:
     # For type annotation

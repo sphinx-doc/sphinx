@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #3821: Failed to import sphinx.util.compat with docutils-0.14rc1
+
 Testing
 --------
 
