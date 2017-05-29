@@ -341,7 +341,7 @@ class SphinxSmartQuotes(SmartQuotes):
                        addnodes.literal_emphasis,
                        addnodes.literal_strong,
                        addnodes.desc_signature,
-                       addnodes.productionlist,
+                       addnodes.production,
                        addnodes.desc_optional,
                        addnodes.desc_name,
                        nodes.math,
