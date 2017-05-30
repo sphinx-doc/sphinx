@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #3821: Failed to import sphinx.util.compat with docutils-0.14rc1
+* #3824: production lists are applied smart quotes transformation
 
 Testing
 --------

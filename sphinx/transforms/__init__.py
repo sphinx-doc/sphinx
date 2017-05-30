@@ -336,6 +336,19 @@ class SphinxSmartQuotes(SmartQuotes):
 
     refs: sphinx.parsers.RSTParser
     """
+    NO_SMARTY_NODES = (nodes.literal,
+                       nodes.literal_block,
+                       addnodes.literal_emphasis,
+                       addnodes.literal_strong,
+                       addnodes.desc_signature,
+                       addnodes.production,
+                       addnodes.desc_optional,
+                       addnodes.desc_name,
+                       nodes.math,
+                       nodes.image,
+                       nodes.raw,
+                       nodes.problematic)
+
     def get_tokens(self, txtnodes):
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
@@ -343,17 +356,5 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
-            nodetype = texttype[isinstance(txtnode.parent,
-                                           (nodes.literal,
-                                            nodes.literal_block,
-                                            addnodes.literal_emphasis,
-                                            addnodes.literal_strong,
-                                            addnodes.desc_signature,
-                                            addnodes.productionlist,
-                                            addnodes.desc_optional,
-                                            addnodes.desc_name,
-                                            nodes.math,
-                                            nodes.image,
-                                            nodes.raw,
-                                            nodes.problematic))]
+            nodetype = texttype[isinstance(txtnode.parent, self.NO_SMARTY_NODES)]
             yield (nodetype, txtnode.astext())
