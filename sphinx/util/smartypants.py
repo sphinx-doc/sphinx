@@ -3,8 +3,11 @@
     sphinx.util.smartypants
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    This code is copied from docutils’ docutils/utils/smartquotes.py
-    version 1.7.1 (from 2017-03-19). It should be removed in the future.
+    This is extracted (with minor adaptations for flake8 compliance) from
+    docutils’ docutils/utils/smartquotes.py as of revision 8097 (30 May 2017),
+    in order to backport for Sphinx usage with Docutils < 0.14 extra language
+    configurations and fixes. Replaces earlier smartypants version as used up
+    to Sphinx 1.5.6.
 
     :copyright: © 2010 Günter Milde,
                 original `SmartyPants`_: © 2003 John Gruber
@@ -20,6 +23,7 @@
     .. _2-Clause BSD license: http://www.spdx.org/licenses/BSD-2-Clause
 
     See the LICENSE file and the original docutils code for details.
+
 """
 from __future__ import absolute_import, unicode_literals
 
@@ -29,6 +33,96 @@ from sphinx.util.docutils import __version_info__ as docutils_version
 
 if False:  # For type annotation
     from typing import Iterable, Iterator, Tuple  # NOQA
+
+
+langquotes = {'af':           u'“”‘’',
+              'af-x-altquot': u'„”‚’',
+              'bg':           u'„“‚‘',  # Bulgarian, https://bg.wikipedia.org/wiki/Кавички
+              'ca':           u'«»“”',
+              'ca-x-altquot': u'“”‘’',
+              'cs':           u'„“‚‘',
+              'cs-x-altquot': u'»«›‹',
+              'da':           u'»«›‹',
+              'da-x-altquot': u'„“‚‘',
+              # 'da-x-altquot2': u'””’’',
+              'de':           u'„“‚‘',
+              'de-x-altquot': u'»«›‹',
+              'de-ch':        u'«»‹›',
+              'el':           u'«»“”',
+              'en':           u'“”‘’',
+              'en-uk-x-altquot': u'‘’“”',  # Attention: " → ‘ and ' → “ !
+              'eo':           u'“”‘’',
+              'es':           u'«»“”',
+              'es-x-altquot': u'“”‘’',
+              'et':           u'„“‚‘',  # no secondary quote listed in
+              'et-x-altquot': u'«»‹›',  # the sources above (wikipedia.org)
+              'eu':           u'«»‹›',
+              'fi':           u'””’’',
+              'fi-x-altquot': u'»»››',
+              'fr':           (u'« ', u' »', u'“', u'”'),  # full no-break space
+              'fr-x-altquot': (u'« ', u' »', u'“', u'”'),  # narrow no-break space
+              'fr-ch':        u'«»‹›',
+              'fr-ch-x-altquot': (u'« ',  u' »', u'‹ ', u' ›'),  # narrow no-break space
+              # http://typoguide.ch/
+              'gl':           u'«»“”',
+              'he':           u'”“»«',  # Hebrew is RTL, test position:
+              'he-x-altquot': u'„”‚’',  # low quotation marks are opening.
+              # 'he-x-altquot': u'“„‘‚',  # RTL: low quotation marks opening
+              'hr':           u'„”‘’',  # http://hrvatska-tipografija.com/polunavodnici/
+              'hr-x-altquot': u'»«›‹',
+              'hsb':          u'„“‚‘',
+              'hsb-x-altquot': u'»«›‹',
+              'hu':           u'„”«»',
+              'is':           u'„“‚‘',
+              'it':           u'«»“”',
+              'it-ch':        u'«»‹›',
+              'it-x-altquot': u'“”‘’',
+              # 'it-x-altquot2': u'“„‘‚',  # [7] in headlines
+              'ja':           u'「」『』',
+              'lt':           u'„“‚‘',
+              'lv':           u'„“‚‘',
+              'mk':           u'„“‚‘',  # Macedonian,
+              # https://mk.wikipedia.org/wiki/Правопис_и_правоговор_на_македонскиот_јазик
+              'nl':           u'“”‘’',
+              'nl-x-altquot': u'„”‚’',
+              # 'nl-x-altquot2': u'””’’',
+              'nb':           u'«»’’',  # Norsk bokmål (canonical form 'no')
+              'nn':           u'«»’’',  # Nynorsk [10]
+              'nn-x-altquot': u'«»‘’',  # [8], [10]
+              # 'nn-x-altquot2': u'«»«»',  # [9], [10]
+              # 'nn-x-altquot3': u'„“‚‘',  # [10]
+              'no':           u'«»’’',  # Norsk bokmål [10]
+              'no-x-altquot': u'«»‘’',  # [8], [10]
+              # 'no-x-altquot2': u'«»«»',  # [9], [10]
+              # 'no-x-altquot3': u'„“‚‘',  # [10]
+              'pl':           u'„”«»',
+              'pl-x-altquot': u'«»‚’',
+              # 'pl-x-altquot2': u'„”‚’',
+              # https://pl.wikipedia.org/wiki/Cudzys%C5%82%C3%B3w
+              'pt':           u'«»“”',
+              'pt-br':        u'“”‘’',
+              'ro':           u'„”«»',
+              'ru':           u'«»„“',
+              'sh':           u'„”‚’',  # Serbo-Croatian
+              'sh-x-altquot': u'»«›‹',
+              'sk':           u'„“‚‘',  # Slovak
+              'sk-x-altquot': u'»«›‹',
+              'sl':           u'„“‚‘',  # Slovenian
+              'sl-x-altquot': u'»«›‹',
+              'sq':           u'«»‹›',  # Albanian
+              'sq-x-altquot': u'“„‘‚',
+              'sr':           u'„”’’',
+              'sr-x-altquot': u'»«›‹',
+              'sv':           u'””’’',
+              'sv-x-altquot': u'»»››',
+              'tr':           u'“”‘’',
+              'tr-x-altquot': u'«»‹›',
+              # 'tr-x-altquot2': u'“„‘‚',  # [7] antiquated?
+              'uk':           u'«»„“',
+              'uk-x-altquot': u'„“‚‘',
+              'zh-cn':        u'“”‘’',
+              'zh-tw':        u'「」『』',
+              }
 
 
 def educateQuotes(text, language='en'):
@@ -43,7 +137,10 @@ def educateQuotes(text, language='en'):
     """
 
     smart = smartquotes.smartchars(language)
-    smart.apostrophe = u'’'
+    try:
+        apostrophe = smart.apostrophe
+    except:
+        apostrophe = u'’'
 
     # oldtext = text
     punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
@@ -60,7 +157,8 @@ def educateQuotes(text, language='en'):
     text = re.sub(r"""'"(?=\w)""", smart.osquote + smart.opquote, text)
 
     # Special case for decade abbreviations (the '80s):
-    text = re.sub(r"""\b'(?=\d{2}s)""", smart.csquote, text)
+    if language.startswith('en'):  # TODO similar cases in other languages?
+        text = re.sub(r"""'(?=\d{2}s)""", apostrophe, text, re.UNICODE)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""
@@ -81,9 +179,11 @@ def educateQuotes(text, language='en'):
     text = opening_single_quotes_regex.sub(r'\1' + smart.osquote, text)
 
     # In many locales, single closing quotes are different from apostrophe:
-    if smart.csquote != smart.apostrophe:
+    if smart.csquote != apostrophe:
         apostrophe_regex = re.compile(r"(?<=(\w|\d))'(?=\w)", re.UNICODE)
-        text = apostrophe_regex.sub(smart.apostrophe, text)
+        text = apostrophe_regex.sub(apostrophe, text)
+    # TODO: keep track of quoting level to recognize apostrophe in, e.g.,
+    # "Ich fass' es nicht."
 
     closing_single_quotes_regex = re.compile(r"""
                     (%s)
@@ -140,7 +240,7 @@ def educateQuotes(text, language='en'):
     return text
 
 
-def educate_tokens(text_tokens, attr='1', language='en'):
+def educate_tokens(text_tokens, attr=smartquotes.default_smartypants_attr, language='en'):
     # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
     """Return iterator that "educates" the items of `text_tokens`.
     """
@@ -167,9 +267,7 @@ def educate_tokens(text_tokens, attr='1', language='en'):
     do_ellipses = False
     do_stupefy = False
 
-    if attr == "0":  # Do nothing.
-        pass
-    elif attr == "1":  # Do everything, turn all options on.
+    if attr == "1":  # Do everything, turn all options on.
         do_quotes = True
         do_backticks = 1
         do_dashes = 1
@@ -266,15 +364,14 @@ def educate_tokens(text_tokens, attr='1', language='en'):
 
 
 if docutils_version < (0, 13, 2):
-    # Monkey patch the old docutils versions to fix the issue mentioned
+    # Monkey patch the old docutils versions to fix the issues mentioned
     # at https://sourceforge.net/p/docutils/bugs/313/
+    # at https://sourceforge.net/p/docutils/bugs/317/
+    # and more
     smartquotes.educateQuotes = educateQuotes
-
-    # And the one mentioned at https://sourceforge.net/p/docutils/bugs/317/
     smartquotes.educate_tokens = educate_tokens
 
     # Fix the issue with French quotes mentioned at
     # https://sourceforge.net/p/docutils/mailman/message/35760696/
-    quotes = smartquotes.smartchars.quotes
-    quotes['fr'] = (u'«\u00a0', u'\u00a0»', u'“', u'”')
-    quotes['fr-ch'] = u'«»‹›'
+    # Add/fix other languages as well
+    smartquotes.smartchars.quotes = langquotes
