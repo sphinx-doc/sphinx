@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #3821: Failed to import sphinx.util.compat with docutils-0.14rc1
+* #3829: sphinx-quickstart template is incomplete regarding use of alabaster
 
 Testing
 --------
