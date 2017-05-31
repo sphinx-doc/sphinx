@@ -764,7 +764,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_smartypants
 
-   If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
+   If true, `SmartyPants <https://daringfireball.net/projects/smartypants/>`_
    will be used to convert quotes and dashes to typographically correct
    entities.  Default: ``True``.
 
