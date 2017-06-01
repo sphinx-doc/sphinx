@@ -57,7 +57,7 @@ in Python string literals to reach latex.) For example::
     }
     latex_show_urls = 'footnote'
 
-.. the above was tested on Sphinx's own 1.5a2 documentation with good effect !
+.. the above was tested on Sphinx's own 1.5a2 documentation with good effect!
 
 .. highlight:: latex
 
@@ -92,8 +92,8 @@ string of ``key=value`` instructions::
 
     key1=value1,key2=value2, ...
 
-- if a key is repeated, it is its last occurence which counts,
-- spaces around the commas and equal signs are ignored.
+- if a key is repeated, it is its last occurence which is used
+- spaces around the commas and equal signs are ignored
 
 If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
 
@@ -148,7 +148,7 @@ Here are the currently available options together with their default values.
 
 .. attention::
 
-   LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
+   LaTeX requires that keys with Boolean values use **lowercase** ``true`` or
    ``false``.
 
 .. _latexsphinxsetuphmargin:
@@ -215,8 +215,8 @@ Here are the currently available options together with their default values.
 
     .. (comment) It is theoretically possible to customize this even
        more and decide at which characters a line-break can occur and whether
-       before or after, but this is accessible currently only by re-defining some
-       macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+       before or after, but this is accessible currently only by re-defining
+       some macros with complicated LaTeX syntax from :file:`sphinx.sty`.
 
 ``parsedliteralwraps``
     default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
@@ -230,8 +230,7 @@ Here are the currently available options together with their default values.
     potential break-points (additionally to those allowed by LaTeX at spaces
     or for hyphenation) are currently inserted only after the characters
     ``. , ; ? ! /``. Due to TeX internals, white space in the line will be
-    stretched
-    (or shrinked) in order to accomodate the linebreak.
+    stretched (or shrunk) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
        set this option value to ``false`` to recover former behaviour.
