@@ -67,11 +67,10 @@ class ImageCollector(EnvironmentCollector):
             rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)
             if app.config.language:
                 # substitute figures (ex. foo.png -> foo.en.png)
-                i18n_full_imgpath = search_image_for_language(full_imgpath, app.env)
-                if i18n_full_imgpath != full_imgpath:
-                    full_imgpath = i18n_full_imgpath
-                    rel_imgpath = relative_path(path.join(app.srcdir, 'dummy'),
-                                                i18n_full_imgpath)
+                i18n_rel_imgpath = search_image_for_language(os.path.sep + rel_imgpath, app.env)
+                if i18n_rel_imgpath != os.path.sep + rel_imgpath:
+                    full_imgpath = path.join(app.srcdir, i18n_rel_imgpath)
+                    rel_imgpath = i18n_rel_imgpath
             # set imgpath as default URI
             node['uri'] = rel_imgpath
             if rel_imgpath.endswith(os.extsep + '*'):
