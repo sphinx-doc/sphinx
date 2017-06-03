@@ -96,18 +96,6 @@ todo_include_todos = {{ ext_todo }}
 #
 html_theme = 'alabaster'
 
-# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        # 'relations.html', # hidden by alabaster css anyway
-        'searchbox.html',
-        # 'donate.html',
-    ]
-}
-
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -122,13 +110,13 @@ html_static_path = ['{{ dot }}static']
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
-# This is required for the alabaster theme and you should remove this if you
-# switch your theme and don't want to customize this.
+# This is required for the alabaster theme
+# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
         'about.html',
         'navigation.html',
-        'relations.html',
+        'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
         'donate.html',
     ]
