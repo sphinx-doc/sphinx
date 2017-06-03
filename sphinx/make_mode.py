@@ -22,7 +22,7 @@ from os import path
 
 import sphinx
 from sphinx import cmdline
-from sphinx.util.console import bold, blue  # type: ignore
+from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
 if False:
@@ -87,6 +87,9 @@ class Make(object):
 
     def build_help(self):
         # type: () -> None
+        if not color_terminal():
+            nocolor()
+
         print(bold("Sphinx v%s" % sphinx.__display_version__))
         print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))  # type: ignore  # NOQA
         for osname, bname, description in BUILDERS:
