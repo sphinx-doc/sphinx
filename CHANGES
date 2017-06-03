@@ -18,6 +18,7 @@ Bugs fixed
 
 * #3821: Failed to import sphinx.util.compat with docutils-0.14rc1
 * #3829: sphinx-quickstart template is incomplete regarding use of alabaster
+* #3772: 'str object' has no attribute 'filename'
 
 Testing
 --------
@@ -45,7 +46,6 @@ Bugs fixed
 * #3770: Build fails when a "code-block" has the option emphasize-lines and the
   number indicated is higher than the number of lines
 * #3774: Incremental HTML building broken when using citations
-* #3772: 'str object' has no attribute 'filename'
 * #3763: got epubcheck validations error if epub_cover is set
 * #3779: 'ImportError' in sphinx.ext.autodoc due to broken 'sys.meta_path'.
   Thanks to Tatiana Tereshchenko.
