@@ -84,7 +84,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-   .. _Qt help: http://doc.qt.io/qt-4.8/qthelp-framework.html
+   .. _Qt help: https://doc.qt.io/qt-4.8/qthelp-framework.html
 
 .. module:: sphinx.builders.applehelp
 .. class:: AppleHelpBuilder
@@ -229,7 +229,7 @@ The builder's "name" must be given to the **-b** command-line option of
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
 <https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or greater.  You need to add
 ``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
-``pdf``.  Refer to the `rst2pdf manual <http://ralsina.me/static/manual.pdf>`_
+``pdf``.  Refer to the `rst2pdf manual <https://ralsina.me/static/manual.pdf>`_
 for details.
 
 .. module:: sphinx.builders.text
@@ -275,7 +275,7 @@ for details.
    the terminal-based program :program:`info`.  See :ref:`texinfo-faq` for more
    details.  The Texinfo format is the official documentation system used by the
    GNU project.  More information on Texinfo can be found at
-   `<http://www.gnu.org/software/texinfo/>`_.
+   `<https://www.gnu.org/software/texinfo/>`_.
 
    .. autoattribute:: name
 
