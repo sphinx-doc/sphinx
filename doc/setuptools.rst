@@ -10,7 +10,7 @@ Using setuptools integration
 ----------------------------
 
 The Sphinx build can then be triggered from distutils, and some Sphinx
-options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx own
+options can be set in ``setup.py`` or ``setup.cfg`` instead of Sphinx's own
 configuration file.
 
 For instance, from ``setup.py``::

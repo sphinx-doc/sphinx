@@ -1,5 +1,5 @@
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
-   :target: http://pypi.python.org/pypi/sphinx
+   :target: https://pypi.python.org/pypi/Sphinx
 .. image:: https://readthedocs.org/projects/sphinx/badge/
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status

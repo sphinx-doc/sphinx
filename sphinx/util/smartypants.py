@@ -143,12 +143,23 @@ def educateQuotes(text, language='en'):
 def educate_tokens(text_tokens, attr='1', language='en'):
     # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
     """Return iterator that "educates" the items of `text_tokens`.
+
+    This is modified to intercept the ``attr='2'`` as it was used by the
+    Docutils 0.13.1 SmartQuotes transform in a hard coded way. Docutils 0.14
+    uses ``'qDe'``` and is configurable, and its choice is backported here
+    for use by Sphinx with earlier Docutils releases. Similarly ``'1'`` is
+    replaced by ``'qde'``.
+
+    Use ``attr='qDbe'``, resp. ``'qdbe'`` to recover Docutils effect of ``'2'``,
+    resp. ``'1'``.
+
+    refs: https://sourceforge.net/p/docutils/mailman/message/35869025/
     """
 
     # Parse attributes:
     # 0 : do nothing
-    # 1 : set all
-    # 2 : set all, using old school en- and em- dash shortcuts
+    # 1 : set all (but backticks)
+    # 2 : set all (but backticks), using old school en- and em- dash shortcuts
     # 3 : set all, using inverted old school en and em- dash shortcuts
     #
     # q : quotes
@@ -171,13 +182,13 @@ def educate_tokens(text_tokens, attr='1', language='en'):
         pass
     elif attr == "1":  # Do everything, turn all options on.
         do_quotes = True
-        do_backticks = 1
+        # do_backticks = 1
         do_dashes = 1
         do_ellipses = True
     elif attr == "2":
         # Do everything, turn all options on, use old school dash shorthand.
         do_quotes = True
-        do_backticks = 1
+        # do_backticks = 1
         do_dashes = 2
         do_ellipses = True
     elif attr == "3":

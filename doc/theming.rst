@@ -119,10 +119,12 @@ These themes are:
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on
-  @mitsuhiko's theme used for Flask & related projects. You can get options information
-  at `Alabaster theme`_ page.
+  @mitsuhiko's theme used for Flask & related projects.
+  Check out at its `installation page`_ how to set up properly
+  :confval:`html_sidebars` for its use.
 
   .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
+  .. _installation page: http://alabaster.readthedocs.io/en/latest/installation.html
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via

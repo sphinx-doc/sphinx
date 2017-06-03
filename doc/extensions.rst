@@ -4,7 +4,7 @@ Sphinx Extensions
 =================
 
 Since many projects will need special features in their documentation, Sphinx
-allows to add "extensions" to the build process, each of which can modify almost
+allows adding "extensions" to the build process, each of which can modify almost
 any aspect of document processing.
 
 This chapter describes the extensions bundled with Sphinx.  For the API

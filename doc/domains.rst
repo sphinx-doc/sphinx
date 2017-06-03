@@ -34,8 +34,8 @@ documentation wants to refer to e.g. C++ and Python classes.  It also means that
 extensions that support the documentation of whole new languages are much easier
 to write.
 
-This section describes what the domains that come with Sphinx provide.  The
-domain API is documented as well, in the section :ref:`domain-api`.
+This section describes what the domains that are included with Sphinx provide.
+The domain API is documented as well, in the section :ref:`domain-api`.
 
 
 .. _basic-domain-markup:
