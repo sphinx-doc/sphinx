@@ -60,58 +60,6 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-def get_parser():
-    # type: () -> argparse.ArgumentParser
-    parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog='For more information, visit <http://sphinx-doc.org/>.',
-        description="""
-Generate ReStructuredText using autosummary directives.
-
-sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
-the reStructuredText files from the autosummary directives contained in the
-given input files.
-
-The format of the autosummary directive is documented in the
-``sphinx.ext.autosummary`` Python module and can be read using::
-
-  pydoc sphinx.ext.autosummary
-""")
-
-    parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
-
-    parser.add_argument('source_file', nargs='+',
-                        help='source files to generate rST files for')
-
-    parser.add_argument('-o', '--output-dir', action='store',
-                        dest='output_dir',
-                        help='directory to place all output in')
-    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
-                        default='rst',
-                        help='default suffix for files (default: '
-                              '%(default)s)')
-    parser.add_argument('-t', '--templates', action='store', dest='templates',
-                        default=None,
-                        help='custom template directory (default: '
-                              '%(default)s)')
-    parser.add_argument('-i', '--imported-members', action='store_true',
-                        dest='imported_members', default=False,
-                        help='document imported members (default: '
-                              '%(default)s)')
-
-    return parser
-
-
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> None
-    args = get_parser().parse_args(argv)
-    generate_autosummary_docs(args.source_file, args.output_dir,
-                              '.' + args.suffix,
-                              template_dir=args.templates,
-                              imported_members=args.imported_members)
-
-
 def _simple_info(msg):
     # type: (unicode) -> None
     print(msg)
@@ -397,6 +345,58 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
             continue
 
     return documented
+
+
+def get_parser():
+    # type: () -> argparse.ArgumentParser
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
+        epilog='For more information, visit <http://sphinx-doc.org/>.',
+        description="""
+Generate ReStructuredText using autosummary directives.
+
+sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
+the reStructuredText files from the autosummary directives contained in the
+given input files.
+
+The format of the autosummary directive is documented in the
+``sphinx.ext.autosummary`` Python module and can be read using::
+
+  pydoc sphinx.ext.autosummary
+""")
+
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
+
+    parser.add_argument('source_file', nargs='+',
+                        help='source files to generate rST files for')
+
+    parser.add_argument('-o', '--output-dir', action='store',
+                        dest='output_dir',
+                        help='directory to place all output in')
+    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
+                        default='rst',
+                        help='default suffix for files (default: '
+                              '%(default)s)')
+    parser.add_argument('-t', '--templates', action='store', dest='templates',
+                        default=None,
+                        help='custom template directory (default: '
+                              '%(default)s)')
+    parser.add_argument('-i', '--imported-members', action='store_true',
+                        dest='imported_members', default=False,
+                        help='document imported members (default: '
+                              '%(default)s)')
+
+    return parser
+
+
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> None
+    args = get_parser().parse_args(argv)
+    generate_autosummary_docs(args.source_file, args.output_dir,
+                              '.' + args.suffix,
+                              template_dir=args.templates,
+                              imported_members=args.imported_members)
 
 
 if __name__ == '__main__':
