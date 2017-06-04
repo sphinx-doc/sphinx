@@ -19,16 +19,17 @@
 """
 from __future__ import print_function
 
+import argparse
+import codecs
 import os
+import pydoc
 import re
 import sys
-import pydoc
-import optparse
-import codecs
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
+from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
@@ -61,29 +62,35 @@ if False:
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
-    usage = """%prog [OPTIONS] SOURCEFILE ..."""
-    p = optparse.OptionParser(usage.strip())
-    p.add_option("-o", "--output-dir", action="store", type="string",
-                 dest="output_dir", default=None,
-                 help="Directory to place all output in")
-    p.add_option("-s", "--suffix", action="store", type="string",
-                 dest="suffix", default="rst",
-                 help="Default suffix for files (default: %default)")
-    p.add_option("-t", "--templates", action="store", type="string",
-                 dest="templates", default=None,
-                 help="Custom template directory (default: %default)")
-    p.add_option("-i", "--imported-members", action="store_true",
-                 dest="imported_members", default=False,
-                 help="Document imported members (default: %default)")
-    options, args = p.parse_args(argv)
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] <SOURCE_FILE>...')
 
-    if len(args) < 1:
-        p.error('no input files given')
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
 
-    generate_autosummary_docs(args, options.output_dir,
-                              "." + options.suffix,
-                              template_dir=options.templates,
-                              imported_members=options.imported_members)
+    parser.add_argument('source_file', nargs='+',
+                        help='source files to generate rST files for')
+    parser.add_argument('-o', '--output-dir', action='store',
+                        dest='output_dir',
+                        help='directory to place all output in')
+    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
+                        default='rst',
+                        help='default suffix for files (default: '
+                              '%(default)s)')
+    parser.add_argument('-t', '--templates', action='store', dest='templates',
+                        default=None,
+                        help='custom template directory (default: '
+                              '%(default)s)')
+    parser.add_argument('-i', '--imported-members', action='store_true',
+                        dest='imported_members', default=False,
+                        help='document imported members (default: '
+                              '%(default)s)')
+
+    args = parser.parse_args(argv)
+    generate_autosummary_docs(args.source_file, args.output_dir,
+                              '.' + args.suffix,
+                              template_dir=args.templates,
+                              imported_members=args.imported_members)
 
 
 def _simple_info(msg):
