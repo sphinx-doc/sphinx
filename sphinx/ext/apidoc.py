@@ -265,12 +265,6 @@ def recurse_tree(rootpath, excludes, opts):
     return toplevels
 
 
-def normalize_excludes(rootpath, excludes):
-    # type: (unicode, List[unicode]) -> List[unicode]
-    """Normalize the excluded directory list."""
-    return [path.abspath(exclude) for exclude in excludes]
-
-
 def is_excluded(root, excludes):
     # type: (unicode, List[unicode]) -> bool
     """Check if the directory is in the exclude list.
@@ -390,7 +384,7 @@ def main(argv=sys.argv[1:]):
         sys.exit(1)
     if not path.isdir(args.destdir) and not args.dryrun:
         os.makedirs(args.destdir)
-    excludes = normalize_excludes(rootpath, args.exclude_pattern)
+    excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
     modules = recurse_tree(rootpath, excludes, args)
 
     if args.full:
