@@ -166,7 +166,7 @@ The available styling options
        For Japanese ``'manual'`` docclass with pointsize ``11pt`` or ``12pt``,
        use the ``nomag`` extra document class option (cf.
        ``'extraclassoptions'`` key of :confval:`latex_elements`) or so-called
-       TeX "true" units:
+       TeX "true" units::
 
          'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
 
@@ -430,10 +430,10 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
-- the bibliography and Python Module index are typeset respectively within
-  environments ``sphinxthebibliography`` and ``sphinxtheindex``, which are
-  simple wrappers of the non-modified ``thebibliography`` and ``theindex``
-  environments.
+- the bibliography uses ``sphinxthebibliography`` and the Python Module index
+  as well as the general index both use ``sphinxtheindex``; these environments
+  are wrappers of the ``thebibliography`` and respectively ``theindex``
+  environments as provided by the document class (or packages).
 
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
