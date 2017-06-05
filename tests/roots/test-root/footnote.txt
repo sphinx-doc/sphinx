@@ -23,6 +23,7 @@ citation
 --------------------
 
 [bar]_
+[baz_qux]_
 
 footnotes in table
 --------------------
@@ -49,6 +50,8 @@ footenotes
 .. rubric:: Citations
 
 .. [bar] cite
+
+.. [baz_qux] citation including underscore
 
 .. [#] footnote in table caption
 

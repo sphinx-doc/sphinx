@@ -493,7 +493,7 @@ class StandardDomain(Domain):
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
         'citations': {},        # name -> docname, labelid, lineno
-        'citation_refs': {},    # name -> list of docnames
+        'citation_refs': {},    # labelid -> list of docnames
         'labels': {             # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', l_('Index')),
             'modindex': ('py-modindex', '', l_('Module Index')),
@@ -589,8 +589,11 @@ class StandardDomain(Domain):
     def note_citation_refs(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         for name, refs in iteritems(document.citation_refs):
-            citation_refs = self.data['citation_refs'].setdefault(name, [])
-            citation_refs.append(docname)
+            for ref in refs:
+                labelid = ref.get('refid')
+                if labelid:
+                    citation_refs = self.data['citation_refs'].setdefault(labelid, [])
+                    citation_refs.append(docname)
 
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
