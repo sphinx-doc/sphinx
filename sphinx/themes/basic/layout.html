@@ -125,16 +125,16 @@
     {%- else %}
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
     {%- endif %}
-    {{ metatags }}
+    {{- metatags }}
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
     {%- endblock %}
     {%- block csss %}
-    {{ css() }}
+    {{- css() }}
     {%- endblock %}
     {%- if not embedded %}
     {%- block scripts %}
-    {{ script() }}
+    {{- script() }}
     {%- endblock %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
