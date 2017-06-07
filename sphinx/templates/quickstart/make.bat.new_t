@@ -11,74 +11,48 @@ if "%1"=="" goto make_main
 
 setlocal
 
-set TARGETS=
-set OPTIONS=
+rem Initialize the storage variables
+set TARGETS=,
+set OPTIONS=%*
 
-:arg_loop
+rem Skip argument parsing if no arguments passed
 if "%1"=="" goto arg_continue
 
-set WORK=%1
-set TAKESARG=0
-set KEYVALUE=0
+:arg_loop
 
-REM Have to have these outside the main IF block, else they don't store correctly
-if "%WORK:~,1%"=="-" (
-   if "%WORK:~-1%"=="b" (
-      echo ERROR: Do not use '-b' option to specify make targets. Exiting...
-      endlocal
-      goto end_error
-      )
-   rem This list needs to be updated if new options are implemented
-   rem  that take values
-   if "%WORK:~-1%"=="d" set TAKESARG=1
-   if "%WORK:~-1%"=="j" set TAKESARG=1
-   if "%WORK:~-1%"=="c" set TAKESARG=1
-   if "%WORK:~-1%"=="D" set TAKESARG=2
-   if "%WORK:~-1%"=="t" set TAKESARG=1
-   if "%WORK:~-1%"=="A" set TAKESARG=2
-   if "%WORK:~-1%"=="w" set TAKESARG=1
-   )
+rem Drop from loop if OPTIONS is empty
+if "%OPTIONS%"=="" ( goto arg_continue )
 
-REM Handle options versus targets
-if "%WORK:~,1%"=="-" (
-   REM It's an option
-   if "%TAKESARG%"=="1" (
-      REM Option takes an argument; needs extra shift
-      set OPTIONS=%OPTIONS% %1 %2
-      shift /1
-      goto arg_shift
-      )
+rem Drop from loop if first character of remaining OPTIONS is a hyphen
+if "%OPTIONS:~,1%"=="-" ( goto arg_continue )
 
-   if "%TAKESARG%"=="2" (
-      REM Option takes a key-value argument pair; needs two extra shifts
-      set OPTIONS=%OPTIONS% %1 %2=%3
-      shift /1
-      shift /1
-      goto arg_shift
-      )
+rem Shift next character from OPTIONS to TARGETS.
+rem  If it's a space, shift it as a comma, but only if the 
+rem  last character of TARGETS isn't a comma
+if "%OPTIONS:~,1%"==" " (
+    if not "%TARGETS:~-1%"=="," set TARGETS=%TARGETS%,
+    ) else (
+    set TARGETS=%TARGETS%%OPTIONS:~,1%
+    )
 
-   REM Option doesn't take an argument; no extra shift
-   set OPTIONS=%OPTIONS% %1
-   goto arg_shift
-   )
+rem Either way, strip the character from OPTIONS
+set OPTIONS=%OPTIONS:~1%
 
-REM Is a target, not an option; just store (comma-delimited) and shift
-set TARGETS=%TARGETS%,%1
-goto arg_shift
-
-:arg_shift
-REM Shift once
-shift /1
+rem Return to top of loop
 goto arg_loop
 
+
 :arg_continue
-REM Strip leading comma from the targets, if any present
-if not "%TARGETS%"==""  set TARGETS=%TARGETS:~1%
+rem Strip leading and trailing commas from the targets list
+rem Space is left at start of string for the zero-target invocation case
+rem  (avoids NULL variable)
+if "%TARGETS:~,1%"=="," set TARGETS= %TARGETS:~1%
+if "%TARGETS:~-1%"=="," set TARGETS=%TARGETS:~,-1%
 
 REM Check if single target; if not, loop and rerun make.bat once per target
 echo %TARGETS% | findstr "," 1>nul 2>nul
 set MULTITARGET=%ERRORLEVEL%
-if "%MULTITARGET%"=="0" (
+if %MULTITARGET% EQU 0 (
    REM Multiple targets; loop over targets and re-execute
    for %%G in (%TARGETS%) DO (
       echo.

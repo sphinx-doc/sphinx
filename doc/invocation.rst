@@ -434,7 +434,11 @@ can be supplied as arguments to ``make.bat``::
     C:\git\foo\doc> make html latex text -E
 
 In the above example, the documentation would be built with the ``-E`` option
-on all three of the ``html``, ``latex`` and ``text`` targets.
+on all three of the ``html``, ``latex`` and ``text`` targets. Note that
+the options to pass through to :program:`sphinx-build` MUST be provided
+*after* all of the build targets::
+
+    C:\git\foo\doc> make target1 target2 ... <options>
 
 .. versionchanged:: 1.6.3
 

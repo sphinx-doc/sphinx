@@ -42,7 +42,7 @@ if "%1"=="-h" (
     echo These tests only check for a successful [ERRORLEVEL==0]
     echo or unsuccessful [ERRORLEVEL==1] execution of make.bat.
     echo They do NOT check for whether the build operations
-    echo actually completed correctly.
+    echo generated the documentation content properly.
     echo.
     echo It is recommended to run these tests in a freshly
     echo created and activated virtualenv, with Sphinx installed
@@ -197,6 +197,14 @@ goto run_test
 :RET_CLEAN_HTML_D_RST
 set TEST_CLEAN_HTML_D_RST=%RESULT%
 
+rem === make clean   html    epub ===
+rem (testing extra spaces in invocation)
+set PARAMS=clean   html    epub
+set RETURN=RET_CLEAN___HTML____EPUB
+goto run_test
+:RET_CLEAN___HTML____EPUB
+set TEST_CLEAN___HTML____EPUB=%RESULT%
+
 
 rem Run the EXPECT-FAIL tests
 if %SILENT% EQU 0 (
@@ -234,6 +242,14 @@ goto run_test
 :RET_HTML_QWdotE
 set TEST_HTML_QWdotE=%RESULT%
 
+rem === make clean html -E epub ===
+rem (expect fail due to target falling after option)
+set PARAMS=clean html -E epub
+set RETURN=RET_CLEAN_HTML_E_EPUB
+goto run_test
+:RET_CLEAN_HTML_E_EPUB
+set TEST_CLEAN_HTML_E_EPUB=%RESULT%
+
 
 
 rem Report Results
@@ -259,11 +275,13 @@ if %SILENT% EQU 0 (
     echo   clean html epub                           OK      %TEST_CLEAN_HTML_EPUB%
     echo   clean html epub -E                        OK      %TEST_CLEAN_HTML_EPUB_E%
     echo   clean html -D rst_epilog="**THIS**"       OK      %TEST_CLEAN_HTML_D_RST%
+    echo   clean   html    epub                      OK      %TEST_CLEAN___HTML____EPUB%
     echo.
     echo   -b html                                  ERROR    %TEST_B_HTML%
     echo   clean html -c ..                         ERROR    %TEST_CLEAN_HTML_C_dd%
     echo   foo                                      ERROR    %TEST_FOO%
     echo   html -qW.E                               ERROR    %TEST_HTML_QWdotE%
+    echo   clean html -E epub                       ERROR    %TEST_CLEAN_HTML_E_EPUB%
     echo.
     echo ============================================================
     echo.
