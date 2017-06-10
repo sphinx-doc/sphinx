@@ -16,18 +16,22 @@ set TARGETS=,
 set OPTIONS=%*
 
 rem Skip argument parsing if no arguments passed
-if "%1"=="" goto arg_continue
+if "%1"=="" ( goto arg_continue )
+
+rem Skip argument parsing if arguments start with a hyphen
+if "%OPTIONS:~,1%"=="-" ( goto arg_continue )
 
 :arg_loop
 
 rem Drop from loop if OPTIONS is empty
 if "%OPTIONS%"=="" ( goto arg_continue )
 
-rem Drop from loop if first character of remaining OPTIONS is a hyphen
-if "%OPTIONS:~,1%"=="-" ( goto arg_continue )
+rem Drop from loop if first two characters of remaining OPTIONS
+rem  are a space followed by a hyphen
+if "%OPTIONS:~,2%"==" -" ( goto arg_continue )
 
 rem Shift next character from OPTIONS to TARGETS.
-rem  If it's a space, shift it as a comma, but only if the 
+rem  If it's a space, shift it as a comma, but only if the
 rem  last character of TARGETS isn't a comma
 if "%OPTIONS:~,1%"==" " (
     if not "%TARGETS:~-1%"=="," set TARGETS=%TARGETS%,

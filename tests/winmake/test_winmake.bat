@@ -106,6 +106,14 @@ if %SILENT% EQU 0 (
     )
 set ELVAL=0
 
+rem === make ===
+rem  (there's a space after this equals sign)
+set PARAMS=
+set RETURN=RET_NULL
+goto run_test
+:RET_NULL
+set TEST_NULL=%RESULT%
+
 rem === make -h ===
 set PARAMS=-h
 set RETURN=RET_H
@@ -262,6 +270,7 @@ if %SILENT% EQU 0 (
     echo.
     echo          Arguments                        Expect    Result
     echo  --------------------------------------  --------  --------
+    echo   [none]                                    OK      %TEST_NULL%
     echo   -h                                        OK      %TEST_H%
     echo   clean                                     OK      %TEST_CLEAN%
     echo   html                                      OK      %TEST_HTML%
