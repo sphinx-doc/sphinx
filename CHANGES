@@ -20,6 +20,7 @@ Bugs fixed
 * #3829: sphinx-quickstart template is incomplete regarding use of alabaster
 * #3772: 'str object' has no attribute 'filename'
 * Emit wrong warnings if citation label includes hyphens (refs: #3565)
+* #3858: Some warnings are not colored when using --color option
 
 Testing
 --------
