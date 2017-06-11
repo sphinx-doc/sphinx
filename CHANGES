@@ -22,6 +22,8 @@ Bugs fixed
 * Emit wrong warnings if citation label includes hyphens (refs: #3565)
 * #3858: Some warnings are not colored when using --color option
 * #3775: Remove unwanted whitespace in default template
+* #3835: sphinx.ext.imgmath fails to convert SVG images if project directory
+  name contains spaces
 
 Testing
 --------
