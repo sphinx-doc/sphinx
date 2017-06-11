@@ -17,12 +17,46 @@ import pytest
 from sphinx.util import inspect
 
 
-def test_getargspec_builtin_type():
-    with pytest.raises(TypeError):
-        inspect.getargspec(int)
+def test_getargspec():
+    def func(a, b, c=1, d=2, *e, **f):
+        pass
+
+    spec = inspect.getargspec(func)
+    assert spec.args == ['a', 'b', 'c', 'd']
+    assert spec.varargs == 'e'
+    if PY3:
+        assert spec.varkw == 'f'
+        assert spec.defaults == (1, 2)
+        assert spec.kwonlyargs == []
+        assert spec.kwonlydefaults is None
+        assert spec.annotations == {}
+    else:
+        assert spec.keywords == 'f'
+        assert spec.defaults == [1, 2]
 
 
 def test_getargspec_partial():
+    def func1(a, b, c=1, d=2, *e, **f):
+        pass
+
+    partial = functools.partial(func1, 10, c=11)
+    spec = inspect.getargspec(partial)
+    if PY3:
+        assert spec.args == ['b']
+        assert spec.varargs is None
+        assert spec.varkw == 'f'
+        assert spec.defaults is None
+        assert spec.kwonlyargs == ['c', 'd']
+        assert spec.kwonlydefaults == {'c': 11, 'd': 2}
+        assert spec.annotations == {}
+    else:
+        assert spec.args == ['b', 'd']
+        assert spec.varargs == 'e'
+        assert spec.keywords == 'f'
+        assert spec.defaults == [2]
+
+
+def test_getargspec_partial2():
     def fun(a, b, c=1, d=2):
         pass
     p = functools.partial(fun, 10, c=11)
@@ -43,6 +77,11 @@ def test_getargspec_partial():
     expected = inspect.getargspec(f_expected)
 
     assert expected == inspect.getargspec(p)
+
+
+def test_getargspec_builtin_type():
+    with pytest.raises(TypeError):
+        inspect.getargspec(int)
 
 
 def test_getargspec_bound_methods():
