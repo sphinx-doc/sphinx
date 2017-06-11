@@ -8,8 +8,10 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import re
+import inspect
 
 from six import PY3, binary_type
 from six.moves import builtins
@@ -19,10 +21,6 @@ from sphinx.util import force_decode
 if False:
     # For type annotation
     from typing import Any, Callable, List, Tuple, Type  # NOQA
-
-# this imports the standard library inspect module without resorting to
-# relatively import this module
-inspect = __import__('inspect')
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
