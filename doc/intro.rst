@@ -7,19 +7,21 @@ formats, automatically producing cross-references, indices etc.  That is, if
 you have a directory containing a bunch of reST-formatted documents (and
 possibly subdirectories of docs in there as well), Sphinx can generate a
 nicely-organized arrangement of HTML files (in some other directory) for easy
-browsing and navigation.  But from the same source, it can also generate a
-LaTeX file that you can compile into a PDF version of the documents, or a
-PDF file directly using `rst2pdf <https://github.com/rst2pdf/rst2pdf>`_.
+browsing and navigation.  But from the same source, it can also generate a PDF
+file using LaTeX, `rinohtype`_ or `rst2pdf`_ (see :ref:`builders`).
 
 The focus is on hand-written documentation, rather than auto-generated API docs.
-Though there is support for that kind of docs as well (which is intended to be
-freely mixed with hand-written content), if you need pure API docs have a look
-at `Epydoc <http://epydoc.sourceforge.net/>`_, which also understands reST.
+Though there is support for that kind of documentation as well (which is
+intended to be freely mixed with hand-written content), if you need pure API
+docs have a look at `Epydoc <http://epydoc.sourceforge.net/>`_, which also
+understands reST.
 
 For a great "introduction" to writing docs in general -- the whys and hows, see
 also `Write the docs <http://write-the-docs.readthedocs.org/>`_, written by Eric
 Holscher.
 
+.. _rinohtype: https://github.com/brechtm/rinohtype
+.. _rst2pdf: https://github.com/rst2pdf/rst2pdf
 
 Conversion from other systems
 -----------------------------

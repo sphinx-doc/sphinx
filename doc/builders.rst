@@ -226,11 +226,17 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-Note that a direct PDF builder using ReportLab is available in `rst2pdf
-<https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or greater.  You need to add
-``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
-``pdf``.  Refer to the `rst2pdf manual <https://ralsina.me/static/manual.pdf>`_
-for details.
+Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
+name is ``rinoh``. Refer to the `rinohtype manual`_ for details. There is also
+PDF builder using ReportLab in `rst2pdf`_ version 0.12 or greater. However,
+rst2pdf is no longer being actively maintained and suffers from some problems
+when used with recent Sphinx versions.  See the `rst2pdf manual`_ for usage
+instructions.
+
+.. _rinohtype: https://github.com/brechtm/rinohtype
+.. _rinohtype manual: http://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rst2pdf: https://github.com/rst2pdf/rst2pdf
+.. _rst2pdf manual: http://ralsina.me/static/manual.pdf
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
