@@ -33,8 +33,10 @@ from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -112,9 +114,9 @@ def ensure_tempdir(builder):
     just removing the whole directory (see cleanup_tempdir)
     """
     if not hasattr(builder, '_imgmath_tempdir'):
-        builder._imgmath_tempdir = tempfile.mkdtemp()
+        builder._imgmath_tempdir = tempfile.mkdtemp()  # type: ignore
 
-    return builder._imgmath_tempdir
+    return builder._imgmath_tempdir  # type: ignore
 
 
 def compile_math(latex, builder):
@@ -122,7 +124,7 @@ def compile_math(latex, builder):
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
-    with codecs.open(filename, 'w', 'utf-8') as f:
+    with codecs.open(filename, 'w', 'utf-8') as f:  # type: ignore
         f.write(latex)
 
     # build latex command; old versions of latex don't have the
@@ -189,7 +191,7 @@ def convert_dvi_to_png(dvipath, builder):
     depth = None
     if builder.config.imgmath_use_preview:
         for line in stdout.splitlines():
-            matched = depth_re.match(line)
+            matched = depth_re.match(line)  # type: ignore
             if matched:
                 depth = int(matched.group(1))
                 write_png_depth(filename, depth)
