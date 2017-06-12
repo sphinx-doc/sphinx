@@ -24,6 +24,7 @@ Bugs fixed
 * #3775: Remove unwanted whitespace in default template
 * #3835: sphinx.ext.imgmath fails to convert SVG images if project directory
   name contains spaces
+* #3850: Fix color handling in make mode's help command
 
 Testing
 --------
