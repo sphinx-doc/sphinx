@@ -109,7 +109,7 @@
       {%- if css|attr("rel") %}
     <link rel="{{ css.rel }}" href="{{ pathto(css.filename, 1) }}" type="text/css"{% if css.title is not none %} title="{{ css.title }}"{% endif %} />
       {%- else %}
-    <link href="{{ pathto(css, 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto(css, 1) }}" type="text/css" />
       {%- endif %}
     {%- endfor %}
 {%- endmacro %}
@@ -125,16 +125,16 @@
     {%- else %}
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
     {%- endif %}
-    {{ metatags }}
+    {{- metatags }}
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
     {%- endblock %}
     {%- block csss %}
-    {{ css() }}
+    {{- css() }}
     {%- endblock %}
     {%- if not embedded %}
     {%- block scripts %}
-    {{ script() }}
+    {{- script() }}
     {%- endblock %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"

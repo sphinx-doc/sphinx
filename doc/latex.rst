@@ -60,7 +60,7 @@ It is achieved via usage of the
 
 .. highlight:: latex
 
-If the size of the ``'preamble'`` contents become inconvenient, one may put
+If the size of the ``'preamble'`` contents becomes inconvenient, one may move
 all needed macros into some file :file:`mystyle.tex` of the project source
 repertory, and get LaTeX to import it at run time::
 
@@ -166,7 +166,7 @@ The available styling options
        For Japanese ``'manual'`` docclass with pointsize ``11pt`` or ``12pt``,
        use the ``nomag`` extra document class option (cf.
        ``'extraclassoptions'`` key of :confval:`latex_elements`) or so-called
-       TeX "true" units:
+       TeX "true" units::
 
          'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
 
@@ -224,9 +224,12 @@ The available styling options
 
 ``TitleColor``
     default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
-    via use of package "titlesec".) It must obey the syntax of the
-    ``\definecolor`` command. Check the documentation of packages ``color`` or
-    ``xcolor``.
+    via use of package "titlesec".)
+
+.. warning::
+
+   Colours set via ``'sphinxsetup'``  must obey the syntax of the
+   argument of the ``color/xcolor`` packages ``\definecolor`` command.
 
 ``InnerLinkColor``
     default ``{rgb}{0.208,0.374,0.486}``. A colour passed to ``hyperref`` as
@@ -260,84 +263,34 @@ The available styling options
 ``shadowrule``
     default ``\fboxrule``. The width of the frame around :dudir:`topic` boxes.
 
-``noteBorderColor``
-    default ``{rgb}{0,0,0}``. The colour for the two horizontal rules used by
-    Sphinx in LaTeX for styling a
-    :dudir:`note` admonition. Defaults to black.
+|notebdcolors|
+    default ``{rgb}{0,0,0}`` (black). The colour for the two horizontal rules
+    used by Sphinx in LaTeX for styling a :dudir:`note` type admonition.
 
-    .. note::
+.. note::
 
-       The actual name of the colour as declared to "color" or "xcolor" is
-       ``sphinxnoteBorderColor``. The same "sphinx" prefix applies to all
-       colours for notices and admonitions.
+   The actual colour names declared to "color" or "xcolor" are prefixed with
+   "sphinx".
 
-``hintBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``importantBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``tipBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``noteborder``
+``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     default ``0.5pt``. The width of the two horizontal rules.
 
-``hintborder``
-    default ``0.5pt``. id.
+.. only:: not latex
 
-``importantborder``
-    default ``0.5pt``. id.
+   |warningbdcolors|
+       default ``{rgb}{0,0,0}`` (black). The colour for the admonition frame.
 
-``tipborder``
-    default ``0.5pt``. id.
+.. only:: latex
 
-``warningBorderColor``
-    default ``{rgb}{0,0,0}``. The colour of the frame for :dudir:`warning` type
-    admonitions. Defaults to black.
+   |wgbdcolorslatex|
+       default ``{rgb}{0,0,0}`` (black). The colour for the admonition frame.
 
-``cautionBorderColor``
-    default ``{rgb}{0,0,0}``. id.
+|warningbgcolors|
+    default ``{rgb}{1,1,1}`` (white). The background colours for the respective
+    admonitions.
 
-``attentionBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``dangerBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``errorBorderColor``
-    default ``{rgb}{0,0,0}``. id.
-
-``warningBgColor``
-    default ``{rgb}{1,1,1}``. The background colour for :dudir:`warning` type
-    admonition, defaults to white.
-
-``cautionBgColor``
-    default ``{rgb}{1,1,1}``. id.
-
-``attentionBgColor``
-    default ``{rgb}{1,1,1}``. id.
-
-``dangerBgColor``
-    default ``{rgb}{1,1,1}``. id.
-
-``errorBgColor``
-    default ``{rgb}{1,1,1}``. id.
-
-``warningborder``
+|warningborders|
     default ``1pt``. The width of the frame.
-
-``cautionborder``
-    default ``1pt``. id.
-
-``attentionborder``
-    default ``1pt``. id.
-
-``dangerborder``
-    default ``1pt``. id.
-
-``errorborder``
-    default ``1pt``. id.
 
 ``AtStartFootnote``
     default ``\mbox{ }``. LaTeX macros inserted at the start of the footnote
@@ -352,6 +305,28 @@ The available styling options
 
 ``HeaderFamily``
     default ``\sffamily\bfseries``. Sets the font used by headings.
+
+
+.. |notebdcolors| replace:: ``noteBorderColor``, ``hintBorderColor``,
+                            ``importantBorderColor``, ``tipBorderColor``
+
+.. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
+                               ``attentionBorderColor``, ``dangerBorderColor``,
+                               ``errorBorderColor``
+
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, ``cautionBorderColor``,
+                               ``attentionB..C..``, ``dangerB..C..``,
+                               ``errorB..C..``
+
+.. else latex goes into right margin, as it does not hyphenate the names
+
+.. |warningbgcolors| replace:: ``warningBgColor``, ``cautionBgColor``,
+                               ``attentionBgColor``, ``dangerBgColor``,
+                               ``errorBgColor``
+
+.. |warningborders| replace:: ``warningBorder``, ``cautionBorder``,
+                              ``attentionBorder``, ``dangerBorder``,
+                              ``errorBorder``
 
 LaTeX macros and environments
 -----------------------------
@@ -443,10 +418,10 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
-- the bibliography and Python Module index are typeset respectively within
-  environments ``sphinxthebibliography`` and ``sphinxtheindex``, which are
-  simple wrappers of the non-modified ``thebibliography`` and ``theindex``
-  environments.
+- the bibliography uses ``sphinxthebibliography`` and the Python Module index
+  as well as the general index both use ``sphinxtheindex``; these environments
+  are wrappers of the ``thebibliography`` and respectively ``theindex``
+  environments as provided by the document class (or packages).
 
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.

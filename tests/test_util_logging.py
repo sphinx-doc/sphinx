@@ -232,7 +232,7 @@ def test_colored_logs(app, status, warning):
     assert 'message3\n' in status.getvalue()  # not colored
     assert colorize('darkred', 'WARNING: message4') in warning.getvalue()
     assert 'WARNING: message5\n' in warning.getvalue()  # not colored
-    assert 'WARNING: message6\n' in warning.getvalue()  # not colored
+    assert colorize('darkred', 'WARNING: message6') in warning.getvalue()
 
     # color specification
     logger.debug('message7', color='white')
