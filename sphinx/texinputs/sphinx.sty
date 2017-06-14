@@ -775,8 +775,6 @@
   \hb@xt@\z@{\hss
              {\normalcolor\sphinxstylecodecontinues\literalblockcontinuesname}}%
 }%
-\newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
-\newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % Defaults are redefined in document preamble according to language
 \newcommand*\literalblockcontinuedname{continued from previous page}%
 \newcommand*\literalblockcontinuesname{continues on next page}%
@@ -1475,6 +1473,8 @@
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
+\newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
+\newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % figure legend comes after caption and may contain arbitrary body elements
 \newenvironment{sphinxlegend}{\par\small}{\par}
 
