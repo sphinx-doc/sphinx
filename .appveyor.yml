@@ -26,4 +26,7 @@ build: off
 
 test_script:
   - cd tests
-  - C:\Python%PYTHON%\python.exe run.py %TEST_IGNORE% %TEST%
+  - C:\Python%PYTHON%\python.exe run.py %TEST_IGNORE% --junitxml .junit.xml %TEST%
+
+after_test:
+  - ps: (New-Object System.Net.WebClient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path '.junit.xml'))
