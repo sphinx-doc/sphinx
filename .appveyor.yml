@@ -24,9 +24,25 @@ install:
 # No automatic build, just run python tests
 build: off
 
+# Update build information before testing, no warnings during this step
+before_test:
+  - ps: |
+      $py_warnings = $env:PYTHONWARNINGS
+      $env:PYTHONWARNINGS = 'ignore'
+      Update-AppveyorBuild -Version ((& "C:\Python$($env:PYTHON)\python.exe" -m sphinx --version).Split(' ')[2])
+      $env:PYTHONWARNINGS = $py_warnings
+
 test_script:
-  - cd tests
-  - C:\Python%PYTHON%\python.exe run.py %TEST_IGNORE% --junitxml .junit.xml %TEST%
+  - ps: |
+      Push-Location tests
+      $test_ignore = $env:TEST_IGNORE
+      if (-not $test_ignore) { $test_ignore = '' }
+      $tests = $env:TEST
+      if (-not $tests) { $tests = '' }
+      & "C:\Python$($env:PYTHON)\python.exe" run.py $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
+      Pop-Location
+      if ($LastExitCode -eq 1) { Write-Host "Test Failures Occurred, leaving for test result parsing" }
+      elseif ($LastExitCode -ne 0) { Write-Host "Other Error Occurred, aborting"; exit $LastExitCode }
 
 after_test:
-  - ps: (New-Object System.Net.WebClient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path '.junit.xml'))
+  - ps: (New-Object System.Net.WebClient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path (Join-Path tests .junit.xml)))
