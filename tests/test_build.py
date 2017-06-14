@@ -15,7 +15,7 @@ import mock
 import pytest
 from textwrap import dedent
 from sphinx.errors import SphinxError
-import os
+import sys
 
 from sphinx.testing.path import path
 
@@ -70,7 +70,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
-@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
+@pytest.mark.xfail(sys.platform == 'win32', reason="Not working on windows")
 def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app = make_app(buildername, srcdir=nonascii_srcdir)
     app.build()
