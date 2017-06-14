@@ -152,6 +152,7 @@ def test_writer(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_latex_warnings(app, status, warning):
     app.builder.build_all()
 

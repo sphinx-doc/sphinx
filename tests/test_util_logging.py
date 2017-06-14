@@ -22,6 +22,8 @@ from sphinx.util.parallel import ParallelTasks
 import pytest
 from sphinx.testing.util import strip_escseq
 
+import os
+
 
 def test_info_and_warning(app, status, warning):
     app.verbosity = 2
@@ -241,6 +243,7 @@ def test_colored_logs(app, status, warning):
     assert colorize('red', 'message8') in status.getvalue()
 
 
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
