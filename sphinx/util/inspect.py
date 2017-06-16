@@ -275,6 +275,13 @@ class Signature(object):
         except:
             self.annotations = None
 
+        if PY3:
+            # inspect.signature recognizes bound methods automatically
+            self.skip_first_argument = False
+        else:
+            # check subject is bound method or not to skip first argument (ex. self)
+            self.skip_first_argument = inspect.ismethod(subject) and subject.__self__
+
     @property
     def parameters(self):
         # type: () -> Dict
@@ -309,7 +316,11 @@ class Signature(object):
         # type: () -> unicode
         args = []
         last_kind = None
-        for param in itervalues(self.parameters):
+        for i, param in enumerate(itervalues(self.parameters)):
+            # skip first argument if subject is bound method
+            if self.skip_first_argument and i == 0:
+                continue
+
             arg = StringIO()
 
             # insert '*' between POSITIONAL args and KEYWORD_ONLY args::

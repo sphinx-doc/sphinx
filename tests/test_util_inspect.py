@@ -148,27 +148,44 @@ def test_Signature_partial():
         assert sig == '(b, *, c=11, d=2)'
 
 
-def test_Signature_bound_methods():
+def test_Signature_methods():
     class Foo:
-        def method(self, arg1, **kwargs):
+        def meth1(self, arg1, **kwargs):
             pass
 
-    bound_method = Foo().method
+        @classmethod
+        def meth2(cls, arg1, *args, **kwargs):
+            pass
 
-    @functools.wraps(bound_method)
+        @staticmethod
+        def meth3(arg1, *args, **kwargs):
+            pass
+
+    @functools.wraps(Foo().meth1)
     def wrapped_bound_method(*args, **kwargs):
         pass
 
-    # class method
-    sig = inspect.Signature(Foo.method).format_args()
+    # unbound method
+    sig = inspect.Signature(Foo.meth1).format_args()
     assert sig == '(self, arg1, **kwargs)'
 
     # bound method
-    sig = inspect.Signature(bound_method).format_args()
-    if sys.version_info < (3, 4, 4):
-        assert sig == '(self, arg1, **kwargs)'
-    else:
-        assert sig == '(arg1, **kwargs)'
+    sig = inspect.Signature(Foo().meth1).format_args()
+    assert sig == '(arg1, **kwargs)'
+
+    # class method
+    sig = inspect.Signature(Foo.meth2).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    sig = inspect.Signature(Foo().meth2).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    # static method
+    sig = inspect.Signature(Foo.meth3).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    sig = inspect.Signature(Foo().meth3).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
 
     # wrapped bound method
     sig = inspect.Signature(wrapped_bound_method).format_args()
