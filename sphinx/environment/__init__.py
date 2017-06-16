@@ -300,8 +300,7 @@ class BuildEnvironment(object):
         be emitted instantly, but collected for emitting all warnings after
         the update of the environment.
         """
-        # strange argument order is due to backwards compatibility
-        self._warnfunc(msg, (docname, lineno), **kwargs)
+        self.app.warn(msg, location=(docname, lineno), **kwargs)
 
     def warn_node(self, msg, node, **kwargs):
         # type: (unicode, nodes.Node, Any) -> None

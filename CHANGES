@@ -25,6 +25,7 @@ Bugs fixed
 * #3835: sphinx.ext.imgmath fails to convert SVG images if project directory
   name contains spaces
 * #3850: Fix color handling in make mode's help command
+* #3865: use of self.env.warn in sphinx extension fails
 
 Testing
 --------
