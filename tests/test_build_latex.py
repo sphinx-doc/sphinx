@@ -542,8 +542,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('&\nThis is one more footnote with some code in it %\n'
             '\\begin{footnote}[10]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result
-    assert ('\\end{sphinxVerbatim}\n\\let\\sphinxVerbatimTitle\\empty\n'
-            '\\let\\sphinxLiteralBlockLabel\\empty\n%\n\\end{footnote}.\n') in result
+    assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 

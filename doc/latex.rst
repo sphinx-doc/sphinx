@@ -189,14 +189,25 @@ The available styling options
     default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
     contents should wrap.
 
+``literalblockcappos``
+    default ``t`` for "top". Decides the caption position. Alternative is
+    ``b`` ("bottom").
+
+    .. versionadded:: 1.7
+
 ``verbatimhintsturnover``
-    default ``false``. If ``true``, code-blocks display "continued on next
+    default ``true``. If ``true``, code-blocks display "continued on next
     page", "continued from previous page" hints in case of pagebreaks.
 
     .. versionadded:: 1.6.3
-       the default will change to ``true`` at 1.7 and horizontal positioning
-       of continuation hints (currently right aligned only) will be
-       customizable.
+    .. versionchanged:: 1.7
+       the default changed from ``false`` to ``true``.
+
+``verbatimcontinuedalign``, ``verbatimcontinuesalign``
+    default ``c``. Horizontal position relative to the framed contents:
+    either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
+
+    .. versionadded:: 1.7
 
 ``parsedliteralwraps``
     default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
@@ -356,10 +367,9 @@ Macros
      with LaTeX packages.
 - more text styling: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
-  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``,
-  ``theadfamily``, ``emphasis``, ``literalemphasis``, ``strong``,
-  ``literalstrong``, ``abbreviation``, ``literalintitle``, ``codecontinued``,
-  ``codecontinues``.
+  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``theadfamily``,
+  ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
+  ``abbreviation``, ``literalintitle``, ``codecontinued``, ``codecontinues``
 
   .. versionadded:: 1.5
      these macros were formerly hard-coded as non customizable ``\texttt``,
