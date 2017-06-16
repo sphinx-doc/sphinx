@@ -708,12 +708,9 @@
 % #2 = for material below frame, such as a caption or "continues on next page"
 % #3 = actual contents, which will be typeset with a background color
 \long\def\spx@CustomFBox#1#2#3{%
-  \leavevmode
   \begingroup
   \setbox\@tempboxa\hbox{{#3}}% inner braces to avoid color leaks
-  \hbox
-   {\lower\dimexpr\fboxrule+\dp\@tempboxa\hbox{%
-      \vbox{#1% above frame
+  \vbox{#1% above frame
             % draw frame border _latest_ to avoid pdf viewer issue
             \kern\fboxrule
             \hbox{\kern\fboxrule
@@ -726,10 +723,8 @@
             \hrule\@height\fboxrule
             \kern\dimexpr\ht\@tempboxa+\dp\@tempboxa\relax
             \hrule\@height\fboxrule
-            #2% below frame
-          }%
-    }%
-   }%
+        #2% below frame
+       }%
   \endgroup
 }%
 \def\spx@fcolorbox@put@c#1{% hide width from framed.sty measuring
