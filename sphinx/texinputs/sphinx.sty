@@ -684,10 +684,17 @@
 \newcommand*\sphinxVerbatimTitle {}
 % This box to typeset the caption before framed.sty multiple passes for framing.
 \newbox\spx@Verbatim@TitleBox
+% This is a workaround to a "feature" of French lists, which shows when non-
+% paragraph material immediately follows a list. A priori usable generally
+% as it does only \par for normal situations.
+\newcommand*\sphinxvspacefixafterfrenchlists{%
+   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
+}
 % Holder macro for labels of literal blocks. Set-up by LaTeX writer.
 \newcommand*\sphinxLiteralBlockLabel {}
 \newcommand*\sphinxSetupCaptionForVerbatim [1]
 {%
+    \sphinxvspacefixafterfrenchlists
     \needspace{\sphinxliteralblockneedspace}%
 % insert a \label via \sphinxLiteralBlockLabel
 % reset to normal the color for the literal block caption
@@ -839,13 +846,10 @@
 % Sphinx <1.5 optional argument was in fact mandatory. It is now really
 % optional and handled by original Verbatim.
 \newenvironment{sphinxVerbatim}{%
-  % quit horizontal mode if we are still in a paragraph
-  \par
-  % list starts new par, but we don't want it to be set apart vertically
-  \parskip\z@skip
   % first, let's check if there is a caption
   \ifx\sphinxVerbatimTitle\empty
-      \addvspace\z@% counteract possible previous negative skip (French lists!)
+      \sphinxvspacefixafterfrenchlists
+      \parskip\z@skip
       \smallskip
       % there was no caption. Check if nevertheless a label was set.
       \ifx\sphinxLiteralBlockLabel\empty\else
@@ -856,6 +860,7 @@
       \fi
       \let\spx@Verbatim@Title\@empty
   \else
+     \parskip\z@skip
   % non-empty \sphinxVerbatimTitle has label inside it (in case there is one)
      \setbox\spx@Verbatim@TitleBox
             \hbox{\begin{minipage}{\linewidth}%
@@ -1110,10 +1115,9 @@
   {\parskip\z@skip\noindent}%
   }
   {%
-  \par
   % counteract previous possible negative skip (French lists!):
   % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
-  \ifdim\lastskip<\z@\vskip-\lastskip\fi
+  \sphinxvspacefixafterfrenchlists
   \nobreak\vbox{\noindent\kern\@totalleftmargin
       {\color{spx@notice@bordercolor}%
        \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
