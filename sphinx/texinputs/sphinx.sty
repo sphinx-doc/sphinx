@@ -656,10 +656,6 @@
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
-% if the available space on page is less than \literalblockneedspace, insert pagebreak
-\newcommand{\sphinxliteralblockneedspace}{5\baselineskip}
-\newcommand{\sphinxliteralblockwithoutcaptionneedspace}{1.5\baselineskip}
-
 % for captions of literal blocks
 % also define `\theH...` macros for hyperref
 \newcounter{literalblock}
@@ -678,38 +674,6 @@
 % only if a \listof{literalblock}{foo} command is encountered, which is
 % analogous to \listoffigures, but for the code listings (foo = chosen title.)
 \newcommand*{\ext@literalblock}{lol}
-
-% The title (caption) is specified from outside as macro \sphinxVerbatimTitle.
-% \sphinxVerbatimTitle is reset to empty after each use of Verbatim.
-\newcommand*\sphinxVerbatimTitle {}
-% This box to typeset the caption before framed.sty multiple passes for framing.
-\newbox\spx@Verbatim@TitleBox
-% This is a workaround to a "feature" of French lists, which shows when non-
-% paragraph material immediately follows a list. A priori usable generally
-% as it does only \par for normal situations.
-\newcommand*\sphinxvspacefixafterfrenchlists{%
-   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
-}
-% Holder macro for labels of literal blocks. Set-up by LaTeX writer.
-\newcommand*\sphinxLiteralBlockLabel {}
-\newcommand*\sphinxSetupCaptionForVerbatim [1]
-{%
-    \sphinxvspacefixafterfrenchlists
-    \needspace{\sphinxliteralblockneedspace}%
-% insert a \label via \sphinxLiteralBlockLabel
-% reset to normal the color for the literal block caption
-% the caption inserts \abovecaptionskip whitespace above itself (usually 10pt)
-% there is also \belowcaptionskip but it is usually zero, hence the \smallskip
-    \def\sphinxVerbatimTitle
-       {\py@NormalColor
-        \captionof{literalblock}{\sphinxLiteralBlockLabel #1}\smallskip }%
-}
-\newcommand*\sphinxSetupCodeBlockInFootnote {%
-  \fvset{fontsize=\footnotesize}\let\caption\sphinxfigcaption
-  \sphinxverbatimwithminipagetrue % reduces vertical spaces
-  % we counteract float.sty's \caption which does \@normalsize
-  \let\normalsize\footnotesize\let\@parboxrestore\relax
-  \abovecaptionskip \smallskipamount \belowcaptionskip \z@skip}
 
 \newif\ifspx@inframed % flag set if we are already in a framed environment
 % if forced use of minipage encapsulation is needed (e.g. table cells)
@@ -841,6 +805,38 @@
                    {\kern\fontdimen2\font}%
 }%
 
+% if the available space on page is less than \literalblockneedspace, insert pagebreak
+\newcommand{\sphinxliteralblockneedspace}{5\baselineskip}
+\newcommand{\sphinxliteralblockwithoutcaptionneedspace}{1.5\baselineskip}
+% The title (caption) is specified from outside as macro \sphinxVerbatimTitle.
+% \sphinxVerbatimTitle is reset to empty after each use of Verbatim.
+\newcommand*\sphinxVerbatimTitle {}
+% This box to typeset the caption before framed.sty multiple passes for framing.
+\newbox\sphinxVerbatim@TitleBox
+% This is a workaround to a "feature" of French lists, when literal block
+% follows immediately; usable generally (does only \par then), a priori...
+\newcommand*\sphinxvspacefixafterfrenchlists{%
+   \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
+}
+% Holder macro for labels of literal blocks. Set-up by LaTeX writer.
+\newcommand*\sphinxLiteralBlockLabel {}
+\newcommand*\sphinxSetupCaptionForVerbatim [1]
+{%
+    \sphinxvspacefixafterfrenchlists
+    \needspace{\sphinxliteralblockneedspace}%
+% insert a \label via \sphinxLiteralBlockLabel
+% reset to normal the color for the literal block caption
+    \def\sphinxVerbatimTitle
+       {\py@NormalColor\sphinxcaption{\sphinxLiteralBlockLabel #1}}%
+}
+\newcommand*\sphinxSetupCodeBlockInFootnote {%
+  \fvset{fontsize=\footnotesize}\let\caption\sphinxfigcaption
+  \sphinxverbatimwithminipagetrue % reduces vertical spaces
+  % we counteract \caption issueing \@normalsize
+  % this all happens in a group
+  \let\normalsize\footnotesize\let\@parboxrestore\relax
+  \abovecaptionskip \smallskipamount \belowcaptionskip \z@skip
+}
 % needed to create wrapper environments of fancyvrb's Verbatim
 \newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
 % Sphinx <1.5 optional argument was in fact mandatory. It is now really
