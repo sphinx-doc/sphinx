@@ -173,7 +173,7 @@ this::
    +------------------------+------------+----------+----------+
 
 *Simple tables* (:duref:`ref <simple-tables>`) are easier to write, but
-limited: they must contain more than one row, and the first column cannot
+limited: they must contain more than one row, and the first column cells cannot
 contain multiple lines.  They look like this::
 
    =====  =====  =======
