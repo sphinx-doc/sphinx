@@ -266,7 +266,7 @@ class Signature(object):
         self.subject = subject
 
         if PY3:
-            self.signatures = inspect.signature(subject)
+            self.signature = inspect.signature(subject)
         else:
             self.argspec = getargspec(subject)
 
@@ -296,7 +296,7 @@ class Signature(object):
     def parameters(self):
         # type: () -> Dict
         if PY3:
-            return self.signatures.parameters
+            return self.signature.parameters
         else:
             params = OrderedDict()  # type: Dict
             positionals = len(self.argspec.args) - len(self.argspec.defaults)
@@ -318,7 +318,7 @@ class Signature(object):
     def return_annotation(self):
         # type: () -> Any
         if PY3:
-            return self.signatures.return_annotation
+            return self.signature.return_annotation
         else:
             return None
 
