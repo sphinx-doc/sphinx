@@ -243,6 +243,8 @@ Bugs fixed
 * #3661: sphinx-build crashes on parallel build
 * #3669: gettext builder fails with "ValueError: substring not found"
 * #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
+* #3472: smart quotes getting wrong in latex (at least with list of strings via
+  autoattribute) (refs: #3345, #3666)
 
 1.6b3
 
