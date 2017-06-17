@@ -29,6 +29,7 @@
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>
+<%= literalblockpto %>
 <%= pageautorefname %>
 <%= tocdepth %>
 <%= secnumdepth %>
