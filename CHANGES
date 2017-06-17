@@ -68,6 +68,10 @@ Deprecated
 Features added
 --------------
 
+* Now :confval:`suppress_warnings` accepts following configurations:
+
+  - ``ref.python`` (ref: #3866)
+
 Bugs fixed
 ----------
 
