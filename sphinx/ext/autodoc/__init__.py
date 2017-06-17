@@ -16,10 +16,8 @@ import sys
 import inspect
 import traceback
 import warnings
-from types import FunctionType, MethodType, ModuleType
 
-from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
-    string_types, StringIO
+from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
@@ -27,6 +25,8 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
+from sphinx.ext.autodoc.importer import _MockImporter
+from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # NOQA  # to keep compatibility
 from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
@@ -40,17 +40,10 @@ from sphinx.util.docstrings import prepare_docstring
 
 if False:
     # For type annotation
+    from types import ModuleType  # NOQA
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
-
-try:
-    if sys.version_info >= (3,):
-        import typing
-    else:
-        typing = None
-except ImportError:
-    typing = None
 
 logger = logging.getLogger(__name__)
 
@@ -104,103 +97,6 @@ class Options(dict):
             return self[name.replace('_', '-')]
         except KeyError:
             return None
-
-
-class _MockObject(object):
-    """Used by autodoc_mock_imports."""
-
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
-        pass
-
-    def __len__(self):
-        # type: () -> int
-        return 0
-
-    def __contains__(self, key):
-        # type: (str) -> bool
-        return False
-
-    def __iter__(self):
-        # type: () -> None
-        pass
-
-    def __getitem__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __getattr__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __call__(self, *args, **kw):
-        # type: (Any, Any) -> Any
-        if args and type(args[0]) in [FunctionType, MethodType]:
-            # Appears to be a decorator, pass through unchanged
-            return args[0]
-        return self
-
-
-class _MockModule(ModuleType):
-    """Used by autodoc_mock_imports."""
-    __file__ = '/dev/null'
-
-    def __init__(self, name, loader):
-        # type: (str, _MockImporter) -> None
-        self.__name__ = self.__package__ = name
-        self.__loader__ = loader
-        self.__all__ = []  # type: List[str]
-        self.__path__ = []  # type: List[str]
-
-    def __getattr__(self, name):
-        # type: (str) -> _MockObject
-        o = _MockObject()
-        o.__module__ = self.__name__
-        return o
-
-
-class _MockImporter(object):
-
-    def __init__(self, names):
-        # type: (List[str]) -> None
-        self.base_packages = set()  # type: Set[str]
-        for n in names:
-            # Convert module names:
-            #     ['a.b.c', 'd.e']
-            # to a set of base packages:
-            #     set(['a', 'd'])
-            self.base_packages.add(n.split('.')[0])
-        self.mocked_modules = []  # type: List[str]
-        # enable hook by adding itself to meta_path
-        sys.meta_path = sys.meta_path + [self]
-
-    def disable(self):
-        # remove `self` from `sys.meta_path` to disable import hook
-        sys.meta_path = [i for i in sys.meta_path if i is not self]
-        # remove mocked modules from sys.modules to avoid side effects after
-        # running auto-documenter
-        for m in self.mocked_modules:
-            if m in sys.modules:
-                del sys.modules[m]
-
-    def find_module(self, name, path=None):
-        # type: (str, str) -> Any
-        base_package = name.split('.')[0]
-        if base_package in self.base_packages:
-            return self
-        return None
-
-    def load_module(self, name):
-        # type: (str) -> ModuleType
-        if name in sys.modules:
-            # module has already been imported, return it
-            return sys.modules[name]
-        else:
-            logger.debug('[autodoc] adding a mock module %s!', name)
-            module = _MockModule(name, self)
-            sys.modules[name] = module
-            self.mocked_modules.append(name)
-            return module
 
 
 ALL = object()
@@ -357,162 +253,6 @@ def between(marker, what=None, keepempty=False, exclude=False):
         if lines and lines[-1]:
             lines.append('')
     return process
-
-
-def format_annotation(annotation):
-    # type: (Any) -> str
-    """Return formatted representation of a type annotation.
-
-    Show qualified names for types and additional details for types from
-    the ``typing`` module.
-
-    Displaying complex types from ``typing`` relies on its private API.
-    """
-    if typing and isinstance(annotation, typing.TypeVar):  # type: ignore
-        return annotation.__name__
-    if annotation == Ellipsis:
-        return '...'
-    if not isinstance(annotation, type):
-        return repr(annotation)
-
-    qualified_name = (annotation.__module__ + '.' + annotation.__qualname__  # type: ignore
-                      if annotation else repr(annotation))
-
-    if annotation.__module__ == 'builtins':
-        return annotation.__qualname__  # type: ignore
-    elif typing:
-        if hasattr(typing, 'GenericMeta') and \
-                isinstance(annotation, typing.GenericMeta):
-            # In Python 3.5.2+, all arguments are stored in __args__,
-            # whereas __parameters__ only contains generic parameters.
-            #
-            # Prior to Python 3.5.2, __args__ is not available, and all
-            # arguments are in __parameters__.
-            params = None
-            if hasattr(annotation, '__args__'):
-                if annotation.__args__ is None or len(annotation.__args__) <= 2:
-                    params = annotation.__args__
-                else:  # typing.Callable
-                    args = ', '.join(format_annotation(a) for a in annotation.__args__[:-1])
-                    result = format_annotation(annotation.__args__[-1])
-                    return '%s[[%s], %s]' % (qualified_name, args, result)
-            elif hasattr(annotation, '__parameters__'):
-                params = annotation.__parameters__
-            if params is not None:
-                param_str = ', '.join(format_annotation(p) for p in params)
-                return '%s[%s]' % (qualified_name, param_str)
-        elif hasattr(typing, 'UnionMeta') and \
-                isinstance(annotation, typing.UnionMeta) and \
-                hasattr(annotation, '__union_params__'):
-            params = annotation.__union_params__
-            if params is not None:
-                param_str = ', '.join(format_annotation(p) for p in params)
-                return '%s[%s]' % (qualified_name, param_str)
-        elif hasattr(typing, 'CallableMeta') and \
-                isinstance(annotation, typing.CallableMeta) and \
-                getattr(annotation, '__args__', None) is not None and \
-                hasattr(annotation, '__result__'):
-            # Skipped in the case of plain typing.Callable
-            args = annotation.__args__
-            if args is None:
-                return qualified_name
-            elif args is Ellipsis:
-                args_str = '...'
-            else:
-                formatted_args = (format_annotation(a) for a in args)
-                args_str = '[%s]' % ', '.join(formatted_args)
-            return '%s[%s, %s]' % (qualified_name,
-                                   args_str,
-                                   format_annotation(annotation.__result__))
-        elif hasattr(typing, 'TupleMeta') and \
-                isinstance(annotation, typing.TupleMeta) and \
-                hasattr(annotation, '__tuple_params__') and \
-                hasattr(annotation, '__tuple_use_ellipsis__'):
-            params = annotation.__tuple_params__
-            if params is not None:
-                param_strings = [format_annotation(p) for p in params]
-                if annotation.__tuple_use_ellipsis__:
-                    param_strings.append('...')
-                return '%s[%s]' % (qualified_name,
-                                   ', '.join(param_strings))
-    return qualified_name
-
-
-def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
-                  kwonlyargs=(), kwonlydefaults={}, annotations={}):
-    # type: (Callable, Tuple[str, ...], str, str, Any, Tuple, Dict, Dict[str, Any]) -> str
-    """Return a string representation of an ``inspect.FullArgSpec`` tuple.
-
-    An enhanced version of ``inspect.formatargspec()`` that handles typing
-    annotations better.
-    """
-
-    def format_arg_with_annotation(name):
-        # type: (str) -> str
-        if name in annotations:
-            return '%s: %s' % (name, format_annotation(get_annotation(name)))
-        return name
-
-    def get_annotation(name):
-        # type: (str) -> str
-        value = annotations[name]
-        if isinstance(value, string_types):
-            return introspected_hints.get(name, value)
-        else:
-            return value
-
-    introspected_hints = (typing.get_type_hints(function)  # type: ignore
-                          if typing and hasattr(function, '__code__') else {})
-
-    fd = StringIO()
-    fd.write('(')
-
-    formatted = []
-    defaults_start = len(args) - len(defaults) if defaults else len(args)
-
-    for i, arg in enumerate(args):
-        arg_fd = StringIO()
-        if isinstance(arg, list):
-            # support tupled arguments list (only for py2): def foo((x, y))
-            arg_fd.write('(')
-            arg_fd.write(format_arg_with_annotation(arg[0]))
-            for param in arg[1:]:
-                arg_fd.write(', ')
-                arg_fd.write(format_arg_with_annotation(param))
-            arg_fd.write(')')
-        else:
-            arg_fd.write(format_arg_with_annotation(arg))
-            if defaults and i >= defaults_start:
-                arg_fd.write(' = ' if arg in annotations else '=')
-                arg_fd.write(object_description(defaults[i - defaults_start]))  # type: ignore
-        formatted.append(arg_fd.getvalue())
-
-    if varargs:
-        formatted.append('*' + format_arg_with_annotation(varargs))
-
-    if kwonlyargs:
-        if not varargs:
-            formatted.append('*')
-
-        for kwarg in kwonlyargs:
-            arg_fd = StringIO()
-            arg_fd.write(format_arg_with_annotation(kwarg))
-            if kwonlydefaults and kwarg in kwonlydefaults:
-                arg_fd.write(' = ' if kwarg in annotations else '=')
-                arg_fd.write(object_description(kwonlydefaults[kwarg]))  # type: ignore
-            formatted.append(arg_fd.getvalue())
-
-    if varkw:
-        formatted.append('**' + format_arg_with_annotation(varkw))
-
-    fd.write(', '.join(formatted))
-    fd.write(')')
-
-    if 'return' in annotations:
-        fd.write(' -> ')
-        fd.write(format_annotation(get_annotation('return')))
-
-    return fd.getvalue()
 
 
 class Documenter(object):
