@@ -24,7 +24,8 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
-from sphinx.ext.autodoc.importer import _MockImporter, import_module
+from sphinx.ext.autodoc.importer import mock, import_module
+from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
@@ -388,47 +389,45 @@ class Documenter(object):
                          self.modname, '.'.join(self.objpath))
         # always enable mock import hook
         # it will do nothing if autodoc_mock_imports is empty
-        import_hook = _MockImporter(self.env.config.autodoc_mock_imports)
-        try:
-            logger.debug('[autodoc] import %s', self.modname)
-            obj = import_module(self.modname, self.env.config.autodoc_warningiserror)
-            parent = None
-            self.module = obj
-            logger.debug('[autodoc] => %r', obj)
-            for part in self.objpath:
-                parent = obj
-                logger.debug('[autodoc] getattr(_, %r)', part)
-                obj = self.get_attr(obj, part)
+        with mock(self.env.config.autodoc_mock_imports):
+            try:
+                logger.debug('[autodoc] import %s', self.modname)
+                obj = import_module(self.modname, self.env.config.autodoc_warningiserror)
+                parent = None
+                self.module = obj
                 logger.debug('[autodoc] => %r', obj)
-                self.object_name = part
-            self.parent = parent
-            self.object = obj
-            return True
-        # this used to only catch SyntaxError, ImportError and AttributeError,
-        # but importing modules with side effects can raise all kinds of errors
-        except (Exception, SystemExit) as e:
-            if self.objpath:
-                errmsg = 'autodoc: failed to import %s %r from module %r' % \
-                         (self.objtype, '.'.join(self.objpath), self.modname)
-            else:
-                errmsg = 'autodoc: failed to import %s %r' % \
-                         (self.objtype, self.fullname)
-            if isinstance(e, SystemExit):
-                errmsg += ('; the module executes module level statement ' +
-                           'and it might call sys.exit().')
-            elif isinstance(e, ImportError):
-                errmsg += '; the following exception was raised:\n%s' % e.args[0]
-            else:
-                errmsg += '; the following exception was raised:\n%s' % \
-                          traceback.format_exc()
-            if PY2:
-                errmsg = errmsg.decode('utf-8')  # type: ignore
-            logger.debug(errmsg)
-            self.directive.warn(errmsg)
-            self.env.note_reread()
-            return False
-        finally:
-            import_hook.disable()
+                for part in self.objpath:
+                    parent = obj
+                    logger.debug('[autodoc] getattr(_, %r)', part)
+                    obj = self.get_attr(obj, part)
+                    logger.debug('[autodoc] => %r', obj)
+                    self.object_name = part
+                self.parent = parent
+                self.object = obj
+                return True
+            # this used to only catch SyntaxError, ImportError and AttributeError,
+            # but importing modules with side effects can raise all kinds of errors
+            except (Exception, SystemExit) as e:
+                if self.objpath:
+                    errmsg = 'autodoc: failed to import %s %r from module %r' % \
+                             (self.objtype, '.'.join(self.objpath), self.modname)
+                else:
+                    errmsg = 'autodoc: failed to import %s %r' % \
+                             (self.objtype, self.fullname)
+                if isinstance(e, SystemExit):
+                    errmsg += ('; the module executes module level statement ' +
+                               'and it might call sys.exit().')
+                elif isinstance(e, ImportError):
+                    errmsg += '; the following exception was raised:\n%s' % e.args[0]
+                else:
+                    errmsg += '; the following exception was raised:\n%s' % \
+                              traceback.format_exc()
+                if PY2:
+                    errmsg = errmsg.decode('utf-8')  # type: ignore
+                logger.debug(errmsg)
+                self.directive.warn(errmsg)
+                self.env.note_reread()
+                return False
 
     def get_real_modname(self):
         # type: () -> str
