@@ -34,11 +34,11 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     basedir = sphinx_test_tempdir / request.node.originalname
     # Windows with versions prior to 3.2 (I think) doesn't support unicode on system path
     # so we force a non-unicode path in that case
-    if sys.platform == "win32":
-        if not (sys.version_info.major >= 3 and sys.version_info.minor >= 2):
-            return basedir / 'all'
-        srcdir = basedir / test_name
+    if sys.platform == "win32" and \
+        not (sys.version_info.major >= 3 and sys.version_info.minor >= 2):
+        return basedir / 'all'
     try:
+        srcdir = basedir / test_name
         if not srcdir.exists():
             (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
