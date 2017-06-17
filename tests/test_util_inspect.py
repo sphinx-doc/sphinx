@@ -192,8 +192,10 @@ def test_Signature_methods():
 
     # wrapped bound method
     sig = inspect.Signature(wrapped_bound_method).format_args()
-    if sys.version_info < (3, 4, 4):
+    if sys.version_info < (3,):
         assert sig == '(*args, **kwargs)'
+    elif sys.version_info < (3, 4, 4):
+        assert sig == '(self, arg1, **kwargs)'
     else:
         assert sig == '(arg1, **kwargs)'
 
