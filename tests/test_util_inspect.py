@@ -169,6 +169,9 @@ def test_Signature_methods():
     sig = inspect.Signature(Foo.meth1).format_args()
     assert sig == '(self, arg1, **kwargs)'
 
+    sig = inspect.Signature(Foo.meth1, bound_method=True).format_args()
+    assert sig == '(arg1, **kwargs)'
+
     # bound method
     sig = inspect.Signature(Foo().meth1).format_args()
     assert sig == '(arg1, **kwargs)'

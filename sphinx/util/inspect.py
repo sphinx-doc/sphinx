@@ -255,8 +255,8 @@ class Signature(object):
     its return annotation.
     """
 
-    def __init__(self, subject):
-        # type: (Callable) -> None
+    def __init__(self, subject, bound_method=False):
+        # type: (Callable, bool) -> None
         # check subject is not a built-in class (ex. int, str)
         if (isinstance(subject, type) and
                 is_builtin_class_method(subject, "__new__") and
@@ -275,12 +275,22 @@ class Signature(object):
         except:
             self.annotations = None
 
-        if PY3:
-            # inspect.signature recognizes bound methods automatically
-            self.skip_first_argument = False
+        if bound_method:
+            # client gives a hint that the subject is a bound method
+
+            if PY3 and inspect.ismethod(subject):
+                # inspect.signature already considers the subject is bound method.
+                # So it is not need to skip first argument.
+                self.skip_first_argument = False
+            else:
+                self.skip_first_argument = True
         else:
-            # check subject is bound method or not to skip first argument (ex. self)
-            self.skip_first_argument = inspect.ismethod(subject) and subject.__self__
+            if PY3:
+                # inspect.signature recognizes type of method properly without any hints
+                self.skip_first_argument = False
+            else:
+                # check the subject is bound method or not
+                self.skip_first_argument = inspect.ismethod(subject) and subject.__self__  # type: ignore  # NOQA
 
     @property
     def parameters(self):
