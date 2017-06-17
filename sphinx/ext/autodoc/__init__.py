@@ -26,7 +26,7 @@ from docutils.statemachine import ViewList
 
 import sphinx
 from sphinx.ext.autodoc.importer import _MockImporter
-from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # NOQA  # to keep compatibility
+from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
