@@ -273,7 +273,7 @@ class Signature(object):
         try:
             self.annotations = typing.get_type_hints(subject)
         except:
-            self.annotations = None
+            self.annotations = {}
 
         if bound_method:
             # client gives a hint that the subject is a bound method
