@@ -68,6 +68,8 @@ Deprecated
 Features added
 --------------
 
+* latex: hint that code-block continues on next page (refs: #3764, #3792)
+
 Bugs fixed
 ----------
 
