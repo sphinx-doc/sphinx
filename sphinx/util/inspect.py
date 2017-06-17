@@ -422,7 +422,8 @@ class Signature(object):
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
-        elif (isinstance(annotation, typing.UnionMeta) and  # type: ignore
+        elif (hasattr(typing, 'UnionMeta') and  # for py35 or below
+              isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):
             params = annotation.__union_params__  # type: ignore
             if params is not None:
