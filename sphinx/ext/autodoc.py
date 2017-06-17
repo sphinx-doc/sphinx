@@ -33,7 +33,7 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
+from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
     isenumclass, isenumattribute
 from sphinx.util.docstrings import prepare_docstring
@@ -1358,7 +1358,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # cannot introspect arguments of a C function or method
             return None
         try:
-            argspec = getargspec(self.object)
+            args = Signature(self.object).format_args()
         except TypeError:
             if (is_builtin_class_method(self.object, '__new__') and
                is_builtin_class_method(self.object, '__init__')):
@@ -1368,12 +1368,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
-                argspec = getargspec(self.object.__new__)
+                args = Signature(self.object.__new__, bound_method=True).format_args()
             except TypeError:
-                argspec = getargspec(self.object.__init__)
-                if argspec[0]:
-                    del argspec[0][0]
-        args = formatargspec(self.object, *argspec)
+                args = Signature(self.object.__init__, bound_method=True).format_args()
+
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args
@@ -1425,14 +1423,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
-            argspec = getargspec(initmeth)
+            return Signature(initmeth, bound_method=True).format_args()
         except TypeError:
             # still not possible: happens e.g. for old-style classes
             # with __init__ in C
             return None
-        if argspec[0] and argspec[0][0] in ('cls', 'self'):
-            del argspec[0][0]
-        return formatargspec(initmeth, *argspec)
 
     def format_signature(self):
         # type: () -> unicode
@@ -1619,10 +1614,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
-        argspec = getargspec(self.object)
-        if argspec[0] and argspec[0][0] in ('cls', 'self'):
-            del argspec[0][0]
-        args = formatargspec(self.object, *argspec)
+        args = Signature(self.object, bound_method=True).format_args()
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args

@@ -113,6 +113,146 @@ def test_getargspec_bound_methods():
         assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
+def test_Signature():
+    # literals
+    with pytest.raises(TypeError):
+        inspect.Signature(1)
+
+    with pytest.raises(TypeError):
+        inspect.Signature('')
+
+    # builitin classes
+    with pytest.raises(TypeError):
+        inspect.Signature(int)
+
+    with pytest.raises(TypeError):
+        inspect.Signature(str)
+
+    # normal function
+    def func(a, b, c=1, d=2, *e, **f):
+        pass
+
+    sig = inspect.Signature(func).format_args()
+    assert sig == '(a, b, c=1, d=2, *e, **f)'
+
+
+def test_Signature_partial():
+    def fun(a, b, c=1, d=2):
+        pass
+    p = functools.partial(fun, 10, c=11)
+
+    sig = inspect.Signature(p).format_args()
+    if sys.version_info < (3,):
+        assert sig == '(b, d=2)'
+    else:
+        assert sig == '(b, *, c=11, d=2)'
+
+
+def test_Signature_methods():
+    class Foo:
+        def meth1(self, arg1, **kwargs):
+            pass
+
+        @classmethod
+        def meth2(cls, arg1, *args, **kwargs):
+            pass
+
+        @staticmethod
+        def meth3(arg1, *args, **kwargs):
+            pass
+
+    @functools.wraps(Foo().meth1)
+    def wrapped_bound_method(*args, **kwargs):
+        pass
+
+    # unbound method
+    sig = inspect.Signature(Foo.meth1).format_args()
+    assert sig == '(self, arg1, **kwargs)'
+
+    sig = inspect.Signature(Foo.meth1, bound_method=True).format_args()
+    assert sig == '(arg1, **kwargs)'
+
+    # bound method
+    sig = inspect.Signature(Foo().meth1).format_args()
+    assert sig == '(arg1, **kwargs)'
+
+    # class method
+    sig = inspect.Signature(Foo.meth2).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    sig = inspect.Signature(Foo().meth2).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    # static method
+    sig = inspect.Signature(Foo.meth3).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    sig = inspect.Signature(Foo().meth3).format_args()
+    assert sig == '(arg1, *args, **kwargs)'
+
+    # wrapped bound method
+    sig = inspect.Signature(wrapped_bound_method).format_args()
+    if sys.version_info < (3,):
+        assert sig == '(*args, **kwargs)'
+    elif sys.version_info < (3, 4, 4):
+        assert sig == '(self, arg1, **kwargs)'
+    else:
+        assert sig == '(arg1, **kwargs)'
+
+
+@pytest.mark.skipif(sys.version_info < (3, 5),
+                    reason='type annotation test is available on py35 or above')
+def test_Signature_annotations():
+    from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11
+
+    # Class annotations
+    sig = inspect.Signature(f0).format_args()
+    assert sig == '(x: int, y: numbers.Integral) -> None'
+
+    # Generic types with concrete parameters
+    sig = inspect.Signature(f1).format_args()
+    assert sig == '(x: typing.List[int]) -> typing.List[int]'
+
+    # TypeVars and generic types with TypeVars
+    sig = inspect.Signature(f2).format_args()
+    assert sig == '(x: typing.List[T], y: typing.List[T_co], z: T) -> typing.List[T_contra]'
+
+    # Union types
+    sig = inspect.Signature(f3).format_args()
+    assert sig == '(x: typing.Union[str, numbers.Integral]) -> None'
+
+    # Quoted annotations
+    sig = inspect.Signature(f4).format_args()
+    assert sig == '(x: str, y: str) -> None'
+
+    # Keyword-only arguments
+    sig = inspect.Signature(f5).format_args()
+    assert sig == '(x: int, *, y: str, z: str) -> None'
+
+    # Keyword-only arguments with varargs
+    sig = inspect.Signature(f6).format_args()
+    assert sig == '(x: int, *args, y: str, z: str) -> None'
+
+    # Space around '=' for defaults
+    sig = inspect.Signature(f7).format_args()
+    assert sig == '(x: int = None, y: dict = {}) -> None'
+
+    # Callable types
+    sig = inspect.Signature(f8).format_args()
+    assert sig == '(x: typing.Callable[[int, str], int]) -> None'
+
+    sig = inspect.Signature(f9).format_args()
+    assert sig == '(x: typing.Callable) -> None'
+
+    # Tuple types
+    sig = inspect.Signature(f10).format_args()
+    assert sig == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
+
+    # Instance annotations
+    sig = inspect.Signature(f11).format_args()
+    assert sig == '(x: CustomAnnotation, y: 123) -> None'
+
+
 def test_safe_getattr_with_default():
     class Foo(object):
         def __getattr__(self, item):
