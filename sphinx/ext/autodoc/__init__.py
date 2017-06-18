@@ -285,14 +285,10 @@ class Documenter(object):
 
     option_spec = {'noindex': bool_option}  # type: Dict[unicode, Callable]
 
-    @staticmethod
-    def get_attr(obj, name, *defargs):
+    def get_attr(self, obj, name, *defargs):
         # type: (Any, unicode, Any) -> Any
         """getattr() override for types such as Zope interfaces."""
-        for typ, func in iteritems(AutoDirective._special_attrgetters):
-            if isinstance(obj, typ):
-                return func(obj, name, *defargs)
-        return safe_getattr(obj, name, *defargs)
+        return autodoc_attrgetter(self.env.app, obj, name, *defargs)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1496,10 +1492,6 @@ class AutoDirective(Directive):
     The AutoDirective class is used for all autodoc directives.  It dispatches
     most of the work to one of the Documenters.
 
-    The *_special_attrgetters* attribute is used to customize ``getattr()``
-    calls that the Documenters make; its entries are of the form ``type:
-    getattr_function``.
-
     Note: When importing an object, all items along the import chain are
     accessed using the descendant's *_special_attrgetters*, thus this
     dictionary should include all necessary functions for accessing
@@ -1512,7 +1504,10 @@ class AutoDirective(Directive):
     )  # type: Dict[unicode, Type[Documenter]]
 
     # a registry of type -> getattr function
-    _special_attrgetters = {}  # type: Dict[Type, Callable]
+    _special_attrgetters = DeprecatedDict(
+        'AutoDirective._special_attrgetters has been deprecated. '
+        'Please use app.add_autodoc_attrgetter() instead.'
+    )  # type: Dict[Type, Callable]
 
     # flags that can be given in autodoc_default_flags
     _default_flags = set([
@@ -1626,6 +1621,20 @@ def get_documenters(app):
     if app:
         classes.update(app.registry.documenters)  # registered by API
     return classes
+
+
+def autodoc_attrgetter(app, obj, name, *defargs):
+    # type: (Sphinx, Any, unicode, Any) -> Any
+    """Alternative getattr() for types"""
+    candidates = dict(AutoDirective._special_attrgetters)
+    if app:
+        candidates.update(app.registry.autodoc_attrgettrs)
+
+    for typ, func in iteritems(candidates):
+        if isinstance(obj, typ):
+            return func(obj, name, *defargs)
+
+    return safe_getattr(obj, name, *defargs)
 
 
 def setup(app):

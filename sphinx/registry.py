@@ -52,6 +52,7 @@ EXTENSION_BLACKLIST = {
 
 class SphinxComponentRegistry(object):
     def __init__(self):
+        self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
         self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
@@ -289,6 +290,10 @@ class SphinxComponentRegistry(object):
     def add_documenter(self, objtype, documenter):
         # type: (unicode, Type[Documenter]) -> None
         self.documenters[objtype] = documenter
+
+    def add_autodoc_attrgetter(self, typ, attrgetter):
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        self.autodoc_attrgettrs[typ] = attrgetter
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None

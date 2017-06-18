@@ -22,7 +22,9 @@ Deprecated
 * ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
   ``sphinx.util.inspect.Signature`` instead.
 * ``sphinx.ext.autodoc.add_documenter()`` and ``AutoDirective._register`` is now
-  deprecated.  Please use ``app.add_autodocumenter()``
+  deprecated.  Please use ``app.add_autodocumenter()`` instead.
+* ``AutoDirective._special_attrgetters`` is now deprecated.  Please use
+  ``app.add_autodoc_attrgetter()`` instead.
 
 Features added
 --------------
