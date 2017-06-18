@@ -1485,7 +1485,7 @@
   \ifx\spx@bd@height   \@undefined\def\spx@bd@height{\baselineskip}\fi
   \ifx\spx@bd@width    \@undefined\setbox0\hbox{0}\def\spx@bd@width{\wd0 }\fi
   \ifx\spx@bd@thickness\@undefined\def\spx@bd@thickness{.6\p@}\fi
-  \ifx\spx@bd@raise    \@undefined\def\spx@bd@lower{\dp\strutbox}\fi
+  \ifx\spx@bd@lower    \@undefined\def\spx@bd@lower{\dp\strutbox}\fi
   \lower\spx@bd@lower#1{#2}%
   \endgroup
 }%
