@@ -31,25 +31,12 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import __display_version__
 from sphinx import package_dir
+from sphinx.ext.autodoc import add_documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.rst import escape as rst_escape
-
-# Add documenters to AutoDirective registry
-from sphinx.ext.autodoc import add_documenter, \
-    ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter, \
-    FunctionDocumenter, MethodDocumenter, AttributeDocumenter, \
-    InstanceAttributeDocumenter
-add_documenter(ModuleDocumenter)
-add_documenter(ClassDocumenter)
-add_documenter(ExceptionDocumenter)
-add_documenter(DataDocumenter)
-add_documenter(FunctionDocumenter)
-add_documenter(MethodDocumenter)
-add_documenter(AttributeDocumenter)
-add_documenter(InstanceAttributeDocumenter)
 
 if False:
     # For type annotation
@@ -58,6 +45,22 @@ if False:
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+
+def setup_documenters():
+    from sphinx.ext.autodoc import (
+        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
+        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
+        InstanceAttributeDocumenter
+    )
+    add_documenter(ModuleDocumenter)
+    add_documenter(ClassDocumenter)
+    add_documenter(ExceptionDocumenter)
+    add_documenter(DataDocumenter)
+    add_documenter(FunctionDocumenter)
+    add_documenter(MethodDocumenter)
+    add_documenter(AttributeDocumenter)
+    add_documenter(InstanceAttributeDocumenter)
 
 
 def _simple_info(msg):
@@ -81,7 +84,7 @@ def _underline(title, line='='):
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None,
-                              imported_members=False):
+                              imported_members=False, app=None):
     # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool) -> None  # NOQA
 
     showed_sources = list(sorted(sources))
@@ -148,7 +151,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         new_files.append(fn)
 
         with open(fn, 'w') as f:
-            doc = get_documenter(obj, parent)
+            doc = get_documenter(app, obj, parent)
 
             if template_name is not None:
                 template = template_env.get_template(template_name)
@@ -167,7 +170,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                         value = safe_getattr(obj, name)
                     except AttributeError:
                         continue
-                    documenter = get_documenter(value, obj)
+                    documenter = get_documenter(app, value, obj)
                     if documenter.objtype == typ:
                         if typ == 'method':
                             items.append(name)
@@ -392,6 +395,7 @@ The format of the autosummary directive is documented in the
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
+    setup_documenters()
     args = get_parser().parse_args(argv)
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,

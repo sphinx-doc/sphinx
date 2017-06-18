@@ -14,6 +14,7 @@
 import re
 import sys
 import inspect
+import warnings
 
 from six import iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
@@ -23,6 +24,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.autodoc.importer import mock, import_object
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
@@ -322,6 +324,14 @@ class Documenter(object):
         self.parent = None          # type: Any
         # the module analyzer to get at attribute docs, or None
         self.analyzer = None        # type: Any
+
+    @property
+    def documenters(self):
+        # type: () -> Dict[unicode, Type[Documenter]]
+        """Returns registered Documenter classes"""
+        classes = dict(AutoDirective._registry)  # registered directly
+        classes.update(self.env.app.registry.documenters)  # registered by API
+        return classes
 
     def add_line(self, line, source, *lineno):
         # type: (unicode, unicode, int) -> None
@@ -727,7 +737,7 @@ class Documenter(object):
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in itervalues(AutoDirective._registry)
+            classes = [cls for cls in itervalues(self.documenters)
                        if cls.can_document_member(member, mname, isattr, self)]
             if not classes:
                 # don't know how to document this member
@@ -1463,11 +1473,28 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         AttributeDocumenter.add_content(self, more_content, no_docstring=True)
 
 
+class DeprecatedDict(dict):
+    def __init__(self, message):
+        self.message = message
+        super(DeprecatedDict, self).__init__()
+
+    def __setitem__(self, key, value):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).__setitem__(key, value)
+
+    def setdefault(self, key, default=None):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).setdefault(key, default)
+
+    def update(self, other=None):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).update(other)
+
+
 class AutoDirective(Directive):
     """
     The AutoDirective class is used for all autodoc directives.  It dispatches
-    most of the work to one of the Documenters, which it selects through its
-    *_registry* dictionary.
+    most of the work to one of the Documenters.
 
     The *_special_attrgetters* attribute is used to customize ``getattr()``
     calls that the Documenters make; its entries are of the form ``type:
@@ -1478,8 +1505,11 @@ class AutoDirective(Directive):
     dictionary should include all necessary functions for accessing
     attributes of the parents.
     """
-    # a registry of objtype -> documenter class
-    _registry = {}  # type: Dict[unicode, Type[Documenter]]
+    # a registry of objtype -> documenter class (Deprecated)
+    _registry = DeprecatedDict(
+        'AutoDirective._registry has been deprecated. '
+        'Please use app.add_autodocumenter() instead.'
+    )  # type: Dict[unicode, Type[Documenter]]
 
     # a registry of type -> getattr function
     _special_attrgetters = {}  # type: Dict[Type, Callable]
@@ -1521,7 +1551,7 @@ class AutoDirective(Directive):
 
         # find out what documenter to call
         objtype = self.name[4:]
-        doc_class = self._registry[objtype]
+        doc_class = get_documenters(self.env.app)[objtype]
         # add default flags
         for flag in self._default_flags:
             if flag not in doc_class.option_spec:
@@ -1575,6 +1605,10 @@ class AutoDirective(Directive):
 def add_documenter(cls):
     # type: (Type[Documenter]) -> None
     """Register a new Documenter."""
+    warnings.warn('sphinx.ext.autodoc.add_documenter() has been deprecated. '
+                  'Please use app.add_autodocumenter() instead.',
+                  RemovedInSphinx20Warning)
+
     if not issubclass(cls, Documenter):
         raise ExtensionError('autodoc documenter %r must be a subclass '
                              'of Documenter' % cls)
@@ -1583,6 +1617,15 @@ def add_documenter(cls):
     #    raise ExtensionError('autodoc documenter for %r is already '
     #                         'registered' % cls.objtype)
     AutoDirective._registry[cls.objtype] = cls
+
+
+def get_documenters(app):
+    # type: (Sphinx) -> Dict[unicode, Type[Documenter]]
+    """Returns registered Documenter classes"""
+    classes = dict(AutoDirective._registry)  # registered directly
+    if app:
+        classes.update(app.registry.documenters)  # registered by API
+    return classes
 
 
 def setup(app):

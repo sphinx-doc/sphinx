@@ -72,8 +72,8 @@ from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.ext.autodoc import Options
 from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc import Options, get_documenters
 
 if False:
     # For type annotation
@@ -158,8 +158,8 @@ class FakeDirective(object):
     genopt = Options()
 
 
-def get_documenter(obj, parent):
-    # type: (Any, Any) -> Type[Documenter]
+def get_documenter(app, obj, parent):
+    # type: (Sphinx, Any, Any) -> Type[Documenter]
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -167,8 +167,7 @@ def get_documenter(obj, parent):
     another Python object (e.g. a module or a class) to which *obj*
     belongs to.
     """
-    from sphinx.ext.autodoc import AutoDirective, DataDocumenter, \
-        ModuleDocumenter
+    from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False
@@ -176,7 +175,7 @@ def get_documenter(obj, parent):
 
     # Construct a fake documenter for *parent*
     if parent is not None:
-        parent_doc_cls = get_documenter(parent, None)
+        parent_doc_cls = get_documenter(app, parent, None)
     else:
         parent_doc_cls = ModuleDocumenter
 
@@ -186,7 +185,7 @@ def get_documenter(obj, parent):
         parent_doc = parent_doc_cls(FakeDirective(), "")
 
     # Get the corrent documenter class for *obj*
-    classes = [cls for cls in AutoDirective._registry.values()
+    classes = [cls for cls in get_documenters(app).values()
                if cls.can_document_member(obj, '', False, parent_doc)]
     if classes:
         classes.sort(key=lambda cls: cls.priority)
@@ -289,7 +288,7 @@ class Autosummary(Directive):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = get_documenter(obj, parent)(self, full_name)
+            documenter = get_documenter(self.env.app, obj, parent)(self, full_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
@@ -615,7 +614,8 @@ def process_generate_options(app):
 
     generate_autosummary_docs(genfiles, builder=app.builder,
                               warn=logger.warning, info=logger.info,
-                              suffix=suffix, base_path=app.srcdir)
+                              suffix=suffix, base_path=app.srcdir,
+                              app=app)
 
 
 def setup(app):

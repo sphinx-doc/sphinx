@@ -642,9 +642,9 @@ class Sphinx(object):
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext import autodoc
-        autodoc.add_documenter(cls)
-        self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
+        from sphinx.ext.autodoc import AutoDirective
+        self.add_directive('auto' + cls.objtype, AutoDirective)
+        self.registry.add_documenter(cls.objtype, cls)
 
     def add_autodoc_attrgetter(self, type, getter):
         # type: (Any, Callable) -> None
