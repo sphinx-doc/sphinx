@@ -49,6 +49,11 @@ class translatable(object):
         raise NotImplementedError
 
 
+class not_smartquotable(object):
+    """A node which does not support smart-quotes."""
+    support_smartquotes = False
+
+
 class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
 
@@ -266,13 +271,13 @@ class download_reference(nodes.reference):
     """Node for download references, similar to pending_xref."""
 
 
-class literal_emphasis(nodes.emphasis):
+class literal_emphasis(nodes.emphasis, not_smartquotable):
     """Node that behaves like `emphasis`, but further text processors are not
     applied (e.g. smartypants for HTML output).
     """
 
 
-class literal_strong(nodes.strong):
+class literal_strong(nodes.strong, not_smartquotable):
     """Node that behaves like `strong`, but further text processors are not
     applied (e.g. smartypants for HTML output).
     """

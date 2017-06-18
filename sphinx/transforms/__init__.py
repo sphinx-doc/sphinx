@@ -19,7 +19,7 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround
+from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
@@ -343,6 +343,7 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
+            smartquotable = is_smartquotable(txtnode.parent)
             nodetype = texttype[isinstance(txtnode.parent,
                                            (nodes.literal,
                                             addnodes.literal_emphasis,
@@ -360,4 +361,4 @@ class SphinxSmartQuotes(SmartQuotes):
                                             nodes.image,
                                             nodes.raw,
                                             nodes.problematic))]
-            yield (nodetype, txtnode.astext())
+            yield (texttype[smartquotable], txtnode.astext())

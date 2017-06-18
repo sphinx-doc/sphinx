@@ -364,6 +364,22 @@ def process_only_nodes(doctree, tags):
                 node.replace_self(nodes.comment())
 
 
+SMARTQUOTABLE_NODES = (
+    addnodes.not_smartquotable,
+)
+
+
+def is_smartquotable(node):
+    # type: (nodes.Node) -> bool
+    """Check the node is smart-quotable or not."""
+    if isinstance(node, SMARTQUOTABLE_NODES):
+        return False
+    elif getattr(node, 'support_smartquotes', None) is False:
+        return False
+    else:
+        return True
+
+
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
