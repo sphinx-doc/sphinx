@@ -96,7 +96,7 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     """
 
 
-class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signatures.
 
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
@@ -106,7 +106,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
 
 # nodes to use within a desc_signature or desc_signature_line
 
-class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for additional name parts (module name, class name)."""
 
 
@@ -114,7 +114,7 @@ class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
 desc_classname = desc_addname
 
 
-class desc_type(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for return types or object type names."""
 
 
@@ -125,20 +125,20 @@ class desc_returns(desc_type):
         return ' -> ' + nodes.TextElement.astext(self)
 
 
-class desc_name(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for the main object name."""
 
 
-class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
 
 
-class desc_parameter(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
-class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
     child_text_separator = ', '
 
@@ -147,7 +147,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
         return '[' + nodes.TextElement.astext(self) + ']'
 
 
-class desc_annotation(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for signature annotations (not Python 3-style annotations)."""
 
 
@@ -179,7 +179,7 @@ class productionlist(nodes.Admonition, nodes.Element):
     """
 
 
-class production(nodes.Part, nodes.Inline, nodes.TextElement):
+class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
 
 

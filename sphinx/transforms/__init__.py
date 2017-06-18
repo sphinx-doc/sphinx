@@ -343,22 +343,5 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
-            smartquotable = is_smartquotable(txtnode.parent)
-            nodetype = texttype[isinstance(txtnode.parent,
-                                           (nodes.literal,
-                                            addnodes.literal_emphasis,
-                                            addnodes.literal_strong,
-                                            addnodes.desc_addname,
-                                            addnodes.desc_annotation,
-                                            addnodes.desc_name,
-                                            addnodes.desc_optional,
-                                            addnodes.desc_parameter,
-                                            addnodes.desc_parameterlist,
-                                            addnodes.desc_signature_line,
-                                            addnodes.desc_type,
-                                            addnodes.production,
-                                            nodes.math,
-                                            nodes.image,
-                                            nodes.raw,
-                                            nodes.problematic))]
+            smartquotable = not is_smartquotable(txtnode)
             yield (texttype[smartquotable], txtnode.astext())

@@ -364,7 +364,13 @@ def process_only_nodes(doctree, tags):
                 node.replace_self(nodes.comment())
 
 
-SMARTQUOTABLE_NODES = (
+NON_SMARTQUOTABLE_PARENT_NODES = (
+    nodes.FixedTextElement,
+    nodes.literal,
+    nodes.math,
+    nodes.image,
+    nodes.raw,
+    nodes.problematic,
     addnodes.not_smartquotable,
 )
 
@@ -372,7 +378,7 @@ SMARTQUOTABLE_NODES = (
 def is_smartquotable(node):
     # type: (nodes.Node) -> bool
     """Check the node is smart-quotable or not."""
-    if isinstance(node, SMARTQUOTABLE_NODES):
+    if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False
