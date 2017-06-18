@@ -28,6 +28,7 @@ Bugs fixed
   name contains spaces
 * #3850: Fix color handling in make mode's help command
 * #3865: use of self.env.warn in sphinx extension fails
+* #3824: production lists apply smart quotes transform since Sphinx 1.6.1
 
 Testing
 --------
