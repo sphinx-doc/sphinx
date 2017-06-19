@@ -1231,7 +1231,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstrong{')
+        self.body.append(r'\sphinxbfcode{')
 
     def depart_desc_annotation(self, node):
         # type: (nodes.Node) -> None
