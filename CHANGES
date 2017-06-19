@@ -30,6 +30,8 @@ Bugs fixed
 * #3865: use of self.env.warn in sphinx extension fails
 * #3824: production lists apply smart quotes transform since Sphinx 1.6.1
 * latex: fix ``\sphinxbfcode`` swallows initial space of argument
+* #3881: LaTeX figure floated to next page sometimes leaves extra vertical
+  whitespace
 
 Testing
 --------

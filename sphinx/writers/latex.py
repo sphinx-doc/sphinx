@@ -1814,7 +1814,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # TODO non vertical space for other alignments.
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\\begin{figure}[%s]%s\n' % (
+            self.body.append('\n\\begin{figure}[%s]%s\n' % (
                 self.elements['figure_align'], align))
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
