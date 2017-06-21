@@ -232,6 +232,12 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
             ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
             '<span class="pre">Bar</span></code></a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#std"'
+            ' title="(in foo v2.0)">std</a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#std_uint8_t"'
+            ' title="(in foo v2.0)">uint8_t</a>' in html)
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):

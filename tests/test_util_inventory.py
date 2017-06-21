@@ -34,6 +34,8 @@ module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
+std cpp:type 1 index.html#std -
+std::uint8_t cpp:type 1 index.html#std_uint8_t -
 foo::Bar cpp:class 1 index.html#cpp_foo_bar -
 foo::Bar::baz cpp:function 1 index.html#cpp_foo_bar_baz -
 a term std:term -1 glossary.html#term-a-term -
