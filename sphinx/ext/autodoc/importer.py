@@ -13,6 +13,7 @@ import sys
 import warnings
 import traceback
 import contextlib
+from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 
 from six import PY2
@@ -22,7 +23,7 @@ from sphinx.util.inspect import safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, List, Set  # NOQA
+    from typing import Any, Callable, Dict, Generator, List, Optional, Set  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -194,3 +195,33 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             errmsg = errmsg.decode('utf-8')  # type: ignore
         logger.debug(errmsg)
         raise ImportError(errmsg)
+
+
+Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
+
+
+def get_object_members(subject, objpath, attrgetter, analyzer=None):
+    # type: (Any, List[unicode], Callable, Any) -> Dict[str, Attribute]  # NOQA
+    """Get members and attributes of target object."""
+    # the members directly defined in the class
+    obj_dict = attrgetter(subject, '__dict__', {})
+
+    members = {}
+    for name in dir(subject):
+        try:
+            value = attrgetter(subject, name)
+            directly_defined = name in obj_dict
+            members[name] = Attribute(name, directly_defined, value)
+        except AttributeError:
+            continue
+
+    if analyzer:
+        # append instance attributes (cf. self.attr1) if analyzer knows
+        from sphinx.ext.autodoc import INSTANCEATTR
+
+        namespace = '.'.join(objpath)
+        for (ns, name) in analyzer.find_attr_docs():
+            if namespace == ns and name not in members:
+                members[name] = Attribute(name, True, INSTANCEATTR)
+
+    return members

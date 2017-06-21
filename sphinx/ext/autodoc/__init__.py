@@ -16,7 +16,7 @@ import sys
 import inspect
 import warnings
 
-from six import iterkeys, iteritems, itervalues, text_type, class_types, string_types
+from six import iteritems, itervalues, text_type, class_types, string_types
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
@@ -25,7 +25,7 @@ from docutils.statemachine import ViewList
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.ext.autodoc.importer import mock, import_object
+from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.util import rpartition, force_decode
@@ -36,7 +36,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumclass, isenumattribute, getdoc
+    isenumattribute, getdoc
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -570,57 +570,24 @@ class Documenter(object):
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
-        analyzed_member_names = set()
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            namespace = '.'.join(self.objpath)
-            for item in iteritems(attr_docs):
-                if item[0][0] == namespace:
-                    analyzed_member_names.add(item[0][1])
+        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
                 return False, []
             # specific members given
-            members = []
-            for mname in self.options.members:
-                try:
-                    members.append((mname, self.get_attr(self.object, mname)))
-                except AttributeError:
-                    if mname not in analyzed_member_names:
-                        self.directive.warn('missing attribute %s in object %s'
-                                            % (mname, self.fullname))
+            selected = []
+            for name in self.options.members:
+                if name in members:
+                    selected.append((name, members[name].value))
+                else:
+                    self.directive.warn('missing attribute %s in object %s' %
+                                        (name, self.fullname))
+            return False, sorted(selected)
         elif self.options.inherited_members:
-            # safe_getmembers() uses dir() which pulls in members from all
-            # base classes
-            members = safe_getmembers(self.object, attr_getter=self.get_attr)
+            return False, sorted((m.name, m.value) for m in itervalues(members))
         else:
-            # __dict__ contains only the members directly defined in
-            # the class (but get them via getattr anyway, to e.g. get
-            # unbound method objects instead of function objects);
-            # using list(iterkeys()) because apparently there are objects for which
-            # __dict__ changes while getting attributes
-            try:
-                obj_dict = self.get_attr(self.object, '__dict__')
-            except AttributeError:
-                members = []
-            else:
-                members = [(mname, self.get_attr(self.object, mname, None))
-                           for mname in list(iterkeys(obj_dict))]
-
-            # Py34 doesn't have enum members in __dict__.
-            if isenumclass(self.object):
-                members.extend(
-                    item for item in self.object.__members__.items()
-                    if item not in members
-                )
-
-        membernames = set(m[0] for m in members)
-        # add instance attributes from the analyzer
-        for aname in analyzed_member_names:
-            if aname not in membernames and \
-               (want_all or aname in self.options.members):
-                members.append((aname, INSTANCEATTR))
-        return False, sorted(members)
+            return False, sorted((m.name, m.value) for m in itervalues(members)
+                                 if m.directly_defined)
 
     def filter_members(self, members, want_all):
         # type: (List[Tuple[unicode, Any]], bool) -> List[Tuple[unicode, Any, bool]]
