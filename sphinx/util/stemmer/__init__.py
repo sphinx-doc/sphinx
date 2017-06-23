@@ -21,7 +21,7 @@ except ImportError:
 class BaseStemmer(object):
     def stem(self, word):
         # type: (unicode) -> unicode
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class PyStemmer(BaseStemmer):
