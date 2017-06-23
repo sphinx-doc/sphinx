@@ -4673,9 +4673,8 @@ class DefinitionParser(object):
                     else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
-                        # relieable save a traceback when an exception is
+                        # reliably save a traceback when an exception is
                         # constructed?)
-                        pass
                         self.pos = startPos
                         typed = True
                         declSpecs = self._parse_decl_specs(outer=outer, typed=typed)
