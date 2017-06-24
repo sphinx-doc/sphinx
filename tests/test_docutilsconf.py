@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 
 import pytest
 from sphinx.testing.path import path
@@ -71,6 +72,9 @@ def test_texinfo(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='docutilsconf',
                     docutilsconf='[general]\nsource_link=true\n')
+@pytest.mark.skip(sys.platform == "win32" and \
+                  not (sys.version_info.major >= 3 and sys.version_info.minor >= 2),
+                  reason="Python < 3.2 on Win32 doesn't handle non-ASCII paths right")
 def test_docutils_source_link_with_nonascii_file(app, status, warning):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'

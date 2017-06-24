@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/05/08 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/06/17 v1.6.3 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -1392,7 +1392,7 @@
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
 
-\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
+\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries{}#1}}
 \protected\def\sphinxemail#1{\textsf{#1}}
 \protected\def\sphinxtablecontinued#1{\textsf{#1}}
 \protected\def\sphinxtitleref#1{\emph{#1}}

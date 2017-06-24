@@ -152,6 +152,7 @@ def test_text_warning_node(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
@@ -1084,6 +1085,7 @@ def test_text_references(app, warning):
     srcdir='test_intl_images',
     confoverrides={'language': 'xx'}
 )
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
     app.build()
     # index.rst
@@ -1131,6 +1133,7 @@ def test_image_glob_intl(app):
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
     # index.rst

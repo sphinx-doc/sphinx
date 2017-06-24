@@ -210,7 +210,17 @@ Including content based on tags
 Tables
 ------
 
-Use :ref:`standard reStructuredText tables <rst-tables>`.  They work fine in
+Use :ref:`reStructuredText tables <rst-tables>`, i.e. either
+
+- grid table syntax (:duref:`ref <grid-tables>`),
+- simple table syntax (:duref:`ref <simple-tables>`),
+- :dudir:`csv-table` syntax,
+- or :dudir:`list-table` syntax.
+
+The :dudir:`table` directive serves as optional wrapper of the *grid* and
+*simple* syntaxes.
+
+They work fine in
 HTML output, however there are some gotchas when using tables in LaTeX: the
 column width is hard to determine correctly automatically.  For this reason, the
 following directive exists:
@@ -312,6 +322,11 @@ following directive exists:
 
       Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``, ``Y{f}``
       and tabulary's columns.
+
+Math
+----
+
+See :ref:`math-support`.
 
 .. rubric:: Footnotes
 
