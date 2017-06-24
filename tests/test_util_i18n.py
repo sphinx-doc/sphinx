@@ -186,6 +186,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
 
+@pytest.mark.xfail(os.name != 'posix', reason="Path separators don't match on windows")
 def test_get_filename_for_language(app):
     # language is None
     app.env.config.language = None

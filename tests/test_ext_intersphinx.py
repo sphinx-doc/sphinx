@@ -16,6 +16,7 @@ import mock
 import pytest
 import requests
 from io import BytesIO
+import os
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
@@ -86,6 +87,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status,
     assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
 
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
 def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
