@@ -155,7 +155,7 @@ def test_writer(app, status, warning):
 def test_latex_warnings(app, status, warning):
     app.builder.build_all()
 
-    warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
+    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning.getvalue()))
     warnings_exp = LATEX_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \
