@@ -50,6 +50,8 @@ Features removed
 Bugs fixed
 ----------
 
+* #3882: Update the order of files for HTMLHelp and QTHelp
+
 Testing
 --------
 
