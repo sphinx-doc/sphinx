@@ -32,6 +32,7 @@ Bugs fixed
 * latex: fix ``\sphinxbfcode`` swallows initial space of argument
 * #3881: LaTeX figure floated to next page sometimes leaves extra vertical
   whitespace
+* #3885: duplicated footnotes raises IndexError
 
 Testing
 --------

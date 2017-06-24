@@ -289,7 +289,10 @@ class UnreferencedFootnotesDetector(SphinxTransform):
 
     def apply(self):
         for node in self.document.footnotes:
-            if node['names'][0] not in self.document.footnote_refs:
+            if node['names'] == []:
+                # footnote having duplicated number.  It is already warned at parser.
+                pass
+            elif node['names'][0] not in self.document.footnote_refs:
                 logger.warning('Footnote [%s] is not referenced.', node['names'][0],
                                type='ref', subtype='footnote',
                                location=node)
