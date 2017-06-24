@@ -38,7 +38,7 @@ class _DeprecationWrapper(object):
             warnings.warn("sphinx.util.compat.%s is deprecated and will be "
                           "removed in Sphinx 1.7, please use the standard "
                           "library version instead." % attr,
-                          RemovedInSphinx17Warning, stacklevel=2)
+                          RemovedInSphinx17Warning)
             return self._deprecated[attr]
         return getattr(self._mod, attr)
 

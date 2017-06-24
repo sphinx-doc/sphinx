@@ -33,6 +33,8 @@ Bugs fixed
 * #3881: LaTeX figure floated to next page sometimes leaves extra vertical
   whitespace
 * #3885: duplicated footnotes raises IndexError
+* #3873: Failure of deprecation warning mechanism of
+  ``sphinx.util.compat.Directive``
 
 Testing
 --------
