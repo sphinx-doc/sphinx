@@ -35,6 +35,7 @@ Bugs fixed
 * #3885: duplicated footnotes raises IndexError
 * #3873: Failure of deprecation warning mechanism of
   ``sphinx.util.compat.Directive``
+* #3874: Bogus warnings for "citation not referenced" for cross-file citations
 
 Testing
 --------

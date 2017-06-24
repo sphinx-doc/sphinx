@@ -492,8 +492,8 @@ class StandardDomain(Domain):
     initial_data = {
         'progoptions': {},      # (program, name) -> docname, labelid
         'objects': {},          # (type, name) -> docname, labelid
-        'citations': {},        # name -> docname, labelid, lineno
-        'citation_refs': {},    # labelid -> list of docnames
+        'citations': {},        # citation_name -> docname, labelid, lineno
+        'citation_refs': {},    # citation_name -> list of docnames
         'labels': {             # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', l_('Index')),
             'modindex': ('py-modindex', '', l_('Module Index')),
@@ -588,12 +588,11 @@ class StandardDomain(Domain):
 
     def note_citation_refs(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
-        for name, refs in iteritems(document.citation_refs):
-            for ref in refs:
-                labelid = ref.get('refid')
-                if labelid:
-                    citation_refs = self.data['citation_refs'].setdefault(labelid, [])
-                    citation_refs.append(docname)
+        for node in document.traverse(addnodes.pending_xref):
+            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
+                label = node['reftarget']
+                citation_refs = self.data['citation_refs'].setdefault(label, [])
+                citation_refs.append(docname)
 
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
@@ -638,7 +637,7 @@ class StandardDomain(Domain):
     def check_consistency(self):
         # type: () -> None
         for name, (docname, labelid, lineno) in iteritems(self.data['citations']):
-            if labelid not in self.data['citation_refs']:
+            if name not in self.data['citation_refs']:
                 logger.warning('Citation [%s] is not referenced.', name,
                                type='ref', subtype='citation',
                                location=(docname, lineno))

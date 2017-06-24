@@ -283,7 +283,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 class UnreferencedFootnotesDetector(SphinxTransform):
     """
-    detect unreferenced footnotes and citations, and emit warnings
+    detect unreferenced footnotes and emit warnings
     """
     default_priority = 200
 
