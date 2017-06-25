@@ -13,7 +13,7 @@ from docutils import nodes, utils
 from docutils.parsers.rst import Directive, directives
 
 from sphinx.roles import XRefRole
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.domains import Domain
 from sphinx.util.nodes import make_refnode, set_source_info
 
@@ -103,7 +103,7 @@ class MathDomain(Domain):
         equations = self.data['objects']
         if labelid in equations:
             path = env.doc2path(equations[labelid][0])
-            msg = _('duplicate label of equation %s, other instance in %s') % (labelid, path)
+            msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
             raise UserWarning(msg)
         else:
             eqno = self.get_next_equation_number(docname)

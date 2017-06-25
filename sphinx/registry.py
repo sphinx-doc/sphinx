@@ -19,7 +19,7 @@ from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docutils import directive_helper
@@ -53,9 +53,9 @@ class SphinxComponentRegistry(object):
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
         if not hasattr(builder, 'name'):
-            raise ExtensionError(_('Builder class %s has no "name" attribute') % builder)
+            raise ExtensionError(__('Builder class %s has no "name" attribute') % builder)
         if builder.name in self.builders:
-            raise ExtensionError(_('Builder %r already exists (in module %s)') %
+            raise ExtensionError(__('Builder %r already exists (in module %s)') %
                                  (builder.name, self.builders[builder.name].__module__))
         self.builders[builder.name] = builder
 
@@ -69,22 +69,22 @@ class SphinxComponentRegistry(object):
             try:
                 entry_point = next(entry_points)
             except StopIteration:
-                raise SphinxError(_('Builder name %s not registered or available'
-                                    ' through entry point') % name)
+                raise SphinxError(__('Builder name %s not registered or available'
+                                     ' through entry point') % name)
 
             self.load_extension(app, entry_point.module_name)
 
     def create_builder(self, app, name):
         # type: (Sphinx, unicode) -> Builder
         if name not in self.builders:
-            raise SphinxError(_('Builder name %s not registered') % name)
+            raise SphinxError(__('Builder name %s not registered') % name)
 
         return self.builders[name](app)
 
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
         if domain.name in self.domains:
-            raise ExtensionError(_('domain %s already registered') % domain.name)
+            raise ExtensionError(__('domain %s already registered') % domain.name)
         self.domains[domain.name] = domain
 
     def has_domain(self, domain):
@@ -99,30 +99,30 @@ class SphinxComponentRegistry(object):
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
         if domain.name not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain.name)
+            raise ExtensionError(__('domain %s not yet registered') % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError(_('new domain not a subclass of registered %s '
-                                   'domain') % domain.name)
+            raise ExtensionError(__('new domain not a subclass of registered %s '
+                                    'domain') % domain.name)
         self.domains[domain.name] = domain
 
     def add_directive_to_domain(self, domain, name, obj,
                                 has_content=None, argument_spec=None, **option_spec):
         # type: (unicode, unicode, Any, bool, Any, Any) -> None
         if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
+            raise ExtensionError(__('domain %s not yet registered') % domain)
         directive = directive_helper(obj, has_content, argument_spec, **option_spec)
         self.domains[domain].directives[name] = directive
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
         if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
+            raise ExtensionError(__('domain %s not yet registered') % domain)
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
         if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
+            raise ExtensionError(__('domain %s not yet registered') % domain)
         self.domains[domain].indices.append(index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
@@ -157,7 +157,7 @@ class SphinxComponentRegistry(object):
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
         if suffix in self.source_parsers:
-            raise ExtensionError(_('source_parser for %r is already registered') % suffix)
+            raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         self.source_parsers[suffix] = parser
 
     def get_source_parsers(self):
@@ -184,8 +184,8 @@ class SphinxComponentRegistry(object):
         if extname in app.extensions:  # alread loaded
             return
         if extname in EXTENSION_BLACKLIST:
-            logger.warning(_('the extension %r was already merged with Sphinx since '
-                             'version %s; this extension is ignored.'),
+            logger.warning(__('the extension %r was already merged with Sphinx since '
+                              'version %s; this extension is ignored.'),
                            extname, EXTENSION_BLACKLIST[extname])
             return
 
@@ -195,12 +195,12 @@ class SphinxComponentRegistry(object):
         try:
             mod = __import__(extname, None, None, ['setup'])
         except ImportError as err:
-            logger.verbose(_('Original exception:\n') + traceback.format_exc())
-            raise ExtensionError(_('Could not import extension %s') % extname, err)
+            logger.verbose(__('Original exception:\n') + traceback.format_exc())
+            raise ExtensionError(__('Could not import extension %s') % extname, err)
 
         if not hasattr(mod, 'setup'):
-            logger.warning(_('extension %r has no setup() function; is it really '
-                             'a Sphinx extension module?'), extname)
+            logger.warning(__('extension %r has no setup() function; is it really '
+                              'a Sphinx extension module?'), extname)
             metadata = {}  # type: Dict[unicode, Any]
         else:
             try:
@@ -208,9 +208,9 @@ class SphinxComponentRegistry(object):
             except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
-                    _('The %s extension used by this project needs at least '
-                      'Sphinx v%s; it therefore cannot be built with this '
-                      'version.') % (extname, err)
+                    __('The %s extension used by this project needs at least '
+                       'Sphinx v%s; it therefore cannot be built with this '
+                       'version.') % (extname, err)
                 )
 
         if metadata is None:
@@ -218,9 +218,9 @@ class SphinxComponentRegistry(object):
             if extname == 'rst2pdf.pdfbuilder':
                 metadata['parallel_read_safe'] = True
         elif not isinstance(metadata, dict):
-            logger.warning(_('extension %r returned an unsupported object from '
-                             'its setup() function; it should return None or a '
-                             'metadata dictionary'), extname)
+            logger.warning(__('extension %r returned an unsupported object from '
+                              'its setup() function; it should return None or a '
+                              'metadata dictionary'), extname)
 
         app.extensions[extname] = Extension(extname, mod, **metadata)
         app._setting_up_extension.pop()

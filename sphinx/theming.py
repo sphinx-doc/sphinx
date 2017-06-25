@@ -23,7 +23,7 @@ from six.moves import configparser
 from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
@@ -80,15 +80,15 @@ class Theme(object):
         try:
             inherit = self.config.get('theme', 'inherit')
         except configparser.NoSectionError:
-            raise ThemeError(_('theme %r doesn\'t have "theme" setting') % name)
+            raise ThemeError(__('theme %r doesn\'t have "theme" setting') % name)
         except configparser.NoOptionError:
-            raise ThemeError(_('theme %r doesn\'t have "inherit" setting') % name)
+            raise ThemeError(__('theme %r doesn\'t have "inherit" setting') % name)
 
         if inherit != 'none':
             try:
                 self.base = factory.create(inherit)
             except ThemeError:
-                raise ThemeError(_('no theme named %r found, inherited by %r') %
+                raise ThemeError(__('no theme named %r found, inherited by %r') %
                                  (inherit, name))
 
     def get_theme_dirs(self):
@@ -113,8 +113,8 @@ class Theme(object):
                 return self.base.get_config(section, name, default)
 
             if default is NODEFAULT:
-                raise ThemeError(_('setting %s.%s occurs in none of the '
-                                   'searched theme configs') % (section, name))
+                raise ThemeError(__('setting %s.%s occurs in none of the '
+                                    'searched theme configs') % (section, name))
             else:
                 return default
 
@@ -234,7 +234,7 @@ class HTMLThemeFactory(object):
             if callable(target):
                 themedir = target()
                 if not isinstance(themedir, string_types):
-                    logger.warning(_('Theme extension %r does not respond correctly.') %
+                    logger.warning(__('Theme extension %r does not respond correctly.') %
                                    entry_point.module_name)
             else:
                 themedir = target
@@ -261,8 +261,8 @@ class HTMLThemeFactory(object):
                     name = entry[:-4]
                     themes[name] = pathname
                 else:
-                    logger.warning(_('file %r on theme path is not a valid '
-                                     'zipfile or contains no theme'), entry)
+                    logger.warning(__('file %r on theme path is not a valid '
+                                      'zipfile or contains no theme'), entry)
             else:
                 if path.isfile(path.join(pathname, THEMECONF)):
                     themes[entry] = pathname
@@ -277,11 +277,11 @@ class HTMLThemeFactory(object):
 
         if name not in self.themes:
             if name == 'sphinx_rtd_theme':
-                raise ThemeError(_('sphinx_rtd_theme is no longer a hard dependency '
-                                   'since version 1.4.0. Please install it manually.'
-                                   '(pip install sphinx_rtd_theme)'))
+                raise ThemeError(__('sphinx_rtd_theme is no longer a hard dependency '
+                                    'since version 1.4.0. Please install it manually.'
+                                    '(pip install sphinx_rtd_theme)'))
             else:
-                raise ThemeError(_('no theme named %r found '
-                                   '(missing theme.conf?)') % name)
+                raise ThemeError(__('no theme named %r found '
+                                    '(missing theme.conf?)') % name)
 
         return Theme(name, self.themes[name], factory=self)
