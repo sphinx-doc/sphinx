@@ -235,7 +235,7 @@ def test_format_signature():
             pass
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
-    assert formatsig('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
+    assert formatsig('method', 'H.foo', H.foo2, None, None) == '(*c)'
     assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
 
     # test exception handling (exception is caught and args is '')

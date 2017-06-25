@@ -10,9 +10,11 @@
 """
 
 import pytest
+import os
 
 
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
+@pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_ext_imgconverter(app, status, warning):
     app.builder.build_all()
 

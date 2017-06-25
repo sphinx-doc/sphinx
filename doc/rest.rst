@@ -159,7 +159,7 @@ rendered as "The next paragraph is a code sample:".
 Tables
 ------
 
-Two forms of tables are supported.  For *grid tables* (:duref:`ref
+For *grid tables* (:duref:`ref
 <grid-tables>`), you have to "paint" the cell grid yourself.  They look like
 this::
 
@@ -173,7 +173,7 @@ this::
    +------------------------+------------+----------+----------+
 
 *Simple tables* (:duref:`ref <simple-tables>`) are easier to write, but
-limited: they must contain more than one row, and the first column cannot
+limited: they must contain more than one row, and the first column cells cannot
 contain multiple lines.  They look like this::
 
    =====  =====  =======
@@ -185,6 +185,8 @@ contain multiple lines.  They look like this::
    True   True   True
    =====  =====  =======
 
+Two more syntaxes are supported: *CSV tables* and *List tables*. They use an
+*explicit markup block*, see `Directives`_ section.
 
 Hyperlinks
 ----------

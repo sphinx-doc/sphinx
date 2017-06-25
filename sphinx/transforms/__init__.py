@@ -283,13 +283,16 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 class UnreferencedFootnotesDetector(SphinxTransform):
     """
-    detect unreferenced footnotes and citations, and emit warnings
+    detect unreferenced footnotes and emit warnings
     """
     default_priority = 200
 
     def apply(self):
         for node in self.document.footnotes:
-            if node['names'][0] not in self.document.footnote_refs:
+            if node['names'] == []:
+                # footnote having duplicated number.  It is already warned at parser.
+                pass
+            elif node['names'][0] not in self.document.footnote_refs:
                 logger.warning('Footnote [%s] is not referenced.', node['names'][0],
                                type='ref', subtype='footnote',
                                location=node)
@@ -345,13 +348,17 @@ class SphinxSmartQuotes(SmartQuotes):
         for txtnode in txtnodes:
             nodetype = texttype[isinstance(txtnode.parent,
                                            (nodes.literal,
-                                            nodes.literal_block,
                                             addnodes.literal_emphasis,
                                             addnodes.literal_strong,
-                                            addnodes.desc_signature,
-                                            addnodes.productionlist,
-                                            addnodes.desc_optional,
+                                            addnodes.desc_addname,
+                                            addnodes.desc_annotation,
                                             addnodes.desc_name,
+                                            addnodes.desc_optional,
+                                            addnodes.desc_parameter,
+                                            addnodes.desc_parameterlist,
+                                            addnodes.desc_signature_line,
+                                            addnodes.desc_type,
+                                            addnodes.production,
                                             nodes.math,
                                             nodes.image,
                                             nodes.raw,

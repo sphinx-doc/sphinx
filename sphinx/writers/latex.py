@@ -98,6 +98,7 @@ DEFAULT_SETTINGS = {
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
+    'literalblockpto': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -648,6 +649,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
+        self.elements['literalblockpto'] = (
+            self.babel_renewcommand(
+                '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
+            ) +
+            self.babel_renewcommand(
+                '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            )
+        )
         self.elements['pageautorefname'] = \
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
@@ -1220,7 +1229,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstrong{')
+        self.body.append(r'\sphinxbfcode{')
 
     def depart_desc_annotation(self, node):
         # type: (nodes.Node) -> None
@@ -1802,7 +1811,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # TODO non vertical space for other alignments.
                 align = '\\begin{flush%s}' % node.attributes['align']
                 align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\\begin{figure}[%s]%s\n' % (
+            self.body.append('\n\\begin{figure}[%s]%s\n' % (
                 self.elements['figure_align'], align))
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')

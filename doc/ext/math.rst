@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _math-support:
+
 Math support in Sphinx
 ======================
 
@@ -231,10 +233,14 @@ Sphinx.
    The path to the JavaScript file to include in the HTML files in order to load
    MathJax.
 
-   The default is the ``http://`` URL that loads the JS files from the `MathJax
-   CDN <http://docs.mathjax.org/en/latest/start.html>`_.  If you want MathJax to
-   be available offline, you have to download it and set this value to a
-   different path.
+   The default is the ``https://`` URL that loads the JS files from the
+   `cdnjs`__ Content Delivery Network. See the `MathJax Getting Started
+   page`__ for details. If you want MathJax to be available offline, you have
+   to download it and set this value to a different path.
+
+   __ https://cdjns.com
+
+   __ http://docs.mathjax.org/en/latest/start.html
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.

@@ -50,6 +50,8 @@ Features removed
 Bugs fixed
 ----------
 
+* #3882: Update the order of files for HTMLHelp and QTHelp
+
 Testing
 --------
 
@@ -68,9 +70,12 @@ Deprecated
 Features added
 --------------
 
+
 * Now :confval:`suppress_warnings` accepts following configurations:
 
   - ``ref.python`` (ref: #3866)
+
+* latex: hint that code-block continues on next page (refs: #3764, #3792)
 
 Bugs fixed
 ----------
@@ -85,6 +90,16 @@ Bugs fixed
   name contains spaces
 * #3850: Fix color handling in make mode's help command
 * #3865: use of self.env.warn in sphinx extension fails
+* #3824: production lists apply smart quotes transform since Sphinx 1.6.1
+* latex: fix ``\sphinxbfcode`` swallows initial space of argument
+* #3878: Quotes in auto-documented class attributes should be straight quotes
+  in PDF output
+* #3881: LaTeX figure floated to next page sometimes leaves extra vertical
+  whitespace
+* #3885: duplicated footnotes raises IndexError
+* #3873: Failure of deprecation warning mechanism of
+  ``sphinx.util.compat.Directive``
+* #3874: Bogus warnings for "citation not referenced" for cross-file citations
 
 Testing
 --------
@@ -300,6 +315,8 @@ Bugs fixed
 * #3661: sphinx-build crashes on parallel build
 * #3669: gettext builder fails with "ValueError: substring not found"
 * #3660: Sphinx always depends on sphinxcontrib-websupport and its dependencies
+* #3472: smart quotes getting wrong in latex (at least with list of strings via
+  autoattribute) (refs: #3345, #3666)
 
 1.6b3
 
