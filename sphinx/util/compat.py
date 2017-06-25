@@ -35,9 +35,8 @@ class _DeprecationWrapper(object):
     def __getattr__(self, attr):
         # type: (str) -> Any
         if attr in self._deprecated:
-            warnings.warn("sphinx.util.compat.%s is deprecated and will be "
-                          "removed in Sphinx 1.7, please use the standard "
-                          "library version instead." % attr,
+            warnings.warn("sphinx.util.compat.%s is deprecated and will be removed "
+                          "in Sphinx 1.7, please use docutils' instead." % attr,
                           RemovedInSphinx17Warning)
             return self._deprecated[attr]
         return getattr(self._mod, attr)
