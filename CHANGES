@@ -39,6 +39,8 @@ Bugs fixed
   ``sphinx.util.compat.Directive``
 * #3874: Bogus warnings for "citation not referenced" for cross-file citations
 * #3860: Don't download images when builders not supported images
+* #3860: Remote image URIs without filename break builders not supported remote
+  images
 
 Testing
 --------

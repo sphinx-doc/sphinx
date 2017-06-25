@@ -20,7 +20,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
-from sphinx.util.osutil import ensuredir
+from sphinx.util.osutil import ensuredir, movefile
 
 if False:
     # For type annotation
@@ -69,6 +69,8 @@ class ImageDownloader(BaseImageConverter):
         basename = os.path.basename(node['uri'])
         if '?' in basename:
             basename = basename.split('?')[0]
+        if basename == '':
+            basename = sha1(node['uri']).hexdigest()
         dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
                                                              ord("&"): u"/"})
         ensuredir(os.path.join(self.imagedir, dirname))
@@ -96,6 +98,14 @@ class ImageDownloader(BaseImageConverter):
                     os.utime(path, (timestamp, timestamp))
 
                 mimetype = guess_mimetype(path, default='*')
+                if mimetype != '*' and os.path.splitext(basename)[1] == '':
+                    # append a suffix if URI does not contain suffix
+                    ext = get_image_extension(mimetype)
+                    newpath = os.path.join(self.imagedir, dirname, basename + ext)
+                    movefile(path, newpath)
+                    self.app.env.original_image_uri.pop(path)
+                    self.app.env.original_image_uri[newpath] = node['uri']
+                    path = newpath
                 node['candidates'].pop('?')
                 node['candidates'][mimetype] = path
                 node['uri'] = path
