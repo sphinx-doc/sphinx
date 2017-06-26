@@ -5,6 +5,7 @@ Incompatible changes
 --------------------
 
 * #3668: The arguments has changed of main functions for each command
+* #3893: Unknown html_theme_options throw warnings instead of errors
 
 Deprecated
 ----------
