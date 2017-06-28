@@ -4816,13 +4816,13 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':        ObjType(l_('class'),      'class',     'type',               'typeOrConcept'),
-        'function':     ObjType(l_('function'),   'func',      'function',  'type',  'typeOrConcept'),
-        'member':       ObjType(l_('member'),     'member',    'var'),
-        'type':         ObjType(l_('type'),       'type',                            'typeOrConcept'),
-        'concept':      ObjType(l_('concept'),    'concept',                         'typeOrConcept'),
-        'enum':         ObjType(l_('enum'),       'enum',      'type',               'typeOrConcept'),
-        'enumerator':   ObjType(l_('enumerator'), 'enumerator')
+        'class':      ObjType(l_('class'),      'class',             'type', 'typeOrConcept'),
+        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'typeOrConcept'),
+        'member':     ObjType(l_('member'),     'member',    'var'                          ),
+        'type':       ObjType(l_('type'),                            'type', 'typeOrConcept'),
+        'concept':    ObjType(l_('concept'),    'concept',                   'typeOrConcept'),
+        'enum':       ObjType(l_('enum'),       'enum',              'type', 'typeOrConcept'),
+        'enumerator': ObjType(l_('enumerator'), 'enumerator'                                )
     }
 
     directives = {
