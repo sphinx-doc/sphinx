@@ -34,6 +34,7 @@ epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx-doc.org/'
+epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.xhtml', 'Welcome')]

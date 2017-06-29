@@ -14,7 +14,8 @@ from mock import patch
 
 from sphinx.util import logging
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator
+    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator,
+    xmlname_checker
 )
 
 from sphinx.testing.util import strip_escseq
@@ -115,3 +116,11 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+
+
+
+def test_xmlname_check():
+    checker = xmlname_checker()
+    assert checker.match('id-pub')
+    assert checker.match('webpage')
+    assert not checker.match('1bfda21')
