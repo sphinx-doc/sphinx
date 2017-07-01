@@ -22,7 +22,7 @@ from docutils.utils import Reporter
 from docutils.parsers.rst import directives, roles, convert_directive_function
 
 from sphinx.errors import ExtensionError
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
@@ -193,6 +193,6 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
         return convert_directive_function(obj)
     else:
         if has_content or argument_spec or option_spec:
-            raise ExtensionError(_('when adding directive classes, no '
-                                   'additional arguments may be given'))
+            raise ExtensionError(__('when adding directive classes, no '
+                                    'additional arguments may be given'))
         return obj

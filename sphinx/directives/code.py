@@ -16,7 +16,7 @@ from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
@@ -63,7 +63,7 @@ def dedent_lines(lines, dedent, location=None):
         return lines
 
     if any(s[:dedent].strip() for s in lines):
-        logger.warning(_('Over dedent has detected'), location=location)
+        logger.warning(__('Over dedent has detected'), location=location)
 
     new_lines = []
     for line in lines:
@@ -83,7 +83,7 @@ def container_wrapper(directive, literal_node, caption):
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)
     if isinstance(parsed[0], nodes.system_message):
-        msg = _('Invalid caption: %s' % parsed[0].astext())
+        msg = __('Invalid caption: %s' % parsed[0].astext())
         raise ValueError(msg)
     caption_node = nodes.caption(parsed[0].rawsource, '',
                                  *parsed[0].children)
@@ -198,7 +198,7 @@ class LiteralIncludeReader(object):
         # type: () -> None
         for option1, option2 in self.INVALID_OPTIONS_PAIR:
             if option1 in self.options and option2 in self.options:
-                raise ValueError(_('Cannot use both "%s" and "%s" options') %
+                raise ValueError(__('Cannot use both "%s" and "%s" options') %
                                  (option1, option2))
 
     def read_file(self, filename, location=None):
@@ -211,10 +211,10 @@ class LiteralIncludeReader(object):
 
                 return text.splitlines(True)
         except (IOError, OSError):
-            raise IOError(_('Include file %r not found or reading it failed') % filename)
+            raise IOError(__('Include file %r not found or reading it failed') % filename)
         except UnicodeError:
-            raise UnicodeError(_('Encoding %r used for reading included file %r seems to '
-                                 'be wrong, try giving an :encoding: option') %
+            raise UnicodeError(__('Encoding %r used for reading included file %r seems to '
+                                  'be wrong, try giving an :encoding: option') %
                                (self.encoding, filename))
 
     def read(self, location=None):
@@ -251,7 +251,7 @@ class LiteralIncludeReader(object):
             analyzer = ModuleAnalyzer.for_file(self.filename, '')
             tags = analyzer.find_tags()
             if pyobject not in tags:
-                raise ValueError(_('Object named %r not found in include file %r') %
+                raise ValueError(__('Object named %r not found in include file %r') %
                                  (pyobject, self.filename))
             else:
                 start = tags[pyobject][1]
@@ -277,12 +277,12 @@ class LiteralIncludeReader(object):
                 if all(first + i == n for i, n in enumerate(linelist)):
                     self.lineno_start += linelist[0]
                 else:
-                    raise ValueError(_('Cannot use "lineno-match" with a disjoint '
-                                       'set of "lines"'))
+                    raise ValueError(__('Cannot use "lineno-match" with a disjoint '
+                                        'set of "lines"'))
 
             lines = [lines[n] for n in linelist if n < len(lines)]
             if lines == []:
-                raise ValueError(_('Line spec %r: no lines pulled from include file %r') %
+                raise ValueError(__('Line spec %r: no lines pulled from include file %r') %
                                  (linespec, self.filename))
 
         return lines
