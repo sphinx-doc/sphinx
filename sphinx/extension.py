@@ -12,7 +12,7 @@
 from six import iteritems
 
 from sphinx.errors import VersionRequirementError
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.util import logging
 
 if False:
@@ -50,12 +50,12 @@ def verify_required_extensions(app, requirements):
     for extname, reqversion in iteritems(requirements):
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(_('The %s extension is required by needs_extensions settings,'
-                             'but it is not loaded.'), extname)
+            logger.warning(__('The %s extension is required by needs_extensions settings,'
+                              'but it is not loaded.'), extname)
             continue
 
         if extension.version == 'unknown version' or reqversion > extension.version:
-            raise VersionRequirementError(_('This project needs the extension %s at least in '
-                                            'version %s and therefore cannot be built with '
-                                            'the loaded version (%s).') %
+            raise VersionRequirementError(__('This project needs the extension %s at least in '
+                                             'version %s and therefore cannot be built with '
+                                             'the loaded version (%s).') %
                                           (extname, reqversion, extension.version))

@@ -41,6 +41,9 @@ Bugs fixed
 * #3860: Don't download images when builders not supported images
 * #3860: Remote image URIs without filename break builders not supported remote
   images
+* #3833: command line messages are translated unintentionally with ``language``
+  setting.
+* #3840: make checking ``epub_uid`` strict
 
 Testing
 --------
