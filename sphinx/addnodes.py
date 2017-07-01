@@ -287,7 +287,7 @@ class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
 
 
-class manpage(nodes.Inline, nodes.TextElement):
+class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
