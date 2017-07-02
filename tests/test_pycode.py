@@ -105,7 +105,9 @@ def test_ModuleAnalyzer_find_attr_docs():
             '\n'
             'def baz():\n'
             '   """function baz"""\n'
-            '   pass\n')
+            '   pass\n'
+            '\n'
+            'class Qux: attr1 = 1; attr2 = 2')
     analyzer = ModuleAnalyzer.for_string(code, 'module')
     docs = analyzer.find_attr_docs()
     assert set(docs) == {('Foo', 'attr1'),
@@ -131,4 +133,7 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Foo.attr8': 8,
                                  'Foo.attr9': 10,
                                  'Foo.bar': 11,
-                                 'baz': 12}
+                                 'baz': 12,
+                                 'Qux': 13,
+                                 'Qux.attr1': 14,
+                                 'Qux.attr2': 15}
