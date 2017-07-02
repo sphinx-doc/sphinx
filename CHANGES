@@ -44,6 +44,7 @@ Bugs fixed
 * #3833: command line messages are translated unintentionally with ``language``
   setting.
 * #3840: make checking ``epub_uid`` strict
+* #3851, #3706: Fix about box drawing characters for PDF output
 
 Testing
 --------
