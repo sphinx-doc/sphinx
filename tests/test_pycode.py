@@ -9,7 +9,40 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+from six import PY2
+
+import sphinx
 from sphinx.pycode import ModuleAnalyzer
+
+SPHINX_MODULE_PATH = os.path.splitext(sphinx.__file__)[0] + '.py'
+
+
+def test_ModuleAnalyzer_for_string():
+    analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
+    assert analyzer.modname == 'module_name'
+    assert analyzer.srcname == '<string>'
+    if PY2:
+        assert analyzer.encoding == 'ascii'
+    else:
+        assert analyzer.encoding is None
+
+
+def test_ModuleAnalyzer_for_file():
+    analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
+    assert analyzer.modname == 'sphinx'
+    assert analyzer.srcname == '<string>'
+    if PY2:
+        assert analyzer.encoding == 'ascii'
+    else:
+        assert analyzer.encoding is None
+
+
+def test_ModuleAnalyzer_for_module():
+    analyzer = ModuleAnalyzer.for_module('sphinx')
+    assert analyzer.modname == 'sphinx'
+    assert analyzer.srcname == SPHINX_MODULE_PATH
+    assert analyzer.encoding == 'utf-8'
 
 
 def test_ModuleAnalyzer_find_tags():
@@ -88,3 +121,14 @@ def test_ModuleAnalyzer_find_attr_docs():
     assert docs[('Foo', 'attr5')] == ['attribute comment for attr5', '']
     assert docs[('Foo', 'attr8')] == ['attribute comment for attr8', '']
     assert docs[('Foo', 'attr9')] == ['string after attr9', '']
+    assert analyzer.tagorder == {'Foo': 0,
+                                 'Foo.__init__': 6,
+                                 'Foo.attr1': 1,
+                                 'Foo.attr2': 2,
+                                 'Foo.attr3': 3,
+                                 'Foo.attr4': 4,
+                                 'Foo.attr5': 5,
+                                 'Foo.attr8': 8,
+                                 'Foo.attr9': 10,
+                                 'Foo.bar': 11,
+                                 'baz': 12}
