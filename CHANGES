@@ -56,7 +56,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.6.3 (in development)
+Release 1.6.4 (in development)
 ==============================
 
 Dependencies
@@ -67,6 +67,18 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6.3 (released Jul 02, 2017)
+=====================================
 
 Features added
 --------------
@@ -96,9 +108,15 @@ Bugs fixed
 * #3873: Failure of deprecation warning mechanism of
   ``sphinx.util.compat.Directive``
 * #3874: Bogus warnings for "citation not referenced" for cross-file citations
-
-Testing
---------
+* #3860: Don't download images when builders not supported images
+* #3860: Remote image URIs without filename break builders not supported remote
+  images
+* #3833: command line messages are translated unintentionally with ``language``
+  setting.
+* #3840: make checking ``epub_uid`` strict
+* #3851, #3706: Fix about box drawing characters for PDF output
+* #3900: autosummary could not find methods
+* #3902: Emit error if ``latex_documents`` contains non-unicode string in py2
 
 Release 1.6.2 (released May 28, 2017)
 =====================================

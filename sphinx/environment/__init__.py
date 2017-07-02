@@ -44,7 +44,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
@@ -565,10 +565,10 @@ class BuildEnvironment(object):
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
             for ext in itervalues(self.app.extensions):
                 if ext.parallel_read_safe is None:
-                    logger.warning(_('the %s extension does not declare if it is safe '
-                                     'for parallel reading, assuming it isn\'t - please '
-                                     'ask the extension author to check and make it '
-                                     'explicit'), ext.name)
+                    logger.warning(__('the %s extension does not declare if it is safe '
+                                      'for parallel reading, assuming it isn\'t - please '
+                                      'ask the extension author to check and make it '
+                                      'explicit'), ext.name)
                     logger.warning('doing serial read')
                     break
                 elif ext.parallel_read_safe is False:

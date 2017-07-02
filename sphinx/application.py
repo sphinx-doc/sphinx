@@ -34,7 +34,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
 from sphinx.io import SphinxStandaloneReader
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
@@ -177,8 +177,8 @@ class Sphinx(object):
         # check the Sphinx version if requested
         if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
             raise VersionRequirementError(
-                _('This project needs at least Sphinx v%s and therefore cannot '
-                  'be built with this version.') % self.config.needs_sphinx)
+                __('This project needs at least Sphinx v%s and therefore cannot '
+                   'be built with this version.') % self.config.needs_sphinx)
 
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
@@ -204,9 +204,9 @@ class Sphinx(object):
                 self.config.setup(self)
             else:
                 raise ConfigError(
-                    _("'setup' as currently defined in conf.py isn't a Python callable. "
-                      "Please modify its definition to make it a callable function. This is "
-                      "needed for conf.py to behave as a Sphinx extension.")
+                    __("'setup' as currently defined in conf.py isn't a Python callable. "
+                       "Please modify its definition to make it a callable function. This is "
+                       "needed for conf.py to behave as a Sphinx extension.")
                 )
 
         # now that we know all config values, collect them from conf.py
@@ -218,7 +218,7 @@ class Sphinx(object):
         # check primary_domain if requested
         primary_domain = self.config.primary_domain
         if primary_domain and not self.registry.has_domain(primary_domain):
-            logger.warning(_('primary_domain %r not found, ignored.'), primary_domain)
+            logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
 
         # create the builder
         self.builder = self.create_builder(buildername)
@@ -255,7 +255,7 @@ class Sphinx(object):
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
-                logger.info(_('done'))
+                logger.info(__('done'))
             else:
                 logger.info('not available for built-in messages')
 
@@ -276,19 +276,19 @@ class Sphinx(object):
                 self.env.domains[domain.name] = domain
         else:
             try:
-                logger.info(bold(_('loading pickled environment... ')), nonl=True)
+                logger.info(bold(__('loading pickled environment... ')), nonl=True)
                 filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
                 self.env.domains = {}
                 for domain in self.registry.create_domains(self.env):
                     # this can raise if the data version doesn't fit
                     self.env.domains[domain.name] = domain
-                logger.info(_('done'))
+                logger.info(__('done'))
             except Exception as err:
                 if isinstance(err, IOError) and err.errno == ENOENT:
-                    logger.info(_('not yet created'))
+                    logger.info(__('not yet created'))
                 else:
-                    logger.info(_('failed: %s'), err)
+                    logger.info(__('failed: %s'), err)
                 self._init_env(freshenv=True)
 
     def preload_builder(self, name):
@@ -298,7 +298,7 @@ class Sphinx(object):
     def create_builder(self, name):
         # type: (unicode) -> Builder
         if name is None:
-            logger.info(_('No builder selected, using default: html'))
+            logger.info(__('No builder selected, using default: html'))
             name = 'html'
 
         return self.registry.create_builder(self, name)
@@ -330,13 +330,13 @@ class Sphinx(object):
                 self.builder.build_update()
 
             status = (self.statuscode == 0 and
-                      _('succeeded') or _('finished with problems'))
+                      __('succeeded') or __('finished with problems'))
             if self._warncount:
-                logger.info(bold(_('build %s, %s warning%s.') %
+                logger.info(bold(__('build %s, %s warning%s.') %
                                  (status, self._warncount,
                                   self._warncount != 1 and 's' or '')))
             else:
-                logger.info(bold(_('build %s.') % status))
+                logger.info(bold(__('build %s.') % status))
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -451,7 +451,7 @@ class Sphinx(object):
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
         if name in self.config:
-            raise ExtensionError(_('Config value %r already present') % name)
+            raise ExtensionError(__('Config value %r already present') % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
         self.config.add(name, default, rebuild, types)
@@ -463,7 +463,7 @@ class Sphinx(object):
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(_('Change of translator for the %s builder.') % name))
+        logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.registry.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
@@ -471,8 +471,8 @@ class Sphinx(object):
         logger.debug('[app] adding node: %r', (node, kwds))
         if not kwds.pop('override', False) and \
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-            logger.warning(_('while setting up extension %s: node class %r is '
-                             'already registered, its visitors will be overridden'),
+            logger.warning(__('while setting up extension %s: node class %r is '
+                              'already registered, its visitors will be overridden'),
                            self._setting_up_extension, node.__name__,
                            type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
@@ -480,8 +480,8 @@ class Sphinx(object):
             try:
                 visit, depart = val
             except ValueError:
-                raise ExtensionError(_('Value for key %r must be a '
-                                       '(visit, depart) function tuple') % key)
+                raise ExtensionError(__('Value for key %r must be a '
+                                        '(visit, depart) function tuple') % key)
             translator = self.registry.translators.get(key)
             translators = []
             if translator is not None:
@@ -520,8 +520,8 @@ class Sphinx(object):
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
         if name in directives._directives:
-            logger.warning(_('while setting up extension %s: directive %r is '
-                             'already registered, it will be overridden'),
+            logger.warning(__('while setting up extension %s: directive %r is '
+                              'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
         directive = directive_helper(obj, content, arguments, **options)
@@ -531,8 +531,8 @@ class Sphinx(object):
         # type: (unicode, Any) -> None
         logger.debug('[app] adding role: %r', (name, role))
         if name in roles._roles:
-            logger.warning(_('while setting up extension %s: role %r is '
-                             'already registered, it will be overridden'),
+            logger.warning(__('while setting up extension %s: role %r is '
+                              'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_role')
         roles.register_local_role(name, role)
@@ -543,8 +543,8 @@ class Sphinx(object):
         # register_canonical_role
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
         if name in roles._roles:
-            logger.warning(_('while setting up extension %s: role %r is '
-                             'already registered, it will be overridden'),
+            logger.warning(__('while setting up extension %s: role %r is '
+                              'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)

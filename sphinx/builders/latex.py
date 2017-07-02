@@ -12,6 +12,8 @@
 import os
 from os import path
 
+from six import text_type
+
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -19,7 +21,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.config import string_classes, ENUM
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ConfigError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
@@ -254,6 +256,26 @@ class LaTeXBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
+def validate_config_values(app):
+    # type: (Sphinx) -> None
+    for document in app.config.latex_documents:
+        try:
+            text_type(document[2])
+        except UnicodeDecodeError:
+            raise ConfigError(
+                'Invalid latex_documents.title found (might contain non-ASCII chars. '
+                'Please use u"..." notation instead): %r' % (document,)
+            )
+
+        try:
+            text_type(document[3])
+        except UnicodeDecodeError:
+            raise ConfigError(
+                'Invalid latex_documents.author found (might contain non-ASCII chars. '
+                'Please use u"..." notation instead): %r' % (document,)
+            )
+
+
 def default_latex_engine(config):
     # type: (Config) -> unicode
     """ Better default latex_engine settings for specific languages. """
@@ -276,6 +298,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
+    app.connect('builder-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))

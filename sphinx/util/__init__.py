@@ -631,3 +631,36 @@ def epoch_to_rfc1123(epoch):
 
 def rfc1123_to_epoch(rfc1123):
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
+
+
+def xmlname_checker():
+    # https://www.w3.org/TR/REC-xml/#NT-Name
+    # Only Python 3.3 or newer support character code in regular expression
+    name_start_chars = [
+        u':', [u'A', u'Z'], u'_',  [u'a', u'z'], [u'\u00C0', u'\u00D6'],
+        [u'\u00D8', u'\u00F6'], [u'\u00F8', u'\u02FF'], [u'\u0370', u'\u037D'],
+        [u'\u037F', u'\u1FFF'], [u'\u200C', u'\u200D'], [u'\u2070', u'\u218F'],
+        [u'\u2C00', u'\u2FEF'], [u'\u3001', u'\uD7FF'], [u'\uF900', u'\uFDCF'],
+        [u'\uFDF0', u'\uFFFD']]
+
+    if sys.version_info.major == 3:
+        name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
+
+    name_chars = [
+        u"\\-", u"\\.", [u'0', u'9'], u'\u00B7', [u'\u0300', u'\u036F'],
+        [u'\u203F', u'\u2040']
+    ]
+
+    def convert(entries, splitter=u'|'):
+        results = []
+        for entry in entries:
+            if isinstance(entry, list):
+                results.append(u'[%s]' % convert(entry, u'-'))
+            else:
+                results.append(entry)
+        return splitter.join(results)
+
+    start_chars_regex = convert(name_start_chars)
+    name_chars_regex = convert(name_chars)
+    return re.compile(u'(%s)(%s|%s)*' % (
+        start_chars_regex, start_chars_regex, name_chars_regex))

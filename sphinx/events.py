@@ -17,7 +17,7 @@ from collections import OrderedDict, defaultdict
 from six import itervalues
 
 from sphinx.errors import ExtensionError
-from sphinx.locale import _
+from sphinx.locale import __
 
 if False:
     # For type annotation
@@ -54,13 +54,13 @@ class EventManager(object):
     def add(self, name):
         # type: (unicode) -> None
         if name in self.events:
-            raise ExtensionError(_('Event %r already present') % name)
+            raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
     def connect(self, name, callback):
         # type: (unicode, Callable) -> int
         if name not in self.events:
-            raise ExtensionError(_('Unknown event name: %s') % name)
+            raise ExtensionError(__('Unknown event name: %s') % name)
 
         listener_id = self.next_listener_id
         self.next_listener_id += 1

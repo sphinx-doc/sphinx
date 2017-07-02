@@ -120,3 +120,17 @@ def parse_data_uri(uri):
 
     image_data = base64.b64decode(data)
     return DataURI(mimetype, charset, image_data)
+
+
+def test_svg(h, f):
+    """An additional imghdr library helper; test the header is SVG's or not."""
+    try:
+        if '<svg' in h.decode('utf-8').lower():
+            return 'svg+xml'
+    except UnicodeDecodeError:
+        pass
+
+
+# install test_svg() to imghdr
+# refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
+imghdr.tests.append(test_svg)

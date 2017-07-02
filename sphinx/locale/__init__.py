@@ -242,6 +242,16 @@ else:
             return message
 
 
+def __(message):
+    # type: (unicode) -> unicode
+    """A dummy wrapper to i18n'ize exceptions and command line messages.
+
+    In future, the messages are translated using LC_MESSAGES or any other
+    locale settings.
+    """
+    return message
+
+
 def init(locale_dirs, language, catalog='sphinx'):
     # type: (List, unicode, unicode) -> Tuple[Any, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
