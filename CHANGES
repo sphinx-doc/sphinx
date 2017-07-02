@@ -44,6 +44,7 @@ Bugs fixed
 * #3833: command line messages are translated unintentionally with ``language``
   setting.
 * #3840: make checking ``epub_uid`` strict
+* #3864: autodoc failes to document members/properties with type annotation
 
 Testing
 --------

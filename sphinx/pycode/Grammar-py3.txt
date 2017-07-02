@@ -1,8 +1,10 @@
-# Grammar for Python 3.x (with at least x <= 5)
-
+# Grammar for Python 3.x (with at least x <= 7)
 
 # IMPORTANT: when copying over a new Grammar file, make sure file_input
 # is the first nonterminal in the file!
+
+# NOTE WELL: You should also follow all the steps listed at
+# https://docs.python.org/devguide/grammar.html
 
 # Start symbols for the grammar:
 #       single_input is a single interactive statement;
@@ -21,25 +23,31 @@ async_funcdef: ASYNC funcdef
 funcdef: 'def' NAME parameters ['->' test] ':' suite
 
 parameters: '(' [typedargslist] ')'
-typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
-       ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
-     |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
+typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [',' [
+        '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]
+      | '**' tfpdef [',']]]
+  | '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]
+  | '**' tfpdef [','])
 tfpdef: NAME [':' test]
-varargslist: (vfpdef ['=' test] (',' vfpdef ['=' test])* [','
-       ['*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef]]
-     |  '*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef)
+varargslist: (vfpdef ['=' test] (',' vfpdef ['=' test])* [',' [
+        '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]
+      | '**' vfpdef [',']]]
+  | '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]
+  | '**' vfpdef [',']
+)
 vfpdef: NAME
 
 stmt: simple_stmt | compound_stmt
 simple_stmt: small_stmt (';' small_stmt)* [';'] NEWLINE
 small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
              import_stmt | global_stmt | nonlocal_stmt | assert_stmt)
-expr_stmt: testlist_star_expr (augassign (yield_expr|testlist) |
+expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
                      ('=' (yield_expr|testlist_star_expr))*)
+annassign: ':' test ['=' test]
 testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
 augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
             '<<=' | '>>=' | '**=' | '//=')
-# For normal assignments, additional restrictions enforced by the interpreter
+# For normal and annotated assignments, additional restrictions enforced by the interpreter
 del_stmt: 'del' exprlist
 pass_stmt: 'pass'
 flow_stmt: break_stmt | continue_stmt | return_stmt | raise_stmt | yield_stmt
@@ -97,7 +105,8 @@ shift_expr: arith_expr (('<<'|'>>') arith_expr)*
 arith_expr: term (('+'|'-') term)*
 term: factor (('*'|'@'|'/'|'%'|'//') factor)*
 factor: ('+'|'-'|'~') factor | power
-power: [AWAIT] atom trailer* ['**' factor]
+power: atom_expr ['**' factor]
+atom_expr: [AWAIT] atom trailer*
 atom: ('(' [yield_expr|testlist_comp] ')' |
        '[' [testlist_comp] ']' |
        '{' [dictorsetmaker] '}' |
@@ -125,7 +134,7 @@ arglist: argument (',' argument)*  [',']
 # to our LL(1) parser. Even though 'test' includes '*expr' in star_expr,
 # we explicitly match '*' here, too, to give it proper precedence.
 # Illegal combinations and orderings are blocked in ast.c:
-# multiple (test comp_for) arguements are blocked; keyword unpackings
+# multiple (test comp_for) arguments are blocked; keyword unpackings
 # that precede iterable unpackings are blocked; etc.
 argument: ( test [comp_for] |
             test '=' test |
@@ -133,7 +142,7 @@ argument: ( test [comp_for] |
             '*' test )
 
 comp_iter: comp_for | comp_if
-comp_for: 'for' exprlist 'in' or_test [comp_iter]
+comp_for: [ASYNC] 'for' exprlist 'in' or_test [comp_iter]
 comp_if: 'if' test_nocond [comp_iter]
 
 # not used in grammar, but may appear in "node" passed from Parser to Compiler

@@ -50,9 +50,25 @@ for k, v in iteritems(token.tok_name):
 number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
 
+_colon = nodes.Leaf(token.COLON, ':')
 _eq = nodes.Leaf(token.EQUAL, '=')
 
 emptyline_re = re.compile(r'^\s*(#.*)?$')
+
+
+def is_assign(node):
+    """Check the node is assignment."""
+    if _eq in node.children:  # assignment
+        return True
+    elif (isinstance(node.children[-1], nodes.Node) and
+          node.children[-1].children[0] == _colon):
+        return True
+    else:
+        return False
+
+
+def is_annassign(node):
+    """Check the node is annassign (annotated assign)."""
 
 
 class AttrDocVisitor(nodes.NodeVisitor):
@@ -98,7 +114,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
         """Visit an assignment which may have a special comment before (or
         after) it.
         """
-        if _eq not in node.children:
+        if not is_assign(node):
             # not an assignment (we don't care for augmented assignments)
             return
         # look *after* the node; there may be a comment prefixing the NEWLINE
