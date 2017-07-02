@@ -89,7 +89,7 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
-	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
+	@cd tests; $(PYTHON) run.py --ignore py35 --ignore py36 -v $(TEST)
 
 test-async:
 	@cd tests; $(PYTHON) run.py -v $(TEST)
