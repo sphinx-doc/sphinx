@@ -13,6 +13,8 @@ import os
 import warnings
 from os import path
 
+from six import text_type
+
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -21,7 +23,7 @@ from docutils.frontend import OptionParser
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.config import string_classes, ENUM
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ConfigError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
@@ -277,6 +279,23 @@ def validate_config_values(app):
         warnings.warn("latex_keep_old_macro_names is deprecated. "
                       "LaTeX markup since Sphinx 1.4.5 uses only prefixed macro names.",
                       RemovedInSphinx17Warning)
+
+    for document in app.config.latex_documents:
+        try:
+            text_type(document[2])
+        except UnicodeDecodeError:
+            raise ConfigError(
+                'Invalid latex_documents.title found (might contain non-ASCII chars. '
+                'Please use u"..." notation instead): %r' % (document,)
+            )
+
+        try:
+            text_type(document[3])
+        except UnicodeDecodeError:
+            raise ConfigError(
+                'Invalid latex_documents.author found (might contain non-ASCII chars. '
+                'Please use u"..." notation instead): %r' % (document,)
+            )
 
 
 def default_latex_engine(config):
