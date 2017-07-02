@@ -132,13 +132,13 @@ def test_escaping(app, status, warning):
 def test_autosummary_generate(app, status, warning):
     app.builder.build_all()
 
-    module = (app.srcdir / 'generated' / 'autodoc_dummy_module.rst').text()
+    module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
     assert ('   .. autosummary::\n'
             '   \n'
             '      Foo\n'
             '   \n' in module)
 
-    Foo = (app.srcdir / 'generated' / 'autodoc_dummy_module.Foo.rst').text()
+    Foo = (app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.rst').text()
     assert '.. automethod:: __init__' in Foo
     assert ('   .. autosummary::\n'
             '   \n'
