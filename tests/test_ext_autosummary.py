@@ -126,3 +126,22 @@ def test_escaping(app, status, warning):
     title = etree_parse(docpage).find('section/title')
 
     assert str_content(title) == 'underscore_module_'
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary')
+def test_autosummary_generate(app, status, warning):
+    app.builder.build_all()
+
+    module = (app.srcdir / 'generated' / 'autodoc_dummy_module.rst').text()
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      Foo\n'
+            '   \n' in module)
+
+    Foo = (app.srcdir / 'generated' / 'autodoc_dummy_module.Foo.rst').text()
+    assert '.. automethod:: __init__' in Foo
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~Foo.__init__\n'
+            '      ~Foo.bar\n'
+            '   \n' in Foo)

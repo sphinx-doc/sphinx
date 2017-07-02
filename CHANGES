@@ -45,6 +45,7 @@ Bugs fixed
   setting.
 * #3840: make checking ``epub_uid`` strict
 * #3851, #3706: Fix about box drawing characters for PDF output
+* #3900: autosummary could not find methods
 
 Testing
 --------
