@@ -36,7 +36,7 @@ configuration values from a few questions it asks you.  Just run ::
 and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
 
 There is also an automatic "API documentation" generator called
-:program:`sphinx-apidoc`; see :ref:`invocation-apidoc` for details.
+:program:`sphinx-apidoc`; see :doc:`/man/sphinx-apidoc` for details.
 
 
 Defining document structure
