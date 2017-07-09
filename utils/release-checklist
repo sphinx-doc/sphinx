@@ -20,7 +20,6 @@ Release checklist
 * Check diff by `git diff`
 * `git commit -am 'Bump to x.y.z final'`
 * `make clean`
-* `python setup.py compile_grammar`
 * `python setup.py release bdist_wheel sdist upload --identity=[your key]`
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
 * `git tag x.y.z` with version number

@@ -256,7 +256,7 @@ class LiteralIncludeReader(object):
             else:
                 start = tags[pyobject][1]
                 end = tags[pyobject][2]
-                lines = lines[start - 1:end - 1]
+                lines = lines[start - 1:end]
                 if 'lineno-match' in self.options:
                     self.lineno_start = start
 
