@@ -15,7 +15,7 @@ from collections import namedtuple
 
 import pytest
 
-from sphinx.apidoc import main as apidoc_main
+from sphinx.ext.apidoc import main as apidoc_main
 
 from sphinx.testing.util import remove_unicode_literals
 
