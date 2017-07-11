@@ -1,0 +1,6 @@
+apidoc
+======
+
+.. toctree::
+
+   api/modules

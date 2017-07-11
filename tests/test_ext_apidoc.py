@@ -384,8 +384,6 @@ def extract_toc(path):
     coderoot='test-apidoc-subpackage-in-toc',
     options=['--separate']
 )
-
-
 def test_subpackage_in_toc(make_app, apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
        are not skipped (issue #4520)
@@ -404,3 +402,12 @@ def test_subpackage_in_toc(make_app, apidoc):
     assert 'parent.child.foo' in parent_child
 
     assert (outdir / 'parent.child.foo.rst').isfile()
+
+
+@pytest.mark.sphinx('html', testroot='ext-apidoc')
+def test_apidoc_extension(app, status, warning):
+    app.builder.build_all()
+    assert (app.outdir / 'api').isdir()
+    assert (app.outdir / 'api' / 'modules.html').exists()
+    assert (app.outdir / 'api' / 'apidoc_dummy_module.html').exists()
+    assert not (app.outdir / 'api' / 'conf.html').exists()

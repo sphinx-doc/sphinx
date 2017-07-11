@@ -31,12 +31,15 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
-from sphinx.util import rst
+from sphinx.util import logging, rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
 if False:
     # For type annotation
-    from typing import Any, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -459,6 +462,45 @@ def main(argv=sys.argv[1:]):
     return 0
 
 
-# So program can be started with "python -m sphinx.apidoc ..."
+def builder_inited(app):
+    # type: (Sphinx) -> None
+    module_dir = app.config.apidoc_module_dir
+    output_dir = path.join(app.srcdir, app.config.apidoc_output_dir)
+    excludes = app.config.apidoc_excluded_modules
+
+    if not module_dir:
+        logger.warning("No 'apidoc_module_dir' specified; skipping API doc "
+                       "generation")
+        return
+
+    # if the path is relative, make it relative to the 'conf.py' directory
+    if not path.isabs(module_dir):
+        module_dir = path.abspath(path.join(app.srcdir, module_dir))
+
+    excludes = [path.abspath(path.join(module_dir, exc)) for exc in excludes]
+
+    # refactor this module so that we can call 'recurse_tree' like a sane
+    # person - at present there is way too much passing around of the
+    # 'optparse.Value' instance returned by 'optparse.parse_args'
+    cmd = ['--force', '-o', output_dir, module_dir]
+    if excludes:
+        cmd += excludes
+
+    main(cmd)
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.setup_extension('sphinx.ext.autodoc')  # We need autodoc to function
+
+    app.connect('builder-inited', builder_inited)
+    app.add_config_value('apidoc_module_dir', None, 'env', [str])
+    app.add_config_value('apidoc_output_dir', 'api', 'env', [str])
+    app.add_config_value('apidoc_excluded_modules', [], 'env',
+                         [[str]])
+
+    return {'version': __display_version__, 'parallel_read_safe': True}
+
+
 if __name__ == "__main__":
     main()
