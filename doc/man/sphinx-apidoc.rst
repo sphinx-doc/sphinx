@@ -122,9 +122,3 @@ See also
 --------
 
 :manpage:`sphinx-build(1)`, :manpage:`sphinx-autogen(1)`
-
-Author
-------
-
-Etienne Desautels, <etienne.desautels@gmail.com>, Georg Brandl
-<georg@python.org> et al.

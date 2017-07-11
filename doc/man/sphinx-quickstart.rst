@@ -162,12 +162,3 @@ See also
 --------
 
 :manpage:`sphinx-build(1)`
-
-Author
-------
-
-Georg Brandl <georg@python.org>, Armin Ronacher <armin.ronacher@active-4.com> et
-al.
-
-This manual page was initially written by Mikhail Gusarov
-<dottedmag@dottedmag.net>, for the Debian project.
