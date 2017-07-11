@@ -125,6 +125,9 @@ text of the form::
 If the ``-o`` option is not given, the script will place the output files in the
 directories specified in the ``:toctree:`` options.
 
+For more information, refer to the :doc:`sphinx-autogen documentation
+</man/sphinx-autogen>`
+
 
 Generating stub pages automatically
 -----------------------------------

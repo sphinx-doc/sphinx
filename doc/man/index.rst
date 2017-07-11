@@ -19,3 +19,4 @@ Additional Applications
    :maxdepth: 3
 
    sphinx-apidoc
+   sphinx-autogen

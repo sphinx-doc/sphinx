@@ -121,7 +121,7 @@ These options are used when :option:`--full` is specified:
 See also
 --------
 
-:manpage:`sphinx-build(1)`
+:manpage:`sphinx-build(1)`, :manpage:`sphinx-autogen(1)`
 
 Author
 ------
