@@ -272,3 +272,27 @@ def test_output_with_unencodable_char(app, status, warning):
     status.seek(0)
     logger.info(u"unicode \u206d...")
     assert status.getvalue() == "unicode ?...\n"
+
+
+def test_skip_warningiserror(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    app.warningiserror = True
+    with logging.skip_warningiserror():
+        logger.warning('message')
+
+    # if False, warning raises SphinxWarning exception
+    with pytest.raises(SphinxWarning):
+        with logging.skip_warningiserror(False):
+            logger.warning('message')
+
+    # It also works during pending_warnings.
+    with logging.pending_warnings():
+        with logging.skip_warningiserror():
+            logger.warning('message')
+
+    with pytest.raises(SphinxWarning):
+        with logging.pending_warnings():
+            with logging.skip_warningiserror(False):
+                logger.warning('message')
