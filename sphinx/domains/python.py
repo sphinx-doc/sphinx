@@ -189,7 +189,7 @@ class PyObject(ObjectDescription):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
         PyField('returntype', label=l_('Return type'), has_arg=False,
-                names=('rtype',), bodyrolename='obj'),
+                names=('rtype',), bodyrolename='class'),
     ]
 
     allow_nesting = False
