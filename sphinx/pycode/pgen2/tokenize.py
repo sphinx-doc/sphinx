@@ -337,7 +337,7 @@ def generate_tokens(readline):
                     yield (NL, line[nl_pos:],
                            (lnum, nl_pos), (lnum, len(line)), line)
                 else:
-                    yield ((NL, COMMENT)[line[pos] == '#'], line[pos:],  # type: ignore
+                    yield ((NL, COMMENT)[line[pos] == '#'], line[pos:],
                            (lnum, pos), (lnum, len(line)), line)
                 continue
 
