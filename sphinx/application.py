@@ -248,7 +248,7 @@ class Sphinx(object):
                     user_locale_dirs, self.config.language, domains=['sphinx'],
                     charset=self.config.source_encoding):
                 catinfo.write_mo(self.config.language)
-            locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs  # type: ignore
+            locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs  # type: ignore  # NOQA
         else:
             locale_dirs = []
         self.translator, has_translation = locale.init(locale_dirs, self.config.language)
