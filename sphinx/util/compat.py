@@ -42,7 +42,7 @@ class _DeprecationWrapper(object):
         return getattr(self._mod, attr)
 
 
-sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
     docutils_version = docutils_version,
     Directive = Directive,
 ))
