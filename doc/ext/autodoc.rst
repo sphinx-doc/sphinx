@@ -386,6 +386,13 @@ There are also new config values that you can set:
       This config value only requires to declare the top-level modules that
       should be mocked.
 
+.. confval:: autodoc_warningiserror
+
+   This value controls the behavior of :option:`sphinx-build -W` during
+   importing modules.
+   If ``False`` is given, autodoc forcely suppresses the error if the imported
+   module emits warnings.  By default, ``True``.
+
 Docstring preprocessing
 -----------------------
 

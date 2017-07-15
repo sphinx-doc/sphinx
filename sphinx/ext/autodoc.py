@@ -654,7 +654,8 @@ class Documenter(object):
             logger.debug('[autodoc] import %s', self.modname)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=ImportWarning)
-                __import__(self.modname)
+                with logging.skip_warningiserror(not self.env.config.autodoc_warningiserror):
+                    __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
             logger.debug('[autodoc] => %r', obj)
@@ -1883,6 +1884,7 @@ def setup(app):
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
+    app.add_config_value('autodoc_warningiserror', True, True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
