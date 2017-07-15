@@ -337,7 +337,7 @@ class _DeprecationWrapper(object):
         return getattr(self._mod, attr)
 
 
-sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
     with_app=(pytest.mark.sphinx, 'pytest.mark.sphinx'),
     TestApp=(SphinxTestApp, 'SphinxTestApp'),
     gen_with_app=(gen_with_app, 'pytest.mark.parametrize'),

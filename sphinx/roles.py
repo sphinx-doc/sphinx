@@ -69,7 +69,7 @@ class XRefRole(object):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref
+    nodeclass = addnodes.pending_xref  # type: Type[nodes.Node]
     innernodeclass = nodes.literal
 
     def __init__(self, fix_parens=False, lowercase=False,
