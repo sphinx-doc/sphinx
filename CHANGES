@@ -6,6 +6,7 @@ Incompatible changes
 
 * #3668: The arguments has changed of main functions for each command
 * #3893: Unknown html_theme_options throw warnings instead of errors
+* #3927: Python parameter/variable types should match classes, not all objects
 
 Deprecated
 ----------
