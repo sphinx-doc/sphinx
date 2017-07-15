@@ -84,6 +84,8 @@ man_pages = [
      'template generator', '', 1),
     ('man/sphinx-apidoc', 'sphinx-apidoc', 'Sphinx API doc generator tool',
      '', 1),
+    ('man/sphinx-autogen', 'sphinx-autogen', 'Generate autodoc stub pages',
+     '', 1),
 ]
 
 texinfo_documents = [
