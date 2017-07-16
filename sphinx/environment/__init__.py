@@ -18,6 +18,7 @@ import codecs
 import fnmatch
 import warnings
 from os import path
+from copy import copy
 from collections import defaultdict
 
 from six import BytesIO, itervalues, class_types, next
@@ -946,6 +947,7 @@ class BuildEnvironment(object):
         """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
+            backup = copy(self.temp_data)
             self.temp_data['docname'] = docname
 
             transformer = SphinxTransformer(doctree)
@@ -953,7 +955,7 @@ class BuildEnvironment(object):
             transformer.add_transforms(self.app.post_transforms)
             transformer.apply_transforms()
         finally:
-            self.temp_data.clear()
+            self.temp_data = backup
 
         # allow custom references to be resolved
         self.app.emit('doctree-resolved', doctree, docname)
