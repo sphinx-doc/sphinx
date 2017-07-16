@@ -70,14 +70,6 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
       The absolute line number on which the directive appeared.  This is not
       always a useful value; use :attr:`srcline` instead.
 
-   .. attribute:: src
-
-      The source file of the directive.
-
-   .. attribute:: srcline
-
-      The line number in the source file on which the directive appeared.
-
    .. attribute:: content_offset
 
       Internal offset of the directive content.  Used when calling
