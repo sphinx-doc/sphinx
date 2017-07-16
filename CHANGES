@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #3926: Add ``autodoc_warningiserror`` to suppress the behavior of ``-W``
+  option during importing target modules on autodoc
+
 Bugs fixed
 ----------
 
