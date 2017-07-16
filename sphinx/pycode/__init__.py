@@ -10,8 +10,6 @@
 """
 from __future__ import print_function
 
-import re
-
 from six import iteritems, BytesIO, StringIO
 
 from sphinx.errors import PycodeError
@@ -21,8 +19,6 @@ from sphinx.util import get_module_source, detect_encoding
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
-
-emptyline_re = re.compile(r'^\s*(#.*)?$')
 
 
 class ModuleAnalyzer(object):
