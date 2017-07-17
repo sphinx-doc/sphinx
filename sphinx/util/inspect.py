@@ -271,7 +271,7 @@ class Signature(object):
             self.argspec = getargspec(subject)
 
         try:
-            self.annotations = typing.get_type_hints(subject)
+            self.annotations = typing.get_type_hints(subject)  # type: ignore
         except:
             self.annotations = {}
 

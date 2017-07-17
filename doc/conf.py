@@ -34,6 +34,7 @@ epub_theme = 'epub'
 epub_basename = 'sphinx'
 epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx-doc.org/'
+epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.xhtml', 'Welcome')]
@@ -82,6 +83,8 @@ man_pages = [
     ('man/sphinx-quickstart', 'sphinx-quickstart', 'Sphinx documentation '
      'template generator', '', 1),
     ('man/sphinx-apidoc', 'sphinx-apidoc', 'Sphinx API doc generator tool',
+     '', 1),
+    ('man/sphinx-autogen', 'sphinx-autogen', 'Generate autodoc stub pages',
      '', 1),
 ]
 

@@ -1352,7 +1352,10 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_uid
 
    A unique identifier for the document.  This is put in the Dublin Core
-   metadata.  You may use a random string.  The default value is ``'unknown'``.
+   metadata.  You may use a
+   `XML's Name format <https://www.w3.org/TR/REC-xml/#NT-NameStartChar>`_ string.
+   You can't use hyphen, period, numbers as a first character.
+   The default value is ``'unknown'``.
 
 .. confval:: epub_cover
 

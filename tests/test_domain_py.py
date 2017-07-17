@@ -109,11 +109,12 @@ def test_domain_py_xrefs(app, status, warning):
                    'ModTopLevel', 'class')
     assert_refnode(refnodes[6], 'module_b.submodule', 'ModTopLevel',
                    'ModNoModule', 'class')
-    assert_refnode(refnodes[7], False, False, 'int', 'obj')
-    assert_refnode(refnodes[8], False, False, 'tuple', 'obj')
-    assert_refnode(refnodes[9], False, False, 'str', 'obj')
-    assert_refnode(refnodes[10], False, False, 'float', 'obj')
-    assert len(refnodes) == 11
+    assert_refnode(refnodes[7], False, False, 'int', 'class')
+    assert_refnode(refnodes[8], False, False, 'tuple', 'class')
+    assert_refnode(refnodes[9], False, False, 'str', 'class')
+    assert_refnode(refnodes[10], False, False, 'float', 'class')
+    assert_refnode(refnodes[11], False, False, 'list', 'class')
+    assert len(refnodes) == 12
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')

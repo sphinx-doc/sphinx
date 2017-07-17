@@ -195,7 +195,10 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                         continue
                     documenter = get_documenter(value, obj)
                     if documenter.objtype == typ:
-                        if imported or getattr(value, '__module__', None) == obj.__name__:
+                        if typ == 'method':
+                            items.append(name)
+                        elif imported or getattr(value, '__module__', None) == obj.__name__:
+                            # skip imported members if expected
                             items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]

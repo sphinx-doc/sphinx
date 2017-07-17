@@ -96,7 +96,7 @@ switch on line numbers for the individual block::
       Some more Ruby code.
 
 The first line number can be selected with the ``lineno-start`` option.  If
-present, ``linenos`` is automatically activated as well.
+present, ``linenos`` is automatically activated as well::
 
    .. code-block:: ruby
       :lineno-start: 10

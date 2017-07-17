@@ -338,6 +338,28 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
+NON_SMARTQUOTABLE_PARENT_NODES = (
+    nodes.FixedTextElement,
+    nodes.literal,
+    nodes.math,
+    nodes.image,
+    nodes.raw,
+    nodes.problematic,
+    addnodes.not_smartquotable,
+)
+
+
+def is_smartquotable(node):
+    # type: (nodes.Node) -> bool
+    """Check the node is smart-quotable or not."""
+    if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
+        return False
+    elif getattr(node, 'support_smartquotes', None) is False:
+        return False
+    else:
+        return True
+
+
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):

@@ -245,3 +245,5 @@ def test_epub_writing_mode(app):
     # vertical / writing-mode (CSS)
     css = (app.outdir / '_static' / 'epub.css').text()
     assert 'writing-mode: vertical-rl;' in css
+
+

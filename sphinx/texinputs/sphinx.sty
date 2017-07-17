@@ -1426,6 +1426,41 @@
 % figure legend comes after caption and may contain arbitrary body elements
 \newenvironment{sphinxlegend}{\par\small}{\par}
 
+% Declare Unicode characters used by linux tree command to pdflatex utf8/utf8x
+\def\spx@bd#1#2{%
+  \leavevmode
+  \begingroup
+  \ifx\spx@bd@height   \@undefined\def\spx@bd@height{\baselineskip}\fi
+  \ifx\spx@bd@width    \@undefined\setbox0\hbox{0}\def\spx@bd@width{\wd0 }\fi
+  \ifx\spx@bd@thickness\@undefined\def\spx@bd@thickness{.6\p@}\fi
+  \ifx\spx@bd@lower    \@undefined\def\spx@bd@lower{\dp\strutbox}\fi
+  \lower\spx@bd@lower#1{#2}%
+  \endgroup
+}%
+\@namedef{sphinx@u2500}% BOX DRAWINGS LIGHT HORIZONTAL
+  {\spx@bd{\vbox to\spx@bd@height}
+          {\vss\hrule\@height\spx@bd@thickness
+                     \@width\spx@bd@width\vss}}%
+\@namedef{sphinx@u2502}% BOX DRAWINGS LIGHT VERTICAL
+  {\spx@bd{\hb@xt@\spx@bd@width}
+          {\hss\vrule\@height\spx@bd@height
+                     \@width \spx@bd@thickness\hss}}%
+\@namedef{sphinx@u2514}% BOX DRAWINGS LIGHT UP AND RIGHT
+  {\spx@bd{\hb@xt@\spx@bd@width}
+          {\hss\raise.5\spx@bd@height
+           \hb@xt@\z@{\hss\vrule\@height.5\spx@bd@height
+                                \@width \spx@bd@thickness\hss}%
+           \vbox to\spx@bd@height{\vss\hrule\@height\spx@bd@thickness
+                                            \@width.5\spx@bd@width\vss}}}%
+\@namedef{sphinx@u251C}% BOX DRAWINGS LIGHT VERTICAL AND RIGHT
+  {\spx@bd{\hb@xt@\spx@bd@width}
+          {\hss
+           \hb@xt@\z@{\hss\vrule\@height\spx@bd@height
+                                \@width \spx@bd@thickness\hss}%
+           \vbox to\spx@bd@height{\vss\hrule\@height\spx@bd@thickness
+                                            \@width.5\spx@bd@width\vss}}}%
+\protected\def\sphinxunichar#1{\@nameuse{sphinx@u#1}}%
+
 % Tell TeX about pathological hyphenation cases:
 \hyphenation{Base-HTTP-Re-quest-Hand-ler}
 \endinput

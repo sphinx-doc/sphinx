@@ -11,7 +11,7 @@
 import subprocess
 
 from sphinx.errors import ExtensionError
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 from sphinx.util.osutil import ENOENT, EPIPE, EINVAL
@@ -43,8 +43,8 @@ class ImagemagickConverter(ImageConverter):
             else:
                 return False
         except (OSError, IOError):
-            logger.warning(_('convert command %r cannot be run.'
-                             'check the image_converter setting'),
+            logger.warning(__('convert command %r cannot be run.'
+                              'check the image_converter setting'),
                            self.config.image_converter)
             return False
 
@@ -60,8 +60,8 @@ class ImagemagickConverter(ImageConverter):
         except OSError as err:
             if err.errno != ENOENT:  # No such file or directory
                 raise
-            logger.warning(_('convert command %r cannot be run.'
-                             'check the image_converter setting'),
+            logger.warning(__('convert command %r cannot be run.'
+                              'check the image_converter setting'),
                            self.config.image_converter)
             return False
 
@@ -73,8 +73,8 @@ class ImagemagickConverter(ImageConverter):
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:
-            raise ExtensionError(_('convert exited with error:\n'
-                                   '[stderr]\n%s\n[stdout]\n%s') %
+            raise ExtensionError(__('convert exited with error:\n'
+                                    '[stderr]\n%s\n[stdout]\n%s') %
                                  (stderr, stdout))
 
         return True

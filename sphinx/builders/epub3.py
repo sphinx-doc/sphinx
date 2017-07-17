@@ -17,7 +17,7 @@ from collections import namedtuple
 from sphinx import package_dir
 from sphinx.config import string_classes, ENUM
 from sphinx.builders import _epub_base
-from sphinx.util import logging
+from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import make_filename
 
@@ -90,8 +90,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
                 'conf value "epub_language" (or "language") '
                 'should not be empty for EPUB3')
         # <package> unique-identifier attribute
-        if not self.app.config.epub_uid:
-            self.app.warn('conf value "epub_uid" should not be empty for EPUB3')
+        if not xmlname_checker().match(self.app.config.epub_uid):
+            self.app.warn('conf value "epub_uid" should be XML NAME for EPUB3')
         # dc:title
         if not self.app.config.epub_title:
             self.app.warn(

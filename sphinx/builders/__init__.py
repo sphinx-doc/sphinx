@@ -22,6 +22,7 @@ from six import itervalues
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
 from sphinx.util.osutil import SEP, relative_uri
 from sphinx.util.i18n import find_catalog
@@ -197,6 +198,7 @@ class Builder(object):
     def post_process_images(self, doctree):
         # type: (nodes.Node) -> None
         """Pick the best candidate for all image URIs."""
+        images = ImageAdapter(self.env)
         for node in doctree.traverse(nodes.image):
             if '?' in node['candidates']:
                 # don't rewrite nonlocal image URIs
@@ -207,7 +209,8 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    logger.warning('no matching candidate for image URI %r', node['uri'],
+                    logger.warning('no matching candidate for image URI %r',
+                                   images.get_original_image_uri(node['uri']),
                                    location=node)
                     continue
                 node['uri'] = candidate

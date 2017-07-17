@@ -122,7 +122,7 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
         else:
             return value
 
-    introspected_hints = (typing.get_type_hints(function)
+    introspected_hints = (typing.get_type_hints(function)  # type: ignore
                           if typing and hasattr(function, '__code__') else {})
 
     fd = StringIO()

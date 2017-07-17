@@ -47,8 +47,10 @@ def test_theme_api(app, status, warning):
         theme.get_config('theme', 'foobar')
 
     # options API
-    with pytest.raises(ThemeError):
-        theme.get_options({'nonexisting': 'foo'})
+
+    options = theme.get_options({'nonexisting': 'foo'})
+    assert 'nonexisting' not in options.keys()
+
     options = theme.get_options(cfg.html_theme_options)
     assert options['testopt'] == 'foo'
     assert options['nosidebar'] == 'false'

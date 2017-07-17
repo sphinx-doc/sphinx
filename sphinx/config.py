@@ -16,7 +16,7 @@ from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integ
 from typing import Any, NamedTuple, Union
 
 from sphinx.errors import ConfigError
-from sphinx.locale import l_, _
+from sphinx.locale import l_, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
@@ -233,8 +233,8 @@ class Config(object):
         else:
             defvalue = self.values[name][0]
             if isinstance(defvalue, dict):
-                raise ValueError(_('cannot override dictionary config setting %r, '
-                                   'ignoring (use %r to set individual elements)') %
+                raise ValueError(__('cannot override dictionary config setting %r, '
+                                    'ignoring (use %r to set individual elements)') %
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
                 return value.split(',')
@@ -242,13 +242,13 @@ class Config(object):
                 try:
                     return int(value)
                 except ValueError:
-                    raise ValueError(_('invalid number %r for config value %r, ignoring') %
+                    raise ValueError(__('invalid number %r for config value %r, ignoring') %
                                      (value, name))
             elif hasattr(defvalue, '__call__'):
                 return value
             elif defvalue is not None and not isinstance(defvalue, string_types):
-                raise ValueError(_('cannot override config setting %r with unsupported '
-                                   'type, ignoring') % name)
+                raise ValueError(__('cannot override config setting %r with unsupported '
+                                    'type, ignoring') % name)
             else:
                 return value
 
@@ -277,7 +277,8 @@ class Config(object):
                     config.setdefault(realvalname, {})[key] = value
                     continue
                 elif valname not in self.values:
-                    logger.warning(_('unknown config value %r in override, ignoring'), valname)
+                    logger.warning(__('unknown config value %r in override, ignoring'),
+                                   valname)
                     continue
                 if isinstance(value, string_types):
                     config[valname] = self.convert_overrides(valname, value)
@@ -296,7 +297,7 @@ class Config(object):
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
-            raise AttributeError(_('No such config value: %s') % name)
+            raise AttributeError(__('No such config value: %s') % name)
         default = self.values[name][0]
         if hasattr(default, '__call__'):
             return default(self)

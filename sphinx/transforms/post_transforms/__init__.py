@@ -17,7 +17,7 @@ from docutils.utils import get_source_line
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import NoUri
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 
@@ -135,8 +135,8 @@ class ReferencesResolver(SphinxTransform):
             return None
         if len(results) > 1:
             nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            logger.warning(_('more than one target found for \'any\' cross-'
-                             'reference %r: could be %s'), target, nice_results,
+            logger.warning(__('more than one target found for \'any\' cross-'
+                              'reference %r: could be %s'), target, nice_results,
                            location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
@@ -165,10 +165,10 @@ class ReferencesResolver(SphinxTransform):
         if domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
         elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = (_('%s:%s reference target not found: %%(target)s') %
+            msg = (__('%s:%s reference target not found: %%(target)s') %
                    (node['refdomain'], typ))
         else:
-            msg = _('%r reference target not found: %%(target)s') % typ
+            msg = __('%r reference target not found: %%(target)s') % typ
         logger.warning(msg % {'target': target},
                        location=node, type='ref', subtype=typ)
 

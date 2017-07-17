@@ -9,7 +9,7 @@ Sphinx documentation contents
 
    intro
    tutorial
-   invocation
+   man/index
    rest
    markup/index
    domains

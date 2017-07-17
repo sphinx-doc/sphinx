@@ -134,12 +134,12 @@ class TestDirective(Directive):
                         _("missing '+' or '-' in '%s' option.") % option,
                         line=self.lineno)
                     continue
-                if option_name not in doctest.OPTIONFLAGS_BY_NAME:  # type: ignore
+                if option_name not in doctest.OPTIONFLAGS_BY_NAME:
                     self.state.document.reporter.warning(
                         _("'%s' is not a valid option.") % option_name,
                         line=self.lineno)
                     continue
-                flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
+                flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
                 node['options'][flag] = (option[0] == '+')
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
@@ -148,7 +148,7 @@ class TestDirective(Directive):
                 operand, option_version = [item.strip() for item in option.split()]
                 running_version = platform.python_version()
                 if not compare_version(running_version, option_version, operand):
-                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']  # type: ignore
+                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
             except ValueError:
                 self.state.document.reporter.warning(
@@ -188,7 +188,7 @@ class TestoutputDirective(TestDirective):
     }
 
 
-parser = doctest.DocTestParser()  # type: ignore
+parser = doctest.DocTestParser()
 
 
 # helper classes
@@ -240,14 +240,14 @@ class TestCode(object):
             self.code, self.type, self.lineno, self.options)
 
 
-class SphinxDocTestRunner(doctest.DocTestRunner):  # type: ignore
-    def summarize(self, out, verbose=None):
+class SphinxDocTestRunner(doctest.DocTestRunner):
+    def summarize(self, out, verbose=None):  # type: ignore
         # type: (Callable, bool) -> Tuple[int, int]
         string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
         try:
-            res = doctest.DocTestRunner.summarize(self, verbose)  # type: ignore
+            res = doctest.DocTestRunner.summarize(self, verbose)
         finally:
             sys.stdout = old_stdout
         out(string_io.getvalue())
@@ -257,7 +257,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):  # type: ignore
                                                    module_globals=None):
         # type: (unicode, Any) -> Any
         # this is overridden from DocTestRunner adding the try-except below
-        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)
+        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore
         if m and m.group('name') == self.test.name:
             try:
                 example = self.test.examples[int(m.group('examplenum'))]
@@ -268,7 +268,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):  # type: ignore
                 pass
             else:
                 return example.source.splitlines(True)
-        return self.save_linecache_getlines(filename, module_globals)
+        return self.save_linecache_getlines(filename, module_globals)  # type: ignore
 
 
 # the new builder -- use sphinx-build.py -b doctest to run
@@ -379,8 +379,8 @@ Doctest summary
         self.cleanup_runner = SphinxDocTestRunner(verbose=False,
                                                   optionflags=self.opt)
 
-        self.test_runner._fakeout = self.setup_runner._fakeout
-        self.cleanup_runner._fakeout = self.setup_runner._fakeout
+        self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
@@ -466,7 +466,7 @@ Doctest summary
             if not examples:
                 return True
             # simulate a doctest with the code
-            sim_doctest = doctest.DocTest(examples, {},  # type: ignore
+            sim_doctest = doctest.DocTest(examples, {},
                                           '%s (%s code)' % (group.name, what),
                                           filename_str, 0, None)
             sim_doctest.globs = ns
@@ -487,7 +487,7 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(
+                    test = parser.get_doctest(  # type: ignore
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
                         group.name, filename_str, code[0].lineno)
                 except Exception:
@@ -507,9 +507,9 @@ Doctest summary
                 output = code[1] and code[1].code or ''
                 options = code[1] and code[1].options or {}
                 # disable <BLANKLINE> processing as it is not needed
-                options[doctest.DONT_ACCEPT_BLANKLINE] = True  # type: ignore
+                options[doctest.DONT_ACCEPT_BLANKLINE] = True
                 # find out if we're testing an exception
-                m = parser._EXCEPTION_RE.match(output)
+                m = parser._EXCEPTION_RE.match(output)  # type: ignore
                 if m:
                     exc_msg = m.group('msg')
                 else:
@@ -546,6 +546,6 @@ def setup(app):
     app.add_config_value('doctest_global_cleanup', '', False)
     app.add_config_value(
         'doctest_default_flags',
-        doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL,  # type: ignore  # NOQA
+        doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL,
         False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -591,7 +591,7 @@ class Documenter(object):
                 self.add_line(line, src[0], src[1])
 
     def get_object_members(self, want_all):
-        # type: (bool) -> Tuple[bool, List[Tuple[unicode, object]]]
+        # type: (bool) -> Tuple[bool, List[Tuple[unicode, Any]]]
         """Return `(members_check_module, members)` where `members` is a
         list of `(membername, member)` pairs of the members of *self.object*.
 
