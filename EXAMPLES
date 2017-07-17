@@ -12,18 +12,25 @@ interesting examples.
 Documentation using the alabaster theme
 ---------------------------------------
 
+* Alabaster: https://alabaster.readthedocs.io/
 * Blinker: https://pythonhosted.org/blinker/
 * Calibre: https://manual.calibre-ebook.com/
+* Click: http://click.pocoo.org/ (customized)
+* coala: https://docs.coala.io/ (customized)
 * CodePy: https://documen.tician.de/codepy/
+* Fabric: http://docs.fabfile.org/
 * Fityk: http://fityk.nieto.pl/
 * Flask: http://flask.pocoo.org/docs/
 * Flask-OpenID: https://pythonhosted.org/Flask-OpenID/
+* Invoke: http://docs.pyinvoke.org/
 * Jinja: http://jinja.pocoo.org/docs/
 * Lino: http://www.lino-framework.org/ (customized)
+* MDAnalysis: http://www.mdanalysis.org/docs/ (customized)
 * MeshPy: https://documen.tician.de/meshpy/
 * PyCUDA: https://documen.tician.de/pycuda/
 * PyOpenCL: https://documen.tician.de/pyopencl/
 * PyLangAcq: http://pylangacq.org/
+* pytest: https://docs.pytest.org/ (customized)
 * python-apt: https://apt.alioth.debian.org/python-apt-doc/
 * PyVisfile: https://documen.tician.de/pyvisfile/
 * Tablib: http://docs.python-tablib.org/
@@ -33,16 +40,20 @@ Documentation using the classic theme
 -------------------------------------
 
 * Advanced Generic Widgets: http://xoomer.virgilio.it/infinity77/AGW_Docs/ (customized)
+* Apache CouchDB: http://docs.couchdb.org/ (customized)
 * APSW: https://rogerbinns.github.io/apsw/
 * Arb: http://arblib.org/
 * Bazaar: http://doc.bazaar.canonical.com/ (customized)
 * Blender: https://docs.blender.org/api/current/
+* Buildbot: https://docs.buildbot.net/latest/
+* CMake: https://cmake.org/documentation/ (customized)
 * Chaco: http://docs.enthought.com/chaco/ (customized)
 * Cormoran: http://cormoran.nhopkg.org/docs/
 * DEAP: https://deap.readthedocs.io/ (customized)
 * Director: https://pythonhosted.org/director/
 * EZ-Draw: https://pageperso.lif.univ-mrs.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html (customized)
 * F2py: http://f2py.sourceforge.net/docs/
+* Generic Mapping Tools (GMT): http://gmt.soest.hawaii.edu/doc/latest/ (customized)
 * Genomedata: https://noble.gs.washington.edu/proj/genomedata/doc/1.3.3/
 * GetFEM++: http://getfem.org/ (customized)
 * Glasgow Haskell Compiler: https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/ (customized)
@@ -59,12 +70,14 @@ Documentation using the classic theme
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
 * Peach^3: https://peach3.nl/doc/latest/userdoc/ (customized)
+* Plone: https://docs.plone.org/ (customized)
 * PyEMD: https://pyemd.readthedocs.io/
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pygame: https://www.pygame.org/docs/ (customized)
 * PyMQI: https://pythonhosted.org/pymqi/
 * Python 2: https://docs.python.org/2/
 * Python 3: https://docs.python.org/3/ (customized)
+* Python Packaging Authority: https://www.pypa.io/ (customized)
 * Ring programming language: http://ring-lang.sourceforge.net/doc/ (customized)
 * SageMath: https://doc.sagemath.org/ (customized)
 * Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
@@ -83,7 +96,9 @@ Documentation using the classic theme
 Documentation using the sphinxdoc theme
 ---------------------------------------
 
+* cartopy: http://scitools.org.uk/cartopy/docs/latest/
 * Matplotlib: https://matplotlib.org/
+* MDAnalysis Tutorial: http://www.mdanalysis.org/MDAnalysisTutorial/
 * NetworkX: https://networkx.github.io/
 * PyCantonese: http://pycantonese.org/
 * Pyre: http://docs.danse.us/pyre/sphinx/
@@ -99,6 +114,7 @@ Documentation using the sphinxdoc theme
 Documentation using the nature theme
 ------------------------------------
 
+* Alembic: http://alembic.zzzcomputing.com/
 * Cython: http://docs.cython.org/
 * jsFiddle: http://doc.jsfiddle.net/
 * libLAS: https://www.liblas.org/ (customized)
@@ -110,6 +126,7 @@ Documentation using the nature theme
 Documentation using another builtin theme
 -----------------------------------------
 
+* Breathe: https://breathe.readthedocs.io/ (haiku)
 * MPipe: https://vmlaker.github.io/mpipe/ (sphinx13)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo, customized)
@@ -117,65 +134,140 @@ Documentation using another builtin theme
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/ (pyramid)
 * Pyramid web framework:
   https://docs.pylonsproject.org/projects/pyramid/ (pyramid)
-* Valence: http://docs.valence.desire2learn.com/ (haiku)
+* Sphinx: http://www.sphinx-doc.org/ (sphinx13) :-)
+* Valence: http://docs.valence.desire2learn.com/ (haiku, customized)
 
 Documentation using sphinx_rtd_theme
 ------------------------------------
 
+* Annotator: http://docs.annotatorjs.org/
+* ANNOVAR: http://annovar.openbioinformatics.org/
+* Ansible: https://docs.ansible.com/ (customized)
 * ASE: https://wiki.fysik.dtu.dk/ase/
+* Autofac: http://docs.autofac.org/
+* BigchainDB: https://docs.bigchaindb.com/
+* Certbot: https://letsencrypt.readthedocs.io/
+* CherryPy: http://docs.cherrypy.org/
+* Chainer: https://docs.chainer.org/
+* CodeIgniter: https://www.codeigniter.com/user_guide/
+* Corda: https://docs.corda.net/
+* Dask: https://dask.pydata.org/
+* Dataiku DSS: https://doc.dataiku.com/
+* Drush: http://www.drush.org/
+* edX: http://docs.edx.org/
+* Electrum: http://docs.electrum.org/
 * Elemental: http://libelemental.org/documentation/dev/
 * ESWP3: https://eswp3.readthedocs.io/
+* Ethereum Homestead: http://www.ethdocs.org/
+* Flake8: http://flake8.pycqa.org/
+* GeoNode: http://docs.geonode.org/
+* Godot: https://godot.readthedocs.io/
+* Graylog: http://docs.graylog.org/
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/ (customized)
+* HDF5 for Python (h5py): http://docs.h5py.org/
+* Hyperledger Fabric: https://hyperledger-fabric.readthedocs.io/
+* Hyperledger Sawtooth: https://intelledger.github.io/
+* IdentityServer: http://docs.identityserver.io/
+* Idris: http://docs.idris-lang.org/
+* javasphinx: https://bronto-javasphinx.readthedocs.io/
+* Kalabox: http://docs.kalabox.io/
 * Linguistica: https://linguistica-uchicago.github.io/lxa5/
 * MathJax: https://docs.mathjax.org/
+* MICrobial Community Analysis (micca): http://micca.org/docs/latest/
+* MicroPython: https://docs.micropython.org/
+* Mink: http://mink.behat.org/
+* Mockery: http://docs.mockery.io/
 * MoinMoin: https://moin-20.readthedocs.io/
+* Mopidy: https://docs.mopidy.com/
 * MyHDL: http://docs.myhdl.org/
+* Nextflow: https://www.nextflow.io/docs/latest/index.html
 * NICOS: https://forge.frm2.tum.de/nicos/doc/nicos-master/ (customized)
+* Pelican: http://docs.getpelican.com/
+* Pillow: https://pillow.readthedocs.io/
 * pip: https://pip.pypa.io/
 * Paver: https://paver.readthedocs.io/
+* peewee: http://docs.peewee-orm.com/
+* Phinx: http://docs.phinx.org/
+* phpMyAdmin: https://docs.phpmyadmin.net/
 * Pweave: http://mpastell.com/pweave/
 * python-sqlparse: https://sqlparse.readthedocs.io/
+* Read The Docs: https://docs.readthedocs.io/
 * Free your information from their silos (French):
   http://redaction-technique.org/ (customized)
+* Releases Sphinx extension: https://releases.readthedocs.io/
+* Qtile: http://docs.qtile.org/
 * Quex: http://quex.sourceforge.net/doc/html/main.html
 * Satchmo: http://docs.satchmoproject.com/
 * Scapy: https://scapy.readthedocs.io/
 * SimPy: http://simpy.readthedocs.io/
+* SlamData: http://docs.slamdata.com/
+* Sonos Controller (SoCo): http://docs.python-soco.com/
+* Sphinx AutoAPI: https://sphinx-autoapi.readthedocs.io/
+* sphinx-argparse: https://sphinx-argparse.readthedocs.io/
+* Sphinx-Gallery: https://sphinx-gallery.readthedocs.io/ (customized)
+* StarUML: http://docs.staruml.io/
+* Sublime Text Unofficial Documentation: http://docs.sublimetext.info/
+* SunPy: http://docs.sunpy.org/
+* Sylius: http://docs.sylius.org/
 * Tango Controls: https://tango-controls.readthedocs.io/ (customized)
+* Topshelf: http://docs.topshelf-project.com/
+* ThreatConnect: https://docs.threatconnect.com/
 * Tuleap: https://tuleap.net/doc/en/
+* TYPO3: https://docs.typo3.org/ (customized)
+* Wagtail: http://docs.wagtail.io/
+* Web Application Attack and Audit Framework (w3af): http://docs.w3af.org/
+* Weblate: https://docs.weblate.org/
 
 Documentation using sphinx_bootstrap_theme
 ------------------------------------------
 
+* Bootstrap Theme: https://ryan-roemer.github.io/sphinx-bootstrap-theme/
 * C/C++ Software Development with Eclipse: http://eclipsebook.in/
+* Dataverse: http://guides.dataverse.org/
 * e-cidadania: http://e-cidadania.readthedocs.org/
+* Hangfire: http://docs.hangfire.io/
 * Hedge: https://documen.tician.de/hedge/
+* ObsPy: https://docs.obspy.org/
 * Open Dylan: https://opendylan.org/documentation/
+* Pootle: http://docs.translatehouse.org/projects/pootle/
 * PyUblas: https://documen.tician.de/pyublas/
 
 Documentation using a custom theme or integrated in a website
 -------------------------------------------------------------
 
+* Apache Cassandra: https://cassandra.apache.org/doc/
+* Astropy: http://docs.astropy.org/
 * CakePHP: https://book.cakephp.org/
+* CasperJS: http://docs.casperjs.org/
 * Ceph: http://docs.ceph.com/docs/master/
 * Chef: https://docs.chef.io/
+* CKAN: http://docs.ckan.org/
+* Confluent Platform: http://docs.confluent.io/
 * Django: https://docs.djangoproject.com/
+* Doctrine: http://docs.doctrine-project.org/
 * Enterprise Toolkit for Acrobat products:
   https://www.adobe.com/devnet-docs/acrobatetk/
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * gevent: http://www.gevent.org/
 * Guzzle: http://docs.guzzlephp.org/en/stable/
+* H2O.ai: http://docs.h2o.ai/
 * Istihza (Turkish Python documentation project): https://belgeler.yazbel.com/python-istihza/
+* Kombu: http://docs.kombu.me/
 * Lasso: http://lassoguide.com/
+* Mako: http://docs.makotemplates.org/
 * MirrorBrain: http://mirrorbrain.org/docs/
+* MongoDB: https://docs.mongodb.com/
 * Music21: http://web.mit.edu/music21/doc/
 * nose: https://nose.readthedocs.io/
+* ns-3: https://www.nsnam.org/documentation/
 * NumPy: https://docs.scipy.org/doc/numpy/reference/
 * ObjectListView: http://objectlistview.sourceforge.net/python/
 * OpenERP: https://doc.odoo.com/
 * OpenCV: http://docs.opencv.org/
 * OpenLayers: http://docs.openlayers.org/
+* Open vSwitch: http://docs.openvswitch.org/
+* PlatformIO: http://docs.platformio.org/
 * PyEphem: http://rhodesmill.org/pyephem/
 * Pygments: http://pygments.org/docs/
 * Plone User Manual (German): https://www.hasecke.com/plone-benutzerhandbuch/4.0/
@@ -186,12 +278,15 @@ Documentation using a custom theme or integrated in a website
 * QGIS: https://qgis.org/en/docs/index.html
 * qooxdoo: http://www.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
+* SaltStack: https://docs.saltstack.com/
 * scikit-learn: http://scikit-learn.org/stable/
 * SciPy: https://docs.scipy.org/doc/scipy/refrence/
+* Scrapy: https://doc.scrapy.org/
 * Seaborn: https://seaborn.pydata.org/
 * Selenium: http://docs.seleniumhq.org/docs/
 * Self: http://www.selflanguage.org/
 * Substance D: https://docs.pylonsproject.org/projects/substanced/
+* Sulu: http://docs.sulu.io/
 * SQLAlchemy: https://docs.sqlalchemy.org/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
 * Ubuntu Packaging Guide: http://packaging.ubuntu.com/html/
@@ -201,12 +296,17 @@ Documentation using a custom theme or integrated in a website
 Homepages and other non-documentation sites
 -------------------------------------------
 
-* Benoit Boissinot: https://bboissin.appspot.com/ (modified classic)
+* Arizona State University PHY494/PHY598/CHM598 Simulation approaches to Bio-
+  and Nanophysics:
+  https://becksteinlab.physics.asu.edu/pages/courses/2013/SimBioNano/ (classic)
+* Benoit Boissinot: https://bboissin.appspot.com/ (classic, customized)
 * Computer Networks, Parallelization, and Simulation Laboratory (CNPSLab):
   https://lab.miletic.net/ (sphinx_rtd_theme)
 * Loyola University Chicago COMP 339-439 Distributed Systems course:
   http://books.cs.luc.edu/distributedsystems/ (sphinx_bootstrap_theme)
 * The Wine Cellar Book: https://www.thewinecellarbook.com/doc/en/ (sphinxdoc)
+* Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials:
+  http://thomas-cokelaer.info/tutorials/ (standard)
 * UC Berkeley ME233 Advanced Control Systems II course:
   https://berkeley-me233.github.io/ (sphinxdoc)
 
@@ -222,6 +322,8 @@ Books produced using Sphinx
 * "LassoGuide": http://www.lassosoft.com/Lasso-Documentation
 * "Learning Sphinx" (in Japanese):
   https://www.oreilly.co.jp/books/9784873116488/
+* "Mercurial: the definitive guide (Second edition)":
+  https://book.mercurial-scm.org/
 * "Pioneers and Prominent Men of Utah": http://pioneers.rstebbing.com/
 * "Pomodoro Technique Illustrated" (Japanese translation):
   https://www.amazon.co.jp/dp/4048689525/
