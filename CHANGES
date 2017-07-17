@@ -75,6 +75,8 @@ Features added
 Bugs fixed
 ----------
 
+* #3924: docname lost after dynamically parsing RST in extension
+
 Testing
 --------
 
