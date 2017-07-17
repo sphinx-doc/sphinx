@@ -20,6 +20,11 @@ Features added
 * #3638: Allow to change a label of reference to equation using
   ``math_eqref_format``
 
+* Now :confval:`suppress_warnings` accepts following configurations:
+
+  - ``ref.python`` (ref: #3866)
+
+
 Features removed
 ----------------
 
@@ -71,10 +76,6 @@ Deprecated
 
 Features added
 --------------
-
-* Now :confval:`suppress_warnings` accepts following configurations:
-
-  - ``ref.python`` (ref: #3866)
 
 Bugs fixed
 ----------
