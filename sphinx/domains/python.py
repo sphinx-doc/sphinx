@@ -833,7 +833,7 @@ class PythonDomain(Domain):
         elif len(matches) > 1:
             logger.warning('more than one target found for cross-reference %r: %s',
                            target, ', '.join(match[0] for match in matches),
-                           location=node)
+                           type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

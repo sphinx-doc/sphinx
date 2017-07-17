@@ -239,6 +239,7 @@ General configuration
    * ref.citation
    * ref.footnote
    * ref.doc
+   * ref.python
    * misc.highlighting_failure
    * toc.secnum
    * epub.unknown_project_files
