@@ -827,7 +827,7 @@ class BuildEnvironment(object):
         file relations from it.
         """
         warnings.warn('env.note_toctree() is deprecated. '
-                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      'Use sphinx.environment.adapters.toctree.TocTree instead.',
                       RemovedInSphinx20Warning)
         TocTree(self).note(docname, toctreenode)
 
