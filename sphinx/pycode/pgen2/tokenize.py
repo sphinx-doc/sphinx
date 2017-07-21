@@ -431,7 +431,7 @@ def generate_tokens(readline):
                            (lnum, pos), (lnum, pos+1), line)
                 pos = pos + 1
 
-    for indent in indents[1:]:                 # pop remaining indent levels
+    for _ in indents[1:]:                      # pop remaining indent levels
         yield (DEDENT, '', (lnum, 0), (lnum, 0), '')
     yield (ENDMARKER, '', (lnum, 0), (lnum, 0), '')
 

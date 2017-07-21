@@ -209,7 +209,7 @@ class ImageConverter(BaseImageConverter):
     def is_available(self):
         # type: () -> bool
         """Confirms the converter is available or not."""
-        raise NotImplemented
+        raise NotImplementedError()
 
     def guess_mimetypes(self, node):
         # type: (nodes.Node) -> List[unicode]
@@ -248,7 +248,7 @@ class ImageConverter(BaseImageConverter):
     def convert(self, _from, _to):
         # type: (unicode, unicode) -> bool
         """Converts the image to expected one."""
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 def setup(app):
