@@ -540,6 +540,7 @@ defined in the documentation:
 
    Reference a C-language type.
 
+.. _cpp-domain:
 
 The C++ Domain
 --------------
