@@ -179,9 +179,9 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
-                       inv, err.__class__, err)
-        return
+        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
+                    inv, err.__class__, err)
+        raise
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
@@ -197,8 +197,9 @@ def fetch_inventory(app, uri, inv):
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
-        logger.warning('intersphinx inventory %r not readable due to %s: %s',
-                       inv, err.__class__.__name__, err)
+        err.args = ('intersphinx inventory %r not readable due to %s: %s',
+                    inv, err.__class__.__name__, err)
+        raise
     else:
         return invdata
 
@@ -232,6 +233,7 @@ def load_mappings(app):
         else:
             invs = inv  # type: ignore
 
+        failures = []
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
@@ -241,11 +243,27 @@ def load_mappings(app):
                     or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
                 logger.info('loading intersphinx inventory from %s...', safe_inv_url)
-                invdata = fetch_inventory(app, uri, inv)
+                try:
+                    invdata = fetch_inventory(app, uri, inv)
+                except Exception as err:
+                    failures.append(err.args)
+                    continue
+
                 if invdata:
                     inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
+
+        if len(failures) < len(invs):
+            logger.info("encountered some issues with some of the inventories,"
+                        " but they had working alternatives:")
+            for fail in failures:
+                logger.info(*fail)
+        else:
+            logger.warning("failed to reach any of the inventories "
+                           "with the following issues:")
+            for fail in failures:
+                logger.warning(*fail)
 
     if update:
         inventories.clear()
