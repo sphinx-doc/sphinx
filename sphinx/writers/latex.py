@@ -2297,8 +2297,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 hlcode += '\\end{sphinxVerbatim}'
             self.body.append('\n' + hlcode + '\n')
-            if ids:
-                self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
@@ -2501,8 +2499,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if node.get('literal_block'):
             self.in_container_literal_block -= 1
-            self.body.append('\\let\\sphinxVerbatimTitle\\empty\n')
-            self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
 
     def visit_decoration(self, node):
         # type: (nodes.Node) -> None
