@@ -23,6 +23,8 @@ Features added
 * Now :confval:`suppress_warnings` accepts following configurations:
 
   - ``ref.python`` (ref: #3866)
+* #3872: Add latex key to configure literal blocks caption position in PDF
+  output (refs #3792, #1723)
 
 
 Features removed
