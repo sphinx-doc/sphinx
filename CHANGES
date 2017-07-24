@@ -20,6 +20,7 @@ Bugs fixed
 ----------
 
 * #3924: docname lost after dynamically parsing RST in extension
+* Report true location of failing doctests in docstrings when using autodoc.
 
 Testing
 --------

@@ -401,7 +401,8 @@ Doctest summary
                                self.env.doc2path(docname), node.line)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
-            node_groups = node.get('groups', ['default'])
+            fallback = path.basename(node.source or 'default').rpartition(':')[-1]
+            node_groups = node.get('groups', [fallback])
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue

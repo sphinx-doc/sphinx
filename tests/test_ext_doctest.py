@@ -21,9 +21,9 @@ def test_build(app, status, warning):
     app.builder.build_all()
     if app.statuscode != 0:
         assert False, 'failures in doctests:' + status.getvalue()
-    # in doctest.txt, there are two named groups and the default group,
-    # so the cleanup function must be called three times
-    assert cleanup_called == 3, 'testcleanup did not get executed enough times'
+    # in doctest.txt, there are two named groups, the default group, and
+    # non-grouped calls, so the cleanup function must be called four times
+    assert cleanup_called == 4, 'testcleanup did not get executed enough times'
 
 
 def test_compare_version():
