@@ -69,6 +69,7 @@ Other contributors, listed alphabetically, are:
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
+* Zac Hatfield-Dodds -- doctest reporting improvements
 
 Many thanks for all contributions!
 
