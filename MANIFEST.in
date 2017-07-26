@@ -19,13 +19,11 @@ include sphinx/locale/.tx/config
 recursive-include sphinx/templates *
 recursive-include sphinx/texinputs *
 recursive-include sphinx/themes *
-recursive-include sphinx/pycode/pgen2 *.c *.pyx
 recursive-include sphinx/locale *.js *.pot *.po *.mo
 recursive-include sphinx/search/non-minified-js *.js
 recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
-include sphinx/pycode/Grammar-py*
 
 recursive-include doc *
 prune doc/_build
