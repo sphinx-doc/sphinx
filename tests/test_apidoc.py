@@ -60,7 +60,7 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420',
+    coderoot='test-apidoc-pep420/a',
     options=["--implicit-namespaces"],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -97,7 +97,7 @@ def test_pep_0420_enabled(make_app, apidoc):
         assert "a.b.x namespace\n" in txt
 
 
-@pytest.mark.apidoc(coderoot='test-apidoc-pep420')
+@pytest.mark.apidoc(coderoot='test-apidoc-pep420/a')
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
