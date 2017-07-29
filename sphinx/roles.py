@@ -185,7 +185,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
-        typ = env.config.default_role
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
     else:
         typ = typ.lower()
     has_explicit_title, title, target = split_explicit_title(text)

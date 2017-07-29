@@ -665,6 +665,7 @@ class BuildEnvironment(object):
 
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
+        self.temp_data['default_role'] = self.config.default_role
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
 
