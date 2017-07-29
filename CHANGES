@@ -7,6 +7,9 @@ Incompatible changes
 * #3668: The arguments has changed of main functions for each command
 * #3893: Unknown html_theme_options throw warnings instead of errors
 * #3927: Python parameter/variable types should match classes, not all objects
+* #3962: sphinx-apidoc now recognizes given directory as an implicit namespace
+  package when ``--implicit-namespaces`` option given, not subdirectories of
+  given directory.
 
 Deprecated
 ----------
@@ -60,6 +63,7 @@ Bugs fixed
 ----------
 
 * #3882: Update the order of files for HTMLHelp and QTHelp
+* #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 
 Testing
 --------
@@ -79,8 +83,13 @@ Deprecated
 Features added
 --------------
 
+* #3926: Add ``autodoc_warningiserror`` to suppress the behavior of ``-W``
+  option during importing target modules on autodoc
+
 Bugs fixed
 ----------
+
+* #3924: docname lost after dynamically parsing RST in extension
 
 Testing
 --------

@@ -249,6 +249,27 @@ def pending_logging():
         memhandler.flushTo(logger)
 
 
+@contextmanager
+def skip_warningiserror(skip=True):
+    # type: (bool) -> Generator
+    """contextmanager to skip WarningIsErrorFilter for a while."""
+    logger = logging.getLogger()
+
+    if skip is False:
+        yield
+    else:
+        try:
+            disabler = DisableWarningIsErrorFilter()
+            for handler in logger.handlers:
+                # use internal method; filters.insert() directly to install disabler
+                # before WarningIsErrorFilter
+                handler.filters.insert(0, disabler)
+            yield
+        finally:
+            for handler in logger.handlers:
+                handler.removeFilter(disabler)
+
+
 class LogCollector(object):
     def __init__(self):
         # type: () -> None
@@ -330,7 +351,10 @@ class WarningIsErrorFilter(logging.Filter):
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
-        if self.app.warningiserror:
+        if getattr(record, 'skip_warningsiserror', False):
+            # disabled by DisableWarningIsErrorFilter
+            return True
+        elif self.app.warningiserror:
             location = getattr(record, 'location', '')
             if location:
                 raise SphinxWarning(location + ":" + record.msg % record.args)
@@ -338,6 +362,15 @@ class WarningIsErrorFilter(logging.Filter):
                 raise SphinxWarning(record.msg % record.args)
         else:
             return True
+
+
+class DisableWarningIsErrorFilter(logging.Filter):
+    """Disable WarningIsErrorFilter if this filter installed."""
+
+    def filter(self, record):
+        # type: (logging.LogRecord) -> bool
+        record.skip_warningsiserror = True  # type: ignore
+        return True
 
 
 class WarningLogRecordTranslator(logging.Filter):

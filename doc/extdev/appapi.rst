@@ -454,6 +454,28 @@ The application object also provides support for emitting leveled messages.
 .. automethod:: Sphinx.debug2
 
 
+Sphinx runtime information
+--------------------------
+
+The application object also provides runtime information as attributes.
+
+.. attribute:: srcdir
+
+   Source directory.
+
+.. attribute:: confdir
+
+   Directory containing ``conf.py``.
+
+.. attribute:: doctreedir
+
+   Directory for storing pickled doctrees.
+
+.. attribute:: outdir
+
+   Directory for storing built document.
+
+
 .. _events:
 
 Sphinx core events
