@@ -19,10 +19,6 @@ Build environment API
 
       Source directory.
 
-   .. attribute:: confdir
-
-      Directory containing ``conf.py``.
-
    .. attribute:: doctreedir
 
       Directory for storing pickled doctrees.

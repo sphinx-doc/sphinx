@@ -79,8 +79,14 @@ Deprecated
 Features added
 --------------
 
+* #3926: Add ``autodoc_warningiserror`` to suppress the behavior of ``-W``
+  option during importing target modules on autodoc
+
 Bugs fixed
 ----------
+
+* #3924: docname lost after dynamically parsing RST in extension
+* #3946: Typo in sphinx.sty (this was a bug with no effect in default context)
 
 Testing
 --------
