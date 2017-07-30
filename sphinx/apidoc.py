@@ -205,17 +205,18 @@ def recurse_tree(rootpath, excludes, opts):
     Look for every file in the directory tree and create the corresponding
     ReST files.
     """
+    followlinks = getattr(opts, 'followlinks', False)
+    includeprivate = getattr(opts, 'includeprivate', False)
+    implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
+
     # check if the base directory is a package and get its name
-    if INITPY in os.listdir(rootpath):
+    if INITPY in os.listdir(rootpath) or implicit_namespaces:
         root_package = rootpath.split(path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
         root_package = None
 
     toplevels = []
-    followlinks = getattr(opts, 'followlinks', False)
-    includeprivate = getattr(opts, 'includeprivate', False)
-    implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
     for root, subs, files in walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
