@@ -46,7 +46,7 @@ def test_sectioning(app, status, warning):
 
     app.builder.build(['only'])
     doctree = app.env.get_doctree('only')
-    process_only_nodes(doctree, app.builder.tags)
+    app.env.apply_post_transforms(doctree, 'only')
 
     parts = [getsects(n)
              for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]]

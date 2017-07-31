@@ -605,7 +605,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' ' + pagename, nonl=1)
+            logger.info(' ' + pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         # the search page
@@ -1188,7 +1188,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' ' + pagename, nonl=1)
+            logger.info(' ' + pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:

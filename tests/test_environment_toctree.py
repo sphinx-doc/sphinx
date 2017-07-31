@@ -14,6 +14,7 @@ from docutils.nodes import bullet_list, list_item, caption, comment, reference
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.toctree import TocTree
 import pytest
 
 from sphinx.testing.util import assert_node
@@ -138,7 +139,7 @@ def test_glob(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toc_for(app):
     app.build()
-    toctree = app.env.get_toc_for('index', app.builder)
+    toctree = TocTree(app.env).get_toc_for('index', app.builder)
 
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
@@ -165,7 +166,7 @@ def test_get_toc_for(app):
 def test_get_toc_for_only(app):
     app.build()
     builder = StandaloneHTMLBuilder(app)
-    toctree = app.env.get_toc_for('index', builder)
+    toctree = TocTree(app.env).get_toc_for('index', builder)
 
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
@@ -194,7 +195,7 @@ def test_get_toc_for_only(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toc_for_tocdepth(app):
     app.build()
-    toctree = app.env.get_toc_for('tocdepth', app.builder)
+    toctree = TocTree(app.env).get_toc_for('tocdepth', app.builder)
 
     assert_node(toctree,
                 [bullet_list, list_item, (compact_paragraph,  # [0][0]
@@ -209,7 +210,7 @@ def test_get_toc_for_tocdepth(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toctree_for(app):
     app.build()
-    toctree = app.env.get_toctree_for('index', app.builder, collapse=False)
+    toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
                                      bullet_list,
@@ -246,7 +247,7 @@ def test_get_toctree_for(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toctree_for_collapse(app):
     app.build()
-    toctree = app.env.get_toctree_for('index', app.builder, collapse=True)
+    toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=True)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
                                      bullet_list,
@@ -274,7 +275,7 @@ def test_get_toctree_for_collapse(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toctree_for_maxdepth(app):
     app.build()
-    toctree = app.env.get_toctree_for('index', app.builder, collapse=False, maxdepth=3)
+    toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False, maxdepth=3)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
                                      bullet_list,
@@ -316,8 +317,8 @@ def test_get_toctree_for_maxdepth(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toctree_for_includehidden(app):
     app.build()
-    toctree = app.env.get_toctree_for('index', app.builder, collapse=False,
-                                      includehidden=False)
+    toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False,
+                                               includehidden=False)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
                                      bullet_list,
