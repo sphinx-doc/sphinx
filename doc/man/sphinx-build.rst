@@ -103,9 +103,13 @@ Options
 
    **latexpdfja**
      Build LaTeX files and run them through :program:`platex/dvipdfmx`.
+     We recommend using ``latexpdf`` instead.
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
+
+   .. important::
+     Sphinx only recognizes the ``-M`` option if it is placed first.
 
    .. versionadded:: 1.2.1
 
