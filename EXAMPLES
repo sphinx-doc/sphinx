@@ -25,6 +25,7 @@ Documentation using the alabaster theme
 * Invoke: http://docs.pyinvoke.org/
 * Jinja: http://jinja.pocoo.org/docs/
 * Lino: http://www.lino-framework.org/ (customized)
+* marbl: https://getmarbl.readthedocs.io/
 * MDAnalysis: http://www.mdanalysis.org/docs/ (customized)
 * MeshPy: https://documen.tician.de/meshpy/
 * PyCUDA: https://documen.tician.de/pycuda/
@@ -34,6 +35,7 @@ Documentation using the alabaster theme
 * python-apt: https://apt.alioth.debian.org/python-apt-doc/
 * PyVisfile: https://documen.tician.de/pyvisfile/
 * Tablib: http://docs.python-tablib.org/
+* urllib3: https://urllib3.readthedocs.io/ (customized)
 * Werkzeug: http://werkzeug.pocoo.org/docs/ (customized)
 
 Documentation using the classic theme
@@ -45,6 +47,7 @@ Documentation using the classic theme
 * Arb: http://arblib.org/
 * Bazaar: http://doc.bazaar.canonical.com/ (customized)
 * Blender: https://docs.blender.org/api/current/
+* Bugzilla: https://bugzilla.readthedocs.io/
 * Buildbot: https://docs.buildbot.net/latest/
 * CMake: https://cmake.org/documentation/ (customized)
 * Chaco: http://docs.enthought.com/chaco/ (customized)
@@ -65,6 +68,7 @@ Documentation using the classic theme
 * Leo: http://leoeditor.com/
 * LEPL: http://www.acooke.org/lepl/ (customized)
 * Mayavi: http://docs.enthought.com/mayavi/mayavi/ (customized)
+* MediaGoblin: https://mediagoblin.readthedocs.io/ (customized)
 * mpmath: http://mpmath.org/doc/current/
 * OpenCV: http://docs.opencv.org/ (customized)
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
@@ -97,6 +101,7 @@ Documentation using the sphinxdoc theme
 ---------------------------------------
 
 * cartopy: http://scitools.org.uk/cartopy/docs/latest/
+* Jython: http://www.jython.org/docs/
 * Matplotlib: https://matplotlib.org/
 * MDAnalysis Tutorial: http://www.mdanalysis.org/MDAnalysisTutorial/
 * NetworkX: https://networkx.github.io/
@@ -141,24 +146,26 @@ Documentation using sphinx_rtd_theme
 ------------------------------------
 
 * Annotator: http://docs.annotatorjs.org/
-* ANNOVAR: http://annovar.openbioinformatics.org/
 * Ansible: https://docs.ansible.com/ (customized)
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * Autofac: http://docs.autofac.org/
 * BigchainDB: https://docs.bigchaindb.com/
+* bootstrap-datepicker: https://bootstrap-datepicker.readthedocs.io/
 * Certbot: https://letsencrypt.readthedocs.io/
 * CherryPy: http://docs.cherrypy.org/
 * Chainer: https://docs.chainer.org/
 * CodeIgniter: https://www.codeigniter.com/user_guide/
+* Conda: https://conda.io/docs/
 * Corda: https://docs.corda.net/
 * Dask: https://dask.pydata.org/
+* Databricks: https://docs.databricks.com/ (customized)
 * Dataiku DSS: https://doc.dataiku.com/
-* Drush: http://www.drush.org/
 * edX: http://docs.edx.org/
 * Electrum: http://docs.electrum.org/
 * Elemental: http://libelemental.org/documentation/dev/
 * ESWP3: https://eswp3.readthedocs.io/
 * Ethereum Homestead: http://www.ethdocs.org/
+* Fidimag: https://fidimag.readthedocs.io/
 * Flake8: http://flake8.pycqa.org/
 * GeoNode: http://docs.geonode.org/
 * Godot: https://godot.readthedocs.io/
@@ -170,9 +177,10 @@ Documentation using sphinx_rtd_theme
 * IdentityServer: http://docs.identityserver.io/
 * Idris: http://docs.idris-lang.org/
 * javasphinx: https://bronto-javasphinx.readthedocs.io/
-* Kalabox: http://docs.kalabox.io/
+* Julia: https://julia.readthedocs.io/
 * Linguistica: https://linguistica-uchicago.github.io/lxa5/
 * MathJax: https://docs.mathjax.org/
+* MDTraj: http://mdtraj.org/latest/ (customized)
 * MICrobial Community Analysis (micca): http://micca.org/docs/latest/
 * MicroPython: https://docs.micropython.org/
 * Mink: http://mink.behat.org/
@@ -183,6 +191,7 @@ Documentation using sphinx_rtd_theme
 * Nextflow: https://www.nextflow.io/docs/latest/index.html
 * NICOS: https://forge.frm2.tum.de/nicos/doc/nicos-master/ (customized)
 * Pelican: http://docs.getpelican.com/
+* picamera: https://picamera.readthedocs.io/
 * Pillow: https://pillow.readthedocs.io/
 * pip: https://pip.pypa.io/
 * Paver: https://paver.readthedocs.io/
@@ -190,7 +199,9 @@ Documentation using sphinx_rtd_theme
 * Phinx: http://docs.phinx.org/
 * phpMyAdmin: https://docs.phpmyadmin.net/
 * Pweave: http://mpastell.com/pweave/
+* PyPy: http://doc.pypy.org/
 * python-sqlparse: https://sqlparse.readthedocs.io/
+* PyVISA: https://pyvisa.readthedocs.io/
 * Read The Docs: https://docs.readthedocs.io/
 * Free your information from their silos (French):
   http://redaction-technique.org/ (customized)
@@ -201,6 +212,7 @@ Documentation using sphinx_rtd_theme
 * Scapy: https://scapy.readthedocs.io/
 * SimPy: http://simpy.readthedocs.io/
 * SlamData: http://docs.slamdata.com/
+* Solidity: https://solidity.readthedocs.io/
 * Sonos Controller (SoCo): http://docs.python-soco.com/
 * Sphinx AutoAPI: https://sphinx-autoapi.readthedocs.io/
 * sphinx-argparse: https://sphinx-argparse.readthedocs.io/
@@ -217,6 +229,7 @@ Documentation using sphinx_rtd_theme
 * Wagtail: http://docs.wagtail.io/
 * Web Application Attack and Audit Framework (w3af): http://docs.w3af.org/
 * Weblate: https://docs.weblate.org/
+* x265: https://x265.readthedocs.io/
 
 Documentation using sphinx_bootstrap_theme
 ------------------------------------------
@@ -237,6 +250,7 @@ Documentation using a custom theme or integrated in a website
 
 * Apache Cassandra: https://cassandra.apache.org/doc/
 * Astropy: http://docs.astropy.org/
+* Boto 3: https://boto3.readthedocs.io/
 * CakePHP: https://book.cakephp.org/
 * CasperJS: http://docs.casperjs.org/
 * Ceph: http://docs.ceph.com/docs/master/
@@ -304,6 +318,7 @@ Homepages and other non-documentation sites
   https://lab.miletic.net/ (sphinx_rtd_theme)
 * Loyola University Chicago COMP 339-439 Distributed Systems course:
   http://books.cs.luc.edu/distributedsystems/ (sphinx_bootstrap_theme)
+* SciPy Cookbook: https://scipy-cookbook.readthedocs.io/ (sphinx_rtd_theme)
 * The Wine Cellar Book: https://www.thewinecellarbook.com/doc/en/ (sphinxdoc)
 * Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials:
   http://thomas-cokelaer.info/tutorials/ (standard)
