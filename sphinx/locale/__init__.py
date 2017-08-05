@@ -227,29 +227,35 @@ pairindextypes = {
 translators = {}  # type: Dict[unicode, Any]
 
 if PY3:
-    def _(message):
+    def _(message, *args):
         # type: (unicode) -> unicode
         try:
-            return translators['sphinx'].gettext(message)
+            if len(args) <= 1:
+                return translators['sphinx'].gettext(message)
+            else:  # support pluralization
+                return translators['sphinx'].ngettext(message, args[0], args[1])
         except KeyError:
             return message
 else:
-    def _(message):
+    def _(message, *args):
         # type: (unicode) -> unicode
         try:
-            return translators['sphinx'].ugettext(message)
+            if len(args) <= 1:
+                return translators['sphinx'].ugettext(message)
+            else:  # support pluralization
+                return translators['sphinx'].ungettext(message, args[0], args[1])
         except KeyError:
             return message
 
 
-def __(message):
+def __(message, *args):
     # type: (unicode) -> unicode
     """A dummy wrapper to i18n'ize exceptions and command line messages.
 
     In future, the messages are translated using LC_MESSAGES or any other
     locale settings.
     """
-    return message
+    return message if len(args) <= 1 else args[0]
 
 
 def init(locale_dirs, language, catalog='sphinx'):
