@@ -205,17 +205,18 @@ def recurse_tree(rootpath, excludes, opts):
     Look for every file in the directory tree and create the corresponding
     ReST files.
     """
+    followlinks = getattr(opts, 'followlinks', False)
+    includeprivate = getattr(opts, 'includeprivate', False)
+    implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
+
     # check if the base directory is a package and get its name
-    if INITPY in os.listdir(rootpath):
+    if INITPY in os.listdir(rootpath) or implicit_namespaces:
         root_package = rootpath.split(path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
         root_package = None
 
     toplevels = []
-    followlinks = getattr(opts, 'followlinks', False)
-    includeprivate = getattr(opts, 'includeprivate', False)
-    implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
     for root, subs, files in walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
@@ -282,7 +283,7 @@ def is_excluded(root, excludes):
     return False
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Parse and check the command line arguments."""
     parser = optparse.OptionParser(
@@ -356,7 +357,7 @@ Note: By default this script will not overwrite already created files.""")
                          dest='ext_' + ext, default=False,
                          help='enable %s extension' % ext)
 
-    (opts, args) = parser.parse_args(argv[1:])
+    (opts, args) = parser.parse_args(argv)
 
     if opts.show_version:
         print('Sphinx (sphinx-apidoc) %s' % __display_version__)

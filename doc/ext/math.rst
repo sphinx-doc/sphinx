@@ -37,6 +37,13 @@ or use Python raw strings (``r"raw"``).
    Set this option to ``True`` if you want all displayed math to be numbered.
    The default is ``False``.
 
+.. confval:: math_eqref_format
+
+   A string that are used for format of label of references to equations.
+   As a special character, ``{number}`` will be replaced to equaition number.
+
+   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math

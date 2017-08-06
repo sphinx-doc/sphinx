@@ -133,8 +133,9 @@ class Theme(object):
 
         for option, value in iteritems(overrides):
             if option not in options:
-                raise ThemeError('unsupported theme option %r given' % option)
-            options[option] = value
+                logger.warning('unsupported theme option %r given' % option)
+            else:
+                options[option] = value
 
         return options
 

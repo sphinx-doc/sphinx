@@ -432,7 +432,7 @@ var cssHelper = function () {
 				oss[n][oss[n].length] = r;
 			}
 		};
-		for (i = 0; i < ors.length; i++) {
+		for (var i = 0; i < ors.length; i++) {
 			collectSelectors(ors[i]);
 		}
 

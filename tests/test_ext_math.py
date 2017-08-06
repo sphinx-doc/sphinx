@@ -12,7 +12,6 @@
 import re
 
 import pytest
-from sphinx.testing.util import SkipTest
 
 
 @pytest.mark.sphinx(
@@ -40,9 +39,9 @@ def test_jsmath(app, status, warning):
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        raise pytest.skip.Exception('LaTeX command "latex" is not available')
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise SkipTest('dvipng command "dvipng" is not available')
+        raise pytest.skip.Exception('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
@@ -56,9 +55,9 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        raise pytest.skip.Exception('LaTeX command "latex" is not available')
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise SkipTest('dvisvgm command "dvisvgm" is not available')
+        raise pytest.skip.Exception('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
@@ -116,4 +115,27 @@ def test_math_number_all_latex(app, status, warning):
     assert re.search(macro, content, re.S)
 
     macro = r'Referencing equation \\eqref{equation:math:foo}.'
+    assert re.search(macro, content, re.S)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'math_eqref_format': 'Eq.{number}'})
+def test_math_eqref_format_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'math.html').text()
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">Eq.1</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('latex', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'math_eqref_format': 'Eq.{number}'})
+def test_math_eqref_format_latex(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'test.tex').text()
+    macro = r'Referencing equation Eq.\\ref{equation:math:foo}.'
     assert re.search(macro, content, re.S)

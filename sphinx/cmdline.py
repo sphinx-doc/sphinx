@@ -114,7 +114,7 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
                   file=stderr)
 
 
-def main(argv):
+def main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
     parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
@@ -181,7 +181,7 @@ def main(argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args(list(argv[1:]))
+        opts, args = parser.parse_args(argv)
     except SystemExit as err:
         return err.code
 

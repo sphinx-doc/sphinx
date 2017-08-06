@@ -21,7 +21,6 @@ from html5lib import getTreeBuilder, HTMLParser
 
 from sphinx.util.docutils import is_html5_writer_available
 
-from sphinx.testing.util import skip_unless
 from test_build_html import flat_dict, tail_check, check_xpath
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
@@ -31,7 +30,7 @@ HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 etree_cache = {}
 
 
-@skip_unless(is_html5_writer_available())
+@pytest.mark.skipif(not is_html5_writer_available(), reason='HTML5 writer is not available')
 @pytest.fixture(scope='module')
 def cached_etree_parse():
     def parse(fname):
@@ -46,7 +45,7 @@ def cached_etree_parse():
     etree_cache.clear()
 
 
-@skip_unless(is_html5_writer_available())
+@pytest.mark.skipif(not is_html5_writer_available(), reason='HTML5 writer is not available')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),

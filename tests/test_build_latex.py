@@ -24,7 +24,7 @@ from sphinx.util.osutil import cd, ensuredir
 from sphinx.util import docutils
 from sphinx.writers.latex import LaTeXTranslator
 
-from sphinx.testing.util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
+from sphinx.testing.util import remove_unicode_literals, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -77,7 +77,7 @@ def compile_latex_document(app):
                        'SphinxTests.tex'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:  # most likely the latex executable was not found
-            raise SkipTest
+            raise pytest.skip.Exception
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -90,7 +90,7 @@ def compile_latex_document(app):
 def skip_if_requested(testfunc):
     if 'SKIP_LATEX_BUILD' in os.environ:
         msg = 'Skip LaTeX builds because SKIP_LATEX_BUILD is set'
-        return skip_if(True, msg)(testfunc)
+        return pytest.mark.skipif(True, reason=msg)(testfunc)
     else:
         return testfunc
 
@@ -98,7 +98,7 @@ def skip_if_requested(testfunc):
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
         msg = 'not running latex, the required styles do not seem to be installed'
-        return skip_if(True, msg)(testfunc)
+        return pytest.mark.skipif(True, reason=msg)(testfunc)
     else:
         return testfunc
 
@@ -542,8 +542,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('&\nThis is one more footnote with some code in it %\n'
             '\\begin{footnote}[10]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result
-    assert ('\\end{sphinxVerbatim}\n\\let\\sphinxVerbatimTitle\\empty\n'
-            '\\let\\sphinxLiteralBlockLabel\\empty\n%\n\\end{footnote}.\n') in result
+    assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 

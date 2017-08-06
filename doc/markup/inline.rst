@@ -145,9 +145,14 @@ Cross-referencing arbitrary locations
      The same works for tables that are given an explicit caption using the
      :dudir:`table` directive.
 
-   * Labels that aren't placed before a section title can still be referenced
-     to, but you must give the link an explicit title, using this syntax:
+   * Labels that aren't placed before a section title can still be referenced,
+     but you must give the link an explicit title, using this syntax:
      ``:ref:`Link title <label-name>```.
+
+   .. note::
+
+      Reference labels must start with an underscore. When referencing a
+      label, the underscore must be omitted (see examples above).
 
    Using :rst:role:`ref` is advised over standard reStructuredText links to
    sections (like ```Section title`_``) because it works across files, when

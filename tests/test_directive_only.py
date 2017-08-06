@@ -12,7 +12,6 @@
 import re
 
 from docutils import nodes
-from sphinx.util.nodes import process_only_nodes
 import pytest
 
 

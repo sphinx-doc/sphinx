@@ -120,7 +120,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
-    {%- if use_meta_charset %}
+    {%- if use_meta_charset or html5_doctype %}
     <meta charset="{{ encoding }}" />
     {%- else %}
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />

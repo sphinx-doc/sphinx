@@ -48,7 +48,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -677,13 +677,6 @@ class BuildEnvironment(object):
         language = self.config.language or 'en'
         self.settings['language_code'] = language
         self.settings['smart_quotes'] = True
-        if self.config.html_use_smartypants is not None:
-            warnings.warn("html_use_smartypants option is deprecated. Smart "
-                          "quotes are on by default; if you want to disable "
-                          "or customize them, use the smart_quotes option in "
-                          "docutils.conf.",
-                          RemovedInSphinx17Warning)
-            self.settings['smart_quotes'] = self.config.html_use_smartypants
         for tag in normalize_language_tag(language):
             if tag in smartchars.quotes:
                 break
@@ -785,24 +778,6 @@ class BuildEnvironment(object):
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
 
-    @property
-    def currmodule(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currmodule is deprecated. '
-                      'Use env.ref_context["py:module"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:module')
-
-    @property
-    def currclass(self):
-        # type: () -> None
-        """Backwards compatible alias.  Will be removed."""
-        warnings.warn('env.currclass is deprecated. '
-                      'Use env.ref_context["py:class"] instead.',
-                      RemovedInSphinx17Warning)
-        return self.ref_context.get('py:class')
-
     def new_serialno(self, category=''):
         # type: (unicode) -> int
         """Return a serial number, e.g. for index entry targets.
@@ -854,7 +829,7 @@ class BuildEnvironment(object):
         file relations from it.
         """
         warnings.warn('env.note_toctree() is deprecated. '
-                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      'Use sphinx.environment.adapters.toctree.TocTree instead.',
                       RemovedInSphinx20Warning)
         TocTree(self).note(docname, toctreenode)
 

@@ -167,11 +167,6 @@ html_static_path = ['_static']
 #
 # html_last_updated_fmt = None
 
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-#
-# html_use_smartypants = True
-
 # Custom sidebar templates, maps document names to template names.
 #
 # html_sidebars = {}
@@ -279,12 +274,6 @@ latex_documents = [
 # Documents to append as an appendix to all manuals.
 #
 # latex_appendices = []
-
-# If false, will not define \strong, \code, \titleref, \crossref ... but only
-# \sphinxstrong, ..., \sphinxtitleref, ... to help avoid clash with user added
-# packages.
-#
-# latex_keep_old_macro_names = True
 
 # If false, no module index is generated.
 #

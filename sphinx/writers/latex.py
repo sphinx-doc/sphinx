@@ -57,7 +57,7 @@ DEFAULT_SETTINGS = {
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
-    'sphinxpkgoptions':     'dontkeepoldnames',
+    'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
@@ -562,8 +562,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements.update({
                 'releasename':  _('Release'),
             })
-        if builder.config.latex_keep_old_macro_names:
-            self.elements['sphinxpkgoptions'] = ''
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -1473,8 +1471,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
-                self.body.append('\\sphinxstylethead{\\sphinxstyletheadfamily ')
-                context = '\\unskip}\\relax ' + context
+                self.body.append('\\sphinxstyletheadfamily ')
         if self.needs_linetrimming:
             self.pushbody([])
         self.context.append(context)
@@ -2300,8 +2297,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 hlcode += '\\end{sphinxVerbatim}'
             self.body.append('\n' + hlcode + '\n')
-            if ids:
-                self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
@@ -2504,8 +2499,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if node.get('literal_block'):
             self.in_container_literal_block -= 1
-            self.body.append('\\let\\sphinxVerbatimTitle\\empty\n')
-            self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
 
     def visit_decoration(self, node):
         # type: (nodes.Node) -> None

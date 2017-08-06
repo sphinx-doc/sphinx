@@ -177,11 +177,11 @@ class PyObject(ObjectDescription):
         PyTypedField('parameter', label=l_('Parameters'),
                      names=('param', 'parameter', 'arg', 'argument',
                             'keyword', 'kwarg', 'kwparam'),
-                     typerolename='obj', typenames=('paramtype', 'type'),
+                     typerolename='class', typenames=('paramtype', 'type'),
                      can_collapse=True),
         PyTypedField('variable', label=l_('Variables'), rolename='obj',
                      names=('var', 'ivar', 'cvar'),
-                     typerolename='obj', typenames=('vartype',),
+                     typerolename='class', typenames=('vartype',),
                      can_collapse=True),
         PyGroupedField('exceptions', label=l_('Raises'), rolename='exc',
                        names=('raises', 'raise', 'exception', 'except'),
@@ -189,7 +189,7 @@ class PyObject(ObjectDescription):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
         PyField('returntype', label=l_('Return type'), has_arg=False,
-                names=('rtype',), bodyrolename='obj'),
+                names=('rtype',), bodyrolename='class'),
     ]
 
     allow_nesting = False
@@ -833,7 +833,7 @@ class PythonDomain(Domain):
         elif len(matches) > 1:
             logger.warning('more than one target found for cross-reference %r: %s',
                            target, ', '.join(match[0] for match in matches),
-                           location=node)
+                           type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

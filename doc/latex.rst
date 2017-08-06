@@ -189,14 +189,25 @@ The available styling options
     default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
     contents should wrap.
 
+``literalblockcappos``
+    default ``t`` for "top". Decides the caption position. Alternative is
+    ``b`` ("bottom").
+
+    .. versionadded:: 1.7
+
 ``verbatimhintsturnover``
-    default ``false``. If ``true``, code-blocks display "continued on next
+    default ``true``. If ``true``, code-blocks display "continued on next
     page", "continued from previous page" hints in case of pagebreaks.
 
     .. versionadded:: 1.6.3
-       the default will change to ``true`` at 1.7 and horizontal positioning
-       of continuation hints (currently right aligned only) will be
-       customizable.
+    .. versionchanged:: 1.7
+       the default changed from ``false`` to ``true``.
+
+``verbatimcontinuedalign``, ``verbatimcontinuesalign``
+    default ``c``. Horizontal position relative to the framed contents:
+    either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
+
+    .. versionadded:: 1.7
 
 ``parsedliteralwraps``
     default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
@@ -350,26 +361,15 @@ Macros
 - text styling commands ``\sphinx<foo>`` with ``<foo>`` being one of
   ``strong``, ``bfcode``, ``email``, ``tablecontinued``, ``titleref``,
   ``menuselection``, ``accelerator``, ``crossref``, ``termref``, ``optional``.
-  The non-prefixed macros will still be defined if option
-  :confval:`latex_keep_old_macro_names` has been set to ``True`` (default is
-  ``False``), in which case the prefixed macros expand to the non-prefixed
-  ones.
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
-  .. versionchanged:: 1.6
-     The default value of :confval:`latex_keep_old_macro_names` changes to
-     ``False``, and even if set to ``True``, if a non-prefixed macro
-     already exists at ``sphinx.sty`` loading time, only the ``\sphinx``
-     prefixed one will be defined. The setting will be removed at 1.7.
-
 - more text styling: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
-  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``thead``,
-  ``theadfamily``, ``emphasis``, ``literalemphasis``, ``strong``,
-  ``literalstrong``, ``abbreviation``, ``literalintitle``, ``codecontinued``,
-  ``codecontinues``.
+  ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``theadfamily``,
+  ``emphasis``, ``literalemphasis``, ``strong``, ``literalstrong``,
+  ``abbreviation``, ``literalintitle``, ``codecontinued``, ``codecontinues``
 
   .. versionadded:: 1.5
      these macros were formerly hard-coded as non customizable ``\texttt``,
@@ -377,8 +377,6 @@ Macros
   .. versionadded:: 1.6
      ``\sphinxstyletheadfamily`` which defaults to ``\sffamily`` and allows
      multiple paragraphs in header cells of tables.
-  .. deprecated:: 1.6
-     macro ``\sphinxstylethead`` is deprecated at 1.6 and will be removed at 1.7.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 - by default the Sphinx style file ``sphinx.sty`` executes the command

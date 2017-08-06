@@ -34,13 +34,13 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '1.6.4+'
-__released__ = '1.6.4'  # used when Sphinx builds its own docs
+__version__ = '1.7+'
+__released__ = '1.7'  # used when Sphinx builds its own docs
 
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 6, 4, 'beta', 0)
+version_info = (1, 7, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -63,7 +63,7 @@ if __version__.endswith('+'):
         pass
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     if sys.argv[1:2] == ['-M']:
         return make_main(argv)
@@ -71,7 +71,7 @@ def main(argv=sys.argv):
         return build_main(argv)
 
 
-def build_main(argv=sys.argv):
+def build_main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
     if (sys.version_info[:3] < (2, 7, 0) or
@@ -113,12 +113,12 @@ def build_main(argv=sys.argv):
     return cmdline.main(argv)  # type: ignore
 
 
-def make_main(argv=sys.argv):
+def make_main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx import make_mode
-    return make_mode.run_make_mode(argv[2:])  # type: ignore
+    return make_mode.run_make_mode(argv[1:])  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv[1:]))

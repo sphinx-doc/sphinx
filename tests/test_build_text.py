@@ -8,11 +8,10 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pytest
 
 from docutils.utils import column_width
 from sphinx.writers.text import MAXWIDTH
-
-from sphinx.testing.util import with_app
 
 
 def with_text_app(*args, **kw):
@@ -21,7 +20,7 @@ def with_text_app(*args, **kw):
         'testroot': 'build-text',
     }
     default_kw.update(kw)
-    return with_app(*args, **default_kw)
+    return pytest.mark.sphinx(*args, **default_kw)
 
 
 @with_text_app()

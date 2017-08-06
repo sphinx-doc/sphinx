@@ -59,7 +59,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-def main(argv=sys.argv):
+def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
     p = optparse.OptionParser(usage.strip())
@@ -75,7 +75,7 @@ def main(argv=sys.argv):
     p.add_option("-i", "--imported-members", action="store_true",
                  dest="imported_members", default=False,
                  help="Document imported members (default: %default)")
-    options, args = p.parse_args(argv[1:])
+    options, args = p.parse_args(argv)
 
     if len(args) < 1:
         p.error('no input files given')

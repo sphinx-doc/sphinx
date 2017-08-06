@@ -73,8 +73,6 @@ class ChangesBuilder(Builder):
             ttext = self.typemap[type]
             context = content.replace('\n', ' ')
             if descname and docname.startswith('c-api'):
-                if not descname:
-                    continue
                 if context:
                     entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
                                                           context)

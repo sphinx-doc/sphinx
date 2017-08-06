@@ -36,7 +36,7 @@ configuration values from a few questions it asks you.  Just run ::
 and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
 
 There is also an automatic "API documentation" generator called
-:program:`sphinx-apidoc`; see :ref:`invocation-apidoc` for details.
+:program:`sphinx-apidoc`; see :doc:`/man/sphinx-apidoc` for details.
 
 
 Defining document structure
@@ -126,8 +126,8 @@ directory in which you want to place the built documentation.
 The :option:`-b <sphinx-build -b>` option selects a builder; in this example
 Sphinx will build HTML files.
 
-|more| See :ref:`invocation` for all options that :program:`sphinx-build`
-supports.
+|more| Refer to the :program:`sphinx-build man page <sphinx-build>` for all
+options that :program:`sphinx-build` supports.
 
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you:  with them you only need
@@ -317,8 +317,8 @@ More topics to be covered
 .. rubric:: Footnotes
 
 .. [#] This is the usual layout.  However, :file:`conf.py` can also live in
-       another directory, the :term:`configuration directory`.  See
-       :ref:`invocation`.
+       another directory, the :term:`configuration directory`.  Refer to the
+       :program:`sphinx-build man page <sphinx-build>` for more information.
 
 .. |more| image:: more.png
           :align: middle

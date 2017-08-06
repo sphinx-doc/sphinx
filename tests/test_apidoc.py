@@ -25,7 +25,7 @@ def apidoc(rootdir, tempdir, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tempdir / 'out'
-    args = ['sphinx-apidoc', '-o', outdir, '-F', coderoot] + kwargs.get('options', [])
+    args = ['-o', outdir, '-F', coderoot] + kwargs.get('options', [])
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 
@@ -60,7 +60,7 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420',
+    coderoot='test-apidoc-pep420/a',
     options=["--implicit-namespaces"],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -97,7 +97,7 @@ def test_pep_0420_enabled(make_app, apidoc):
         assert "a.b.x namespace\n" in txt
 
 
-@pytest.mark.apidoc(coderoot='test-apidoc-pep420')
+@pytest.mark.apidoc(coderoot='test-apidoc-pep420/a')
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()

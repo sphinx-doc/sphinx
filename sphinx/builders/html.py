@@ -1357,7 +1357,6 @@ def setup(app):
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
-    app.add_config_value('html_use_smartypants', None, 'html')
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])

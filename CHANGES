@@ -1,3 +1,73 @@
+Release 1.7 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* #3668: The arguments has changed of main functions for each command
+* #3893: Unknown html_theme_options throw warnings instead of errors
+* #3927: Python parameter/variable types should match classes, not all objects
+* #3962: sphinx-apidoc now recognizes given directory as an implicit namespace
+  package when ``--implicit-namespaces`` option given, not subdirectories of
+  given directory.
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* C++, handle ``decltype(auto)``.
+* #2406: C++, add proper parsing of expressions, including linking of identifiers.
+* C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
+* #3638: Allow to change a label of reference to equation using
+  ``math_eqref_format``
+
+* Now :confval:`suppress_warnings` accepts following configurations:
+
+  - ``ref.python`` (ref: #3866)
+* #3872: Add latex key to configure literal blocks caption position in PDF
+  output (refs #3792, #1723)
+
+
+Features removed
+----------------
+
+* Configuration variables
+
+  - html_use_smartypants
+  - latex_keep_old_macro_names
+  - latex_elements['footer']
+
+* utility methods of ``sphinx.application.Sphinx`` class
+
+  - buildername (property)
+  - _display_chunk()
+  - old_status_iterator()
+  - status_iterator()
+  - _directive_helper()
+
+* utility methods of ``sphinx.environment.BuildEnvironment`` class
+
+  - currmodule (property)
+  - currclass (property)
+
+* epub2 builder
+* prefix and colorfunc parameter for warn()
+* ``sphinx.util.compat`` module
+* ``sphinx.util.nodes.process_only_nodes()``
+* LaTeX environment ``notice``, use ``sphinxadmonition`` instead
+* LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
+
+Bugs fixed
+----------
+
+* #3882: Update the order of files for HTMLHelp and QTHelp
+* #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
+
+Testing
+--------
+
 Release 1.6.4 (in development)
 ==============================
 
