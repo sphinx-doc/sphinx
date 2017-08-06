@@ -171,9 +171,15 @@ These themes are:
   - **bodyfont** (CSS font-family): Font for normal text.
   - **headfont** (CSS font-family): Font for headings.
 
-* **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
-  on the right side.  There are currently no options beyond *nosidebar* and
-  *sidebarwidth*.
+* **sphinxdoc** -- The theme originally used by this documentation. It features
+  a sidebar on the right side. There are currently no options beyond
+  *nosidebar* and *sidebarwidth*.
+
+  .. note::
+
+    The Sphinx documentation now uses
+    `an adjusted version of the sphinxdoc theme
+    <https://github.com/sphinx-doc/sphinx/tree/master/doc/_themes/sphinx13>`_.
 
 * **scrolls** -- A more lightweight theme, based on `the Jinja documentation
   <http://jinja.pocoo.org/>`_.  The following color options are available:
