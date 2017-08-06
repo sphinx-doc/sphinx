@@ -228,7 +228,7 @@ translators = {}  # type: Dict[unicode, Any]
 
 if PY3:
     def _(message, *args):
-        # type: (unicode) -> unicode
+        # type: (unicode, *Any) -> unicode
         try:
             if len(args) <= 1:
                 return translators['sphinx'].gettext(message)
@@ -238,7 +238,7 @@ if PY3:
             return message
 else:
     def _(message, *args):
-        # type: (unicode) -> unicode
+        # type: (unicode, *Any) -> unicode
         try:
             if len(args) <= 1:
                 return translators['sphinx'].ugettext(message)
@@ -249,7 +249,7 @@ else:
 
 
 def __(message, *args):
-    # type: (unicode) -> unicode
+    # type: (unicode, *Any) -> unicode
     """A dummy wrapper to i18n'ize exceptions and command line messages.
 
     In future, the messages are translated using LC_MESSAGES or any other
