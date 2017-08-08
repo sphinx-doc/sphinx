@@ -237,7 +237,7 @@ Additionally, the following filters are available
 .. function:: escape(s)
 
    Escape any special characters in the text to be used in formatting RST
-   contexts. For instance, this prevents asterisks making things bolt. This
+   contexts. For instance, this prevents asterisks making things bold. This
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
