@@ -58,6 +58,7 @@ if False:
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
+    'sphinx.builders.asciidoc',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
     'sphinx.builders.devhelp',
