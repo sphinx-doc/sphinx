@@ -332,9 +332,9 @@ class Sphinx(object):
             status = (self.statuscode == 0 and
                       __('succeeded') or __('finished with problems'))
             if self._warncount:
-                logger.info(bold(__('build %s, %s warning%s.') %
-                                 (status, self._warncount,
-                                  self._warncount != 1 and 's' or '')))
+                logger.info(bold(__('build %s, %s warning.',
+                            'build %s, %s warnings.', self._warncount) %
+                                 (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
         except Exception as err:
