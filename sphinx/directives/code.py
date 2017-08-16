@@ -311,11 +311,11 @@ class LiteralIncludeReader(object):
                             self.lineno_start += lineno
 
                         return lines[lineno:]
+
+            if inclusive is True:
+                raise ValueError('start-after pattern not found: %s' % start)
             else:
-                if inclusive is True:
-                    raise ValueError('start-after pattern not found: %s' % start)
-                else:
-                    raise ValueError('start-at pattern not found: %s' % start)
+                raise ValueError('start-at pattern not found: %s' % start)
 
         return lines
 
@@ -340,11 +340,10 @@ class LiteralIncludeReader(object):
                             return []
                         else:
                             return lines[:lineno]
+            if inclusive is True:
+                raise ValueError('end-at pattern not found: %s' % end)
             else:
-                if inclusive is True:
-                    raise ValueError('end-at pattern not found: %s' % end)
-                else:
-                    raise ValueError('end-before pattern not found: %s' % end)
+                raise ValueError('end-before pattern not found: %s' % end)
 
         return lines
 

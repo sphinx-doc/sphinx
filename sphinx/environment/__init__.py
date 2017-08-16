@@ -354,9 +354,8 @@ class BuildEnvironment(object):
         for suffix in self.config.source_suffix:
             if fnmatch.fnmatch(filename, '*' + suffix):
                 return filename[:-len(suffix)]
-        else:
-            # the file does not have docname
-            return None
+        # the file does not have docname
+        return None
 
     def doc2path(self, docname, base=True, suffix=None):
         # type: (unicode, Union[bool, unicode], unicode) -> unicode
