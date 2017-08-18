@@ -35,7 +35,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumclass, isenumattribute
+    isenumclass, isenumattribute, getdoc
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -525,6 +525,8 @@ class Documenter(object):
         # type: (unicode, int) -> List[List[unicode]]
         """Decode and return lines of the docstring(s) for the object."""
         docstring = self.get_attr(self.object, '__doc__', None)
+        if docstring is None and self.env.config.autodoc_inherit_docstrings:
+            docstring = getdoc(self.object)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
         if isinstance(docstring, text_type):
@@ -682,6 +684,9 @@ class Documenter(object):
             isattr = False
 
             doc = self.get_attr(member, '__doc__', None)
+            if doc is None and self.env.config.autodoc_inherit_docstrings:
+                doc = getdoc(member)
+
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
             cls = self.get_attr(member, '__class__', None)
@@ -1617,6 +1622,7 @@ def setup(app):
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_warningiserror', True, True)
+    app.add_config_value('autodoc_inherit_docstrings', True, True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
