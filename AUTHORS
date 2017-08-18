@@ -57,7 +57,7 @@ Other contributors, listed alphabetically, are:
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
 * Taku Shimizu -- epub3 builder
-* Antonio Valentino -- qthelp builder
+* Antonio Valentino -- qthelp builder, docstring ingeritance
 * Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Stefan van der Walt -- autosummary extension

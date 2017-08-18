@@ -28,6 +28,7 @@ Features added
   - ``ref.python`` (ref: #3866)
 * #3872: Add latex key to configure literal blocks caption position in PDF
   output (refs #3792, #1723)
+* In case of missing docstring try to retrieve doc from base classes (ref: #3140)
 
 
 Features removed
