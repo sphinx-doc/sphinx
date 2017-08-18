@@ -65,7 +65,7 @@ var Stemmer = function() {
 }
 """                             # type: unicode
 
-    _word_re = re.compile(r'\w+(?u)')
+    _word_re = re.compile(r'(?u)\w+')
 
     def __init__(self, options):
         # type: (Dict) -> None

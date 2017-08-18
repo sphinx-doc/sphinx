@@ -294,7 +294,7 @@ logger = logging.getLogger(__name__)
 _integer_literal_re = re.compile(r'-?[1-9][0-9]*')
 _float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
 _identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
-_whitespace_re = re.compile(r'\s+(?u)')
+_whitespace_re = re.compile(r'(?u)\s+')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
