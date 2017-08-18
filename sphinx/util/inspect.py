@@ -491,7 +491,8 @@ else:
             name = obj.__func__.__name__
             self = obj.__self__
             if (inspect.isclass(self) and
-                getattr(getattr(self, name, None), '__func__') is obj.__func__):
+                    getattr(getattr(self, name, None), '__func__')
+                    is obj.__func__):
                 # classmethod
                 cls = self
             else:
@@ -505,7 +506,7 @@ else:
             name = obj.__name__
             self = obj.__self__
             if (inspect.isclass(self) and
-                self.__qualname__ + '.' + name == obj.__qualname__):
+                    self.__qualname__ + '.' + name == obj.__qualname__):
                 # classmethod
                 cls = self
             else:
