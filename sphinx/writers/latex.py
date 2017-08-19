@@ -883,11 +883,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def render(self, template_name, variables):
         # type: (unicode, Dict) -> unicode
-        template_path = path.join(self.builder.srcdir, '_templates', template_name)
-        if path.exists(template_path):
-            return LaTeXRenderer().render(template_path, variables)
-        else:
-            return LaTeXRenderer().render(template_name, variables)
+        for template_path in self.builder.config.templates_path:
+            template = path.join(template_path, template_name)
+            if path.exists(template):
+                return LaTeXRenderer().render(template, variables)
+
+        return LaTeXRenderer().render(template_name, variables)
 
     def visit_document(self, node):
         # type: (nodes.Node) -> None
