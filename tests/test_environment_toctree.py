@@ -275,7 +275,8 @@ def test_get_toctree_for_collapse(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_get_toctree_for_maxdepth(app):
     app.build()
-    toctree = TocTree(app.env).get_toctree_for('index', app.builder, collapse=False, maxdepth=3)
+    toctree = TocTree(app.env).get_toctree_for('index', app.builder,
+                                               collapse=False, maxdepth=3)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
                                      bullet_list,
