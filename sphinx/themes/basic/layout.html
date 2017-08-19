@@ -120,6 +120,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
+    {%- if not html5_doctype %}
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    {%- endif %}
     {%- if use_meta_charset or html5_doctype %}
     <meta charset="{{ encoding }}" />
     {%- else %}
