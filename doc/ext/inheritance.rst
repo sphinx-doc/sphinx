@@ -66,3 +66,13 @@ New config values are:
 .. confval:: inheritance_edge_attrs
 
    A dictionary of graphviz edge attributes for inheritance diagrams.
+
+.. confval:: inheritance_alias
+
+   Allows mapping the full qualified name of the class to custom values
+   (useful when exposing the underlying path of a class is not desirable,
+   e.g. it's a private class and should not be instantiated by the user).
+
+   For example::
+
+      inheritance_alias = {'_pytest.Magic': 'pytest.Magic'}
