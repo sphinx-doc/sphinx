@@ -32,8 +32,15 @@ For instance, from ``setup.py``::
             'build_sphinx': {
                 'project': ('setup.py', name),
                 'version': ('setup.py', version),
-                'release': ('setup.py', release)}},
+                'release': ('setup.py', release),
+                'source_dir': ('setup.py', 'doc')}},
     )
+
+.. note::
+
+    If you set Sphinx options directly in the ``setup()`` command, replace
+    hyphens in variable names with underscores. In the example above,
+    ``source-dir`` becomes ``source_dir``.
 
 Or add this section in ``setup.cfg``::
 
@@ -41,6 +48,7 @@ Or add this section in ``setup.cfg``::
     project = 'My project'
     version = 1.2
     release = 1.2.0
+    source-dir = 'doc'
 
 Once configured, call this by calling the relevant command on ``setup.py``::
 
