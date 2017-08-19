@@ -52,7 +52,6 @@ requires = [
     'imagesize',
     'requests>=2.0.0',
     'setuptools',
-    'sphinxcontrib-websupport',
 ]
 
 extras_require = {
@@ -64,6 +63,7 @@ extras_require = {
         'typing'
     ],
     'websupport': [
+        'sphinxcontrib-websupport',
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
     ],
