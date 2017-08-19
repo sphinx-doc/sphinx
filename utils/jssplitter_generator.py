@@ -5,9 +5,9 @@ import subprocess
 import sys
 import six
 
-# find char codes they are matched with Python's \\w(?u)
+# find char codes they are matched with Python's (?u)\\w
 
-match = re.compile(r'\w(?u)')
+match = re.compile(r'(?u)\w')
 begin = -1
 
 ranges = []

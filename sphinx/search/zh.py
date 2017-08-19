@@ -233,7 +233,7 @@ class SearchChinese(SearchLanguage):
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
-    latin1_letters = re.compile(r'\w+(?u)[\u0000-\u00ff]')
+    latin1_letters = re.compile(r'(?u)\w+[\u0000-\u00ff]')
 
     def init(self, options):
         # type: (Dict) -> None
