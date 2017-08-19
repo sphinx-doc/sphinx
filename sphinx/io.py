@@ -166,8 +166,7 @@ class SphinxFileInput(FileInput):
                     if isinstance(parser_class, string_types):
                         parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA
                     return parser_class.supported
-            else:
-                return ('restructuredtext',)
+            return ('restructuredtext',)
 
         data = FileInput.read(self)
         if self.app:
