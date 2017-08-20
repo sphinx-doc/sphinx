@@ -490,7 +490,7 @@ else:
                         return doc
             return None
 
-        if inspect.ismethod(obj) and getattr(obj, '__self__' , None):
+        if inspect.ismethod(obj) and getattr(obj, '__self__', None):
             name = obj.__func__.__name__
             self = obj.__self__
             if (inspect.isclass(self) and
