@@ -462,15 +462,18 @@ class Signature(object):
 if sys.version_info >= (3, 5):
     getdoc = inspect.getdoc
 else:
-    # code copyed from the inspect.py module of the standard library
+    # code copied from the inspect.py module of the standard library
     # of Python 3.5
 
     def _findclass(func):
         cls = sys.modules.get(func.__module__)
         if cls is None:
             return None
-        for name in func.__qualname__.split('.')[:-1]:
-            cls = getattr(cls, name)
+        if hasattr(func, 'im_class'):
+            cls = func.im_class
+        else:
+            for name in func.__qualname__.split('.')[:-1]:
+                cls = getattr(cls, name)
         if not inspect.isclass(cls):
             return None
         return cls
@@ -487,7 +490,7 @@ else:
                         return doc
             return None
 
-        if inspect.ismethod(obj):
+        if inspect.ismethod(obj) and getattr(obj, '__self__' , None):
             name = obj.__func__.__name__
             self = obj.__self__
             if (inspect.isclass(self) and
@@ -497,10 +500,10 @@ else:
                 cls = self
             else:
                 cls = self.__class__
-        elif inspect.isfunction(obj):
+        elif inspect.isfunction(obj) or inspect.ismethod(obj):
             name = obj.__name__
             cls = _findclass(obj)
-            if cls is None or getattr(cls, name) is not obj:
+            if cls is None or getattr(cls, name) != obj:
                 return None
         elif inspect.isbuiltin(obj):
             name = obj.__name__
