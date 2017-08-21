@@ -431,6 +431,13 @@ def test_get_doc():
     directive.env.config.autoclass_content = 'both'
     assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
 
+    # NOTE: inspect.getdoc seems not to work with locally defined classes
+    directive.env.config.autodoc_inherit_docstrings = False
+    assert getdocl('method', Base.inheritedmeth) == ['Inherited function.']
+    assert getdocl('method', Derived.inheritedmeth) == []
+    directive.env.config.autodoc_inherit_docstrings = True
+    assert getdocl('method', Derived.inheritedmeth) == ['Inherited function.']
+
 
 @pytest.mark.usefixtures('setup_test')
 def test_docstring_processing():
@@ -939,6 +946,12 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
+
+
+class Derived(Base):
+    def inheritedmeth(self):
+        # no docstring here
+        pass
 
 
 class Class(Base):
