@@ -18,6 +18,7 @@ include sphinx/locale/.tx/config
 
 recursive-include sphinx/templates *
 recursive-include sphinx/texinputs *
+recursive-include sphinx/texinputs_win *
 recursive-include sphinx/themes *
 recursive-include sphinx/pycode/pgen2 *.c *.pyx
 recursive-include sphinx/locale *.js *.pot *.po *.mo
