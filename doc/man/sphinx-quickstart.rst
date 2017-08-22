@@ -121,7 +121,7 @@ Options
 .. option:: --use-make-mode, --no-use-make-mode
 
    :file:`Makefile/make.bat` uses (or doesn't use) :ref:`make-mode <make_mode>`.
-   Default is `use`, which generates a more concise :file:`Makefile/make.bat`.
+   Default is ``use``, which generates a more concise :file:`Makefile/make.bat`.
 
    .. versionchanged:: 1.5
       make-mode is default.
