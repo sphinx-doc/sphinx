@@ -134,7 +134,8 @@ class ReferencesResolver(SphinxTransform):
         if not results:
             return None
         if len(results) > 1:
-            nice_results = ' or '.join(':%s:' % r[0] for r in results)
+            nice_results = ' or '.join(':%s:`%s`' % (name, role["reftitle"])
+                                       for name, role in results)
             logger.warning(__('more than one target found for \'any\' cross-'
                               'reference %r: could be %s'), target, nice_results,
                            location=node)
