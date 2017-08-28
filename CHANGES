@@ -29,6 +29,7 @@ Features added
 * #3872: Add latex key to configure literal blocks caption position in PDF
   output (refs #3792, #1723)
 * In case of missing docstring try to retrieve doc from base classes (ref: #3140)
+* #4023: Clarify error message when any role has more than one target.
 
 
 Features removed
