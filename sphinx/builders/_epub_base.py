@@ -12,8 +12,8 @@
 import os
 import re
 from os import path
+from sphinx.util.i18n import format_date
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
-from datetime import datetime
 from collections import namedtuple
 
 try:
@@ -486,7 +486,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
+        metadata['date'] = self.esc(format_date("%Y-%m-%d"))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []

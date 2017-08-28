@@ -11,7 +11,6 @@
 """
 
 from os import path
-from datetime import datetime
 from collections import namedtuple
 
 from sphinx import package_dir
@@ -19,6 +18,7 @@ from sphinx.config import string_classes, ENUM
 from sphinx.builders import _epub_base
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
 
 if False:
@@ -133,7 +133,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['contributor'] = self.esc(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['date'] = self.esc(format_date("%Y-%m-%dT%H:%M:%SZ"))
         metadata['version'] = self.esc(self.config.version)
         return metadata
 
