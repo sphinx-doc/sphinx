@@ -233,7 +233,7 @@ class SearchChinese(SearchLanguage):
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
-    latin1_letters = re.compile(r'(?u)\w+[\u0000-\u00ff]')
+    latin1_letters = re.compile(u'(?u)\\w+[\u0000-\u00ff]')
 
     def init(self, options):
         # type: (Dict) -> None
@@ -250,7 +250,7 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = self.latin1_letters.findall(input)  # type: ignore
+        latin1 = self.latin1_letters.findall(input)
         return chinese + latin1
 
     def word_filter(self, stemmed_word):
