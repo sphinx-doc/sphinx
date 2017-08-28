@@ -24,6 +24,7 @@ Bugs fixed
 * :pep: and :rfc: does not supports ``default-role`` directive (refs: #3960)
 * #3960: default_role = 'guilabel' not functioning
 * Missing ``texinputs_win/Makefile`` to be used in latexpdf builder on windows.
+* #4026: nature: Fix macOS Safari scrollbar color
 
 Testing
 --------
