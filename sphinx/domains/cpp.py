@@ -4816,12 +4816,12 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class': ObjType(l_('class'), 'class'),
-        'function': ObjType(l_('function'), 'func'),
-        'member': ObjType(l_('member'), 'member'),
-        'type': ObjType(l_('type'), 'type'),
-        'concept': ObjType(l_('concept'), 'concept'),
-        'enum': ObjType(l_('enum'), 'enum'),
+        'class':      ObjType(l_('class'),      'class',             'type', 'typeOrConcept'),
+        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'typeOrConcept'),
+        'member':     ObjType(l_('member'),     'member',    'var'),
+        'type':       ObjType(l_('type'),                            'type', 'typeOrConcept'),
+        'concept':    ObjType(l_('concept'),    'concept',                   'typeOrConcept'),
+        'enum':       ObjType(l_('enum'),       'enum',              'type', 'typeOrConcept'),
         'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
 
@@ -4955,16 +4955,10 @@ class CPPDomain(Domain):
                 return True
             if declTyp == 'templateParam':
                 return True
-            if typ == 'var' or typ == 'member':
-                return declTyp in ['var', 'member']
-            if typ in ['enum', 'enumerator', 'function', 'class', 'concept']:
-                return declTyp == typ
-            validForType = ['enum', 'class', 'function', 'type']
-            if typ == 'typeOrConcept':
-                return declTyp == 'concept' or declTyp in validForType
-            if typ == 'type':
-                return declTyp in validForType
-            print("Type is %s" % typ)
+            objtypes = self.objtypes_for_role(typ)
+            if objtypes and declTyp in objtypes:
+                return True
+            print("Type is %s, declType is %s" % (typ, declTyp))
             assert False
         if not checkType():
             warner.warn("cpp:%s targets a %s (%s)."
