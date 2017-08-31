@@ -25,6 +25,7 @@ Bugs fixed
 * #3960: default_role = 'guilabel' not functioning
 * Missing ``texinputs_win/Makefile`` to be used in latexpdf builder on windows.
 * #4026: nature: Fix macOS Safari scrollbar color
+* #3877: Fix for C++ multiline signatures.
 
 Testing
 --------

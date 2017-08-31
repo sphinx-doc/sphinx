@@ -4582,8 +4582,11 @@ class CPPObject(ObjectDescription):
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
-        self.options['tparam-line-spec'] = 'tparam-line-spec' in self.options
-        self.describe_signature(signode, ast, self.options)
+        # note: handle_signature may be called multiple time per directive,
+        # if it has multiple signatures, so don't mess with the original options.
+        options = dict(self.options)
+        options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        self.describe_signature(signode, ast, options)
         return ast
 
     def before_content(self):
