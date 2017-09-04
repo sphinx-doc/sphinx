@@ -31,6 +31,7 @@ Features added
 * In case of missing docstring try to retrieve doc from base classes (ref: #3140)
 * #4023: Clarify error message when any role has more than one target.
 * #3973: epub: allow to override build date
+* #3972: epub: Sort manifest entries by filename
 
 Features removed
 ----------------
