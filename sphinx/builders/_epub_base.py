@@ -513,6 +513,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not self.use_index:
             self.ignored_files.append('genindex' + self.out_suffix)
         for root, dirs, files in os.walk(outdir):
+            dirs.sort()
             for fn in sorted(files):
                 filename = path.join(root, fn)[olen:]
                 if filename in self.ignored_files:
