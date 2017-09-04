@@ -82,7 +82,9 @@ Options for setuptools integration
 .. confval:: source-dir
 
    The target source directory. This can be relative to the ``setup.py`` or
-   ``setup.cfg`` file, or it can be absolute. Default is ``''``.
+   ``setup.cfg`` file, or it can be absolute.  It defaults to ``./doc`` or
+   ``./docs`` if either contains a file named ``conf.py`` (checking ``./doc``
+   first); otherwise it defaults to the current directory.
 
    This can also be set by passing the `-s` flag to ``setup.py``:
 
@@ -93,13 +95,13 @@ Options for setuptools integration
 .. confval:: build-dir
 
    The target build directory. This can be relative to the ``setup.py`` or
-   ``setup.cfg`` file, or it can be absolute. Default is ``''``.
+   ``setup.cfg`` file, or it can be absolute. Default is ``./build/sphinx``.
 
 .. confval:: config-dir
 
    Location of the configuration directory. This can be relative to the
-   ``setup.py`` or ``setup.cfg`` file, or it can be absolute. Default is
-   ``''``.
+   ``setup.py`` or ``setup.cfg`` file, or it can be absolute. Default is to use
+   `source-dir`.
 
    This can also be set by passing the `-c` flag to ``setup.py``:
 
