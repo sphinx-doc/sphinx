@@ -26,6 +26,7 @@ Bugs fixed
 * Missing ``texinputs_win/Makefile`` to be used in latexpdf builder on windows.
 * #4026: nature: Fix macOS Safari scrollbar color
 * #3877: Fix for C++ multiline signatures.
+* #4006: Fix crash on parallel build
 
 Testing
 --------
