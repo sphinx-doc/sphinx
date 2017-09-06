@@ -58,15 +58,21 @@ Sample namedtuple subclass
 
 .. attribute:: attr1
 
-   *Arbitrary type* -- Quick description of attr1
+   Quick description of attr1
+
+   :type: Arbitrary type
 
 .. attribute:: attr2
 
-   *Another arbitrary type* -- Quick description of attr2
+   Quick description of attr2
+
+   :type: Another arbitrary type
 
 .. attribute:: attr3
 
-   *Type* -- Adds a newline after the type
+   Adds a newline after the type
+
+   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -323,7 +329,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   :class:`numpy.ndarray` -- super-dooper attribute
+   super-dooper attribute
+
+   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -336,7 +344,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   *numpy.ndarray* -- super-dooper attribute
+   super-dooper attribute
+
+   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 
