@@ -15,6 +15,9 @@ For Windows users
 For UNIX users
 --------------
 
+This one's got an apostrophe
+----------------------------
+
 
 References
 ==========
@@ -23,3 +26,4 @@ References
 * :ref:`index:Installation`
 * :ref:`index:For Windows users`
 * :ref:`index:For UNIX users`
+* :ref:`index:This one's got an apostrophe`

@@ -35,6 +35,12 @@ def test_autosectionlabel_html(app, status, warning):
             '<span class="std std-ref">For UNIX users</span></a></li>')
     assert re.search(html, content, re.S)
 
+    html = ('<li><a class="reference internal" '
+            'href="#this-one-s-got-an-apostrophe">'
+            '<span class="std std-ref">This one’s got an apostrophe'
+            '</span></a></li>')
+    assert re.search(html, content, re.S)
+
 
 # Re-use test definition from above, just change the test root directory
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
