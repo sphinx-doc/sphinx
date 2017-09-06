@@ -392,14 +392,14 @@ class GoogleDocstring(UnicodeMixin):
                 if '`' in _type:
                     field = '**%s** (%s)%s' % (_name, _type, separator)  # type: unicode
                 else:
-                    field = '**%s** (*%s*)%s' % (_name, _type, separator)
+                    field = '**%s** (:class:`%s`)%s' % (_name, _type, separator)
             else:
                 field = '**%s**%s' % (_name, separator)
         elif _type:
             if '`' in _type:
                 field = '%s%s' % (_type, separator)
             else:
-                field = '*%s*%s' % (_type, separator)
+                field = ':class:`%s`%s' % (_type, separator)
         else:
             field = ''
 
