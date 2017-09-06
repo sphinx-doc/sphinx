@@ -37,7 +37,6 @@ Documentation using the classic theme
 * mpmath: http://mpmath.org/doc/current/
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
-* openWNS: http://docs.openwns.org/
 * Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
 * PyCantonese: http://pycantonese.org/
 * Pyevolve: http://pyevolve.sourceforge.net/
@@ -64,9 +63,7 @@ Documentation using a customized version of the classic theme
 * CakePHP: http://book.cakephp.org/2.0/en/index.html
 * Chaco: http://docs.enthought.com/chaco/
 * Chef: https://docs.chef.io/index.html
-* Djagios: http://djagios.org/
 * EZ-Draw: http://pageperso.lif.univ-mrs.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html
-* GetFEM++: http://home.gna.org/getfem/
 * Google or-tools:
   https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/
@@ -132,11 +129,10 @@ Documentation using another builtin theme
   http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
 * Quex: http://quex.sourceforge.net/doc/html/main.html
 * Satchmo: http://docs.satchmoproject.com/en/latest/ (sphinx_rtd_theme)
-* Setuptools: http://pythonhosted.org/setuptools/ (nature)
+* Setuptools: https://setuptools.readthedocs.io/en/latest/ (nature)
 * SimPy: http://simpy.readthedocs.org/en/latest/
 * Spring Python: http://docs.spring.io/spring-python/1.2.x/sphinx/html/ (nature)
-* sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
-  (agogo)
+* sqlparse: https://sqlparse.readthedocs.io/en/latest/ (sphinx_rtd_theme)
 * Sylli: http://sylli.sourceforge.net/ (nature)
 * Tuleap Open ALM: https://tuleap.net/doc/en/ (nature)
 * Valence: http://docs.valence.desire2learn.com/ (haiku)
@@ -161,15 +157,12 @@ Documentation using a custom theme/integrated in a site
 * GeoServer: http://docs.geoserver.org/
 * gevent: http://www.gevent.org/
 * GHC - Glasgow Haskell Compiler: http://downloads.haskell.org/~ghc/master/users-guide/
-* Glashammer: http://glashammer.org/
-* Istihza (Turkish Python documentation project): http://belgeler.istihza.com/py2/
 * Lasso: http://lassoguide.com/
 * Manage documentation such as source code (fr): http://redaction-technique.org/
 * MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
 * MyHDL: http://docs.myhdl.org/en/latest/
 * nose: http://nose.readthedocs.org/en/latest/
-* NoTex: https://www.notex.ch/overview/
 * ObjectListView: http://objectlistview.sourceforge.net/python/
 * Open ERP: https://doc.odoo.com/
 * OpenCV: http://docs.opencv.org/
@@ -189,7 +182,6 @@ Documentation using a custom theme/integrated in a site
 * Selenium: http://docs.seleniumhq.org/docs/
 * Self: http://www.selflanguage.org/
 * Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
-* Tablib: http://tablib.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
 * Ubuntu packaging guide: http://packaging.ubuntu.com/html/
@@ -204,11 +196,9 @@ Homepages and other non-documentation sites
 
 * A personal page: http://www.dehlia.in/
 * Benoit Boissinot: http://bboissin.appspot.com/
-* lunarsite: http://lunaryorn.de/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
 * UC Berkeley Advanced Control Systems course:
   http://msc.berkeley.edu/tomizuka/me233spring13/
-* VOR: http://www.vor-cycling.be/
 
 
 Books produced using Sphinx
@@ -227,7 +217,7 @@ Books produced using Sphinx
   http://www.amazon.co.jp/dp/4048689525/
 * "Python Professional Programming" (in Japanese):
   http://www.amazon.co.jp/dp/4798032948/
-* "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
+* "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kie?lowski":
   http://www.hasecke.eu/Dekalog/
 * The "Varnish Book":
   http://book.varnish-software.com/4.0/

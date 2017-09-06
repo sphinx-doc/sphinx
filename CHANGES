@@ -23,6 +23,10 @@ Bugs fixed
 * #3946: Typo in sphinx.sty (this was a bug with no effect in default context)
 * :pep: and :rfc: does not supports ``default-role`` directive (refs: #3960)
 * #3960: default_role = 'guilabel' not functioning
+* Missing ``texinputs_win/Makefile`` to be used in latexpdf builder on windows.
+* #4026: nature: Fix macOS Safari scrollbar color
+* #3877: Fix for C++ multiline signatures.
+* #4006: Fix crash on parallel build
 * #3969: private instance attributes causes AttributeError
 
 Testing

@@ -77,7 +77,7 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
         copy_asset_file(source, destination, context, renderer)
         return
 
-    for root, dirs, files in walk(source):
+    for root, dirs, files in walk(source, followlinks=True):
         reldir = relative_path(source, root)
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):
