@@ -23,9 +23,10 @@ def register_sections_as_label(app, document):
         labelid = node['ids'][0]
         docname = app.env.docname
         if app.config.autosectionlabel_prefix_document:
-            name = nodes.fully_normalize_name(docname + ':' + node[0].astext())
+            name = nodes.fully_normalize_name(
+                docname + ':' + node[0].rawsource)
         else:
-            name = nodes.fully_normalize_name(node[0].astext())
+            name = nodes.fully_normalize_name(node[0].rawsource)
         sectname = clean_astext(node[0])
 
         if name in labels:
