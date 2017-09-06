@@ -20,6 +20,7 @@ env:
   matrix:
     - DOCUTILS=0.12
     - DOCUTILS=0.13.1
+    - DOCUTILS=0.14
 matrix:
   exclude:
     - python: "3.4"
