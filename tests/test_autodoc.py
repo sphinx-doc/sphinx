@@ -107,7 +107,7 @@ def process_signature(app, what, name, obj, options, args, retann):
 def skip_member(app, what, name, obj, skip, options):
     if name in ('__special1__', '__special2__'):
         return skip
-    if name.startswith('_'):
+    if name.startswith('__'):
         return True
     if name == 'skipmeth':
         return True
@@ -756,6 +756,7 @@ def test_generate():
 
     # test autodoc_member_order == 'source'
     directive.env.ref_context['py:module'] = 'test_autodoc'
+    options.private_members = True
     if PY3:
         roger_line = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
     else:
@@ -773,6 +774,7 @@ def test_generate():
                   '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
+                  '   .. py:attribute:: Class._private_inst_attr',
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
@@ -989,6 +991,7 @@ class Class(Base):
         self.inst_attr_comment = None
         self.inst_attr_string = None
         """a documented instance attribute"""
+        self._private_inst_attr = None  #: a private instance attribute
 
     def __special1__(self):
         """documented special method"""

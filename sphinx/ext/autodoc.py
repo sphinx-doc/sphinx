@@ -962,14 +962,20 @@ class Documenter(object):
                     self.options.special_members is not ALL and \
                         membername in self.options.special_members:
                     keep = has_doc or self.options.undoc_members
+            elif (namespace, membername) in attr_docs:
+                if want_all and membername.startswith('_'):
+                    # ignore members whose name starts with _ by default
+                    keep = self.options.private_members and \
+                        (has_doc or self.options.undoc_members)
+                else:
+                    # keep documented attributes
+                    keep = True
+                isattr = True
+                print(membername, keep)
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
                 keep = self.options.private_members and \
                     (has_doc or self.options.undoc_members)
-            elif (namespace, membername) in attr_docs:
-                # keep documented attributes
-                keep = True
-                isattr = True
             else:
                 # ignore undocumented members if :undoc-members: is not given
                 keep = has_doc or self.options.undoc_members
