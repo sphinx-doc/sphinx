@@ -161,6 +161,8 @@ class InventoryFile(object):
         # type: (unicode, BuildEnvironment, Builder) -> None
         def escape(string):
             # type: (unicode) -> unicode
+            if type(string) == bytes:
+                string = string.decode("utf-8")
             return re.sub("\\s+", " ", string)
 
         with open(os.path.join(filename), 'wb') as f:
