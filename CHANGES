@@ -28,6 +28,7 @@ Bugs fixed
 * #3877: Fix for C++ multiline signatures.
 * #4006: Fix crash on parallel build
 * #3969: private instance attributes causes AttributeError
+* #4041: C++, remove extra name linking in function pointers.
 
 Testing
 --------

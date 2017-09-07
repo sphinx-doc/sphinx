@@ -2408,6 +2408,10 @@ class ASTType(ASTBase):
         if (self.decl.require_space_after_declSpecs() and
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
+        # for paramters that don't really declare new names we get 'markType',
+        # this should not be propagated, but be 'noneIsName'.
+        if mode == 'markType':
+            mode = 'noneIsName'
         self.decl.describe_signature(signode, mode, env, symbol)
 
 
