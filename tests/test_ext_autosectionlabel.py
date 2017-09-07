@@ -37,19 +37,15 @@ def test_autosectionlabel_html(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@pytest.mark.skipif(
-    os.environ.get('DOCUTILS', None) not in ('0.13.1', '0.14'),
-    reason='Requires docutils >= 0.13.1',
-)
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
 def test_autosectionlabel_html_apostrophe(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = ('<li><a class="reference internal" '
-            'href="#this-one-s-got-an-apostrophe">'
-            '<span class="std std-ref">This one’s got an apostrophe'
-            '</span></a></li>')
+    html = (u'<li><a class="reference internal" '
+            u'href="#this-one-s-got-an-apostrophe">'
+            u'<span class="std std-ref">This one’s got an apostrophe'
+            u'</span></a></li>')
     assert re.search(html, content, re.S)
 
 
@@ -60,10 +56,6 @@ def test_autosectionlabel_prefix_document_html(app, status, warning):
 
 
 # Re-use test definition from above, just change the test root directory
-@pytest.mark.skipif(
-    os.environ.get('DOCUTILS', None) not in ('0.13.1', '0.14'),
-    reason='Requires docutils >= 0.13.1',
-)
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
 def test_autosectionlabel_prefix_document_html_apostrophe(app, status, warning):
     return test_autosectionlabel_html_apostrophe(app, status, warning)
