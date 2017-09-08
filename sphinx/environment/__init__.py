@@ -110,7 +110,12 @@ class BuildEnvironment(object):
     @staticmethod
     def load(f, app=None):
         # type: (IO, Sphinx) -> BuildEnvironment
-        env = pickle.load(f)
+        try:
+            env = pickle.load(f)
+        except Exception as exc:
+            # This can happen for example when the pickle is from a
+            # different version of Sphinx.
+            raise IOError(exc)
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
         if app:
