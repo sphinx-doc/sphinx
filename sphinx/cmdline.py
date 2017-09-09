@@ -169,7 +169,7 @@ def main(argv):
                      help='Do emit colored output (default: auto-detect)')
     group.add_option('-N', '--no-color', dest='color',
                      action='store_const', const='no',
-                     help='Do not emit colored output (default: auot-detect)')
+                     help='Do not emit colored output (default: auto-detect)')
     group.add_option('-w', metavar='FILE', dest='warnfile',
                      help='write warnings (and errors) to given file')
     group.add_option('-W', action='store_true', dest='warningiserror',
