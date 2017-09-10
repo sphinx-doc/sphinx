@@ -6,15 +6,15 @@ environment:
 
   matrix:
     - PYTHON: 27
-      DOCUTILS: 0.12
+      DOCUTILS: 0.13.1
       TEST_IGNORE: --ignore py35
     - PYTHON: 27
-      DOCUTILS: 0.13.1
+      DOCUTILS: 0.14
       TEST_IGNORE: --ignore py35
     - PYTHON: 36
-      DOCUTILS: 0.13.1
+      DOCUTILS: 0.14
     - PYTHON: 36-x64
-      DOCUTILS: 0.13.1
+      DOCUTILS: 0.14
 
 install:
   - C:\Python%PYTHON%\python.exe -m pip install -U pip setuptools
