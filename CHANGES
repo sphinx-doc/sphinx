@@ -30,6 +30,7 @@ Bugs fixed
 * #3969: private instance attributes causes AttributeError
 * #4041: C++, remove extra name linking in function pointers.
 * #4038: C, add missing documentation of ``member`` role.
+* #4044: An empty multicolumn cell causes extra row height in PDF output
 
 Testing
 --------
