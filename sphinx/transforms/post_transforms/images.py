@@ -70,7 +70,7 @@ class ImageDownloader(BaseImageConverter):
         if '?' in basename:
             basename = basename.split('?')[0]
         if basename == '':
-            basename = sha1(node['uri']).hexdigest()
+            basename = sha1(node['uri'].encode("utf-8")).hexdigest()
         dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
                                                              ord("&"): u"/"})
         ensuredir(os.path.join(self.imagedir, dirname))
