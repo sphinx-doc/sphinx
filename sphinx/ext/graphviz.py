@@ -246,14 +246,14 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
         imgcss = imgcls and 'class="%s"' % imgcls or ''
+        if 'align' in node:
+            self.body.append('<div align="%s" class="align-%s">' %
+                             (node['align'], node['align']))
         if format == 'svg':
             svgtag = '''<object data="%s" type="image/svg+xml">
             <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
-            if 'align' in node:
-                self.body.append('<div align="%s" class="align-%s">' %
-                                 (node['align'], node['align']))
             with open(outfn + '.map', 'rb') as mapfile:
                 imgmap = mapfile.readlines()
             if len(imgmap) == 2:
@@ -266,8 +266,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend([item.decode('utf-8') for item in imgmap])
-            if 'align' in node:
-                self.body.append('</div>\n')
+        if 'align' in node:
+            self.body.append('</div>\n')
 
     raise nodes.SkipNode
 
@@ -286,24 +286,26 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         raise nodes.SkipNode
 
     is_inline = self.is_inline(node)
-    if is_inline:
-        para_separator = ''
-    else:
-        para_separator = '\n'
 
-    if fname is not None:
-        post = None  # type: unicode
-        if not is_inline and 'align' in node:
+    if not is_inline:
+        pre = ''
+        post = ''
+        if 'align' in node:
             if node['align'] == 'left':
-                self.body.append('{')
-                post = '\\hspace*{\\fill}}'
+                pre = '{'
+                post = r'\hspace*{\fill}}'
             elif node['align'] == 'right':
-                self.body.append('{\\hspace*{\\fill}')
+                pre = r'{\hspace*{\fill}'
                 post = '}'
-        self.body.append('%s\\includegraphics{%s}%s' %
-                         (para_separator, fname, para_separator))
-        if post:
-            self.body.append(post)
+            elif node['align'] == 'center':
+                pre = r'{\hfill'
+                post = r'\hspace*{\fill}}'
+        self.body.append('\n%s' % pre)
+
+    self.body.append(r'\includegraphics{%s}' % fname)
+
+    if not is_inline:
+        self.body.append('%s\n' % post)
 
     raise nodes.SkipNode
 
