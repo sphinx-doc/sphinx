@@ -2006,6 +2006,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
                     logger.warning('unknown index entry type %s found', type)
+                self.body.append('%\n')
             except ValueError as err:
                 logger.warning(str(err))
         raise nodes.SkipNode
