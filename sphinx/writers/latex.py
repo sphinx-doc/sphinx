@@ -2006,9 +2006,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
                     logger.warning('unknown index entry type %s found', type)
-                self.body.append('\\ignorespaces ')
             except ValueError as err:
                 logger.warning(str(err))
+        if not node.get('inline', True):
+            self.body.append('\\ignorespaces ')
         raise nodes.SkipNode
 
     def visit_raw(self, node):
