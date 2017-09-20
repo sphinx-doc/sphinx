@@ -33,6 +33,7 @@ Bugs fixed
 * #4044: An empty multicolumn cell causes extra row height in PDF output
 * #4049: Fix typo in output of sphinx-build -h
 * #4062: hashlib.sha1() must take bytes, not unicode on Python 3
+* Avoid indent after index entries in latex (refs: #4066)
 
 
 Testing
