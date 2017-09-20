@@ -752,9 +752,11 @@ class Documenter(object):
         members_check_module, members = self.get_object_members(want_all)
 
         # remove members given by exclude-members
-        if self.options.exclude_members:
+        exclude = self.options.exclude_members or \
+            self.env.config.autodoc_exclude_members
+        if exclude:
             members = [(membername, member) for (membername, member) in members
-                       if membername not in self.options.exclude_members]
+                       if membername not in exclude]
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
@@ -1618,6 +1620,7 @@ def setup(app):
 
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
+    app.add_config_value('autodoc_exclude_members', [], True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
