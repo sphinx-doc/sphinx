@@ -239,7 +239,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'sphinx-build = sphinx:main',
+            'sphinx-build = sphinx.cmd.build:main',
             'sphinx-quickstart = sphinx.quickstart:main',
             'sphinx-apidoc = sphinx.ext.apidoc:main',
             'sphinx-autogen = sphinx.ext.autosummary.generate:main',

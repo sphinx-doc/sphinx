@@ -15,15 +15,12 @@
 from __future__ import absolute_import
 
 import os
-import sys
 import warnings
 from os import path
 
+from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
-
-if False:
-    # For type annotation
-    from typing import List  # NOQA
+from .deprecation import RemovedInSphinx20Warning
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
@@ -63,27 +60,19 @@ if __version__.endswith('+'):
         pass
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    if sys.argv[1:2] == ['-M']:
-        return make_main(argv)
-    else:
-        return build_main(argv)
-
-
-def build_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Sphinx build "main" command-line entry."""
-    from sphinx import cmdline
-    return cmdline.main(argv)  # type: ignore
-
-
-def make_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
-    return make_mode.run_make_mode(argv[1:])  # type: ignore
+def main(*args, **kwargs):
+    warnings.warn(
+        '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    build.main(*args, **kwargs)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    warnings.warn(
+        '`sphinx` has moved to `sphinx.build`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    build.main()
