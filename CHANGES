@@ -35,6 +35,7 @@ Bugs fixed
 * #4062: hashlib.sha1() must take bytes, not unicode on Python 3
 * Avoid indent after index entries in latex (refs: #4066)
 * #4070: crashes when the warning message contains format strings
+* #4067: Return non-zero exit status when make subprocess fails
 
 
 Testing
