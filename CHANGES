@@ -36,6 +36,9 @@ Bugs fixed
 * Avoid indent after index entries in latex (refs: #4066)
 * #4070: crashes when the warning message contains format strings
 * #4067: Return non-zero exit status when make subprocess fails
+* #4055: graphviz: the :align: option does not work for SVG output
+* #4055: graphviz: the :align: center option does not work for latex output
+
 
 
 Testing
