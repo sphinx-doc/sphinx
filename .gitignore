@@ -5,6 +5,7 @@
 
 .dir-locals.el
 .cache/
+.idea
 .mypy_cache/
 .ropeproject/
 TAGS
@@ -23,6 +24,3 @@ doc/_build/
 tests/.coverage
 tests/build/
 utils/regression_test.js
-
-# IDE
-.idea
