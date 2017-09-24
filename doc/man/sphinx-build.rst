@@ -89,6 +89,30 @@ Options
    See :ref:`builders` for a list of all builders shipped with Sphinx.
    Extensions can add their own builders.
 
+.. _make_mode:
+
+.. option:: -M buildername
+
+   Alternative to :option:`-b`. Uses the Sphinx :program:`make_mode` module,
+   which provides the same build functionality as a default :ref:`Makefile or
+   Make.bat <makefile_options>`. In addition to all Sphinx
+   :ref:`builders <builders>`, the following build pipelines are available:
+
+   **latexpdf**
+     Build LaTeX files and run them through :program:`pdflatex`.
+
+   **latexpdfja**
+     Build LaTeX files and run them through :program:`platex/dvipdfmx`.
+     We recommend using ``latexpdf`` instead.
+
+   **info**
+     Build Texinfo files and run them through :program:`makeinfo`.
+
+   .. important::
+     Sphinx only recognizes the ``-M`` option if it is placed first.
+
+   .. versionadded:: 1.2.1
+
 .. option:: -a
 
    If given, always write all output files. The default is to only write output
@@ -234,6 +258,8 @@ The :program:`sphinx-build` refers following environment variables:
 
    A path to make command.  A command name is also allowed.
    :program:`sphinx-build` uses it to invoke sub-build process on make-mode.
+
+.. _makefile_options:
 
 .. rubric:: Makefile Options
 
