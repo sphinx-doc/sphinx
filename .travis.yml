@@ -18,20 +18,20 @@ env:
     - PYTHONWARNINGS=all
     - SKIP_LATEX_BUILD=1
   matrix:
-    - DOCUTILS=0.12
     - DOCUTILS=0.13.1
+    - DOCUTILS=0.14
 matrix:
   exclude:
     - python: "3.4"
-      env: DOCUTILS=0.12
+      env: DOCUTILS=0.13.1
     - python: "3.5"
-      env: DOCUTILS=0.12
+      env: DOCUTILS=0.13.1
     - python: "3.6"
-      env: DOCUTILS=0.12
+      env: DOCUTILS=0.13.1
     - python: nightly
-      env: DOCUTILS=0.12
+      env: DOCUTILS=0.13.1
     - python: "pypy-5.4.1"
-      env: DOCUTILS=0.12
+      env: DOCUTILS=0.13.1
 addons:
   apt:
     packages:

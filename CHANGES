@@ -71,6 +71,8 @@ Bugs fixed
 Testing
 --------
 
+* Add support for docutils 0.14
+
 Release 1.6.4 (in development)
 ==============================
 
