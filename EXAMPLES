@@ -265,6 +265,7 @@ Documentation using a custom theme or integrated in a website
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * gevent: http://www.gevent.org/
+* GHC - Glasgow Haskell Compiler: http://downloads.haskell.org/~ghc/master/users-guide/
 * Guzzle: http://docs.guzzlephp.org/en/stable/
 * H2O.ai: http://docs.h2o.ai/
 * Istihza (Turkish Python documentation project): https://belgeler.yazbel.com/python-istihza/
@@ -274,6 +275,7 @@ Documentation using a custom theme or integrated in a website
 * MirrorBrain: http://mirrorbrain.org/docs/
 * MongoDB: https://docs.mongodb.com/
 * Music21: http://web.mit.edu/music21/doc/
+* MyHDL: http://docs.myhdl.org/en/latest/
 * nose: https://nose.readthedocs.io/
 * ns-3: https://www.nsnam.org/documentation/
 * NumPy: https://docs.scipy.org/doc/numpy/reference/
@@ -345,7 +347,7 @@ Books produced using Sphinx
 * "Pomodoro Technique Illustrated" (Japanese translation):
   https://www.amazon.co.jp/dp/4048689525/
 * "Python Professional Programming" (in Japanese):
-  https://www.amazon.co.jp/dp/4798032948/
+  http://www.amazon.co.jp/dp/4798032948/
 * "The ``repoze.bfg`` Web Application Framework":
   https://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379
 * "Simple and Steady Way of Learning for Software Engineering" (in Japanese):
