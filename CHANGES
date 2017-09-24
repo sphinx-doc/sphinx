@@ -34,6 +34,7 @@ Bugs fixed
 * #4049: Fix typo in output of sphinx-build -h
 * #4062: hashlib.sha1() must take bytes, not unicode on Python 3
 * Avoid indent after index entries in latex (refs: #4066)
+* #4070: crashes when the warning message contains format strings
 
 
 Testing
