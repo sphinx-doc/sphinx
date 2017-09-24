@@ -356,7 +356,7 @@ msgstr "précédent"
 #: sphinx/builders/html.py:1313
 #, python-format
 msgid "%s %s documentation"
-msgstr "documentation %s %s"
+msgstr "Documentation %s %s"
 
 #: sphinx/builders/latex.py:199 sphinx/builders/texinfo.py:217
 msgid " (in "

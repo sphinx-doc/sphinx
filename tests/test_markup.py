@@ -286,3 +286,44 @@ def test_compact_refonly_bullet_list(app, status, warning):
     assert_node(doctree[0][4], nodes.bullet_list)
     assert_node(doctree[0][4][0][0], nodes.paragraph)
     assert doctree[0][4][0][0].astext() == 'Hello'
+
+
+@pytest.mark.sphinx('dummy', testroot='default_role')
+def test_default_role1(app, status, warning):
+    app.builder.build_all()
+
+    # default-role: pep
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], addnodes.index)
+    assert_node(doctree[0][1][1], nodes.target)
+    assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
+
+    # no default-role
+    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], nodes.title_reference)
+    assert_node(doctree[0][1][1], nodes.Text)
+
+
+@pytest.mark.sphinx('dummy', testroot='default_role',
+                    confoverrides={'default_role': 'guilabel'})
+def test_default_role2(app, status, warning):
+    app.builder.build_all()
+
+    # default-role directive is stronger than configratuion
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], addnodes.index)
+    assert_node(doctree[0][1][1], nodes.target)
+    assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
+
+    # default_role changes the default behavior
+    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], nodes.inline, classes=["guilabel"])
+    assert_node(doctree[0][1][1], nodes.Text)

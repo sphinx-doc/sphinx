@@ -185,9 +185,11 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
-        typ = env.config.default_role
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
     else:
         typ = typ.lower()
+
     has_explicit_title, title, target = split_explicit_title(text)
     title = utils.unescape(title)
     target = utils.unescape(target)
@@ -249,6 +251,13 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    env = inliner.document.settings.env
+    if not typ:
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
+    else:
+        typ = typ.lower()
+
     text = utils.unescape(text)
     if typ == 'menuselection':
         text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
@@ -280,6 +289,13 @@ _litvar_re = re.compile('{([^}]+)}')
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    env = inliner.document.settings.env
+    if not typ:
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
+    else:
+        typ = typ.lower()
+
     text = utils.unescape(text)
     pos = 0
     retnode = nodes.literal(role=typ.lower(), classes=[typ])
