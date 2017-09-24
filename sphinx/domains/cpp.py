@@ -2703,6 +2703,10 @@ class ASTType(ASTBase):
         if (self.decl.require_space_after_declSpecs() and
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
+        # for paramters that don't really declare new names we get 'markType',
+        # this should not be propagated, but be 'noneIsName'.
+        if mode == 'markType':
+            mode = 'noneIsName'
         self.decl.describe_signature(signode, mode, env, symbol)
 
 
@@ -5206,8 +5210,11 @@ class CPPObject(ObjectDescription):
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
-        self.options['tparam-line-spec'] = 'tparam-line-spec' in self.options
-        self.describe_signature(signode, ast, self.options)
+        # note: handle_signature may be called multiple time per directive,
+        # if it has multiple signatures, so don't mess with the original options.
+        options = dict(self.options)
+        options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        self.describe_signature(signode, ast, options)
         return ast
 
     def before_content(self):
@@ -5462,12 +5469,12 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class': ObjType(l_('class'), 'class'),
-        'function': ObjType(l_('function'), 'func'),
-        'member': ObjType(l_('member'), 'member'),
-        'type': ObjType(l_('type'), 'type'),
-        'concept': ObjType(l_('concept'), 'concept'),
-        'enum': ObjType(l_('enum'), 'enum'),
+        'class':      ObjType(l_('class'),      'class',             'type', 'typeOrConcept'),
+        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'typeOrConcept'),
+        'member':     ObjType(l_('member'),     'member',    'var'),
+        'type':       ObjType(l_('type'),                            'type', 'typeOrConcept'),
+        'concept':    ObjType(l_('concept'),    'concept',                   'typeOrConcept'),
+        'enum':       ObjType(l_('enum'),       'enum',              'type', 'typeOrConcept'),
         'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
 
@@ -5605,16 +5612,10 @@ class CPPDomain(Domain):
                 return True
             if declTyp == 'templateParam':
                 return True
-            if typ == 'var' or typ == 'member':
-                return declTyp in ['var', 'member']
-            if typ in ['enum', 'enumerator', 'function', 'class', 'concept']:
-                return declTyp == typ
-            validForType = ['enum', 'class', 'function', 'type']
-            if typ == 'typeOrConcept':
-                return declTyp == 'concept' or declTyp in validForType
-            if typ == 'type':
-                return declTyp in validForType
-            print("Type is %s" % typ)
+            objtypes = self.objtypes_for_role(typ)
+            if objtypes and declTyp in objtypes:
+                return True
+            print("Type is %s, declType is %s" % (typ, declTyp))
             assert False
         if not checkType():
             warner.warn("cpp:%s targets a %s (%s)."

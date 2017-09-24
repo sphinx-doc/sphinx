@@ -473,7 +473,7 @@ The C Domain
 
 The C domain (name **c**) is suited for documentation of C API.
 
-.. rst:directive:: .. c:function:: type name(signature)
+.. rst:directive:: .. c:function:: function prototype
 
    Describes a C function. The signature should be given as in C, e.g.::
 
@@ -485,7 +485,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Note that you don't have to backslash-escape asterisks in the signature, as
    it is not parsed by the reST inliner.
 
-.. rst:directive:: .. c:member:: type name
+.. rst:directive:: .. c:member:: declaration
 
    Describes a C struct member. Example signature::
 
@@ -508,7 +508,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Describes a C type (whether defined by a typedef or struct). The signature
    should just be the type name.
 
-.. rst:directive:: .. c:var:: type name
+.. rst:directive:: .. c:var:: declaration
 
    Describes a global C variable.  The signature should include the type, such
    as::
@@ -524,13 +524,13 @@ Cross-referencing C constructs
 The following roles create cross-references to C-language constructs if they are
 defined in the documentation:
 
-.. rst:role:: c:data
-
-   Reference a C-language variable.
-
 .. rst:role:: c:func
 
    Reference a C-language function. Should include trailing parentheses.
+
+.. rst:role:: c:member
+
+   Reference a C-language member of a struct.
 
 .. rst:role:: c:macro
 
@@ -539,6 +539,10 @@ defined in the documentation:
 .. rst:role:: c:type
 
    Reference a C-language type.
+
+.. rst:role:: c:data
+
+   Reference a C-language variable.
 
 .. _cpp-domain:
 

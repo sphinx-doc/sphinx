@@ -403,14 +403,18 @@ instructions.
 .. class:: CheckExternalLinksBuilder
 
    This builder scans all documents for external links, tries to open them with
-   :mod:`urllib2`, and writes an overview which ones are broken and redirected
-   to standard output and to :file:`output.txt` in the output directory.
+   ``requests``, and writes an overview which ones are broken and redirected to
+   standard output and to :file:`output.txt` in the output directory.
 
    .. autoattribute:: name
 
    .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
+
+   .. versionchanged:: 1.5
+
+      Since Sphinx-1.5, the linkcheck builder comes to use requests module.
 
 .. module:: sphinx.builders.xml
 .. class:: XMLBuilder

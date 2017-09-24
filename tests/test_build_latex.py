@@ -1019,3 +1019,12 @@ def test_latex_remote_images(app, status, warning):
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
             'http://example.com/NOT_EXIST.PNG [404]' in warning.getvalue())
+
+
+@pytest.mark.sphinx('latex', testroot='latex-index')
+def test_latex_index(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    assert 'A \\index{famous}famous \\index{equation}equation:\n' in result
+    assert '\n\\index{Einstein}\\index{relativity}\\ignorespaces \nand' in result

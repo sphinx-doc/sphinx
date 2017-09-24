@@ -101,6 +101,22 @@ Bugs fixed
 * :pep: and :rfc: does not supports ``default-role`` directive (refs: #3960)
 * #3960: default_role = 'guilabel' not functioning
 * Missing ``texinputs_win/Makefile`` to be used in latexpdf builder on windows.
+* #4026: nature: Fix macOS Safari scrollbar color
+* #3877: Fix for C++ multiline signatures.
+* #4006: Fix crash on parallel build
+* #3969: private instance attributes causes AttributeError
+* #4041: C++, remove extra name linking in function pointers.
+* #4038: C, add missing documentation of ``member`` role.
+* #4044: An empty multicolumn cell causes extra row height in PDF output
+* #4049: Fix typo in output of sphinx-build -h
+* #4062: hashlib.sha1() must take bytes, not unicode on Python 3
+* Avoid indent after index entries in latex (refs: #4066)
+* #4070: crashes when the warning message contains format strings
+* #4067: Return non-zero exit status when make subprocess fails
+* #4055: graphviz: the :align: option does not work for SVG output
+* #4055: graphviz: the :align: center option does not work for latex output
+
+
 
 Testing
 --------

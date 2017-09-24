@@ -21,6 +21,7 @@ build/
 dist/
 Sphinx.egg-info/
 doc/_build/
+doc/locale/
 tests/.coverage
 tests/build/
 utils/regression_test.js

@@ -356,10 +356,11 @@ class WarningIsErrorFilter(logging.Filter):
             return True
         elif self.app.warningiserror:
             location = getattr(record, 'location', '')
+            message = record.msg.replace('%', '%%')
             if location:
-                raise SphinxWarning(location + ":" + record.msg % record.args)
+                raise SphinxWarning(location + ":" + message % record.args)
             else:
-                raise SphinxWarning(record.msg % record.args)
+                raise SphinxWarning(message % record.args)
         else:
             return True
 

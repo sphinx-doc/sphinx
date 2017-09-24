@@ -153,9 +153,9 @@ very general sense) in any :dfn:`domain`.  A domain is a collection of object
 types that belong together, complete with markup to create and reference
 descriptions of these objects.
 
-The most prominent domain is the Python domain.  To e.g. document the Python
-built-in function ``enumerate()``, you would add this to one of your source
-files::
+The most prominent domain is the Python domain. For example, to document
+Python's built-in function ``enumerate()``, you would add this to one of your
+source files::
 
    .. py:function:: enumerate(sequence[, start=0])
 

@@ -1462,7 +1462,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if cell.width > 1 or cell.height > 1:
             self.body.append('\\begin{varwidth}[t]{\\sphinxcolwidth{%d}{%d}}\n'
                              % (cell.width, self.table.colcount))
-            context = ('\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n') + context
+            context = ('\\par\n\\vskip-\\baselineskip'
+                       '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
             self.needs_linetrimming = 1
         if len(node) > 2 and len(node.astext().split('\n')) > 2:
             self.needs_linetrimming = 1
@@ -2005,6 +2006,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     logger.warning('unknown index entry type %s found', type)
             except ValueError as err:
                 logger.warning(str(err))
+        if not node.get('inline', True):
+            self.body.append('\\ignorespaces ')
         raise nodes.SkipNode
 
     def visit_raw(self, node):
