@@ -18,6 +18,7 @@ from __future__ import print_function
 
 import os
 import sys
+import subprocess
 from os import path
 
 import sphinx
@@ -196,16 +197,14 @@ class Make(object):
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
-            os.system('%s all-pdf' % self.makecmd)
-        return 0
+            return subprocess.call([self.makecmd, 'all-pdf'])
 
     def build_latexpdfja(self):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
-            os.system('%s all-pdf-ja' % self.makecmd)
-        return 0
+            return subprocess.call([self.makecmd, 'all-pdf-ja'])
 
     def build_text(self):
         # type: () -> int
@@ -231,8 +230,7 @@ class Make(object):
         if self.run_generic_build('texinfo') > 0:
             return 1
         with cd(self.builddir_join('texinfo')):
-            os.system('%s info' % self.makecmd)
-        return 0
+            return subprocess.call([self.makecmd, 'info'])
 
     def build_gettext(self):
         # type: () -> int
