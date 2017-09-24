@@ -146,10 +146,11 @@ def collect_pages(app):
 #    app.builder.info(' (%d module code pages)' %
 #                     len(env._viewcode_modules), nonl=1)
 
-    for modname, entry in status_iterator(iteritems(env._viewcode_modules),  # type: ignore
-                                          'highlighting module code... ', "blue",
-                                          len(env._viewcode_modules),  # type: ignore
-                                          app.verbosity, lambda x: x[0]):
+    for modname, entry in status_iterator(
+            sorted(iteritems(env._viewcode_modules)),  # type: ignore
+            'highlighting module code... ', "blue",
+            len(env._viewcode_modules),  # type: ignore
+            app.verbosity, lambda x: x[0]):
         if not entry:
             continue
         code, tags, used, refname = entry
