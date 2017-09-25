@@ -898,7 +898,6 @@ class StandaloneHTMLBuilder(Builder):
                     outfilename=None, event_arg=None):
         # type: (unicode, Dict, unicode, unicode, Any) -> None
         ctx = self.globalcontext.copy()
-        ctx['warn'] = self.warn
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
         ctx['encoding'] = self.config.html_output_encoding
@@ -930,6 +929,13 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             return False
         ctx['hasdoc'] = hasdoc
+
+        def warn(*args, **kwargs):
+            # type: (Any, Any) -> unicode
+            """Simple warn() wrapper for themes."""
+            self.warn(*args, **kwargs)
+            return ''  # return empty string
+        ctx['warn'] = warn
 
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)
