@@ -38,7 +38,7 @@ Bugs fixed
 * #4067: Return non-zero exit status when make subprocess fails
 * #4055: graphviz: the :align: option does not work for SVG output
 * #4055: graphviz: the :align: center option does not work for latex output
-
+* #4051: ``warn()`` function for HTML theme outputs 'None' string
 
 
 Testing
