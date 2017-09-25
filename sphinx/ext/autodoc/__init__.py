@@ -752,8 +752,8 @@ class Documenter(object):
         members_check_module, members = self.get_object_members(want_all)
 
         # remove members given by exclude-members
-        exclude = self.options.exclude_members or \
-            self.env.config.autodoc_exclude_members
+        exclude = (self.options.exclude_members or
+                   self.env.config.autodoc_exclude_members)
         if exclude:
             members = [(membername, member) for (membername, member) in members
                        if membername not in exclude]
