@@ -10,6 +10,8 @@ Incompatible changes
 * #3962: sphinx-apidoc now recognizes given directory as an implicit namespace
   package when ``--implicit-namespaces`` option given, not subdirectories of
   given directory.
+* #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
+  are in the raw source; no smart quotes, nothig fancy.
 
 Deprecated
 ----------
