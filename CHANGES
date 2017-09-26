@@ -10,6 +10,7 @@ Incompatible changes
 * #3962: sphinx-apidoc now recognizes given directory as an implicit namespace
   package when ``--implicit-namespaces`` option given, not subdirectories of
   given directory.
+* #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 
 Deprecated
 ----------
