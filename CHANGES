@@ -1,14 +1,5 @@
-Release 1.6.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 1.6.4 (released Sep 26, 2017)
+=====================================
 
 Features added
 --------------
@@ -39,10 +30,6 @@ Bugs fixed
 * #4055: graphviz: the :align: option does not work for SVG output
 * #4055: graphviz: the :align: center option does not work for latex output
 * #4051: ``warn()`` function for HTML theme outputs 'None' string
-
-
-Testing
---------
 
 Release 1.6.3 (released Jul 02, 2017)
 =====================================
