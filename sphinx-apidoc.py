@@ -11,5 +11,5 @@
 import sys
 
 if __name__ == '__main__':
-    from sphinx.apidoc import main
+    from sphinx.ext.apidoc import main
     sys.exit(main(sys.argv[1:]))
