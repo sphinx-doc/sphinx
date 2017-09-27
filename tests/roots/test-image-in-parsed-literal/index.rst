@@ -5,5 +5,5 @@ Dummy text
 
 .. parsed-literal::
 
-   |picture|
+   |picture|\ AFTER
 

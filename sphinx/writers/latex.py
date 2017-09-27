@@ -1742,8 +1742,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             except KeyError:
                 pass
         if self.in_parsed_literal:
-            pre.append('\\begingroup\\sphinxunactivateextrasandspace\\relax ')
-            post.append('\\endgroup ')
+            pre.append('{\\sphinxunactivateextrasandspace ')
+            post.append('}')
         if not is_inline:
             pre.append('\n\\noindent')
             post.append('\n')
