@@ -1603,7 +1603,6 @@ class ASTTemplateArgs(ASTBase):
     def __init__(self, args):
         # type: (List[Any]) -> None
         assert args is not None
-        assert len(args) > 0
         self.args = args
 
     def get_id(self, version):
@@ -4120,8 +4119,10 @@ class DefinitionParser(object):
     def _parse_template_argument_list(self):
         # type: () -> ASTTemplateArgs
         self.skip_ws()
-        if not self.skip_string('<'):
+        if not self.skip_string_and_ws('<'):
             return None
+        if self.skip_string('>'):
+            return ASTTemplateArgs([])
         prevErrors = []
         templateArgs = []  # type: List
         while 1:

@@ -495,6 +495,8 @@ def test_templates():
     check('class', "template<int T = 42> A", {2:"I_iE1A"})
     check('class', "template<int = 42> A", {2:"I_iE1A"})
 
+    check('class', "template<> A<NS::B<>>", {2:"IE1AIN2NS1BIEEE"})
+
     # from #2058
     check('function',
           "template<typename Char, typename Traits> "
