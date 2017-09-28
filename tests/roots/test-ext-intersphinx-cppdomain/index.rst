@@ -5,4 +5,4 @@ test-ext-intersphinx-cppdomain
 
 :cpp:class:`Bar`
 
-.. cpp:function:: std::uint8_t FooBarBaz()
+.. cpp:function:: foons::bartype FooBarBaz()
