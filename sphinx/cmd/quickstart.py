@@ -539,14 +539,18 @@ def valid_dir(d):
     return True
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    if not color_terminal():
-        nocolor()
-
+def get_parser():
+    # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
-        epilog='For more information, visit <http://sphinx-doc.org/>.')
+        epilog="For more information, visit <http://sphinx-doc.org/>.",
+        description="""
+Generate required files for a Sphinx project.
+
+sphinx-quickstart is an interactive tool that asks some questions about your
+project and then generates a complete documentation directory and sample
+Makefile to be used with sphinx-build.
+""")
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
                         default=False,
@@ -614,7 +618,16 @@ def main(argv=sys.argv[1:]):
                        dest='variables',
                        help='define a template variable')
 
+    return parser
+
+
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
+    if not color_terminal():
+        nocolor()
+
     # parse options
+    parser = get_parser()
     try:
         args = parser.parse_args(argv)
     except SystemExit as err:
