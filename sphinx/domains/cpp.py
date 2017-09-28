@@ -5469,12 +5469,12 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':      ObjType(l_('class'),      'class',             'type', 'typeOrConcept'),
-        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'typeOrConcept'),
+        'class':      ObjType(l_('class'),      'class',             'type', 'identifier'),
+        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'identifier'),
         'member':     ObjType(l_('member'),     'member',    'var'),
-        'type':       ObjType(l_('type'),                            'type', 'typeOrConcept'),
-        'concept':    ObjType(l_('concept'),    'concept',                   'typeOrConcept'),
-        'enum':       ObjType(l_('enum'),       'enum',              'type', 'typeOrConcept'),
+        'type':       ObjType(l_('type'),                            'type', 'identifier'),
+        'concept':    ObjType(l_('concept'),    'concept',                   'identifier'),
+        'enum':       ObjType(l_('enum'),       'enum',              'type', 'identifier'),
         'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
 
