@@ -83,11 +83,27 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
                   file=stderr)
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def get_parser():
+    # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
-        usage='usage: %(prog)s [OPTIONS] SOURCEDIR OUTDIR [FILENAMES...]',
-        epilog='For more information, visit <http://sphinx-doc.org/>.')
+        usage='usage: %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+        epilog='For more information, visit <http://sphinx-doc.org/>.',
+        description="""
+Generate documentation from source files.
+
+sphinx-build generates documentation from the files in SOURCEDIR and places it
+in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
+settings.  The 'sphinx-quickstart' tool may be used to generate template files,
+including 'conf.py'
+
+sphinx-build can create documentation in different formats. A format is
+selected by specifying the builder name on the command line; it defaults to
+HTML. Builders can also perform other tasks related to documentation
+processing.
+
+By default, everything that is outdated is built. Output only for selected
+files can be built by specifying individual filenames.
+""")
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
@@ -112,7 +128,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
                        'all files')
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help='path for the cached environment and doctree '
-                       'files (default: outdir/.doctrees)')
+                       'files (default: OUTPUTDIR/.doctrees)')
     group.add_argument('-j', metavar='N', default=1, type=int, dest='jobs',
                        help='build in parallel with N processes where '
                        'possible')
@@ -120,7 +136,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
     group = parser.add_argument_group('build configuration options')
     group.add_argument('-c', metavar='PATH', dest='confdir',
                        help='path where configuration file (conf.py) is '
-                       'located (default: same as sourcedir)')
+                       'located (default: same as SOURCEDIR)')
     group.add_argument('-C', action='store_true', dest='noconfig',
                        help='use no config file at all, only -D options')
     group.add_argument('-D', metavar='setting=value', action='append',
@@ -159,6 +175,13 @@ def main(argv=sys.argv[1:]):  # type: ignore
     group.add_argument('-P', action='store_true', dest='pdb',
                        help='run Pdb on exception')
 
+    return parser
+
+
+def main(argv=sys.argv[1:]):  # type: ignore
+    # type: (List[unicode]) -> int
+
+    parser = get_parser()
     # parse options
     try:
         args = parser.parse_args(argv)
