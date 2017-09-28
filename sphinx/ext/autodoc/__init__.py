@@ -1552,6 +1552,14 @@ class AutoDirective(Directive):
             if flag in self.env.config.autodoc_default_flags and \
                not negated:
                 self.options[flag] = None
+
+        if self.env.config.autodoc_special_members:
+            # Using autodoc_special_members (which takes a list of methods)
+            # overrides including special-members in autodoc_default_flags
+            # (which applies the default value of None meaning ALL methods).
+            # This will be parsed again, so turn it into a comma-sep string:
+            self.options['special-members'] = ','.join(self.env.config.autodoc_special_members)
+
         # process the options with the selected documenter's option_spec
         try:
             self.genopt = Options(assemble_option_dict(
@@ -1562,6 +1570,7 @@ class AutoDirective(Directive):
                                       'has an invalid value: %s' % (self.name, err),
                                       line=self.lineno)
             return [msg]
+
         # generate the output
         documenter = doc_class(self, self.arguments[0])
         documenter.generate(more_content=self.content)
@@ -1621,6 +1630,7 @@ def setup(app):
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_exclude_members', [], True)
+    app.add_config_value('autodoc_special_members', [], True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)

@@ -351,6 +351,26 @@ There are also new config values that you can set:
 
    .. versionadded:: 1.7
 
+.. confval:: autodoc_special_members
+
+   This value is a default list of any members names to be specifically
+   included, for example::
+
+       autodoc_special_members = ['__init__', '__next__']
+
+   This overrides the inclusion of ``special-members`` within the
+   ``autodoc_default_flags`` configuration, which would include ALL special
+   members.
+
+   This is overridden by any ``:special-members:`` directive in the autodoc
+   directive, for example::
+
+        .. automodule:: noodle
+           :members:
+           :special-members: __init__, __next__, __eq__
+
+   .. versionadded:: 1.7
+
 .. confval:: autodoc_default_flags
 
    This value is a list of autodoc directive flags that should be automatically
