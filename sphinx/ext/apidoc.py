@@ -284,9 +284,8 @@ def is_excluded(root, excludes):
     return False
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Parse and check the command line arguments."""
+def get_parser():
+    # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
         usage='usage: %(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
@@ -369,6 +368,13 @@ Note: By default this script will not overwrite already created files.""")
                            dest='ext_' + ext, default=False,
                            help='enable %s extension' % ext)
 
+    return parser
+
+
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
+    """Parse and check the command line arguments."""
+    parser = get_parser()
     args = parser.parse_args(argv)
 
     rootpath = path.abspath(args.module_path)
