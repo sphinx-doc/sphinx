@@ -38,6 +38,8 @@ std cpp:type 1 index.html#std -
 std::uint8_t cpp:type 1 index.html#std_uint8_t -
 foo::Bar cpp:class 1 index.html#cpp_foo_bar -
 foo::Bar::baz cpp:function 1 index.html#cpp_foo_bar_baz -
+foons cpp:type 1 index.html#foons -
+foons::bartype cpp:type 1 index.html#foons_bartype -
 a term std:term -1 glossary.html#term-a-term -
 ls.-l std:cmdoption 1 index.html#cmdoption-ls-l -
 docname std:doc -1 docname.html -
