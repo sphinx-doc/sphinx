@@ -61,6 +61,7 @@ DEFAULT_VALUE = {
     'ext_todo': False,
     'makefile': True,
     'batchfile': True,
+    'poshfile': True,
 }
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
@@ -238,6 +239,7 @@ def ask_user(d):
     * ext_*:     extensions to use (bools)
     * makefile:  make Makefile
     * batchfile: make command file
+    * poshfile:  make PowerShell file
     """
 
     print(bold('Welcome to the Sphinx %s quickstart utility.') % __display_version__)
@@ -391,6 +393,11 @@ directly.''')
     elif 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
+    if 'no_poshfile' in d:
+        d['poshfile'] = False
+    elif 'poshfile' not in d:
+        do_prompt(d, 'poshfile', 'Create PowerShell file? (y/n)',
+                  'y', boolean)
     print()
 
 
@@ -475,9 +482,11 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if d.get('make_mode') is True:
         makefile_template = 'quickstart/Makefile.new_t'
         batchfile_template = 'quickstart/make.bat.new_t'
+        poshfile_template = 'quickstart/make.ps1_t'
     else:
         makefile_template = 'quickstart/Makefile_t'
         batchfile_template = 'quickstart/make.bat_t'
+        poshfile_template = 'quickstart/make.ps1_t'
 
     if d['makefile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
@@ -492,13 +501,19 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         write_file(path.join(d['path'], 'make.bat'),
                    template.render(batchfile_template, d), u'\r\n')
 
+    if d['poshfile'] is True:
+        d['rsrcdir'] = d['sep'] and 'source' or '.'
+        d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
+        write_file(path.join(d['path'], 'make.ps1'),
+                   template.render(poshfile_template, d), u'\r\n')
+
     if silent:
         return
     print()
     print(bold('Finished: An initial directory structure has been created.'))
     print('''
 You should now populate your master file %s and create other documentation
-source files. ''' % masterfile + ((d['makefile'] or d['batchfile']) and '''\
+source files. ''' % masterfile + ((d['makefile'] or d['batchfile'] or d['poshfile']) and '''\
 Use the Makefile to build the docs, like so:
    make builder
 ''' or '''\
@@ -628,6 +643,12 @@ def main(argv=sys.argv[1:]):
     group.add_option('--no-batchfile', action='store_true', dest='no_batchfile',
                      default=False,
                      help='not create batchfile')
+    group.add_option('--poshfile', action='store_true', dest='poshfile',
+                     default=False,
+                     help='create PowerShell file')
+    group.add_option('--no-poshfile', action='store_true', dest='no_poshfile',
+                     default=False,
+                     help='not create PowerShell file')
     group.add_option('-M', '--no-use-make-mode', action='store_false', dest='make_mode',
                      help='not use make-mode for Makefile/make.bat')
     group.add_option('-m', '--use-make-mode', action='store_true', dest='make_mode',
@@ -672,6 +693,8 @@ def main(argv=sys.argv[1:]):
                 d['makefile'] = False
             if 'no_batchfile' in d:
                 d['batchfile'] = False
+            if 'no_poshfile' in d:
+                d['poshfile'] = False
 
             if not valid_dir(d):
                 print()
