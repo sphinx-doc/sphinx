@@ -971,7 +971,6 @@ class Documenter(object):
                     # keep documented attributes
                     keep = True
                 isattr = True
-                print(membername, keep)
             elif want_all and membername.startswith('_'):
                 # ignore members whose name starts with _ by default
                 keep = self.options.private_members and \

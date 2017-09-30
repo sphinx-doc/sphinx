@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #4085: Failed PDF build from image in parsed-literal using ``:align:`` option
+* #4100: Remove debug print from autodoc extension
 
 Testing
 --------
