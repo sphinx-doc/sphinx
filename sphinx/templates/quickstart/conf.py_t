@@ -94,8 +94,8 @@ todo_include_todos = {{ ext_todo }}
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# If using another theme than alabaster, comment out 'about.html'
-# from html_sidebars dictionary.
+# If using another theme than alabaster, you may need to comment out
+# 'about.html' and 'navigation.html' from the html_sidebars dictionary.
 html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -118,11 +118,11 @@ html_static_path = ['{{ dot }}static']
 # http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
-        'about.html',          # comment this out if not using alabaster theme
-        #  'navigation.html',  # specific to alabaster (and possibly others)
-        #  'relations.html',   # general, alabaster needs 'show_related': True
-        #  'donate.html',      # specific to alabaster (and possibly others)
-        'searchbox.html',      # general
+        'about.html',       # comment this out if not using alabaster theme
+        'navigation.html',  # idem, except of course if other theme provides it
+        # 'relations.html', # general, alabaster needs 'show_related': True
+        # 'donate.html',    # alabaster theme, perhaps others
+        'searchbox.html',   # general
     ]
 }
 
