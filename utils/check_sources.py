@@ -37,13 +37,6 @@ def checker(*suffixes, **kwds):
 coding_re = re.compile(br'coding[:=]\s*([-\w.]+)')
 
 uni_coding_re = re.compile(r'^#.*coding[:=]\s*([-\w.]+).*')
-name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
-                          r'by %s(, %s)*[,.]$' %
-                          (name_mail_re, name_mail_re))
-license_re = re.compile(r"    :license: (.*?).\n")
-copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
-                            (name_mail_re, name_mail_re))
 not_ix_re = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
 is_const_re = re.compile(r'if.*?==\s+(None|False|True)\b')
 noqa_re = re.compile(r'#\s+NOQA\s*$', re.I)
@@ -93,66 +86,6 @@ def check_style(fn, lines):
         #     yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
             yield lno + 1, 'using == None/True/False'
-
-
-@checker('.py', only_pkg=True)
-def check_fileheader(fn, lines):
-    # line number correction
-    offset = 1
-    if lines[0:1] == ['#!/usr/bin/env python\n']:
-        lines = lines[1:]
-        offset = 2
-
-    llist = []
-    doc_open = False
-    for lno, line in enumerate(lines):
-        llist.append(line)
-        if lno == 0:
-            if line != '# -*- coding: utf-8 -*-\n':
-                yield 1, "missing coding declaration"
-        elif lno == 1:
-            if line != '"""\n' and line != 'r"""\n':
-                yield 2, 'missing docstring begin (""")'
-            else:
-                doc_open = True
-        elif doc_open:
-            if line == '"""\n':
-                # end of docstring
-                if lno <= 4:
-                    yield lno + offset, "missing module name in docstring"
-                break
-
-            if line != '\n' and line[:4] != '    ' and doc_open:
-                yield lno + offset, "missing correct docstring indentation"
-
-            if lno == 2:
-                # if not in package, don't check the module name
-                mod_name = fn[:-3].replace('/', '.').replace('.__init__', '')
-                while mod_name:
-                    if line.lower()[4:-1] == mod_name:
-                        break
-                    mod_name = '.'.join(mod_name.split('.')[1:])
-                else:
-                    yield 3, "wrong module name in docstring heading"
-                mod_name_len = len(line.strip())
-            elif lno == 3:
-                if line.strip() != mod_name_len * '~':
-                    yield 4, "wrong module name underline, should be ~~~...~"
-    else:
-        yield 0, "missing end and/or start of docstring..."
-
-    # check for copyright and license fields
-    license = llist[-2:-1]
-    if not license or not license_re.match(license[0]):
-        yield 0, "no correct license info"
-
-    offset = -3
-    copyright = llist[offset:offset + 1]
-    while copyright and copyright_2_re.match(copyright[0]):
-        offset -= 1
-        copyright = llist[offset:offset + 1]
-    if not copyright or not copyright_re.match(copyright[0]):
-        yield 0, "no correct copyright info"
 
 
 @checker('.py', '.html', '.rst')

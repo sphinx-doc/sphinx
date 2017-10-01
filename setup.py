@@ -247,6 +247,13 @@ setup(
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
+        # consider moving this to 'flake8:local-plugins' once flake8 3.5.0 is
+        # in the wild:
+        #    http://flake8.pycqa.org/en/latest/user/configuration.html\
+        #    #using-local-plugins
+        'flake8.extension': [
+            'X101 = extras.checks:sphinx_has_header',
+        ],
     },
     install_requires=requires,
     extras_require=extras_require,
