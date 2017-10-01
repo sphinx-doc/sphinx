@@ -1700,9 +1700,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pre = []    # type: List[unicode]
                     # in reverse order
         post = []   # type: List[unicode]
-        if self.in_parsed_literal:
-            pre = ['\\begingroup\\sphinxunactivateextrasandspace\\relax ']
-            post = ['\\endgroup ']
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:
@@ -1742,6 +1739,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 post.append(align_prepost[is_inline, attrs['align']][1])
             except KeyError:
                 pass
+        if self.in_parsed_literal:
+            pre.append('{\\sphinxunactivateextrasandspace ')
+            post.append('}')
         if not is_inline:
             pre.append('\n\\noindent')
             post.append('\n')
