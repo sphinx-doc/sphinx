@@ -1,7 +1,7 @@
 PYTHON ?= python
 
 .PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
-        clean-generated reindent test build
+        clean-generated test build
 
 DONT_CHECK = -i .ropeproject \
              -i .tox \
@@ -81,9 +81,6 @@ clean-buildfiles:
 
 clean-mypyfiles:
 	rm -rf .mypy_cache/
-
-reindent:
-	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
 	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
