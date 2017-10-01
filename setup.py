@@ -240,7 +240,7 @@ setup(
     entry_points={
         'console_scripts': [
             'sphinx-build = sphinx.cmd.build:main',
-            'sphinx-quickstart = sphinx.quickstart:main',
+            'sphinx-quickstart = sphinx.cmd.quickstart:main',
             'sphinx-apidoc = sphinx.ext.apidoc:main',
             'sphinx-autogen = sphinx.ext.autosummary.generate:main',
         ],

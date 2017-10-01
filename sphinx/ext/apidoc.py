@@ -25,7 +25,7 @@ from six import binary_type
 from fnmatch import fnmatch
 
 from sphinx import __display_version__
-from sphinx.quickstart import EXTENSIONS
+from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, walk
 
@@ -384,7 +384,7 @@ Note: By default this script will not overwrite already created files.""")
     excludes = normalize_excludes(rootpath, excludes)
     modules = recurse_tree(rootpath, excludes, opts)
     if opts.full:
-        from sphinx import quickstart as qs
+        from sphinx.cmd import quickstart as qs
         modules.sort()
         prev_module = ''  # type: unicode
         text = ''
