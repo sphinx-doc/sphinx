@@ -86,7 +86,7 @@ pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
 reindent:
-	@$(PYTHON) utils/reindent.py -r -n .
+	@echo "This target no longer does anything and will be removed imminently"
 
 test:
 	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
