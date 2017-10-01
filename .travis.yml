@@ -44,5 +44,5 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then python3.6 -m pip install mypy typed-ast; fi
 script:
   - flake8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check type-check test-async; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make type-check test-async; fi
   - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
