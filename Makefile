@@ -1,7 +1,7 @@
 PYTHON ?= python
 
 .PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
-        clean-generated pylint reindent test covertest build
+        clean-generated reindent test covertest build
 
 DONT_CHECK = -i .ropeproject \
              -i .tox \
@@ -81,9 +81,6 @@ clean-buildfiles:
 
 clean-mypyfiles:
 	rm -rf .mypy_cache/
-
-pylint:
-	@pylint --rcfile utils/pylintrc sphinx
 
 reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
