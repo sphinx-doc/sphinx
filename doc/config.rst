@@ -2062,6 +2062,29 @@ These options influence Texinfo output.
    .. versionadded:: 1.1
 
 
+.. _qthelp-options:
+
+Options for QtHelp output
+--------------------------
+
+These options influence QtHelp output.
+
+.. confval:: qthelp_basename
+
+   The basename for the qthelp file.  It defaults to the :confval:`project` name.
+
+.. confval:: qthelp_theme
+
+   The HTML theme for the qthelp output.
+   This defaults to ``'nonav'``.
+
+.. confval:: qthelp_theme_options
+
+   A dictionary of options that influence the look and feel of the selected
+   theme.  These are theme-specific.  For the options understood by the builtin
+   themes, see :ref:`this section <builtin-themes>`.
+
+
 Options for the linkcheck builder
 ---------------------------------
 
