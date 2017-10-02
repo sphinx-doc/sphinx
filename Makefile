@@ -1,7 +1,7 @@
 PYTHON ?= python
 
 .PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
-        clean-generated reindent test covertest build
+        clean-generated reindent test build
 
 DONT_CHECK = -i .ropeproject \
              -i .tox \
@@ -90,9 +90,6 @@ test:
 
 test-async:
 	@cd tests; $(PYTHON) run.py -v $(TEST)
-
-covertest:
-	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 build:
 	@$(PYTHON) setup.py build
