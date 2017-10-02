@@ -9,9 +9,23 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import re
+import subprocess
 
 import pytest
+
+
+def has_binary(binary):
+    try:
+        subprocess.check_output([binary])
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            # handle file not found error.
+            return False
+        else:
+            return True
+    return True
 
 
 @pytest.mark.sphinx(
@@ -34,6 +48,8 @@ def test_jsmath(app, status, warning):
     assert '<div class="math">\na + 1 &lt; b</div>' in content
 
 
+@pytest.mark.skipif(not has_binary('dvipng'),
+                    reason='Requires dvipng" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
                     confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
@@ -49,6 +65,8 @@ def test_imgmath_png(app, status, warning):
     assert re.search(html, content, re.S)
 
 
+@pytest.mark.skipif(not has_binary('dvisvgm'),
+                    reason='Requires dvisvgm" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
                     confoverrides={'extensions': ['sphinx.ext.imgmath'],
                                    'imgmath_image_format': 'svg'})
