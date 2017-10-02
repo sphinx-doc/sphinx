@@ -98,47 +98,46 @@ def check_style(fn, lines):
 @checker('.py', only_pkg=True)
 def check_fileheader(fn, lines):
     # line number correction
-    c = 1
+    offset = 1
     if lines[0:1] == ['#!/usr/bin/env python\n']:
         lines = lines[1:]
-        c = 2
+        offset = 2
 
     llist = []
-    docopen = False
-    for lno, l in enumerate(lines):
-        llist.append(l)
+    doc_open = False
+    for lno, line in enumerate(lines):
+        llist.append(line)
         if lno == 0:
-            if l != '# -*- coding: utf-8 -*-\n':
+            if line != '# -*- coding: utf-8 -*-\n':
                 yield 1, "missing coding declaration"
         elif lno == 1:
-            if l != '"""\n' and l != 'r"""\n':
+            if line != '"""\n' and line != 'r"""\n':
                 yield 2, 'missing docstring begin (""")'
             else:
-                docopen = True
-        elif docopen:
-            if l == '"""\n':
+                doc_open = True
+        elif doc_open:
+            if line == '"""\n':
                 # end of docstring
                 if lno <= 4:
-                    yield lno + c, "missing module name in docstring"
+                    yield lno + offset, "missing module name in docstring"
                 break
 
-            if l != '\n' and l[:4] != '    ' and docopen:
-                yield lno + c, "missing correct docstring indentation"
+            if line != '\n' and line[:4] != '    ' and doc_open:
+                yield lno + offset, "missing correct docstring indentation"
 
             if lno == 2:
                 # if not in package, don't check the module name
-                modname = fn[:-3].replace('/', '.').replace('.__init__', '')
-                while modname:
-                    if l.lower()[4:-1] == modname:
+                mod_name = fn[:-3].replace('/', '.').replace('.__init__', '')
+                while mod_name:
+                    if line.lower()[4:-1] == mod_name:
                         break
-                    modname = '.'.join(modname.split('.')[1:])
+                    mod_name = '.'.join(mod_name.split('.')[1:])
                 else:
                     yield 3, "wrong module name in docstring heading"
-                modnamelen = len(l.strip())
+                mod_name_len = len(line.strip())
             elif lno == 3:
-                if l.strip() != modnamelen * '~':
+                if line.strip() != mod_name_len * '~':
                     yield 4, "wrong module name underline, should be ~~~...~"
-
     else:
         yield 0, "missing end and/or start of docstring..."
 
@@ -147,11 +146,11 @@ def check_fileheader(fn, lines):
     if not license or not license_re.match(license[0]):
         yield 0, "no correct license info"
 
-    ci = -3
-    copyright = llist[ci:ci + 1]
+    offset = -3
+    copyright = llist[offset:offset + 1]
     while copyright and copyright_2_re.match(copyright[0]):
-        ci -= 1
-        copyright = llist[ci:ci + 1]
+        offset -= 1
+        copyright = llist[offset:offset + 1]
     if not copyright or not copyright_re.match(copyright[0]):
         yield 0, "no correct copyright info"
 
