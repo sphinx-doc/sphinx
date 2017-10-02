@@ -17,7 +17,7 @@ from six.moves import input
 import pytest
 
 from sphinx import application
-from sphinx import quickstart as qs
+from sphinx.cmd import quickstart as qs
 from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
 

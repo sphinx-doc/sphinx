@@ -11,5 +11,5 @@
 import sys
 
 if __name__ == '__main__':
-    from sphinx.quickstart import main
+    from sphinx.cmd.quickstart import main
     sys.exit(main(sys.argv[1:]))

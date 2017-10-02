@@ -15,15 +15,12 @@
 from __future__ import absolute_import
 
 import os
-import sys
 import warnings
 from os import path
 
+from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
-
-if False:
-    # For type annotation
-    from typing import List  # NOQA
+from .deprecation import RemovedInSphinx20Warning
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
@@ -63,62 +60,19 @@ if __version__.endswith('+'):
         pass
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    if sys.argv[1:2] == ['-M']:
-        return make_main(argv)
-    else:
-        return build_main(argv)
-
-
-def build_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Sphinx build "main" command-line entry."""
-    if (sys.version_info[:3] < (2, 7, 0) or
-       (3, 0, 0) <= sys.version_info[:3] < (3, 4, 0)):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.7 or 3.4 to run.\n')
-        return 1
-    try:
-        from sphinx import cmdline
-    except ImportError:
-        err = sys.exc_info()[1]
-        errstr = str(err)
-        if errstr.lower().startswith('no module named'):
-            whichmod = errstr[16:]
-            hint = ''
-            if whichmod.startswith('docutils'):
-                whichmod = 'Docutils library'
-            elif whichmod.startswith('jinja'):
-                whichmod = 'Jinja2 library'
-            elif whichmod == 'roman':
-                whichmod = 'roman module (which is distributed with Docutils)'
-                hint = ('This can happen if you upgraded docutils using\n'
-                        'easy_install without uninstalling the old version'
-                        'first.\n')
-            else:
-                whichmod += ' module'
-            sys.stderr.write('Error: The %s cannot be found. '
-                             'Did you install Sphinx and its dependencies '
-                             'correctly?\n' % whichmod)
-            if hint:
-                sys.stderr.write(hint)
-            return 1
-        raise
-
-    import sphinx.util.docutils
-    if sphinx.util.docutils.__version_info__ < (0, 10):
-        sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
-                         'run.\n')
-        return 1
-    return cmdline.main(argv)  # type: ignore
-
-
-def make_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
-    return make_mode.run_make_mode(argv[1:])  # type: ignore
+def main(*args, **kwargs):
+    warnings.warn(
+        '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    build.main(*args, **kwargs)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    warnings.warn(
+        '`sphinx` has moved to `sphinx.build`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    build.main()
