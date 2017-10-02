@@ -12,6 +12,7 @@ TAGS
 .tags
 .tox
 .venv
+.coverage
 .DS_Store
 sphinx/pycode/Grammar*pickle
 distribute-*
