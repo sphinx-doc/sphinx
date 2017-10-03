@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #4107: Make searchtools.js compatible with pre-Sphinx1.5 templates
+
 Bugs fixed
 ----------
 
