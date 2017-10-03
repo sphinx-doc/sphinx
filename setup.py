@@ -69,9 +69,16 @@ extras_require = {
     ],
     'test': [
         'pytest',
-        'mock',  # it would be better for 'test:python_version in 2.7'
-        'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'pytest-cov',
         'html5lib',
+    ],
+    'test:python_version<"3"': [
+        'enum34',
+        'mock',
+    ],
+    'test:python_version>="3"': [
+        'mypy',
+        'typed_ast',
     ],
 }
 
@@ -83,10 +90,7 @@ cmdclass = {}
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
-    try:
-        from simplejson import dump
-    except ImportError:
-        from json import dump
+    from json import dump
 except ImportError:
     pass
 else:
