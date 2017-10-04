@@ -126,8 +126,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    * Build the documentation and check the output for different builders::
 
-       cd doc
-       make clean html latexpdf
+       make docs target="clean html latexpdf"
 
    * Run code style checks and type checks (type checks require mypy)::
 
