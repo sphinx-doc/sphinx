@@ -36,7 +36,7 @@ footnotes in table
     * - VIDIOC_CROPCAP
       - Information about VIDIOC_CROPCAP [#]_
 
-footenotes
+footnotes
 --------------------
 
 .. rubric:: Footnotes
