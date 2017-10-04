@@ -3,7 +3,7 @@ Release checklist
 
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check stable branch is green
 * Check `git status`
-* Run `make style-check`
+* Run `tox`, which will run style checks, type checks, unit tests and doc tests
 * Update sphinx/locale/sphinx.pot if first major release (beta1)
 
   * Run `python setup.py extract_messages`
