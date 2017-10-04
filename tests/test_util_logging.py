@@ -165,7 +165,11 @@ def test_warningiserror(app, status, warning):
     # if True, warning raises SphinxWarning exception
     app.warningiserror = True
     with pytest.raises(SphinxWarning):
-        logger.warning('message')
+        logger.warning('message: %s', 'arg')
+
+    # message contains format string (refs: #4070)
+    with pytest.raises(SphinxWarning):
+        logger.warning('%s')
 
 
 def test_warning_location(app, status, warning):
