@@ -92,12 +92,17 @@ Deprecated
 Features added
 --------------
 
+* #4107: Make searchtools.js compatible with pre-Sphinx1.5 templates
+* #4112: Don't override the smart_quotes setting if it was already set
+
 Bugs fixed
 ----------
 
 * #4085: Failed PDF build from image in parsed-literal using ``:align:`` option
 * #4100: Remove debug print from autodoc extension
 * #3987: Changing theme from alabaster causes HTML build to fail
+* #4096: C++, don't crash when using the wrong role type. Thanks to mitya57.
+* #4070, #4111: crashes when the warning message contains format strings (again)
 
 Testing
 --------

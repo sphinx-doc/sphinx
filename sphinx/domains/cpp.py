@@ -5614,8 +5614,8 @@ class CPPDomain(Domain):
             if declTyp == 'templateParam':
                 return True
             objtypes = self.objtypes_for_role(typ)
-            if objtypes and declTyp in objtypes:
-                return True
+            if objtypes:
+                return declTyp in objtypes
             print("Type is %s, declType is %s" % (typ, declTyp))
             assert False
         if not checkType():

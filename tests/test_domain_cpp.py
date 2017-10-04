@@ -598,6 +598,13 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
+@pytest.mark.sphinx(testroot='domain-cpp')
+def test_build_domain_cpp_misuse_of_roles(app, status, warning):
+    app.builder.build_all()
+
+    # TODO: properly check for the warnings we expect
+
+
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
