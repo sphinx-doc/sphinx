@@ -455,11 +455,13 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     def write_file(fpath, content, newline=None):
         # type: (unicode, unicode, unicode) -> None
         if overwrite or not path.isfile(fpath):
-            print('Creating file %s.' % fpath)
+            if 'quiet' not in d:
+                print('Creating file %s.' % fpath)
             with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
-            print('File %s already exists, skipping.' % fpath)
+            if 'quiet' not in d:
+                print('File %s already exists, skipping.' % fpath)
 
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
