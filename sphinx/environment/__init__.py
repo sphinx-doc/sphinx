@@ -676,19 +676,20 @@ class BuildEnvironment(object):
 
         language = self.config.language or 'en'
         self.settings['language_code'] = language
-        self.settings['smart_quotes'] = True
-        if self.config.html_use_smartypants is not None:
-            warnings.warn("html_use_smartypants option is deprecated. Smart "
-                          "quotes are on by default; if you want to disable "
-                          "or customize them, use the smart_quotes option in "
-                          "docutils.conf.",
-                          RemovedInSphinx17Warning)
-            self.settings['smart_quotes'] = self.config.html_use_smartypants
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                break
-        else:
-            self.settings['smart_quotes'] = False
+        if 'smart_quotes' not in self.settings:
+            self.settings['smart_quotes'] = True
+            if self.config.html_use_smartypants is not None:
+                warnings.warn("html_use_smartypants option is deprecated. Smart "
+                              "quotes are on by default; if you want to disable "
+                              "or customize them, use the smart_quotes option in "
+                              "docutils.conf.",
+                              RemovedInSphinx17Warning)
+                self.settings['smart_quotes'] = self.config.html_use_smartypants
+            for tag in normalize_language_tag(language):
+                if tag in smartchars.quotes:
+                    break
+            else:
+                self.settings['smart_quotes'] = False
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
