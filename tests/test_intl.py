@@ -182,11 +182,11 @@ def test_text_inconsistency_warnings(app, warning):
     result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
     expect = (u"I18N WITH REFS INCONSISTENCY"
               u"\n****************************\n"
-              u"\n* FOR FOOTNOTE [ref2].\n"
+              u"\n* FOR CITATION [ref3].\n"
               u"\n* reference FOR reference.\n"
               u"\n* ORPHAN REFERENCE: I18N WITH REFS INCONSISTENCY.\n"
               u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
-              u"\n[ref2] THIS IS A NAMED FOOTNOTE.\n"
+              u"\n[ref2] THIS IS A CITATION.\n"
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
 
@@ -199,6 +199,10 @@ def test_text_inconsistency_warnings(app, warning):
         warning_fmt % 'references')
     assert_re_search(expected_warning_expr, warnings)
 
+    expected_citation_warning_expr = (
+        u'.*/refs_inconsistency.txt:\\d+: WARNING: Citation \[ref2\] is not referenced.\n' +
+        u'.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
+    assert_re_search(expected_citation_warning_expr, warnings)
 
 @sphinx_intl
 @pytest.mark.sphinx('text')
