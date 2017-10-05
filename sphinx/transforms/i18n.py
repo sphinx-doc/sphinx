@@ -258,11 +258,10 @@ class Locale(SphinxTransform):
                     (nodes.paragraph,) + LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
                 continue  # skip for now
 
-            # auto-numbered foot note reference should use original 'ids'.
-            def is_autonumber_footnote_ref(node):
+            # foot note reference should use original 'ids'.
+            def is_footnote_ref(node):
                 # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.footnote_reference) and \
-                    node.get('auto') == 1
+                return isinstance(node, nodes.footnote_reference)
 
             def list_replace_or_append(lst, old, new):
                 # type: (List, Any, Any) -> None
@@ -270,8 +269,8 @@ class Locale(SphinxTransform):
                     lst[lst.index(old)] = new
                 else:
                     lst.append(new)
-            old_foot_refs = node.traverse(is_autonumber_footnote_ref)
-            new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
+            old_foot_refs = node.traverse(is_footnote_ref)
+            new_foot_refs = patch.traverse(is_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
                 logger.warning('inconsistent footnote references in translated message',
                                location=node)
@@ -326,26 +325,6 @@ class Locale(SphinxTransform):
                         pass
 
                 self.document.note_refname(new)
-
-            # refnamed footnote and citation should use original 'ids'.
-            def is_refnamed_footnote_ref(node):
-                # type: (nodes.Node) -> bool
-                footnote_ref_classes = (nodes.footnote_reference,
-                                        nodes.citation_reference)
-                return isinstance(node, footnote_ref_classes) and \
-                    'refname' in node
-            old_refs = node.traverse(is_refnamed_footnote_ref)
-            new_refs = patch.traverse(is_refnamed_footnote_ref)
-            refname_ids_map = {}
-            if len(old_refs) != len(new_refs):
-                logger.warning('inconsistent references in translated message',
-                               location=node)
-            for old in old_refs:
-                refname_ids_map[old["refname"]] = old["ids"]
-            for new in new_refs:
-                refname = new["refname"]
-                if refname in refname_ids_map:
-                    new["ids"] = refname_ids_map[refname]
 
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
