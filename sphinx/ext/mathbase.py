@@ -84,6 +84,13 @@ class MathDomain(Domain):
                 newnode['target'] = target
                 return newnode
             else:
+                if env.config.math_numfig and env.config.numfig:
+                    if docname in env.toc_fignumbers:
+                        id = 'equation-' + target
+                        number = env.toc_fignumbers[docname]['displaymath'].get(id, ())
+                        number = '.'.join(map(str, number))
+                    else:
+                        number = ''
                 try:
                     eqref_format = env.config.math_eqref_format or "({number})"
                     title = nodes.Text(eqref_format.format(number=number))
@@ -124,6 +131,20 @@ class MathDomain(Domain):
         # type: (unicode) -> int
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
+
+
+def get_node_equation_number(env, node):
+    if env.config.math_numfig and env.config.numfig:
+        docname = node['docname']
+        if docname in env.toc_fignumbers:
+            id = node['ids'][0]
+            number = env.toc_fignumbers[docname]['displaymath'].get(id, ())
+            number = '.'.join(map(str, number))
+        else:
+            number = ''
+    else:
+        number = node['number']
+    return number
 
 
 def wrap_displaymath(math, label, numbering):
@@ -341,6 +362,7 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_number_all', False, 'env')
     app.add_config_value('math_eqref_format', None, 'env', string_classes)
+    app.add_config_value('math_numfig', False, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
@@ -348,7 +370,7 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  man=(man_visit_math, None),
                  texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
-    app.add_node(displaymath,
+    app.add_enumerable_node(displaymath, 'displaymath',
                  latex=(latex_visit_displaymath, None),
                  text=(text_visit_displaymath, None),
                  man=(man_visit_displaymath, man_depart_displaymath),

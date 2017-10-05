@@ -44,6 +44,14 @@ or use Python raw strings (``r"raw"``).
 
    Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
 
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages using numfig.
+   The :confval:`numfig` config value must be enabled and
+   :confval:`numfig_secnum_depth` is respected.  The ``:eq:`` role must be used
+   to refererence these equation numbers, not the ``:numref:`` role.
+   Default is ``False``.
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math

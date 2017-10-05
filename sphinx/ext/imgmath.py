@@ -30,6 +30,7 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.ext.mathbase import get_node_equation_number
 
 if False:
     # For type annotation
@@ -333,7 +334,8 @@ def html_visit_displaymath(self, node):
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
-        self.body.append('<span class="eqno">(%s)' % node['number'])
+        number = get_node_equation_number(self.builder.env, node)
+        self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     if fname is None:
