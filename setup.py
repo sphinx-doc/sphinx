@@ -75,13 +75,6 @@ extras_require = {
     ],
 }
 
-# for sdist installation with pip-1.5.6
-if sys.platform == 'win32':
-    requires.append('colorama>=0.3.5')
-
-if sys.version_info < (3, 5):
-    requires.append('typing')
-
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 
