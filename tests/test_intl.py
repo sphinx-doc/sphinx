@@ -197,23 +197,23 @@ def test_text_inconsistency_warnings(app, warning):
     expected_warning_expr = (
         warning_fmt % {
             u'reftype': u'footnote references',
-            u'original': u"\['\[#\]_'\]",
+            u'original': u"\[u?'\[#\]_'\]",
             u'translated': u"\[\]"
         } +
         warning_fmt % {
             u'reftype': u'footnote references',
-            u'original': u"\['\[100\]_'\]",
+            u'original': u"\[u?'\[100\]_'\]",
             u'translated': u"\[\]"
         } +
         warning_fmt % {
             u'reftype': u'references',
-            u'original': u"\['reference_'\]",
-            u'translated': u"\['reference_', 'reference_'\]"
+            u'original': u"\[u?'reference_'\]",
+            u'translated': u"\[u?'reference_', u?'reference_'\]"
         } +
         warning_fmt % {
             u'reftype': u'references',
             u'original': u"\[\]",
-            u'translated': u"\['`I18N WITH REFS INCONSISTENCY`_'\]"
+            u'translated': u"\[u?'`I18N WITH REFS INCONSISTENCY`_'\]"
         })
     assert_re_search(expected_warning_expr, warnings)
 
@@ -300,8 +300,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     expected_warning_expr = (
         u'.*/glossary_terms_inconsistency.txt:\\d+: '
         u'WARNING: inconsistent term references in translated message.'
-        u" original: \[':term:`Some term`', ':term:`Some other term`'\],"
-        u" translated: \[':term:`SOME NEW TERM`'\]\n")
+        u" original: \[u?':term:`Some term`', u?':term:`Some other term`'\],"
+        u" translated: \[u?':term:`SOME NEW TERM`'\]\n")
     assert_re_search(expected_warning_expr, warnings)
 
 
