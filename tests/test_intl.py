@@ -192,11 +192,29 @@ def test_text_inconsistency_warnings(app, warning):
 
     warnings = getwarning(warning)
     warning_fmt = u'.*/refs_inconsistency.txt:\\d+: ' \
-                  u'WARNING: inconsistent %s in translated message\n'
+                  u'WARNING: inconsistent %(reftype)s in translated message.' \
+                  u' original: %(original)s, translated: %(translated)s\n'
     expected_warning_expr = (
-        warning_fmt % 'footnote references' +
-        warning_fmt % 'references' +
-        warning_fmt % 'references')
+        warning_fmt % {
+            u'reftype': u'footnote references',
+            u'original': u"\['\[#\]_'\]",
+            u'translated': u"\[\]"
+        } +
+        warning_fmt % {
+            u'reftype': u'footnote references',
+            u'original': u"\['\[100\]_'\]",
+            u'translated': u"\[\]"
+        } +
+        warning_fmt % {
+            u'reftype': u'references',
+            u'original': u"\['reference_'\]",
+            u'translated': u"\['reference_', 'reference_'\]"
+        } +
+        warning_fmt % {
+            u'reftype': u'references',
+            u'original': u"\[\]",
+            u'translated': u"\['`I18N WITH REFS INCONSISTENCY`_'\]"
+        })
     assert_re_search(expected_warning_expr, warnings)
 
     expected_citation_warning_expr = (
@@ -281,7 +299,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     warnings = getwarning(warning)
     expected_warning_expr = (
         u'.*/glossary_terms_inconsistency.txt:\\d+: '
-        u'WARNING: inconsistent term references in translated message\n')
+        u'WARNING: inconsistent term references in translated message.'
+        u" original: \[':term:`Some term`', ':term:`Some other term`'\], translated: \[':term:`SOME NEW TERM`'\]\n")
     assert_re_search(expected_warning_expr, warnings)
 
 
