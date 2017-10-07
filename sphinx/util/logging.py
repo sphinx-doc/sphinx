@@ -136,13 +136,13 @@ class NewLineStreamHandlerPY2(logging.StreamHandler):
         # type: (logging.LogRecord) -> None
         try:
             self.acquire()
-            stream = self.stream  # type: ignore
+            stream = self.stream
             if getattr(record, 'nonl', False):
                 # remove return code forcely when nonl=True
                 self.stream = StringIO()
                 super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])
-                stream.flush()
+                stream.write(self.stream.getvalue()[:-1])  # type: ignore
+                stream.flush()  # type: ignore
             else:
                 super(NewLineStreamHandlerPY2, self).emit(record)
         finally:

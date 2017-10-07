@@ -14,6 +14,7 @@ Features added
 --------------
 
 * #4107: Make searchtools.js compatible with pre-Sphinx1.5 templates
+* #4112: Don't override the smart_quotes setting if it was already set
 
 Bugs fixed
 ----------

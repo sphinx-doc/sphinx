@@ -368,7 +368,7 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
-    if typing and isinstance(annotation, typing.TypeVar):  # type: ignore
+    if typing and isinstance(annotation, typing.TypeVar):
         return annotation.__name__
     if annotation == Ellipsis:
         return '...'
