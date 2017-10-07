@@ -300,7 +300,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     expected_warning_expr = (
         u'.*/glossary_terms_inconsistency.txt:\\d+: '
         u'WARNING: inconsistent term references in translated message.'
-        u" original: \[':term:`Some term`', ':term:`Some other term`'\], translated: \[':term:`SOME NEW TERM`'\]\n")
+        u" original: \[':term:`Some term`', ':term:`Some other term`'\],"
+        u" translated: \[':term:`SOME NEW TERM`'\]\n")
     assert_re_search(expected_warning_expr, warnings)
 
 
