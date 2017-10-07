@@ -96,7 +96,7 @@ _pat_cache = {}  # type: Dict[unicode, Pattern]
 
 
 def patmatch(name, pat):
-    # type: (unicode, unicode) -> re.Match
+    # type: (unicode, unicode) -> Match[unicode]
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
