@@ -25,6 +25,7 @@ Bugs fixed
 * #4096: C++, don't crash when using the wrong role type. Thanks to mitya57.
 * #4070, #4111: crashes when the warning message contains format strings (again)
 * #4108: Search word highlighting breaks SVG images
+* #3692: Unable to build HTML if writing .buildinfo failed
 
 Testing
 --------
