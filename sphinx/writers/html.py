@@ -27,7 +27,7 @@ from sphinx.util.images import get_image_size
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, List  # NOQA
     from sphinx.builders.html import StandaloneHTMLBuilder  # NOQA
 
 
@@ -90,6 +90,7 @@ class HTMLTranslator(BaseTranslator):
         self._table_row_index = 0
         self._fieldlist_row_index = 0
         self.required_params_left = 0
+        self.collected_footnotes = []
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
@@ -892,6 +893,27 @@ class HTMLTranslator(BaseTranslator):
         if depart:
             depart(self, node)
 
+    # overwritten
+    def visit_footnote(self, node):
+        if 'bottom' in self.builder.config.html_footnotes_options:
+            self.collected_footnotes.append(node)
+            raise nodes.SkipNode
+        else:
+            BaseTranslator.visit_footnote(self, node)
+
+    # overwritten
+    def depart_document(self, node):
+        if self.collected_footnotes:
+            self.build_footnotes()
+        BaseTranslator.depart_document(self, node)
+
+    def build_footnotes(self):
+        footnotes = self.document.copy()
+        footnotes.extend(self.collected_footnotes)
+        visitor = _BottomFootnotesTranslator(self.builder, footnotes)
+        footnotes.walkabout(visitor)
+        self.body.extend(visitor.body)
+
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
@@ -925,3 +947,37 @@ class HTMLTranslator(BaseTranslator):
         warnings.warn('HTMLTranslator.highlightlinenothreshold is deprecated.',
                       RemovedInSphinx30Warning)
         return sys.maxsize
+
+
+class _BottomFootnotesTranslator(HTMLTranslator):
+    def visit_document(self, node):
+        self.body.append(self.starttag(node, 'div', CLASS='footnotes'))
+        if 'rubric' in self.builder.config.html_footnotes_options:
+            rubric_node = nodes.rubric(text=_('Footnotes'))
+            node.insert(0, rubric_node)
+        elif 'title' in self.builder.config.html_footnotes_options:
+            self.body.append('<h2>' + _('Footnotes') + '</h2>')
+            self._start_footnotes_table()
+        else:
+            self._start_footnotes_table()
+
+    def _start_footnotes_table(self):
+        self.body.extend(('<table class="docutils footnote" '
+                          'frame="void" rules="none">',
+                          '<colgroup><col class="label" /><col /></colgroup>',
+                          '<tbody valign="top">'))
+
+    def depart_document(self, node):
+        self.body.extend(('</tbody>', '</table>', '</div>'))
+
+    def visit_footnote(self, node):
+        self.body.append('<tr ' + ' '.join('id="{}"'.format(x)
+                                           for x in node['ids']) + '>')
+        self.footnote_backrefs(node)
+
+    def depart_footnote(self, node):
+        self.body.extend(('</td>', '</tr>'))
+
+    def depart_rubric(self, node):
+        HTMLTranslator.depart_rubric(self, node)
+        self._start_footnotes_table()

@@ -1714,6 +1714,7 @@ def setup(app):
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_math_renderer', None, 'env')
+    app.add_config_value('html_footnotes_options', '', 'html')
 
     app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
 

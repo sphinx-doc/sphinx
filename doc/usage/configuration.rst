@@ -1333,6 +1333,14 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+.. confval:: html_footnotes_options
+
+   If the configuration value contains ``bottom``, all footnotes are rendered
+   at the bottom of a document.  With the additional ``rubric`` or ``title`` a
+   rubric directive respectively a title are prepended.
+
+   .. versionadded:: 1.7
+
 Options for Single HTML output
 -------------------------------
 

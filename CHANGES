@@ -19,6 +19,8 @@ Deprecated
 Features added
 --------------
 
+* #3974: Option to group footnotes at bottom in html output
+
 Bugs fixed
 ----------
 

@@ -1407,3 +1407,35 @@ def test_html_pygments_style_manually(app):
 def test_html_pygments_for_classic_theme(app):
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx('singlehtml', testroot='footnotes-html')
+def test_html_footnotes_options_bottom(app, cached_etree_parse):
+    app.build()
+    result = cached_etree_parse(app.outdir / 'index.html')
+
+    footnotes_tables = result.findall(".//table[@class='docutils footnote']")
+    assert len(footnotes_tables) == 1
+    footnotes = footnotes_tables[0].findall(".//tr")
+    assert len(footnotes) == 2
+
+
+@pytest.mark.sphinx('singlehtml', testroot='footnotes-html',
+                    confoverrides={'html_footnotes_options': 'bottom,title'})
+def test_html_footnotes_options_title(app):
+    app.build()
+
+    with open((app.outdir / 'index.html'), 'rt') as f:
+        result = HTML_PARSER.parse(f)
+    check_xpath(result, 'index.html', ".//div[@class='footnotes']/h2",
+                'Footnotes', True)
+
+
+@pytest.mark.sphinx('singlehtml', testroot='footnotes-html',
+                    confoverrides={'html_footnotes_options': 'bottom,rubric'})
+def test_html_footnotes_options_rubric(app):
+    app.build()
+    with open((app.outdir / 'index.html'), 'rt') as f:
+        result = HTML_PARSER.parse(f)
+    check_xpath(result, 'index.html', ".//div[@class='footnotes']/p[@class='rubric']",
+                'Footnotes', True)
