@@ -5494,7 +5494,7 @@ class CPPDomain(Domain):
         'namespace-push': CPPNamespacePushObject,
         'namespace-pop': CPPNamespacePopObject
     }
-    roles = {  # type: ignore
+    roles = {
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
