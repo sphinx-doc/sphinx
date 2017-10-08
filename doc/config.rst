@@ -2067,7 +2067,8 @@ These options influence Texinfo output.
 Options for QtHelp output
 --------------------------
 
-These options influence QtHelp output.
+These options influence qthelp output.  As this builder derives from the HTML
+builder, the HTML options also apply where appropriate.
 
 .. confval:: qthelp_basename
 
