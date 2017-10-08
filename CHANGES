@@ -20,6 +20,7 @@ Features added
 --------------
 
 * #3974: Option to group footnotes at bottom in html output
+* #3974: Option to display footnotes' text as tooltip of footnotes' references
 
 Bugs fixed
 ----------

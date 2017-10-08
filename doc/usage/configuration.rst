@@ -1338,6 +1338,8 @@ that use Sphinx's HTMLWriter class.
    If the configuration value contains ``bottom``, all footnotes are rendered
    at the bottom of a document.  With the additional ``rubric`` or ``title`` a
    rubric directive respectively a title are prepended.
+   The text of a footnote will be rendered as tooltip when ``tooltip`` is in
+   the configuration value.
 
    .. versionadded:: 1.7
 

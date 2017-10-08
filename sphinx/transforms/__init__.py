@@ -308,6 +308,27 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                                location=node)
 
 
+class AddFootnotesTextToRef(SphinxTransform):
+    """
+    Adds text representations of a footnote to a reference.
+    Suited for tooltips.
+    """
+    default_priority = 999
+
+    def apply(self):
+        texts = {}
+        for node in self.document.traverse(nodes.footnote):
+            _text = node[1].astext().replace('\n', ' ')
+            for _id in node['ids']:
+                texts[_id] = _text
+
+        for node in self.document.traverse(nodes.footnote_reference):
+            refid = node.get('refid')
+            if refid is None:
+                continue
+            node['footnote_text'] = texts[refid]
+
+
 class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999

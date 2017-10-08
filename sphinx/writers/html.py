@@ -17,7 +17,7 @@ import warnings
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
-from six import string_types
+from six import string_types, u
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -90,7 +90,7 @@ class HTMLTranslator(BaseTranslator):
         self._table_row_index = 0
         self._fieldlist_row_index = 0
         self.required_params_left = 0
-        self.collected_footnotes = []
+        self.collected_footnotes = []  # type: List[nodes.footnote]
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
@@ -913,6 +913,15 @@ class HTMLTranslator(BaseTranslator):
         visitor = _BottomFootnotesTranslator(self.builder, footnotes)
         footnotes.walkabout(visitor)
         self.body.extend(visitor.body)
+
+    # overwritten
+    def visit_footnote_reference(self, node):
+        BaseTranslator.visit_footnote_reference(self, node)
+        if 'tooltip' in self.builder.config.html_footnotes_options \
+                and 'footnote_text' in node:
+            x = self.body[-1]
+            x = x.replace('>', u(' title="{}">').format(node['footnote_text']))
+            self.body[-1] = x
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

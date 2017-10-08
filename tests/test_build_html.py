@@ -1439,3 +1439,12 @@ def test_html_footnotes_options_rubric(app):
         result = HTML_PARSER.parse(f)
     check_xpath(result, 'index.html', ".//div[@class='footnotes']/p[@class='rubric']",
                 'Footnotes', True)
+
+
+@pytest.mark.sphinx('singlehtml', testroot='footnotes-html',
+                    confoverrides={'html_footnotes_options': 'tooltip'})
+def test_html_footnotes_options_tooltip(app):
+    app.build()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<a class="footnote-reference" href="#id2" id="id1" ' \
+           'title="It keeps sources maintainable.">[1]</a>' in result
