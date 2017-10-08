@@ -61,7 +61,8 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     ':python_version<"3.5"': [
-        'typing'
+        'typing',
+        'qualname'
     ],
     'websupport': [
         'sqlalchemy>=0.9',
