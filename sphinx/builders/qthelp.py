@@ -21,6 +21,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
@@ -199,7 +200,11 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # it seems that the "namespace" may not contain non-alphanumeric
         # characters, and more than one successive dot, or leading/trailing
         # dots, are also forbidden
-        nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
+        if self.config.qthelp_namespace:
+            nspace = self.config.qthelp_namespace
+        else:
+            nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
+
         nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
         nspace = re.sub(r'\.+', '.', nspace).strip('.')
         nspace = nspace.lower()
@@ -328,6 +333,7 @@ def setup(app):
     app.add_builder(QtHelpBuilder)
 
     app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('qthelp_namespace', None, 'html', string_classes)
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
 

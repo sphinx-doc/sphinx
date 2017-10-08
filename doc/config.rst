@@ -2074,6 +2074,11 @@ builder, the HTML options also apply where appropriate.
 
    The basename for the qthelp file.  It defaults to the :confval:`project` name.
 
+.. confval:: qthelp_namespace
+
+   The namespace for the qthelp file.  It defaults to
+   ``org.sphinx.<project_name>.<project_version>``.
+
 .. confval:: qthelp_theme
 
    The HTML theme for the qthelp output.
