@@ -31,7 +31,7 @@ Features added
 * #3872: Add latex key to configure literal blocks caption position in PDF
   output (refs #3792, #1723)
 * In case of missing docstring try to retrieve doc from base classes
-  (refs #3140, 4126)
+  (refs #3140, #4126)
 * #4023: Clarify error message when any role has more than one target.
 * #3973: epub: allow to override build date
 * #3972: epub: Sort manifest entries by filename
