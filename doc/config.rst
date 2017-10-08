@@ -2067,11 +2067,17 @@ These options influence Texinfo output.
 Options for QtHelp output
 --------------------------
 
-These options influence QtHelp output.
+These options influence qthelp output.  As this builder derives from the HTML
+builder, the HTML options also apply where appropriate.
 
 .. confval:: qthelp_basename
 
    The basename for the qthelp file.  It defaults to the :confval:`project` name.
+
+.. confval:: qthelp_namespace
+
+   The namespace for the qthelp file.  It defaults to
+   ``org.sphinx.<project_name>.<project_version>``.
 
 .. confval:: qthelp_theme
 
