@@ -1544,21 +1544,30 @@ class AutoDirective(Directive):
         # find out what documenter to call
         objtype = self.name[4:]
         doc_class = self._registry[objtype]
+
+        if self.env.config.autodoc_special_members and 'special-members' not in self.options:
+            # Using autodoc_special_members (which takes a list of methods)
+            # overrides including special-members in autodoc_default_flags
+            # (which would use default value of None meaning ALL methods).
+            # This will be parsed again, so turn it into a comma-sep string:
+            self.options['special-members'] = ','.join(self.env.config.autodoc_special_members)
+
         # add default flags
         for flag in self._default_flags:
             if flag not in doc_class.option_spec:
+                continue
+            if flag in self.options:
+                logger.debug('[autodoc] ignoring %s from autodoc_default_flags, using %r value',
+                             flag, self.options[flag])
+                # If autodoc_special_members was set, or the RST file has directive set, e.g.:
+                #   :special-members: __init__, __eq__
+                # we must respect that setting and not replace it with None (meaning ALL).
                 continue
             negated = self.options.pop('no-' + flag, 'not given') is None
             if flag in self.env.config.autodoc_default_flags and \
                not negated:
                 self.options[flag] = None
-
-        if self.env.config.autodoc_special_members:
-            # Using autodoc_special_members (which takes a list of methods)
-            # overrides including special-members in autodoc_default_flags
-            # (which applies the default value of None meaning ALL methods).
-            # This will be parsed again, so turn it into a comma-sep string:
-            self.options['special-members'] = ','.join(self.env.config.autodoc_special_members)
+                logger.debug('[autodoc] set %r via autodoc_default_flags', flag)
 
         # process the options with the selected documenter's option_spec
         try:
