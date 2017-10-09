@@ -53,6 +53,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA
+    from pygments.lexer import Lexer  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
@@ -186,6 +187,8 @@ class Sphinx(object):
 
         # status code for command-line application
         self.statuscode = 0
+
+        self.extra_lexers = {}  # type: Dict[unicode, Lexer]
 
         # read config
         self.tags = Tags(tags)
@@ -1116,10 +1119,7 @@ class Sphinx(object):
         .. versionadded:: 0.6
         """
         logger.debug('[app] adding lexer: %r', (alias, lexer))
-        from sphinx.highlighting import lexers
-        if lexers is None:
-            return
-        lexers[alias] = lexer
+        self.extra_lexers[alias] = lexer
 
     def add_autodocumenter(self, cls):
         # type: (Any) -> None

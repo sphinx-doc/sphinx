@@ -120,6 +120,7 @@ class Config(object):
         show_authors = (False, 'env', []),
         pygments_style = (None, 'html', string_classes),
         highlight_language = ('default', 'env', []),
+        highlight_failures = (None, 'skip_block', string_classes),
         highlight_options = ({}, 'env', []),
         templates_path = ([], 'html', []),
         template_bridge = (None, 'html', string_classes),

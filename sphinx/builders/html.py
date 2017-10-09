@@ -387,7 +387,9 @@ class StandaloneHTMLBuilder(Builder):
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style,
-                                          self.config.trim_doctest_flags)
+                                          self.config.trim_doctest_flags,
+                                          extra_lexers=self.app.extra_lexers,
+                                          failure_policy=self.config.highlight_failures)
 
     def init_css_files(self):
         # type: () -> None

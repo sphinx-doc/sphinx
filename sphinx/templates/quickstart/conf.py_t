@@ -77,6 +77,9 @@ language = {{ language | repr }}
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [{{ exclude_patterns }}]
 
+# The policy for handling failures during highlighting
+highlight_failures = 'skip_block'
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 

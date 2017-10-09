@@ -39,10 +39,8 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError("should highlight %r" % source)
 
 
-def test_add_lexer(app, status, warning):
-    app.add_lexer('test', MyLexer())
-
-    bridge = PygmentsBridge('html')
+def test_add_lexer(status, warning):
+    bridge = PygmentsBridge('html', extra_lexers={'test': MyLexer()})
     ret = bridge.highlight_block('ab', 'test')
     assert '<span class="n">a</span>b' in ret
 
@@ -108,5 +106,37 @@ def test_default_highlight(logger):
     ret = bridge.highlight_block('reST ``like`` text', 'python3')
     logger.warning.assert_called_with('Could not lex literal_block as "%s". '
                                       'Highlighting skipped.', 'python3',
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)
+
+
+@mock.patch('sphinx.highlighting.logger')
+def test_highlight_failures(logger):
+    bridge = PygmentsBridge('html', failure_policy='skip_block')
+    ret = bridge.highlight_block('i = ?magic!!?', 'python3')
+    logger.warning.assert_called_with('Could not lex literal_block as "%s". '
+                                      'Highlighting skipped.', 'python3',
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)
+
+    bridge = PygmentsBridge('html', failure_policy='highlight')
+    ret = bridge.highlight_block('i = ?magic!!?', 'python3')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="n">i</span> '
+                   '<span class="o">=</span> <span class="err">?</span>'
+                   '<span class="n">magic</span><span class="err">!!?</span>\n'
+                   '</pre></div>\n')
+    logger.warning.assert_called_with('Some parts of literal_block could not be highlighted '
+                                      'as "%s":\n  ?\n  !\n  !\n  ?', 'python3',
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)
+
+    bridge = PygmentsBridge('html', failure_policy='hide')
+    ret = bridge.highlight_block('i = ?magic!!?', 'python3')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="n">i</span> '
+                   '<span class="o">=</span> ?'
+                   '<span class="n">magic</span>!!?\n'
+                   '</pre></div>\n')
+    logger.warning.assert_called_with('Some parts of literal_block could not be highlighted '
+                                      'as "%s":\n  ?\n  !\n  !\n  ?', 'python3',
                                       type='misc', subtype='highlighting_failure',
                                       location=None)

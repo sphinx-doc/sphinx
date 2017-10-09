@@ -535,6 +535,23 @@ Project information
       languages will emit warning if failed.  If you prefer Python 2
       only highlighting, you can set it back to ``'python'``.
 
+.. confval:: highlight_failures
+
+   The behavior to adopt when highlighting of a code block fails:
+
+   - ``'skip_block'`` to skip highlighting the entire code block and
+     display it in a plain style instead; this is the default behavior
+   - ``'highlight'`` to display just the problematic parts of the code in a
+     special style for errors while highlighting the rest of the block normally
+   - ``'hide'`` to display just the problematic parts of the code in a plain
+     style while highlighting the rest of the block normally
+
+   In all cases, highlighting failures will also be reported as warnings. This
+   can be controlled with :confval:`suppress_warnings` (see
+   misc.highlighting_failure).
+
+   .. versionadded:: 1.8
+
 .. confval:: highlight_options
 
    A dictionary of options that modify how the lexer specified by

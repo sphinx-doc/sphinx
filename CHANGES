@@ -137,6 +137,8 @@ Features added
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
 * #5029: autosummary: expose ``inherited_members`` to template
+* New :confval:`highlight_failures` configuration variable to control
+  behavior of highlighting failures.
 
 Bugs fixed
 ----------
@@ -154,6 +156,9 @@ Features removed
 ----------------
 
 * ``sphinx.ext.pngmath`` extension
+* module-wide ``sphinx.highlighting.lexers`` dictionary of lexers, use the
+  ``add_lexer()`` method of the application object or the ``extra_lexers``
+  kwarg of the ``sphinx.highlighting.PygmentsBridge`` constructor instead
 
 Release 1.7.6 (in development)
 ==============================

@@ -110,7 +110,9 @@ class LaTeXBuilder(Builder):
     def write_stylesheet(self):
         # type: () -> None
         highlighter = highlighting.PygmentsBridge(
-            'latex', self.config.pygments_style, self.config.trim_doctest_flags)
+            'latex', self.config.pygments_style, self.config.trim_doctest_flags,
+            extra_lexers=self.app.extra_lexers,
+            failure_policy=self.config.highlight_failures)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')

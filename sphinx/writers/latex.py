@@ -673,7 +673,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         self.highlighter = highlighting.PygmentsBridge(
             'latex',
-            builder.config.pygments_style, builder.config.trim_doctest_flags)
+            builder.config.pygments_style, builder.config.trim_doctest_flags,
+            extra_lexers=builder.app.extra_lexers,
+            failure_policy=builder.config.highlight_failures)
         self.context = []               # type: List[Any]
         self.descstack = []             # type: List[unicode]
         self.table = None               # type: Table

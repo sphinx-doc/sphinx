@@ -10,7 +10,7 @@
 """
 
 from pygments import highlight
-from pygments.filters import ErrorToken
+from pygments.filters import Filter, ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.lexer import Lexer  # NOQA
 from pygments.lexers import get_lexer_by_name, guess_lexer
@@ -29,23 +29,25 @@ from sphinx.util.texescape import tex_hl_escape_map_new
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from pygments.formatter import Formatter  # NOQA
 
 
 logger = logging.getLogger(__name__)
 
-lexers = dict(
-    none = TextLexer(stripnl=False),
-    python = PythonLexer(stripnl=False),
-    python3 = Python3Lexer(stripnl=False),
-    pycon = PythonConsoleLexer(stripnl=False),
-    pycon3 = PythonConsoleLexer(python3=True, stripnl=False),
-    rest = RstLexer(stripnl=False),
-    c = CLexer(stripnl=False),
-)  # type: Dict[unicode, Lexer]
-for _lexer in lexers.values():
-    _lexer.add_filter('raiseonerror')
+
+def _default_lexers():
+    # type: () -> Dict[unicode, Lexer]
+    lexers = dict(
+        none = TextLexer(stripnl=False),
+        python = PythonLexer(stripnl=False),
+        python3 = Python3Lexer(stripnl=False),
+        pycon = PythonConsoleLexer(stripnl=False),
+        pycon3 = PythonConsoleLexer(python3=True, stripnl=False),
+        rest = RstLexer(stripnl=False),
+        c = CLexer(stripnl=False),
+    )  # type: Dict[unicode, Lexer]
+    return lexers
 
 
 escape_hl_chars = {ord(u'\\'): u'\\PYGZbs{}',
@@ -65,8 +67,34 @@ class PygmentsBridge(object):
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=False):
-        # type: (unicode, unicode, bool) -> None
+    # Due to the streaming nature of the Pygments API, our filter require side-effects to
+    # bubble some reports back up to the PygmentsBridge context by side-channel. Requires a
+    # 1-to-1 relationship between PygmentsBridge instance and filter instance.
+    class BridgeFilter(Filter):
+        def __init__(self, policy, **options):
+            Filter.__init__(self, **options)
+            self.policy = policy
+            self.substitute = options.get('subtitute', None)
+            self.reports = []  # type: List[unicode]
+
+        def filter(self, lexer, stream):
+            from pygments.token import Error, Text
+
+            policy = self.policy
+            substitute = self.substitute or Text
+            for ttype, value in stream:
+                if ttype is Error:
+                    if policy in ['highlight', 'hide']:
+                        self.reports.append(value)
+                        if policy == 'hide':
+                            ttype = substitute
+                    else:  # default policy: 'skip_block'
+                        raise ErrorToken(value)
+                yield ttype, value
+
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=False,
+                 extra_lexers=None, failure_policy='skip_block'):
+        # type: (unicode, unicode, bool, Dict[unicode, Lexer], unicode) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
@@ -85,6 +113,13 @@ class PygmentsBridge(object):
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
+
+        self.filter = self.BridgeFilter(failure_policy)
+        self.lexers = _default_lexers()
+        for lexer in self.lexers.values():
+            lexer.add_filter(self.filter)
+        if extra_lexers:
+            self.lexers.update(extra_lexers)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
@@ -107,6 +142,8 @@ class PygmentsBridge(object):
         # type: (unicode, unicode, Any, Any, bool, Any) -> unicode
         if not isinstance(source, text_type):
             source = source.decode()
+
+        lexers = self.lexers
 
         # find out which lexer to use
         if lang in ('py', 'python'):
@@ -136,7 +173,7 @@ class PygmentsBridge(object):
                                    location=location)
                     lexer = lexers['none']
                 else:
-                    lexer.add_filter('raiseonerror')
+                    lexer.add_filter(self.filter)
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
@@ -146,6 +183,7 @@ class PygmentsBridge(object):
         # highlight via Pygments
         formatter = self.get_formatter(**kwargs)
         try:
+            self.filter.reports = []
             hlsource = highlight(source, lexer, formatter)
         except ErrorToken:
             # this is most probably not the selected language,
@@ -158,6 +196,13 @@ class PygmentsBridge(object):
                                type='misc', subtype='highlighting_failure',
                                location=location)
             hlsource = highlight(source, lexers['none'], formatter)
+            self.filter.reports = []
+        if self.filter.reports:
+            reports = '\n  '.join(self.filter.reports)
+            msg = 'Some parts of literal_block could not be highlighted as "%s":\n  ' + reports
+            logger.warning(msg, lang,
+                           type='misc', subtype='highlighting_failure',
+                           location=location)
         if self.dest == 'html':
             return hlsource
         else:
