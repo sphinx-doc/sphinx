@@ -124,10 +124,14 @@ These are the basic steps needed to start developing on Sphinx.
 
        PYTHONWARNINGS=all make test
 
+   * Arguments to pytest can be passed via tox, e.g. in order to run a
+     particular test::
+
+       tox -e py27 tests/test_module.py::test_new_feature
+
    * Build the documentation and check the output for different builders::
 
-       cd doc
-       make clean html latexpdf
+       make docs target="clean html latexpdf"
 
    * Run code style checks and type checks (type checks require mypy)::
 
