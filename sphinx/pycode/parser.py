@@ -63,7 +63,7 @@ def get_lvar_names(node, self=None):
     elif node_name == 'str':
         return [node]  # type: ignore
     else:
-        raise NotImplementedError
+        raise NotImplementedError('Unexpected node name %r' % node_name)
 
 
 def dedent_docstring(s):
