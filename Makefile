@@ -1,43 +1,11 @@
 PYTHON ?= python
 
-DONT_CHECK = -i .ropeproject \
-             -i .tox \
-             -i build \
-             -i dist \
-             -i doc/_build \
-             -i sphinx/pycode/pgen2 \
-             -i sphinx/search/da.py \
-             -i sphinx/search/de.py \
-             -i sphinx/search/en.py \
-             -i sphinx/search/es.py \
-             -i sphinx/search/fi.py \
-             -i sphinx/search/fr.py \
-             -i sphinx/search/hu.py \
-             -i sphinx/search/it.py \
-             -i sphinx/search/ja.py \
-             -i sphinx/search/nl.py \
-             -i sphinx/search/no.py \
-             -i sphinx/search/pt.py \
-             -i sphinx/search/ro.py \
-             -i sphinx/search/ru.py \
-             -i sphinx/search/sv.py \
-             -i sphinx/search/tr.py \
-             -i sphinx/style/jquery.js \
-             -i sphinx/util/smartypants.py \
-             -i tests/build \
-             -i tests/path.py \
-             -i tests/roots/test-directive-code/target.py \
-             -i tests/roots/test-warnings/undecodable.rst \
-             -i tests/test_autodoc_py35.py \
-             -i tests/typing_test_data.py \
-             -i utils/convert.py
-
 .PHONY: all
 all: clean-pyc clean-backupfiles style-check type-check test
 
 .PHONY: style-check
 style-check:
-	@PYTHONWARNINGS=all $(PYTHON) utils/check_sources.py $(DONT_CHECK) .
+	@flake8
 
 .PHONY: type-check
 type-check:
