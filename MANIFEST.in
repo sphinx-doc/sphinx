@@ -12,7 +12,6 @@ include sphinx-autogen.py
 include sphinx-build.py
 include sphinx-quickstart.py
 include sphinx-apidoc.py
-include test-reqs.txt
 include tox.ini
 include sphinx/locale/.tx/config
 

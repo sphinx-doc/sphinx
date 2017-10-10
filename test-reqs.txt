@@ -1,7 +1,0 @@
-flake8
-pytest>=3.0
-pytest-cov
-html5lib
-mock;python_version<'3.3'
-mypy;python_version>='3.2'
-typed_ast;python_version>='3.2'
