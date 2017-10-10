@@ -15,6 +15,8 @@ Features added
 
 * #4107: Make searchtools.js compatible with pre-Sphinx1.5 templates
 * #4112: Don't override the smart_quotes setting if it was already set
+* #4125: Display reference texts of original and translated passages on
+  i18n warning message
 
 Bugs fixed
 ----------
