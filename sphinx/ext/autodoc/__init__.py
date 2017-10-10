@@ -1557,7 +1557,7 @@ class AutoDirective(Directive):
             if flag not in doc_class.option_spec:
                 continue
             if flag in self.options:
-                logger.debug('[autodoc] ignoring %s from autodoc_default_flags, using %r value',
+                logger.debug('[autodoc] ignoring %s in autodoc_default_flags, using %r value',
                              flag, self.options[flag])
                 # If autodoc_special_members was set, or the RST file has directive set, e.g.:
                 #   :special-members: __init__, __eq__
