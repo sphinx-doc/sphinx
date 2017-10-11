@@ -378,17 +378,14 @@ imgmath has been deselected.''')
         do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
                   'to publish the document on GitHub pages (y/n)', 'n', boolean)
 
-    if 'no_makefile' in d:
-        d['makefile'] = False
-    elif 'makefile' not in d:
+    if 'makefile' not in d:
         print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.''')
         do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
-    if 'no_batchfile' in d:
-        d['batchfile'] = False
-    elif 'batchfile' not in d:
+
+    if 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
     print()
@@ -593,22 +590,22 @@ Makefile to be used with sphinx-build.
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
                        action='append', help='enable extensions')
 
-    # TODO(stephenfin): Consider using mutually exclusive groups here
     group = parser.add_argument_group('Makefile and Batchfile creation')
-    group.add_argument('--makefile', action='store_true', default=False,
+    group.add_argument('--makefile', action='store_true', dest='makefile',
                        help='create makefile')
-    group.add_argument('--no-makefile', action='store_true', default=False,
-                       help='not create makefile')
-    group.add_argument('--batchfile', action='store_true', default=False,
+    group.add_argument('--no-makefile', action='store_false', dest='makefile',
+                       help='do not create makefile')
+    group.add_argument('--batchfile', action='store_true', dest='batchfile',
                        help='create batchfile')
-    group.add_argument('--no-batchfile', action='store_true', default=False,
-                       help='not create batchfile')
-    group.add_argument('-M', '--no-use-make-mode', action='store_false',
-                       dest='make_mode', default=False,
-                       help='not use make-mode for Makefile/make.bat')
+    group.add_argument('--no-batchfile', action='store_false',
+                       dest='batchfile',
+                       help='do not create batchfile')
     group.add_argument('-m', '--use-make-mode', action='store_true',
-                       dest='make_mode', default=True,
+                       dest='make_mode',
                        help='use make-mode for Makefile/make.bat')
+    group.add_argument('-M', '--no-use-make-mode', action='store_false',
+                       dest='make_mode',
+                       help='do not use make-mode for Makefile/make.bat')
 
     group = parser.add_argument_group('Project templating')
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
@@ -652,10 +649,6 @@ def main(argv=sys.argv[1:]):
             d2.update(dict(("ext_" + ext, False) for ext in EXTENSIONS))
             d2.update(d)
             d = d2
-            if 'no_makefile' in d:
-                d['makefile'] = False
-            if 'no_batchfile' in d:
-                d['batchfile'] = False
 
             if not valid_dir(d):
                 print()
