@@ -159,8 +159,8 @@ def term_decode(text):
         return text.decode('latin1')
 
 
-def do_prompt(d, key, text, default=None, validator=nonempty):
-    # type: (Dict, unicode, unicode, unicode, Callable[[unicode], Any]) -> None
+def do_prompt(text, default=None, validator=nonempty):
+    # type: (unicode, unicode, Callable[[unicode], Any]) -> Union[unicode, bool]
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)  # type: unicode
@@ -191,7 +191,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             print(red('* ' + str(err)))
             continue
         break
-    d[key] = x
+    return x
 
 
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
@@ -251,7 +251,7 @@ Selected root path: %s''' % d['path']))
     else:
         print('''
 Enter the root path for documentation.''')
-        do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
+        d['path'] = do_prompt('Root path for the documentation', '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
             path.isfile(path.join(d['path'], 'source', 'conf.py')):
@@ -260,8 +260,8 @@ Enter the root path for documentation.''')
                    'selected root path.'))
         print('sphinx-quickstart will not overwrite existing Sphinx projects.')
         print()
-        do_prompt(d, 'path', 'Please enter a new root path (or just Enter '
-                  'to exit)', '', is_path)
+        d['path'] = do_prompt('Please enter a new root path (or just Enter '
+                              'to exit)', '', is_path)
         if not d['path']:
             sys.exit(1)
 
@@ -270,22 +270,22 @@ Enter the root path for documentation.''')
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.''')
-        do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
-                  boolean)
+        d['sep'] = do_prompt('Separate source and build directories (y/n)',
+                             'n', boolean)
 
     if 'dot' not in d:
         print('''
 Inside the root directory, two more directories will be created; "_templates"
 for custom HTML templates and "_static" for custom stylesheets and other static
 files. You can enter another prefix (such as ".") to replace the underscore.''')
-        do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
+        d['dot'] = do_prompt('Name prefix for templates and static dir', '_', ok)
 
     if 'project' not in d:
         print('''
 The project name will occur in several places in the built documentation.''')
-        do_prompt(d, 'project', 'Project name')
+        d['project'] = do_prompt('Project name')
     if 'author' not in d:
-        do_prompt(d, 'author', 'Author name(s)')
+        d['author'] = do_prompt('Author name(s)')
 
     if 'version' not in d:
         print('''
@@ -294,9 +294,9 @@ software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
 just set both to the same value.''')
-        do_prompt(d, 'version', 'Project version', '', allow_empty)
+        d['version'] = do_prompt('Project version', '', allow_empty)
     if 'release' not in d:
-        do_prompt(d, 'release', 'Project release', d['version'], allow_empty)
+        d['release'] = do_prompt('Project release', d['version'], allow_empty)
 
     if 'language' not in d:
         print('''
@@ -306,7 +306,7 @@ translate text that it generates into that language.
 
 For a list of supported codes, see
 http://sphinx-doc.org/config.html#confval-language.''')
-        do_prompt(d, 'language', 'Project language', 'en')
+        d['language'] = do_prompt('Project language', 'en')
         if d['language'] == 'en':
             d['language'] = None
 
@@ -314,7 +314,7 @@ http://sphinx-doc.org/config.html#confval-language.''')
         print('''
 The file name suffix for source files. Commonly, this is either ".txt"
 or ".rst".  Only files with this suffix are considered documents.''')
-        do_prompt(d, 'suffix', 'Source file suffix', '.rst', suffix)
+        d['suffix'] = do_prompt('Source file suffix', '.rst', suffix)
 
     if 'master' not in d:
         print('''
@@ -322,8 +322,8 @@ One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.''')
-        do_prompt(d, 'master', 'Name of your master document (without suffix)',
-                  'index')
+        d['master'] = do_prompt('Name of your master document (without suffix)',
+                                'index')
 
     while path.isfile(path.join(d['path'], d['master'] + d['suffix'])) or \
             path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix'])):
@@ -332,62 +332,66 @@ document is a custom template, you can also set this to another filename.''')
                    'selected root path.' % (d['master'] + d['suffix'])))
         print('sphinx-quickstart will not overwrite the existing file.')
         print()
-        do_prompt(d, 'master', 'Please enter a new file name, or rename the '
-                  'existing file and press Enter', d['master'])
+        d['master'] = do_prompt('Please enter a new file name, or rename the '
+                                'existing file and press Enter', d['master'])
 
     if 'epub' not in d:
         print('''
 Sphinx can also add configuration for epub output:''')
-        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/n)',
-                  'n', boolean)
+        d['epub'] = do_prompt('Do you want to use the epub builder (y/n)',
+                              'n', boolean)
 
     if 'ext_autodoc' not in d:
         print('''
 Please indicate if you want to use one of the following Sphinx extensions:''')
-        do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-                  'from modules (y/n)', 'n', boolean)
+        d['ext_autodoc'] = do_prompt('autodoc: automatically insert docstrings '
+                                     'from modules (y/n)', 'n', boolean)
     if 'ext_doctest' not in d:
-        do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-                  'in doctest blocks (y/n)', 'n', boolean)
+        d['ext_doctest'] = do_prompt('doctest: automatically test code snippets '
+                                     'in doctest blocks (y/n)', 'n', boolean)
     if 'ext_intersphinx' not in d:
-        do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
-                  'documentation of different projects (y/n)', 'n', boolean)
+        d['ext_intersphinx'] = do_prompt('intersphinx: link between Sphinx '
+                                         'documentation of different projects (y/n)',
+                                         'n', boolean)
     if 'ext_todo' not in d:
-        do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
-                  'that can be shown or hidden on build (y/n)', 'n', boolean)
+        d['ext_todo'] = do_prompt('todo: write "todo" entries that can be '
+                                  'shown or hidden on build (y/n)', 'n', boolean)
     if 'ext_coverage' not in d:
-        do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
-                  'coverage (y/n)', 'n', boolean)
+        d['ext_coverage'] = do_prompt('coverage: checks for documentation '
+                                      'coverage (y/n)', 'n', boolean)
     if 'ext_imgmath' not in d:
-        do_prompt(d, 'ext_imgmath', 'imgmath: include math, rendered '
-                  'as PNG or SVG images (y/n)', 'n', boolean)
+        d['ext_imgmath'] = do_prompt('imgmath: include math, rendered as PNG '
+                                     'or SVG images (y/n)', 'n', boolean)
     if 'ext_mathjax' not in d:
-        do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
-                  'browser by MathJax (y/n)', 'n', boolean)
+        d['ext_mathjax'] = do_prompt('mathjax: include math, rendered in the '
+                                     'browser by MathJax (y/n)', 'n', boolean)
     if d['ext_imgmath'] and d['ext_mathjax']:
         print('''Note: imgmath and mathjax cannot be enabled at the same time.
 imgmath has been deselected.''')
         d['ext_imgmath'] = False
     if 'ext_ifconfig' not in d:
-        do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
-                  'content based on config values (y/n)', 'n', boolean)
+        d['ext_ifconfig'] = do_prompt('ifconfig: conditional inclusion of '
+                                      'content based on config values (y/n)',
+                                      'n', boolean)
     if 'ext_viewcode' not in d:
-        do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
-                  'code of documented Python objects (y/n)', 'n', boolean)
+        d['ext_viewcode'] = do_prompt('viewcode: include links to the source '
+                                      'code of documented Python objects (y/n)',
+                                      'n', boolean)
     if 'ext_githubpages' not in d:
-        do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
-                  'to publish the document on GitHub pages (y/n)', 'n', boolean)
+        d['ext_githubpages'] = do_prompt('githubpages: create .nojekyll file '
+                                         'to publish the document on GitHub '
+                                         'pages (y/n)', 'n', boolean)
 
     if 'makefile' not in d:
         print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.''')
-        do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
+        d['makefile'] = do_prompt('Create Makefile? (y/n)', 'y', boolean)
 
     if 'batchfile' not in d:
-        do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
-                  'y', boolean)
+        d['batchfile'] = do_prompt('Create Windows command file? (y/n)',
+                                   'y', boolean)
     print()
 
 
