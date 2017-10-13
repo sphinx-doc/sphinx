@@ -137,11 +137,14 @@ def process_todo_nodes(app, doctree, fromdocname):
         env.todo_all_todos = []  # type: ignore
 
     for node in doctree.traverse(todolist):
-        if not app.config['todo_include_todos']:
-            node.replace_self([nodes.target()])
-            continue
+        if node.get('ids'):
+            content = [nodes.target()]
+        else:
+            content = []
 
-        content = [nodes.target()]
+        if not app.config['todo_include_todos']:
+            node.replace_self(content)
+            continue
 
         for todo_info in env.todo_all_todos:  # type: ignore
             para = nodes.paragraph(classes=['todo-source'])
