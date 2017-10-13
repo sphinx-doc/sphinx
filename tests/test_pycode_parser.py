@@ -96,7 +96,10 @@ def test_complex_assignment():
               'c, d = (1, 1)  #: unpack assignment\n'
               'e = True  #: first assignment\n'
               'e = False  #: second assignment\n'
-              'f = g = None  #: multiple assignment at once\n')
+              'f = g = None  #: multiple assignment at once\n'
+              '(theta, phi) = (0, 0.5)  #: unpack assignment via tuple\n'
+              '[x, y] = (5, 6)  #: unpack assignment via list\n'
+              )
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'b'): 'compound statement',
@@ -104,7 +107,12 @@ def test_complex_assignment():
                                ('', 'd'): 'unpack assignment',
                                ('', 'e'): 'second assignment',
                                ('', 'f'): 'multiple assignment at once',
-                               ('', 'g'): 'multiple assignment at once'}
+                               ('', 'g'): 'multiple assignment at once',
+                               ('', 'theta'): 'unpack assignment via tuple',
+                               ('', 'phi'): 'unpack assignment via tuple',
+                               ('', 'x'): 'unpack assignment via list',
+                               ('', 'y'): 'unpack assignment via list',
+                               }
     assert parser.definitions == {}
 
 
