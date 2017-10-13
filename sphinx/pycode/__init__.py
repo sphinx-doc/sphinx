@@ -100,7 +100,7 @@ class ModuleAnalyzer(object):
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
-            raise PycodeError('parsing failed: %r' % exc)
+            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
 
     def find_attr_docs(self):
         # type: () -> Dict[Tuple[unicode, unicode], List[unicode]]
