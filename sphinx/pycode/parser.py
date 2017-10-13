@@ -51,7 +51,7 @@ def get_lvar_names(node, self=None):
             return [node.id]  # type: ignore
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
-    elif node_name == 'Tuple':
+    elif node_name in ('Tuple', 'List'):
         members = [get_lvar_names(elt) for elt in node.elts]  # type: ignore
         return sum(members, [])
     elif node_name == 'Attribute':
@@ -63,7 +63,7 @@ def get_lvar_names(node, self=None):
     elif node_name == 'str':
         return [node]  # type: ignore
     else:
-        raise NotImplementedError
+        raise NotImplementedError('Unexpected node name %r' % node_name)
 
 
 def dedent_docstring(s):
