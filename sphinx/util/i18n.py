@@ -67,15 +67,15 @@ class CatalogInfo(LocaleFileInfoBase):
         with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
-            except Exception as ex:
-                logger.warning('reading error: %s, %s', self.po_path, ex)
+            except Exception as exc:
+                logger.warning('reading error: %s, %s', self.po_path, exc)
                 return
 
         with io.open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
-            except Exception as ex:
-                logger.warning('writing error: %s, %s', self.mo_path, ex)
+            except Exception as exc:
+                logger.warning('writing error: %s, %s', self.mo_path, exc)
 
 
 def find_catalog(docname, compaction):
