@@ -13,7 +13,6 @@ import os
 import re
 from os import path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
-from datetime import datetime
 from collections import namedtuple
 
 try:
@@ -33,6 +32,7 @@ from sphinx.util import logging
 from sphinx.util import status_iterator
 from sphinx.util.osutil import ensuredir, copyfile
 from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.i18n import format_date
 
 if False:
     # For type annotation
@@ -486,7 +486,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
+        metadata['date'] = format_date("%Y-%m-%d")
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []
