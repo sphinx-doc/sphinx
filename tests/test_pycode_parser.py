@@ -226,6 +226,18 @@ def test_nested_class():
                                 'Foo.Bar.attr2': 3}
 
 
+def test_class_comment():
+    source = ('import logging\n'
+              'logger = logging.getLogger(__name__)\n'
+              '\n'
+              'class Foo(object):\n'
+              '    """Bar"""\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {}
+    assert parser.definitions == {'Foo': ('class', 4, 5)}
+
+
 def test_comment_picker_multiline_string():
     source = ('class Foo(object):\n'
               '    a = None\n'

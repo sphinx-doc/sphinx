@@ -336,6 +336,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.current_classes.append(node.name)
         self.add_entry(node.name)
         self.context.append(node.name)
+        self.previous = node
         for child in node.body:
             self.visit(child)
         self.context.pop()
