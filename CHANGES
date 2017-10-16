@@ -36,6 +36,7 @@ Features added
 * #3972: epub: Sort manifest entries by filename
 * #4052: viewcode: Sort before highlighting module code
 * #1448: qthelp: Add new config value; :confval:`qthelp_namespace`
+* #4140: html themes: Make body tag inheritable
 
 
 Features removed
