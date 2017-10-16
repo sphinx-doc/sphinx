@@ -170,7 +170,7 @@
 {%- endblock %}
 {%- block extrahead %} {% endblock %}
   </head>
-  <body>
+  {%- block body_tag %}<body>{% endblock %}
 {%- block header %}{% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
