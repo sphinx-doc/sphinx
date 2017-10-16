@@ -18,3 +18,4 @@ requests
 html5lib
 enum34
 typing
+qualname

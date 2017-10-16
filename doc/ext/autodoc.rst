@@ -396,8 +396,8 @@ There are also new config values that you can set:
 .. confval:: autodoc_inherit_docstrings
 
    This value controls the docstrings inheritance.
-   If set to True the cocstring for classes or methods, if not explicitly set,
-   is inherited form parents.
+   If set to True the docstring for classes, methods or properties, if not
+   explicitly set, is inherited from parents.
 
    The default is ``True``.
 

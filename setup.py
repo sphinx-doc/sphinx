@@ -61,7 +61,8 @@ extras_require = {
         'colorama>=0.3.5',
     ],
     ':python_version<"3.5"': [
-        'typing'
+        'typing',
+        'qualname'
     ],
     'websupport': [
         'sqlalchemy>=0.9',
@@ -81,6 +82,7 @@ if sys.platform == 'win32':
 
 if sys.version_info < (3, 5):
     requires.append('typing')
+    requires.append('qualname')
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.

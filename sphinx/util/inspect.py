@@ -464,6 +464,7 @@ if sys.version_info >= (3, 5):
 else:
     # code copied from the inspect.py module of the standard library
     # of Python 3.5
+    from qualname import qualname
 
     def _findclass(func):
         cls = sys.modules.get(func.__module__)
@@ -472,7 +473,7 @@ else:
         if hasattr(func, 'im_class'):
             cls = func.im_class
         else:
-            for name in func.__qualname__.split('.')[:-1]:
+            for name in qualname(func).split('.')[:-1]:
                 cls = getattr(cls, name)
         if not inspect.isclass(cls):
             return None
@@ -508,8 +509,7 @@ else:
         elif inspect.isbuiltin(obj):
             name = obj.__name__
             self = obj.__self__
-            if (inspect.isclass(self) and
-                    self.__qualname__ + '.' + name == obj.__qualname__):
+            if (inspect.isclass(self) and qualname(self) + '.' + name == qualname(obj)):
                 # classmethod
                 cls = self
             else:
