@@ -273,7 +273,11 @@ class Locale(SphinxTransform):
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
-                logger.warning('inconsistent footnote references in translated message',
+                old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
+                new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
+                logger.warning('inconsistent footnote references in translated message.' +
+                               ' original: {0}, translated: {1}'
+                               .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
             old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
             for r in old_foot_refs:
@@ -309,7 +313,11 @@ class Locale(SphinxTransform):
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
             if len(old_refs) != len(new_refs):
-                logger.warning('inconsistent references in translated message',
+                old_ref_rawsources = [ref.rawsource for ref in old_refs]
+                new_ref_rawsources = [ref.rawsource for ref in new_refs]
+                logger.warning('inconsistent references in translated message.' +
+                               ' original: {0}, translated: {1}'
+                               .format(old_ref_rawsources, new_ref_rawsources),
                                location=node)
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
@@ -327,22 +335,46 @@ class Locale(SphinxTransform):
 
                 self.document.note_refname(new)
 
-            # refnamed footnote and citation should use original 'ids'.
+            # refnamed footnote should use original 'ids'.
             def is_refnamed_footnote_ref(node):
                 # type: (nodes.Node) -> bool
-                footnote_ref_classes = (nodes.footnote_reference,
-                                        nodes.citation_reference)
-                return isinstance(node, footnote_ref_classes) and \
+                return isinstance(node, nodes.footnote_reference) and \
                     'refname' in node
-            old_refs = node.traverse(is_refnamed_footnote_ref)
-            new_refs = patch.traverse(is_refnamed_footnote_ref)
+            old_foot_refs = node.traverse(is_refnamed_footnote_ref)
+            new_foot_refs = patch.traverse(is_refnamed_footnote_ref)
             refname_ids_map = {}
-            if len(old_refs) != len(new_refs):
-                logger.warning('inconsistent references in translated message',
+            if len(old_foot_refs) != len(new_foot_refs):
+                old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
+                new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
+                logger.warning('inconsistent footnote references in translated message.' +
+                               ' original: {0}, translated: {1}'
+                               .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
-            for old in old_refs:
+            for old in old_foot_refs:
                 refname_ids_map[old["refname"]] = old["ids"]
-            for new in new_refs:
+            for new in new_foot_refs:
+                refname = new["refname"]
+                if refname in refname_ids_map:
+                    new["ids"] = refname_ids_map[refname]
+
+            # citation should use original 'ids'.
+            def is_citation_ref(node):
+                # type: (nodes.Node) -> bool
+                return isinstance(node, nodes.citation_reference) and \
+                    'refname' in node
+            old_cite_refs = node.traverse(is_citation_ref)
+            new_cite_refs = patch.traverse(is_citation_ref)
+            refname_ids_map = {}
+            if len(old_cite_refs) != len(new_cite_refs):
+                old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
+                new_cite_ref_rawsources = [ref.rawsource for ref in new_cite_refs]
+                logger.warning('inconsistent citation references in translated message.' +
+                               ' original: {0}, translated: {1}'
+                               .format(old_cite_ref_rawsources, new_cite_ref_rawsources),
+                               location=node)
+            for old in old_cite_refs:
+                refname_ids_map[old["refname"]] = old["ids"]
+            for new in new_cite_refs:
                 refname = new["refname"]
                 if refname in refname_ids_map:
                     new["ids"] = refname_ids_map[refname]
@@ -354,7 +386,11 @@ class Locale(SphinxTransform):
             new_refs = patch.traverse(addnodes.pending_xref)
             xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
-                logger.warning('inconsistent term references in translated message',
+                old_ref_rawsources = [ref.rawsource for ref in old_refs]
+                new_ref_rawsources = [ref.rawsource for ref in new_refs]
+                logger.warning('inconsistent term references in translated message.' +
+                               ' original: {0}, translated: {1}'
+                               .format(old_ref_rawsources, new_ref_rawsources),
                                location=node)
 
             def get_ref_key(node):

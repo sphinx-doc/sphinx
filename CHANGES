@@ -96,6 +96,9 @@ Features added
 
 * #4107: Make searchtools.js compatible with pre-Sphinx1.5 templates
 * #4112: Don't override the smart_quotes setting if it was already set
+* #4125: Display reference texts of original and translated passages on
+  i18n warning message
+* #4147: Include the exception when logging PO/MO file read/write
 
 Bugs fixed
 ----------
@@ -106,6 +109,8 @@ Bugs fixed
 * #4096: C++, don't crash when using the wrong role type. Thanks to mitya57.
 * #4070, #4111: crashes when the warning message contains format strings (again)
 * #4108: Search word highlighting breaks SVG images
+* #3692: Unable to build HTML if writing .buildinfo failed
+* #4152: HTML writer crashes if a field list is placed on top of the document
 
 Testing
 --------
