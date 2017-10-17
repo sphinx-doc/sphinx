@@ -153,3 +153,16 @@ def test_ModuleAnalyzer_find_attr_docs():
                                  'Qux': 15,
                                  'Qux.attr1': 16,
                                  'Qux.attr2': 17}
+
+def test_ModuleAnalyzer_pep3132():
+    code = ('class Foo(object):\n'
+            '    """class Foo!"""\n'
+            '    #: comment before attr1\n'
+            '    attr1 = None\n'
+            '\n'
+            '    def bar(self, *args, **kwargs):\n'
+            '       """method Foo.bar"""\n'
+            '       head, *tail = kwargs\n')
+    analyzer = ModuleAnalyzer.for_string(code, 'module')
+    docs = analyzer.find_attr_docs()
+    assert set(docs) == {('Foo', 'attr1')}
