@@ -116,7 +116,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    * Run the unit tests::
 
-       pip install -r test-reqs.txt
+       pip install .[test,websupport]
        make test
 
    * Again, it's useful to turn on deprecation warnings on so they're shown in

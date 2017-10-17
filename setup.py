@@ -69,18 +69,18 @@ extras_require = {
     ],
     'test': [
         'pytest',
-        'mock',  # it would be better for 'test:python_version in 2.7'
-        'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'pytest-cov',
         'html5lib',
     ],
+    'test:python_version<"3"': [
+        'enum34',
+        'mock',
+    ],
+    'test:python_version>="3"': [
+        'mypy',
+        'typed_ast',
+    ],
 }
-
-# for sdist installation with pip-1.5.6
-if sys.platform == 'win32':
-    requires.append('colorama>=0.3.5')
-
-if sys.version_info < (3, 5):
-    requires.append('typing')
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
@@ -90,10 +90,7 @@ cmdclass = {}
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
-    try:
-        from simplejson import dump
-    except ImportError:
-        from json import dump
+    from json import dump
 except ImportError:
     pass
 else:
