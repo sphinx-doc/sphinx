@@ -109,7 +109,7 @@ def ignore_insecure_warning(**kwargs):
 
 def _get_tls_cacert(url, config):
     # type: (unicode, Config) -> Union[str, bool]
-    """Get addiotinal CA cert for a specific URL.
+    """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
     And returns ``True`` if additional CA cert not found.
