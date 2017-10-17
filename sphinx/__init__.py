@@ -66,7 +66,7 @@ def main(*args, **kwargs):
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    build.main(*args, **kwargs)
+    return build.main(*args, **kwargs)
 
 
 if __name__ == '__main__':
