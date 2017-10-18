@@ -43,6 +43,11 @@ def get_lvar_names(node, self=None):
         else:
             self_id = self.arg
 
+    # if node is something like *foo, *self.foo, *map['bar'] resulting from
+    # sequence unpacking (PEP3132)
+    if node.__class__.__name__ == 'Starred':
+        # unwrap the real value
+        node = node.value
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
@@ -62,8 +67,6 @@ def get_lvar_names(node, self=None):
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
         return [node]  # type: ignore
-    elif node_name == 'Starred' and node.value.__class__.__name__ == 'Name':
-        return [node.value.id]
     else:
         raise NotImplementedError('Unexpected node name %r' % node_name)
 
