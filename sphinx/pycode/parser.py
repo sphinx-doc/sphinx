@@ -43,6 +43,11 @@ def get_lvar_names(node, self=None):
         else:
             self_id = self.arg
 
+    # if node is something like *foo, *self.foo, *map['bar'] resulting from
+    # sequence unpacking (PEP3132)
+    if node.__class__.__name__ == 'Starred':
+        # unwrap the real value
+        node = node.value
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
