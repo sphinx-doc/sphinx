@@ -371,11 +371,11 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
     app.add_enumerable_node(displaymath, 'displaymath',
-                 latex=(latex_visit_displaymath, None),
-                 text=(text_visit_displaymath, None),
-                 man=(man_visit_displaymath, man_depart_displaymath),
-                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
-                 html=htmldisplayvisitors)
+                            latex=(latex_visit_displaymath, None),
+                            text=(text_visit_displaymath, None),
+                            man=(man_visit_displaymath, man_depart_displaymath),
+                            texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+                            html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('math', math_role)
     app.add_role('eq', EqXRefRole(warn_dangling=True))
