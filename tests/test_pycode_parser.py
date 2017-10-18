@@ -9,6 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
+from six import PY2
+
 from sphinx.pycode.parser import Parser
 
 
@@ -112,6 +115,18 @@ def test_complex_assignment():
                                ('', 'phi'): 'unpack assignment via tuple',
                                ('', 'x'): 'unpack assignment via list',
                                ('', 'y'): 'unpack assignment via list',
+                               }
+    assert parser.definitions == {}
+
+
+@pytest.mark.skipif(PY2, reason='tests for py3 syntax')
+def test_complex_assignment_py3():
+    source = 'a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'unpack assignment',
+                               ('', 'b'): 'unpack assignment',
+                               ('', 'c'): 'unpack assignment',
                                }
     assert parser.definitions == {}
 

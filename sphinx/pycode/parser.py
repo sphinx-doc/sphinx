@@ -62,6 +62,8 @@ def get_lvar_names(node, self=None):
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
         return [node]  # type: ignore
+    elif node_name == 'Starred':
+        return [node.value.id]  # type: ignore
     else:
         raise NotImplementedError('Unexpected node name %r' % node_name)
 
