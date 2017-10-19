@@ -16,7 +16,7 @@ and output behavior.
   An optional file `docutils.conf`_ can be added to the configuration
   directory to adjust `Docutils`_ configuration if not otherwise overriden or
   set by Sphinx; this applies in particular to the `Docutils smart_quotes
-  setting`_.
+  setting`_ (Note that Sphinx applies smart quotes transform by default.)
 
   .. _`docutils`: http://docutils.sourceforge.net/
 
