@@ -781,8 +781,8 @@ that use Sphinx's HTMLWriter class.
    entities.  Default: ``True``.
 
    .. deprecated:: 1.6
-      Use the `smart_quotes option`_ in the Docutils configuration file
-      (``docutils.conf``) instead.
+      To disable or customize smart quotes, use the Docutils configuration file
+      (``docutils.conf``) instead to set there its `smart_quotes option`_.
 
       .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 
