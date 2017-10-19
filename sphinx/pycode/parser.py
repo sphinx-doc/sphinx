@@ -53,7 +53,7 @@ def get_lvar_names(node, self=None):
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name in ('Tuple', 'List'):
         members = []
-        for elt in node.elts:
+        for elt in node.elts:  # type: ignore
             try:
                 members.extend(get_lvar_names(elt, self))
             except TypeError:
@@ -286,7 +286,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         try:
             varnames = sum([get_lvar_names(t, self=self.get_self()) for t in node.targets], [])  # type: ignore  # NOQA
             current_line = self.get_line(node.lineno)
-        except TypeError as exc:
+        except TypeError:
             return  # this assignment is not new definition!
 
         # check comments after assignment
