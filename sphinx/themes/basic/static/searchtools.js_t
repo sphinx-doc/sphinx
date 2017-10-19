@@ -239,10 +239,19 @@ var Search = {
 
     // print the results
     var resultCount = results.length;
+    var prev_item;
     function displayNextItem() {
       // results left, load the summary and display it
       if (results.length) {
         var item = results.pop();
+        // Detect if this is a repeat of the last item, and skip it if so
+        var is_duplicate = prev_item !== undefined && item.length===prev_item.length && item.every(function(v,i) {return v === prev_item[i]});
+        if (is_duplicate) {
+            resultCount--;
+            displayNextItem();
+            return;
+        }
+        prev_item = item;
         var listItem = $('<li style="display:none"></li>');
         if (DOCUMENTATION_OPTIONS.FILE_SUFFIX === '') {
           // dirhtml builder
