@@ -112,6 +112,8 @@ Bugs fixed
 * #4108: Search word highlighting breaks SVG images
 * #3692: Unable to build HTML if writing .buildinfo failed
 * #4152: HTML writer crashes if a field list is placed on top of the document
+* #4063: Sphinx crashes when labeling directive ``.. todolist::``
+* #4134: [doc] :file:`docutils.conf` is not documented explicitly
 
 Testing
 --------
