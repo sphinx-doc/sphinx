@@ -39,7 +39,6 @@ install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install .[test,websupport]
-  - pip install flake8
   - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then python3.6 -m pip install mypy typed-ast; fi
 script:
   - flake8

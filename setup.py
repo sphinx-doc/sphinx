@@ -72,6 +72,7 @@ extras_require = {
         'pytest',
         'pytest-cov',
         'html5lib',
+        'flake8',
     ],
     'test:python_version<"3"': [
         'enum34',
