@@ -44,7 +44,7 @@ from sphinx.util import texescape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Pattern  # NOQA
+    from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -149,7 +149,7 @@ def term_decode(text):
     # If ascii is safe, use it with no warning
     if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
         return text.decode('ascii')
-    
+
     print(turquoise('* Note: non-ASCII characters entered '
                     'and terminal encoding unknown -- assuming '
                     'UTF-8 or Latin-1.'))
