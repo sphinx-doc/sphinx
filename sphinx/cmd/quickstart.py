@@ -138,25 +138,25 @@ def ok(x):
 
 
 def term_decode(text):
-    # type: (unicode) -> unicode
+    # type: (Union[bytes,unicode]) -> unicode
     if isinstance(text, text_type):
         return text
 
-    # for Python 2.x, try to get a Unicode string out of it
-    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
-        return text
-
+    # Use the known encoding, if possible
     if TERM_ENCODING:
-        text = text.decode(TERM_ENCODING)
-    else:
-        print(turquoise('* Note: non-ASCII characters entered '
-                        'and terminal encoding unknown -- assuming '
-                        'UTF-8 or Latin-1.'))
-        try:
-            text = text.decode('utf-8')
-        except UnicodeDecodeError:
-            text = text.decode('latin1')
-    return text
+        return text.decode(TERM_ENCODING)
+
+    # If ascii is safe, use it with no warning
+    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
+        return text.decode('ascii')
+    
+    print(turquoise('* Note: non-ASCII characters entered '
+                    'and terminal encoding unknown -- assuming '
+                    'UTF-8 or Latin-1.'))
+    try:
+        return text.decode('utf-8')
+    except UnicodeDecodeError:
+        return text.decode('latin1')
 
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
