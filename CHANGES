@@ -33,6 +33,7 @@ Bugs fixed
 * #4063: Sphinx crashes when labeling directive ``.. todolist::``
 * #4134: [doc] :file:`docutils.conf` is not documented explicitly
 * #4169: Chinese language doesn't trigger Chinese search automatically
+* #1020: ext.todo todolist not linking to the page in pdflatex
 
 Testing
 --------
