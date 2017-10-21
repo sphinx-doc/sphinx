@@ -134,7 +134,6 @@ def test_quickstart_defaults(tempdir):
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
     assert ns['version'] == '0.1'
     assert ns['release'] == '0.1'
-    assert ns['todo_include_todos'] is False
     assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
         ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',

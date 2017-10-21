@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import time
+from collections import OrderedDict
 from io import open
 from os import path
 
@@ -48,7 +49,22 @@ if False:
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
-DEFAULT_VALUE = {
+EXTENSIONS = OrderedDict([
+    ('autodoc', 'automatically insert docstrings from modules'),
+    ('doctest', 'automatically test code snippets in doctest blocks'),
+    ('intersphinx', 'link between Sphinx documentation of different projects'),
+    ('todo', 'write "todo" entries that can be shown or hidden on build'),
+    ('coverage', 'checks for documentation coverage'),
+    ('imgmath', 'include math, rendered as PNG or SVG images'),
+    ('mathjax', 'include math, rendered in the browser by MathJax'),
+    ('ifconfig', 'conditional inclusion of content based on config values'),
+    ('viewcode',
+     'include links to the source code of documented Python objects'),
+    ('githubpages',
+     'create .nojekyll file to publish the document on GitHub pages'),
+])
+
+DEFAULTS = {
     'path': '.',
     'sep': False,
     'dot': '_',
@@ -56,15 +72,9 @@ DEFAULT_VALUE = {
     'suffix': '.rst',
     'master': 'index',
     'epub': False,
-    'ext_autodoc': False,
-    'ext_doctest': False,
-    'ext_todo': False,
     'makefile': True,
     'batchfile': True,
 }
-
-EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-              'imgmath', 'mathjax', 'ifconfig', 'viewcode', 'githubpages')
 
 PROMPT_PREFIX = '> '
 
@@ -235,7 +245,7 @@ def ask_user(d):
     * suffix:    source file suffix
     * master:    master document name
     * epub:      use epub (bool)
-    * ext_*:     extensions to use (bools)
+    * extensions:  extensions to use (list)
     * makefile:  make Makefile
     * batchfile: make command file
     """
@@ -341,46 +351,20 @@ Sphinx can also add configuration for epub output:''')
         d['epub'] = do_prompt('Do you want to use the epub builder (y/n)',
                               'n', boolean)
 
-    if 'ext_autodoc' not in d:
-        print('''
-Please indicate if you want to use one of the following Sphinx extensions:''')
-        d['ext_autodoc'] = do_prompt('autodoc: automatically insert docstrings '
-                                     'from modules (y/n)', 'n', boolean)
-    if 'ext_doctest' not in d:
-        d['ext_doctest'] = do_prompt('doctest: automatically test code snippets '
-                                     'in doctest blocks (y/n)', 'n', boolean)
-    if 'ext_intersphinx' not in d:
-        d['ext_intersphinx'] = do_prompt('intersphinx: link between Sphinx '
-                                         'documentation of different projects (y/n)',
-                                         'n', boolean)
-    if 'ext_todo' not in d:
-        d['ext_todo'] = do_prompt('todo: write "todo" entries that can be '
-                                  'shown or hidden on build (y/n)', 'n', boolean)
-    if 'ext_coverage' not in d:
-        d['ext_coverage'] = do_prompt('coverage: checks for documentation '
-                                      'coverage (y/n)', 'n', boolean)
-    if 'ext_imgmath' not in d:
-        d['ext_imgmath'] = do_prompt('imgmath: include math, rendered as PNG '
-                                     'or SVG images (y/n)', 'n', boolean)
-    if 'ext_mathjax' not in d:
-        d['ext_mathjax'] = do_prompt('mathjax: include math, rendered in the '
-                                     'browser by MathJax (y/n)', 'n', boolean)
-    if d['ext_imgmath'] and d['ext_mathjax']:
-        print('''Note: imgmath and mathjax cannot be enabled at the same time.
-imgmath has been deselected.''')
-        d['ext_imgmath'] = False
-    if 'ext_ifconfig' not in d:
-        d['ext_ifconfig'] = do_prompt('ifconfig: conditional inclusion of '
-                                      'content based on config values (y/n)',
-                                      'n', boolean)
-    if 'ext_viewcode' not in d:
-        d['ext_viewcode'] = do_prompt('viewcode: include links to the source '
-                                      'code of documented Python objects (y/n)',
-                                      'n', boolean)
-    if 'ext_githubpages' not in d:
-        d['ext_githubpages'] = do_prompt('githubpages: create .nojekyll file '
-                                         'to publish the document on GitHub '
-                                         'pages (y/n)', 'n', boolean)
+    if 'extensions' not in d:
+        print('Indicate which of the following Sphinx extensions should be '
+              'enabled:')
+        d['extensions'] = []
+        for name, description in EXTENSIONS.items():
+            if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
+                d['extensions'].append('sphinx.ext.%s' % name)
+
+        # Handle conflicting options
+        if set(['sphinx.ext.imgmath', 'sphinx.ext.mathjax']).issubset(
+                d['extensions']):
+            print('Note: imgmath and mathjax cannot be enabled at the same '
+                  'time. imgmath has been deselected.')
+            d['extensions'].remove('sphinx.ext.imgmath')
 
     if 'makefile' not in d:
         print('''
@@ -401,7 +385,6 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     template = QuickstartRenderer(templatedir=templatedir)
 
     texescape.init()
-    indent = ' ' * 4
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
@@ -415,10 +398,6 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
-    for name in EXTENSIONS:
-        if d.get('ext_' + name):
-            d['extensions'].append('sphinx.ext.' + name)
-    d['extensions'] = (',\n' + indent).join(repr(name) for name in d['extensions'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
@@ -588,11 +567,11 @@ Makefile to be used with sphinx-build.
 
     group = parser.add_argument_group('Extension options')
     for ext in EXTENSIONS:
-        group.add_argument('--ext-' + ext, action='store_true',
-                           dest='ext_' + ext, default=False,
+        group.add_argument('--ext-%s' % ext, action='append_const',
+                           const='sphinx.ext.%s' % ext, dest='extensions',
                            help='enable %s extension' % ext)
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
-                       action='append', help='enable extensions')
+                       action='append', help='enable arbitrary extensions')
 
     group = parser.add_argument_group('Makefile and Batchfile creation')
     group.add_argument('--makefile', action='store_true', dest='makefile',
@@ -649,8 +628,7 @@ def main(argv=sys.argv[1:]):
             # quiet mode with all required params satisfied, use default
             d.setdefault('version', '')
             d.setdefault('release', d['version'])
-            d2 = DEFAULT_VALUE.copy()
-            d2.update(dict(("ext_" + ext, False) for ext in EXTENSIONS))
+            d2 = DEFAULTS.copy()
             d2.update(d)
             d = d2
 
@@ -673,13 +651,12 @@ def main(argv=sys.argv[1:]):
         if isinstance(value, binary_type):
             d[key] = term_decode(value)
 
-    # parse extensions list
+    # handle use of CSV-style extension values
     d.setdefault('extensions', [])
     for ext in d['extensions'][:]:
         if ',' in ext:
             d['extensions'].remove(ext)
-            for modname in ext.split(','):
-                d['extensions'].append(modname)
+            d['extensions'].extend(ext.split(','))
 
     for variable in d.get('variables', []):
         try:
