@@ -217,7 +217,7 @@ def load_mappings(app):
 
         if isinstance(value, (list, tuple)):
             # new format
-            name, (uri, inv) = key, value  # type: ignore
+            name, (uri, inv) = key, value
             if not isinstance(name, string_types):
                 logger.warning('intersphinx identifier %r is not string. Ignored', name)
                 continue
