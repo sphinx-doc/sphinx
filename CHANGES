@@ -35,6 +35,7 @@ Bugs fixed
 * #4169: Chinese language doesn't trigger Chinese search automatically
 * #1020: ext.todo todolist not linking to the page in pdflatex
 * #3965: New quickstart generates wrong SPHINXBUILD in Makefile
+* #3739: ``:module:`` option is ignored at content of pyobjects
 
 Testing
 --------
