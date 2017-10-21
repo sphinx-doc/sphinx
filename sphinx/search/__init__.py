@@ -265,6 +265,11 @@ class IndexBuilder(object):
                                     # objtype index -> (domain, type, objname (localized))
         lang_class = languages.get(lang)    # type: Type[SearchLanguage]
                                             # add language-specific SearchLanguage instance
+
+        # fallback; try again with language-code
+        if lang_class is None and '_' in lang:
+            lang_class = languages.get(lang.split('_')[0])
+
         if lang_class is None:
             self.lang = SearchEnglish(options)  # type: SearchLanguage
         elif isinstance(lang_class, str):

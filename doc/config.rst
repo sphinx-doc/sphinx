@@ -9,8 +9,20 @@ The build configuration file
    :synopsis: Build configuration file.
 
 The :term:`configuration directory` must contain a file named :file:`conf.py`.
-This file (containing Python code) is called the "build configuration file" and
-contains all configuration needed to customize Sphinx input and output behavior.
+This file (containing Python code) is called the "build configuration file"
+and contains (almost) all configuration needed to customize Sphinx input
+and output behavior.
+
+  An optional file `docutils.conf`_ can be added to the configuration
+  directory to adjust `Docutils`_ configuration if not otherwise overriden or
+  set by Sphinx; this applies in particular to the `Docutils smart_quotes
+  setting`_ (Note that Sphinx applies smart quotes transform by default.)
+
+  .. _`docutils`: http://docutils.sourceforge.net/
+
+  .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
+
+  .. _`Docutils smart_quotes setting`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
@@ -769,8 +781,8 @@ that use Sphinx's HTMLWriter class.
    entities.  Default: ``True``.
 
    .. deprecated:: 1.6
-      Use the `smart_quotes option`_ in the Docutils configuration file
-      (``docutils.conf``) instead.
+      To disable or customize smart quotes, use the Docutils configuration file
+      (``docutils.conf``) instead to set there its `smart_quotes option`_.
 
       .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 
