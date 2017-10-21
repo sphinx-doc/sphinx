@@ -65,7 +65,7 @@ pylint:
 
 .PHONY: reindent
 reindent:
-	@$(PYTHON) utils/reindent.py -r -n .
+	@echo "This target no longer does anything and will be removed imminently"
 
 .PHONY: test
 test:
