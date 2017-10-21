@@ -228,3 +228,15 @@ def test_IndexBuilder():
     }
     assert index._objtypes == {('dummy', 'objtype'): 0}
     assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+
+def test_IndexBuilder_lookup():
+    env = DummyEnvironment('1.0', {})
+
+    # zh
+    index = IndexBuilder(env, 'zh', {}, None)
+    assert index.lang.lang == 'zh'
+
+    # zh_CN
+    index = IndexBuilder(env, 'zh_CN', {}, None)
+    assert index.lang.lang == 'zh'
