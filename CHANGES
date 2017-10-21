@@ -34,6 +34,7 @@ Bugs fixed
 * #4134: [doc] :file:`docutils.conf` is not documented explicitly
 * #4169: Chinese language doesn't trigger Chinese search automatically
 * #1020: ext.todo todolist not linking to the page in pdflatex
+* #3965: New quickstart generates wrong SPHINXBUILD in Makefile
 
 Testing
 --------
