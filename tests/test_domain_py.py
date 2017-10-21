@@ -115,6 +115,15 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[10], False, False, 'float', 'obj')
     assert len(refnodes) == 11
 
+    doctree = app.env.get_doctree('module_option')
+    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    print(refnodes)
+    print(refnodes[0])
+    print(refnodes[1])
+    assert_refnode(refnodes[0], 'test.extra', 'B', 'foo', 'meth')
+    assert_refnode(refnodes[1], 'test.extra', 'B', 'foo', 'meth')
+    assert len(refnodes) == 2
+
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
