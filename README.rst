@@ -4,11 +4,23 @@
 
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
    :target: https://pypi.python.org/pypi/Sphinx
+   :alt: Package on PyPi
+
 .. image:: https://readthedocs.org/projects/sphinx/badge/
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status
+
 .. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
    :target: https://travis-ci.org/sphinx-doc/sphinx
+   :alt: Build Status (Travis CI)
+
+.. image:: https://ci.appveyor.com/api/projects/status/github/sphinx-doc/sphinx?branch=master&svg=true
+   :target: https://ci.appveyor.com/project/sphinxdoc/sphinx
+   :alt: Build Status (AppVeyor)
+
+.. image:: https://circleci.com/gh/sphinx-doc/sphinx.svg?style=shield
+   :target: https://circleci.com/gh/sphinx-doc/sphinx
+   :alt: Build Status (CircleCI)
 
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
