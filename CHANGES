@@ -37,6 +37,8 @@ Bugs fixed
 * #3965: New quickstart generates wrong SPHINXBUILD in Makefile
 * #3739: ``:module:`` option is ignored at content of pyobjects
 * #4149: Documentation: Help choosing :confval:`latex_engine`
+* #4090: [doc] :confval:`latex_additional_files` with extra LaTeX macros should
+  not use ``.tex`` extension
 
 Testing
 --------

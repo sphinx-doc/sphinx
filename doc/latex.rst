@@ -65,14 +65,14 @@ If the size of the ``'preamble'`` contents becomes inconvenient, one may move
 all needed macros into some file :file:`mystyle.tex` of the project source
 repertory, and get LaTeX to import it at run time::
 
-   'preamble': r'\input{mystyle.tex}',
+   'preamble': r'\input{mystyle.tex.txt}',
    # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
    'preamble': r'\usepackage{mystyle}',
 
 It is needed to set appropriately :confval:`latex_additional_files`, for
 example::
 
-   latex_additional_files = ["mystyle.tex"]
+   latex_additional_files = ["mystyle.sty"]
 
 .. _latexsphinxsetup:
 
