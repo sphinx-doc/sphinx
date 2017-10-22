@@ -7,9 +7,9 @@ Application API
    :synopsis: Application class and extensibility interface.
 
 
-Each Sphinx extension is a Python module with at least a :func:`setup` function.
-This function is called at initialization time with one argument, the
-application object representing the Sphinx process.
+Each Sphinx extension is a Python module with at least a :func:`setup`
+function.  This function is called at initialization time with one argument,
+the application object representing the Sphinx process.
 
 .. class:: Sphinx
 
@@ -23,451 +23,73 @@ These methods are usually called in an extension's ``setup()`` function.
 Examples of using the Sphinx extension API can be seen in the :mod:`sphinx.ext`
 package.
 
-.. method:: Sphinx.setup_extension(name)
+.. currentmodule:: sphinx.application
 
-   Import and setup a Sphinx extension module.
+.. automethod:: Sphinx.setup_extension(name)
 
-   Load the extension given by the module *name*.  Use this if your extension
-   needs the features provided by another extension.  No-op if called twice.
+.. automethod:: Sphinx.add_builder(builder)
 
-.. method:: Sphinx.add_builder(builder)
+.. automethod:: Sphinx.add_config_value(name, default, rebuild)
 
-   Register a new builder.
+.. automethod:: Sphinx.add_domain(domain)
 
-   *builder* must be a class that inherits from
-   :class:`~sphinx.builders.Builder`.
+.. automethod:: Sphinx.override_domain(domain)
 
-.. method:: Sphinx.add_config_value(name, default, rebuild)
+.. automethod:: Sphinx.add_index_to_domain(domain, index)
 
-   Register a configuration value.
+.. automethod:: Sphinx.add_event(name)
 
-   This is necessary for Sphinx to recognize new values and set default values
-   accordingly.  The *name* should be prefixed with the extension name, to
-   avoid clashes.  The *default* value can be any Python object.  The string
-   value *rebuild* must be one of those values:
+.. automethod:: Sphinx.set_translator(name, translator_class)
 
-   * ``'env'`` if a change in the setting only takes effect when a document is
-     parsed -- this means that the whole environment must be rebuilt.
-   * ``'html'`` if a change in the setting needs a full rebuild of HTML
-     documents.
-   * ``''`` if a change in the setting will not need any special rebuild.
+.. automethod:: Sphinx.add_node(node, \*\*kwds)
 
-   .. versionchanged:: 0.6
-      Changed *rebuild* from a simple boolean (equivalent to ``''`` or
-      ``'env'``) to a string.  However, booleans are still accepted and
-      converted internally.
-
-   .. versionchanged:: 0.4
-      If the *default* value is a callable, it will be called with the config
-      object as its argument in order to get the default value.  This can be
-      used to implement config values whose default depends on other values.
-
-.. method:: Sphinx.add_domain(domain)
-
-   Register a domain.
-
-   Make the given *domain* (which must be a class; more precisely, a subclass
-   of :class:`~sphinx.domains.Domain`) known to Sphinx.
-
-   .. versionadded:: 1.0
-
-.. method:: Sphinx.override_domain(domain)
-
-   Override a registered domain.
-
-   Make the given *domain* class known to Sphinx, assuming that there is
-   already a domain with its ``.name``.  The new domain must be a subclass of
-   the existing one.
-
-   .. versionadded:: 1.0
-
-.. method:: Sphinx.add_index_to_domain(domain, index)
-
-   Register a custom index for a domain.
-
-   Add a custom *index* class to the domain named *domain*.  *index* must be a
-   subclass of :class:`~sphinx.domains.Index`.
-
-   .. versionadded:: 1.0
-
-.. method:: Sphinx.add_event(name)
-
-   Register an event called *name*.  This is needed to be able to emit it.
-
-.. method:: Sphinx.set_translator(name, translator_class)
-
-   Register or override a Docutils translator class.
-
-   This is used to register a custom output translator or to replace a builtin
-   translator.  This allows extensions to use custom translator and define
-   custom nodes for the translator (see :meth:`add_node`).
-
-   .. versionadded:: 1.3
-
-.. method:: Sphinx.add_node(node, \*\*kwds)
-
-   Register a Docutils node class.
-
-   This is necessary for Docutils internals.  It may also be used in the future
-   to validate nodes in the parsed documents.
-
-   Node visitor functions for the Sphinx HTML, LaTeX, text and manpage writers
-   can be given as keyword arguments: the keyword should be one or more of
-   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'`` or any other
-   supported translators, the value a 2-tuple of ``(visit, depart)`` methods.
-   ``depart`` can be ``None`` if the ``visit`` function raises
-   :exc:`docutils.nodes.SkipNode`.  Example:
-
-   .. code-block:: python
-
-      class math(docutils.nodes.Element): pass
-
-      def visit_math_html(self, node):
-          self.body.append(self.starttag(node, 'math'))
-      def depart_math_html(self, node):
-          self.body.append('</math>')
-
-      app.add_node(math, html=(visit_math_html, depart_math_html))
-
-   Obviously, translators for which you don't specify visitor methods will
-   choke on the node when encountered in a document to translate.
-
-   .. versionchanged:: 0.5
-      Added the support for keyword arguments giving visit functions.
-
-.. method:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
-
-   Register a Docutils node class as a numfig target.
-
-   Sphinx numbers the node automatically. And then the users can refer it using
-   :rst:role:`numref`.
-
-   *figtype* is a type of enumerable nodes.  Each figtypes have individual
-   numbering sequences.  As a system figtypes, ``figure``, ``table`` and
-   ``code-block`` are defined.  It is able to add custom nodes to these default
-   figtypes.  It is also able to define new custom figtype if new figtype is
-   given.
-
-   *title_getter* is a getter function to obtain the title of node.  It takes
-   an instance of the enumerable node, and it must return its title as string.
-   The title is used to the default title of references for :rst:role:`ref`.
-   By default, Sphinx searches ``docutils.nodes.caption`` or
-   ``docutils.nodes.title`` from the node as a title.
-
-   Other keyword arguments are used for node visitor functions. See the
-   :meth:`Sphinx.add_node` for details.
-
-   .. versionadded:: 1.4
+.. automethod:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, \*\*kwds)
 
 .. method:: Sphinx.add_directive(name, func, content, arguments, \*\*options)
-            Sphinx.add_directive(name, directiveclass)
-
-   Register a Docutils directive.
-
-   *name* must be the prospective directive name.  There are two possible ways
-   to write a directive:
-
-   - In the docutils 0.4 style, *obj* is the directive function.  *content*,
-     *arguments* and *options* are set as attributes on the function and
-     determine whether the directive has content, arguments and options,
-     respectively.  **This style is deprecated.**
-
-   - In the docutils 0.5 style, *directiveclass* is the directive class.  It
-     must already have attributes named *has_content*, *required_arguments*,
-     *optional_arguments*, *final_argument_whitespace* and *option_spec* that
-     correspond to the options for the function way.  See `the Docutils docs
-     <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_ for
-     details.
-
-   The directive class must inherit from the class
-   ``docutils.parsers.rst.Directive``.
-
-   For example, the (already existing) :rst:dir:`literalinclude` directive
-   would be added like this:
-
-   .. code-block:: python
-
-      from docutils.parsers.rst import directives
-      add_directive('literalinclude', literalinclude_directive,
-                    content = 0, arguments = (1, 0, 0),
-                    linenos = directives.flag,
-                    language = directives.unchanged,
-                    encoding = directives.encoding)
-
-   .. versionchanged:: 0.6
-      Docutils 0.5-style directive classes are now supported.
+.. automethod:: Sphinx.add_directive(name, directiveclass)
 
 .. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
-            Sphinx.add_directive_to_domain(domain, name, directiveclass)
+.. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
-   Register a Docutils directive in a domain.
+.. automethod:: Sphinx.add_role(name, role)
 
-   Like :meth:`add_directive`, but the directive is added to the domain named
-   *domain*.
+.. automethod:: Sphinx.add_role_to_domain(domain, name, role)
 
-   .. versionadded:: 1.0
+.. automethod:: Sphinx.add_generic_role(name, nodeclass)
 
-.. method:: Sphinx.add_role(name, role)
+.. automethod:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='', doc_field_types=[])
 
-   Register a Docutils role.
+.. automethod:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
 
-   *name* must be the role name that occurs in the source, *role* the role
-   function. Refer to the `Docutils documentation
-   <http://docutils.sourceforge.net/docs/howto/rst-roles.html>`_ for more
-   information.
+.. automethod:: Sphinx.add_transform(transform)
 
-.. method:: Sphinx.add_role_to_domain(domain, name, role)
+.. automethod:: Sphinx.add_post_transform(transform)
 
-   Register a Docutils role in a domain.
+.. automethod:: Sphinx.add_javascript(filename)
 
-   Like :meth:`add_role`, but the role is added to the domain named *domain*.
+.. automethod:: Sphinx.add_stylesheet(filename, alternate=None, title=None)
 
-   .. versionadded:: 1.0
+.. automethod:: Sphinx.add_latex_package(packagename, options=None)
 
-.. method:: Sphinx.add_generic_role(name, nodeclass)
+.. automethod:: Sphinx.add_lexer(alias, lexer)
 
-   Register a generic Docutils role.
+.. automethod:: Sphinx.add_autodocumenter(cls)
 
-   Register a Docutils role that does nothing but wrap its contents in the node
-   given by *nodeclass*.
+.. automethod:: Sphinx.add_autodoc_attrgetter(type, getter)
 
-   Don't use ``roles.register_generic_role`` because it uses
-   ``register_canonical_role``.
+.. automethod:: Sphinx.add_search_language(cls)
 
-   .. versionadded:: 0.6
+.. automethod:: Sphinx.add_source_parser(suffix, parser)
 
-.. method:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, \
-                                   ref_nodeclass=None, objname='', doc_field_types=[])
+.. automethod:: Sphinx.add_html_theme(name, theme_path)
 
-   Register a new object type.
+.. automethod:: Sphinx.add_env_collector(collector)
 
-   This method is a very convenient way to add a new :term:`object` type that
-   can be cross-referenced.  It will do this:
+.. automethod:: Sphinx.require_sphinx(version)
 
-   - Create a new directive (called *directivename*) for documenting an object.
-     It will automatically add index entries if *indextemplate* is nonempty; if
-     given, it must contain exactly one instance of ``%s``.  See the example
-     below for how the template will be interpreted.  * Create a new role
-     (called *rolename*) to cross-reference to these object descriptions.
-   - If you provide *parse_node*, it must be a function that takes a string and
-     a docutils node, and it must populate the node with children parsed from
-     the string.  It must then return the name of the item to be used in
-     cross-referencing and index entries.  See the :file:`conf.py` file in the
-     source for this documentation for an example.
-   - The *objname* (if not given, will default to *directivename*) names the
-     type of object.  It is used when listing objects, e.g. in search results.
+.. automethod:: Sphinx.connect(event, callback)
 
-   For example, if you have this call in a custom Sphinx extension::
-
-      app.add_object_type('directive', 'dir', 'pair: %s; directive')
-
-   you can use this markup in your documents::
-
-      .. rst:directive:: function
-
-         Document a function.
-
-      <...>
-
-      See also the :rst:dir:`function` directive.
-
-   For the directive, an index entry will be generated as if you had
-   prepended::
-
-      .. index:: pair: function; directive
-
-   The reference node will be of class ``literal`` (so it will be rendered in a
-   proportional font, as appropriate for code) unless you give the
-   *ref_nodeclass* argument, which must be a docutils node class.  Most useful
-   are ``docutils.nodes.emphasis`` or ``docutils.nodes.strong`` -- you can also
-   use ``docutils.nodes.generated`` if you want no further text decoration.  If
-   the text should be treated as literal (e.g. no smart quote replacement), but
-   not have typewriter styling, use ``sphinx.addnodes.literal_emphasis`` or
-   ``sphinx.addnodes.literal_strong``.
-
-   For the role content, you have the same syntactical possibilities as for
-   standard Sphinx roles (see :ref:`xref-syntax`).
-
-   This method is also available under the deprecated alias
-   :meth:`add_description_unit`.
-
-.. method:: Sphinx.add_crossref_type(directivename, rolename, indextemplate='', ref_nodeclass=None, objname='')
-
-   Register a new crossref object type.
-
-   This method is very similar to :meth:`add_object_type` except that the
-   directive it generates must be empty, and will produce no output.
-
-   That means that you can add semantic targets to your sources, and refer to
-   them using custom roles instead of generic ones (like :rst:role:`ref`).
-   Example call::
-
-      app.add_crossref_type('topic', 'topic', 'single: %s',
-                            docutils.nodes.emphasis)
-
-   Example usage::
-
-      .. topic:: application API
-
-      The application API
-      -------------------
-
-      Some random text here.
-
-      See also :topic:`this section <application API>`.
-
-   (Of course, the element following the ``topic`` directive needn't be a
-   section.)
-
-.. method:: Sphinx.add_transform(transform)
-
-   Register a Docutils transform to be applied after parsing.
-
-   Add the standard docutils :class:`Transform` subclass *transform* to the
-   list of transforms that are applied after Sphinx parses a reST document.
-
-.. method:: Sphinx.add_post_transform(transform)
-
-   Register a Docutils transform to be applied before writing.
-
-   Add the standard docutils :class:`Transform` subclass *transform* to the
-   list of transforms that are applied before Sphinx writes a document.
-
-.. method:: Sphinx.add_javascript(filename)
-
-   Register a JavaScript file to include in the HTML output.
-
-   Add *filename* to the list of JavaScript files that the default HTML
-   template will include.  The filename must be relative to the HTML static
-   path, see :confval:`the docs for the config value <html_static_path>`.  A
-   full URI with scheme, like ``http://example.org/foo.js``, is also supported.
-
-   .. versionadded:: 0.5
-
-.. method:: Sphinx.add_stylesheet(filename, alternate=None, title=None)
-
-   Register a stylesheet to include in the HTML output.
-
-   Add *filename* to the list of CSS files that the default HTML template will
-   include.  Like for :meth:`add_javascript`, the filename must be relative to
-   the HTML static path, or a full URI with scheme.
-
-   .. versionadded:: 1.0
-
-   .. versionchanged:: 1.6
-      Optional ``alternate`` and/or ``title`` attributes can be supplied with
-      the *alternate* (of boolean type) and *title* (a string) arguments. The
-      default is no title and *alternate* = ``False``. Refer to the
-      `documentation <https://mdn.io/Web/CSS/Alternative_style_sheets>`__ for
-      more information.
-
-.. method:: Sphinx.add_latex_package(packagename, options=None)
-
-   Register a package to include in the LaTeX source code.
-
-   Add *packagename* to the list of packages that LaTeX source code will
-   include.  If you provide *options*, it will be taken to `\usepackage`
-   declaration.
-
-   .. code-block:: python
-
-      app.add_latex_package('mypackage')
-      # => \usepackage{mypackage}
-      app.add_latex_package('mypackage', 'foo,bar')
-      # => \usepackage[foo,bar]{mypackage}
-
-   .. versionadded:: 1.3
-
-.. method:: Sphinx.add_lexer(alias, lexer)
-
-   Register a new lexer for source code.
-
-   Use *lexer*, which must be an instance of a Pygments lexer class, to
-   highlight code blocks with the given language *alias*.
-
-   .. versionadded:: 0.6
-
-.. method:: Sphinx.add_autodocumenter(cls)
-
-   Register a new documenter class for the autodoc extension.
-
-   Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
-   extension.  It must be a subclass of :class:`sphinx.ext.autodoc.Documenter`.
-   This allows to auto-document new types of objects.  See the source of the
-   autodoc module for examples on how to subclass :class:`Documenter`.
-
-   .. todo:: Add real docs for Documenter and subclassing
-
-   .. versionadded:: 0.6
-
-.. method:: Sphinx.add_autodoc_attrgetter(type, getter)
-
-   Register a new ``getattr``-like function for the autodoc extension.
-
-   Add *getter*, which must be a function with an interface compatible to the
-   :func:`getattr` builtin, as the autodoc attribute getter for objects that
-   are instances of *typ*.  All cases where autodoc needs to get an attribute
-   of a type are then handled by this function instead of :func:`getattr`.
-
-   .. versionadded:: 0.6
-
-.. method:: Sphinx.add_search_language(cls)
-
-   Register a new language for the HTML search index.
-
-   Add *cls*, which must be a subclass of
-   :class:`sphinx.search.SearchLanguage`, as a support language for building
-   the HTML full-text search index.  The class must have a *lang* attribute
-   that indicates the language it should be used for.  See
-   :confval:`html_search_language`.
-
-   .. versionadded:: 1.1
-
-.. method:: Sphinx.add_source_parser(suffix, parser)
-
-   Register a parser class for specified *suffix*.
-
-   .. versionadded:: 1.4
-
-.. method:: Sphinx.add_html_theme(name, theme_path)
-
-   Register a HTML Theme.  The *name* is a name of theme, and *path* is a
-   full path to the theme (refs: :ref:`distribute-your-theme`).
-
-   .. versionadded:: 1.6
-
-.. method:: Sphinx.add_env_collector(collector)
-
-   Register an environment collector class
-
-   Refer to :ref:`collector-api`.
-
-   .. versionadded:: 1.6
-
-.. method:: Sphinx.require_sphinx(version)
-
-   Check the Sphinx version if requested.
-
-   Compare *version* (which must be a ``major.minor`` version string, e.g.
-   ``'1.1'``) with the version of the running Sphinx, and abort the build when
-   it is too old.
-
-   .. versionadded:: 1.0
-
-.. method:: Sphinx.connect(event, callback)
-
-   Register *callback* to be called when *event* is emitted.
-
-   For details on available core events and the arguments of callback
-   functions, please see :ref:`events`.
-
-   The method returns a "listener ID" that can be used as an argument to
-   :meth:`disconnect`.
-
-.. method:: Sphinx.disconnect(listener_id)
-
-   Unregister callback by *listener_id*.
-
+.. automethod:: Sphinx.disconnect(listener_id)
 
 .. exception:: ExtensionError
 
@@ -478,20 +100,11 @@ package.
 Emitting events
 ---------------
 
-.. method:: Sphinx.emit(event, *arguments)
+.. class:: Sphinx
 
-   Emit *event* and pass *arguments* to the callback functions.
+   .. automethod:: emit(event, \*arguments)
 
-   Return the return values of all callbacks as a list.  Do not emit core
-   Sphinx events in extensions!
-
-.. method:: Sphinx.emit_firstresult(event, *arguments)
-
-   Emit *event* and pass *arguments* to the callback functions.
-
-   Return the result of the first callback that doesn't return ``None``.
-
-   .. versionadded:: 0.5
+   .. automethod:: emit_firstresult(event, \*arguments)
 
 
 Producing messages / logging
@@ -746,16 +359,7 @@ Checking the Sphinx version
 
 Use this to adapt your extension to API changes in Sphinx.
 
-.. data:: version_info
-
-   Version info for better programmatic use.
-
-   A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
-   ``(1, 2, 1, 'beta', 3)``. The fourth element can be one of: ``alpha``,
-   ``beta``, ``rc``, ``final``. ``final`` always has 0 as the last element.
-
-   .. versionadded:: 1.2
-      Before version 1.2, check the string ``sphinx.__version__``.
+.. autodata:: version_info
 
 
 The Config object

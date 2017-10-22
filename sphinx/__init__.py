@@ -34,9 +34,14 @@ warnings.filterwarnings('ignore', "'U' mode is deprecated",
 __version__ = '1.8.0+'
 __released__ = '1.8.0'  # used when Sphinx builds its own docs
 
-# version info for better programmatic use
-# possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
-# 'final' has 0 as the last element
+#: Version info for better programmatic use.
+#:
+#: A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
+#: ``(1, 2, 1, 'beta', 3)``. The fourth element can be one of: ``alpha``,
+#: ``beta``, ``rc``, ``final``. ``final`` always has 0 as the last element.
+#:
+#: .. versionadded:: 1.2
+#:    Before version 1.2, check the string ``sphinx.__version__``.
 version_info = (1, 8, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
