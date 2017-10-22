@@ -15,6 +15,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* using a string value for :confval:`html_sidebars` is deprecated and only list
+  values will be accepted at 2.0.
+
 Features added
 --------------
 
