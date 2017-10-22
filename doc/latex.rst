@@ -62,7 +62,7 @@ It is achieved via usage of the
 .. highlight:: latex
 
 If the size of the ``'preamble'`` contents becomes inconvenient, one may move
-all needed macros into some file :file:`mystyle.tex` of the project source
+all needed macros into some file :file:`mystyle.tex.txt` of the project source
 repertory, and get LaTeX to import it at run time::
 
    'preamble': r'\input{mystyle.tex.txt}',
