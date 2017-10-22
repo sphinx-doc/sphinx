@@ -162,7 +162,7 @@ class WarningStream(object):
             logger.warning(text.rstrip("\r\n"))
         else:
             location, type, level = matched.groups()
-            message = report_re.sub('', text).rstrip()
+            message = report_re.sub('', text).rstrip()  # type: ignore
             logger.log(type, message, location=location)
 
 
