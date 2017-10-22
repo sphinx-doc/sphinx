@@ -36,6 +36,7 @@ Bugs fixed
 * #1020: ext.todo todolist not linking to the page in pdflatex
 * #3965: New quickstart generates wrong SPHINXBUILD in Makefile
 * #3739: ``:module:`` option is ignored at content of pyobjects
+* #4149: Documentation: Help choosing :confval:`latex_engine`
 
 Testing
 --------

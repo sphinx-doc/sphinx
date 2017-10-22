@@ -29,6 +29,7 @@ The *latex* target does not benefit from pre-prepared themes like the
          cautionBgColor={named}{LightCyan}}
    \relax
 
+.. _latex-basic:
 
 Basic customization
 -------------------
