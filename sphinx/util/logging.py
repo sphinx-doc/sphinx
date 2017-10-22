@@ -29,6 +29,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
+NAMESPACE = 'sphinx'
 VERBOSE = 15
 
 LEVEL_NAMES = defaultdict(lambda: logging.WARNING)  # type: Dict[str, int]
@@ -59,8 +60,18 @@ COLOR_MAP.update({
 
 def getLogger(name):
     # type: (str) -> SphinxLoggerAdapter
-    """Get logger wrapped by SphinxLoggerAdapter."""
-    return SphinxLoggerAdapter(logging.getLogger(name), {})
+    """Get logger wrapped by SphinxLoggerAdapter.
+
+    Sphinx logger always uses ``sphinx.*`` namesapce to be independent from
+    settings of root logger.  It enables to log stably even if 3rd party
+    extension or imported application resets logger settings.
+    """
+    # add sphinx prefix to name forcely
+    logger = logging.getLogger(NAMESPACE + '.' + name)
+    # Forcely enable logger
+    logger.disabled = False
+    # wrap logger by SphinxLoggerAdapter
+    return SphinxLoggerAdapter(logger, {})
 
 
 def convert_serializable(records):
@@ -203,7 +214,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 def pending_warnings():
     # type: () -> Generator
     """contextmanager to pend logging warnings temporary."""
-    logger = logging.getLogger()
+    logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
     memhandler.setLevel(logging.WARNING)
 
@@ -229,7 +240,7 @@ def pending_warnings():
 def pending_logging():
     # type: () -> Generator
     """contextmanager to pend logging all logs temporary."""
-    logger = logging.getLogger()
+    logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
 
     try:
@@ -253,7 +264,7 @@ def pending_logging():
 def skip_warningiserror(skip=True):
     # type: (bool) -> Generator
     """contextmanager to skip WarningIsErrorFilter for a while."""
-    logger = logging.getLogger()
+    logger = logging.getLogger(NAMESPACE)
 
     if skip is False:
         yield
@@ -469,8 +480,9 @@ class LastMessagesWriter(object):
 def setup(app, status, warning):
     # type: (Sphinx, IO, IO) -> None
     """Setup root logger for Sphinx"""
-    logger = logging.getLogger()
-    logger.setLevel(logging.NOTSET)
+    logger = logging.getLogger(NAMESPACE)
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
 
     # clear all handlers
     for handler in logger.handlers[:]:
