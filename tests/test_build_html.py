@@ -1245,3 +1245,21 @@ def test_html_remote_images(app, status, warning):
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_sidebar(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<h3><a href="#">Table Of Contents</a></h3>' in result
+    assert '<h3>Related Topics</h3>' in result
+    assert '<h3>This Page</h3>' in result
+    assert '<h3>Quick search</h3>' in result
+
+    app.config.html_sidebars = {'**': []}
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<h3><a href="#">Table Of Contents</a></h3>' not in result
+    assert '<h3>Related Topics</h3>' not in result
+    assert '<h3>This Page</h3>' not in result
+    assert '<h3>Quick search</h3>' not in result

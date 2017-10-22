@@ -12,6 +12,9 @@ Sphinx uses reStructuredText as its markup language, and many of its strengths
 come from the power and straightforwardness of reStructuredText and its parsing
 and translating suite, the Docutils.
 
+features
+--------
+
 Among its features are the following:
 
 * Output formats: HTML (including derivative formats such as HTML Help, Epub

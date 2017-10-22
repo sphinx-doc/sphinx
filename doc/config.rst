@@ -820,8 +820,9 @@ that use Sphinx's HTMLWriter class.
      to include.  If all or some of the default sidebars are to be included,
      they must be put into this list as well.
 
-     The default sidebars (for documents that don't match any pattern) are:
-     ``['localtoc.html', 'relations.html', 'sourcelink.html',
+     The default sidebars (for documents that don't match any pattern) are
+     defined by theme itself.  Builtin themes are using these templates by
+     default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
      'searchbox.html']``.
 
    * If a value is a single string, it specifies a custom sidebar to be added
