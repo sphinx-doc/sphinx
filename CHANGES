@@ -39,6 +39,7 @@ Bugs fixed
 * #4149: Documentation: Help choosing :confval:`latex_engine`
 * #4090: [doc] :confval:`latex_additional_files` with extra LaTeX macros should
   not use ``.tex`` extension
+* Failed to convert reST parser error to warning (refs: #4132)
 
 Testing
 --------

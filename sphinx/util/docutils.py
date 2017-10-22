@@ -26,8 +26,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
-                       '(.+?)\n?$')
+report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if False:
     # For type annotation
@@ -162,7 +161,8 @@ class WarningStream(object):
         if not matched:
             logger.warning(text.rstrip("\r\n"))
         else:
-            location, type, level, message = matched.groups()
+            location, type, level = matched.groups()
+            message = report_re.sub('', text).rstrip()
             logger.log(type, message, location=location)
 
 
