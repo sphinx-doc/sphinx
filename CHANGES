@@ -1,14 +1,5 @@
-Release 1.6.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 1.6.5 (released Oct 23, 2017)
+=====================================
 
 Features added
 --------------
@@ -40,9 +31,6 @@ Bugs fixed
 * #4090: [doc] :confval:`latex_additional_files` with extra LaTeX macros should
   not use ``.tex`` extension
 * Failed to convert reST parser error to warning (refs: #4132)
-
-Testing
---------
 
 Release 1.6.4 (released Sep 26, 2017)
 =====================================
