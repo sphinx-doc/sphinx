@@ -80,7 +80,7 @@ Testing
 
 * Add support for docutils 0.14
 
-Release 1.6.5 (in development)
+Release 1.6.6 (in development)
 ==============================
 
 Dependencies
@@ -91,6 +91,18 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6.5 (released Oct 23, 2017)
+=====================================
 
 Features added
 --------------
@@ -115,9 +127,13 @@ Bugs fixed
 * #4063: Sphinx crashes when labeling directive ``.. todolist::``
 * #4134: [doc] :file:`docutils.conf` is not documented explicitly
 * #4169: Chinese language doesn't trigger Chinese search automatically
-
-Testing
---------
+* #1020: ext.todo todolist not linking to the page in pdflatex
+* #3965: New quickstart generates wrong SPHINXBUILD in Makefile
+* #3739: ``:module:`` option is ignored at content of pyobjects
+* #4149: Documentation: Help choosing :confval:`latex_engine`
+* #4090: [doc] :confval:`latex_additional_files` with extra LaTeX macros should
+  not use ``.tex`` extension
+* Failed to convert reST parser error to warning (refs: #4132)
 
 Release 1.6.4 (released Sep 26, 2017)
 =====================================

@@ -348,6 +348,10 @@ class PyObject(ObjectDescription):
             if self.allow_nesting:
                 classes = self.env.ref_context.setdefault('py:classes', [])
                 classes.append(prefix)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            modules.append(self.env.ref_context.get('py:module'))
+            self.env.ref_context['py:module'] = self.options['module']
 
     def after_content(self):
         # type: () -> None
@@ -368,6 +372,12 @@ class PyObject(ObjectDescription):
                 pass
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            if modules:
+                self.env.ref_context['py:module'] = modules.pop()
+            else:
+                self.env.ref_context.pop('py:module')
 
 
 class PyModulelevel(PyObject):

@@ -1546,6 +1546,25 @@ These options influence LaTeX output. See further :doc:`latex`.
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
 
+   PDFLaTeX's support for Unicode characters covers those from the document
+   language (the LaTeX ``babel`` and ``inputenc`` packages map them to glyph
+   slots in the document font, at various encodings allowing each only 256
+   characters; Sphinx uses by default (except for Cyrillic languages) the
+   ``times`` package), but stray characters from other scripts or special
+   symbols may require adding extra LaTeX packages or macros to the LaTeX
+   preamble.
+
+   If your project uses such extra Unicode characters, switching the engine to
+   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
+   encoded sources and can (in fact, should) use OpenType fonts, either from
+   the system or the TeX install tree. Recent LaTeX releases will default with
+   these engines to the Latin Modern OpenType font, which has good coverage of
+   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
+   and Sphinx does not modify this default. Refer to the documentation of the
+   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
+   other OpenType font if Unicode coverage proves insufficient (or use
+   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.
