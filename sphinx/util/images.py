@@ -64,7 +64,7 @@ def get_image_size(filename):
                 pass
 
         return size
-    except:
+    except Exception:
         return None
 
 

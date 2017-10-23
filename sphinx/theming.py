@@ -156,7 +156,7 @@ def is_archived_theme(filename):
     try:
         with ZipFile(filename) as f:  # type: ignore
             return THEMECONF in f.namelist()
-    except:
+    except Exception:
         return False
 
 

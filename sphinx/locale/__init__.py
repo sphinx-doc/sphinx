@@ -171,7 +171,7 @@ class _TranslationProxy(UserString, object):
         # type: () -> str
         try:
             return 'i' + repr(text_type(self.data))
-        except:
+        except Exception:
             return '<%s broken>' % self.__class__.__name__
 
 

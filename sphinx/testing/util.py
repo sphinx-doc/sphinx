@@ -137,7 +137,7 @@ class SphinxTestApp(application.Sphinx):
             application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                         buildername, confoverrides, status, warning,
                                         freshenv, warningiserror, tags)
-        except:
+        except Exception:
             self.cleanup()
             raise
 
