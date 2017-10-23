@@ -130,3 +130,23 @@ class TestSafeGetAttr(TestCase):
             self.assertEqual(exc.args[0], 'bar')
         else:
             self.fail('AttributeError not raised')
+
+
+class TestObjectDescription(TestCase):
+    def test_dictionary_sorting(self):
+        dictionary = {"c": 3, "a": 1, "d": 2, "b": 4}
+        description = inspect.object_description(dictionary)
+        assert description == "{'a': 1, 'b': 4, 'c': 3, 'd': 2}"
+
+    def test_dict_customtype(self):
+        class CustomType(object):
+            def __init__(self, value):
+                self._value = value
+
+            def __repr__(self):
+                return "<CustomType(%r)>" % self._value
+
+        dictionary = {CustomType(2): 2, CustomType(1): 1}
+        description = inspect.object_description(dictionary)
+        # Type is unsortable, just check that it does not crash
+        assert "<CustomType(2)>: 2" in description
