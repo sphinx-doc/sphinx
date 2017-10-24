@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #2437: make full reference for classes, aliased with "alias of"
+
 Testing
 --------
 
