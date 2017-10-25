@@ -872,6 +872,11 @@ class StandaloneHTMLBuilder(Builder):
         theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
         if theme_default_sidebars:
             sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        elif self.theme.name == 'alabaster':
+            # provide default settings for alabaster (for compatibility)
+            # Note: this will be removed before Sphinx-2.0
+            sidebars = ['about.html', 'navigation.html', 'relation.html',
+                        'searchbox.html', 'donate.html']
 
         # user sidebar settings
         for pattern, patsidebars in iteritems(self.config.html_sidebars):
