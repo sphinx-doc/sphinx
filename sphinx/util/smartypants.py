@@ -139,7 +139,7 @@ def educateQuotes(text, language='en'):
     smart = smartquotes.smartchars(language)
     try:
         apostrophe = smart.apostrophe
-    except:
+    except Exception:
         apostrophe = u'’'
 
     # oldtext = text

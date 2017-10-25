@@ -11,13 +11,13 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import re
+import argparse
 import os
+import re
 import sys
-import optparse
 import time
-from os import path
 from io import open
+from os import path
 
 # try to import readline, unix specific enhancement
 try:
@@ -44,7 +44,7 @@ from sphinx.util import texescape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Pattern  # NOQA
+    from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -138,25 +138,25 @@ def ok(x):
 
 
 def term_decode(text):
-    # type: (unicode) -> unicode
+    # type: (Union[bytes,unicode]) -> unicode
     if isinstance(text, text_type):
         return text
 
-    # for Python 2.x, try to get a Unicode string out of it
-    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
-        return text
-
+    # Use the known encoding, if possible
     if TERM_ENCODING:
-        text = text.decode(TERM_ENCODING)
-    else:
-        print(turquoise('* Note: non-ASCII characters entered '
-                        'and terminal encoding unknown -- assuming '
-                        'UTF-8 or Latin-1.'))
-        try:
-            text = text.decode('utf-8')
-        except UnicodeDecodeError:
-            text = text.decode('latin1')
-    return text
+        return text.decode(TERM_ENCODING)
+
+    # If ascii is safe, use it with no warning
+    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
+        return text.decode('ascii')
+
+    print(turquoise('* Note: non-ASCII characters entered '
+                    'and terminal encoding unknown -- assuming '
+                    'UTF-8 or Latin-1.'))
+    try:
+        return text.decode('utf-8')
+    except UnicodeDecodeError:
+        return text.decode('latin1')
 
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
@@ -509,23 +509,6 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 ''')
 
 
-def usage(argv, msg=None):
-    # type: (List[unicode], unicode) -> None
-    if msg:
-        print(msg, file=sys.stderr)
-        print(file=sys.stderr)
-
-
-USAGE = """\
-Sphinx v%s
-Usage: %%prog [options] [projectdir]
-""" % __display_version__
-
-EPILOG = """\
-For more information, visit <http://sphinx-doc.org/>.
-"""
-
-
 def valid_dir(d):
     # type: (Dict) -> bool
     dir = d['path']
@@ -556,18 +539,86 @@ def valid_dir(d):
     return True
 
 
-class MyFormatter(optparse.IndentedHelpFormatter):
-    def format_usage(self, usage):  # type: ignore
-        # type: (str) -> str
-        return usage
+def get_parser():
+    # type: () -> argparse.ArgumentParser
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
+        epilog="For more information, visit <http://sphinx-doc.org/>.",
+        description="""
+Generate required files for a Sphinx project.
 
-    def format_help(self, formatter):
-        result = []
-        if self.description:
-            result.append(self.format_description(formatter))
-        if self.option_list:
-            result.append(self.format_option_help(formatter))
-        return "\n".join(result)
+sphinx-quickstart is an interactive tool that asks some questions about your
+project and then generates a complete documentation directory and sample
+Makefile to be used with sphinx-build.
+""")
+
+    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
+                        default=False,
+                        help='quiet mode')
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
+
+    parser.add_argument('path', metavar='PROJECT_DIR', default='.',
+                        help='output path')
+
+    group = parser.add_argument_group('Structure options')
+    group.add_argument('--sep', action='store_true',
+                       help='if specified, separate source and build dirs')
+    group.add_argument('--dot', metavar='DOT',
+                       help='replacement for dot in _templates etc.')
+
+    group = parser.add_argument_group('Project basic options')
+    group.add_argument('-p', '--project', metavar='PROJECT', dest='project',
+                       help='project name')
+    group.add_argument('-a', '--author', metavar='AUTHOR', dest='author',
+                       help='author names')
+    group.add_argument('-v', metavar='VERSION', dest='version', default='',
+                       help='version of project')
+    group.add_argument('-r', '--release', metavar='RELEASE', dest='release',
+                       help='release of project')
+    group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
+                       help='document language')
+    group.add_argument('--suffix', metavar='SUFFIX',
+                       help='source file suffix')
+    group.add_argument('--master', metavar='MASTER',
+                       help='master document name')
+    group.add_argument('--epub', action='store_true', default=False,
+                       help='use epub')
+
+    group = parser.add_argument_group('Extension options')
+    for ext in EXTENSIONS:
+        group.add_argument('--ext-' + ext, action='store_true',
+                           dest='ext_' + ext, default=False,
+                           help='enable %s extension' % ext)
+    group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
+                       action='append', help='enable extensions')
+
+    # TODO(stephenfin): Consider using mutually exclusive groups here
+    group = parser.add_argument_group('Makefile and Batchfile creation')
+    group.add_argument('--makefile', action='store_true', default=False,
+                       help='create makefile')
+    group.add_argument('--no-makefile', action='store_true', default=False,
+                       help='not create makefile')
+    group.add_argument('--batchfile', action='store_true', default=False,
+                       help='create batchfile')
+    group.add_argument('--no-batchfile', action='store_true', default=False,
+                       help='not create batchfile')
+    group.add_argument('-M', '--no-use-make-mode', action='store_false',
+                       dest='make_mode', default=False,
+                       help='not use make-mode for Makefile/make.bat')
+    group.add_argument('-m', '--use-make-mode', action='store_true',
+                       dest='make_mode', default=True,
+                       help='use make-mode for Makefile/make.bat')
+
+    group = parser.add_argument_group('Project templating')
+    group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
+                       dest='templatedir',
+                       help='template directory for template files')
+    group.add_argument('-d', metavar='NAME=VALUE', action='append',
+                       dest='variables',
+                       help='define a template variable')
+
+    return parser
 
 
 def main(argv=sys.argv[1:]):
@@ -575,81 +626,14 @@ def main(argv=sys.argv[1:]):
     if not color_terminal():
         nocolor()
 
-    parser = optparse.OptionParser(USAGE, epilog=EPILOG,
-                                   version='Sphinx v%s' % __display_version__,
-                                   formatter=MyFormatter())
-    parser.add_option('-q', '--quiet', action='store_true', dest='quiet',
-                      default=False,
-                      help='quiet mode')
-
-    group = parser.add_option_group('Structure options')
-    group.add_option('--sep', action='store_true', dest='sep',
-                     help='if specified, separate source and build dirs')
-    group.add_option('--dot', metavar='DOT', dest='dot',
-                     help='replacement for dot in _templates etc.')
-
-    group = parser.add_option_group('Project basic options')
-    group.add_option('-p', '--project', metavar='PROJECT', dest='project',
-                     help='project name')
-    group.add_option('-a', '--author', metavar='AUTHOR', dest='author',
-                     help='author names')
-    group.add_option('-v', metavar='VERSION', dest='version',
-                     help='version of project')
-    group.add_option('-r', '--release', metavar='RELEASE', dest='release',
-                     help='release of project')
-    group.add_option('-l', '--language', metavar='LANGUAGE', dest='language',
-                     help='document language')
-    group.add_option('--suffix', metavar='SUFFIX', dest='suffix',
-                     help='source file suffix')
-    group.add_option('--master', metavar='MASTER', dest='master',
-                     help='master document name')
-    group.add_option('--epub', action='store_true', dest='epub',
-                     default=False,
-                     help='use epub')
-
-    group = parser.add_option_group('Extension options')
-    for ext in EXTENSIONS:
-        group.add_option('--ext-' + ext, action='store_true',
-                         dest='ext_' + ext, default=False,
-                         help='enable %s extension' % ext)
-    group.add_option('--extensions', metavar='EXTENSIONS', dest='extensions',
-                     action='append', help='enable extensions')
-
-    group = parser.add_option_group('Makefile and Batchfile creation')
-    group.add_option('--makefile', action='store_true', dest='makefile',
-                     default=False,
-                     help='create makefile')
-    group.add_option('--no-makefile', action='store_true', dest='no_makefile',
-                     default=False,
-                     help='not create makefile')
-    group.add_option('--batchfile', action='store_true', dest='batchfile',
-                     default=False,
-                     help='create batchfile')
-    group.add_option('--no-batchfile', action='store_true', dest='no_batchfile',
-                     default=False,
-                     help='not create batchfile')
-    group.add_option('-M', '--no-use-make-mode', action='store_false', dest='make_mode',
-                     help='not use make-mode for Makefile/make.bat')
-    group.add_option('-m', '--use-make-mode', action='store_true', dest='make_mode',
-                     default=True,
-                     help='use make-mode for Makefile/make.bat')
-
-    group = parser.add_option_group('Project templating')
-    group.add_option('-t', '--templatedir', metavar='TEMPLATEDIR', dest='templatedir',
-                     help='template directory for template files')
-    group.add_option('-d', metavar='NAME=VALUE', action='append', dest='variables',
-                     help='define a template variable')
-
     # parse options
+    parser = get_parser()
     try:
-        opts, args = parser.parse_args(argv)
+        args = parser.parse_args(argv)
     except SystemExit as err:
         return err.code
 
-    if len(args) > 0:
-        opts.ensure_value('path', args[0])
-
-    d = vars(opts)
+    d = vars(args)
     # delete None or False value
     d = dict((k, v) for k, v in d.items() if not (v is None or v is False))
 
@@ -707,7 +691,7 @@ def main(argv=sys.argv[1:]):
         except ValueError:
             print('Invalid template variable: %s' % variable)
 
-    generate(d, templatedir=opts.templatedir)
+    generate(d, templatedir=args.templatedir)
     return 0
 
 

@@ -84,3 +84,31 @@ def test_todo_not_included(app, status, warning):
     # check handled event
     assert len(todos) == 2
     assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
+
+@pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
+                    confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
+def test_todo_valid_link(app, status, warning):
+    """
+    Test that the inserted "original entry" links for todo items have a target
+    that exists in the LaTeX output. The target was previously incorrectly
+    omitted (GitHub issue #1020).
+    """
+
+    # Ensure the LaTeX output is built.
+    app.builder.build_all()
+
+    content = (app.outdir / 'TodoTests.tex').text()
+
+    # Look for the link to foo. We could equally well look for the link to bar.
+    link = r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{' \
+        r'\\sphinxstyleemphasis{original entry}}}}'
+    m = re.findall(link, content)
+    assert len(m) == 1
+    target = m[0]
+
+    # Look for the targets of this link.
+    labels = [m for m in re.findall(r'\\label\{([^}]*)}', content)
+        if m == target]
+
+    # If everything is correct we should have exactly one target.
+    assert len(labels) == 1

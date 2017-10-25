@@ -273,7 +273,7 @@ class Signature(object):
 
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
-        except:
+        except Exception:
             self.annotations = {}
 
         if bound_method:

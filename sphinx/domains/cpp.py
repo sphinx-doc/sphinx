@@ -4862,7 +4862,7 @@ class DefinitionParser(object):
         pos = self.pos
         try:
             concept = self._parse_nested_name()
-        except:
+        except Exception:
             self.pos = pos
             return None
         self.skip_ws()

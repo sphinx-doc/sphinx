@@ -152,10 +152,10 @@ def test_trailing_underscore(make_app, apidoc):
 @pytest.mark.apidoc(
     coderoot='test-root',
     options=[
-        '--doc-project', u'プロジェクト名'.encode('utf-8'),
-        '--doc-author', u'著者名'.encode('utf-8'),
-        '--doc-version', u'バージョン'.encode('utf-8'),
-        '--doc-release', u'リリース'.encode('utf-8'),
+        '--doc-project', u'プロジェクト名',
+        '--doc-author', u'著者名',
+        '--doc-version', u'バージョン',
+        '--doc-release', u'リリース',
     ],
 )
 def test_multibyte_parameters(make_app, apidoc):

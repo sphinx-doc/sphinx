@@ -81,7 +81,7 @@ def processing(message):
         yield
     except Skip as exc:
         print('skip: %s' % exc)
-    except:
+    except Exception:
         print('error')
         raise
     else:
