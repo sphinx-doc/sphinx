@@ -231,10 +231,6 @@ def test_concept_definitions():
           {2:'I0EN1A1B7ConceptE'})
     check('concept', 'template<typename A, typename B, typename ...C> Foo',
           {2:'I00DpE3Foo'})
-    check('concept', 'template<typename Param> A::B::Concept()',
-          {2:'I0EN1A1B7ConceptE'})
-    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
-          {2:'I00DpE3Foo'})
     with pytest.raises(DefinitionError):
         parse('concept', 'Foo')
     with pytest.raises(DefinitionError):

@@ -68,6 +68,7 @@ Features removed
 * ``sphinx.util.nodes.process_only_nodes()``
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
 * LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
+* C++, support of function concepts
 
 Bugs fixed
 ----------
