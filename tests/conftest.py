@@ -8,11 +8,16 @@
 """
 
 import os
+import sys
 
 import pytest
 from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
+
+# Disable Python version-specific
+if sys.version_info < (3, 5):
+    collect_ignore = ['py35']
 
 
 @pytest.fixture(scope='session')
