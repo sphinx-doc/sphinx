@@ -55,14 +55,5 @@ os.makedirs(tempdir)
 print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
 
-# exclude 'roots' dirs for pytest test collector
-ignore_paths = [
-    os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), sub))
-    for sub in ('roots',)
-]
-args = sys.argv[1:]
-for ignore_path in ignore_paths:
-    args.extend(['--ignore', ignore_path])
-
 import pytest  # NOQA
-sys.exit(pytest.main(args))
+sys.exit(pytest.main(sys.argv[1:]))
