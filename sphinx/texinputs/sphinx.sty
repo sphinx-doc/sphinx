@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/07/24 v1.6.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/10/27 v1.7 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -185,12 +185,12 @@
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
-\ifx\kanjiskip\undefined
+\ifx\kanjiskip\@undefined
 % for non-Japanese: make sure bookmarks are ok also with lualatex
   \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
 \else
   \RequirePackage{atbegshi}
-  \ifx\ucs\undefined
+  \ifx\ucs\@undefined
     \ifnum 42146=\euc"A4A2
       \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
     \else
@@ -201,7 +201,7 @@
   \fi
 \fi
 
-\ifx\@jsc@uplatextrue\undefined\else
+\ifx\@jsc@uplatextrue\@undefined\else
   \PassOptionsToPackage{setpagesize=false}{hyperref}
 \fi
 
@@ -223,7 +223,7 @@
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
 
 % Sphinx legacy text layout: 1in margins on all four sides
-\ifx\@jsc@uplatextrue\undefined
+\ifx\@jsc@uplatextrue\@undefined
 \DeclareStringOption[1in]{hmargin}
 \DeclareStringOption[1in]{vmargin}
 \DeclareStringOption[.5in]{marginpar}
@@ -419,7 +419,7 @@
 %
 % fix the double index and bibliography on the table of contents
 % in jsclasses (Japanese standard document classes)
-\ifx\@jsc@uplatextrue\undefined\else
+\ifx\@jsc@uplatextrue\@undefined\else
   \renewenvironment{sphinxtheindex}
     {\cleardoublepage\phantomsection
      \begin{theindex}}
@@ -432,7 +432,7 @@
 \fi
 
 % disable \@chappos in Appendix in pTeX
-\ifx\kanjiskip\undefined\else
+\ifx\kanjiskip\@undefined\else
   \let\py@OldAppendix=\appendix
   \renewcommand{\appendix}{
     \py@OldAppendix
@@ -446,10 +446,10 @@
  {\newenvironment
   {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
  }
- {}% else clause of ifundefined
+ {}% else clause of \ltx@ifundefined
 \ltx@ifundefined{sphinxtheindex}
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
- {}% else clause of ifundefined
+ {}% else clause of \ltx@ifundefined
 
 
 %% COLOR (general)
@@ -503,7 +503,7 @@
 }
 
 % geometry
-\ifx\kanjiskip\undefined
+\ifx\kanjiskip\@undefined
   \PassOptionsToPackage{%
      hmargin={\unexpanded{\spx@opt@hmargin}},%
      vmargin={\unexpanded{\spx@opt@vmargin}},%
@@ -525,7 +525,7 @@
  \newcommand*\sphinxtextlinesja[1]{%
     \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
                  \baselineskip\relax}%
- \ifx\@jsc@uplatextrue\undefined\else
+ \ifx\@jsc@uplatextrue\@undefined\else
  % the way we found in order for the papersize special written by
  % geometry in the dvi file to be correct in case of jsbook class
    \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
@@ -542,7 +542,7 @@
   }{geometry}%
  \AtBeginDocument
  {% update a dimension used by the jsclasses
-  \ifx\@jsc@uplatextrue\undefined\else\fullwidth\textwidth\fi
+  \ifx\@jsc@uplatextrue\@undefined\else\fullwidth\textwidth\fi
   % for some reason, jreport normalizes all dimensions with \@settopoint
   \@ifclassloaded{jreport}
     {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
