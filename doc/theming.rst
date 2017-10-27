@@ -116,6 +116,12 @@ These themes are:
 
   - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
     include ``px`` in the value.)  Defaults to 230 pixels.
+  
+  - **canonical_url** (sting): A `canonical url`_ to let search engines know
+    they should give higher ranking to latest version of the docs.  The url
+    points to the root of the documentation and requires a trailing slash.
+
+.. cronical url: https://en.wikipedia.org/wiki/Canonical_link_element
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on
