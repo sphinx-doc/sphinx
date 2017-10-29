@@ -24,7 +24,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -63,8 +63,11 @@ class ENUM(object):
         self.candidates = candidates
 
     def match(self, value):
-        # type: (unicode) -> bool
-        return value in self.candidates
+        # type: (Union[unicode,List,Tuple]) -> bool
+        if isinstance(value, (list, tuple)):
+            return all(item in self.candidates for item in value)
+        else:
+            return value in self.candidates
 
 
 string_classes = [text_type]  # type: List
