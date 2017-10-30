@@ -92,6 +92,7 @@ builtin_extensions = (
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.images',
+    'sphinx.util.compat',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
@@ -287,8 +288,6 @@ class Sphinx(object):
 
     def _init_source_parsers(self):
         # type: () -> None
-        for suffix, parser in iteritems(self.config.source_parsers):
-            self.add_source_parser(suffix, parser)
         for suffix, parser in iteritems(self.registry.get_source_parsers()):
             if suffix not in self.config.source_suffix and suffix != '*':
                 self.config.source_suffix.append(suffix)

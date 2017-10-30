@@ -13,7 +13,7 @@ from __future__ import print_function
 import traceback
 
 from pkg_resources import iter_entry_points
-from six import iteritems, itervalues, string_types
+from six import iteritems, itervalues
 
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
@@ -23,7 +23,6 @@ from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util import import_object
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
@@ -216,8 +215,6 @@ class SphinxComponentRegistry(object):
         if parser_class is None:
             raise SphinxError(__('Source parser for %s not registered') % filename)
         else:
-            if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')  # type: ignore
             return parser_class
 
     def get_source_parsers(self):
