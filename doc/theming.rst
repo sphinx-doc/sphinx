@@ -276,6 +276,7 @@ Python :mod:`ConfigParser` module) and has the following structure:
     inherit = base theme
     stylesheet = main CSS name
     pygments_style = stylename
+    sidebars = localtoc.html, relations.html, sourcelink.html, searchbox.html
 
     [options]
     variable = default value
@@ -295,10 +296,16 @@ Python :mod:`ConfigParser` module) and has the following structure:
   highlighting.  This can be overridden by the user in the
   :confval:`pygments_style` config value.
 
+* The **sidebars** setting gives the comma separated list of sidebar templates
+  for constructing sidebars.  This can be overridden by the user in the
+  :confval:`html_sidebars` config value.
+
 * The **options** section contains pairs of variable names and default values.
   These options can be overridden by the user in :confval:`html_theme_options`
   and are accessible from all templates as ``theme_<name>``.
 
+.. versionadded:: 1.7
+   sidebar settings
 
 .. _distribute-your-theme:
 
