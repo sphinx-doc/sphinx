@@ -324,7 +324,7 @@ class Autosummary(Directive):
             # -- Grab the summary
 
             documenter.add_content(None)
-            doc = list(documenter.process_doc([self.result.data]))
+            doc = [self.result.data]
 
             while doc and not doc[0].strip():
                 doc.pop(0)
