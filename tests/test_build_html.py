@@ -238,7 +238,7 @@ def test_static_output(app):
         (".//li/strong", r'^command\\n$'),
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
-        (".//li/code/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/kbd", r'^kbd\\n$'),
         (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
         (".//li/code/span[@class='pre']", '^a/$'),
         (".//li/code/em/span[@class='pre']", '^varpart$'),

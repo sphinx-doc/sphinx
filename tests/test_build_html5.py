@@ -119,7 +119,7 @@ def cached_etree_parse():
         (".//li/p/strong", r'^command\\n$'),
         (".//li/p/strong", r'^program\\n$'),
         (".//li/p/em", r'^dfn\\n$'),
-        (".//li/p/code/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/p/kbd", r'^kbd\\n$'),
         (".//li/p/span", u'File \N{TRIANGULAR BULLET} Close'),
         (".//li/p/code/span[@class='pre']", '^a/$'),
         (".//li/p/code/em/span[@class='pre']", '^varpart$'),
