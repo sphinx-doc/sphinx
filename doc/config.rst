@@ -26,7 +26,7 @@ and output behavior.
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.  Sphinx then
+directory), and therefore can execute arbitrarily complex code.
 
 Important points to note:
 
