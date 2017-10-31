@@ -663,10 +663,9 @@ class BuildEnvironment(object):
                        location=(self.docname, lineno))
         return (u'?', error.end)
 
-    def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
-        """Parse a file and add/update inventory entries for the doctree."""
-
+    def prepare_settings(self, docname):
+        """Prepare to set up environment for reading."""
+        # type: (unicode) -> None
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role
@@ -687,6 +686,11 @@ class BuildEnvironment(object):
                     break
             else:
                 self.settings['smart_quotes'] = False
+
+    def read_doc(self, docname, app=None):
+        # type: (unicode, Sphinx) -> None
+        """Parse a file and add/update inventory entries for the doctree."""
+        self.prepare_settings(docname)
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
