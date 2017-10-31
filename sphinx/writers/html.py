@@ -491,14 +491,21 @@ class HTMLTranslator(BaseTranslator):
     # overwritten
     def visit_literal(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(self.starttag(node, 'code', '',
-                                       CLASS='docutils literal'))
-        self.protect_literal_text += 1
+        if 'kbd' in node['classes']:
+            self.body.append(self.starttag(node, 'kbd', '',
+                                           CLASS='docutils literal'))
+        else:
+            self.body.append(self.starttag(node, 'code', '',
+                                           CLASS='docutils literal'))
+            self.protect_literal_text += 1
 
     def depart_literal(self, node):
         # type: (nodes.Node) -> None
-        self.protect_literal_text -= 1
-        self.body.append('</code>')
+        if 'kbd' in node['classes']:
+            self.body.append('</kbd>')
+        else:
+            self.protect_literal_text -= 1
+            self.body.append('</code>')
 
     def visit_productionlist(self, node):
         # type: (nodes.Node) -> None

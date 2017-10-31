@@ -76,6 +76,7 @@ Features removed
 Bugs fixed
 ----------
 
+* #3160: Why doesn't Sphinx translate :kbd: roles to HTML's <kbd> tags?
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 
