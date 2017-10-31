@@ -901,6 +901,11 @@ class StandaloneHTMLBuilder(Builder):
             # 0.x compatible mode: insert custom sidebar before searchbox
             customsidebar = sidebars
             sidebars = None
+            warnings.warn('Now html_sidebars only allows list of sidebar '
+                          'templates as a value. Support for a string value '
+                          'will be removed at Sphinx-2.0.',
+                          RemovedInSphinx20Warning)
+
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
 

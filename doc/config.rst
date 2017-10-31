@@ -829,6 +829,10 @@ that use Sphinx's HTMLWriter class.
      between the ``'sourcelink.html'`` and ``'searchbox.html'`` entries.  This
      is for compatibility with Sphinx versions before 1.0.
 
+   .. deprecated:: 1.7
+
+      a single string value for ``html_sidebars`` will be removed in 2.0
+
    Builtin sidebar templates that can be rendered are:
 
    * **localtoc.html** -- a fine-grained table of contents of the current
