@@ -14,7 +14,6 @@ import os
 import sys
 import time
 import types
-import codecs
 import fnmatch
 import warnings
 from os import path
@@ -642,21 +641,6 @@ class BuildEnvironment(object):
 
     # --------- SINGLE FILE READING --------------------------------------------
 
-    def warn_and_replace(self, error):
-        # type: (Any) -> Tuple
-        """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning('undecodable source characters, replacing with "?": %r',
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
-        return (u'?', error.end)
-
     def prepare_settings(self, docname):
         """Prepare to set up environment for reading."""
         # type: (unicode) -> None
@@ -693,7 +677,6 @@ class BuildEnvironment(object):
             self.note_dependency(docutilsconf)
 
         with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
-            codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
             doctree = read_doc(self.app, self, self.doc2path(docname))
 
         # post-processing
