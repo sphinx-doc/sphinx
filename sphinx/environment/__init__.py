@@ -27,7 +27,7 @@ from docutils.utils import Reporter, get_source_line, normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 from docutils.frontend import OptionParser
 
-from sphinx import addnodes
+from sphinx import addnodes, versioning
 from sphinx.io import read_doc
 from sphinx.util import logging, rst
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
@@ -42,7 +42,6 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -695,22 +694,8 @@ class BuildEnvironment(object):
             time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
-            old_doctree = None
-            if self.versioning_compare:
-                # get old doctree
-                try:
-                    with open(self.doc2path(docname,
-                                            self.doctreedir, '.doctree'), 'rb') as f:
-                        old_doctree = pickle.load(f)
-                except EnvironmentError:
-                    pass
-
             # add uids for versioning
-            if not self.versioning_compare or old_doctree is None:
-                list(add_uids(doctree, self.versioning_condition))
-            else:
-                list(merge_doctrees(
-                    old_doctree, doctree, self.versioning_condition))
+            versioning.prepare(doctree)
 
         # cleanup
         self.temp_data.clear()
