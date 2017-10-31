@@ -26,13 +26,11 @@ from six.moves import cPickle as pickle
 
 from docutils.utils import Reporter, get_source_line, normalize_language_tag
 from docutils.utils.smartquotes import smartchars
-from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import read_doc
-from sphinx.util import logging
+from sphinx.util import logging, rst
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
@@ -79,8 +77,6 @@ default_settings = {
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
 ENV_VERSION = 52 + (sys.version_info[0] - 2)
 
-
-dummy_reporter = Reporter('', 4, 4)
 
 versioning_conditions = {
     'none': False,
@@ -696,16 +692,7 @@ class BuildEnvironment(object):
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 
-        with sphinx_domains(self):
-            if self.config.default_role:
-                role_fn, messages = roles.role(self.config.default_role, english,
-                                               0, dummy_reporter)
-                if role_fn:
-                    roles._roles[''] = role_fn
-                else:
-                    logger.warning('default role %s not found', self.config.default_role,
-                                   location=docname)
-
+        with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
             codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
             doctree = read_doc(self.app, self, self.doc2path(docname))
 
@@ -745,7 +732,6 @@ class BuildEnvironment(object):
         # cleanup
         self.temp_data.clear()
         self.ref_context.clear()
-        roles._roles.pop('', None)  # if a document has set a local default role
 
         self.write_doctree(docname, doctree)
 
