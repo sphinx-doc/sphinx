@@ -42,6 +42,7 @@ Features added
 * #4140: html themes: Make body tag inheritable
 * #4168: improve zh search with jieba
 * HTML themes can set up default sidebars through ``theme.conf``
+* #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 
 
 Features removed
@@ -76,7 +77,6 @@ Features removed
 Bugs fixed
 ----------
 
-* #3160: Why doesn't Sphinx translate :kbd: roles to HTML's <kbd> tags?
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 
