@@ -24,8 +24,6 @@ from collections import defaultdict
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.io import NullOutput
-from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line, normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 from docutils.parsers.rst import roles
@@ -33,9 +31,7 @@ from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
-from sphinx.io import (
-    SphinxStandaloneReader, SphinxDummySourceClass, SphinxDummyWriter, SphinxFileInput
-)
+from sphinx.io import read_doc
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import is_translatable
@@ -711,22 +707,7 @@ class BuildEnvironment(object):
                                    location=docname)
 
             codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
-
-            # publish manually
-            reader = SphinxStandaloneReader(self.app,
-                                            parsers=self.app.registry.get_source_parsers())
-            src_path = self.doc2path(docname)
-            source = SphinxFileInput(app, self, source=None, source_path=src_path,
-                                     encoding=self.config.source_encoding)
-            pub = Publisher(reader=reader,
-                            writer=SphinxDummyWriter(),
-                            source_class=SphinxDummySourceClass,
-                            destination=NullOutput())
-            pub.set_components(None, 'restructuredtext', None)
-            pub.process_programmatic_settings(None, self.settings, None)
-            pub.set_source(source, src_path)
-            pub.publish()
-            doctree = pub.document
+            doctree = read_doc(self.app, self, self.doc2path(docname))
 
         # post-processing
         for domain in itervalues(self.domains):

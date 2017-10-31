@@ -8,7 +8,8 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from docutils.io import FileInput
+from docutils.io import FileInput, NullOutput
+from docutils.core import Publisher
 from docutils.readers import standalone
 from docutils.writers import UnfilteredWriter
 from six import string_types, text_type, iteritems
@@ -185,3 +186,21 @@ class SphinxFileInput(FileInput):
             if self.env.config.rst_prolog:
                 data = self.env.config.rst_prolog + '\n' + data
         return docinfo + data
+
+
+def read_doc(app, env, filename):
+    """Parse a document and convert to doctree."""
+    # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    reader = SphinxStandaloneReader(app, parsers=app.registry.get_source_parsers())
+    source = SphinxFileInput(app, env, source=None, source_path=filename,
+                             encoding=env.config.source_encoding)
+
+    pub = Publisher(reader=reader,
+                    writer=SphinxDummyWriter(),
+                    source_class=SphinxDummySourceClass,
+                    destination=NullOutput())
+    pub.set_components(None, 'restructuredtext', None)
+    pub.process_programmatic_settings(None, env.settings, None)
+    pub.set_source(source, filename)
+    pub.publish()
+    return pub.document
