@@ -15,14 +15,11 @@ and output behavior.
 
   An optional file `docutils.conf`_ can be added to the configuration
   directory to adjust `Docutils`_ configuration if not otherwise overriden or
-  set by Sphinx; this applies in particular to the `Docutils smart_quotes
-  setting`_ (Note that Sphinx applies smart quotes transform by default.)
+  set by Sphinx.
 
   .. _`docutils`: http://docutils.sourceforge.net/
 
   .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
-
-  .. _`Docutils smart_quotes setting`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
