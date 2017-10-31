@@ -32,7 +32,8 @@ rst_epilog = '.. |subst| replace:: global substitution'
 html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
-html_sidebars = {'**': 'customsb.html',
+html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
+                        'customsb.html', 'searchbox.html'],
                  'contents': ['contentssb.html', 'localtoc.html',
                               'globaltoc.html']}
 html_style = 'default.css'
