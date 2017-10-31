@@ -143,6 +143,11 @@ class SphinxDummyWriter(UnfilteredWriter):
         pass
 
 
+def SphinxDummySourceClass(source, *args, **kwargs):
+    """Bypass source object as is to cheat Publisher."""
+    return source
+
+
 class SphinxFileInput(FileInput):
     def __init__(self, app, env, *args, **kwds):
         # type: (Sphinx, BuildEnvironment, Any, Any) -> None

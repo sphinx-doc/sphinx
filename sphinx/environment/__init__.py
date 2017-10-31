@@ -33,7 +33,9 @@ from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
-from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
+from sphinx.io import (
+    SphinxStandaloneReader, SphinxDummySourceClass, SphinxDummyWriter, SphinxFileInput
+)
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import is_translatable
@@ -713,17 +715,16 @@ class BuildEnvironment(object):
             # publish manually
             reader = SphinxStandaloneReader(self.app,
                                             parsers=self.app.registry.get_source_parsers())
-            pub = Publisher(reader=reader,
-                            writer=SphinxDummyWriter(),
-                            destination_class=NullOutput)
-            pub.set_components(None, 'restructuredtext', None)
-            pub.process_programmatic_settings(None, self.settings, None)
             src_path = self.doc2path(docname)
             source = SphinxFileInput(app, self, source=None, source_path=src_path,
                                      encoding=self.config.source_encoding)
-            pub.source = source
-            pub.settings._source = src_path
-            pub.set_destination(None, None)
+            pub = Publisher(reader=reader,
+                            writer=SphinxDummyWriter(),
+                            source_class=SphinxDummySourceClass,
+                            destination=NullOutput())
+            pub.set_components(None, 'restructuredtext', None)
+            pub.process_programmatic_settings(None, self.settings, None)
+            pub.set_source(source, src_path)
             pub.publish()
             doctree = pub.document
 
