@@ -664,7 +664,7 @@ msgstr "モジュール"
 
 #: sphinx/domains/python.py:674
 msgid "Deprecated"
-msgstr "撤廃"
+msgstr "非推奨"
 
 #: sphinx/domains/python.py:699 sphinx/locale/__init__.py:222
 msgid "exception"
@@ -981,7 +981,7 @@ msgstr "バージョン %s で変更"
 #: sphinx/locale/__init__.py:213
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "バージョン %s で撤廃"
+msgstr "バージョン %s で非推奨"
 
 #: sphinx/locale/__init__.py:219
 msgid "keyword"
