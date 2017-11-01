@@ -96,6 +96,13 @@ Special directives
      >>> a
      4
 
+  .. doctest::
+     :pyversion: >= 2.0, < 2.1
+
+     >>> a = 3
+     >>> a
+     3
+
 * grouping
 
   .. testsetup:: group1

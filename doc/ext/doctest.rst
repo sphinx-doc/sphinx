@@ -86,6 +86,9 @@ a comma-separated list of group names.
 
      .. versionadded:: 1.6
 
+     .. versionchanged:: 1.7
+        ``:pyversion:`` allows comma separated version specs.
+
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
    when building presentation output (HTML, LaTeX etc.).
