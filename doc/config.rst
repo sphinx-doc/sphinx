@@ -23,7 +23,8 @@ and output behavior.
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.
+directory), and therefore can execute arbitrarily complex code.  Sphinx then
+reads simple names from the file's namespace as its configuration.
 
 Important points to note:
 
@@ -340,14 +341,6 @@ General configuration
    numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
 
    .. versionadded:: 1.3
-
-.. confval:: smart_quotes
-
-   If true, `SmartyPants <https://daringfireball.net/projects/smartypants/>`_
-   will be used to convert quotes and dashes to typographically correct
-   entities.  Default: ``True``.
-
-   .. versionadded:: 1.6.6
 
 .. confval:: tls_verify
 
@@ -785,9 +778,8 @@ that use Sphinx's HTMLWriter class.
    entities.  Default: ``True``.
 
    .. deprecated:: 1.6
-      To disable smart quotes, use :confval:`smart_quotes` or the Docutils
-      configuration file (``docutils.conf``) instead to set there its
-      `smart_quotes option`_.
+      To disable or customize smart quotes, use the Docutils configuration file
+      (``docutils.conf``) instead to set there its `smart_quotes option`_.
 
       .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
 

@@ -14,8 +14,6 @@ Features added
 --------------
 
 * #4181: autodoc: Sort dictionary keys when possible
-* Add :confval:`smart_quotes` to disable smart quotes through ``conf.py``
-  (refs: #3967)
 
 Bugs fixed
 ----------
