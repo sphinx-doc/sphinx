@@ -1919,6 +1919,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # will be generated differently
             if id.startswith('index-'):
                 return
+
+            # insert blank line, if the target follows a paragraph node
+            index = node.parent.index(node)
+            if index > 0 and isinstance(node.parent[index - 1], nodes.paragraph):
+                self.body.append('\n')
+
             # do not generate \phantomsection in \section{}
             anchor = not self.in_title
             self.body.append(self.hypertarget(id, anchor=anchor))
