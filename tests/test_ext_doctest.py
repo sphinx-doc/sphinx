@@ -14,7 +14,7 @@ from sphinx.ext.doctest import compare_version
 cleanup_called = 0
 
 
-@pytest.mark.sphinx('doctest', testroot='doctest')
+@pytest.mark.sphinx('doctest', testroot='ext-doctest')
 def test_build(app, status, warning):
     global cleanup_called
     cleanup_called = 0
