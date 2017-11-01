@@ -58,6 +58,8 @@ import re
 import sys
 import inspect
 import posixpath
+import traceback
+import warnings
 from six import string_types
 from types import ModuleType
 
@@ -502,6 +504,22 @@ def import_by_name(name, prefixes=[None]):
     raise ImportError('no module named %s' % ' or '.join(tried))
 
 
+def _import_module(modname):
+    """
+    Call __import__(modname), convert exceptions to ImportError
+    """
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ImportWarning)
+            return __import__(modname)
+    except BaseException:
+        # Importing modules may cause any side effects, including
+        # SystemExit, so we need to catch all errors.
+        errmsg = "Failed to import %r: %s" % (
+            modname, traceback.format_exc())
+        raise ImportError(errmsg)
+
+
 def _import_by_name(name):
     # type: (str) -> Tuple[Any, Any, unicode]
     """Import a Python object given its full name."""
@@ -512,7 +530,7 @@ def _import_by_name(name):
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                __import__(modname)
+                _import_module(modname)
                 mod = sys.modules[modname]
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError):
@@ -525,9 +543,10 @@ def _import_by_name(name):
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                __import__(modname)
+                _import_module(modname)
             except ImportError:
                 continue
+
             if modname in sys.modules:
                 break
 
