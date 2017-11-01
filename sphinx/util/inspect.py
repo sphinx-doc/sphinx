@@ -204,6 +204,14 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
 def object_description(object):
     # type: (Any) -> unicode
     """A repr() implementation that returns text safe to use in reST context."""
+    if isinstance(object, dict):
+        try:
+            sorted_keys = sorted(object)
+        except TypeError:
+            pass  # Cannot sort dict keys, fall back to generic repr
+        else:
+            items = ("%r: %r" % (key, object[key]) for key in sorted_keys)
+            return "{%s}" % ", ".join(items)
     try:
         s = repr(object)
     except Exception:

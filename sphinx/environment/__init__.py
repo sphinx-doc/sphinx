@@ -682,11 +682,13 @@ class BuildEnvironment(object):
         self.settings['language_code'] = language
         if 'smart_quotes' not in self.settings:
             self.settings['smart_quotes'] = True
-            for tag in normalize_language_tag(language):
-                if tag in smartchars.quotes:
-                    break
-            else:
-                self.settings['smart_quotes'] = False
+
+        # confirm selected language supports smart_quotes or not
+        for tag in normalize_language_tag(language):
+            if tag in smartchars.quotes:
+                break
+        else:
+            self.settings['smart_quotes'] = False
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir

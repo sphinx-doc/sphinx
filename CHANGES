@@ -100,8 +100,12 @@ Deprecated
 Features added
 --------------
 
+* #4181: autodoc: Sort dictionary keys when possible
+
 Bugs fixed
 ----------
+
+* #4206: latex: reST label between paragraphs loses paragraph break
 
 Testing
 --------
