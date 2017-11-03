@@ -13,7 +13,6 @@ Sphinx documentation contents
 
    intro
    man/index
-   domains
    builders
    config
    intl

@@ -56,8 +56,9 @@ Glossary
       Having domains means that there are no naming problems when one set of
       documentation wants to refer to e.g. C++ and Python classes.  It also
       means that extensions that support the documentation of whole new
-      languages are much easier to write.  For more information about domains,
-      see the chapter :ref:`domains`.
+      languages are much easier to write.
+
+      For more information, refer to :doc:`/usage/restructuredtext/domains`.
 
    environment
       A structure where information about all documents under the root is saved,

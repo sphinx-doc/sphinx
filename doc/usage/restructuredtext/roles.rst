@@ -15,7 +15,7 @@ They are written as ``:rolename:`content```.
    :rst:role:`any` role to find anything or the :rst:role:`py:obj` role to find
    Python objects are very useful for this.
 
-See :ref:`domains` for roles added by domains.
+See :doc:`/usage/restructuredtext/domains` for roles added by domains.
 
 
 .. _xref-syntax:

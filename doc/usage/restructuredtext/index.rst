@@ -19,3 +19,4 @@ __ http://docutils.sourceforge.net/rst.html
    roles
    directives
    field-lists
+   domains
