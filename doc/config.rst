@@ -136,7 +136,8 @@ General configuration
 
    .. note::
 
-      Read more about how to use Markdown with Sphinx at :doc:`/markdown`.
+      Refer to :doc:`/usage/markdown` for more information on using Markdown
+      with Sphinx.
 
    .. versionadded:: 1.3
 

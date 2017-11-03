@@ -10,6 +10,7 @@ Sphinx documentation contents
    usage/installation
    usage/quickstart
    usage/restructuredtext/index
+   usage/markdown
 
    intro
    man/index
@@ -20,7 +21,6 @@ Sphinx documentation contents
    setuptools
    templating
    latex
-   markdown
    extensions
    extdev/index
    websupport
