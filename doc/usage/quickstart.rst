@@ -108,9 +108,8 @@ for this document -- use the "Show Source" link in the sidebar.
 
 .. todo:: Update the below link when we add new guides on these.
 
-|more| See :ref:`rst-primer` for a more in-depth introduction to
-reStructuredText and :ref:`sphinxmarkup` for a full list of markup added by
-Sphinx.
+|more| See :doc:`/usage/restructuredtext/index` for a more in-depth
+introduction to reStructuredText, including markup added by Sphinx.
 
 
 Running the build
