@@ -395,106 +395,104 @@ Showing code examples
 .. index:: pair: code; examples
            single: sourcecode
 
-.. todo:: Rework this to remove the bullet points
+There are multiple ways to show syntax-highlighted literal code blocks in
+Sphinx: using :ref:`reST doctest blocks <rst-doctest-blocks>`; using :ref:`reST
+literal blocks <rst-literal-blocks>`, optionally in combination with the
+:rst:dir:`highlight` directive; using the :rst:dir:`code-block` directive; and
+using the :rst:dir:`literalinclude` directive. Doctest blocks can only be used
+to show interactive Python sessions, while the remaining three can be used for
+other languages. Of these three, literal blocks are useful when an entire
+document, or at least large sections of it, use code blocks with the same
+syntax and which should be styled in the same manner. On the other hand, the
+:rst:dir:`code-block` directive makes more sense when you want more fine-tuned
+control over the styling of each block or when you have a document containing
+code blocks using multiple varied syntaxes. Finally, the
+:rst:dir:`literalinclude` directive is useful for including entire code files
+in your documentation.
 
-Examples of Python source code or interactive sessions are represented using
-standard reST literal blocks.  They are started by a ``::`` at the end of the
-preceding paragraph and delimited by indentation.
+In all cases, Syntax highlighting is provided by `Pygments
+<http://pygments.org>`_. When using literal blocks, this is configured using
+any :rst:dir:`highlight` directives in the source file. When a ``highlight``
+directive is encountered, it is used until the next ``highlight`` directive is
+encountered. If there is no ``highlight`` directive in the file, the global
+highlighting language is used. This defaults to ``python`` but can be
+configured using the :confval:`highlight_language` config value. The following
+values are supported:
 
-Representing an interactive session requires including the prompts and output
-along with the Python code.  No special markup is required for interactive
-sessions.  After the last line of input or output presented, there should not
-be an "unused" primary prompt; this is an example of what *not* to do::
+* ``none`` (no highlighting)
+* ``default`` (similar to ``python3`` but with a fallback to ``none`` without
+  warning highlighting fails; the default when :confval:`highlight_language`
+  isn't set)
+* ``guess`` (let Pygments guess the lexer based on contents, only works with
+  certain well-recognizable languages)
+* ``python``
+* ``rest``
+* ``c``
+* ... and any other `lexer alias that Pygments supports`__
 
-   >>> 1 + 1
-   2
-   >>>
+If highlighting with the selected language fails (i.e. Pygments emits an
+"Error" token), the block is not highlighted in any way.
 
-Syntax highlighting is done with `Pygments <http://pygments.org>`_ and handled
-in a smart way:
+.. important::
 
-* There is a "highlighting language" for each source file.  Per default, this
-  is ``'python'`` as the majority of files will have to highlight Python
-  snippets, but the doc-wide default can be set with the
-  :confval:`highlight_language` config value.
+   The list of lexer aliases supported is tied to the Pygment version. If you
+   want to ensure consistent highlighting, you should fix your version of
+   Pygments.
 
-* Within Python highlighting mode, interactive sessions are recognized
-  automatically and highlighted appropriately.  Normal Python code is only
-  highlighted if it is parseable (so you can use Python as the default, but
-  interspersed snippets of shell commands or other code blocks will not be
-  highlighted as Python).
+__ http://pygments.org/docs/lexers/
 
-* The highlighting language can be changed using the ``highlight`` directive,
-  used as follows:
+.. rst:directive:: .. highlight:: language
 
-  .. rst:directive:: .. highlight:: language
+   Example::
 
-     Example::
+      .. highlight:: c
 
-        .. highlight:: c
+   This language is used until the next ``highlight`` directive is encountered.
+   As discussed previously, *language* can be any lexer alias supported by
+   Pygments.
 
-     This language is used until the next ``highlight`` directive is
-     encountered.
+   **Additional options**
 
-* For documents that have to show snippets in different languages, there's also
-  a :rst:dir:`code-block` directive that is given the highlighting language
-  directly:
+   Pygments can generate line numbers for code blocks.  To enable this, use the
+   ``linenothreshold`` option. ::
 
-  .. rst:directive:: .. code-block:: language
+      .. highlight:: python
+         :linenothreshold: 5
 
-     Use it like this::
+   This will produce line numbers for all code blocks longer than five lines.
 
-        .. code-block:: ruby
+.. rst:directive:: .. code-block:: language
 
-           Some Ruby code.
+   Example::
 
-     The directive's alias name :rst:dir:`sourcecode` works as well.
+      .. code-block:: ruby
 
-* The valid values for the highlighting language are:
+         Some Ruby code.
 
-  * ``none`` (no highlighting)
-  * ``python`` (the default when :confval:`highlight_language` isn't set)
-  * ``guess`` (let Pygments guess the lexer based on contents, only works with
-    certain well-recognizable languages)
-  * ``rest``
-  * ``c``
-  * ... and any other `lexer alias that Pygments supports
-    <http://pygments.org/docs/lexers/>`_.
+   The directive's alias name :rst:dir:`sourcecode` works as well.  As with
+   :rst:dir:`highlight`\ 's ``language`` option, ``language`` can be any lexer
+   alias supported by Pygments.
 
-* If highlighting with the selected language fails (i.e. Pygments emits an
-  "Error" token), the block is not highlighted in any way.
+   **Additional options**
 
-Line numbers
-^^^^^^^^^^^^
+   Pygments can generate line numbers for code blocks. To enable this for, use
+   the ``linenos`` flag option. ::
 
-Pygments can generate line numbers for code blocks.  For
-automatically-highlighted blocks (those started by ``::``), line numbers must
-be switched on in a :rst:dir:`highlight` directive, with the
-``linenothreshold`` option::
+      .. code-block:: ruby
+         :linenos:
 
-   .. highlight:: python
-      :linenothreshold: 5
+         Some more Ruby code.
 
-This will produce line numbers for all code blocks longer than five lines.
+   The first line number can be selected with the ``lineno-start`` option.  If
+   present, ``linenos`` flag is automatically activated::
 
-For :rst:dir:`code-block` blocks, a ``linenos`` flag option can be given to
-switch on line numbers for the individual block::
+      .. code-block:: ruby
+         :lineno-start: 10
 
-   .. code-block:: ruby
-      :linenos:
+         Some more Ruby code, with line numbering starting at 10.
 
-      Some more Ruby code.
-
-The first line number can be selected with the ``lineno-start`` option.  If
-present, ``linenos`` flag is automatically activated::
-
-   .. code-block:: ruby
-      :lineno-start: 10
-
-      Some more Ruby code, with line numbering starting at 10.
-
-Additionally, an ``emphasize-lines`` option can be given to have Pygments
-emphasize particular lines::
+   Additionally, an ``emphasize-lines`` option can be given to have Pygments
+   emphasize particular lines::
 
     .. code-block:: python
        :emphasize-lines: 3,5
@@ -505,17 +503,33 @@ emphasize particular lines::
            print 'This one is not...'
            print '...but this one is.'
 
-.. versionchanged:: 1.1
-   ``emphasize-lines`` has been added.
+   A ``caption`` option can be given to show that name before the code block.
+   A ``name`` option can be provided implicit target name that can be
+   referenced by using :rst:role:`ref`.  For example::
 
-.. versionchanged:: 1.3
-   ``lineno-start`` has been added.
+     .. code-block:: python
+        :caption: this.py
+        :name: this-py
 
-.. versionchanged:: 1.6.6
-   LaTeX supports the ``emphasize-lines`` option.
+        print 'Explicit is better than implicit.'
 
-Includes
-^^^^^^^^
+   A ``dedent`` option can be given to strip indentation characters from the
+   code block. For example::
+
+      .. code-block:: ruby
+         :dedent: 4
+
+             some ruby code
+
+  .. versionchanged:: 1.1
+     The ``emphasize-lines`` option has been added.
+
+  .. versionchanged:: 1.3
+     The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
+     been added.
+
+  .. versionchanged:: 1.6.6
+     LaTeX supports the ``emphasize-lines`` option.
 
 .. rst:directive:: .. literalinclude:: filename
 
@@ -530,19 +544,25 @@ Includes
    it is absolute (starting with ``/``), it is relative to the top source
    directory.
 
-   Tabs in the input are expanded if you give a ``tab-width`` option with the
-   desired tab width.
+   **Additional options**
 
    Like :rst:dir:`code-block`, the directive supports the ``linenos`` flag
    option to switch on line numbers, the ``lineno-start`` option to select the
    first line number, the ``emphasize-lines`` option to emphasize particular
-   lines, and a ``language`` option to select a language different from the
-   current file's standard language.  Example with options::
+   lines, the ``name`` option to provide an implicit target name, the
+   ``dedent`` option to strip indentation characters for the code block, and a
+   ``language`` option to select a language different from the current file's
+   standard language. In addition, it supports the ``caption`` option; however,
+   this can be provided with no argument to use the filename as the caption.
+   Example with options::
 
       .. literalinclude:: example.rb
          :language: ruby
          :emphasize-lines: 12,15-18
          :linenos:
+
+   Tabs in the input are expanded if you give a ``tab-width`` option with the
+   desired tab width.
 
    Include files are assumed to be encoded in the :confval:`source_encoding`.
    If the file has a different encoding, you can specify it with the
@@ -602,55 +622,23 @@ Includes
    This shows the diff between ``example.py`` and ``example.py.orig`` with
    unified diff format.
 
-   .. versionadded:: 0.4.3
-      The ``encoding`` option.
-   .. versionadded:: 0.6
-      The ``pyobject``, ``lines``, ``start-after`` and ``end-before`` options,
-      as well as support for absolute filenames.
-   .. versionadded:: 1.0
-      The ``prepend`` and ``append`` options, as well as ``tab-width``.
-   .. versionadded:: 1.3
-      The ``diff`` option.
-      The ``lineno-match`` option.
+   .. versionchanged:: 0.4.3
+      Added the ``encoding`` option.
+
+   .. versionchanged:: 0.6
+      Added the ``pyobject``, ``lines``, ``start-after`` and ``end-before``
+      options, as well as support for absolute filenames.
+
+   .. versionchanged:: 1.0
+      Added the ``prepend``, ``append``, and ``tab-width`` options.
+
+   .. versionchanged:: 1.3
+      Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
+      ``dedent`` options.
+
    .. versionchanged:: 1.6
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
-
-Caption and name
-^^^^^^^^^^^^^^^^
-
-.. versionadded:: 1.3
-
-A ``caption`` option can be given to show that name before the code block.
-A ``name`` option can be provided implicit target name that can be referenced
-by using :rst:role:`ref`.
-For example::
-
-   .. code-block:: python
-      :caption: this.py
-      :name: this-py
-
-      print 'Explicit is better than implicit.'
-
-:rst:dir:`literalinclude` also supports the ``caption`` and ``name`` option.
-``caption`` has an additional feature that if you leave the value empty, the
-shown filename will be exactly the one given as an argument.
-
-Dedent
-^^^^^^
-
-.. versionadded:: 1.3
-
-A ``dedent`` option can be given to strip indentation characters from the code
-block. For example::
-
-   .. literalinclude:: example.rb
-      :language: ruby
-      :dedent: 4
-      :lines: 10-15
-
-:rst:dir:`code-block` also supports the ``dedent`` option.
-
 
 .. _glossary-directive:
 

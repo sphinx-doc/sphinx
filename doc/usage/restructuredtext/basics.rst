@@ -112,6 +112,8 @@ There are also several more special blocks available:
 * doctest blocks (:duref:`ref <doctest-blocks>`)
 
 
+.. _rst-literal-blocks:
+
 Literal blocks
 --------------
 
@@ -146,6 +148,19 @@ using the :confval:`highlight_language` configuration option. The
 :rst:dir:`code-block` directive can be used to set highlighting on a
 block-by-block basis. These directives are discussed later.
 
+
+.. _rst-doctest-blocks:
+
+Doctest blocks
+--------------
+
+Doctest blocks (:duref:`ref <doctest-blocks>`) are interactive Python sessions
+cut-and-pasted into docstrings. They do not require the
+:ref:`literal blocks <rst-literal-blocks>` syntax. The doctest block must end
+with a blank line and should *not* end with with an unused prompt::
+
+    >>> 1 + 1
+    2
 
 .. _rst-tables:
 
