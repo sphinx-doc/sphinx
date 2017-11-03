@@ -318,15 +318,15 @@ features of intersphinx.
 More topics to be covered
 -------------------------
 
-- :doc:`Other extensions <extensions>`:
+- :doc:`Other extensions </extensions>`:
 
-  * :doc:`ext/math`,
-  * :doc:`ext/viewcode`,
-  * :doc:`ext/doctest`,
+  * :doc:`/ext/math`,
+  * :doc:`/ext/viewcode`,
+  * :doc:`/ext/doctest`,
   * ...
 - Static files
-- :doc:`Selecting a theme <theming>`
-- :doc:`setuptools`
+- :doc:`Selecting a theme </theming>`
+- :doc:`/setuptools`
 - :ref:`Templating <templating>`
 - Using extensions
 - :ref:`Writing extensions <dev-extensions>`
@@ -338,6 +338,6 @@ More topics to be covered
        another directory, the :term:`configuration directory`.  Refer to the
        :program:`sphinx-build man page <sphinx-build>` for more information.
 
-.. |more| image:: more.png
+.. |more| image:: /_static/more.png
           :align: middle
           :alt: more info
