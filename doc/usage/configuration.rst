@@ -65,8 +65,9 @@ General configuration
 
 .. confval:: extensions
 
-   A list of strings that are module names of :ref:`extensions`. These can be
-   extensions coming with Sphinx (named ``sphinx.ext.*``) or custom ones.
+   A list of strings that are module names of :doc:`extensions
+   <extensions/index>`. These can be extensions coming with Sphinx (named
+   ``sphinx.ext.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
    extensions live in another directory -- but make sure you use absolute paths.

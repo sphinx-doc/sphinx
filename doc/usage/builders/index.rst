@@ -8,7 +8,7 @@ Builders
    :synopsis: Available built-in builder classes.
 
 These are the built-in Sphinx builders.  More builders can be added by
-:ref:`extensions <extensions>`.
+:doc:`extensions </usage/extensions/index>`.
 
 The builder's "name" must be given to the **-b** command-line option of
 :program:`sphinx-build` to select a builder.

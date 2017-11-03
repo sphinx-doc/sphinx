@@ -67,6 +67,12 @@ Glossary
       parsing stage, so that successive runs only need to read and parse new and
       changed documents.
 
+   extension
+     A custom :term:`role`, :term:`directive` or other aspect of Sphinx that
+     allows users to modify any aspect of the build process within Sphinx.
+
+     For more information, refer to :doc:`/usage/extensions/index`.
+
    master document
       The document that contains the root :rst:dir:`toctree` directive.
 

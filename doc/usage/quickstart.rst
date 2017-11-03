@@ -318,12 +318,7 @@ features of intersphinx.
 More topics to be covered
 -------------------------
 
-- :doc:`Other extensions </extensions>`:
-
-  * :doc:`/ext/math`,
-  * :doc:`/ext/viewcode`,
-  * :doc:`/ext/doctest`,
-  * ...
+- :doc:`Other extensions </usage/extensions/index>`:
 - Static files
 - :doc:`Selecting a theme </theming>`
 - :doc:`/setuptools`
