@@ -3,41 +3,6 @@
 Miscellaneous markup
 ====================
 
-.. _metadata:
-
-File-wide metadata
-------------------
-
-reST has the concept of "field lists"; these are a sequence of fields marked up
-like this::
-
-   :fieldname: Field content
-
-A field list near the top of a file is parsed by docutils as the "docinfo"
-which is normally used to record the author, date of publication and other
-metadata.  *In Sphinx*, a field list preceding any other markup is moved from
-the docinfo to the Sphinx environment as document metadata and is not displayed
-in the output; a field list appearing after the document title will be part of
-the docinfo as normal and will be displayed in the output.
-
-At the moment, these metadata fields are recognized:
-
-``tocdepth``
-   The maximum depth for a table of contents of this file.
-
-   .. versionadded:: 0.4
-
-``nocomments``
-   If set, the web application won't display a comment form for a page generated
-   from this source file.
-
-``orphan``
-   If set, warnings about this file not being included in any toctree will be
-   suppressed.
-
-   .. versionadded:: 1.0
-
-
 Meta-information markup
 -----------------------
 

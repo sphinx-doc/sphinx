@@ -1,4 +1,4 @@
-.. highlightlang:: rest
+.. highlightlang:: rst
 
 =======================
 reStructuredText Primer
@@ -105,7 +105,8 @@ Line blocks (:duref:`ref <line-blocks>`) are a way of preserving line breaks::
 
 There are also several more special blocks available:
 
-* field lists (:duref:`ref <field-lists>`)
+* field lists (:duref:`ref <field-lists>`, with caveats noted in
+  :ref:`rst-field-lists`)
 * option lists (:duref:`ref <option-lists>`)
 * quoted literal blocks (:duref:`ref <quoted-literal-blocks>`)
 * doctest blocks (:duref:`ref <doctest-blocks>`)
@@ -233,6 +234,32 @@ follow:
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
 target formats (HTML, LaTeX) have a limited supported nesting depth.
+
+
+.. _rst-field-lists:
+
+Field Lists
+-----------
+
+Field lists (:duref:`ref <field-lists>`) are sequences of fields marked up like
+this::
+
+   :fieldname: Field content
+
+They are commonly used in Python documentation::
+
+    def my_function(my_arg, my_other_arg):
+        """A function just for me.
+
+        :param my_arg: The first of my arguments.
+        :param my_other_arg: The second of my arguments.
+
+        :returns: A message (just for me, of course).
+        """
+
+Sphinx extends standard docutils behavior and intercepts field lists specified
+at the beginning of documents.  Refer to :doc:`field-lists` for more
+information.
 
 
 .. TODO This ref should be 'rst-roles', but that already exists. Rename the
