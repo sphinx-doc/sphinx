@@ -16,3 +16,4 @@ __ http://docutils.sourceforge.net/rst.html
    :maxdepth: 2
 
    basics
+   roles

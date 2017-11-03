@@ -81,7 +81,7 @@ Glossary
    role
       A reStructuredText markup element that allows marking a piece of text.
       Like directives, roles are extensible.  The basic syntax looks like this:
-      ``:rolename:`content```.  See :ref:`inlinemarkup` for details.
+      ``:rolename:`content```.  See :ref:`rst-inline-markup` for details.
 
    source directory
       The directory which, including its subdirectories, contains all source

@@ -11,7 +11,6 @@ markup`_.  This section contains the reference material for these facilities.
    toctree
    para
    code
-   inline
    misc
 
 More markup is added by :ref:`domains`.

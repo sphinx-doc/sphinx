@@ -27,7 +27,7 @@ lines.  As in Python, indentation is significant in reST, so all lines of the
 same paragraph must be left-aligned to the same level of indentation.
 
 
-.. _inlinemarkup:
+.. _rst-inline-markup:
 
 Inline markup
 -------------
@@ -50,22 +50,8 @@ Be aware of some restrictions of this markup:
 
 These restrictions may be lifted in future versions of the docutils.
 
-reST also allows for custom "interpreted text roles", which signify that the
-enclosed text should be interpreted in a specific way.  Sphinx uses this to
-provide semantic markup and cross-referencing of identifiers, as described in
-the appropriate section.  The general syntax is ``:rolename:`content```.
-
-Standard reST provides the following roles:
-
-* :durole:`emphasis` -- alternate spelling for ``*emphasis*``
-* :durole:`strong` -- alternate spelling for ``**strong**``
-* :durole:`literal` -- alternate spelling for ````literal````
-* :durole:`subscript` -- subscript text
-* :durole:`superscript` -- superscript text
-* :durole:`title-reference` -- for titles of books, periodicals, and other
-  materials
-
-See :ref:`inline-markup` for roles added by Sphinx.
+It is also possible to replace or expand upon some of this inline markup with
+roles. Refer to :ref:`rst-roles-alt` for more information.
 
 
 Lists and Quote-like blocks
@@ -247,6 +233,33 @@ follow:
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
 target formats (HTML, LaTeX) have a limited supported nesting depth.
+
+
+.. TODO This ref should be 'rst-roles', but that already exists. Rename the
+.. other ones
+
+.. _rst-roles-alt:
+
+Roles
+-----
+
+A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
+piece of explicit markup. It signifies that that the enclosed text should be
+interpreted in a specific way.  Sphinx uses this to provide semantic markup and
+cross-referencing of identifiers, as described in the appropriate section.  The
+general syntax is ``:rolename:`content```.
+
+Docutils supports the following roles:
+
+* :durole:`emphasis` -- equivalent of ``*emphasis*``
+* :durole:`strong` -- equivalent of ``**strong**``
+* :durole:`literal` -- equivalent of ````literal````
+* :durole:`subscript` -- subscript text
+* :durole:`superscript` -- superscript text
+* :durole:`title-reference` -- for titles of books, periodicals, and other
+  materials
+
+Refer to :doc:`roles` for roles added by Sphinx.
 
 
 Explicit Markup
