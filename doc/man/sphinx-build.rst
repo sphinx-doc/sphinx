@@ -86,8 +86,8 @@ Options
      Build compact pretty-printed "pseudo-XML" files displaying the
      internal structure of the intermediate document trees.
 
-   See :ref:`builders` for a list of all builders shipped with Sphinx.
-   Extensions can add their own builders.
+   See :doc:`/usage/builders/index` for a list of all builders shipped with
+   Sphinx.  Extensions can add their own builders.
 
 .. _make_mode:
 
@@ -96,7 +96,7 @@ Options
    Alternative to :option:`-b`. Uses the Sphinx :program:`make_mode` module,
    which provides the same build functionality as a default :ref:`Makefile or
    Make.bat <makefile_options>`. In addition to all Sphinx
-   :ref:`builders <builders>`, the following build pipelines are available:
+   :doc:`/usage/builders/index`, the following build pipelines are available:
 
    **latexpdf**
      Build LaTeX files and run them through :program:`pdflatex`, or as per

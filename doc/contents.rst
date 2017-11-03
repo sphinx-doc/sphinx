@@ -12,10 +12,10 @@ Sphinx documentation contents
    usage/restructuredtext/index
    usage/markdown
    usage/configuration
+   usage/builders/index
 
    intro
    man/index
-   builders
    intl
    theming
    setuptools
