@@ -140,7 +140,7 @@
     {{- script() }}
     {%- endblock %}
     {%- if theme_canonical_url %}
-    <link rel="canonical" href="{{ theme_canonical_url }}{{ pagename }}.html"/>
+    <link rel="canonical" href="{{ theme_canonical_url }}{{ pagename }}.{{ html_file_suffix }}"/>
     {%- endif %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
