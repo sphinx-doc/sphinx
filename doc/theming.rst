@@ -121,7 +121,7 @@ These themes are:
     they should give higher ranking to latest version of the docs.  The url
     points to the root of the documentation and requires a trailing slash.
 
-.. cronical url: https://en.wikipedia.org/wiki/Canonical_link_element
+    .. _cronical url: https://en.wikipedia.org/wiki/Canonical_link_element
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on
