@@ -110,3 +110,57 @@ def test_list_items_in_admonition(app, status, warning):
     assert lines[2] == "  * item 1"
     assert lines[3] == ""
     assert lines[4] == "  * item 2"
+
+
+@with_text_app()
+def test_secnums(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    expect = (
+        "Section B\n"
+        "*********\n"
+        "\n"
+        "\n"
+        "Sub Ba\n"
+        "======\n"
+        "\n"
+        "\n"
+        "Sub Bb\n"
+        "======\n"
+    )
+    assert result == expect
+
+    app.config.text_add_secnumbers = True
+    app.builder.build_all()
+    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    expect = (
+        "2. Section B\n"
+        "************\n"
+        "\n"
+        "\n"
+        "2.1. Sub Ba\n"
+        "===========\n"
+        "\n"
+        "\n"
+        "2.2. Sub Bb\n"
+        "===========\n"
+    )
+    assert result == expect
+
+    app.config.text_secnumber_suffix = " "
+    app.builder.build_all()
+    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    expect = (
+        "2 Section B\n"
+        "***********\n"
+        "\n"
+        "\n"
+        "2.1 Sub Ba\n"
+        "==========\n"
+        "\n"
+        "\n"
+        "2.2 Sub Bb\n"
+        "==========\n"
+    )
+    assert result == expect
+

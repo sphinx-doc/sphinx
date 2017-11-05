@@ -43,6 +43,8 @@ Features added
 * #4168: improve zh search with jieba
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
+* #3998: text: Add new config values :confval:`text_add_secnumbers` and
+  :confval:`text_secnumber_suffix`
 
 
 Features removed

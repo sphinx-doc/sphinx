@@ -183,6 +183,8 @@ class TextTranslator(nodes.NodeVisitor):
         else:
             self.nl = '\n'
         self.sectionchars = builder.config.text_sectionchars
+        self.add_secnumbers = builder.config.text_add_secnumbers
+        self.secnumber_suffix = builder.config.text_secnumber_suffix
         self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]
@@ -307,6 +309,17 @@ class TextTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
         self.new_state(0)
 
+    def get_section_number_string(self, node):
+        # type: (nodes.Node) -> unicode
+        if isinstance(node.parent, nodes.section):
+            anchorname = '#' + node.parent['ids'][0]
+            numbers = self.builder.secnumbers.get(anchorname)
+            if numbers is None:
+                numbers = self.builder.secnumbers.get('')
+            if numbers is not None:
+                return '.'.join(map(str, numbers)) + self.secnumber_suffix
+        return ''
+
     def depart_title(self, node):
         # type: (nodes.Node) -> None
         if isinstance(node.parent, nodes.section):
@@ -315,6 +328,8 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = None  # type: unicode
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        if self.add_secnumbers:
+            text = self.get_section_number_string(node) + text
         self.stateindent.pop()
         title = ['', text, '%s' % (char * column_width(text)), '']  # type: List[unicode]
         if len(self.states) == 2 and len(self.states[-1]) == 0:

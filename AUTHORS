@@ -67,6 +67,7 @@ Other contributors, listed alphabetically, are:
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
 * Michael Wilson -- Intersphinx HTTP basic auth support
+* Matthew Woodcraft -- text output improvements
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
