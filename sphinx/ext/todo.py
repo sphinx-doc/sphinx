@@ -178,7 +178,8 @@ def process_todo_nodes(app, doctree, fromdocname):
             todo_entry = todo_info['todo']
             # Remove targetref from the (copied) node to avoid emitting a
             # duplicate label of the original entry when we walk this node.
-            del todo_entry['targetref']
+            if 'targetref' in todo_entry:
+                del todo_entry['targetref']
 
             # (Recursively) resolve references in the todo content
             env.resolve_references(todo_entry, todo_info['docname'],
