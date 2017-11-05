@@ -99,11 +99,13 @@ def test_todo_valid_link(app, status, warning):
 
     content = (app.outdir / 'TodoTests.tex').text()
 
-    # Look for the link to foo. We could equally well look for the link to bar.
+    # Look for the link to foo. Note that there are two of them because the
+    # source document uses todolist twice. We could equally well look for links
+    # to bar.
     link = r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{' \
         r'\\sphinxstyleemphasis{original entry}}}}'
     m = re.findall(link, content)
-    assert len(m) == 1
+    assert len(m) == 2
     target = m[0]
 
     # Look for the targets of this link.
