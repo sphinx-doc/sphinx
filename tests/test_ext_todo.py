@@ -86,7 +86,7 @@ def test_todo_not_included(app, status, warning):
     assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
 
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
-                    confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
+                    confoverrides={'todo_include_todos': True})
 def test_todo_valid_link(app, status, warning):
     """
     Test that the inserted "original entry" links for todo items have a target
