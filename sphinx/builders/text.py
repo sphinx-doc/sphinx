@@ -21,7 +21,7 @@ from sphinx.writers.text import TextWriter, TextTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, Set  # NOQA
+    from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
