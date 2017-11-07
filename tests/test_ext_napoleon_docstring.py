@@ -266,6 +266,42 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
     )]
 
+    def test_sphinx_admonitions(self):
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+        config = Config()
+        for section, admonition in admonition_map.items():
+            # Multiline
+            actual = str(GoogleDocstring(("{}:\n"
+                      "    this is the first line\n"
+                      "\n"
+                      "    and this is the second line\n"
+                      ).format(section), config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+            # Single line
+            actual = str(GoogleDocstring(("{}:\n"
+                      "    this is a single line\n"
+                      ).format(section), config))
+            expect = ".. {}:: this is a single line\n".format(admonition)
+            self.assertEqual(expect, actual)
+
     def test_docstrings(self):
         config = Config(
             napoleon_use_param=False,
@@ -1070,6 +1106,51 @@ class NumpyDocstringTest(BaseDocstringTest):
                  description of yielded value
         """
     )]
+
+    def test_sphinx_admonitions(self):
+
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+
+        config = Config()
+        for section, admonition in admonition_map.items():
+
+            # Multiline
+            actual = str(NumpyDocstring(("{}\n"
+                      "{}\n"
+                      "    this is the first line\n"
+                      "\n"
+                      "    and this is the second line\n"
+                      ).format(section, '-'*len(section)),
+                      config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+            # Single line
+            actual = str(NumpyDocstring(("{}\n"
+                      "{}\n"
+                      "    this is a single line\n"
+                      ).format(section, '-'*len(section)),
+                      config))
+            expect = (".. {}:: this is a single line\n"
+                      .format(admonition))
+            self.assertEqual(expect, actual)
 
     def test_docstrings(self):
         config = Config(
