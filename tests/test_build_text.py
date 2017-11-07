@@ -116,18 +116,14 @@ def test_list_items_in_admonition(app, status, warning):
 def test_secnums(app, status, warning):
     app.builder.build_all()
     contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    expect = (
-        "* Section A\n"
-        "\n"
-        "* Section B\n"
-        "\n"
-        "  * Sub Ba\n"
-        "\n"
-        "  * Sub Bb\n"
-        "\n"
-        "* 日本語\n"
-    )
-    assert contents == expect
+    lines = contents.splitlines()
+    assert lines[0] == "* Section A"
+    assert lines[1] == ""
+    assert lines[2] == "* Section B"
+    assert lines[3] == ""
+    assert lines[4] == "  * Sub Ba"
+    assert lines[5] == ""
+    assert lines[6] == "  * Sub Bb"
     doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "Section B\n"
@@ -146,18 +142,14 @@ def test_secnums(app, status, warning):
     app.config.text_add_secnumbers = True
     app.builder.build_all()
     contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    expect = (
-        "* 1. Section A\n"
-        "\n"
-        "* 2. Section B\n"
-        "\n"
-        "  * 2.1. Sub Ba\n"
-        "\n"
-        "  * 2.2. Sub Bb\n"
-        "\n"
-        "* 3. 日本語\n"
-    )
-    assert contents == expect
+    lines = contents.splitlines()
+    assert lines[0] == "* 1. Section A"
+    assert lines[1] == ""
+    assert lines[2] == "* 2. Section B"
+    assert lines[3] == ""
+    assert lines[4] == "  * 2.1. Sub Ba"
+    assert lines[5] == ""
+    assert lines[6] == "  * 2.2. Sub Bb"
     doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "2. Section B\n"
@@ -176,18 +168,14 @@ def test_secnums(app, status, warning):
     app.config.text_secnumber_suffix = " "
     app.builder.build_all()
     contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    expect = (
-        "* 1 Section A\n"
-        "\n"
-        "* 2 Section B\n"
-        "\n"
-        "  * 2.1 Sub Ba\n"
-        "\n"
-        "  * 2.2 Sub Bb\n"
-        "\n"
-        "* 3 日本語\n"
-    )
-    assert contents == expect
+    lines = contents.splitlines()
+    assert lines[0] == "* 1 Section A"
+    assert lines[1] == ""
+    assert lines[2] == "* 2 Section B"
+    assert lines[3] == ""
+    assert lines[4] == "  * 2.1 Sub Ba"
+    assert lines[5] == ""
+    assert lines[6] == "  * 2.2 Sub Bb"
     doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "2 Section B\n"
