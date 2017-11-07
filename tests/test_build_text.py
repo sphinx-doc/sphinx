@@ -115,7 +115,20 @@ def test_list_items_in_admonition(app, status, warning):
 @with_text_app()
 def test_secnums(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
+    expect = (
+        "* Section A\n"
+        "\n"
+        "* Section B\n"
+        "\n"
+        "  * Sub Ba\n"
+        "\n"
+        "  * Sub Bb\n"
+        "\n"
+        "* 日本語\n"
+    )
+    assert contents == expect
+    doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "Section B\n"
         "*********\n"
@@ -128,11 +141,24 @@ def test_secnums(app, status, warning):
         "Sub Bb\n"
         "======\n"
     )
-    assert result == expect
+    assert doc2 == expect
 
     app.config.text_add_secnumbers = True
     app.builder.build_all()
-    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
+    expect = (
+        "* 1. Section A\n"
+        "\n"
+        "* 2. Section B\n"
+        "\n"
+        "  * 2.1. Sub Ba\n"
+        "\n"
+        "  * 2.2. Sub Bb\n"
+        "\n"
+        "* 3. 日本語\n"
+    )
+    assert contents == expect
+    doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "2. Section B\n"
         "************\n"
@@ -145,11 +171,24 @@ def test_secnums(app, status, warning):
         "2.2. Sub Bb\n"
         "===========\n"
     )
-    assert result == expect
+    assert doc2 == expect
 
     app.config.text_secnumber_suffix = " "
     app.builder.build_all()
-    result = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
+    expect = (
+        "* 1 Section A\n"
+        "\n"
+        "* 2 Section B\n"
+        "\n"
+        "  * 2.1 Sub Ba\n"
+        "\n"
+        "  * 2.2 Sub Bb\n"
+        "\n"
+        "* 3 日本語\n"
+    )
+    assert contents == expect
+    doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
     expect = (
         "2 Section B\n"
         "***********\n"
@@ -162,5 +201,5 @@ def test_secnums(app, status, warning):
         "2.2 Sub Bb\n"
         "==========\n"
     )
-    assert result == expect
+    assert doc2 == expect
 

@@ -1002,7 +1002,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         # type: (nodes.Node) -> None
-        pass
+        if self.add_secnumbers:
+            numbers = node.get("secnumber")
+            if numbers is not None:
+                self.add_text('.'.join(map(str, numbers)) + self.secnumber_suffix)
 
     def depart_reference(self, node):
         # type: (nodes.Node) -> None
