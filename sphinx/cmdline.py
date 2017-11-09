@@ -29,7 +29,30 @@ from sphinx.util.pycompat import terminal_safe
 
 if False:
     # For type annotation
-    from typing import Any, IO, List, Union  # NOQA
+    from typing import Any, IO, List, Optional, Union  # NOQA
+
+DOC_DIRS = ('docs', 'doc', 'Documentation', '')
+
+
+def _find_source_dir():
+    # type: () -> Optional[unicode]
+    """Check the usual suspects for a config file and return if found.
+
+    This includes both the directories in DOCS_DIR and any subdirectories
+    found therein.
+    """
+    for doc_dir in DOC_DIRS:
+        if not os.path.isdir(doc_dir):
+            continue
+
+        # check not only doc_dir but all immediate subdirectories of same
+        src_dirs = [doc_dir] + [
+            os.path.join(doc_dir, sub_dir) for sub_dir in os.listdir(doc_dir)]
+        for src_dir in src_dirs:
+            if os.path.exists(os.path.join(src_dir, 'conf.py')):
+                return src_dir
+
+    return None
 
 
 def handle_exception(app, args, exception, stderr=sys.stderr):
@@ -103,8 +126,8 @@ def jobs_argument(value):
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
-        usage='usage: %(prog)s [OPTIONS] SOURCEDIR [OUTPUTDIR '
-              '[FILENAMES...]]',
+        usage='usage: %(prog)s [OPTIONS] [SOURCEDIR [OUTPUTDIR '
+              '[FILENAMES...]]]',
         epilog='For more information, visit <http://sphinx-doc.org/>.',
         description="""
 Generate documentation from source files.
@@ -126,7 +149,7 @@ files can be built by specifying individual filenames.
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
-    parser.add_argument('sourcedir',
+    parser.add_argument('sourcedir', nargs='?',
                         help='path to documentation source files')
     parser.add_argument('outputdir', nargs='?',
                         help='path to output directory')
@@ -200,6 +223,17 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
     parser = get_parser()
     args = parser.parse_args(argv)
+
+    # if we haven't specified an outputdir then we need to extract one from the
+    # config file. Clearly we can't do this is no config file is available
+    if not args.outputdir and args.noconfig:
+        parser.error('must specify sourcedir with -C option')
+
+    # get paths by discovery if not provided by args
+    if not args.sourcedir:
+        args.sourcedir = _find_source_dir()
+        if not args.sourcedir:
+            parser.error('no sourcedir provided and none discovered')
 
     if args.noconfig:
         args.confdir = None

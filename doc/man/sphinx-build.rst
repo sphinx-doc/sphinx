@@ -4,7 +4,7 @@ sphinx-build
 Synopsis
 --------
 
-**sphinx-build** [*options*] <*sourcedir*> [<*outputdir*> [*filenames* ...]]
+**sphinx-build** [*options*] [<*sourcedir*> [<*outputdir*> [*filenames* ...]]]
 
 Description
 -----------
@@ -12,7 +12,9 @@ Description
 :program:`sphinx-build` generates documentation from the files in
 ``<sourcedir>`` and places it in the ``<outputdir>``. If no ``<outputdir>`` is
 provided, Sphinx will attempt to use the ``output_dir`` configuration option to
-configure this.
+configure this. If no ``<sourcedir>`` is provided, Sphinx will attempt to find
+documentation in a list of commonly used documentation source folders relative
+to where the application is run from.
 
 :program:`sphinx-build` looks for ``<sourcedir>/conf.py`` for the configuration
 settings.  :manpage:`sphinx-quickstart(1)` may be used to generate template
