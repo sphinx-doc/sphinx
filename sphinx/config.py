@@ -116,6 +116,7 @@ class Config(object):
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
+        output_dir = (None, 'env'),
         source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
