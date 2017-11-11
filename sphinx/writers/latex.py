@@ -25,6 +25,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
+from sphinx.transforms import SphinxTransform
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
@@ -222,12 +223,11 @@ class ExtBabel(Babel):
             return language
 
 
-class ShowUrlsTransform(object):
-    expanded = False
-
-    def __init__(self, document):
-        # type: (nodes.Node) -> None
-        self.document = document
+class ShowUrlsTransform(SphinxTransform, object):
+    def __init__(self, document, startnode=None):
+        # type: (nodes.document, nodes.Node) -> None
+        super(ShowUrlsTransform, self).__init__(document, startnode)
+        self.expanded = False
 
     def apply(self):
         # type: () -> None
