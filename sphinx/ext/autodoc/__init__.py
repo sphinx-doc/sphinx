@@ -15,7 +15,6 @@ import re
 import sys
 import inspect
 import traceback
-import warnings
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
@@ -25,7 +24,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
-from sphinx.ext.autodoc.importer import _MockImporter
+from sphinx.ext.autodoc.importer import _MockImporter, import_module
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
@@ -392,10 +391,7 @@ class Documenter(object):
         import_hook = _MockImporter(self.env.config.autodoc_mock_imports)
         try:
             logger.debug('[autodoc] import %s', self.modname)
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=ImportWarning)
-                with logging.skip_warningiserror(not self.env.config.autodoc_warningiserror):
-                    __import__(self.modname)
+            import_module(self.modname, self.env.config.autodoc_warningiserror)
             parent = None
             obj = self.module = sys.modules[self.modname]
             logger.debug('[autodoc] => %r', obj)
@@ -420,6 +416,8 @@ class Documenter(object):
             if isinstance(e, SystemExit):
                 errmsg += ('; the module executes module level statement ' +
                            'and it might call sys.exit().')
+            elif isinstance(e, ImportError):
+                errmsg += '; the following exception was raised:\n%s' % e.args[0]
             else:
                 errmsg += '; the following exception was raised:\n%s' % \
                           traceback.format_exc()

@@ -73,6 +73,7 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
+from sphinx.ext.autodoc.importer import import_module
 
 if False:
     # For type annotation
@@ -512,8 +513,7 @@ def _import_by_name(name):
         modname = '.'.join(name_parts[:-1])
         if modname:
             try:
-                __import__(modname)
-                mod = sys.modules[modname]
+                mod = import_module(modname)
                 return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError):
                 pass
@@ -525,9 +525,10 @@ def _import_by_name(name):
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
-                __import__(modname)
+                import_module(modname)
             except ImportError:
                 continue
+
             if modname in sys.modules:
                 break
 

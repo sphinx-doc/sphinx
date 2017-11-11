@@ -43,6 +43,7 @@ Features added
 * #4168: improve zh search with jieba
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
+* #4212: autosummary: catch all exceptions when importing modules
 
 
 Features removed
