@@ -107,6 +107,8 @@ Bugs fixed
 ----------
 
 * #4206: latex: reST label between paragraphs loses paragraph break
+* #4231: html: Apply fixFirefoxAnchorBug only under Firefox
+* #2298: automodule fails to document a class attribute
 
 Testing
 --------
