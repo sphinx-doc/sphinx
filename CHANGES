@@ -20,6 +20,7 @@ Bugs fixed
 
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
+* #4221: napoleon depends on autodoc, but users need to load it manually
 
 Testing
 --------
