@@ -10,6 +10,8 @@
 """
 
 import sys
+import traceback
+import warnings
 from types import FunctionType, MethodType, ModuleType
 
 from sphinx.util import logging
@@ -116,3 +118,18 @@ class _MockImporter(object):
             sys.modules[name] = module
             self.mocked_modules.append(name)
             return module
+
+
+def import_module(modname, warningiserror=False):
+    """
+    Call __import__(modname), convert exceptions to ImportError
+    """
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ImportWarning)
+            with logging.skip_warningiserror(not warningiserror):
+                return __import__(modname)
+    except BaseException as exc:
+        # Importing modules may cause any side effects, including
+        # SystemExit, so we need to catch all errors.
+        raise ImportError(traceback.format_exc())
