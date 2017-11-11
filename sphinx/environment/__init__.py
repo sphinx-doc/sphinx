@@ -641,8 +641,8 @@ class BuildEnvironment(object):
     # --------- SINGLE FILE READING --------------------------------------------
 
     def prepare_settings(self, docname):
-        """Prepare to set up environment for reading."""
         # type: (unicode) -> None
+        """Prepare to set up environment for reading."""
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role

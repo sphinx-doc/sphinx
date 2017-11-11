@@ -19,6 +19,10 @@ from docutils.utils import Reporter
 
 from sphinx.util import logging
 
+if False:
+    # For type annotation
+    from typing import Generator  # NOQA
+
 symbols_re = re.compile(r'([!-/:-@\[-`{-~])')
 logger = logging.getLogger(__name__)
 
@@ -30,7 +34,7 @@ def escape(text):
 
 @contextmanager
 def default_role(docname, name):
-    # type: (unicode, unicode) -> None
+    # type: (unicode, unicode) -> Generator
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)

@@ -214,8 +214,8 @@ class SphinxFileInput(FileInput):
 
 
 def read_doc(app, env, filename):
-    """Parse a document and convert to doctree."""
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    """Parse a document and convert to doctree."""
     reader = SphinxStandaloneReader(app, parsers=app.registry.get_source_parsers())
     source = SphinxFileInput(app, env, source=None, source_path=filename,
                              encoding=env.config.source_encoding)
