@@ -391,9 +391,9 @@ class Documenter(object):
         import_hook = _MockImporter(self.env.config.autodoc_mock_imports)
         try:
             logger.debug('[autodoc] import %s', self.modname)
-            import_module(self.modname, self.env.config.autodoc_warningiserror)
+            obj = import_module(self.modname, self.env.config.autodoc_warningiserror)
             parent = None
-            obj = self.module = sys.modules[self.modname]
+            self.module = obj
             logger.debug('[autodoc] => %r', obj)
             for part in self.objpath:
                 parent = obj

@@ -11,7 +11,7 @@
 
 from six import iteritems, StringIO
 
-from sphinx.ext.autosummary import mangle_signature
+from sphinx.ext.autosummary import mangle_signature, import_by_name
 
 from sphinx.testing.util import etree_parse
 
@@ -145,3 +145,26 @@ def test_autosummary_generate(app, status, warning):
             '      ~Foo.__init__\n'
             '      ~Foo.bar\n'
             '   \n' in Foo)
+
+
+def test_import_by_name():
+    import sphinx
+    import sphinx.ext.autosummary
+
+    prefixed_name, obj, parent, modname = import_by_name('sphinx')
+    assert prefixed_name == 'sphinx'
+    assert obj is sphinx
+    assert parent is None
+    assert modname == 'sphinx'
+
+    prefixed_name, obj, parent, modname = import_by_name('sphinx.ext.autosummary.__name__')
+    assert prefixed_name == 'sphinx.ext.autosummary.__name__'
+    assert obj is sphinx.ext.autosummary.__name__
+    assert parent is sphinx.ext.autosummary
+    assert modname == 'sphinx.ext.autosummary'
+
+    prefixed_name, obj, parent, modname = import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
+    assert prefixed_name == 'sphinx.ext.autosummary.Autosummary.get_items'
+    assert obj == sphinx.ext.autosummary.Autosummary.get_items
+    assert parent is sphinx.ext.autosummary.Autosummary
+    assert modname == 'sphinx.ext.autosummary'
