@@ -1529,6 +1529,17 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return
         ModuleLevelDocumenter.document_members(self, all_members)
 
+    def generate(self, more_content=None, real_modname=None,
+                 check_module=False, all_members=False):
+        # Do not pass real_modname and use the name from the __module__
+        # attribute of the class.
+        # If a class gets imported into the module real_modname
+        # the analyzer won't find the source of the class, if
+        # it looks in real_modname.
+        return super(ClassDocumenter, self).generate(more_content=more_content,
+                                                     check_module=check_module,
+                                                     all_members=all_members)
+
 
 class ExceptionDocumenter(ClassDocumenter):
     """
