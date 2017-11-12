@@ -15,6 +15,9 @@ from itertools import product
 
 from six import iteritems
 from six.moves import range, zip_longest
+from six.moves import cPickle as pickle
+
+from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
@@ -148,3 +151,32 @@ def levenshtein_distance(a, b):
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row  # type: ignore
     return previous_row[-1]
+
+
+class UIDTransform(SphinxTransform):
+    """Add UIDs to doctree for versioning."""
+    default_priority = 100
+
+    def apply(self):
+        env = self.env
+        old_doctree = None
+        if env.versioning_compare:
+            # get old doctree
+            try:
+                filename = env.doc2path(env.docname, env.doctreedir, '.doctree')
+                with open(filename, 'rb') as f:
+                    old_doctree = pickle.load(f)
+            except EnvironmentError:
+                pass
+
+        # add uids for versioning
+        if not env.versioning_compare or old_doctree is None:
+            list(add_uids(self.document, env.versioning_condition))
+        else:
+            list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
+
+
+def prepare(document):
+    """Simple wrapper for UIDTransform."""
+    transform = UIDTransform(document)
+    transform.apply()
