@@ -413,6 +413,7 @@ def main(argv=sys.argv[1:]):
             ext_todo = True,
             makefile = True,
             batchfile = True,
+            make_mode = True,
             mastertocmaxdepth = args.maxdepth,
             mastertoctree = text,
             language = 'en',
