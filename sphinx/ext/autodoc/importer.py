@@ -128,7 +128,8 @@ def import_module(modname, warningiserror=False):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ImportWarning)
             with logging.skip_warningiserror(not warningiserror):
-                return __import__(modname)
+                __import__(modname)
+                return sys.modules[modname]
     except BaseException:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
