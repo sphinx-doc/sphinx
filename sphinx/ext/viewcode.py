@@ -51,8 +51,8 @@ def _get_full_modname(app, modname, attribute):
         return None
 
 
-def _find_module_source(modname):
-    current_paths = None
+def _find_module_source(modname, current_paths=None):
+    current_paths = current_paths or None
 
     try:
         module_parts = modname.split('.')
@@ -86,7 +86,7 @@ def doctree_read(app, doctree):
             except Exception:
                 pass
         if not analyzer:
-            module_file = _find_module_source(modname)
+            module_file = _find_module_source(modname, app.config.viewcode_source_dirs)
             if module_file:
                 try:
                     analyzer = ModuleAnalyzer.for_file(module_file, modname)
@@ -266,6 +266,7 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('viewcode_import', True, False)
     app.add_config_value('viewcode_enable_epub', False, False)
+    app.add_config_value('viewcode_source_dirs', [], False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)
