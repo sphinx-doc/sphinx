@@ -181,10 +181,6 @@ class LoggingReporter(Reporter):
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
 
-    def set_conditions(self, category, report_level, halt_level, debug=False):
-        # type: (unicode, int, int, bool) -> None
-        Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
-
 
 def is_html5_writer_available():
     # type: () -> bool
