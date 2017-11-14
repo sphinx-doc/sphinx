@@ -167,6 +167,13 @@ class WarningStream(object):
 
 
 class LoggingReporter(Reporter):
+    @classmethod
+    def from_reporter(cls, reporter):
+        # type: (Reporter) -> LoggingReporter
+        """Create an instance of LoggingReporter from other reporter object."""
+        return cls(reporter.source, reporter.report_level, reporter.halt_level,
+                   reporter.debug_flag, reporter.error_handler)
+
     def __init__(self, source, report_level, halt_level,
                  debug=False, error_handler='backslashreplace'):
         # type: (unicode, int, int, bool, unicode) -> None

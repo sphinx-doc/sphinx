@@ -58,9 +58,7 @@ class SphinxBaseReader(standalone.Reader):
         # type: () -> nodes.document
         document = standalone.Reader.new_document(self)
         reporter = document.reporter
-        document.reporter = LoggingReporter(reporter.source, reporter.report_level,
-                                            reporter.halt_level, reporter.debug_flag,
-                                            reporter.error_handler)
+        document.reporter = LoggingReporter.from_reporter(reporter)
         return document
 
 
