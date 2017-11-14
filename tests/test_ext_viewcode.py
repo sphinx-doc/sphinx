@@ -10,12 +10,13 @@
 """
 
 import re
+import sys
 
 import pytest
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode')
-def test_viewcode(app, status, warning):
+def test_viewcode(app, status, warning, include_short_names=True):
     app.builder.build_all()
 
     warnings = re.sub(r'\\+', '/', warning.getvalue())
@@ -26,10 +27,13 @@ def test_viewcode(app, status, warning):
     )
 
     result = (app.outdir / 'index.html').text(encoding='utf-8')
-    assert result.count('href="_modules/spam/mod1.html#func1"') == 2
-    assert result.count('href="_modules/spam/mod2.html#func2"') == 2
-    assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
-    assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
+    link_count = 2
+    if not include_short_names:
+        link_count = 1
+    assert result.count('href="_modules/spam/mod1.html#func1"') == link_count
+    assert result.count('href="_modules/spam/mod2.html#func2"') == link_count
+    assert result.count('href="_modules/spam/mod1.html#Class1"') == link_count
+    assert result.count('href="_modules/spam/mod2.html#Class2"') == link_count
     assert result.count('@decorator') == 1
 
     # test that the class attribute is correctly documented
@@ -49,3 +53,21 @@ def test_linkcode(app, status, warning):
     assert 'http://foobar/js/' in stuff
     assert 'http://foobar/c/' in stuff
     assert 'http://foobar/cpp/' in stuff
+
+
+@pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_source_files'])
+def test_local_source_files(app, status, warning):
+    # Let autodoc document the module,
+    # but unload it so that viewcode has to use the source files.
+    def unload_spam(app, doctree):
+        sys.path.pop(0)
+        for module in list(sys.modules):
+            if module.startswith('spam.') or module == 'spam':
+                del sys.modules[module]
+
+    listeners = app.events.listeners['doctree-read']
+    viewcode_read = listeners.popitem()[1]
+    app.connect('doctree-read', unload_spam)
+    app.connect('doctree-read', viewcode_read)
+
+    test_viewcode(app, status, warning, include_short_names=False)

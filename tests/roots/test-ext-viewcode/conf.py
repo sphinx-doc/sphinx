@@ -3,7 +3,9 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath('.'))
+source_dir = os.path.abspath('.')
+if source_dir not in sys.path:
+    sys.path.insert(0, source_dir)
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 master_doc = 'index'
 exclude_patterns = ['_build']
@@ -23,3 +25,7 @@ if 'test_linkcode' in tags:
             return "http://foobar/%s/%s" % (domain,  "".join(info['names']))
         else:
             raise AssertionError()
+
+if 'test_source_files' in tags:
+    viewcode_import = False
+    viewcode_source_dirs = [source_dir]
