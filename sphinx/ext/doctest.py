@@ -30,7 +30,6 @@ from sphinx.builders import Builder
 from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.osutil import fs_encoding
 from sphinx.locale import _
 
 if False:
@@ -227,17 +226,19 @@ class TestGroup(object):
 
 
 class TestCode(object):
-    def __init__(self, code, type, lineno, options=None):
-        # type: (unicode, unicode, int, Dict) -> None
+    def __init__(self, code, type, lineno, options=None, filename=None):
+        # type: (unicode, unicode, int, Dict, unicode) -> None
         self.code = code
         self.type = type
         self.lineno = lineno
         self.options = options or {}
+        assert filename is not None
+        self.filename = filename
 
     def __repr__(self):  # type: ignore
         # type: () -> unicode
-        return 'TestCode(%r, %r, %r, options=%r)' % (
-            self.code, self.type, self.lineno, self.options)
+        return 'TestCode(%r, %r, %r, options=%r, filename=%r)' % (
+            self.code, self.type, self.lineno, self.options, self.filename)
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
@@ -394,13 +395,22 @@ Doctest summary
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
         for node in doctree.traverse(condition):
+            try:
+                # Try to get the file which actually contains the doctest,
+                # not the filename of the document it's included in.
+                filename = path.relpath(node.source, self.env.srcdir)\
+                    .replace(path.sep, '/')\
+                    .rsplit(':docstring of ', maxsplit=1)[0]
+            except Exception:
+                filename = self.env.doc2path(docname, base=None)
             source = 'test' in node and node['test'] or node.astext()
             if not source:
                 logger.warning('no code/output in %s block at %s:%s',
                                node.get('testnodetype', 'doctest'),
-                               self.env.doc2path(docname), node.line)
+                               filename, node.line)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            lineno=node.line, options=node.get('options'))
+                            lineno=node.line, options=node.get('options'),
+                            filename=filename)
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
                 add_to_all_groups.append(code)
@@ -428,7 +438,7 @@ Doctest summary
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-' * len(docname)))
         for group in itervalues(groups):
-            self.test_group(group, self.env.doc2path(docname, base=None))
+            self.test_group(group)
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)
         self.setup_failures += res_f
@@ -447,13 +457,8 @@ Doctest summary
         # type: (unicode, unicode, unicode, Any, bool) -> Any
         return compile(code, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group, filename):
-        # type: (TestGroup, unicode) -> None
-        if PY2:
-            filename_str = filename.encode(fs_encoding)
-        else:
-            filename_str = filename
-
+    def test_group(self, group):
+        # type: (TestGroup) -> None
         ns = {}  # type: Dict
 
         def run_setup_cleanup(runner, testcodes, what):
@@ -468,7 +473,7 @@ Doctest summary
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
                                           '%s (%s code)' % (group.name, what),
-                                          filename_str, 0, None)
+                                          testcodes[0].filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
@@ -489,10 +494,10 @@ Doctest summary
                 try:
                     test = parser.get_doctest(  # type: ignore
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
-                        group.name, filename_str, code[0].lineno)
+                        group.name, code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning('ignoring invalid doctest code: %r', code[0].code,
-                                   location=(filename, code[0].lineno))
+                                   location=(code[0].filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue
@@ -520,7 +525,7 @@ Doctest summary
                     lineno=code[0].lineno,
                     options=options)
                 test = doctest.DocTest([example], {}, group.name,  # type: ignore
-                                       filename_str, code[0].lineno, None)
+                                       code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
