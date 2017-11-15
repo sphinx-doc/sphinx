@@ -141,10 +141,11 @@ class SphinxFileInput(FileInput):
     def read(self):
         # type: () -> unicode
         data = FileInput.read(self)
-        if self.app:
-            arg = [data]
-            self.app.emit('source-read', self.env.docname, arg)
-            data = arg[0]
+
+        # emit source-read event
+        arg = [data]
+        self.app.emit('source-read', self.env.docname, arg)
+        data = arg[0]
 
         parser = self.app.registry.get_source_parser(self.source_path)
         docinfo, data = split_docinfo(data)
