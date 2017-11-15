@@ -30,6 +30,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Type  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -50,6 +51,7 @@ class SphinxComponentRegistry(object):
         self.builders = {}          # type: Dict[unicode, Type[Builder]]
         self.domains = {}           # type: Dict[unicode, Type[Domain]]
         self.source_parsers = {}    # type: Dict[unicode, Parser]
+        self.source_inputs = {}     # type: Dict[unicode, Input]
         self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
 
     def add_builder(self, builder):
@@ -189,6 +191,28 @@ class SphinxComponentRegistry(object):
         if isinstance(parser, SphinxParser):
             parser.set_application(app)
         return parser
+
+    def add_source_input(self, filetype, input_class):
+        # type: (unicode, Type[Input]) -> None
+        if filetype in self.source_inputs:
+            raise ExtensionError(__('source_input for %r is already registered') % filetype)
+        self.source_inputs[filetype] = input_class
+
+    def get_source_input(self, filename):
+        # type: (unicode) -> Type[Input]
+        parser = self.get_source_parser(filename)
+        for filetype in parser.supported:
+            if filetype in self.source_inputs:
+                input_class = self.source_inputs[filetype]
+                break
+        else:
+            # use special source_input for unknown file-type '*' (if exists)
+            input_class = self.source_inputs.get('*')
+
+        if input_class is None:
+            raise SphinxError(__('source_input for %s not registered') % filename)
+        else:
+            return input_class
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None

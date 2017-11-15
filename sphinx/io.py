@@ -120,7 +120,9 @@ def SphinxDummySourceClass(source, *args, **kwargs):
     return source
 
 
-class SphinxFileInput(FileInput):
+class SphinxBaseFileInput(FileInput):
+    """A base class of SphinxFileInput."""
+
     def __init__(self, app, env, *args, **kwds):
         # type: (Sphinx, BuildEnvironment, Any, Any) -> None
         self.app = app
@@ -145,16 +147,7 @@ class SphinxFileInput(FileInput):
         # emit source-read event
         arg = [data]
         self.app.emit('source-read', self.env.docname, arg)
-        data = arg[0]
-
-        parser = self.app.registry.get_source_parser(self.source_path)
-        docinfo, data = split_docinfo(data)
-        if 'restructuredtext' in parser.supported:
-            if self.env.config.rst_epilog:
-                data = data + '\n' + self.env.config.rst_epilog + '\n'
-            if self.env.config.rst_prolog:
-                data = self.env.config.rst_prolog + '\n' + data
-        return docinfo + data
+        return arg[0]
 
     def warn_and_replace(self, error):
         # type: (Any) -> Tuple
@@ -172,12 +165,29 @@ class SphinxFileInput(FileInput):
         return (u'?', error.end)
 
 
+class SphinxFileInput(SphinxBaseFileInput):
+    pass
+
+
+class SphinxRSTFileInput(SphinxBaseFileInput):
+    def read(self):
+        # type: () -> unicode
+        data = SphinxBaseFileInput.read(self)
+        docinfo, data = split_docinfo(data)
+        if self.env.config.rst_epilog:
+            data = data + '\n' + self.env.config.rst_epilog + '\n'
+        if self.env.config.rst_prolog:
+            data = self.env.config.rst_prolog + '\n' + data
+        return docinfo + data
+
+
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
+    input_class = app.registry.get_source_input(filename)
     reader = SphinxStandaloneReader()
-    source = SphinxFileInput(app, env, source=None, source_path=filename,
-                             encoding=env.config.source_encoding)
+    source = input_class(app, env, source=None, source_path=filename,
+                         encoding=env.config.source_encoding)
     parser = app.registry.create_source_parser(app, filename)
 
     pub = Publisher(reader=reader,
@@ -190,3 +200,8 @@ def read_doc(app, env, filename):
     pub.set_source(source, filename)
     pub.publish()
     return pub.document
+
+
+def setup(app):
+    app.registry.add_source_input('*', SphinxFileInput)
+    app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
