@@ -140,22 +140,15 @@ class SphinxFileInput(FileInput):
 
     def read(self):
         # type: () -> unicode
-        def get_parser_type(source_path):
-            # type: (unicode) -> Tuple[unicode]
-            for suffix, parser_class in iteritems(self.app.registry.get_source_parsers()):
-                if source_path.endswith(suffix):
-                    if isinstance(parser_class, string_types):
-                        parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA
-                    return parser_class.supported
-            return ('restructuredtext',)
-
         data = FileInput.read(self)
         if self.app:
             arg = [data]
             self.app.emit('source-read', self.env.docname, arg)
             data = arg[0]
+
+        parser = self.app.registry.get_source_parser(self.source_path)
         docinfo, data = split_docinfo(data)
-        if 'restructuredtext' in get_parser_type(self.source_path):
+        if 'restructuredtext' in parser.supported:
             if self.env.config.rst_epilog:
                 data = data + '\n' + self.env.config.rst_epilog + '\n'
             if self.env.config.rst_prolog:

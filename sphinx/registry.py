@@ -157,13 +157,13 @@ class SphinxComponentRegistry(object):
         stddomain.object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_source_parser(self, suffix, parser):
-        # type: (unicode, Parser) -> None
+        # type: (unicode, Type[Parser]) -> None
         if suffix in self.source_parsers:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         self.source_parsers[suffix] = parser
 
-    def create_source_parser(self, app, filename):
-        # type: (Sphinx, unicode) -> Parser
+    def get_source_parser(self, filename):
+        # type: (unicode) -> Type[Parser]
         for suffix, parser_class in iteritems(self.source_parsers):
             if filename.endswith(suffix):
                 break
@@ -176,14 +176,19 @@ class SphinxComponentRegistry(object):
         else:
             if isinstance(parser_class, string_types):
                 parser_class = import_object(parser_class, 'source parser')  # type: ignore
-            parser = parser_class()
-            if isinstance(parser, SphinxParser):
-                parser.set_application(app)
-            return parser
+            return parser_class
 
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
         return self.source_parsers
+
+    def create_source_parser(self, app, filename):
+        # type: (Sphinx, unicode) -> Parser
+        parser_class = self.get_source_parser(filename)
+        parser = parser_class()
+        if isinstance(parser, SphinxParser):
+            parser.set_application(app)
+        return parser
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
