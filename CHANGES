@@ -31,6 +31,7 @@ Bugs fixed
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
 * #2298: automodule fails to document a class attribute
+* #4223: doctest: failing tests reported in wrong file, at wrong line
 * #4099: C++: properly link class reference to class from inside constructor
 * #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
 * #4249: PDF output: Pygments error highlighting increases line spacing in
@@ -41,7 +42,7 @@ Bugs fixed
 * #1421: Respect the quiet flag in sphinx-quickstart
 * #4281: Race conditions when creating output directory
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
-  ``\chapter`` commands 
+  ``\chapter`` commands
 * #4214: Two todolist directives break sphinx-1.6.5
 * Fix links to external option docs with intersphinx (refs: #3769)
 * #4091: Private members not documented without :undoc-members:

@@ -33,6 +33,7 @@ Other contributors, listed alphabetically, are:
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
+* Zac Hatfield-Dodds -- doctest reporting improvements
 * Doug Hellmann -- graphviz improvements
 * Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
