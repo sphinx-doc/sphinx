@@ -55,3 +55,21 @@ def test_is_allowed_version():
 def cleanup_call():
     global cleanup_called
     cleanup_called += 1
+
+
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
+def test_reporting_with_autodoc(app, status, warning, capfd):
+    # Patch builder to get a copy of the output
+    written = []
+    app.builder._warn_out = written.append
+    app.builder.build_all()
+    lines = '\n'.join(written).split('\n')
+    failures = [l for l in lines if l.startswith('File')]
+    expected = [
+        'File "dir/inner.rst", line 1, in default',
+        'File "dir/bar.py", line 2, in default',
+        'File "foo.py", line 3, in default',
+        'File "index.rst", line 4, in default',
+    ]
+    for location in expected:
+        assert location in failures
