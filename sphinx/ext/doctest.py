@@ -227,7 +227,7 @@ class TestGroup(object):
 
 class TestCode(object):
     def __init__(self, code, type, lineno, options=None, filename=None):
-        # type: (unicode, unicode, int, Dict, unicode) -> None
+        # type: (unicode, unicode, int, Dict, str) -> None
         self.code = code
         self.type = type
         self.lineno = lineno
@@ -382,6 +382,7 @@ Doctest summary
 
         self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore
+        file_cache_for_docstrings = {}  # type: Dict[unicode, Tuple[str, ...]]
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
@@ -404,12 +405,43 @@ Doctest summary
             except Exception:
                 filename = self.env.doc2path(docname, base=None)
             source = 'test' in node and node['test'] or node.astext()
+            # HACK HACK HACK - `node.line` has an off by one error somewhere
+            line_number = node.line - 1 if node.line is not None else None
+            if ':docstring of ' in path.basename(node.source or ''):
+                # The line number is given relative to the stripped docstring,
+                # not the file.  This is correct where it is set, in
+                # `docutils.nodes.Node.setup_child`, but Sphinx should report
+                # relative to the file, not the docstring.
+                line_number = None  # if all else fails, admit we don't know
+                source_lines = [l.strip() for l in source.split('\n')]
+                # HACK HACK HACK
+                # Using `inspect` doesn't work for docstrings with a "\n".
+                # Fixing `node.document` in `sphinx.ext.autodoc.AutoDirective.run`
+                # would probably be better but I can't see how to do it.
+                # So let's just search the file manually!
+                if filename not in file_cache_for_docstrings:
+                    try:
+                        with open(path.join(self.env.srcdir, filename)) as f:
+                            contents = tuple(l.strip() for l in f.readlines())
+                    except Exception:
+                        contents = ()
+                    file_cache_for_docstrings[filename] = contents
+                lines = list(file_cache_for_docstrings[filename])
+                while lines and source_lines and source_lines[0] in lines:
+                    idx = lines.index(source_lines[0])
+                    if lines[idx:idx + len(source_lines)] == source_lines:
+                        if line_number is not None:  # solution is not unique
+                            line_number = None
+                            break
+                        line_number = idx
+                    del lines[:idx + len(source_lines) + 1]
             if not source:
-                logger.warning('no code/output in %s block at %s:%s',
-                               node.get('testnodetype', 'doctest'),
-                               filename, node.line)
+                s = 'no code/output in %s block at %s'
+                if line_number is not None:
+                    s += ':' + str(line_number)
+                logger.warning(s, node.get('testnodetype', 'doctest'), filename)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            lineno=node.line, options=node.get('options'),
+                            lineno=line_number, options=node.get('options'),
                             filename=filename)
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
