@@ -14,7 +14,6 @@ import os
 import sys
 import time
 import types
-import codecs
 import fnmatch
 import warnings
 from os import path
@@ -24,17 +23,13 @@ from collections import defaultdict
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.io import NullOutput
-from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line, normalize_language_tag
 from docutils.utils.smartquotes import smartchars
-from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
-from sphinx import addnodes
-from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import logging
+from sphinx import addnodes, versioning
+from sphinx.io import read_doc
+from sphinx.util import logging, rst
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
@@ -47,7 +42,6 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -81,8 +75,6 @@ default_settings = {
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
 ENV_VERSION = 52 + (sys.version_info[0] - 2)
 
-
-dummy_reporter = Reporter('', 4, 4)
 
 versioning_conditions = {
     'none': False,
@@ -648,25 +640,9 @@ class BuildEnvironment(object):
 
     # --------- SINGLE FILE READING --------------------------------------------
 
-    def warn_and_replace(self, error):
-        # type: (Any) -> Tuple
-        """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning('undecodable source characters, replacing with "?": %r',
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
-        return (u'?', error.end)
-
-    def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
-        """Parse a file and add/update inventory entries for the doctree."""
-
+    def prepare_settings(self, docname):
+        # type: (unicode) -> None
+        """Prepare to set up environment for reading."""
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role
@@ -690,40 +666,19 @@ class BuildEnvironment(object):
         else:
             self.settings['smart_quotes'] = False
 
+    def read_doc(self, docname, app=None):
+        # type: (unicode, Sphinx) -> None
+        """Parse a file and add/update inventory entries for the doctree."""
+        self.prepare_settings(docname)
+
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
         OptionParser.standard_config_files[1] = docutilsconf
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 
-        with sphinx_domains(self):
-            if self.config.default_role:
-                role_fn, messages = roles.role(self.config.default_role, english,
-                                               0, dummy_reporter)
-                if role_fn:
-                    roles._roles[''] = role_fn
-                else:
-                    logger.warning('default role %s not found', self.config.default_role,
-                                   location=docname)
-
-            codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
-
-            # publish manually
-            reader = SphinxStandaloneReader(self.app,
-                                            parsers=self.app.registry.get_source_parsers())
-            pub = Publisher(reader=reader,
-                            writer=SphinxDummyWriter(),
-                            destination_class=NullOutput)
-            pub.set_components(None, 'restructuredtext', None)
-            pub.process_programmatic_settings(None, self.settings, None)
-            src_path = self.doc2path(docname)
-            source = SphinxFileInput(app, self, source=None, source_path=src_path,
-                                     encoding=self.config.source_encoding)
-            pub.source = source
-            pub.settings._source = src_path
-            pub.set_destination(None, None)
-            pub.publish()
-            doctree = pub.document
+        with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
+            doctree = read_doc(self.app, self, self.doc2path(docname))
 
         # post-processing
         for domain in itervalues(self.domains):
@@ -741,41 +696,14 @@ class BuildEnvironment(object):
             time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
-            old_doctree = None
-            if self.versioning_compare:
-                # get old doctree
-                try:
-                    with open(self.doc2path(docname,
-                                            self.doctreedir, '.doctree'), 'rb') as f:
-                        old_doctree = pickle.load(f)
-                except EnvironmentError:
-                    pass
-
             # add uids for versioning
-            if not self.versioning_compare or old_doctree is None:
-                list(add_uids(doctree, self.versioning_condition))
-            else:
-                list(merge_doctrees(
-                    old_doctree, doctree, self.versioning_condition))
-
-        # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+            versioning.prepare(doctree)
 
         # cleanup
         self.temp_data.clear()
         self.ref_context.clear()
-        roles._roles.pop('', None)  # if a document has set a local default role
 
-        # save the parsed doctree
-        doctree_filename = self.doc2path(docname, self.doctreedir,
-                                         '.doctree')
-        ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        self.write_doctree(docname, doctree)
 
     # utilities to use while reading a document
 
@@ -878,6 +806,21 @@ class BuildEnvironment(object):
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
+
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        """Write the doctree to a file."""
+        # make it picklable
+        doctree.reporter = None
+        doctree.transformer = None
+        doctree.settings.warning_stream = None
+        doctree.settings.env = None
+        doctree.settings.record_dependencies = None
+
+        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
+        ensuredir(path.dirname(doctree_filename))
+        with open(doctree_filename, 'wb') as f:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
