@@ -103,6 +103,7 @@ Features added
 --------------
 
 * #4181: autodoc: Sort dictionary keys when possible
+* #4183: doctest: ``:pyversion:`` allows comma separated version specs
 
 Bugs fixed
 ----------

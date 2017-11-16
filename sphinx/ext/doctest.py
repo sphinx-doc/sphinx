@@ -143,13 +143,13 @@ class TestDirective(Directive):
                 node['options'][flag] = (option[0] == '+')
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
-                option = self.options['pyversion']
-                # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
-                operand, option_version = [item.strip() for item in option.split()]
-                running_version = platform.python_version()
-                if not compare_version(running_version, option_version, operand):
-                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
-                    node['options'][flag] = True  # Skip the test
+                for option in self.options['pyversion'].split(','):
+                    # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
+                    operand, option_version = [item.strip() for item in option.split()]
+                    running_version = platform.python_version()
+                    if not compare_version(running_version, option_version, operand):
+                        flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
+                        node['options'][flag] = True  # Skip the test
             except ValueError:
                 self.state.document.reporter.warning(
                     _("'%s' is not a valid pyversion option") % option,
