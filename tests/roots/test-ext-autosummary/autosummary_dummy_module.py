@@ -7,3 +7,7 @@ class Foo:
 
     def bar(self):
         pass
+
+    @property
+    def baz(self):
+        pass
