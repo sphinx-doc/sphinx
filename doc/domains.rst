@@ -720,13 +720,12 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
 
 .. rst:directive:: .. cpp:concept:: template-parameter-list name
-                   .. cpp:concept:: template-parameter-list name()
 
    .. warning:: The support for concepts is experimental. It is based on the
       Concepts Technical Specification, and the features may change as the TS evolves.
 
-   Describe a variable concept or a function concept. Both must have exactly 1
-   template parameter list. The name may be a nested name. Examples::
+   Describe a concept. It must have exactly 1 template parameter list. The name may be a
+   nested name. Example::
 
       .. cpp:concept:: template<typename It> std::Iterator
 
@@ -744,12 +743,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
          - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
          - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
 
-      .. cpp:concept:: template<typename Cont> std::Container()
-
-         Holder of elements, to which it can provide access via
-         :cpp:concept:`Iterator` s.
-
-   They will render as follows:
+   This will render as follows:
 
    .. cpp:concept:: template<typename It> std::Iterator
 
@@ -766,11 +760,6 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
       - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
-
-   .. cpp:concept:: template<typename Cont> std::Container()
-
-      Holder of elements, to which it can provide access via
-      :cpp:concept:`Iterator` s.
 
 Options
 .......

@@ -224,13 +224,12 @@ logger = logging.getLogger(__name__)
     concept_object:
         goal:
             just a declaration of the name (for now)
-            either a variable concept or function concept
 
         grammar: only a single template parameter list, and the nested name
             may not have any template argument lists
 
             "template" "<" template-parameter-list ">"
-            nested-name-specifier "()"[opt]
+            nested-name-specifier
 
     type_object:
         goal:
@@ -2780,10 +2779,9 @@ class ASTTypeUsing(ASTBase):
 
 
 class ASTConcept(ASTBase):
-    def __init__(self, nestedName, isFunction, initializer):
-        # type: (Any, bool, Any) -> None
+    def __init__(self, nestedName, initializer):
+        # type: (Any, Any) -> None
         self.nestedName = nestedName
-        self.isFunction = isFunction  # otherwise it's a variable concept
         self.initializer = initializer
 
     @property
@@ -2800,18 +2798,13 @@ class ASTConcept(ASTBase):
     def __unicode__(self):
         # type: () -> unicode
         res = text_type(self.nestedName)
-        if self.isFunction:
-            res += "()"
         if self.initializer:
             res += text_type(self.initializer)
         return res
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
-        signode += nodes.Text(text_type("bool "))
         self.nestedName.describe_signature(signode, mode, env, symbol)
-        if self.isFunction:
-            signode += nodes.Text("()")
         if self.initializer:
             self.initializer.describe_signature(signode, mode, env, symbol)
 
@@ -4718,20 +4711,9 @@ class DefinitionParser(object):
     def _parse_concept(self):
         # type: () -> ASTConcept
         nestedName = self._parse_nested_name()
-        isFunction = False
-
         self.skip_ws()
-        if self.skip_string('('):
-            isFunction = True
-            self.skip_ws()
-            if not self.skip_string(')'):
-                self.fail("Expected ')' in function concept declaration.")
-
         initializer = self._parse_initializer('member')
-        if initializer and isFunction:
-            self.fail("Function concept with initializer.")
-
-        return ASTConcept(nestedName, isFunction, initializer)
+        return ASTConcept(nestedName, initializer)
 
     def _parse_class(self):
         # type: () -> ASTClass
