@@ -34,7 +34,6 @@ Other contributors, listed alphabetically, are:
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
-* Marvin Herbold -- excluded search terms bug fixes and exact phrase search support for HTML
 * Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
