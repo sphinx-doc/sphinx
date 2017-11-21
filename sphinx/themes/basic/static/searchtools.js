@@ -57,7 +57,7 @@ const _removeChildren = (element) => {
 const _escapeRegExp = (string) =>
   string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
-const _displayItem = (item, searchTerms, highlightTerms) => {
+const _displayItem = (item, searchTerms, highlightTerms, exactSearchPhrases) => {
   const docBuilder = DOCUMENTATION_OPTIONS.BUILDER;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX;
@@ -97,6 +97,17 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
     fetch(requestUrl)
       .then((responseData) => responseData.text())
       .then((data) => {
+
+        // exclude results that don't contain exact phrases if we are searching for them
+        if (data) {
+          const lowercaseData = data.toLowerCase();
+          for (const exactSearchPhrase of exactSearchPhrases) {
+            if (lowercaseData.search(exactSearchPhrase) === -1) {
+              return;
+            }
+          }
+        }
+
         if (data)
           listItem.appendChild(
             Search.makeSearchSummary(data, searchTerms, anchor)
@@ -124,13 +135,14 @@ const _displayNextItem = (
   resultCount,
   searchTerms,
   highlightTerms,
+  exactSearchPhrases,
 ) => {
   // results left, load the summary and display it
   // this is intended to be dynamic (don't sub resultsCount)
   if (results.length) {
-    _displayItem(results.pop(), searchTerms, highlightTerms);
+    _displayItem(results.pop(), searchTerms, highlightTerms, exactSearchPhrases);
     setTimeout(
-      () => _displayNextItem(results, resultCount, searchTerms, highlightTerms),
+      () => _displayNextItem(results, resultCount, searchTerms, highlightTerms, exactSearchPhrases),
       5
     );
   }
@@ -275,6 +287,18 @@ const Search = {
     const excludedTerms = new Set();
     const highlightTerms = new Set();
     const objectTerms = new Set(splitQuery(query.toLowerCase().trim()));
+
+    // prepare the exact phrase search feature
+    const exactSearchPhrases = [];
+    const exactSearchPattern = /"([^"]+?)"/g;
+    while (true) {
+      const exactSearchPhrase = exactSearchPattern.exec(query);
+      if (exactSearchPhrase === null) {
+        break;
+      }
+      exactSearchPhrases.push(exactSearchPhrase[1].toLowerCase());
+    }
+
     splitQuery(query.trim()).forEach((queryTerm) => {
       const queryTermLower = queryTerm.toLowerCase();
 
@@ -304,7 +328,7 @@ const Search = {
     // console.info("required: ", [...searchTerms]);
     // console.info("excluded: ", [...excludedTerms]);
 
-    return [query, searchTerms, excludedTerms, highlightTerms, objectTerms];
+    return [query, searchTerms, excludedTerms, highlightTerms, objectTerms, exactSearchPhrases];
   },
 
   /**
@@ -403,7 +427,7 @@ const Search = {
   },
 
   query: (query) => {
-    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
+    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms, exactSearchPhrases] = Search._parseQuery(query);
     const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
     // for debugging
@@ -411,7 +435,7 @@ const Search = {
     // console.info("search results:", Search.lastresults);
 
     // print the results
-    _displayNextItem(results, results.length, searchTerms, highlightTerms);
+    _displayNextItem(results, results.length, searchTerms, highlightTerms, exactSearchPhrases);
   },
 
   /**

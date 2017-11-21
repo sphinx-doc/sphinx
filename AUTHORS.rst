@@ -64,6 +64,7 @@ Contributors
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
 * Martin Hans -- autodoc improvements
+* Marvin Herbold -- HTML exact phrase search support
 * Martin Larralde -- additional napoleon admonitions
 * Martin Mahner -- nature theme
 * Matthew Fernandez -- todo extension fix
