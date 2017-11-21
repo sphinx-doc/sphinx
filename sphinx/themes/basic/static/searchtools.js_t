@@ -435,6 +435,9 @@ var Search = {
       // check if all requirements are matched
       if (fileMap[file].length != searchterms.length)
           continue;
+          
+      // we need to do this because $u.contains also checks type
+      file = parseInt(file);
 
       // ensure that none of the excluded terms is in the search result
       for (i = 0; i < excluded.length; i++) {

@@ -72,6 +72,12 @@ function splitQuery(query) {
             }
         } else if (start === -1) {
             start = i;
+            // this restores the excluded search terms feature
+            if (start > 0) {
+                if (query[i - 1] === '-') {
+                    start--;
+                }
+            }
         }
     }
     if (start !== -1) {
