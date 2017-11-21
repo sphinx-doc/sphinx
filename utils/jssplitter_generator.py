@@ -74,7 +74,7 @@ function splitQuery(query) {
             start = i;
             // this restores the excluded search terms feature
             if (start > 0) {
-                if (query[i - 1] === '-') {
+                if (query[start - 1] === '-') {
                     start--;
                 }
             }
