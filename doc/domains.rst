@@ -722,7 +722,8 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:concept:: template-parameter-list name
 
    .. warning:: The support for concepts is experimental. It is based on the
-      Concepts Technical Specification, and the features may change as the TS evolves.
+      current draft standard and the Concepts Technical Specification.
+      The features may change as they evolve.
 
    Describe a concept. It must have exactly 1 template parameter list. The name may be a
    nested name. Example::
@@ -774,8 +775,9 @@ Some directives support options:
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. warning:: The support for constrained templates is experimental. It is based on the
-  Concepts Technical Specification, and the features may change as the TS evolves.
+.. warning:: The support for concepts is experimental. It is based on the
+  current draft standard and the Concepts Technical Specification.
+  The features may change as they evolve.
 
 .. note:: Sphinx does not currently support ``requires`` clauses.
 
