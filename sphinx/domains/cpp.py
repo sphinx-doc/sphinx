@@ -1073,6 +1073,20 @@ class ASTPostfixExpr(ASTBase):
             p.describe_signature(signode, mode, env, symbol)
 
 
+class ASTFallbackExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return self.expr
+
+    def get_id(self, version):
+        return text_type(self.expr)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode += nodes.Text(self.expr)
+
+
 ################################################################################
 # The Rest
 ################################################################################
@@ -4084,6 +4098,43 @@ class DefinitionParser(object):
         # TODO: actually parse the second production
         return self._parse_assignment_expression(inTemplate=inTemplate)
 
+    def _parse_expression_fallback(self, end, parser):
+        # type: (List[unicode]) -> unicode
+        # Stupidly "parse" an expression.
+        # 'end' should be a list of characters which ends the expression.
+
+        # first try to use the provided parser
+        prevPos = self.pos
+        try:
+            return parser()
+        except DefinitionError as e:
+            self.warn("Parsing of expression failed. Using fallback parser."
+                      " Error was:\n%s" % e.description)
+            self.pos = prevPos
+        # and then the fallback scanning
+        assert end is not None
+        self.skip_ws()
+        startPos = self.pos
+        if self.match(_string_re):
+            value = self.matched_text
+        else:
+            # TODO: add handling of more bracket-like things, and quote handling
+            brackets = {'(': ')', '[': ']', '<': '>'}  # type: Dict[unicode, unicode]
+            symbols = []  # type: List[unicode]
+            while not self.eof:
+                if (len(symbols) == 0 and self.current_char in end):
+                    break
+                if self.current_char in brackets.keys():
+                    symbols.append(brackets[self.current_char])
+                elif len(symbols) > 0 and self.current_char == symbols[-1]:
+                    symbols.pop()
+                self.pos += 1
+            if len(end) > 0 and self.eof:
+                self.fail("Could not find end of expression starting at %d."
+                          % startPos)
+            value = self.definition[startPos:self.pos].strip()
+        return ASTFallbackExpr(value.strip())
+
     def _parse_operator(self):
         # type: () -> Any
         self.skip_ws()
@@ -4144,7 +4195,9 @@ class DefinitionParser(object):
                 prevErrors.append((e, "If type argument"))
                 self.pos = pos
                 try:
-                    value = self._parse_constant_expression(inTemplate=True)
+                    def parser():
+                        return self._parse_constant_expression(inTemplate=True)
+                    value = self._parse_expression_fallback([',', '>'], parser)
                     self.skip_ws()
                     if self.skip_string('>'):
                         parsedEnd = True
@@ -4486,7 +4539,10 @@ class DefinitionParser(object):
                 if self.skip_string(']'):
                     arrayOps.append(ASTArray(None))
                     continue
-                value = self._parse_expression(inTemplate=False)
+
+                def parser():
+                    return self._parse_expression(inTemplate=False)
+                value = self._parse_expression_fallback([']'], parser)
                 if not self.skip_string(']'):
                     self.fail("Expected ']' in end of array operator.")
                 arrayOps.append(ASTArray(value))
@@ -4606,11 +4662,17 @@ class DefinitionParser(object):
             return None
         else:
             if outer == 'member':
-                value = self._parse_assignment_expression(inTemplate=False)
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=False)
+                value = self._parse_expression_fallback([], parser)
             elif outer == 'templateParam':
-                value = self._parse_assignment_expression(inTemplate=True)
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=True)
+                value = self._parse_expression_fallback([',', '>'], parser)
             elif outer is None:  # function parameter
-                value = self._parse_assignment_expression(inTemplate=False)
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=False)
+                value = self._parse_expression_fallback([',', ')'], parser)
             else:
                 self.fail("Internal error, initializer for outer '%s' not "
                           "implemented." % outer)
@@ -4772,7 +4834,10 @@ class DefinitionParser(object):
         init = None
         if self.skip_string('='):
             self.skip_ws()
-            initVal = self._parse_constant_expression(inTemplate=False)
+
+            def parser():
+                return self._parse_constant_expression(inTemplate=False)
+            initVal = self._parse_expression_fallback([], parser)
             init = ASTInitializer(initVal)
         return ASTEnumerator(name, init)
 
