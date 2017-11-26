@@ -1931,6 +1931,24 @@ class ASTTrailingTypeSpecDecltypeAuto(ASTBase):
         signode.append(nodes.Text(text_type(self)))
 
 
+class ASTTrailingTypeSpecDecltype(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return u'decltype(' + text_type(self.expr) + ')'
+
+    def get_id(self, version):
+        if version == 1:
+            raise NoOldIdError()
+        return 'DT' + self.expr.get_id(version) + "E"
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('decltype('))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
 class ASTFunctionParameter(ASTBase):
     def __init__(self, arg, ellipsis=False):
         # type: (Any, bool) -> None
@@ -4413,8 +4431,11 @@ class DefinitionParser(object):
                 if not self.skip_string(')'):
                     self.fail("Expected ')' after 'decltype(auto'.")
                 return ASTTrailingTypeSpecDecltypeAuto()
-            self.fail('"decltype(<expr>)" in trailing_type_spec not implemented')
-            # return ASTTrailingTypeSpecDecltype()
+            expr = self._parse_expression(inTemplate=False)
+            self.skip_ws()
+            if not self.skip_string(')'):
+                self.fail("Expected ')' after 'decltype(<expr>'.")
+            return ASTTrailingTypeSpecDecltype(expr)
 
         # prefixed
         prefix = None

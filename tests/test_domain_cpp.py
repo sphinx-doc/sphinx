@@ -235,6 +235,7 @@ def test_type_definitions():
     check("type", "bool ::B::b", {1:"B::b", 2:"N1B1bE"})
 
     check('type', 'A = B', {2:'1A'})
+    check('type', 'A = decltype(b)', {2:'1A'})
 
     # from breathe#267 (named function parameters for function pointers
     check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -389,6 +390,8 @@ def test_function_definitions():
 
     check('function', 'extern int f()', {1:'f', 2:'1fv'})
 
+    check('function', 'decltype(auto) f()', {1: 'f', 2:"1fv"})
+
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
@@ -465,6 +468,10 @@ def test_class_definitions():
     check('class', 'A : public virtual B', {1:'A', 2:'1A'})
     check('class', 'A : B, C...', {1:'A', 2:'1A'})
     check('class', 'A : B..., C', {1:'A', 2:'1A'})
+
+    # from #4094
+    check('class', 'template<class, class = std::void_t<>> has_var', {2:'I00E7has_var'})
+    check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>', {2:'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
 def test_enum_definitions():
