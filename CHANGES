@@ -45,7 +45,8 @@ Features added
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
-
+* #4261: autosectionlabel: Add new config value;
+  :confval:`autosectionlabel_max_depth`
 
 Features removed
 ----------------
