@@ -146,6 +146,11 @@ def test_expressions():
     exprCheck('-5', 'ngL5E')
     exprCheck('!5', 'ntL5E')
     exprCheck('~5', 'coL5E')
+    exprCheck('sizeof...(a)', 'sZ1a')
+    exprCheck('sizeof(T)', 'st1T')
+    exprCheck('sizeof -42', 'szngL42E')
+    exprCheck('alignof(T)', 'at1T')
+    exprCheck('noexcept(-42)', 'nxngL42E')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op

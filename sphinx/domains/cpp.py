@@ -948,6 +948,85 @@ class ASTUnaryOpExpr(ASTBase):
         self.expr.describe_signature(signode, mode, env, symbol)
 
 
+class ASTSizeofParamPack(ASTBase):
+    def __init__(self, identifier):
+        self.identifier = identifier
+
+    def __unicode__(self):
+        return "sizeof...(" + text_type(self.identifier) + ")"
+
+    def get_id(self, version):
+        return 'sZ' + self.identifier.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('sizeof...('))
+        self.identifier.describe_signature(signode, mode, env, symbol, "")
+        signode.append(nodes.Text(')'))
+
+
+class ASTSizeofType(ASTBase):
+    def __init__(self, typ):
+        self.typ = typ
+
+    def __unicode__(self):
+        return "sizeof(" + text_type(self.typ) + ")"
+
+    def get_id(self, version):
+        return 'st' + self.typ.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('sizeof('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTSizeofExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return "sizeof " + text_type(self.expr)
+
+    def get_id(self, version):
+        return 'sz' + self.expr.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('sizeof '))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTAlignofExpr(ASTBase):
+    def __init__(self, typ):
+        self.typ = typ
+
+    def __unicode__(self):
+        return "alignof(" + text_type(self.typ) + ")"
+
+    def get_id(self, version):
+        return 'at' + self.typ.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('alignof('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTNoexceptExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return "noexcept(" + text_type(self.expr) + ")"
+
+    def get_id(self, version):
+        return 'nx' + self.expr.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('noexcept('))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
 class ASTPostfixCallExpr(ASTBase):
     def __init__(self, exprs):
         self.exprs = exprs
@@ -3962,6 +4041,7 @@ class DefinitionParser(object):
         #  | "++" cast
         #  | "--" cast
         #  | unary-operator cast -> (* | & | + | - | ! | ~) cast
+        # The rest:
         #  | "sizeof" unary
         #  | "sizeof" "(" type-id ")"
         #  | "sizeof" "..." "(" identifier ")"
@@ -3975,6 +4055,41 @@ class DefinitionParser(object):
             if self.skip_string(op):
                 expr = self._parse_cast_expression()
                 return ASTUnaryOpExpr(op, expr)
+        if self.skip_word_and_ws('sizeof'):
+            if self.skip_string_and_ws('...'):
+                if not self.skip_string_and_ws('('):
+                    self.fail("Expecting '(' after 'sizeof...'.")
+                if not self.match(_identifier_re):
+                    self.fail("Expecting identifier for 'sizeof...'.")
+                ident = ASTIdentifier(self.matched_text)
+                self.skip_ws()
+                if not self.skip_string(")"):
+                    self.fail("Expecting ')' to end 'sizeof...'.")
+                return ASTSizeofParamPack(ident)
+            if self.skip_string_and_ws('('):
+                typ = self._parse_type(named=False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expecting ')' to end 'sizeof'.")
+                return ASTSizeofType(typ)
+            expr = self._parse_unary_expression()
+            return ASTSizeofExpr(expr)
+        if self.skip_word_and_ws('alignof'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expecting '(' after 'alignof'.")
+            typ = self._parse_type(named=False)
+            self.skip_ws()
+            if not self.skip_string(')'):
+                self.fail("Expecting ')' to end 'alignof'.")
+            return ASTAlignofExpr(typ)
+        if self.skip_word_and_ws('noexcept'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expecting '(' after 'noexcept'.")
+            expr = self._parse_expression(inTemplate=False)
+            self.skip_ws()
+            if not self.skip_string(')'):
+                self.fail("Expecting ')' to end 'noexcept'.")
+            return ASTNoexceptExpr(expr)
         # TODO: the rest
         return self._parse_postfix_expression()
 
