@@ -4214,7 +4214,6 @@ class DefinitionParser(object):
         return self._parse_assignment_expression(inTemplate=inTemplate)
 
     def _parse_expression_fallback(self, end, parser):
-        # type: (List[unicode]) -> unicode
         # Stupidly "parse" an expression.
         # 'end' should be a list of characters which ends the expression.
 
