@@ -290,7 +290,11 @@ logger = logging.getLogger(__name__)
 """
 
 # TODO: support hex, oct, etc. work
-_integer_literal_re = re.compile(r'-?[1-9][0-9]*')
+_integer_literal_re = re.compile(r'[1-9][0-9]*')
+_octal_literal_re = re.compile(r'0[0-7]*')
+_hex_literal_re = re.compile(r'0[xX][0-7a-fA-F][0-7a-fA-F]*')
+_binary_literal_re = re.compile(r'0[bB][01][01]*')
+_integer_suffix_re = re.compile(r'')
 _float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
 _identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'(?u)\s+')
@@ -3781,10 +3785,14 @@ class DefinitionParser(object):
             return ASTBooleanLiteral(True)
         if self.skip_word('false'):
             return ASTBooleanLiteral(False)
-        if self.match(_float_literal_re):
-            return ASTNumberLiteral(self.matched_text)
-        if self.match(_integer_literal_re):
-            return ASTNumberLiteral(self.matched_text)
+        for regex in [_float_literal_re, _binary_literal_re, _hex_literal_re,
+                      _integer_literal_re, _octal_literal_re]:
+            pos = self.pos
+            if self.match(regex):
+                while self.current_char in 'uUlLfF':
+                    self.pos += 1
+                return ASTNumberLiteral(self.definition[pos:self.pos])
+
         string = self._parse_string()
         if string is not None:
             return ASTStringLiteral(string)

@@ -111,9 +111,20 @@ def test_expressions():
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
     exprCheck('false', 'L0E')
-    exprCheck('5', 'L5E')
-    exprCheck('5.0', 'L5.0E')
-    exprCheck('"abc\\"cba"', 'LA8_KcE')
+    ints = ['5', '0', '075', '0xF', '0XF', '0b1', '0B1']
+    unsignedSuffix = ['', 'u', 'U']
+    longSuffix = ['', 'l', 'L', 'll', 'LL']
+    for i in ints:
+        for u in unsignedSuffix:
+            for l in longSuffix:
+                expr = i + u + l;
+                exprCheck(expr, 'L' + expr + 'E')
+                expr = i + l + u;
+                exprCheck(expr, 'L' + expr + 'E')
+    for suffix in ['', 'f', 'F', 'l', 'L']:
+        expr = '5.0' + suffix
+        exprCheck(expr, 'L' + expr + 'E')
+    exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     # TODO: test the rest
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
