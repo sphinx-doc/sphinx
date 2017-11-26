@@ -22,6 +22,7 @@ Bugs fixed
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
 * #2298: automodule fails to document a class attribute
+* #4099: C++: properly link class reference to class from inside constructor
 
 Testing
 --------

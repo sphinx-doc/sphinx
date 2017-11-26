@@ -3144,8 +3144,8 @@ class Symbol(object):
                 return None
         return s
 
-    def find_name(self, nestedName, templateDecls, templateShorthand, matchSelf):
-        # type: (Any, Any, Any, bool) -> Symbol
+    def find_name(self, nestedName, templateDecls, typ, templateShorthand, matchSelf):
+        # type: (Any, Any, Any, Any, bool) -> Symbol
         # templateShorthand: missing template parameter lists for templates is ok
 
         # TODO: unify this with the _add_symbols
@@ -3163,7 +3163,14 @@ class Symbol(object):
             while parentSymbol.parent:
                 if parentSymbol.find_identifier(firstName.identifier,
                                                 matchSelf=matchSelf):
-                    break
+                    # if we are in the scope of a constructor but wants to reference the class
+                    # we need to walk one extra up
+                    if (len(names) == 1 and typ == 'class' and matchSelf and
+                            parentSymbol.parent and parentSymbol.parent.identifier and
+                            parentSymbol.parent.identifier == firstName.identifier):
+                        pass
+                    else:
+                        break
                 parentSymbol = parentSymbol.parent
 
         iTemplateDecl = 0
@@ -4945,7 +4952,7 @@ class CPPDomain(Domain):
             templateDecls = ast.templatePrefix.templates
         else:
             templateDecls = []
-        s = parentSymbol.find_name(name, templateDecls,
+        s = parentSymbol.find_name(name, templateDecls, typ,
                                    templateShorthand=True,
                                    matchSelf=True)
         if s is None or s.declaration is None:
