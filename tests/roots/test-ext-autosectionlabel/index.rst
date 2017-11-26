@@ -15,6 +15,11 @@ For Windows users
 For UNIX users
 --------------
 
+Linux
+^^^^^
+
+FreeBSD
+^^^^^^^
 
 References
 ==========
@@ -23,3 +28,5 @@ References
 * :ref:`Installation`
 * :ref:`For Windows users`
 * :ref:`For UNIX users`
+* :ref:`Linux`
+* :ref:`FreeBSD`

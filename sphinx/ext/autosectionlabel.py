@@ -16,10 +16,22 @@ from sphinx.util.nodes import clean_astext
 logger = logging.getLogger(__name__)
 
 
+def node_get_depth(node):
+    i = 0
+    cur_node = node
+    while cur_node.parent != node.document:
+        cur_node = cur_node.parent
+        i += 1
+    return i
+
+
 def register_sections_as_label(app, document):
     labels = app.env.domaindata['std']['labels']
     anonlabels = app.env.domaindata['std']['anonlabels']
     for node in document.traverse(nodes.section):
+        if (app.config.autosectionlabel_max_depth and
+                node_get_depth(node) > app.config.autosectionlabel_max_depth):
+            continue
         labelid = node['ids'][0]
         docname = app.env.docname
         if app.config.autosectionlabel_prefix_document:
@@ -39,4 +51,5 @@ def register_sections_as_label(app, document):
 
 def setup(app):
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
+    app.add_config_value('autosectionlabel_max_depth', None, 'env')
     app.connect('doctree-read', register_sections_as_label)
