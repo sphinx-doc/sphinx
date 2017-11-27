@@ -960,7 +960,7 @@ class ASTSizeofParamPack(ASTBase):
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('sizeof...('))
-        self.identifier.describe_signature(signode, mode, env, symbol, "")
+        self.identifier.describe_signature(signode, mode, env, symbol=symbol, prefix="")
         signode.append(nodes.Text(')'))
 
 
