@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/07/24 v1.6.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/11/29 v1.6.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -39,7 +39,7 @@
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
 \RequirePackage{amstext}
-\RequirePackage{textcomp}
+\RequirePackage[warn]{textcomp}
 \RequirePackage{titlesec}
 \@ifpackagelater{titlesec}{2016/03/15}%
  {\@ifpackagelater{titlesec}{2016/03/21}%
