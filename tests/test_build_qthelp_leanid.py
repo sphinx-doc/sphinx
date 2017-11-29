@@ -5,7 +5,7 @@
 
     Test the Qt Help builder and check its output.  We don't need to
     test the HTML itself; that's already handled by
-    :file:`test_build_html.py`.
+    :file:`test_build_html.py`. Test for id generation in qhp files
 
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
