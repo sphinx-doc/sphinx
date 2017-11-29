@@ -283,6 +283,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     def keyword_item(self, name, ref):
         # type: (unicode, Any) -> unicode
         matchobj = _idpattern.match(name)  # type: ignore
+        keyword_name = name
         if matchobj:
             groupdict = matchobj.groupdict()
             shortname = groupdict['title']
@@ -290,13 +291,17 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             # descr = groupdict.get('descr')
             if shortname.endswith('()'):
                 shortname = shortname[:-2]
-            id = '%s.%s' % (id, shortname)
+            if self.config.qthelp_id_lean:
+                id = '%s' % (id)
+                keyword_name = shortname
+            else:
+                id = '%s.%s' % (id, shortname)
         else:
             id = None
 
         if id:
             item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
-                name, id, ref[1])
+                keyword_name, id, ref[1])
         else:
             item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
         item.encode('ascii', 'xmlcharrefreplace')
@@ -336,6 +341,7 @@ def setup(app):
     app.add_config_value('qthelp_namespace', None, 'html', string_classes)
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
+    app.add_config_value('qthelp_id_lean',False,'html')
 
     return {
         'version': 'builtin',
