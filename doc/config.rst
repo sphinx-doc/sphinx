@@ -2135,6 +2135,11 @@ builder, the HTML options also apply where appropriate.
    theme.  These are theme-specific.  For the options understood by the builtin
    themes, see :ref:`this section <builtin-themes>`.
 
+.. confval:: qthelp_id_lean
+
+   Configure id creation behavior. It defaults to ``False``. If activated the
+   keyword and ids are seperated and the id is no more prepended with the keyword.
+
 
 Options for the linkcheck builder
 ---------------------------------
