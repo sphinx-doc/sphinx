@@ -341,7 +341,7 @@ def setup(app):
     app.add_config_value('qthelp_namespace', None, 'html', string_classes)
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
-    app.add_config_value('qthelp_id_lean',False,'html')
+    app.add_config_value('qthelp_id_lean', False, 'html')
 
     return {
         'version': 'builtin',
