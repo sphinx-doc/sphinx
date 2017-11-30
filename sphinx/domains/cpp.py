@@ -555,12 +555,12 @@ class DefinitionError(UnicodeMixin, Exception):
 
 
 class _DuplicateSymbolError(UnicodeMixin, Exception):
-    def __init__(self, symbol, candSymbol):
-        # type: (Symbol, Symbol) -> None
+    def __init__(self, symbol, declaration):
+        # type: (Symbol, Any) -> None
         assert symbol
-        assert candSymbol
+        assert declaration
         self.symbol = symbol
-        self.candSymbol = candSymbol
+        self.declaration = declaration
 
     def __unicode__(self):
         # type: () -> unicode
@@ -1286,6 +1286,10 @@ class ASTTemplateParamType(ASTBase):
         id = self.get_identifier()
         return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
 
+    @property
+    def isPack(self):
+        return self.data.parameterPack
+
     def get_identifier(self):
         # type: () -> unicode
         return self.data.get_identifier()
@@ -1446,6 +1450,16 @@ class ASTTemplateIntroductionParameter(ASTBase):
         # type: (Any, Any) -> None
         self.identifier = identifier
         self.parameterPack = parameterPack
+
+    @property
+    def name(self):
+        # type: () -> ASTNestedName
+        id = self.get_identifier()
+        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+
+    @property
+    def isPack(self):
+        return self.parameterPack
 
     def get_identifier(self):
         # type: () -> unicode
@@ -1819,36 +1833,42 @@ class ASTNestedName(ASTBase):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         # just print the name part, with template args, not template params
-        if mode == 'lastIsName':
-            addname = []  # type: List[unicode]
-            if self.rooted:
-                addname.append('')
-            for n in self.names[:-1]:
-                addname.append(text_type(n))
-            addname = '::'.join(addname)  # type: ignore
-            if len(self.names) > 1:
-                addname += '::'
-            signode += addnodes.desc_addname(addname, addname)
-            self.names[-1].describe_signature(signode, mode, env, '', symbol)
-        elif mode == 'noneIsName':
+        if mode == 'noneIsName':
             signode += nodes.Text(text_type(self))
         elif mode == 'param':
             name = text_type(self)
             signode += nodes.emphasis(name, name)
-        elif mode == 'markType':
-            # each element should be a pending xref targeting the complete
+        elif mode == 'markType' or mode == 'lastIsName':
+            # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
+            # For 'lastIsName' we should also prepend template parameter lists.
+            templateParams = []  # type: List[Any]
+            if mode == 'lastIsName':
+                assert symbol is not None
+                if symbol.declaration.templatePrefix is not None:
+                    templateParams = symbol.declaration.templatePrefix.templates
+            iTemplateParams = 0
+            templateParamsPrefix = u''
             prefix = ''  # type: unicode
             first = True
-            for name in self.names:
+            names = self.names[:-1] if mode == 'lastIsName' else self.names
+            for name in names:
                 if not first:
                     signode += nodes.Text('::')
                     prefix += '::'
                 first = False
                 if name != '':
-                    name.describe_signature(signode, mode, env, prefix, symbol)  # type: ignore
+                    if name.templateArgs and iTemplateParams < len(templateParams):  # type: ignore
+                        templateParamsPrefix += text_type(templateParams[iTemplateParams])
+                        iTemplateParams += 1
+                    name.describe_signature(signode, 'markType',  # type: ignore
+                                            env, templateParamsPrefix + prefix, symbol)
                 prefix += text_type(name)
+            if mode == 'lastIsName':
+                if len(self.names) > 1:
+                    signode += addnodes.desc_addname('::', '::')
+                self.names[-1].describe_signature(signode, mode, env, '', symbol)
         else:
             raise Exception('Unknown description mode: %s' % mode)
 
@@ -3131,15 +3151,15 @@ class ASTDeclaration(ASTBase):
     def describe_signature(self, signode, mode, env, options):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Dict) -> None
         _verify_description_mode(mode)
+        assert self.symbol
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
         signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
         mainDeclNode = addnodes.desc_signature_line()
         mainDeclNode.sphinx_cpp_tagname = 'declarator'
-        mainDeclNode['add_permalink'] = True
+        mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
 
-        assert self.symbol
         if self.templatePrefix:
             self.templatePrefix.describe_signature(signode, mode, env,
                                                    symbol=self.symbol,
@@ -3206,6 +3226,7 @@ class Symbol(object):
         self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
         self.docname = docname
+        self.isRedeclaration = False
         self._assert_invariants()
 
         self.children = []  # type: List[Any]
@@ -3293,6 +3314,31 @@ class Symbol(object):
                            templateShorthand, matchSelf):
         # type: (Any, Any, Any, Any, Any, bool) -> Symbol
         assert (identifier is None) != (operator is None)
+
+        def isSpecialization():
+            # the names of the template parameters must be given exactly as args
+            # and params that are packs must in the args be the name expanded
+            if len(templateParams.params) != len(templateArgs.args):
+                return True
+            for i in range(len(templateParams.params)):
+                param = templateParams.params[i]
+                arg = templateArgs.args[i]
+                # TODO: doing this by string manipulation is probably not the most efficient
+                paramName = text_type(param.name)
+                argTxt = text_type(arg)
+                isArgPackExpansion = argTxt.endswith('...')
+                if param.isPack != isArgPackExpansion:
+                    return True
+                argName = argTxt[:-3] if isArgPackExpansion else argTxt
+                if paramName != argName:
+                    return True
+            return False
+        if templateParams is not None and templateArgs is not None:
+            # If both are given, but it's not a specialization, then do lookup as if
+            # there is no argument list.
+            # For example: template<typename T> int A<T>::var;
+            if not isSpecialization():
+                templateArgs = None
 
         def matches(s):
             if s.identifier != identifier:
@@ -3405,23 +3451,27 @@ class Symbol(object):
                 # .. class:: Test
                 symbol._fill_empty(declaration, docname)
                 return symbol
-            # It may simply be a functin overload, so let's compare ids.
+            # It may simply be a function overload, so let's compare ids.
+            isRedeclaration = True
             candSymbol = Symbol(parent=parentSymbol, identifier=identifier,
                                 templateParams=templateParams,
                                 templateArgs=templateArgs,
                                 declaration=declaration,
                                 docname=docname)
-            newId = declaration.get_newest_id()
-            oldId = symbol.declaration.get_newest_id()
-            if newId != oldId:
-                # we already inserted the symbol, so return the new one
-                symbol = candSymbol
-            else:
+            if declaration.objectType == "function":
+                newId = declaration.get_newest_id()
+                oldId = symbol.declaration.get_newest_id()
+                if newId != oldId:
+                    # we already inserted the symbol, so return the new one
+                    symbol = candSymbol
+                    isRedeclaration = False
+            if isRedeclaration:
                 # Redeclaration of the same symbol.
                 # Let the new one be there, but raise an error to the client
                 # so it can use the real symbol as subscope.
                 # This will probably result in a duplicate id warning.
-                raise _DuplicateSymbolError(symbol, candSymbol)
+                candSymbol.isRedeclaration = True
+                raise _DuplicateSymbolError(symbol, declaration)
         else:
             symbol = Symbol(parent=parentSymbol, identifier=identifier,
                             templateParams=templateParams,
@@ -5397,6 +5447,7 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
+            self.warn("Duplicate declaration.")
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -5738,6 +5789,7 @@ class CPPDomain(Domain):
     def _resolve_xref_inner(self, env, fromdocname, builder, typ,
                             target, node, contnode, emitWarnings=True):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node, bool) -> nodes.Node  # NOQA
+
         class Warner(object):
             def warn(self, msg):
                 if emitWarnings:

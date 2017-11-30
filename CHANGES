@@ -83,6 +83,7 @@ Bugs fixed
 
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
+* C++: also hyperlink types in the name of declarations with qualified names.
 
 Testing
 --------
