@@ -716,38 +716,12 @@ Exceptions
 
 .. module:: sphinx.errors
 
-.. exception:: SphinxError
+.. autoexception:: SphinxError
 
-   This is the base class for "nice" exceptions.  When such an exception is
-   raised, Sphinx will abort the build and present the exception category and
-   message to the user.
+.. autoexception:: ConfigError
 
-   Extensions are encouraged to derive from this exception for their custom
-   errors.
+.. autoexception:: ExtensionError
 
-   Exceptions *not* derived from :exc:`SphinxError` are treated as unexpected
-   and shown to the user with a part of the traceback (and the full traceback
-   saved in a temporary file).
+.. autoexception:: ThemeError
 
-   .. attribute:: category
-
-      Description of the exception "category", used in converting the exception
-      to a string ("category: message").  Should be set accordingly in
-      subclasses.
-
-.. exception:: ConfigError
-
-   Used for erroneous values or nonsensical combinations of configuration
-   values.
-
-.. exception:: ExtensionError
-
-   Used for errors in setting up extensions.
-
-.. exception:: ThemeError
-
-   Used for errors to do with themes.
-
-.. exception:: VersionRequirementError
-
-   Raised when the docs require a higher Sphinx version than the current one.
+.. autoexception:: VersionRequirementError
