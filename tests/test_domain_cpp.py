@@ -561,6 +561,13 @@ def test_templates():
     check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
           {2:'IDpE8Numerics'})
 
+    # explicit specializations of members
+    check('member', 'template<> int A<int>::a', {2:'IEN1AIiE1aE'})
+    check('member', 'template int A<int>::a', {2: 'IEN1AIiE1aE'},
+          output='template<> int A<int>::a')  # same as above
+    check('member', 'template<> template<> int A<int>::B<int>::b', {2:'IEIEN1AIiE1BIiE1bE'})
+    check('member', 'template int A<int>::B<int>::b', {2: 'IEIEN1AIiE1BIiE1bE'},
+          output='template<> template<> int A<int>::B<int>::b')  # same as above
 
 
 def test_template_args():

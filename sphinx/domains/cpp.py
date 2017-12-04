@@ -960,7 +960,8 @@ class ASTSizeofParamPack(ASTBase):
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('sizeof...('))
-        self.identifier.describe_signature(signode, mode, env, symbol=symbol, prefix="")
+        self.identifier.describe_signature(signode, mode, env,
+                                           symbol=symbol, prefix="", templateArgs="")
         signode.append(nodes.Text(')'))
 
 
@@ -1195,11 +1196,11 @@ class ASTIdentifier(ASTBase):
         # type: () -> unicode
         return self.identifier
 
-    def describe_signature(self, signode, mode, env, prefix, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
+    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
+        # type: (Any, unicode, BuildEnvironment, unicode, unicode, Symbol) -> None
         _verify_description_mode(mode)
         if mode == 'markType':
-            targetText = prefix + self.identifier
+            targetText = prefix + self.identifier + templateArgs
             pnode = addnodes.pending_xref('', refdomain='cpp',
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
@@ -1268,7 +1269,7 @@ class ASTTemplateKeyParamPackIdDefault(ASTBase):
         if self.identifier:
             if not self.parameterPack:
                 signode += nodes.Text(' ')
-            self.identifier.describe_signature(signode, mode, env, '', symbol)
+            self.identifier.describe_signature(signode, mode, env, '', '', symbol)
         if self.default:
             signode += nodes.Text(' = ')
             self.default.describe_signature(signode, 'markType', env, symbol)
@@ -1500,7 +1501,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         if self.parameterPack:
             signode += nodes.Text('...')
-        self.identifier.describe_signature(signode, mode, env, '', symbol)
+        self.identifier.describe_signature(signode, mode, env, '', '', symbol)
 
 
 class ASTTemplateIntroduction(ASTBase):
@@ -1558,8 +1559,7 @@ class ASTTemplateIntroduction(ASTBase):
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self, templates):
         # type: (List[Any]) -> None
-        assert templates is not None
-        assert len(templates) > 0
+        # template is None means it's an explicit instantiation of a variable
         self.templates = templates
 
     def get_id(self, version):
@@ -1775,8 +1775,9 @@ class ASTNestedNameElement(ASTBase):
 
     def describe_signature(self, signode, mode, env, prefix, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
-        self.identifier.describe_signature(signode, mode, env, prefix, symbol)
-        if self.templateArgs:
+        tArgs = text_type(self.templateArgs) if self.templateArgs is not None else ''
+        self.identifier.describe_signature(signode, mode, env, prefix, tArgs, symbol)
+        if self.templateArgs is not None:
             self.templateArgs.describe_signature(signode, mode, env, symbol)
 
 
@@ -1859,7 +1860,8 @@ class ASTNestedName(ASTBase):
                     prefix += '::'
                 first = False
                 if name != '':
-                    if name.templateArgs and iTemplateParams < len(templateParams):  # type: ignore
+                    if (name.templateArgs and  # type: ignore
+                            iTemplateParams < len(templateParams)):
                         templateParamsPrefix += text_type(templateParams[iTemplateParams])
                         iTemplateParams += 1
                     name.describe_signature(signode, 'markType',  # type: ignore
@@ -3594,7 +3596,6 @@ class Symbol(object):
                                                 matchSelf=matchSelf):
                     break
                 parentSymbol = parentSymbol.parent
-
         iTemplateDecl = 0
         for iName in range(len(names)):
             name = names[iName]
@@ -3614,15 +3615,19 @@ class Symbol(object):
                     assert iTemplateDecl == len(templateDecls)
                     templateParams = None
                 symbol = parentSymbol._find_named_symbol(identifier,
-                                                         templateParams,
-                                                         templateArgs,
+                                                         templateParams, templateArgs,
                                                          operator,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf)
-                if symbol:
+                if symbol is not None:
                     return symbol
-                else:
-                    return None
+                # try without template params and args
+                symbol = parentSymbol._find_named_symbol(identifier,
+                                                         None, None,
+                                                         operator,
+                                                         templateShorthand=templateShorthand,
+                                                         matchSelf=matchSelf)
+                return symbol
             else:
                 # there shouldn't be anything inside an operator
                 assert not name.is_operator()
@@ -5144,7 +5149,13 @@ class DefinitionParser(object):
             # the saved position is only used to provide a better error message
             pos = self.pos
             if self.skip_word("template"):
-                params = self._parse_template_parameter_list()  # type: Any
+                try:
+                    params = self._parse_template_parameter_list()  # type: Any
+                except DefinitionError as e:
+                    if objectType == 'member' and len(templates) == 0:
+                        return ASTTemplateDeclarationPrefix(None)
+                    else:
+                        raise e
             else:
                 params = self._parse_template_introduction()
                 if not params:
@@ -5161,20 +5172,25 @@ class DefinitionParser(object):
             return ASTTemplateDeclarationPrefix(templates)
 
     def _check_template_consistency(self, nestedName, templatePrefix,
-                                    fullSpecShorthand):
-        # type: (Any, Any, bool) -> ASTTemplateDeclarationPrefix
+                                    fullSpecShorthand, isMember=False):
+        # type: (Any, Any, Any, bool) -> ASTTemplateDeclarationPrefix
         numArgs = nestedName.num_templates()
+        isMemberInstantiation = False
         if not templatePrefix:
             numParams = 0
         else:
-            numParams = len(templatePrefix.templates)
+            if isMember and templatePrefix.templates is None:
+                numParams = 0
+                isMemberInstantiation = True
+            else:
+                numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
             self.fail("Too few template argument lists comapred to parameter"
                       " lists. Argument lists: %d, Parameter lists: %d."
                       % (numArgs, numParams))
         if numArgs > numParams:
             numExtra = numArgs - numParams
-            if not fullSpecShorthand:
+            if not fullSpecShorthand and not isMemberInstantiation:
                 msg = "Too many template argument lists compared to parameter" \
                     " lists. Argument lists: %d, Parameter lists: %d," \
                     " Extra empty parameters lists prepended: %d." \
@@ -5188,7 +5204,7 @@ class DefinitionParser(object):
             newTemplates = []
             for i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
-            if templatePrefix:
+            if templatePrefix and not isMemberInstantiation:
                 newTemplates.extend(templatePrefix.templates)
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)
         return templatePrefix
@@ -5243,7 +5259,8 @@ class DefinitionParser(object):
             assert False
         templatePrefix = self._check_template_consistency(declaration.name,
                                                           templatePrefix,
-                                                          fullSpecShorthand=False)
+                                                          fullSpecShorthand=False,
+                                                          isMember=objectType == 'member')
         return ASTDeclaration(objectType, visibility,
                               templatePrefix, declaration)
 
