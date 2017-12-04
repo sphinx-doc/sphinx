@@ -686,16 +686,9 @@ Use this to adapt your extension to API changes in Sphinx.
 The Config object
 -----------------
 
-.. module:: sphinx.config
+.. currentmodule:: sphinx.config
 
-.. class:: Config
-
-   The config object makes the values of all config values available as
-   attributes.
-
-   It is available as the ``config`` attribute on the application and
-   environment objects.  For example, to get the value of :confval:`language`,
-   use either ``app.config.language`` or ``env.config.language``.
+.. autoclass:: Config
 
 
 .. _template-bridge:
