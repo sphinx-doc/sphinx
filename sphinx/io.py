@@ -8,13 +8,15 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import re
 import codecs
 
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
 from docutils.readers import standalone
+from docutils.statemachine import StringList
 from docutils.writers import UnfilteredWriter
-from six import string_types, text_type, iteritems
+from six import text_type
 from typing import Any, Union  # NOQA
 
 from sphinx.transforms import (
@@ -28,7 +30,6 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.util import logging
-from sphinx.util import import_object, split_docinfo
 from sphinx.util.docutils import LoggingReporter
 
 if False:
@@ -41,6 +42,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+docinfo_re = re.compile(':\\w+:.*?')
 
 
 logger = logging.getLogger(__name__)
@@ -59,6 +62,7 @@ class SphinxBaseReader(standalone.Reader):
         document = standalone.Reader.new_document(self)
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
+        document.reporter.set_source(self.source)
         return document
 
 
@@ -168,15 +172,50 @@ class SphinxFileInput(SphinxBaseFileInput):
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):
+    def prepend_prolog(self, text, prolog):
+        # type: (StringList, unicode) -> None
+        docinfo = self.count_docinfo_lines(text)
+        if docinfo:
+            # insert a blank line after docinfo
+            text.insert(docinfo, '', '<generated>', 0)
+            docinfo += 1
+
+        # insert prolog (after docinfo if exists)
+        for lineno, line in enumerate(prolog.splitlines()):
+            text.insert(docinfo + lineno, line, '<rst_prolog>', lineno)
+
+        text.insert(docinfo + lineno + 1, '', '<generated>', 0)
+
+    def append_epilog(self, text, epilog):
+        # type: (StringList, unicode) -> None
+        # append a blank line and rst_epilog
+        text.append('', '<generated>', 0)
+        for lineno, line in enumerate(epilog.splitlines()):
+            text.append(line, '<rst_epilog>', lineno)
+
     def read(self):
-        # type: () -> unicode
+        # type: () -> StringList
         data = SphinxBaseFileInput.read(self)
-        docinfo, data = split_docinfo(data)
-        if self.env.config.rst_epilog:
-            data = data + '\n' + self.env.config.rst_epilog + '\n'
+        content = StringList()
+        for lineno, line in enumerate(data.splitlines()):
+            content.append(line, self.source_path, lineno)
+
         if self.env.config.rst_prolog:
-            data = self.env.config.rst_prolog + '\n' + data
-        return docinfo + data
+            self.prepend_prolog(content, self.env.config.rst_prolog)
+        if self.env.config.rst_epilog:
+            self.append_epilog(content, self.env.config.rst_epilog)
+
+        return content
+
+    def count_docinfo_lines(self, content):
+        # type: (StringList) -> int
+        if len(content) == 0:
+            return 0
+        else:
+            for lineno, line in enumerate(content.data):
+                if not docinfo_re.match(line):
+                    break
+            return lineno
 
 
 def read_doc(app, env, filename):

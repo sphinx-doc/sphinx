@@ -564,16 +564,6 @@ def encode_uri(uri):
     return urlunsplit(split)
 
 
-def split_docinfo(text):
-    # type: (unicode) -> Sequence[unicode]
-    docinfo_re = re.compile('\\A((?:\\s*:\\w+:.*?\n(?:[ \\t]+.*?\n)*)+)', re.M)
-    result = docinfo_re.split(text, 1)  # type: ignore
-    if len(result) == 1:
-        return '', result[0]
-    else:
-        return result[1:]
-
-
 def display_chunk(chunk):
     # type: (Any) -> unicode
     if isinstance(chunk, (list, tuple)):
