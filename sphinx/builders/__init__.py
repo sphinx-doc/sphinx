@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 from os import path
 import warnings
 
@@ -24,7 +23,7 @@ from docutils import nodes
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
-from sphinx.util.osutil import SEP, relative_uri
+from sphinx.util.osutil import SEP, ensuredir, relative_uri
 from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
@@ -79,8 +78,7 @@ class Builder(object):
         self.confdir = app.confdir
         self.outdir = app.outdir
         self.doctreedir = app.doctreedir
-        if not path.isdir(self.doctreedir):
-            os.makedirs(self.doctreedir)
+        ensuredir(self.doctreedir)
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
