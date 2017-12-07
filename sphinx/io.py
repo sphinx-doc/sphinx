@@ -50,37 +50,6 @@ class SphinxBaseReader(standalone.Reader):
     """
     Add our source parsers
     """
-    def __init__(self, app, parsers={}, *args, **kwargs):
-        # type: (Sphinx, Dict[unicode, Parser], Any, Any) -> None
-        standalone.Reader.__init__(self, *args, **kwargs)
-        self.parser_map = {}  # type: Dict[unicode, Parser]
-        for suffix, parser_class in parsers.items():
-            if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')  # type: ignore
-            parser = parser_class()
-            if hasattr(parser, 'set_application'):
-                parser.set_application(app)
-            self.parser_map[suffix] = parser
-
-    def read(self, source, parser, settings):
-        # type: (Input, Parser, Dict) -> nodes.document
-        self.source = source
-
-        for suffix in self.parser_map:
-            if source.source_path.endswith(suffix):
-                self.parser = self.parser_map[suffix]
-                break
-        else:
-            # use special parser for unknown file-extension '*' (if exists)
-            self.parser = self.parser_map.get('*')
-
-        if not self.parser:
-            self.parser = parser
-        self.settings = settings
-        self.input = self.source.read()
-        self.parse()
-        return self.document
-
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -114,16 +83,12 @@ class SphinxI18nReader(SphinxBaseReader):
     This class provides the correct line numbers when reporting.
     """
 
+    lineno = None  # type: int
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector]
-
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
-        SphinxBaseReader.__init__(self, *args, **kwargs)
-        self.lineno = None  # type: int
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
@@ -216,11 +181,13 @@ class SphinxFileInput(FileInput):
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
-    reader = SphinxStandaloneReader(app, parsers=app.registry.get_source_parsers())
+    reader = SphinxStandaloneReader()
     source = SphinxFileInput(app, env, source=None, source_path=filename,
                              encoding=env.config.source_encoding)
+    parser = app.registry.create_source_parser(app, filename)
 
     pub = Publisher(reader=reader,
+                    parser=parser,
                     writer=SphinxDummyWriter(),
                     source_class=SphinxDummySourceClass,
                     destination=NullOutput())

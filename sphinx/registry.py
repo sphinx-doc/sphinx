@@ -13,15 +13,17 @@ from __future__ import print_function
 import traceback
 
 from pkg_resources import iter_entry_points
-from six import itervalues
+from six import iteritems, itervalues, string_types
 
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.locale import __
+from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util import import_object
 from sphinx.util.docutils import directive_helper
 
 if False:
@@ -159,6 +161,25 @@ class SphinxComponentRegistry(object):
         if suffix in self.source_parsers:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         self.source_parsers[suffix] = parser
+
+    def create_source_parser(self, app, filename):
+        # type: (Sphinx, unicode) -> Parser
+        for suffix, parser_class in iteritems(self.source_parsers):
+            if filename.endswith(suffix):
+                break
+        else:
+            # use special parser for unknown file-extension '*' (if exists)
+            parser_class = self.source_parsers.get('*')
+
+        if parser_class is None:
+            raise SphinxError(__('Source parser for %s not registered') % filename)
+        else:
+            if isinstance(parser_class, string_types):
+                parser_class = import_object(parser_class, 'source parser')  # type: ignore
+            parser = parser_class()
+            if isinstance(parser, SphinxParser):
+                parser.set_application(app)
+            return parser
 
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
