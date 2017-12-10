@@ -12,6 +12,7 @@ Incompatible changes
   given directory.
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
+* #4274: sphinx-build returns 2 as an exit code on argument error
 
 Deprecated
 ----------
