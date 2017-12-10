@@ -904,7 +904,7 @@
   \fi
   \renewcommand\FancyVerbFormatLine[1]{%
       \expandafter\sphinx@verbatim@checkifhl
-                  \expandafter{\the\value{FancyVerbLine}}%
+      \expandafter{\the\numexpr\value{FancyVerbLine}-\spx@verbatim@linedelta}%
       \ifin@
          \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
          \fboxsep\z@
@@ -914,6 +914,10 @@
          \sphinx@FancyVerbFormatLine{##1}%
       \fi
       }%
+  % hook into this macro to recover the line numbering offset (default zero)
+  \expandafter\def\expandafter\FancyVerbCodes\expandafter{\FancyVerbCodes
+      \FV@SetLineNo
+      \edef\spx@verbatim@linedelta{\the\value{FancyVerbLine}}}%
   % go around fancyvrb's check of \@currenvir
   \let\VerbatimEnvironment\sphinxVerbatimEnvironment
   % go around fancyvrb's check of current list depth
