@@ -889,30 +889,31 @@
   \expandafter\def\expandafter\FV@SetupFont\expandafter
     {\FV@SetupFont\sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
                   \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}}%
-  \def\FancyVerbFormatLine ##1{%
-      \expandafter\sphinx@verbatim@checkifhl
-                  \expandafter{\the\value{FancyVerbLine}}%
-      \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
-      \toks@{%
-          \hsize\linewidth
+  \def\sphinx@FancyVerbFormatLine ##1{\hsize\linewidth
           \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
                 \strut ##1\strut}%
           }%
-      \ifin@
-         \fboxsep0pt
-         \colorbox{VerbatimHighlightColor}{\sphinx@restorefboxsep\the\toks@}%
-         \sphinx@restorefboxsep
-      \else
-         \the\toks@
-      \fi
-      }%
   \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
   \def\FancyVerbCodes{\sphinxbreaksviaactive}%
-  \fi % end of conditional code for wrapping long code lines
+  \else % end of conditional code for wrapping long code lines
+    \let\sphinx@FancyVerbFormatLine\FancyVerbFormatLine
+  \fi
+  \renewcommand\FancyVerbFormatLine[1]{%
+      \expandafter\sphinx@verbatim@checkifhl
+                  \expandafter{\the\value{FancyVerbLine}}%
+      \ifin@
+         \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
+         \fboxsep\z@
+         \colorbox{VerbatimHighlightColor}%
+                  {\sphinx@restorefboxsep\sphinx@FancyVerbFormatLine{##1}}%
+      \else
+         \sphinx@FancyVerbFormatLine{##1}%
+      \fi
+      }%
   % go around fancyvrb's check of \@currenvir
   \let\VerbatimEnvironment\sphinxVerbatimEnvironment
   % go around fancyvrb's check of current list depth
