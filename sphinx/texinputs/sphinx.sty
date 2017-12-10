@@ -902,7 +902,7 @@
   % codes*=..., and \fvset{codes=...} if added by raw latex will be overwritten
   \def\FancyVerbCodes{\sphinxbreaksviaactive}%
   \else % end of conditional code for wrapping long code lines
-    \let\sphinx@FancyVerbFormatLine\FancyVerbFormatLine
+    \def\sphinx@FancyVerbFormatLine ##1{\hb@xt@\linewidth{\strut ##1\hss}}%
     \let\FancyVerbCodes\@empty % only for clarity
   \fi
   \renewcommand\FancyVerbFormatLine[1]{%
