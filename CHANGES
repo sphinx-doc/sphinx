@@ -24,6 +24,8 @@ Bugs fixed
 * #2298: automodule fails to document a class attribute
 * #4099: C++: properly link class reference to class from inside constructor
 * #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
+* #4249: PDF output: Pygments error highlighting increases line spacing in
+  code blocks
 
 Testing
 --------
