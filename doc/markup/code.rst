@@ -226,7 +226,6 @@ Includes
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
 
-
 Caption and name
 ^^^^^^^^^^^^^^^^
 

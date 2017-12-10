@@ -898,9 +898,12 @@
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
+  % Hacker note: mark-up should not use codes=... option of Verbatim, but
+  % codes*=..., and \fvset{codes=...} if added by raw latex will be overwritten
   \def\FancyVerbCodes{\sphinxbreaksviaactive}%
   \else % end of conditional code for wrapping long code lines
     \let\sphinx@FancyVerbFormatLine\FancyVerbFormatLine
+    \let\FancyVerbCodes\@empty % only for clarity
   \fi
   \renewcommand\FancyVerbFormatLine[1]{%
       \expandafter\sphinx@verbatim@checkifhl
