@@ -159,6 +159,7 @@
 % For highlighted code.
 \RequirePackage{fancyvrb}
 \fvset{fontsize=\small}
+\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
@@ -299,6 +300,8 @@
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
 \sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
 \sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+% also no prefix for this one, for consistency (sigh). Color as in minted!
+\sphinxDeclareColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % now the colours defined with "sphinx" prefix in their names
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
    % set the initial default
@@ -886,11 +889,24 @@
   \expandafter\def\expandafter\FV@SetupFont\expandafter
     {\FV@SetupFont\sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
                   \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}}%
-  \def\FancyVerbFormatLine ##1{\hsize\linewidth
+  \def\FancyVerbFormatLine ##1{%
+      \expandafter\sphinx@verbatim@checkifhl
+                  \expandafter{\the\value{FancyVerbLine}}%
+      \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
+      \toks@{%
+          \hsize\linewidth
           \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
                 \strut ##1\strut}%
           }%
+      \ifin@
+         \fboxsep0pt
+         \colorbox{VerbatimHighlightColor}{\sphinx@restorefboxsep\the\toks@}%
+         \sphinx@restorefboxsep
+      \else
+         \the\toks@
+      \fi
+      }%
   \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials

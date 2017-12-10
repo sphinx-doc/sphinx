@@ -223,6 +223,9 @@ Includes
    .. versionchanged:: 1.6
       With both ``start-after`` and ``lines`` in use, the first line as per
       ``start-after`` is considered to be with line number ``1`` for ``lines``.
+   .. versionchanged:: 1.6.6
+      LaTeX supports the ``emphasize-lines`` option.
+
 
 Caption and name
 ^^^^^^^^^^^^^^^^
