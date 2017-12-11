@@ -311,8 +311,6 @@
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
 \sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
 \sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
-% also no prefix for this one, for consistency (sigh). Color as in minted!
-\sphinxDeclareColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % now the colours defined with "sphinx" prefix in their names
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
    % set the initial default
@@ -320,6 +318,8 @@
    % set the key handler. The "value" ##1 must be acceptable by \definecolor.
    \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
 }%
+% Default color chosen to be as in minted.sty LaTeX package!
+\sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % admonition boxes, "light" style
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
@@ -858,7 +858,7 @@
   \ifin@
      \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
      \fboxsep\z@
-     \colorbox{VerbatimHighlightColor}%
+     \colorbox{sphinxVerbatimHighlightColor}%
               {\sphinx@restorefboxsep\sphinx@FancyVerbFormatLine{#1}}%
   \else
      \sphinx@FancyVerbFormatLine{#1}%
