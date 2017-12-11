@@ -2310,8 +2310,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
-            self.body.append('\n' + hllines)
-            self.body.append('\n' + hlcode + '\n')
+            self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
