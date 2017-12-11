@@ -2268,6 +2268,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
             highlight_args = node.get('highlight_args', {})
+            hllines = '\\fvset{hllines={, %s,}}%%' %\
+                      str(highlight_args.get('hl_lines', []))[1:-1]
             if 'language' in node:
                 # code-block directives
                 lang = node['language']
@@ -2306,7 +2308,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
-            self.body.append('\n' + hlcode + '\n')
+            self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):

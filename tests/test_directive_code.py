@@ -349,6 +349,14 @@ def test_code_block_namedlink_latex(app, status, warning):
     assert link2 in latex
 
 
+@pytest.mark.sphinx('latex', testroot='directive-code')
+def test_code_block_emphasize_latex(app, status, warning):
+    app.builder.build(['emphasize'])
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
+    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
+    assert includes in latex
+
+
 @pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literal_include(app, status, warning):
     app.builder.build(['index'])

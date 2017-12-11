@@ -267,6 +267,11 @@ The available styling options
 ``VerbatimBorderColor``
     default ``{rgb}{0,0,0}``. The frame color, defaults to black.
 
+``VerbatimHighlightColor``
+    default ``{rgb}{0.878,1,1}``. The color for highlighted lines.
+
+    .. versionadded:: 1.6.6
+
 ``verbatimsep``
     default ``\fboxsep``. The separation between code lines and the frame.
 

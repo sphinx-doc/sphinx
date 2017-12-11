@@ -108,13 +108,21 @@ Features added
 --------------
 
 * #4181: autodoc: Sort dictionary keys when possible
+* ``VerbatimHighlightColor`` is a new
+  :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 
 Bugs fixed
 ----------
 
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
+* #4221: napoleon depends on autodoc, but users need to load it manually
 * #2298: automodule fails to document a class attribute
+* #4099: C++: properly link class reference to class from inside constructor
+* #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
+* #4249: PDF output: Pygments error highlighting increases line spacing in
+  code blocks
+* #1238: Support ``:emphasize-lines:`` in PDF output
 
 Testing
 --------
