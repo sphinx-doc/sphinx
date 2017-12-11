@@ -14,6 +14,8 @@ Features added
 --------------
 
 * #4181: autodoc: Sort dictionary keys when possible
+* ``VerbatimHighlightColor`` is a new
+  :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 
 Bugs fixed
 ----------
@@ -26,6 +28,7 @@ Bugs fixed
 * #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
 * #4249: PDF output: Pygments error highlighting increases line spacing in
   code blocks
+* #1238: Support ``:emphasize-lines:`` in PDF output
 
 Testing
 --------
