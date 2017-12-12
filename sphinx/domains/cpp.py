@@ -1977,8 +1977,13 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
-    def get_id(self, version):
-        # type: (int) -> unicode
+    def get_id(self, version, objectType=None, symbol=None):
+        # type: (int, unicode, Symbol) -> unicode
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id(version, prefixed=None)
+        # else, do the usual
         if self.ellipsis:
             return 'z'
         else:
@@ -2012,6 +2017,11 @@ class ASTParametersQualifiers(ASTBase):
         self.override = override
         self.final = final
         self.initializer = initializer
+
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.args
 
     def get_modifiers_id(self, version):
         # type: (int) -> unicode
@@ -2316,6 +2326,11 @@ class ASTDeclaratorPtr(ASTBase):
         # type: () -> unicode
         return self.next.name
 
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.next.function_params
+
     def require_space_after_declSpecs(self):
         # type: () -> bool
         # TODO: if has paramPack, then False ?
@@ -2408,6 +2423,11 @@ class ASTDeclaratorRef(ASTBase):
         # type: () -> unicode
         return self.next.name
 
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.next.function_params
+
     def require_space_after_declSpecs(self):
         # type: () -> bool
         return self.next.require_space_after_declSpecs()
@@ -2458,6 +2478,11 @@ class ASTDeclaratorParamPack(ASTBase):
     def name(self):
         # type: () -> unicode
         return self.next.name
+
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.next.function_params
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -2518,6 +2543,11 @@ class ASTDeclaratorMemPtr(ASTBase):
     def name(self):
         # type: () -> unicode
         return self.next.name
+
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.next.function_params
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -2611,6 +2641,11 @@ class ASTDeclaratorParen(ASTBase):
         # type: () -> unicode
         return self.inner.name
 
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.inner.function_params
+
     def require_space_after_declSpecs(self):
         # type: () -> bool
         return True
@@ -2672,6 +2707,11 @@ class ASTDeclaratorNameParamQual(ASTBase):
     def name(self):
         # type: () -> unicode
         return self.declId
+
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.paramQual.function_params
 
     def get_modifiers_id(self, version):  # only the modifiers for a function, e.g.,
         # type: (int) -> unicode
@@ -2768,6 +2808,11 @@ class ASTType(ASTBase):
         # type: () -> unicode
         name = self.decl.name
         return name
+
+    @property
+    def function_params(self):
+        # type: () -> Any
+        return self.decl.function_params
 
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, unicode, Symbol) -> unicode
@@ -3115,6 +3160,13 @@ class ASTDeclaration(ASTBase):
         # type: () -> unicode
         return self.declaration.name
 
+    @property
+    def function_params(self):
+        # type: () -> Any
+        if self.objectType != 'function':
+            return None
+        return self.declaration.function_params
+
     def get_id(self, version, prefixed=True):
         # type: (int, bool) -> unicode
         if version == 1:
@@ -3242,7 +3294,7 @@ class Symbol(object):
             for p in self.templateParams.params:
                 if not p.get_identifier():
                     continue
-                # only add a declaration if we our selfs from a declaration
+                # only add a declaration if we our selfs are from a declaration
                 if declaration:
                     decl = ASTDeclaration('templateParam', None, None, p)
                 else:
@@ -3250,6 +3302,22 @@ class Symbol(object):
                 nne = ASTNestedNameElement(p.get_identifier(), None)
                 nn = ASTNestedName([nne], rooted=False)
                 self._add_symbols(nn, [], decl, docname)
+        # add symbols for function parameters, if any
+        if declaration is not None and declaration.function_params is not None:
+            for p in declaration.function_params:
+                if p.arg is None:
+                    continue
+                nn = p.arg.name
+                if nn is None:
+                    continue
+                # (comparing to the template params: we have checked that we are a declaration)
+                decl = ASTDeclaration('functionParam', None, None, p)
+                assert not nn.rooted
+                assert len(nn.names) == 1
+                identifier = nn.names[0].identifier
+                Symbol(parent=self, identifier=identifier,
+                       templateParams=None, templateArgs=None,
+                       declaration=decl, docname=docname)
 
     def _fill_empty(self, declaration, docname):
         # type: (Any, unicode) -> None

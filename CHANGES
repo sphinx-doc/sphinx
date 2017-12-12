@@ -26,8 +26,8 @@ Features added
 * C++, handle ``decltype(auto)``.
 * #2406: C++, add proper parsing of expressions, including linking of identifiers.
 * C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
-* #4094: C++, allow empty template argument lists.
 * C++, support explicit member instantiations with shorthand ``template`` prefix.
+* C++, make function parameters linkable, like template params.
 * #3638: Allow to change a label of reference to equation using
   ``math_eqref_format``
 
@@ -85,6 +85,7 @@ Bugs fixed
 
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
+* #4094: C++, allow empty template argument lists.
 * C++: also hyperlink types in the name of declarations with qualified names.
 
 Testing
