@@ -246,7 +246,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             olen = len(outdir)
             for root, dirs, files in os.walk(outdir):
                 staticdir = root.startswith(path.join(outdir, '_static'))
-                for fn in files:
+                for fn in sorted(files):
                     if (staticdir and not fn.endswith('.js')) or \
                        fn.endswith('.html'):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
