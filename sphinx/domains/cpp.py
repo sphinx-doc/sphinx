@@ -5474,13 +5474,25 @@ class CPPObject(ObjectDescription):
                       'report as bug (id=%s).' % (text_type(ast), newestId))
 
         name = text_type(ast.symbol.get_full_nested_name()).lstrip(':')
-        strippedName = name
-        for prefix in self.env.config.cpp_index_common_prefix:
-            if name.startswith(prefix):
-                strippedName = strippedName[len(prefix):]
+        # Add index entry, but not if it's a declaration inside a concept
+        isInConcept = False
+        s = ast.symbol.parent
+        while s is not None:
+            decl = s.declaration
+            s = s.parent
+            if decl is None:
+                continue
+            if decl.objectType == 'concept':
+                isInConcept = True
                 break
-        indexText = self.get_index_text(strippedName)
-        self.indexnode['entries'].append(('single', indexText, newestId, '', None))
+        if not isInConcept:
+            strippedName = name
+            for prefix in self.env.config.cpp_index_common_prefix:
+                if name.startswith(prefix):
+                    strippedName = strippedName[len(prefix):]
+                    break
+            indexText = self.get_index_text(strippedName)
+            self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
         if newestId not in self.state.document.ids:
             # if the name is not unique, the first one will win
