@@ -448,6 +448,11 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
+  .. versionadded:: 1.6.6
+     support for ``:emphasize-lines:`` option
+  .. versionadded:: 1.6.6
+     easier customizability of the formatting via exposed to user LaTeX macros
+     such as ``\sphinxVerbatimHighlightLine``.
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
