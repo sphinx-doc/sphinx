@@ -84,7 +84,7 @@ def convert_serializable(records):
 
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
-            r.location = get_node_location(location)
+            r.location = get_node_location(location)  # type: ignore
 
 
 class SphinxWarningLogRecord(logging.LogRecord):
