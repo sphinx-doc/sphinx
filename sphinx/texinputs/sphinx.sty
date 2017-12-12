@@ -6,7 +6,8 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/12/11 v1.7 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/12/12 v1.7 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/12/12 v1.6.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -319,8 +320,6 @@
 \sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
 \sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
 \sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
-% also no prefix for this one, for consistency (sigh). Color as in minted!
-\sphinxDeclareColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % now the colours defined with "sphinx" prefix in their names
 \newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
    % set the initial default
@@ -328,6 +327,8 @@
    % set the key handler. The "value" ##1 must be acceptable by \definecolor.
    \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
 }%
+% Default color chosen to be as in minted.sty LaTeX package!
+\sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % admonition boxes, "light" style
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
@@ -870,21 +871,26 @@
   \expandafter\sphinx@verbatim@checkifhl
     \expandafter{\the\numexpr\value{FancyVerbLine}-\spx@verbatim@linedelta}%
   \ifin@
-     \edef\sphinx@restorefboxsep{\fboxsep\the\fboxsep\relax}%
-     \fboxsep\z@
-     \colorbox{VerbatimHighlightColor}%
-              {\sphinx@restorefboxsep\sphinx@FancyVerbFormatLine{#1}}%
+     \sphinxVerbatimHighlightLine{#1}%
   \else
-     \sphinx@FancyVerbFormatLine{#1}%
+     \sphinxVerbatimFormatLine{#1}%
   \fi
 }%
-\def\sphinx@FancyVerbFormatLine@wrap #1%
-{\hsize\linewidth
+\newcommand\sphinxVerbatimHighlightLine[1]{%
+  \edef\sphinxrestorefboxsep{\fboxsep\the\fboxsep\relax}%
+  \fboxsep0pt\relax % cf LaTeX bug graphics/4524
+  \colorbox{sphinxVerbatimHighlightColor}%
+           {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
+  % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
+}%
+% \sphinxVerbatimFormatLine will be set locally to one of those two:
+\newcommand\sphinxVerbatimFormatLineWrap[1]{%
+    \hsize\linewidth
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
           \strut #1\strut}%
 }%
-\def\sphinx@FancyVerbFormatLine@nowrap #1{\hb@xt@\linewidth{\strut #1\hss}}%
+\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
 \def\sphinx@FancyVerbCodesHook
    {\FV@SetLineNo\edef\spx@verbatim@linedelta{\the\value{FancyVerbLine}}}%
 \g@addto@macro\FV@SetupFont{%
@@ -945,7 +951,7 @@
   %       to achieve this without extensive rewrite of fancyvrb.
   %     - The (not used in sphinx) obeytabs option to Verbatim is
   %       broken by this change (showtabs and tabspace work).
-    \let\sphinx@FancyVerbFormatLine\sphinx@FancyVerbFormatLine@wrap
+    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineWrap
     \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
     \sphinxbreaksatspecials
@@ -953,7 +959,7 @@
     \expandafter\def\expandafter\sphinx@FancyVerbCodesHook\expandafter
                    {\sphinx@FancyVerbCodesHook\sphinxbreaksviaactive}%
   \else % end of conditional code for wrapping long code lines
-    \let\sphinx@FancyVerbFormatLine\sphinx@FancyVerbFormatLine@nowrap
+    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
   % hook into \FancyVerbCodes to recover at first code line the numbering offset

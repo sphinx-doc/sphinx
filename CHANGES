@@ -110,6 +110,7 @@ Features added
 * #4181: autodoc: Sort dictionary keys when possible
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
+* Easier customizability of LaTeX macros involved in rendering of code-blocks
 
 Bugs fixed
 ----------

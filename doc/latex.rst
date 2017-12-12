@@ -272,6 +272,11 @@ The available styling options
 
     .. versionadded:: 1.6.6
 
+.. note::
+
+   Starting with this colour key, and for all others coming next, the actual
+   names declared to "color" or "xcolor" are prefixed with "sphinx".
+
 ``verbatimsep``
     default ``\fboxsep``. The separation between code lines and the frame.
 
@@ -292,11 +297,6 @@ The available styling options
 |notebdcolors|
     default ``{rgb}{0,0,0}`` (black). The colour for the two horizontal rules
     used by Sphinx in LaTeX for styling a :dudir:`note` type admonition.
-
-.. note::
-
-   The actual colour names declared to "color" or "xcolor" are prefixed with
-   "sphinx".
 
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     default ``0.5pt``. The width of the two horizontal rules.
@@ -446,6 +446,11 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
+  .. versionadded:: 1.6.6
+     support for ``:emphasize-lines:`` option
+  .. versionadded:: 1.6.6
+     easier customizability of the formatting via exposed to user LaTeX macros
+     such as ``\sphinxVerbatimHighlightLine``.
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
