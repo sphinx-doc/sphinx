@@ -376,7 +376,7 @@
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
+       % workaround 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
        \ltx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
@@ -935,9 +935,9 @@
     \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
-  % go around fancyvrb's check of \@currenvir
+  % workaround to fancyvrb's check of \@currenvir
   \let\VerbatimEnvironment\sphinxVerbatimEnvironment
-  % go around fancyvrb's check of current list depth
+  % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
   % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
@@ -1024,7 +1024,7 @@
       \sphinxunactivateextras}%
 % now for the modified alltt environment
 \newenvironment{sphinxalltt}
-{% at start of next line to work around Emacs/AUCTeX issue with this file
+{% at start of next line to workaround Emacs/AUCTeX issue with this file
 \begin{alltt}%
  \ifspx@opt@parsedliteralwraps
    \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
@@ -1250,7 +1250,7 @@
   \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
   % start specific environment, passing the heading as argument
   \begin{sphinx#1}{#2}}
-  % in end part, need to go around a LaTeX's "feature"
+  % workaround some LaTeX "feature" of \end command
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 % use of ``notice'' is for backwards compatibility and will be removed in
 % Sphinx 1.7.
