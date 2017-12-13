@@ -126,24 +126,6 @@ def check_xpath(etree, fname, path, check, be_found=True):
                                               [node.text for node in nodes]))
 
 
-def check_static_entries(outdir):
-    staticdir = outdir / '_static'
-    assert staticdir.isdir()
-    # a file from a directory entry in html_static_path
-    assert (staticdir / 'README').isfile()
-    # a directory from a directory entry in html_static_path
-    assert (staticdir / 'subdir' / 'foo.css').isfile()
-    # a file from a file entry in html_static_path
-    assert (staticdir / 'templated.css').isfile()
-    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
-    # a file from _static, but matches exclude_patterns
-    assert not (staticdir / 'excluded.css').exists()
-
-
-def check_extra_entries(outdir):
-    assert (outdir / 'robots.txt').isfile()
-
-
 @pytest.mark.sphinx('html', testroot='warnings')
 def test_html_warnings(app, warning):
     app.build()
@@ -154,15 +136,6 @@ def test_html_warnings(app, warning):
         'Warnings don\'t match:\n' + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
-
-
-@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
-    'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
-def test_static_output(app):
-    app.build()
-    check_static_entries(app.builder.outdir)
-    check_extra_entries(app.builder.outdir)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({

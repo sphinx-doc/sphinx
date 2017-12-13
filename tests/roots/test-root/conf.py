@@ -33,8 +33,6 @@ html_sidebars = {'**': 'customsb.html',
                  'contents': ['contentssb.html', 'localtoc.html',
                               'globaltoc.html']}
 html_style = 'default.css'
-html_static_path = ['_static', 'templated.css_t']
-html_extra_path = ['robots.txt']
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
