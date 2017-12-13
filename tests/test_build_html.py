@@ -377,7 +377,6 @@ def test_static_output(app):
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),
         (".//td[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -409,9 +408,6 @@ def test_static_output(app):
         (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
-    ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
     ],
     'genindex.html': [
         # index entries

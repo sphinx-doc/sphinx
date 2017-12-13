@@ -29,9 +29,6 @@ numfig = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 
-html_theme = 'testtheme'
-html_theme_path = ['.']
-html_theme_options = {'testopt': 'testoverride'}
 html_sidebars = {'**': 'customsb.html',
                  'contents': ['contentssb.html', 'localtoc.html',
                               'globaltoc.html']}
