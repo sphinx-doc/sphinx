@@ -30,6 +30,8 @@ Bugs fixed
 * #4249: PDF output: Pygments error highlighting increases line spacing in
   code blocks
 * #1238: Support ``:emphasize-lines:`` in PDF output
+* #4279: Sphinx crashes with pickling error when run with multiple processes and
+  remote image
 
 Testing
 --------
