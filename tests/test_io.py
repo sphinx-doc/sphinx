@@ -105,3 +105,14 @@ def test_SphinxRSTFileInput(app):
     assert result.info(3) == ('<rst_epilog>', 0)
     assert result.info(4) == ('<rst_epilog>', 1)
     assert result.info(5) == ('<rst_epilog>', None)  # out of range
+
+    # expandtabs / convert whitespaces
+    app.env.config.rst_prolog = None
+    app.env.config.rst_epilog = None
+    text = ('\thello Sphinx world\n'
+            '\v\fSphinx is a document generator')
+    source = SphinxRSTFileInput(app, app.env, source=StringIO(text),
+                                source_path='dummy.rst', encoding='utf-8')
+    result = source.read()
+    assert result.data == ['        hello Sphinx world',
+                           '  Sphinx is a document generator']

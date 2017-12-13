@@ -14,7 +14,7 @@ import codecs
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
 from docutils.readers import standalone
-from docutils.statemachine import StringList
+from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
 from six import text_type
 from typing import Any, Union  # NOQA
@@ -195,9 +195,10 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
 
     def read(self):
         # type: () -> StringList
-        data = SphinxBaseFileInput.read(self)
+        inputstring = SphinxBaseFileInput.read(self)
+        lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
-        for lineno, line in enumerate(data.splitlines()):
+        for lineno, line in enumerate(lines):
             content.append(line, self.source_path, lineno)
 
         if self.env.config.rst_prolog:
