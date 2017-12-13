@@ -17,6 +17,7 @@ from sphinx.theming import ThemeError
 
 
 @pytest.mark.sphinx(
+    testroot='theming',
     confoverrides={'html_theme': 'ziptheme',
                    'html_theme_options.testopt': 'foo'})
 def test_theme_api(app, status, warning):
@@ -25,9 +26,9 @@ def test_theme_api(app, status, warning):
     # test Theme class API
     assert set(app.html_themes.keys()) == \
         set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
-             'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
-             'pyramid', 'bizstyle', 'classic', 'nonav'])
-    assert app.html_themes['testtheme'] == app.srcdir / 'testtheme'
+             'traditional', 'test-theme', 'ziptheme', 'epub', 'nature',
+             'pyramid', 'bizstyle', 'classic', 'nonav', 'parent', 'child'])
+    assert app.html_themes['test-theme'] == app.srcdir / 'test_theme/test-theme'
     assert app.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
 
     # test Theme instance API
