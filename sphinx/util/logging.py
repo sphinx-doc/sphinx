@@ -82,6 +82,10 @@ def convert_serializable(records):
         r.msg = r.getMessage()
         r.args = ()
 
+        location = getattr(r, 'location', None)
+        if isinstance(location, nodes.Node):
+            r.location = get_node_location(location)  # type: ignore
+
 
 class SphinxWarningLogRecord(logging.LogRecord):
     """Log record class supporting location"""
@@ -415,19 +419,24 @@ class WarningLogRecordTranslator(logging.Filter):
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
-            (source, line) = get_source_line(location)
-            if source and line:
-                record.location = "%s:%s" % (source, line)
-            elif source:
-                record.location = "%s:" % source
-            elif line:
-                record.location = "<unknown>:%s" % line
-            else:
-                record.location = None
+            record.location = get_node_location(location)
         elif location and ':' not in location:
             record.location = '%s' % self.app.env.doc2path(location)
 
         return True
+
+
+def get_node_location(node):
+    # type: (nodes.Node) -> str
+    (source, line) = get_source_line(node)
+    if source and line:
+        return "%s:%s" % (source, line)
+    elif source:
+        return "%s:" % source
+    elif line:
+        return "<unknown>:%s" % line
+    else:
+        return None
 
 
 class ColorizeFormatter(logging.Formatter):
