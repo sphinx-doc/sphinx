@@ -100,16 +100,20 @@ Options
 
    **latexpdf**
      Build LaTeX files and run them through :program:`pdflatex`.
+     If :confval:`language` is set to ``'ja'``, build LaTeX files and run them
+     through :program:`platex/dvipdfmx`, rather.
 
    **latexpdfja**
      Build LaTeX files and run them through :program:`platex/dvipdfmx`.
-     For Japanese documents.
+     As :progname:`platex` is a TeX-engine designed for use with Japanese
+     LaTeX document classes, this is a priori not recommended (nor needed, see
+     previous item.)
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
 
    .. important::
-     Sphinx only recognizes the ``-M`` option if it is placed first.
+      Sphinx only recognizes the ``-M`` option if it is placed first.
 
    .. versionadded:: 1.2.1
 
