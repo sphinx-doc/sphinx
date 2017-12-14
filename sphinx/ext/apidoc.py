@@ -358,8 +358,8 @@ Note: By default this script will not overwrite already created files.""")
 
     group = parser.add_argument_group('extension options')
     for ext in EXTENSIONS:
-        group.add_argument('--ext-' + ext, action='store_true',
-                           dest='ext_' + ext, default=False,
+        group.add_argument('--ext-%s' % ext, action='append_const',
+                           const='sphinx.ext.%s' % ext, dest='extensions',
                            help='enable %s extension' % ext)
 
     return parser
@@ -408,9 +408,8 @@ def main(argv=sys.argv[1:]):
             suffix = '.' + args.suffix,
             master = 'index',
             epub = True,
-            ext_autodoc = True,
-            ext_viewcode = True,
-            ext_todo = True,
+            extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
+                          'sphinx.ext.todo'],
             makefile = True,
             batchfile = True,
             make_mode = True,
@@ -420,9 +419,8 @@ def main(argv=sys.argv[1:]):
             module_path = rootpath,
             append_syspath = args.append_syspath,
         )
-        enabled_exts = {'ext_' + ext: getattr(args, 'ext_' + ext)
-                        for ext in EXTENSIONS if getattr(args, 'ext_' + ext)}
-        d.update(enabled_exts)
+        if args.extensions:
+            d['extensions'].extend(args.extensions)
 
         if isinstance(args.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
