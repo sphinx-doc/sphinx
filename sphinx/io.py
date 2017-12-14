@@ -51,14 +51,20 @@ logger = logging.getLogger(__name__)
 
 class SphinxBaseReader(standalone.Reader):
     """
-    Add our source parsers
+    A base class of readers for Sphinx.
+
+    This replaces reporter by Sphinx's on generating document.
     """
+
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
 
     def new_document(self):
         # type: () -> nodes.document
+        """Creates a new document object which having a special reporter object good
+        for logging.
+        """
         document = standalone.Reader.new_document(self)
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
@@ -68,7 +74,7 @@ class SphinxBaseReader(standalone.Reader):
 
 class SphinxStandaloneReader(SphinxBaseReader):
     """
-    Add our own transforms.
+    A basic document reader for Sphinx.
     """
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
@@ -79,10 +85,11 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
 class SphinxI18nReader(SphinxBaseReader):
     """
-    Replacer for document.reporter.get_source_and_line method.
+    A document reader for i18n.
 
-    reST text lines for translation do not have the original source line number.
-    This class provides the correct line numbers when reporting.
+    This returns the source line number of original text as current source line number
+    to let users know where the error happened.
+    Because the translated texts are partial and they don't have correct line numbers.
     """
 
     lineno = None  # type: int
@@ -94,10 +101,14 @@ class SphinxI18nReader(SphinxBaseReader):
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
+        """Stores the source line number of original text."""
         self.lineno = lineno
 
     def new_document(self):
         # type: () -> nodes.document
+        """Creates a new document object which having a special reporter object for
+        translation.
+        """
         document = SphinxBaseReader.new_document(self)
         reporter = document.reporter
 
@@ -110,6 +121,8 @@ class SphinxI18nReader(SphinxBaseReader):
 
 
 class SphinxDummyWriter(UnfilteredWriter):
+    """Dummy writer module used for generating doctree."""
+
     supported = ('html',)  # needed to keep "meta" nodes
 
     def translate(self):
@@ -123,7 +136,11 @@ def SphinxDummySourceClass(source, *args, **kwargs):
 
 
 class SphinxBaseFileInput(FileInput):
-    """A base class of SphinxFileInput."""
+    """A base class of SphinxFileInput.
+
+    It supports to replace unknown Unicode characters to '?'. And it also emits
+    Sphinx events ``source-read`` on reading.
+    """
 
     def __init__(self, app, env, *args, **kwds):
         # type: (Sphinx, BuildEnvironment, Any, Any) -> None
@@ -144,6 +161,10 @@ class SphinxBaseFileInput(FileInput):
 
     def read(self):
         # type: () -> unicode
+        """Reads the contents from file.
+
+        After reading, it emits Sphinx event ``source-read``.
+        """
         data = FileInput.read(self)
 
         # emit source-read event
@@ -168,10 +189,25 @@ class SphinxBaseFileInput(FileInput):
 
 
 class SphinxFileInput(SphinxBaseFileInput):
+    """A basic FileInput for Sphinx."""
     pass
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):
+    """A reST FileInput for Sphinx.
+
+    This FileInput automatically prepends and appends text by :confval:`rst_prolog` and
+    :confval:`rst_epilog`.
+
+    .. important::
+
+       This FileInput uses an instance of ``StringList`` as a return value of ``read()``
+       method to indicate original source filename and line numbers after prepending and
+       appending.
+       For that reason, ``sphinx.parsers.RSTParser`` should be used with this to parse
+       a content correctly.
+    """
+
     def prepend_prolog(self, text, prolog):
         # type: (StringList, unicode) -> None
         docinfo = self.count_docinfo_lines(text)

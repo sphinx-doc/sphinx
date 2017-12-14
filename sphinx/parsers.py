@@ -59,7 +59,7 @@ class Parser(docutils.parsers.Parser):
 
 
 class RSTParser(docutils.parsers.rst.Parser):
-    """A reST parser customized for Sphinx."""
+    """A reST parser for Sphinx."""
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
@@ -73,8 +73,8 @@ class RSTParser(docutils.parsers.rst.Parser):
         # type: (Any, nodes.document) -> None
         """Parse text and generate a document tree.
 
-        This derived method accepts StringList as a inputstring parameter.
-        It enables to handle mixed contents (cf. rst_prolog) correctly.
+        This accepts StringList as an inputstring parameter.
+        It enables to handle mixed contents (cf. :confval:`rst_prolog`) correctly.
         """
         if isinstance(inputstring, StringList):
             self.setup_parse(inputstring, document)
