@@ -99,9 +99,10 @@ Options
    :ref:`builders <builders>`, the following build pipelines are available:
 
    **latexpdf**
-     Build LaTeX files and run them through :program:`pdflatex`.
-     If :confval:`language` is set to ``'ja'``, build LaTeX files and run them
-     through :program:`platex/dvipdfmx`, rather.
+     Build LaTeX files and run them through :program:`pdflatex`, or as per
+     :confval:`latex_engine` setting.
+     If :confval:`language` is set to ``'ja'``, will use automatically
+     the :program:`platex/dvipdfmx` latex to PDF pipeline.
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
