@@ -103,12 +103,6 @@ Options
      If :confval:`language` is set to ``'ja'``, build LaTeX files and run them
      through :program:`platex/dvipdfmx`, rather.
 
-   **latexpdfja**
-     Build LaTeX files and run them through :program:`platex/dvipdfmx`.
-     As :progname:`platex` is a TeX-engine designed for use with Japanese
-     LaTeX document classes, this is a priori not recommended (nor needed, see
-     previous item.)
-
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
 
