@@ -405,23 +405,31 @@ class Documenter(object):
                 self.parent = parent
                 self.object = obj
                 return True
-            # this used to only catch SyntaxError, ImportError and AttributeError,
-            # but importing modules with side effects can raise all kinds of errors
-            except (Exception, SystemExit) as e:
+            except (AttributeError, ImportError) as exc:
                 if self.objpath:
                     errmsg = 'autodoc: failed to import %s %r from module %r' % \
                              (self.objtype, '.'.join(self.objpath), self.modname)
                 else:
                     errmsg = 'autodoc: failed to import %s %r' % \
                              (self.objtype, self.fullname)
-                if isinstance(e, SystemExit):
-                    errmsg += ('; the module executes module level statement ' +
-                               'and it might call sys.exit().')
-                elif isinstance(e, ImportError):
-                    errmsg += '; the following exception was raised:\n%s' % e.args[0]
+
+                if isinstance(exc, ImportError):
+                    # import_module() raises ImportError having real exception obj and
+                    # traceback
+                    real_exc, traceback_msg = exc.args
+                    if isinstance(real_exc, SystemExit):
+                        errmsg += ('; the module executes module level statement ' +
+                                   'and it might call sys.exit().')
+                    elif isinstance(real_exc, ImportError):
+                        errmsg += ('; the following exception was raised:\n%s' %
+                                   real_exc.args[0])
+                    else:
+                        errmsg += ('; the following exception was raised:\n%s' %
+                                   traceback_msg)
                 else:
-                    errmsg += '; the following exception was raised:\n%s' % \
-                              traceback.format_exc()
+                    errmsg += ('; the following exception was raised:\n%s' %
+                               traceback.format_exc())
+
                 if PY2:
                     errmsg = errmsg.decode('utf-8')  # type: ignore
                 logger.debug(errmsg)
