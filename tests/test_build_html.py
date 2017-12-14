@@ -1114,6 +1114,12 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
+def test_html_copy_source(app):
+    app.builder.build_all()
+    assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
+
+
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
     app.builder.build_all()
