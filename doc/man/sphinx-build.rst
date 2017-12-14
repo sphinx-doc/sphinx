@@ -103,7 +103,7 @@ Options
 
    **latexpdfja**
      Build LaTeX files and run them through :program:`platex/dvipdfmx`.
-     We recommend using ``latexpdf`` instead.
+     For Japanese documents.
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
