@@ -182,7 +182,7 @@ class LoggingReporter(Reporter):
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
-        self.source_and_line = None
+        self.source_and_line = None  # type: SphinxFileInput
 
     def set_source(self, source):
         # type: (SphinxFileInput) -> None
