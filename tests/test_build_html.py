@@ -1114,16 +1114,22 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
-@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
     app.builder.build_all()
-    content_otherext = (app.outdir / 'otherext.html').text()
-    content_images = (app.outdir / 'images.html').text()
+    assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
-    assert '<a href="_sources/otherext.foo"' in content_otherext
-    assert '<a href="_sources/images.txt"' in content_images
-    assert (app.outdir / '_sources' / 'otherext.foo').exists()
-    assert (app.outdir / '_sources' / 'images.txt').exists()
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
+def test_html_sourcelink_suffix_same(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix_empty(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
