@@ -36,11 +36,11 @@ class ModuleAnalyzer(object):
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
-            fileobj = open(filename, 'rb')
+            with open(filename, 'rb') as f:
+                obj = cls(f, modname, filename)
+                cls.cache['file', filename] = obj
         except Exception as err:
             raise PycodeError('error opening %r' % filename, err)
-        obj = cls(fileobj, modname, filename)
-        cls.cache['file', filename] = obj
         return obj
 
     @classmethod
