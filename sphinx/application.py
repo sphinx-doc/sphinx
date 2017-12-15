@@ -33,7 +33,6 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
-from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
@@ -54,7 +53,9 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -563,7 +564,7 @@ class Sphinx(object):
                                               has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
-        # type: (unicode, unicode, Any) -> None
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
         self.registry.add_role_to_domain(domain, name, role)
 
     def add_index_to_domain(self, domain, index):

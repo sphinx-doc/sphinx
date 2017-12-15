@@ -86,7 +86,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        SphinxBaseReader.__init__(self, *args, **kwargs)
+        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
 
 
 class SphinxI18nReader(SphinxBaseReader):

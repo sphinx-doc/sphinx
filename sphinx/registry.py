@@ -29,7 +29,7 @@ from sphinx.util.docutils import directive_helper
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Type  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -38,6 +38,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +54,9 @@ class SphinxComponentRegistry(object):
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
-        self.domain_indices = {}        # type: Dict[unicode, List[Index]]
+        self.domain_indices = {}        # type: Dict[unicode, List[Type[Index]]]
         self.domain_object_types = {}   # type: Dict[unicode, Dict[unicode, ObjType]]
-        self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Any]]
+        self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
         self.post_transforms = []       # type: List[Type[Transform]]
         self.source_parsers = {}        # type: Dict[unicode, Parser]
         self.source_inputs = {}         # type: Dict[unicode, Input]
@@ -139,7 +140,7 @@ class SphinxComponentRegistry(object):
         directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
-        # type: (unicode, unicode, Any) -> None
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
@@ -186,8 +187,8 @@ class SphinxComponentRegistry(object):
                          (Target, object),
                          {'indextemplate': indextemplate})
 
-        self.add_directive_to_domain('std', directive)
-        self.add_role_to_domain('std', XRefRole(innernodeclass=ref_nodeclass))
+        self.add_directive_to_domain('std', directivename, directive)
+        self.add_role_to_domain('std', rolename, XRefRole(innernodeclass=ref_nodeclass))
 
         object_types = self.domain_object_types.setdefault('std', {})
         object_types[directivename] = ObjType(objname or directivename, rolename)

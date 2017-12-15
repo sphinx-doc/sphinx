@@ -141,7 +141,7 @@ class Domain(object):
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[unicode, Any]
+    object_types = {}       # type: Dict[unicode, ObjType]
     #: directive name -> directive class
     directives = {}         # type: Dict[unicode, Any]
     #: role name -> role callable
