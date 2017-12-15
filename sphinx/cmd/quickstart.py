@@ -586,7 +586,7 @@ Makefile to be used with sphinx-build.
                        dest='batchfile',
                        help='do not create batchfile')
     group.add_argument('-m', '--use-make-mode', action='store_true',
-                       dest='make_mode',
+                       dest='make_mode', default=True,
                        help='use make-mode for Makefile/make.bat')
     group.add_argument('-M', '--no-use-make-mode', action='store_false',
                        dest='make_mode',
