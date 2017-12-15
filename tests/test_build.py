@@ -59,13 +59,13 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     return srcdir
 
 
+# note: this test skips building docs for some builders because they have independent testcase.
+#       (html, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
     [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
-        'pseudoxml', 'man', 'linkcheck',
+        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
+        'epub2', 'epub', 'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
