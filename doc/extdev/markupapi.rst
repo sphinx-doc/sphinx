@@ -125,7 +125,7 @@ Both APIs parse the content into a given node. They are used like this::
 
    ``sphinx.util.docutils.switch_source_input()`` allows to change a target file
    during nested_parse.  It is useful to mixture contents.  For example, ``sphinx.
-   ext.autodoc`` uses it to parse docstrings.
+   ext.autodoc`` uses it to parse docstrings::
 
        from sphinx.util.docutils import switch_source_input
 
