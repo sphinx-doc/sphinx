@@ -12,8 +12,9 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import AutoDirective, AutodocReporter
+from sphinx.ext.autodoc import AutoDirective
 from sphinx.util import logging
+from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
@@ -82,12 +83,7 @@ def process_documenter_options(documenter, config, options):
 
 def parse_generated_content(state, content, documenter):
     # type: (State, StringList, Documenter) -> List[nodes.Node]
-    try:
-        # use a custom reporter that correctly assigns lines to source
-        # filename/description and lineno
-        old_reporter = state.memo.reporter
-        state.memo.reporter = AutodocReporter(content, state.memo.reporter)
-
+    with switch_source_input(state, content):
         if documenter.titles_allowed:
             node = nodes.section()
             # necessary so that the child nodes get the right source/line set
@@ -99,8 +95,6 @@ def parse_generated_content(state, content, documenter):
             state.nested_parse(content, 0, node)
 
         return node.children
-    finally:
-        state.memo.reporter = old_reporter
 
 
 class AutodocDirective(Directive):

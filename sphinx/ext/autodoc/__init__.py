@@ -15,6 +15,7 @@ import re
 import sys
 import inspect
 import traceback
+import warnings
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
@@ -22,6 +23,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.autodoc.importer import mock, import_module
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
@@ -112,6 +114,9 @@ class AutodocReporter(object):
     """
     def __init__(self, viewlist, reporter):
         # type: (ViewList, Reporter) -> None
+        warnings.warn('AutodocRerporter is now deprecated. '
+                      'Use sphinx.util.docutils.switch_source_input() instead.',
+                      RemovedInSphinx20Warning)
         self.viewlist = viewlist
         self.reporter = reporter
 
