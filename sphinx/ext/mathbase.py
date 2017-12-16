@@ -133,17 +133,20 @@ class MathDomain(Domain):
         return len(targets) + 1
 
 
-def get_node_equation_number(env, node):
-    if env.config.math_numfig and env.config.numfig:
-        docname = node['docname']
-        if docname in env.toc_fignumbers:
-            id = node['ids'][0]
-            number = env.toc_fignumbers[docname]['displaymath'].get(id, ())
-            number = '.'.join(map(str, number))
+def get_node_equation_number(writer, node):
+    if writer.builder.config.math_numfig and writer.builder.config.numfig:
+        figtype = 'displaymath'
+        if writer.builder.name == 'singlehtml':
+            key = u"%s/%s" % (writer.docnames[-1], figtype)
         else:
-            number = ''
+            key = figtype
+
+        id = node['ids'][0]
+        number = writer.builder.fignumbers.get(key, {}).get(id, ())
+        number = '.'.join(map(str, number))
     else:
         number = node['number']
+
     return number
 
 

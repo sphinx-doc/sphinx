@@ -243,7 +243,7 @@ def html_visit_displaymath(self, node):
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
-        number = get_node_equation_number(self.builder.env, node)
+        number = get_node_equation_number(self, node)
         self.body.append('<span class="eqno">(%s)</span>' % number)
     if fname is None:
         # something failed -- use text-only as a bad substitute

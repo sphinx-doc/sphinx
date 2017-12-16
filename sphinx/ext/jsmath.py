@@ -36,7 +36,7 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                number = get_node_equation_number(self.builder.env, node)
+                number = get_node_equation_number(self, node)
                 self.body.append('<span class="eqno">(%s)' % number)
                 self.add_permalink_ref(node, _('Permalink to this equation'))
                 self.body.append('</span>')
