@@ -113,6 +113,7 @@ def test_getargspec_bound_methods():
         assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
+
 def test_Signature():
     # literals
     with pytest.raises(TypeError):
@@ -310,3 +311,23 @@ def test_safe_getattr_with___dict___override():
         assert exc.args[0] == 'bar'
     else:
         pytest.fail('AttributeError not raised')
+
+
+def test_dictionary_sorting():
+    dictionary = {"c": 3, "a": 1, "d": 2, "b": 4}
+    description = inspect.object_description(dictionary)
+    assert description == "{'a': 1, 'b': 4, 'c': 3, 'd': 2}"
+
+
+def test_dict_customtype():
+    class CustomType(object):
+        def __init__(self, value):
+            self._value = value
+
+        def __repr__(self):
+            return "<CustomType(%r)>" % self._value
+
+    dictionary = {CustomType(2): 2, CustomType(1): 1}
+    description = inspect.object_description(dictionary)
+    # Type is unsortable, just check that it does not crash
+    assert "<CustomType(2)>: 2" in description

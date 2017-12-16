@@ -8,10 +8,15 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from docutils.io import FileInput
+import re
+import codecs
+
+from docutils.io import FileInput, NullOutput
+from docutils.core import Publisher
 from docutils.readers import standalone
+from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import string_types, text_type, iteritems
+from six import text_type
 from typing import Any, Union  # NOQA
 
 from sphinx.transforms import (
@@ -24,7 +29,7 @@ from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
-from sphinx.util import import_object, split_docinfo
+from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 if False:
@@ -38,41 +43,18 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
+docinfo_re = re.compile(':\\w+:.*?')
+
+
+logger = logging.getLogger(__name__)
+
 
 class SphinxBaseReader(standalone.Reader):
     """
-    Add our source parsers
+    A base class of readers for Sphinx.
+
+    This replaces reporter by Sphinx's on generating document.
     """
-    def __init__(self, app, parsers={}, *args, **kwargs):
-        # type: (Sphinx, Dict[unicode, Parser], Any, Any) -> None
-        standalone.Reader.__init__(self, *args, **kwargs)
-        self.parser_map = {}  # type: Dict[unicode, Parser]
-        for suffix, parser_class in parsers.items():
-            if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')  # type: ignore
-            parser = parser_class()
-            if hasattr(parser, 'set_application'):
-                parser.set_application(app)
-            self.parser_map[suffix] = parser
-
-    def read(self, source, parser, settings):
-        # type: (Input, Parser, Dict) -> nodes.document
-        self.source = source
-
-        for suffix in self.parser_map:
-            if source.source_path.endswith(suffix):
-                self.parser = self.parser_map[suffix]
-                break
-        else:
-            # use special parser for unknown file-extension '*' (if exists)
-            self.parser = self.parser_map.get('*')
-
-        if not self.parser:
-            self.parser = parser
-        self.settings = settings
-        self.input = self.source.read()
-        self.parse()
-        return self.document
 
     def get_transforms(self):
         # type: () -> List[Transform]
@@ -80,17 +62,19 @@ class SphinxBaseReader(standalone.Reader):
 
     def new_document(self):
         # type: () -> nodes.document
+        """Creates a new document object which having a special reporter object good
+        for logging.
+        """
         document = standalone.Reader.new_document(self)
         reporter = document.reporter
-        document.reporter = LoggingReporter(reporter.source, reporter.report_level,
-                                            reporter.halt_level, reporter.debug_flag,
-                                            reporter.error_handler)
+        document.reporter = LoggingReporter.from_reporter(reporter)
+        document.reporter.set_source(self.source)
         return document
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
     """
-    Add our own transforms.
+    A basic document reader for Sphinx.
     """
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
@@ -101,29 +85,30 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
 class SphinxI18nReader(SphinxBaseReader):
     """
-    Replacer for document.reporter.get_source_and_line method.
+    A document reader for i18n.
 
-    reST text lines for translation do not have the original source line number.
-    This class provides the correct line numbers when reporting.
+    This returns the source line number of original text as current source line number
+    to let users know where the error happened.
+    Because the translated texts are partial and they don't have correct line numbers.
     """
 
+    lineno = None  # type: int
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector]
 
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
-        SphinxBaseReader.__init__(self, *args, **kwargs)
-        self.lineno = None  # type: int
-
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
+        """Stores the source line number of original text."""
         self.lineno = lineno
 
     def new_document(self):
         # type: () -> nodes.document
+        """Creates a new document object which having a special reporter object for
+        translation.
+        """
         document = SphinxBaseReader.new_document(self)
         reporter = document.reporter
 
@@ -136,6 +121,8 @@ class SphinxI18nReader(SphinxBaseReader):
 
 
 class SphinxDummyWriter(UnfilteredWriter):
+    """Dummy writer module used for generating doctree."""
+
     supported = ('html',)  # needed to keep "meta" nodes
 
     def translate(self):
@@ -143,11 +130,26 @@ class SphinxDummyWriter(UnfilteredWriter):
         pass
 
 
-class SphinxFileInput(FileInput):
+def SphinxDummySourceClass(source, *args, **kwargs):
+    """Bypass source object as is to cheat Publisher."""
+    return source
+
+
+class SphinxBaseFileInput(FileInput):
+    """A base class of SphinxFileInput.
+
+    It supports to replace unknown Unicode characters to '?'. And it also emits
+    Sphinx events ``source-read`` on reading.
+    """
+
     def __init__(self, app, env, *args, **kwds):
         # type: (Sphinx, BuildEnvironment, Any, Any) -> None
         self.app = app
         self.env = env
+
+        # set up error handler
+        codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
+
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         FileInput.__init__(self, *args, **kwds)
 
@@ -159,24 +161,121 @@ class SphinxFileInput(FileInput):
 
     def read(self):
         # type: () -> unicode
-        def get_parser_type(source_path):
-            # type: (unicode) -> Tuple[unicode]
-            for suffix, parser_class in iteritems(self.app.registry.get_source_parsers()):
-                if source_path.endswith(suffix):
-                    if isinstance(parser_class, string_types):
-                        parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA
-                    return parser_class.supported
-            return ('restructuredtext',)
+        """Reads the contents from file.
 
+        After reading, it emits Sphinx event ``source-read``.
+        """
         data = FileInput.read(self)
-        if self.app:
-            arg = [data]
-            self.app.emit('source-read', self.env.docname, arg)
-            data = arg[0]
-        docinfo, data = split_docinfo(data)
-        if 'restructuredtext' in get_parser_type(self.source_path):
-            if self.env.config.rst_epilog:
-                data = data + '\n' + self.env.config.rst_epilog + '\n'
-            if self.env.config.rst_prolog:
-                data = self.env.config.rst_prolog + '\n' + data
-        return docinfo + data
+
+        # emit source-read event
+        arg = [data]
+        self.app.emit('source-read', self.env.docname, arg)
+        return arg[0]
+
+    def warn_and_replace(self, error):
+        # type: (Any) -> Tuple
+        """Custom decoding error handler that warns and replaces."""
+        linestart = error.object.rfind(b'\n', 0, error.start)
+        lineend = error.object.find(b'\n', error.start)
+        if lineend == -1:
+            lineend = len(error.object)
+        lineno = error.object.count(b'\n', 0, error.start) + 1
+        logger.warning('undecodable source characters, replacing with "?": %r',
+                       (error.object[linestart + 1:error.start] + b'>>>' +
+                        error.object[error.start:error.end] + b'<<<' +
+                        error.object[error.end:lineend]),
+                       location=(self.env.docname, lineno))
+        return (u'?', error.end)
+
+
+class SphinxFileInput(SphinxBaseFileInput):
+    """A basic FileInput for Sphinx."""
+    pass
+
+
+class SphinxRSTFileInput(SphinxBaseFileInput):
+    """A reST FileInput for Sphinx.
+
+    This FileInput automatically prepends and appends text by :confval:`rst_prolog` and
+    :confval:`rst_epilog`.
+
+    .. important::
+
+       This FileInput uses an instance of ``StringList`` as a return value of ``read()``
+       method to indicate original source filename and line numbers after prepending and
+       appending.
+       For that reason, ``sphinx.parsers.RSTParser`` should be used with this to parse
+       a content correctly.
+    """
+
+    def prepend_prolog(self, text, prolog):
+        # type: (StringList, unicode) -> None
+        docinfo = self.count_docinfo_lines(text)
+        if docinfo:
+            # insert a blank line after docinfo
+            text.insert(docinfo, '', '<generated>', 0)
+            docinfo += 1
+
+        # insert prolog (after docinfo if exists)
+        for lineno, line in enumerate(prolog.splitlines()):
+            text.insert(docinfo + lineno, line, '<rst_prolog>', lineno)
+
+        text.insert(docinfo + lineno + 1, '', '<generated>', 0)
+
+    def append_epilog(self, text, epilog):
+        # type: (StringList, unicode) -> None
+        # append a blank line and rst_epilog
+        text.append('', '<generated>', 0)
+        for lineno, line in enumerate(epilog.splitlines()):
+            text.append(line, '<rst_epilog>', lineno)
+
+    def read(self):
+        # type: () -> StringList
+        inputstring = SphinxBaseFileInput.read(self)
+        lines = string2lines(inputstring, convert_whitespace=True)
+        content = StringList()
+        for lineno, line in enumerate(lines):
+            content.append(line, self.source_path, lineno)
+
+        if self.env.config.rst_prolog:
+            self.prepend_prolog(content, self.env.config.rst_prolog)
+        if self.env.config.rst_epilog:
+            self.append_epilog(content, self.env.config.rst_epilog)
+
+        return content
+
+    def count_docinfo_lines(self, content):
+        # type: (StringList) -> int
+        if len(content) == 0:
+            return 0
+        else:
+            for lineno, line in enumerate(content.data):
+                if not docinfo_re.match(line):
+                    break
+            return lineno
+
+
+def read_doc(app, env, filename):
+    # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    """Parse a document and convert to doctree."""
+    input_class = app.registry.get_source_input(filename)
+    reader = SphinxStandaloneReader()
+    source = input_class(app, env, source=None, source_path=filename,
+                         encoding=env.config.source_encoding)
+    parser = app.registry.create_source_parser(app, filename)
+
+    pub = Publisher(reader=reader,
+                    parser=parser,
+                    writer=SphinxDummyWriter(),
+                    source_class=SphinxDummySourceClass,
+                    destination=NullOutput())
+    pub.set_components(None, 'restructuredtext', None)
+    pub.process_programmatic_settings(None, env.settings, None)
+    pub.set_source(source, filename)
+    pub.publish()
+    return pub.document
+
+
+def setup(app):
+    app.registry.add_source_input('*', SphinxFileInput)
+    app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)

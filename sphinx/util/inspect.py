@@ -204,6 +204,14 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
 def object_description(object):
     # type: (Any) -> unicode
     """A repr() implementation that returns text safe to use in reST context."""
+    if isinstance(object, dict):
+        try:
+            sorted_keys = sorted(object)
+        except TypeError:
+            pass  # Cannot sort dict keys, fall back to generic repr
+        else:
+            items = ("%r: %r" % (key, object[key]) for key in sorted_keys)
+            return "{%s}" % ", ".join(items)
     try:
         s = repr(object)
     except Exception:
@@ -273,7 +281,7 @@ class Signature(object):
 
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
-        except:
+        except Exception:
             self.annotations = {}
 
         if bound_method:
@@ -426,7 +434,7 @@ class Signature(object):
         elif (hasattr(typing, 'UnionMeta') and  # for py35 or below
               isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):
-            params = annotation.__union_params__  # type: ignore
+            params = annotation.__union_params__
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
@@ -434,7 +442,7 @@ class Signature(object):
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):
             # Skipped in the case of plain typing.Callable
-            args = annotation.__args__  # type: ignore
+            args = annotation.__args__
             if args is None:
                 return qualified_name
             elif args is Ellipsis:
@@ -444,14 +452,14 @@ class Signature(object):
                 args_str = '[%s]' % ', '.join(formatted_args)
             return '%s[%s, %s]' % (qualified_name,
                                    args_str,
-                                   self.format_annotation(annotation.__result__))  # type: ignore  # NOQA
+                                   self.format_annotation(annotation.__result__))
         elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):
-            params = annotation.__tuple_params__  # type: ignore
+            params = annotation.__tuple_params__
             if params is not None:
                 param_strings = [self.format_annotation(p) for p in params]
-                if annotation.__tuple_use_ellipsis__:  # type: ignore
+                if annotation.__tuple_use_ellipsis__:
                     param_strings.append('...')
                 return '%s[%s]' % (qualified_name,
                                    ', '.join(param_strings))

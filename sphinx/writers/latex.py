@@ -25,6 +25,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
+from sphinx.transforms import SphinxTransform
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
@@ -222,12 +223,11 @@ class ExtBabel(Babel):
             return language
 
 
-class ShowUrlsTransform(object):
-    expanded = False
-
-    def __init__(self, document):
-        # type: (nodes.Node) -> None
-        self.document = document
+class ShowUrlsTransform(SphinxTransform, object):
+    def __init__(self, document, startnode=None):
+        # type: (nodes.document, nodes.Node) -> None
+        super(ShowUrlsTransform, self).__init__(document, startnode)
+        self.expanded = False
 
     def apply(self):
         # type: () -> None
@@ -1917,6 +1917,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # will be generated differently
             if id.startswith('index-'):
                 return
+
+            # insert blank line, if the target follows a paragraph node
+            index = node.parent.index(node)
+            if index > 0 and isinstance(node.parent[index - 1], nodes.paragraph):
+                self.body.append('\n')
+
             # do not generate \phantomsection in \section{}
             anchor = not self.in_title
             self.body.append(self.hypertarget(id, anchor=anchor))
@@ -2262,6 +2268,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
             highlight_args = node.get('highlight_args', {})
+            hllines = '\\fvset{hllines={, %s,}}%%' %\
+                      str(highlight_args.get('hl_lines', []))[1:-1]
             if 'language' in node:
                 # code-block directives
                 lang = node['language']
@@ -2300,7 +2308,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
-            self.body.append('\n' + hlcode + '\n')
+            self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):

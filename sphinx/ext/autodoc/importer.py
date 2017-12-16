@@ -10,13 +10,16 @@
 """
 
 import sys
+import warnings
+import traceback
+import contextlib
 from types import FunctionType, MethodType, ModuleType
 
 from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, List, Set  # NOQA
+    from typing import Any, Generator, List, Set  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +78,6 @@ class _MockModule(ModuleType):
 
 
 class _MockImporter(object):
-
     def __init__(self, names):
         # type: (List[str]) -> None
         self.base_packages = set()  # type: Set[str]
@@ -116,3 +118,29 @@ class _MockImporter(object):
             sys.modules[name] = module
             self.mocked_modules.append(name)
             return module
+
+
+@contextlib.contextmanager
+def mock(names):
+    # type: (List[str]) -> Generator
+    try:
+        importer = _MockImporter(names)
+        yield
+    finally:
+        importer.disable()
+
+
+def import_module(modname, warningiserror=False):
+    """
+    Call __import__(modname), convert exceptions to ImportError
+    """
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ImportWarning)
+            with logging.skip_warningiserror(not warningiserror):
+                __import__(modname)
+                return sys.modules[modname]
+    except BaseException as exc:
+        # Importing modules may cause any side effects, including
+        # SystemExit, so we need to catch all errors.
+        raise ImportError(exc, traceback.format_exc())

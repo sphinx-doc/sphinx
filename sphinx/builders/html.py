@@ -274,7 +274,7 @@ class StandaloneHTMLBuilder(Builder):
         # type: () -> Iterator[unicode]
         cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)
-        self.tags_hash = get_stable_hash(sorted(self.tags))  # type: ignore
+        self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
             with open(path.join(self.outdir, '.buildinfo')) as fp:
@@ -864,9 +864,21 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern):
             # type: (unicode) -> bool
             return any(char in pattern for char in '*?[')
-        sidebars = None
+        sidebars = self.theme.get_config('theme', 'sidebars', None)
         matched = None
         customsidebar = None
+
+        # default sidebars settings for selected theme
+        theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
+        if theme_default_sidebars:
+            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        elif self.theme.name == 'alabaster':
+            # provide default settings for alabaster (for compatibility)
+            # Note: this will be removed before Sphinx-2.0
+            sidebars = ['about.html', 'navigation.html', 'relation.html',
+                        'searchbox.html', 'donate.html']
+
+        # user sidebar settings
         for pattern, patsidebars in iteritems(self.config.html_sidebars):
             if patmatch(pagename, pattern):
                 if matched:
@@ -881,6 +893,7 @@ class StandaloneHTMLBuilder(Builder):
                         continue
                 matched = pattern
                 sidebars = patsidebars
+
         if sidebars is None:
             # keep defaults
             pass
@@ -888,6 +901,11 @@ class StandaloneHTMLBuilder(Builder):
             # 0.x compatible mode: insert custom sidebar before searchbox
             customsidebar = sidebars
             sidebars = None
+            warnings.warn('Now html_sidebars only allows list of sidebar '
+                          'templates as a value. Support for a string value '
+                          'will be removed at Sphinx-2.0.',
+                          RemovedInSphinx20Warning)
+
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
 

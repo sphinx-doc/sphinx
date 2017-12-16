@@ -11,9 +11,14 @@ Incompatible changes
   package when ``--implicit-namespaces`` option given, not subdirectories of
   given directory.
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
+* #4226: apidoc: Generate new style makefile (make-mode)
+* #4274: sphinx-build returns 2 as an exit code on argument error
 
 Deprecated
 ----------
+
+* using a string value for :confval:`html_sidebars` is deprecated and only list
+  values will be accepted at 2.0.
 
 Features added
 --------------
@@ -21,7 +26,8 @@ Features added
 * C++, handle ``decltype(auto)``.
 * #2406: C++, add proper parsing of expressions, including linking of identifiers.
 * C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
-* #4094: C++, allow empty template argument lists.
+* C++, support explicit member instantiations with shorthand ``template`` prefix.
+* C++, make function parameters linkable, like template params.
 * #3638: Allow to change a label of reference to equation using
   ``math_eqref_format``
 
@@ -37,6 +43,10 @@ Features added
 * #4052: viewcode: Sort before highlighting module code
 * #1448: qthelp: Add new config value; :confval:`qthelp_namespace`
 * #4140: html themes: Make body tag inheritable
+* #4168: improve zh search with jieba
+* HTML themes can set up default sidebars through ``theme.conf``
+* #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
+* #4212: autosummary: catch all exceptions when importing modules
 * #3991, #4080: Add :confval:`math_numfig` for equation numbering by section
 
 
@@ -68,19 +78,24 @@ Features removed
 * ``sphinx.util.nodes.process_only_nodes()``
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
 * LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
+* C++, support of function concepts. Thanks to mickk-on-cpp.
+
 
 Bugs fixed
 ----------
 
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
+* #4094: C++, allow empty template argument lists.
+* C++, also hyperlink types in the name of declarations with qualified names.
+* C++, do not add index entries for declarations inside concepts. 
 
 Testing
 --------
 
 * Add support for docutils 0.14
 
-Release 1.6.5 (in development)
+Release 1.6.6 (in development)
 ==============================
 
 Dependencies
@@ -91,6 +106,36 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+* #4181: autodoc: Sort dictionary keys when possible
+* ``VerbatimHighlightColor`` is a new
+  :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
+* Easier customizability of LaTeX macros involved in rendering of code-blocks
+
+Bugs fixed
+----------
+
+* #4206: latex: reST label between paragraphs loses paragraph break
+* #4231: html: Apply fixFirefoxAnchorBug only under Firefox
+* #4221: napoleon depends on autodoc, but users need to load it manually
+* #2298: automodule fails to document a class attribute
+* #4099: C++: properly link class reference to class from inside constructor
+* #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
+* #4249: PDF output: Pygments error highlighting increases line spacing in
+  code blocks
+* #1238: Support ``:emphasize-lines:`` in PDF output
+* #4279: Sphinx crashes with pickling error when run with multiple processes and
+  remote image
+* #1421: Respect the quiet flag in sphinx-quickstart
+
+Testing
+--------
+
+Release 1.6.5 (released Oct 23, 2017)
+=====================================
 
 Features added
 --------------
@@ -112,9 +157,16 @@ Bugs fixed
 * #4108: Search word highlighting breaks SVG images
 * #3692: Unable to build HTML if writing .buildinfo failed
 * #4152: HTML writer crashes if a field list is placed on top of the document
-
-Testing
---------
+* #4063: Sphinx crashes when labeling directive ``.. todolist::``
+* #4134: [doc] :file:`docutils.conf` is not documented explicitly
+* #4169: Chinese language doesn't trigger Chinese search automatically
+* #1020: ext.todo todolist not linking to the page in pdflatex
+* #3965: New quickstart generates wrong SPHINXBUILD in Makefile
+* #3739: ``:module:`` option is ignored at content of pyobjects
+* #4149: Documentation: Help choosing :confval:`latex_engine`
+* #4090: [doc] :confval:`latex_additional_files` with extra LaTeX macros should
+  not use ``.tex`` extension
+* Failed to convert reST parser error to warning (refs: #4132)
 
 Release 1.6.4 (released Sep 26, 2017)
 =====================================

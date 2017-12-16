@@ -83,6 +83,7 @@ builtin_extensions = (
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',
+    'sphinx.io',
     'sphinx.parsers',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',

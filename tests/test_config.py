@@ -240,3 +240,15 @@ def test_check_enum(app, status, warning):
 def test_check_enum_failed(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            "but `invalid` is given." in warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two']})
+def test_check_enum_for_list(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           not in warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two', 'invalid']})
+def test_check_enum_for_list_failed(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           "but `['one', 'two', 'invalid']` is given." in warning.getvalue()

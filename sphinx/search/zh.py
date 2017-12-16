@@ -240,7 +240,7 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
-                jieba.set_dictionary(dict_path)
+                jieba.load_userdict(dict_path)
 
         self.stemmer = get_stemmer()
 

@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2017/03/07 v1.6 hyperref aware footnote.sty for sphinx (JFB)]
+ [2017/10/27 v1.7 hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty 2017/03/07 v1.0
@@ -16,6 +16,7 @@
 %% 3. use of \sphinxunactivateextrasandspace from sphinx.sty,
 %% 4. macro definition \sphinxfootnotemark,
 %% 5. macro definition \sphinxlongtablepatch
+%% 6. replaced an \undefined by \@undefined
 \DeclareOption*{\PackageWarning{footnotehyper-sphinx}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \newbox\FNH@notes
@@ -197,7 +198,7 @@
 }%
 \AtBeginDocument{%
    \let\FNH@@makefntext\@makefntext
-   \ifx\@makefntextFB\undefined
+   \ifx\@makefntextFB\@undefined
    \expandafter\@gobble\else\expandafter\@firstofone\fi
    {\ifFBFrenchFootnotes \let\FNH@@makefntext\@makefntextFB \else
                          \let\FNH@@makefntext\@makefntextORI\fi}%

@@ -111,9 +111,20 @@ def test_expressions():
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
     exprCheck('false', 'L0E')
-    exprCheck('5', 'L5E')
-    exprCheck('5.0', 'L5.0E')
-    exprCheck('"abc\\"cba"', 'LA8_KcE')
+    ints = ['5', '0', '075', '0xF', '0XF', '0b1', '0B1']
+    unsignedSuffix = ['', 'u', 'U']
+    longSuffix = ['', 'l', 'L', 'll', 'LL']
+    for i in ints:
+        for u in unsignedSuffix:
+            for l in longSuffix:
+                expr = i + u + l;
+                exprCheck(expr, 'L' + expr + 'E')
+                expr = i + l + u;
+                exprCheck(expr, 'L' + expr + 'E')
+    for suffix in ['', 'f', 'F', 'l', 'L']:
+        expr = '5.0' + suffix
+        exprCheck(expr, 'L' + expr + 'E')
+    exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     # TODO: test the rest
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
@@ -135,6 +146,11 @@ def test_expressions():
     exprCheck('-5', 'ngL5E')
     exprCheck('!5', 'ntL5E')
     exprCheck('~5', 'coL5E')
+    exprCheck('sizeof...(a)', 'sZ1a')
+    exprCheck('sizeof(T)', 'st1T')
+    exprCheck('sizeof -42', 'szngL42E')
+    exprCheck('alignof(T)', 'at1T')
+    exprCheck('noexcept(-42)', 'nxngL42E')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op
@@ -219,6 +235,7 @@ def test_type_definitions():
     check("type", "bool ::B::b", {1:"B::b", 2:"N1B1bE"})
 
     check('type', 'A = B', {2:'1A'})
+    check('type', 'A = decltype(b)', {2:'1A'})
 
     # from breathe#267 (named function parameters for function pointers
     check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
@@ -230,10 +247,6 @@ def test_concept_definitions():
     check('concept', 'template<typename Param> A::B::Concept',
           {2:'I0EN1A1B7ConceptE'})
     check('concept', 'template<typename A, typename B, typename ...C> Foo',
-          {2:'I00DpE3Foo'})
-    check('concept', 'template<typename Param> A::B::Concept()',
-          {2:'I0EN1A1B7ConceptE'})
-    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
           {2:'I00DpE3Foo'})
     with pytest.raises(DefinitionError):
         parse('concept', 'Foo')
@@ -377,6 +390,8 @@ def test_function_definitions():
 
     check('function', 'extern int f()', {1:'f', 2:'1fv'})
 
+    check('function', 'decltype(auto) f()', {1: 'f', 2:"1fv"})
+
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
@@ -454,6 +469,10 @@ def test_class_definitions():
     check('class', 'A : B, C...', {1:'A', 2:'1A'})
     check('class', 'A : B..., C', {1:'A', 2:'1A'})
 
+    # from #4094
+    check('class', 'template<class, class = std::void_t<>> has_var', {2:'I00E7has_var'})
+    check('class', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>', {2:'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
+
 
 def test_enum_definitions():
     check('enum', 'A', {2:"1A"})
@@ -489,6 +508,10 @@ def test_templates():
     check('class', "template<typename T = Test> A", {2:"I0E1A"})
 
     check('class', "template<template<typename> typename T> A", {2:"II0E0E1A"})
+    check('class', "template<template<typename> typename> A", {2: "II0E0E1A"})
+    check('class', "template<template<typename> typename ...T> A", {2:"II0EDpE1A"})
+    check('class', "template<template<typename> typename...> A", {2: "II0EDpE1A"})
+
     check('class', "template<int> A", {2:"I_iE1A"})
     check('class', "template<int T> A", {2:"I_iE1A"})
     check('class', "template<int... T> A", {2:"I_DpiE1A"})
@@ -538,6 +561,13 @@ def test_templates():
     check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
           {2:'IDpE8Numerics'})
 
+    # explicit specializations of members
+    check('member', 'template<> int A<int>::a', {2:'IEN1AIiE1aE'})
+    check('member', 'template int A<int>::a', {2: 'IEN1AIiE1aE'},
+          output='template<> int A<int>::a')  # same as above
+    check('member', 'template<> template<> int A<int>::B<int>::b', {2:'IEIEN1AIiE1BIiE1bE'})
+    check('member', 'template int A<int>::B<int>::b', {2: 'IEIEN1AIiE1BIiE1bE'},
+          output='template<> template<> int A<int>::B<int>::b')  # same as above
 
 
 def test_template_args():

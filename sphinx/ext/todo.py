@@ -69,6 +69,8 @@ class Todo(BaseAdmonition):
 
         env = self.state.document.settings.env
         targetid = 'index-%s' % env.new_serialno('index')
+        # Stash the target to be retrieved later in latex_visit_todo_node.
+        todo['targetref'] = '%s:%s' % (env.docname, targetid)
         targetnode = nodes.target('', '', ids=[targetid])
         return [targetnode, todo]
 
@@ -137,11 +139,14 @@ def process_todo_nodes(app, doctree, fromdocname):
         env.todo_all_todos = []  # type: ignore
 
     for node in doctree.traverse(todolist):
-        if not app.config['todo_include_todos']:
-            node.replace_self([])
-            continue
+        if node.get('ids'):
+            content = [nodes.target()]
+        else:
+            content = []
 
-        content = []
+        if not app.config['todo_include_todos']:
+            node.replace_self(content)
+            continue
 
         for todo_info in env.todo_all_todos:  # type: ignore
             para = nodes.paragraph(classes=['todo-source'])
@@ -170,8 +175,12 @@ def process_todo_nodes(app, doctree, fromdocname):
             para += newnode
             para += nodes.Text(desc2, desc2)
 
-            # (Recursively) resolve references in the todo content
             todo_entry = todo_info['todo']
+            # Remove targetref from the (copied) node to avoid emitting a
+            # duplicate label of the original entry when we walk this node.
+            del todo_entry['targetref']
+
+            # (Recursively) resolve references in the todo content
             env.resolve_references(todo_entry, todo_info['docname'],
                                    app.builder)
 
@@ -213,7 +222,13 @@ def depart_todo_node(self, node):
 def latex_visit_todo_node(self, node):
     # type: (nodes.NodeVisitor, todo_node) -> None
     title = node.pop(0).astext().translate(tex_escape_map)
-    self.body.append(u'\n\\begin{sphinxadmonition}{note}{%s:}' % title)
+    self.body.append(u'\n\\begin{sphinxadmonition}{note}{')
+    # If this is the original todo node, emit a label that will be referenced by
+    # a hyperref in the todolist.
+    target = node.get('targetref')
+    if target is not None:
+        self.body.append(u'\\label{%s}' % target)
+    self.body.append('%s:}' % title)
 
 
 def latex_depart_todo_node(self, node):

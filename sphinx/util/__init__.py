@@ -398,10 +398,8 @@ def parselinenos(spec, total):
             elif len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
-                start = int(begend[0] or 1)     # type: ignore
-                                                # left half open (cf. -10)
-                end = int(begend[1] or max(start, total))   # type: ignore
-                                                            # right half open (cf. 10-)
+                start = int(begend[0] or 1)  # left half open (cf. -10)
+                end = int(begend[1] or max(start, total))  # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
@@ -528,7 +526,7 @@ class PeekableIterator(object):
     def peek(self):
         # type: () -> Any
         """Return the next item without changing the state of the iterator."""
-        item = next(self)  # type: ignore
+        item = next(self)
         self.push(item)
         return item
 
@@ -562,16 +560,6 @@ def encode_uri(uri):
                  for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query).decode('ascii')
     return urlunsplit(split)
-
-
-def split_docinfo(text):
-    # type: (unicode) -> Sequence[unicode]
-    docinfo_re = re.compile('\\A((?:\\s*:\\w+:.*?\n(?:[ \\t]+.*?\n)*)+)', re.M)
-    result = docinfo_re.split(text, 1)  # type: ignore
-    if len(result) == 1:
-        return '', result[0]
-    else:
-        return result[1:]
 
 
 def display_chunk(chunk):

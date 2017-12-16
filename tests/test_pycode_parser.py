@@ -9,6 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
+from six import PY2
+
 from sphinx.pycode.parser import Parser
 
 
@@ -112,6 +115,23 @@ def test_complex_assignment():
                                ('', 'phi'): 'unpack assignment via tuple',
                                ('', 'x'): 'unpack assignment via list',
                                ('', 'y'): 'unpack assignment via list',
+                               }
+    assert parser.definitions == {}
+
+
+@pytest.mark.skipif(PY2, reason='tests for py3 syntax')
+def test_complex_assignment_py3():
+    source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
+              'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'
+              'e, *f[0] = (8, 9, 0)  #: unpack assignment3\n'
+              )
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'unpack assignment',
+                               ('', 'b'): 'unpack assignment',
+                               ('', 'c'): 'unpack assignment',
+                               ('', 'd'): 'unpack assignment2',
+                               ('', 'e'): 'unpack assignment3',
                                }
     assert parser.definitions == {}
 
@@ -224,6 +244,18 @@ def test_nested_class():
                                 'Foo.attr1': 1,
                                 'Foo.Bar': 2,
                                 'Foo.Bar.attr2': 3}
+
+
+def test_class_comment():
+    source = ('import logging\n'
+              'logger = logging.getLogger(__name__)\n'
+              '\n'
+              'class Foo(object):\n'
+              '    """Bar"""\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {}
+    assert parser.definitions == {'Foo': ('class', 4, 5)}
 
 
 def test_comment_picker_multiline_string():

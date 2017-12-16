@@ -13,21 +13,24 @@ from __future__ import print_function
 import traceback
 
 from pkg_resources import iter_entry_points
-from six import itervalues
+from six import iteritems, itervalues, string_types
 
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.locale import __
+from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util import import_object
 from sphinx.util.docutils import directive_helper
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Type  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -48,6 +51,7 @@ class SphinxComponentRegistry(object):
         self.builders = {}          # type: Dict[unicode, Type[Builder]]
         self.domains = {}           # type: Dict[unicode, Type[Domain]]
         self.source_parsers = {}    # type: Dict[unicode, Parser]
+        self.source_inputs = {}     # type: Dict[unicode, Input]
         self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
 
     def add_builder(self, builder):
@@ -155,14 +159,60 @@ class SphinxComponentRegistry(object):
         stddomain.object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_source_parser(self, suffix, parser):
-        # type: (unicode, Parser) -> None
+        # type: (unicode, Type[Parser]) -> None
         if suffix in self.source_parsers:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         self.source_parsers[suffix] = parser
 
+    def get_source_parser(self, filename):
+        # type: (unicode) -> Type[Parser]
+        for suffix, parser_class in iteritems(self.source_parsers):
+            if filename.endswith(suffix):
+                break
+        else:
+            # use special parser for unknown file-extension '*' (if exists)
+            parser_class = self.source_parsers.get('*')
+
+        if parser_class is None:
+            raise SphinxError(__('Source parser for %s not registered') % filename)
+        else:
+            if isinstance(parser_class, string_types):
+                parser_class = import_object(parser_class, 'source parser')  # type: ignore
+            return parser_class
+
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
         return self.source_parsers
+
+    def create_source_parser(self, app, filename):
+        # type: (Sphinx, unicode) -> Parser
+        parser_class = self.get_source_parser(filename)
+        parser = parser_class()
+        if isinstance(parser, SphinxParser):
+            parser.set_application(app)
+        return parser
+
+    def add_source_input(self, filetype, input_class):
+        # type: (unicode, Type[Input]) -> None
+        if filetype in self.source_inputs:
+            raise ExtensionError(__('source_input for %r is already registered') % filetype)
+        self.source_inputs[filetype] = input_class
+
+    def get_source_input(self, filename):
+        # type: (unicode) -> Type[Input]
+        parser = self.get_source_parser(filename)
+        for filetype in parser.supported:
+            if filetype in self.source_inputs:
+                input_class = self.source_inputs[filetype]
+                break
+        else:
+            # use special source_input for unknown file-type '*' (if exists)
+            input_class = self.source_inputs.get('*')
+
+        if input_class is None:
+            raise SphinxError(__('source_input for %s not registered') % filename)
+        else:
+            return input_class
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None

@@ -27,13 +27,12 @@ class Config(object):
 
     Listed below are all the settings used by napoleon and their default
     values. These settings can be changed in the Sphinx `conf.py` file. Make
-    sure that both "sphinx.ext.autodoc" and "sphinx.ext.napoleon" are
-    enabled in `conf.py`::
+    sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
         # conf.py
 
         # Add any Sphinx extension module names here, as strings
-        extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+        extensions = ['sphinx.ext.napoleon']
 
         # Napoleon settings
         napoleon_google_docstring = True
@@ -294,6 +293,7 @@ def setup(app):
 
     _patch_python_domain()
 
+    app.setup_extension('sphinx.ext.autodoc')
     app.connect('autodoc-process-docstring', _process_docstring)
     app.connect('autodoc-skip-member', _skip_member)
 
