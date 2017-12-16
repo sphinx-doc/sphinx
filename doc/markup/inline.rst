@@ -224,7 +224,7 @@ Cross-referencing figures by figure number
 
    If an explicit link text is given (as usual: ``:numref:`Image of Sphinx (Fig.
    %s) <my-figure>```), the link caption will serve as title of the reference.
-   As place holders, `%s` and `{number}` get replaced by the figure
+   As placeholders, `%s` and `{number}` get replaced by the figure
    number and  `{name}` by the figure caption.
    If no explicit link text is given, the :confval:`numfig_format` setting is
    used as fall-back default.
