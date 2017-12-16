@@ -183,7 +183,7 @@
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}
-
+\RequirePackage{remreset}% provides \@removefromreset
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
@@ -247,7 +247,9 @@
 \fi
 
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
-
+\DeclareStringOption[-1]{numfigreset}
+\DeclareBoolOption[false]{nonumfigreset}
+% \DeclareBoolOption[false]{usespart}% not used
 % dimensions, we declare the \dimen registers here.
 \newdimen\sphinxverbatimsep
 \newdimen\sphinxverbatimborder
@@ -349,6 +351,8 @@
 \ProcessKeyvalOptions*
 % don't allow use of maxlistdepth via \sphinxsetup.
 \DisableKeyvalOption{sphinx}{maxlistdepth}
+\DisableKeyvalOption{sphinx}{numfigreset}
+\DisableKeyvalOption{sphinx}{nonumfigreset}
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
@@ -657,12 +661,94 @@
   {\abovecaptionskip\smallskipamount
    \belowcaptionskip\smallskipamount}
 
+
 %% FOOTNOTES
 %
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
 % when minipages are in use in the various macro definitions next.
 \def\thempfootnote{\arabic{mpfootnote}}
+
+
+%% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
+\ltx@ifundefined{c@chapter}
+   {\newcounter{literalblock}}%
+   {\newcounter{literalblock}[chapter]%
+    \def\theliteralblock{\ifnum\c@chapter>\z@\arabic{chapter}.\fi
+                         \arabic{literalblock}}%
+    }%
+\ifspx@opt@nonumfigreset
+    \ltx@ifundefined{c@chapter}{}{%
+      \@removefromreset{figure}{chapter}%
+      \@removefromreset{table}{chapter}%
+      \@removefromreset{literalblock}{chapter}%
+    }%
+    \def\thefigure{\arabic{figure}}%
+    \def\thetable {\arabic{table}}%
+    \def\theliteralblock{\arabic{literalblock}}%
+    %\let\theHliteralblock\theliteralblock
+\else
+\let\spx@preAthefigure\@empty
+\let\spx@preBthefigure\@empty
+% \ifspx@opt@usespart  % <-- LaTeX writer could pass such a 'usespart' boolean
+%                      %     as sphinx.sty package option
+% If document uses \part, (triggered in Sphinx by latex_toplevel_sectioning)
+% LaTeX core per default does not reset chapter or section
+% counters at each part.
+% But if we modify this, we need to redefine \thechapter, \thesection to
+% include the part number and this will cause problems in table of contents
+% because of too wide numbering. Simplest is to do nothing.
+% \fi
+\ifnum\spx@opt@numfigreset>0
+    \ltx@ifundefined{c@chapter}
+      {}
+      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}.}%
+       \g@addto@macro\spx@preBthefigure{\fi}}%
+\fi
+\ifnum\spx@opt@numfigreset>1
+    \@addtoreset{figure}{section}%
+    \@addtoreset{table}{section}%
+    \@addtoreset{literalblock}{section}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>2
+    \@addtoreset{figure}{subsection}%
+    \@addtoreset{table}{subsection}%
+    \@addtoreset{literalblock}{subsection}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>3
+    \@addtoreset{figure}{subsubsection}%
+    \@addtoreset{table}{subsubsection}%
+    \@addtoreset{literalblock}{subsubsection}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>4
+    \@addtoreset{figure}{paragraph}%
+    \@addtoreset{table}{paragraph}%
+    \@addtoreset{literalblock}{paragraph}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>5
+    \@addtoreset{figure}{subparagraph}%
+    \@addtoreset{table}{subparagraph}%
+    \@addtoreset{literalblock}{subparagraph}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\expandafter\g@addto@macro
+\expandafter\spx@preAthefigure\expandafter{\spx@preBthefigure}%
+\let\thefigure\spx@preAthefigure
+\let\thetable\spx@preAthefigure
+\let\theliteralblock\spx@preAthefigure
+\g@addto@macro\thefigure{\arabic{figure}}%
+\g@addto@macro\thetable{\arabic{table}}%
+\g@addto@macro\theliteralblock{\arabic{literalblock}}%
+\fi
 
 
 %% LITERAL BLOCKS
@@ -680,15 +766,6 @@
 \let\endOriginalVerbatim\endVerbatim
 
 % for captions of literal blocks
-% also define `\theH...` macros for hyperref
-\newcounter{literalblock}
-\ltx@ifundefined{c@chapter}
-  {\@addtoreset{literalblock}{section}
-  \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
-  {\@addtoreset{literalblock}{chapter}
-  \def\theliteralblock {\ifnum\c@chapter>\z@ \thechapter.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHchapter.\arabic{literalblock}}}
 % at start of caption title
 \newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
 % this will be overwritten in document preamble by Babel translation

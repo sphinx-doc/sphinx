@@ -48,7 +48,6 @@ BEGIN_DOC = r'''
 
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
-SECNUMDEPTH = 3
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
 
@@ -504,6 +503,8 @@ def rstdim_to_latexdim(width_str):
 
 class LaTeXTranslator(nodes.NodeVisitor):
 
+    secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
+    # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
     # sphinx specific document classes
@@ -581,6 +582,24 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
+
+        if builder.config.numfig:
+            self.numfig_secnum_depth = builder.config.numfig_secnum_depth
+            if self.numfig_secnum_depth > 0:  # default is 1
+                # numfig_secnum_depth as passed to sphinx.sty indices same names as in
+                # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
+                if len(self.sectionnames) < 7 and self.top_sectionlevel > 0:
+                    self.numfig_secnum_depth += self.top_sectionlevel
+                else:
+                    self.numfig_secnum_depth += self.top_sectionlevel - 1
+                if self.numfig_secnum_depth >= len(self.sectionnames):
+                    self.numfig_secnum_depth = len(self.sectionnames) - 1
+                # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
+                self.elements['sphinxpkgoptions'] += \
+                    (',numfigreset=%s' % self.numfig_secnum_depth)
+            else:
+                self.elements['sphinxpkgoptions'] += ',nonumfigreset'
+
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
@@ -637,6 +656,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
+
+        minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if document.get('tocdepth'):
             # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
@@ -653,9 +674,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 tocdepth = 5
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
-            if tocdepth >= SECNUMDEPTH:
-                # Increase secnumdepth if tocdepth is deeper than default SECNUMDEPTH
-                self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
+            minsecnumdepth = max(minsecnumdepth, tocdepth)
+
+        if builder.config.numfig and (builder.config.numfig_secnum_depth > 0):
+            minsecnumdepth = max(minsecnumdepth, self.numfig_secnum_depth - 1)
+
+        if minsecnumdepth > self.secnumdepth:
+            self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
+                                           minsecnumdepth
 
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
