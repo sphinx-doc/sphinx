@@ -1475,11 +1475,11 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         AttributeDocumenter.add_content(self, more_content, no_docstring=True)
 
 
-class AutoDirective(Directive):
+class AutoDirective(object):
     """
-    The AutoDirective class is used for all autodoc directives.  It dispatches
-    most of the work to one of the Documenters, which it selects through its
-    *_registry* dictionary.
+    A registry of Documenters and attrgetters.
+
+    The *_registry* attribute is used to store registered Documenters.
 
     The *_special_attrgetters* attribute is used to customize ``getattr()``
     calls that the Documenters make; its entries are of the form ``type:
