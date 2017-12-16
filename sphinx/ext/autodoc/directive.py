@@ -53,6 +53,8 @@ class Options(dict):
 
 
 class DocumenterBridge(object):
+    """A parameters container for Documenters."""
+
     def __init__(self, env, reporter, options, lineno):
         # type: (BuildEnvironment, Reporter, Options, int) -> None
         self.env = env
@@ -70,6 +72,7 @@ class DocumenterBridge(object):
 
 def process_documenter_options(documenter, config, options):
     # type: (Type[Documenter], Config, Dict) -> Options
+    """Recognize options of Documenter from user input."""
     for name in AUTODOC_DEFAULT_OPTIONS:
         if name not in documenter.option_spec:
             continue
@@ -83,6 +86,7 @@ def process_documenter_options(documenter, config, options):
 
 def parse_generated_content(state, content, documenter):
     # type: (State, StringList, Documenter) -> List[nodes.Node]
+    """Parse a generated content by Documenter."""
     with switch_source_input(state, content):
         if documenter.titles_allowed:
             node = nodes.section()
