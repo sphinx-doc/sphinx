@@ -337,7 +337,9 @@ General configuration
 
    The scope for numbering: ``0`` means "continuous numbering",
    ``1`` means "reset per section"
-   (i.e. numbers will be x.1, x.2, x.3 ... with x the section number),
+   (i.e. numbers will be x.1, x.2, x.3 ... with x the section number,
+   assuming that the :rst:dir:`toctree` directive was used with its option
+   ``:numbered:``),
    ``2`` means "per subsection"
    (i.e. numbers will be x.y.1, x.y.2, ...),
    and so on.  Default is ``1``.
