@@ -18,8 +18,6 @@ import traceback
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
-from docutils import nodes
-from docutils.utils import assemble_option_dict
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
@@ -32,7 +30,6 @@ from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util import logging
-from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
     isenumclass, isenumattribute, getdoc
@@ -42,10 +39,10 @@ if False:
     # For type annotation
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
-    from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
+
 
 # This type isn't exposed directly in any modules, but can be found
 # here in most Python versions
@@ -63,40 +60,9 @@ py_ext_sig_re = re.compile(
           ''', re.VERBOSE)
 
 
-class DefDict(dict):
-    """A dict that returns a default on nonexisting keys."""
-    def __init__(self, default):
-        # type: (Any) -> None
-        dict.__init__(self)
-        self.default = default
-
-    def __getitem__(self, key):
-        # type: (Any) -> Any
-        try:
-            return dict.__getitem__(self, key)
-        except KeyError:
-            return self.default
-
-    def __bool__(self):
-        # type: () -> bool
-        # docutils check "if option_spec"
-        return True
-    __nonzero__ = __bool__  # for python2 compatibility
-
-
 def identity(x):
     # type: (Any) -> Any
     return x
-
-
-class Options(dict):
-    """A dict/attribute hybrid that returns None on nonexisting keys."""
-    def __getattr__(self, name):
-        # type: (unicode) -> Any
-        try:
-            return self[name.replace('_', '-')]
-        except KeyError:
-            return None
 
 
 ALL = object()
@@ -1524,93 +1490,6 @@ class AutoDirective(Directive):
 
     # a registry of type -> getattr function
     _special_attrgetters = {}  # type: Dict[Type, Callable]
-
-    # flags that can be given in autodoc_default_flags
-    _default_flags = set([
-        'members', 'undoc-members', 'inherited-members', 'show-inheritance',
-        'private-members', 'special-members',
-    ])
-
-    # standard docutils directive settings
-    has_content = True
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    # allow any options to be passed; the options are parsed further
-    # by the selected Documenter
-    option_spec = DefDict(identity)
-
-    def warn(self, msg):
-        # type: (unicode) -> None
-        self.warnings.append(self.reporter.warning(msg, line=self.lineno))
-
-    def run(self):
-        # type: () -> List[nodes.Node]
-        self.filename_set = set()   # type: Set[unicode]
-                                    # a set of dependent filenames
-        self.reporter = self.state.document.reporter
-        self.env = self.state.document.settings.env
-        self.warnings = []  # type: List[unicode]
-        self.result = ViewList()
-
-        try:
-            source, lineno = self.reporter.get_source_and_line(self.lineno)
-        except AttributeError:
-            source = lineno = None
-        logger.debug('[autodoc] %s:%s: input:\n%s',
-                     source, lineno, self.block_text)
-
-        # find out what documenter to call
-        objtype = self.name[4:]
-        doc_class = self._registry[objtype]
-        # add default flags
-        for flag in self._default_flags:
-            if flag not in doc_class.option_spec:
-                continue
-            negated = self.options.pop('no-' + flag, 'not given') is None
-            if flag in self.env.config.autodoc_default_flags and \
-               not negated:
-                self.options[flag] = None
-        # process the options with the selected documenter's option_spec
-        try:
-            self.genopt = Options(assemble_option_dict(
-                self.options.items(), doc_class.option_spec))
-        except (KeyError, ValueError, TypeError) as err:
-            # an option is either unknown or has a wrong type
-            msg = self.reporter.error('An option to %s is either unknown or '
-                                      'has an invalid value: %s' % (self.name, err),
-                                      line=self.lineno)
-            return [msg]
-        # generate the output
-        documenter = doc_class(self, self.arguments[0])
-        documenter.generate(more_content=self.content)
-        if not self.result:
-            return self.warnings
-
-        logger.debug('[autodoc] output:\n%s', '\n'.join(self.result))
-
-        # record all filenames as dependencies -- this will at least
-        # partially make automatic invalidation possible
-        for fn in self.filename_set:
-            self.state.document.settings.record_dependencies.add(fn)
-
-        # use a custom reporter that correctly assigns lines to source
-        # filename/description and lineno
-        old_reporter = self.state.memo.reporter
-        self.state.memo.reporter = AutodocReporter(self.result,
-                                                   self.state.memo.reporter)
-
-        if documenter.titles_allowed:
-            node = nodes.section()
-            # necessary so that the child nodes get the right source/line set
-            node.document = self.state.document
-            nested_parse_with_titles(self.state, self.result, node)
-        else:
-            node = nodes.paragraph()
-            node.document = self.state.document
-            self.state.nested_parse(self.result, 0, node)
-        self.state.memo.reporter = old_reporter
-        return self.warnings + node.children
 
 
 def add_documenter(cls):

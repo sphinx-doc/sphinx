@@ -31,7 +31,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
@@ -204,12 +204,12 @@ def is_html5_writer_available():
     return __version_info__ > (0, 13, 0)
 
 
-def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
-    # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+def directive_helper(obj, has_content=None, argument_spec=None, option_spec=None, **options):
+    # type: (Any, bool, Tuple[int, int, bool], Dict, Any) -> Any
     if isinstance(obj, (types.FunctionType, types.MethodType)):
         obj.content = has_content                       # type: ignore
         obj.arguments = argument_spec or (0, 0, False)  # type: ignore
-        obj.options = option_spec                       # type: ignore
+        obj.options = option_spec or options            # type: ignore
         return convert_directive_function(obj)
     else:
         if has_content or argument_spec or option_spec:
