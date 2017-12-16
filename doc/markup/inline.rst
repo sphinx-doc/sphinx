@@ -222,15 +222,15 @@ Cross-referencing figures by figure number
    reST labels are used.  When you use this role, it will insert a reference to
    the figure with link text by its figure number like "Fig. 1.1".
 
-   If an explicit link text is given (like usual: ``:numref:`Image of Sphinx (Fig.
-   %s) <my-figure>```), the link caption will be the title of the reference.
-   As a special character, `%s` and `{number}` will be replaced to figure
-   number.  `{name}` will be replaced to figure caption.
-   If no explicit link text is given, the value of :confval:`numfig_format` is
-   used to default value of link text.
+   If an explicit link text is given (as usual: ``:numref:`Image of Sphinx (Fig.
+   %s) <my-figure>```), the link caption will serve as title of the reference.
+   As place holders, `%s` and `{number}` get replaced by the figure
+   number and  `{name}` by the figure caption.
+   If no explicit link text is given, the :confval:`numfig_format` setting is
+   used as fall-back default.
 
-   If :confval:`numfig` is ``False``, figures are not numbered.
-   so this role inserts not a reference but labels or link text.
+   If :confval:`numfig` is ``False``, figures are not numbered,
+   so this role inserts not a reference but the label or the link text.
 
 Cross-referencing other items of interest
 -----------------------------------------
