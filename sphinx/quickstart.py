@@ -35,7 +35,7 @@ from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.console import (  # type: ignore
     purple, bold, red, turquoise, nocolor, color_terminal
 )
@@ -67,13 +67,6 @@ EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
               'imgmath', 'mathjax', 'ifconfig', 'viewcode', 'githubpages')
 
 PROMPT_PREFIX = '> '
-
-
-def mkdir_p(dir):
-    # type: (unicode) -> None
-    if path.isdir(dir):
-        return
-    os.makedirs(dir)
 
 
 # function to get input from terminal -- overridden by the test suite
@@ -433,11 +426,11 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
     if not path.isdir(d['path']):
-        mkdir_p(d['path'])
+        ensuredir(d['path'])
 
     srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
 
-    mkdir_p(srcdir)
+    ensuredir(srcdir)
     if d['sep']:
         builddir = path.join(d['path'], 'build')
         d['exclude_patterns'] = ''
@@ -448,9 +441,9 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
             'Thumbs.db', '.DS_Store',
         ])
         d['exclude_patterns'] = ', '.join(exclude_patterns)
-    mkdir_p(builddir)
-    mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
-    mkdir_p(path.join(srcdir, d['dot'] + 'static'))
+    ensuredir(builddir)
+    ensuredir(path.join(srcdir, d['dot'] + 'templates'))
+    ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath, content, newline=None):
         # type: (unicode, unicode, unicode) -> None

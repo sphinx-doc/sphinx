@@ -26,7 +26,7 @@ from fnmatch import fnmatch
 from sphinx import __display_version__
 from sphinx.quickstart import EXTENSIONS
 from sphinx.util import rst
-from sphinx.util.osutil import FileAvoidWrite, walk
+from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
 if False:
     # For type annotation
@@ -375,9 +375,8 @@ Note: By default this script will not overwrite already created files.""")
     if not path.isdir(rootpath):
         print('%s is not a directory.' % rootpath, file=sys.stderr)
         sys.exit(1)
-    if not path.isdir(opts.destdir):
-        if not opts.dryrun:
-            os.makedirs(opts.destdir)
+    if not opts.dryrun:
+        ensuredir(opts.destdir)
     rootpath = path.abspath(rootpath)
     excludes = normalize_excludes(rootpath, excludes)
     modules = recurse_tree(rootpath, excludes, opts)
