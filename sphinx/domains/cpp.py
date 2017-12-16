@@ -573,7 +573,7 @@ class ASTBase(UnicodeMixin):
         if type(self) is not type(other):
             return False
         try:
-            for key, value in iteritems(self.__dict__):  # type: ignore
+            for key, value in iteritems(self.__dict__):
                 if value != getattr(other, key):
                     return False
         except AttributeError:

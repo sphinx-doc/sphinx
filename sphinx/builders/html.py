@@ -274,7 +274,7 @@ class StandaloneHTMLBuilder(Builder):
         # type: () -> Iterator[unicode]
         cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)
-        self.tags_hash = get_stable_hash(sorted(self.tags))  # type: ignore
+        self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
             with open(path.join(self.outdir, '.buildinfo')) as fp:

@@ -269,7 +269,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = u' ' * 4 * indentlevel + item  # type: ignore
+            item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:

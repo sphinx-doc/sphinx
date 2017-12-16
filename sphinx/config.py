@@ -291,7 +291,7 @@ class Config(object):
                 logger.warning("%s", exc)
         for name in config:
             if name in self.values:
-                self.__dict__[name] = config[name]
+                self.__dict__[name] = config[name]  # type: ignore
         if isinstance(self.source_suffix, string_types):  # type: ignore
             self.source_suffix = [self.source_suffix]  # type: ignore
 
