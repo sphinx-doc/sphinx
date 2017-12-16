@@ -12,7 +12,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import AutoDirective, AutodocReporter, identity
+from sphinx.ext.autodoc import AutoDirective, AutodocReporter
 from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
 
@@ -33,26 +33,12 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'show-inheritance', 'private-members', 'special-members']
 
 
-class DefDict(dict):
-    """A dict that returns a default on nonexisting keys."""
-    def __init__(self, default):
-        # type: (Any) -> None
-        dict.__init__(self)
-        self.default = default
+class DummyOptionSpec(object):
+    """An option_spec allows any options."""
 
     def __getitem__(self, key):
         # type: (Any) -> Any
-        try:
-            return dict.__getitem__(self, key)
-        except KeyError:
-            return self.default
-
-    def __bool__(self):
-        # type: () -> bool
-        # docutils check "if option_spec"
-        return True
-
-    __nonzero__ = __bool__  # for python2 compatibility
+        return lambda x: x
 
 
 class Options(dict):
@@ -123,7 +109,7 @@ class AutodocDirective(Directive):
     It invokes a Documenter on running. After the processing, it parses and returns
     the generated content by Documenter.
     """
-    option_spec = DefDict(identity)
+    option_spec = DummyOptionSpec()
     has_content = True
     required_arguments = 1
     optional_arguments = 0
