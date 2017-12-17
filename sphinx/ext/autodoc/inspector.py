@@ -10,9 +10,11 @@
 """
 
 import typing
+import warnings
 
 from six import StringIO, string_types
 
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.util.inspect import object_description
 
 if False:
@@ -29,6 +31,9 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
+    warnings.warn('format_annotation() is now deprecated.  '
+                  'Please use sphinx.util.inspect.Signature instead.',
+                  RemovedInSphinx20Warning)
     if isinstance(annotation, typing.TypeVar):  # type: ignore
         return annotation.__name__
     if annotation == Ellipsis:
@@ -107,6 +112,9 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
     An enhanced version of ``inspect.formatargspec()`` that handles typing
     annotations better.
     """
+    warnings.warn('formatargspec() is now deprecated.  '
+                  'Please use sphinx.util.inspect.Signature instead.',
+                  RemovedInSphinx20Warning)
 
     def format_arg_with_annotation(name):
         # type: (str) -> str
