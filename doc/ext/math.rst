@@ -102,8 +102,7 @@ or use Python raw strings (``r"raw"``).
 
 .. rst:role:: eq
 
-   Role for cross-referencing equations via their label.  This currently works
-   only within the same document.  Example::
+   Role for cross-referencing equations via their label.  Example::
 
       .. math:: e^{i\pi} + 1 = 0
          :label: euler
