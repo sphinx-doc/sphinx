@@ -19,6 +19,8 @@ Deprecated
 
 * using a string value for :confval:`html_sidebars` is deprecated and only list
   values will be accepted at 2.0.
+* ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
+  ``sphinx.util.inspect.Signature`` instead.
 
 Features added
 --------------
