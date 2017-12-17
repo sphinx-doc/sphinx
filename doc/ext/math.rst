@@ -47,10 +47,10 @@ or use Python raw strings (``r"raw"``).
 .. confval:: math_numfig
 
    If ``True``, displayed math equations are numbered across pages in html and
-   related (epub, ...) output.  The :confval:`numfig` config value must be
-   enabled and :confval:`numfig_secnum_depth` is respected.  The :rst:role:`eq`
-   role must be used to reference equation numbers, not the :rst:role:`numref`
-   role.  Default is ``False``.
+   related (epub, ...) output when :confval:`numfig` is enabled.
+   :confval:`numfig_secnum_depth` is respected.  The :rst:role:`eq` role must
+   be used to reference equation numbers, not the :rst:role:`numref` role.
+   Default is ``True``.
 
 :mod:`.mathbase` defines these new markup elements:
 

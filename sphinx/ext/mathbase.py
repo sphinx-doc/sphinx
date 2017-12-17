@@ -365,7 +365,7 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_number_all', False, 'env')
     app.add_config_value('math_eqref_format', None, 'env', string_classes)
-    app.add_config_value('math_numfig', False, 'env')
+    app.add_config_value('math_numfig', True, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
