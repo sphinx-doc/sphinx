@@ -19,7 +19,6 @@ import warnings
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
 
-from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
@@ -41,7 +40,10 @@ if False:
     # For type annotation
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
+    from docutils import nodes  # NOQA
+    from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.ext.autodoc.directive import DocumenterBridge  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +273,7 @@ class Documenter(object):
         raise NotImplementedError('must be implemented in subclasses')
 
     def __init__(self, directive, name, indent=u''):
-        # type: (Directive, unicode, unicode) -> None
+        # type: (DocumenterBridge, unicode, unicode) -> None
         self.directive = directive
         self.env = directive.env
         self.options = directive.genopt

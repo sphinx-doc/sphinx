@@ -31,7 +31,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from docutils.statemachine import State  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -221,7 +221,7 @@ def directive_helper(obj, has_content=None, argument_spec=None, option_spec=None
 
 @contextmanager
 def switch_source_input(state, content):
-    # type: (State, ViewList) -> None
+    # type: (State, ViewList) -> Generator
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
