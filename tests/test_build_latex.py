@@ -335,6 +335,43 @@ def test_numref_with_language_ja(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
+@pytest.mark.sphinx('latex', testroot='latex-numfig')
+def test_latex_obey_numfig_is_false(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 0})
+def test_latex_obey_numfig_secnum_depth_is_zero(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset]{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+def test_latex_obey_numfig_secnum_depth_is_two(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=2]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=3]{sphinx}' in result
+
+
 @pytest.mark.sphinx('latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
