@@ -1617,9 +1617,14 @@ These options influence LaTeX output. See further :doc:`latex`.
 .. confval:: latex_toplevel_sectioning
 
    This value determines the topmost sectioning unit. It should be chosen from
-   ``part``, ``chapter`` or ``section``. The default is ``None``; the topmost
-   sectioning unit is switched by documentclass. ``section`` is used if
+   ``'part'``, ``'chapter'`` or ``'section'``. The default is ``None``;
+   the topmost
+   sectioning unit is switched by documentclass: ``section`` is used if
    documentclass will be ``howto``, otherwise ``chapter`` will be used.
+
+   Note that if LaTeX uses ``\part`` command, then the numbering of sectioning
+   units one level deep gets off-sync with HTML numbering, because LaTeX
+   numbers continuously ``\chapter`` (or ``\section`` for ``howto``.)
 
    .. versionadded:: 1.4
 
