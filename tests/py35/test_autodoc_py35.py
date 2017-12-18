@@ -21,6 +21,7 @@ from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.util import logging
 
 app = None
 
@@ -30,7 +31,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app
     srcdir = sphinx_test_tempdir / 'autodoc-root'
     if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
+        (rootdir / 'test-root').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
@@ -47,7 +48,7 @@ directive = options = None
 @pytest.fixture
 def setup_test():
     global options, directive
-    global processed_docstrings, processed_signatures, _warnings
+    global processed_docstrings, processed_signatures
 
     options = Struct(
         inherited_members = False,
@@ -70,22 +71,15 @@ def setup_test():
         env = app.builder.env,
         genopt = options,
         result = ViewList(),
-        warn = warnfunc,
         filename_set = set(),
     )
 
     processed_docstrings = []
     processed_signatures = []
-    _warnings = []
 
 
-_warnings = []
 processed_docstrings = []
 processed_signatures = []
-
-
-def warnfunc(msg):
-    _warnings.append(msg)
 
 
 def process_docstring(app, what, name, obj, options, lines):
@@ -111,20 +105,21 @@ def skip_member(app, what, name, obj, skip, options):
 
 @pytest.mark.usefixtures('setup_test')
 def test_generate():
+    logging.setup(app, app._status, app._warning)
+
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert len(directive.result) == 0, directive.result
-        assert len(_warnings) == 1, _warnings
-        assert warn_str in _warnings[0], _warnings
-        del _warnings[:]
+        assert warn_str in app._warning.getvalue()
+        app._warning.truncate(0)
 
     def assert_works(objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         del directive.result[:]
 
     def assert_processes(items, objtype, name, **kw):
@@ -137,7 +132,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         assert item in directive.result
         del directive.result[:]
 
@@ -145,7 +140,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.options.member_order = member_order
         inst.generate(**kw)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         items = list(reversed(items))
         lineiter = iter(directive.result)
         # for line in directive.result:

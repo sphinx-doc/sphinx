@@ -21,6 +21,7 @@ from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.util import logging
 
 app = None
 
@@ -47,7 +48,7 @@ directive = options = None
 @pytest.fixture
 def setup_test():
     global options, directive
-    global processed_docstrings, processed_signatures, _warnings
+    global processed_docstrings, processed_signatures
 
     options = Struct(
         inherited_members = False,
@@ -70,26 +71,22 @@ def setup_test():
         env = app.builder.env,
         genopt = options,
         result = ViewList(),
-        warn = warnfunc,
         filename_set = set(),
     )
 
     processed_docstrings = []
     processed_signatures = []
-    _warnings = []
+
+    app._status.truncate(0)
+    app._warning.truncate(0)
 
     yield
 
     AutoDirective._special_attrgetters.clear()
 
 
-_warnings = []
 processed_docstrings = []
 processed_signatures = []
-
-
-def warnfunc(msg):
-    _warnings.append(msg)
 
 
 def process_docstring(app, what, name, obj, options, lines):
@@ -115,6 +112,8 @@ def skip_member(app, what, name, obj, skip, options):
 
 @pytest.mark.usefixtures('setup_test')
 def test_parse_name():
+    logging.setup(app, app._status, app._warning)
+
     def verify(objtype, name, result):
         inst = AutoDirective._registry[objtype](directive, name)
         assert inst.parse_name()
@@ -124,8 +123,7 @@ def test_parse_name():
     verify('module', 'test_autodoc', ('test_autodoc', [], None, None))
     verify('module', 'test.test_autodoc', ('test.test_autodoc', [], None, None))
     verify('module', 'test(arg)', ('test', [], 'arg', None))
-    assert 'signature arguments' in _warnings[0]
-    del _warnings[:]
+    assert 'signature arguments' in app._warning.getvalue()
 
     # for functions/classes
     verify('function', 'test_autodoc.raises',
@@ -241,7 +239,6 @@ def test_format_signature():
     # test exception handling (exception is caught and args is '')
     directive.env.config.autodoc_docstring_signature = False
     assert formatsig('function', 'int', int, None, None) == ''
-    del _warnings[:]
 
     # test processing by event handler
     assert formatsig('method', 'bar', H.foo1, None, None) == '42'
@@ -533,6 +530,8 @@ def test_docstring_property_processing():
 
 @pytest.mark.usefixtures('setup_test')
 def test_new_documenter():
+    logging.setup(app, app._status, app._warning)
+
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
         directivetype = 'data'
@@ -548,10 +547,11 @@ def test_new_documenter():
     add_documenter(MyDocumenter)
 
     def assert_result_contains(item, objtype, name, **kw):
+        app._warning.truncate(0)
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         assert item in directive.result
         del directive.result[:]
 
@@ -593,20 +593,22 @@ def test_attrgetter_using():
 
 @pytest.mark.usefixtures('setup_test')
 def test_generate():
+    logging.setup(app, app._status, app._warning)
+
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert len(directive.result) == 0, directive.result
-        assert len(_warnings) == 1, _warnings
-        assert warn_str in _warnings[0], _warnings
-        del _warnings[:]
+
+        assert warn_str in app._warning.getvalue()
+        app._warning.truncate(0)
 
     def assert_works(objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         del directive.result[:]
 
     def assert_processes(items, objtype, name, **kw):
@@ -619,7 +621,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         assert item in directive.result
         del directive.result[:]
 
@@ -627,7 +629,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.options.member_order = member_order
         inst.generate(**kw)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         items = list(reversed(items))
         lineiter = iter(directive.result)
         # for line in directive.result:

@@ -354,8 +354,7 @@ class Documenter(object):
             explicit_modname, path, base, args, retann = \
                 py_ext_sig_re.match(self.name).groups()  # type: ignore
         except AttributeError:
-            self.directive.warn('invalid signature for auto%s (%r)' %
-                                (self.objtype, self.name))
+            logger.warning('invalid signature for auto%s (%r)' % (self.objtype, self.name))
             return False
 
         # support explicit module and class name separation via ::
@@ -432,8 +431,7 @@ class Documenter(object):
 
                 if PY2:
                     errmsg = errmsg.decode('utf-8')  # type: ignore
-                logger.debug(errmsg)
-                self.directive.warn(errmsg)
+                logger.warning(errmsg)
                 self.env.note_reread()
                 return False
 
@@ -493,8 +491,8 @@ class Documenter(object):
             try:
                 args = self.format_args()
             except Exception as err:
-                self.directive.warn('error while formatting arguments for '
-                                    '%s: %s' % (self.fullname, err))
+                logger.warning('error while formatting arguments for %s: %s' %
+                               (self.fullname, err))
                 args = None
 
         retann = self.retann
@@ -623,8 +621,8 @@ class Documenter(object):
                     members.append((mname, self.get_attr(self.object, mname)))
                 except AttributeError:
                     if mname not in analyzed_member_names:
-                        self.directive.warn('missing attribute %s in object %s'
-                                            % (mname, self.fullname))
+                        logger.warning('missing attribute %s in object %s' %
+                                       (mname, self.fullname))
         elif self.options.inherited_members:
             # safe_getmembers() uses dir() which pulls in members from all
             # base classes
@@ -820,11 +818,11 @@ class Documenter(object):
         """
         if not self.parse_name():
             # need a module to import
-            self.directive.warn(
+            logger.warning(
                 'don\'t know which module to import for autodocumenting '
                 '%r (try placing a "module" or "currentmodule" directive '
-                'in the document, or giving an explicit module name)'
-                % self.name)
+                'in the document, or giving an explicit module name)' %
+                self.name)
             return
 
         # now, import the module and get object to document
@@ -910,15 +908,15 @@ class ModuleDocumenter(Documenter):
     def resolve_name(self, modname, parents, path, base):
         # type: (str, Any, str, Any) -> Tuple[str, List[unicode]]
         if modname is not None:
-            self.directive.warn('"::" in automodule name doesn\'t make sense')
+            logger.warning('"::" in automodule name doesn\'t make sense')
         return (path or '') + base, []
 
     def parse_name(self):
         # type: () -> bool
         ret = Documenter.parse_name(self)
         if self.args or self.retann:
-            self.directive.warn('signature arguments or return annotation '
-                                'given for automodule %s' % self.fullname)
+            logger.warning('signature arguments or return annotation '
+                           'given for automodule %s' % self.fullname)
         return ret
 
     def add_directive_header(self, sig):
@@ -949,7 +947,7 @@ class ModuleDocumenter(Documenter):
                 # Sometimes __all__ is broken...
                 if not isinstance(memberlist, (list, tuple)) or not \
                    all(isinstance(entry, string_types) for entry in memberlist):
-                    self.directive.warn(
+                    logger.warning(
                         '__all__ should be a list of strings, not %r '
                         '(in module %s) -- ignoring __all__' %
                         (memberlist, self.fullname))
@@ -962,10 +960,10 @@ class ModuleDocumenter(Documenter):
             try:
                 ret.append((mname, safe_getattr(self.object, mname)))
             except AttributeError:
-                self.directive.warn(
+                logger.warning(
                     'missing attribute mentioned in :members: or __all__: '
-                    'module %s, attribute %s' % (
-                        safe_getattr(self.object, '__name__', '???'), mname))
+                    'module %s, attribute %s' %
+                    (safe_getattr(self.object, '__name__', '???'), mname))
         return False, ret
 
 
@@ -1542,7 +1540,7 @@ class AutoDirective(Directive):
 
     def warn(self, msg):
         # type: (unicode) -> None
-        self.warnings.append(self.reporter.warning(msg, line=self.lineno))
+        logger.warning(msg, line=self.lineno)
 
     def run(self):
         # type: () -> List[nodes.Node]
@@ -1550,7 +1548,6 @@ class AutoDirective(Directive):
                                     # a set of dependent filenames
         self.reporter = self.state.document.reporter
         self.env = self.state.document.settings.env
-        self.warnings = []  # type: List[unicode]
         self.result = ViewList()
 
         try:
@@ -1585,7 +1582,7 @@ class AutoDirective(Directive):
         documenter = doc_class(self, self.arguments[0])
         documenter.generate(more_content=self.content)
         if not self.result:
-            return self.warnings
+            return []
 
         logger.debug('[autodoc] output:\n%s', '\n'.join(self.result))
 
@@ -1610,7 +1607,7 @@ class AutoDirective(Directive):
             node.document = self.state.document
             self.state.nested_parse(self.result, 0, node)
         self.state.memo.reporter = old_reporter
-        return self.warnings + node.children
+        return node.children
 
 
 def add_documenter(cls):
