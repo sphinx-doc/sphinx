@@ -27,7 +27,7 @@ from fnmatch import fnmatch
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
-from sphinx.util.osutil import FileAvoidWrite, walk
+from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
 if False:
     # For type annotation
@@ -382,8 +382,8 @@ def main(argv=sys.argv[1:]):
     if not path.isdir(rootpath):
         print('%s is not a directory.' % rootpath, file=sys.stderr)
         sys.exit(1)
-    if not path.isdir(args.destdir) and not args.dryrun:
-        os.makedirs(args.destdir)
+    if not args.dryrun:
+        ensuredir(args.destdir)
     excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
     modules = recurse_tree(rootpath, excludes, args)
 

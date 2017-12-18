@@ -131,6 +131,7 @@ Bugs fixed
 * #4279: Sphinx crashes with pickling error when run with multiple processes and
   remote image
 * #1421: Respect the quiet flag in sphinx-quickstart
+* #4281: Race conditions when creating output directory
 
 Testing
 --------

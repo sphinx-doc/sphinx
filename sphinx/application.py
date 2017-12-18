@@ -40,7 +40,7 @@ from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util.tags import Tags
-from sphinx.util.osutil import ENOENT
+from sphinx.util.osutil import ENOENT, ensuredir
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
@@ -159,7 +159,7 @@ class Sphinx(object):
 
         if not path.isdir(outdir):
             logger.info('making output directory...')
-            os.makedirs(outdir)
+            ensuredir(outdir)
 
         # read config
         self.tags = Tags(tags)

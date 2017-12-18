@@ -315,8 +315,8 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   have a caption.  At same time, the `numref` role is enabled.  For now, it
-   works only with the HTML builder and LaTeX builder. Default is ``False``.
+   have a caption.  The :rst:role:`numref` role is enabled.
+   Obeyed so far only by HTML and LaTeX builders. Default is ``False``.
 
    .. note::
 
@@ -339,10 +339,21 @@ General configuration
 
 .. confval:: numfig_secnum_depth
 
-   The scope of figure numbers, that is, the numfig feature numbers figures
-   in which scope. ``0`` means "whole document". ``1`` means "in a section".
-   Sphinx numbers like x.1, x.2, x.3... ``2`` means "in a subsection". Sphinx
-   numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
+   - if set to ``0``, figures, tables and code-blocks are continuously numbered
+     starting at ``1``.
+   - if ``1`` (default) numbers will be ``x.1``, ``x.2``, ... with ``x``
+     the section number (top level sectioning; no ``x.`` if no section).
+     This naturally applies only if  section numbering has been activated via
+     the ``:numbered:`` option of the :rst:dir:`toctree` directive.
+   - ``2`` means that numbers will be ``x.y.1``, ``x.y.2``, ... if located in
+     a sub-section (but still ``x.1``, ``x.2``, ... if located directly under a
+     section and ``1``, ``2``, ... if not in any top level section.)
+   - etc...
+
+   .. note::
+
+      The LaTeX builder currently ignores this configuration setting. It will
+      obey it at Sphinx 1.7.
 
    .. versionadded:: 1.3
 
