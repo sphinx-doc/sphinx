@@ -1039,3 +1039,17 @@ def test_latex_image_in_parsed_literal(app, status, warning):
     assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
             '{\\scalebox{2.000000}{\\sphinxincludegraphics[height=1cm]{{pic}.png}}}'
             '}AFTER') in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-toplevel')
+def test_latex_toplevel_is_part(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert ('\\part{First part}') in result
+    assert ('\\chapter{This is chapter}') in result
+    assert ('\\section{This is section}') in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert ('\\part{This is a part}') in result
+    assert ('\\section{This is a section}') in result
