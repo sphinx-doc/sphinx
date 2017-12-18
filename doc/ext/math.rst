@@ -52,6 +52,8 @@ or use Python raw strings (``r"raw"``).
    be used to reference equation numbers, not the :rst:role:`numref` role.
    Default is ``True``.
 
+   .. versionadded:: 1.7
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math
