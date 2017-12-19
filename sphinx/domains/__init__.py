@@ -188,6 +188,18 @@ class Domain(object):
         self.objtypes_for_role = self._role2type.get    # type: Callable[[unicode], List[unicode]]  # NOQA
         self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
 
+    def add_object_type(self, name, objtype):
+        # type: (Objtype) -> None
+        """Add an object type."""
+        self.object_types[name] = objtype
+        if objtype.roles:
+            self._type2role[name] = objtype.roles[0]
+        else:
+            self._type2role[name] = ''
+
+        for role in objtype.roles:
+            self._role2type.setdefault(role, []).append(name)
+
     def role(self, name):
         # type: (unicode) -> Callable
         """Return a role adapter function that always gives the registered

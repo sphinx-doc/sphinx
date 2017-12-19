@@ -112,10 +112,11 @@ class SphinxComponentRegistry(object):
             domain = DomainClass(env)
 
             # transplant components added by extensions
-            domain.object_types.update(self.domain_object_types.get(domain.name, {}))
             domain.directives.update(self.domain_directives.get(domain.name, {}))
             domain.roles.update(self.domain_roles.get(domain.name, {}))
             domain.indices.extend(self.domain_indices.get(domain.name, []))
+            for name, objtype in iteritems(self.domain_object_types.get(domain.name, {})):
+                domain.add_object_type(name, objtype)
 
             yield domain
 
