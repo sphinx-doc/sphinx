@@ -94,7 +94,7 @@ __ CONTRIBUTING.rst
 Contributing
 ============
 
-Refer to `the contributors guide`_.
+Refer to `the contributors guide`__.
 
 __ CONTRIBUTING.rst
 
