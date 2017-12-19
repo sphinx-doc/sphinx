@@ -116,7 +116,7 @@ class AutodocReporter(object):
     """
     def __init__(self, viewlist, reporter):
         # type: (ViewList, Reporter) -> None
-        warnings.warn('AutodocRerporter is now deprecated. '
+        warnings.warn('AutodocReporter is now deprecated. '
                       'Use sphinx.util.docutils.switch_source_input() instead.',
                       RemovedInSphinx20Warning)
         self.viewlist = viewlist
