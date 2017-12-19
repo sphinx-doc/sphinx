@@ -138,12 +138,10 @@ General configuration
 
    - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
      entry in :confval:`unused_docs`)
-   - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
-     in :confval:`exclude_trees`)
+   - ``'library/xml'`` -- ignores the ``library/xml`` directory
    - ``'library/xml*'`` -- ignores all files and directories starting with
      ``library/xml``
-   - ``'**/.svn'`` -- ignores all ``.svn`` directories (replaces entry in
-     :confval:`exclude_dirnames`)
+   - ``'**/.svn'`` -- ignores all ``.svn`` directories
 
    :confval:`exclude_patterns` is also consulted when looking for static files
    in :confval:`html_static_path` and :confval:`html_extra_path`.
