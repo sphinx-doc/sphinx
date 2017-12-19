@@ -51,7 +51,7 @@ Among its features are the following:
 
 For more information, refer to the `the documentation`__.
 
-__ http://www.sphinx-doc.org/
+.. __: http://www.sphinx-doc.org/
 
 Installation
 ============
