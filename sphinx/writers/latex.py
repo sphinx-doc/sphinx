@@ -552,8 +552,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements.update({
                 'releasename':  _('Release'),
             })
-        if builder.config.latex_keep_old_macro_names:
-            self.elements['sphinxpkgoptions'] = ''
 
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case
