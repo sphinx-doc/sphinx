@@ -1314,6 +1314,44 @@ class ASTTemplateParamType(ASTBase):
         self.data.describe_signature(signode, mode, env, symbol)
 
 
+class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
+    def __init__(self, type, init):
+        # type: (Any, Any) -> None
+        assert type
+        self.type = type
+        self.init = init
+
+    @property
+    def name(self):
+        # type: () -> ASTNestedName
+        return self.type.name
+
+    def get_id(self, version, objectType=None, symbol=None):
+        # type: (int, unicode, Symbol) -> unicode
+        # this is not part of the normal name mangling in C++
+        assert version >= 2
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id(version, prefixed=False)
+        else:
+            return self.type.get_id(version)
+
+    def __unicode__(self):
+        # type: () -> unicode
+        res = text_type(self.type)
+        if self.init:
+            res += " = "
+            res += text_type(self.init)
+        return res
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        self.type.describe_signature(signode, mode, env, symbol)
+        if self.init:
+            signode += nodes.Text(" = ")
+            self.init.describe_signature(signode, mode, env, symbol)
+
+
 class ASTTemplateParamTemplateType(ASTBase):
     def __init__(self, nestedParams, data):
         # type: (Any, Any) -> None
@@ -3781,6 +3819,8 @@ class DefinitionParser(object):
         self.last_match = None  # type: Match
         self._previous_state = (0, None)  # type: Tuple[int, Match]
         self.otherErrors = []  # type: List[DefinitionError]
+        # in our tests the following is set to False to capture bad parsing
+        self.allowFallbackExpressionParsing = True
 
         self.warnEnv = warnEnv
         self.config = config
@@ -4121,6 +4161,13 @@ class DefinitionParser(object):
                 # TODO: hmm, would we need to try both with operatorCast and with None?
                 prefix = self._parse_type(False, 'operatorCast')
                 prefixType = 'typeOperatorCast'
+                #  | simple-type-specifier "(" expression-list [opt] ")"
+                #  | simple-type-specifier braced-init-list
+                #  | typename-specifier "(" expression-list [opt] ")"
+                #  | typename-specifier braced-init-list
+                self.skip_ws()
+                if self.current_char != '(' and self.current_char != '{':
+                    self.fail("Expecting '(' or '{' after type in cast expression.")
             except DefinitionError as eInner:
                 self.pos = pos
                 header = "Error in postfix expression, expected primary expression or type."
@@ -4361,7 +4408,7 @@ class DefinitionParser(object):
         # TODO: actually parse the second production
         return self._parse_assignment_expression(inTemplate=inTemplate)
 
-    def _parse_expression_fallback(self, end, parser):
+    def _parse_expression_fallback(self, end, parser, allow=True):
         # Stupidly "parse" an expression.
         # 'end' should be a list of characters which ends the expression.
 
@@ -4370,6 +4417,10 @@ class DefinitionParser(object):
         try:
             return parser()
         except DefinitionError as e:
+            # some places (e.g., template parameters) we really don't want to use fallback,
+            # and for testing we may want to globally disable it
+            if not allow or not self.allowFallbackExpressionParsing:
+                raise
             self.warn("Parsing of expression failed. Using fallback parser."
                       " Error was:\n%s" % e.description)
             self.pos = prevPos
@@ -4598,7 +4649,7 @@ class DefinitionParser(object):
                         self.fail('Expected ")" after "..." in '
                                   'parameters_and_qualifiers.')
                     break
-                # note: it seems that function arguments can always sbe named,
+                # note: it seems that function arguments can always be named,
                 # even in function pointers and similar.
                 arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
@@ -4919,8 +4970,8 @@ class DefinitionParser(object):
             header = "Error in declarator or parameters and qualifiers"
             raise self._make_multi_error(prevErrors, header)
 
-    def _parse_initializer(self, outer=None):
-        # type: (unicode) -> ASTInitializer
+    def _parse_initializer(self, outer=None, allowFallback=True):
+        # type: (unicode, bool) -> ASTInitializer
         self.skip_ws()
         # TODO: support paren and brace initialization for memberObject
         if not self.skip_string('='):
@@ -4929,15 +4980,18 @@ class DefinitionParser(object):
             if outer == 'member':
                 def parser():
                     return self._parse_assignment_expression(inTemplate=False)
-                value = self._parse_expression_fallback([], parser)
+                value = self._parse_expression_fallback([], parser,
+                                                        allow=allowFallback)
             elif outer == 'templateParam':
                 def parser():
                     return self._parse_assignment_expression(inTemplate=True)
-                value = self._parse_expression_fallback([',', '>'], parser)
+                value = self._parse_expression_fallback([',', '>'], parser,
+                                                        allow=allowFallback)
             elif outer is None:  # function parameter
                 def parser():
                     return self._parse_assignment_expression(inTemplate=False)
-                value = self._parse_expression_fallback([',', ')'], parser)
+                value = self._parse_expression_fallback([',', ')'], parser,
+                                                        allow=allowFallback)
             else:
                 self.fail("Internal error, initializer for outer '%s' not "
                           "implemented." % outer)
@@ -5027,12 +5081,48 @@ class DefinitionParser(object):
         return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(self, named, outer):
-        # type: (Union[bool, unicode], unicode) -> ASTTypeWithInit
+        # type: (Union[bool, unicode], unicode) -> Any
         if outer:
             assert outer in ('type', 'member', 'function', 'templateParam')
         type = self._parse_type(outer=outer, named=named)
-        init = self._parse_initializer(outer=outer)
-        return ASTTypeWithInit(type, init)
+        if outer != 'templateParam':
+            init = self._parse_initializer(outer=outer)
+            return ASTTypeWithInit(type, init)
+        # it could also be a constrained type parameter, e.g., C T = int&
+        pos = self.pos
+        eExpr = None
+        try:
+            init = self._parse_initializer(outer=outer, allowFallback=False)
+            # note: init may be None if there is no =
+            if init is None:
+                return ASTTypeWithInit(type, None)
+            # we parsed an expression, so we must have a , or a >,
+            # otherwise the expression didn't get everything
+            self.skip_ws()
+            if self.current_char != ',' and self.current_char != '>':
+                # pretend it didn't happen
+                self.pos = pos
+                init = None
+            else:
+                # we assume that it was indeed an expression
+                return ASTTypeWithInit(type, init)
+        except DefinitionError as e:
+            self.pos = pos
+            eExpr = e
+        if not self.skip_string("="):
+            return ASTTypeWithInit(type, None)
+        try:
+            typeInit = self._parse_type(named=False, outer=None)
+            return ASTTemplateParamConstrainedTypeWithInit(type, typeInit)
+        except DefinitionError as eType:
+            if eExpr is None:
+                raise eType
+            errs = []
+            errs.append((eExpr, "If default is an expression"))
+            errs.append((eType, "If default is a type"))
+            msg = "Error in non-type template parameter"
+            msg += " or constrianted template paramter."
+            raise self._make_multi_error(errs, msg)
 
     def _parse_type_using(self):
         # type: () -> ASTTypeUsing
@@ -5156,13 +5246,14 @@ class DefinitionParser(object):
                     param = ASTTemplateParamType(data)
                 templateParams.append(param)
             else:
-                # declare a non-type parameter
+                # declare a non-type parameter, or constrained type parameter
                 pos = self.pos
                 try:
                     param = self._parse_type_with_init('maybe', 'templateParam')
                     templateParams.append(ASTTemplateParamNonType(param))
                 except DefinitionError as e:
-                    prevErrors.append((e, "If non-type template parameter"))
+                    msg = "If non-type template parameter or constrained template parameter"
+                    prevErrors.append((e, msg))
                     self.pos = pos
             self.skip_ws()
             if self.skip_string('>'):

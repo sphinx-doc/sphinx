@@ -25,6 +25,7 @@ def parse(name, string):
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
+    parser.allowFallbackExpressionParsing = False
     ast = parser.parse_declaration(name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
@@ -568,6 +569,9 @@ def test_templates():
     check('member', 'template<> template<> int A<int>::B<int>::b', {2:'IEIEN1AIiE1BIiE1bE'})
     check('member', 'template int A<int>::B<int>::b', {2: 'IEIEN1AIiE1BIiE1bE'},
           output='template<> template<> int A<int>::B<int>::b')  # same as above
+
+    # defaulted constrained type parameters
+    check('type', 'template<C T = int&> A', {2:'I_1CE1A'})
 
 
 def test_template_args():
