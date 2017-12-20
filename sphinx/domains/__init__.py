@@ -189,7 +189,7 @@ class Domain(object):
         self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
 
     def add_object_type(self, name, objtype):
-        # type: (Objtype) -> None
+        # type: (unicode, ObjType) -> None
         """Add an object type."""
         self.object_types[name] = objtype
         if objtype.roles:
