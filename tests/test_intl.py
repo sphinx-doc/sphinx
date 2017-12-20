@@ -520,7 +520,7 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 @sphinx_intl
 # use individual shared_result directory to avoid "incompatible doctree" error
-@pytest.mark.test_params(shared_result='test_gettext_dont_rebuild_mo')
+@pytest.mark.sphinx(testroot='builder-gettext-dont-rebuild-mo')
 def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     # --- don't rebuild by .mo mtime
     def get_number_of_update_targets(app_):
@@ -533,7 +533,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     app0 = make_app('dummy', *args, **kwargs)
     build_mo(app0.srcdir)
     app0.build()
-    assert (app0.srcdir / 'bom.mo')
+    assert (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').exists()
     # Since it is after the build, the number of documents to be updated is 0
     assert get_number_of_update_targets(app0) == 0
     # When rewriting the timestamp of mo file, the number of documents to be
