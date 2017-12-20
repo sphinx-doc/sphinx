@@ -588,12 +588,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if self.numfig_secnum_depth > 0:  # default is 1
                 # numfig_secnum_depth as passed to sphinx.sty indices same names as in
                 # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
-                if len(self.sectionnames) < 7 and self.top_sectionlevel > 0:
+                if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+                   self.top_sectionlevel > 0:
                     self.numfig_secnum_depth += self.top_sectionlevel
                 else:
                     self.numfig_secnum_depth += self.top_sectionlevel - 1
-                if self.numfig_secnum_depth >= len(self.sectionnames):
-                    self.numfig_secnum_depth = len(self.sectionnames) - 1
+                # this (minus one) will serve as minimum to LaTeX's secnumdepth
+                self.numfig_secnum_depth = min(self.numfig_secnum_depth,
+                                               len(LATEXSECTIONNAMES) - 1)
                 # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
                 self.elements['sphinxpkgoptions'] += \
                     (',numfigreset=%s' % self.numfig_secnum_depth)
@@ -665,13 +667,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
-
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
-            if len(self.sectionnames) < 7 and self.top_sectionlevel > 0:
+            if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+               self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
-            if tocdepth > 5:   # 5 corresponds to subparagraph
+            if tocdepth > len(LATEXSECTIONNAMES) - 2:  # default is 5 <-> subparagraph
                 logger.warning('too large :maxdepth:, ignored.')
-                tocdepth = 5
+                tocdepth = len(LATEXSECTIONNAMES) - 2
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
             minsecnumdepth = max(minsecnumdepth, tocdepth)
