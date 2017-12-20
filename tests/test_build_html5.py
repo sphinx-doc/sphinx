@@ -251,7 +251,6 @@ def cached_etree_parse():
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
         (".//dt[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -283,9 +282,6 @@ def cached_etree_parse():
         (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
-    ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
     ],
     'genindex.html': [
         # index entries

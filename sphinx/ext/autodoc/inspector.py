@@ -10,9 +10,11 @@
 """
 
 import typing
+import warnings
 
 from six import StringIO, string_types
 
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.util.inspect import object_description
 
 if False:
@@ -29,6 +31,9 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
+    warnings.warn('format_annotation() is now deprecated.  '
+                  'Please use sphinx.util.inspect.Signature instead.',
+                  RemovedInSphinx20Warning)
     if isinstance(annotation, typing.TypeVar):  # type: ignore
         return annotation.__name__
     if annotation == Ellipsis:
@@ -65,7 +70,7 @@ def format_annotation(annotation):
         elif (hasattr(typing, 'UnionMeta') and
               isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):
-            params = annotation.__union_params__  # type: ignore
+            params = annotation.__union_params__
             if params is not None:
                 param_str = ', '.join(format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
@@ -74,7 +79,7 @@ def format_annotation(annotation):
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):
             # Skipped in the case of plain typing.Callable
-            args = annotation.__args__  # type: ignore
+            args = annotation.__args__
             if args is None:
                 return qualified_name
             elif args is Ellipsis:
@@ -84,15 +89,15 @@ def format_annotation(annotation):
                 args_str = '[%s]' % ', '.join(formatted_args)
             return '%s[%s, %s]' % (qualified_name,
                                    args_str,
-                                   format_annotation(annotation.__result__))  # type: ignore
+                                   format_annotation(annotation.__result__))
         elif (hasattr(typing, 'TupleMeta') and
               isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):
-            params = annotation.__tuple_params__  # type: ignore
+            params = annotation.__tuple_params__
             if params is not None:
                 param_strings = [format_annotation(p) for p in params]
-                if annotation.__tuple_use_ellipsis__:  # type: ignore
+                if annotation.__tuple_use_ellipsis__:
                     param_strings.append('...')
                 return '%s[%s]' % (qualified_name,
                                    ', '.join(param_strings))
@@ -107,6 +112,9 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
     An enhanced version of ``inspect.formatargspec()`` that handles typing
     annotations better.
     """
+    warnings.warn('formatargspec() is now deprecated.  '
+                  'Please use sphinx.util.inspect.Signature instead.',
+                  RemovedInSphinx20Warning)
 
     def format_arg_with_annotation(name):
         # type: (str) -> str

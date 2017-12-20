@@ -33,10 +33,10 @@ Bug Reports and Feature Requests
 
 If you have encountered a problem with Sphinx or have an idea for a new
 feature, please submit it to the `issue tracker`_ on GitHub or discuss it
-on the sphinx-dev mailing list.
+on the `sphinx-dev`_ mailing list.
 
 For bug reports, please include the output produced during the build process
-and also the log file Sphinx creates after it encounters an un-handled
+and also the log file Sphinx creates after it encounters an unhandled
 exception.  The location of this file should be shown towards the end of the
 error message.
 
@@ -45,6 +45,7 @@ issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
 .. _`issue tracker`: https://github.com/sphinx-doc/sphinx/issues
+.. _`sphinx-dev`: mailto:sphinx-dev@googlegroups.com
 
 
 Contributing to Sphinx
@@ -58,7 +59,7 @@ of the core developers before it is merged into the main repository.
 #. Check for open issues or open a fresh issue to start a discussion around a
    feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
+   free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
    **master** branch for next major version, or **stable** branch for next
    minor version.
@@ -98,10 +99,14 @@ These are the basic steps needed to start developing on Sphinx.
    For new features or other substantial changes that should wait until the
    next major release, use the ``master`` branch.
 
-#. Optional: setup a virtual environment. ::
+#. Setup a virtual environment.
 
-       virtualenv ~/sphinxenv
-       . ~/sphinxenv/bin/activate
+   This is not necessary for unit testing, thanks to ``tox``, but it is
+   necessary if you wish to run ``sphinx-build`` locally or run unit tests
+   without the help of ``tox``. ::
+
+       virtualenv ~/.venv
+       . ~/.venv/bin/activate
        pip install -e .
 
 #. Create a new working branch.  Choose any name you like. ::
@@ -112,44 +117,53 @@ These are the basic steps needed to start developing on Sphinx.
 
    For tips on working with the code, see the `Coding Guide`_.
 
-#. Test, test, test.  Possible steps:
+#. Test, test, test.
 
-   * Run the unit tests::
+   Testing is best done through ``tox``, which provides a number of targets and
+   allows testing against multiple different Python environments:
 
-       pip install .[test,websupport]
-       make test
+   * To list all possible targets::
 
-   * Again, it's useful to turn on deprecation warnings on so they're shown in
-     the test output::
+         tox -av
 
-       PYTHONWARNINGS=all make test
+   * To run unit tests for a specific Python version, such as 3.6::
 
-   * Arguments to pytest can be passed via tox, e.g. in order to run a
+         tox -e py36
+
+   * To run unit tests for a specific Python version and turn on deprecation
+     warnings on so they're shown in the test output::
+
+         PYTHONWARNINGS=all tox -e py36
+
+   * To run code style and type checks::
+
+         tox -e mypy
+         tox -e flake8
+
+   * Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
      particular test::
 
-       tox -e py27 tests/test_module.py::test_new_feature
+       tox -e py36 tests/test_module.py::test_new_feature
 
-   * Build the documentation and check the output for different builders::
+   * To build the documentation::
 
-       make docs target="clean html latexpdf"
+         tox -e docs
 
-   * Run code style checks and type checks (type checks require mypy)::
+   * To build the documentation in multiple formats::
 
-       make style-check
-       make type-check
+         tox -e docs -- -b html,latexpdf
 
-   * Run the unit tests under different Python environments using
-     :program:`tox`::
+   You can also test by installing dependencies in your local environment. ::
 
-       pip install tox
-       tox -v
+       pip install .[test]
 
-   * Add a new unit test in the ``tests`` directory if you can.
+   New unit tests should be included in the ``tests`` directory where
+   necessary:
 
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
-   * Tests that need a sphinx-build run should be integrated in one of the
+   * Tests that need a ``sphinx-build`` run should be integrated in one of the
      existing test modules if possible.  New tests that to ``@with_app`` and
      then ``build_all`` for a few assertions are not good since *the test suite
      should not take more than a minute to run*.
@@ -266,7 +280,7 @@ Debugging Tips
   code by running the command ``make clean`` or using the
   :option:`sphinx-build -E` option.
 
-* Use the :option:`sphinx-build -P` option to run Pdb on exceptions.
+* Use the :option:`sphinx-build -P` option to run ``pdb`` on exceptions.
 
 * Use ``node.pformat()`` and ``node.asdom().toxml()`` to generate a printable
   representation of the document structure.

@@ -156,8 +156,8 @@ class NewLineStreamHandlerPY2(logging.StreamHandler):
                 # remove return code forcely when nonl=True
                 self.stream = StringIO()
                 super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])  # type: ignore
-                stream.flush()  # type: ignore
+                stream.write(self.stream.getvalue()[:-1])
+                stream.flush()
             else:
                 super(NewLineStreamHandlerPY2, self).emit(record)
         finally:

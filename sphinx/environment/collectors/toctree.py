@@ -262,7 +262,7 @@ class TocTreeCollector(EnvironmentCollector):
 
                     continue
 
-                figtype = env.get_domain('std').get_figtype(subnode)  # type: ignore
+                figtype = env.get_domain('std').get_figtype(subnode)
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 
