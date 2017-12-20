@@ -33,7 +33,6 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
-from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
@@ -54,7 +53,9 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -120,7 +121,6 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.registry = SphinxComponentRegistry()
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
-        self.post_transforms = []               # type: List[Transform]
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
@@ -444,7 +444,6 @@ class Sphinx(object):
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
-        logger.debug('[app] adding builder: %r', builder)
         self.registry.add_builder(builder)
 
     def add_config_value(self, name, default, rebuild, types=()):
@@ -464,7 +463,6 @@ class Sphinx(object):
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.registry.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
@@ -553,39 +551,30 @@ class Sphinx(object):
 
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
-        logger.debug('[app] adding domain: %r', domain)
         self.registry.add_domain(domain)
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
-        logger.debug('[app] overriding domain: %r', domain)
         self.registry.override_domain(domain)
 
     def add_directive_to_domain(self, domain, name, obj,
                                 has_content=None, argument_spec=None, **option_spec):
         # type: (unicode, unicode, Any, bool, Any, Any) -> None
-        logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, has_content, argument_spec, option_spec))
         self.registry.add_directive_to_domain(domain, name, obj,
                                               has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
-        # type: (unicode, unicode, Any) -> None
-        logger.debug('[app] adding role to domain: %r', (domain, name, role))
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
         self.registry.add_role_to_domain(domain, name, role)
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
-        logger.debug('[app] adding index to domain: %r', (domain, index))
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[]):
         # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        logger.debug('[app] adding object type: %r',
-                     (directivename, rolename, indextemplate, parse_node,
-                      ref_nodeclass, objname, doc_field_types))
         self.registry.add_object_type(directivename, rolename, indextemplate, parse_node,
                                       ref_nodeclass, objname, doc_field_types)
 
@@ -602,21 +591,16 @@ class Sphinx(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
         # type: (unicode, unicode, unicode, nodes.Node, unicode) -> None
-        logger.debug('[app] adding crossref type: %r',
-                     (directivename, rolename, indextemplate, ref_nodeclass,
-                      objname))
         self.registry.add_crossref_type(directivename, rolename,
                                         indextemplate, ref_nodeclass, objname)
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding transform: %r', transform)
-        SphinxStandaloneReader.transforms.append(transform)
+        self.registry.add_transform(transform)
 
     def add_post_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding post transform: %r', transform)
-        self.post_transforms.append(transform)
+        self.registry.add_post_transform(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None
@@ -677,7 +661,6 @@ class Sphinx(object):
 
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
-        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         self.registry.add_source_parser(suffix, parser)
 
     def add_env_collector(self, collector):
