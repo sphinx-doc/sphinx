@@ -50,6 +50,7 @@ Features added
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
 * #3991, #4080: Add :confval:`math_numfig` for equation numbering by section
+* #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, ...
 
 
 Features removed
@@ -91,6 +92,8 @@ Bugs fixed
 * #4094: C++, allow empty template argument lists.
 * C++, also hyperlink types in the name of declarations with qualified names.
 * C++, do not add index entries for declarations inside concepts. 
+* #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
+  one of figures and tables
 
 Testing
 --------
