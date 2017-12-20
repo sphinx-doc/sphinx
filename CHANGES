@@ -50,6 +50,7 @@ Features added
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
 * #3991, #4080: Add :confval:`math_numfig` for equation numbering by section
+* #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 
 
 Features removed
