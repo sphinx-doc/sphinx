@@ -111,7 +111,7 @@ Documentation using the sphinxdoc theme
 Documentation using another builtin theme
 -----------------------------------------
 
-* Arcade: https://arcade.academy/ (sphinx_rtd_theme)
+* Arcade: http://arcade.academy/ (sphinx_rtd_theme)
 * ASE: https://wiki.fysik.dtu.dk/ase/ (sphinx_rtd_theme)
 * C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
 * ESWP3 (http://eswp3.org) (sphinx_rtd_theme)
