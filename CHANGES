@@ -49,7 +49,8 @@ Features added
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
-* #3991, #4080: Add :confval:`math_numfig` for equation numbering by section
+* #4166: Add :confval:`math_numfig` for equation numbering by section (refs:
+  #3991, #4080). Thanks to Oliver Jahn.
 * #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, ...
 
 
