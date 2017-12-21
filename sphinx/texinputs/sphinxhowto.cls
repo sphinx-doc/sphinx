@@ -25,6 +25,7 @@
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}% i.e. section and subsection
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
