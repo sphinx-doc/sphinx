@@ -46,17 +46,12 @@ or use Python raw strings (``r"raw"``).
 
 .. confval:: math_numfig
 
-   If ``True``, displayed math equations are numbered across pages in html and
-   related (epub, ...) output (also with latex) when :confval:`numfig` is enabled.
-   :confval:`numfig_secnum_depth` is respected.  The :rst:role:`eq` role must
-   be used to reference equation numbers, not the :rst:role:`numref` role.
-   Default is ``True``.
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
 
    .. versionadded:: 1.7
-      If ``False``, latex behaves as in former releases i.e. for ``'manual'``
-      docclass (and ``'howto'`` for Japanese) it resets by default the
-      equation numbers per each toplevel section, and for ``'howto'`` it uses
-      continuous numbering across entire PDF.
 
 :mod:`.mathbase` defines these new markup elements:
 
