@@ -46,11 +46,10 @@ or use Python raw strings (``r"raw"``).
 
 .. confval:: math_numfig
 
-   If ``True``, displayed math equations are numbered across pages in html and
-   related (epub, ...) output when :confval:`numfig` is enabled.
-   :confval:`numfig_secnum_depth` is respected.  The :rst:role:`eq` role must
-   be used to reference equation numbers, not the :rst:role:`numref` role.
-   Default is ``True``.
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
 
    .. versionadded:: 1.7
 

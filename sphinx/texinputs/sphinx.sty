@@ -249,6 +249,7 @@
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
 \DeclareStringOption[-1]{numfigreset}
 \DeclareBoolOption[false]{nonumfigreset}
+\DeclareBoolOption[false]{mathnumfig}
 % \DeclareBoolOption[false]{usespart}% not used
 % dimensions, we declare the \dimen registers here.
 \newdimen\sphinxverbatimsep
@@ -353,6 +354,7 @@
 \DisableKeyvalOption{sphinx}{maxlistdepth}
 \DisableKeyvalOption{sphinx}{numfigreset}
 \DisableKeyvalOption{sphinx}{nonumfigreset}
+\DisableKeyvalOption{sphinx}{mathnumfig}
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
@@ -682,11 +684,16 @@
       \@removefromreset{figure}{chapter}%
       \@removefromreset{table}{chapter}%
       \@removefromreset{literalblock}{chapter}%
+      \ifspx@opt@mathnumfig
+        \@removefromreset{equation}{chapter}%
+      \fi
     }%
     \def\thefigure{\arabic{figure}}%
     \def\thetable {\arabic{table}}%
     \def\theliteralblock{\arabic{literalblock}}%
-    %\let\theHliteralblock\theliteralblock
+    \ifspx@opt@mathnumfig
+      \def\theequation{\arabic{equation}}%
+    \fi
 \else
 \let\spx@preAthefigure\@empty
 \let\spx@preBthefigure\@empty
@@ -709,6 +716,9 @@
     \@addtoreset{figure}{section}%
     \@addtoreset{table}{section}%
     \@addtoreset{literalblock}{section}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{section}%
+    \fi
     \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -716,6 +726,9 @@
     \@addtoreset{figure}{subsection}%
     \@addtoreset{table}{subsection}%
     \@addtoreset{literalblock}{subsection}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subsection}%
+    \fi
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -723,6 +736,9 @@
     \@addtoreset{figure}{subsubsection}%
     \@addtoreset{table}{subsubsection}%
     \@addtoreset{literalblock}{subsubsection}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subsubsection}%
+    \fi
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -730,6 +746,9 @@
     \@addtoreset{figure}{paragraph}%
     \@addtoreset{table}{paragraph}%
     \@addtoreset{literalblock}{paragraph}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{paragraph}%
+    \fi
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -737,6 +756,9 @@
     \@addtoreset{figure}{subparagraph}%
     \@addtoreset{table}{subparagraph}%
     \@addtoreset{literalblock}{subparagraph}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subparagraph}%
+    \fi
     \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
@@ -748,6 +770,10 @@
 \g@addto@macro\thefigure{\arabic{figure}}%
 \g@addto@macro\thetable{\arabic{table}}%
 \g@addto@macro\theliteralblock{\arabic{literalblock}}%
+  \ifspx@opt@mathnumfig
+    \let\theequation\spx@preAthefigure
+    \g@addto@macro\theequation{\arabic{equation}}%
+  \fi
 \fi
 
 
