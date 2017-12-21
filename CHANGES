@@ -51,8 +51,10 @@ Features added
 * #4212: autosummary: catch all exceptions when importing modules
 * #4166: Add :confval:`math_numfig` for equation numbering by section (refs:
   #3991, #4080). Thanks to Oliver Jahn.
-* #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, ...
+* #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, and
+  code-blocks
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
+* #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
 
 
 Features removed
