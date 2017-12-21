@@ -188,3 +188,80 @@ def test_extension_parsed(make_app, apidoc):
     with open(outdir / 'conf.py') as f:
         rst = f.read()
         assert "sphinx.ext.mathjax" in rst
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-toc',
+    options=["--implicit-namespaces"],
+)
+def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
+    """All references in toc should exist. This test doesn't say if
+       directories with empty __init__.py and and nothing else should be
+       skipped, just ensures consistency between what's referenced in the toc
+       and what is created. This is the variant with pep420 enabled.
+    """
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+
+    toc = extract_toc(outdir / 'mypackage.rst')
+
+    refs = [l.strip() for l in toc.splitlines() if l.strip()]
+    found_refs = []
+    missing_files = []
+    for ref in refs:
+        if ref and ref[0] in (':', '#'):
+            continue
+        found_refs.append(ref)
+        filename = "{}.rst".format(ref)
+        if not (outdir / filename).isfile():
+            missing_files.append(filename)
+
+    assert len(missing_files) == 0, \
+        'File(s) referenced in TOC not found: {}\n' \
+        'TOC:\n{}'.format(", ".join(missing_files), toc)
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-toc',
+)
+def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
+    """All references in toc should exist. This test doesn't say if
+       directories with empty __init__.py and and nothing else should be
+       skipped, just ensures consistency between what's referenced in the toc
+       and what is created. This is the variant with pep420 disabled.
+    """
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+
+    toc = extract_toc(outdir / 'mypackage.rst')
+
+    refs = [l.strip() for l in toc.splitlines() if l.strip()]
+    found_refs = []
+    missing_files = []
+    for ref in refs:
+        if ref and ref[0] in (':', '#'):
+            continue
+        filename = "{}.rst".format(ref)
+        found_refs.append(ref)
+        if not (outdir / filename).isfile():
+            missing_files.append(filename)
+
+    assert len(missing_files) == 0, \
+        'File(s) referenced in TOC not found: {}\n' \
+        'TOC:\n{}'.format(", ".join(missing_files), toc)
+
+
+def extract_toc(path):
+    """Helper: Extract toc section from package rst file"""
+    with open(path) as f:
+        rst = f.read()
+
+    # Read out the part containing the toctree
+    toctree_start = "\n.. toctree::\n"
+    toctree_end = "\nSubmodules"
+
+    start_idx = rst.index(toctree_start)
+    end_idx = rst.index(toctree_end, start_idx)
+    toctree = rst[start_idx + len(toctree_start):end_idx]
+
+    return toctree
