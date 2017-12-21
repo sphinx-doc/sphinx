@@ -747,9 +747,8 @@ def test_generate():
 
     # test ignore-module-all
     options.ignore_module_all = True
-    assert_result_contains('.. py:class:: Class(arg)', 'module', 'test_autodoc')
-    assert_result_contains('.. py:exception:: CustomEx', 'module',
-                           'test_autodoc')
+    assert_result_contains('.. py:class:: Class(arg)', 'module', 'target')
+    assert_result_contains('.. py:exception:: CustomEx', 'module', 'target')
 
     # test noindex flag
     options.members = []
