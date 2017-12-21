@@ -601,6 +601,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     (',numfigreset=%s' % self.numfig_secnum_depth)
             else:
                 self.elements['sphinxpkgoptions'] += ',nonumfigreset'
+            try:
+                if builder.config.math_numfig:
+                    self.elements['sphinxpkgoptions'] += ',mathnumfig'
+            except:
+                pass
 
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
