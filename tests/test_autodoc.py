@@ -10,13 +10,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from six import PY3
 
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 import pytest
 
-import enum
-from six import StringIO, add_metaclass
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
@@ -27,18 +26,23 @@ app = None
 
 @pytest.fixture(scope='module', autouse=True)
 def setup_module(rootdir, sphinx_test_tempdir):
-    global app
-    srcdir = sphinx_test_tempdir / 'autodoc-root'
-    if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
-    app = SphinxTestApp(srcdir=srcdir)
-    app.builder.env.app = app
-    app.builder.env.temp_data['docname'] = 'dummy'
-    app.connect('autodoc-process-docstring', process_docstring)
-    app.connect('autodoc-process-signature', process_signature)
-    app.connect('autodoc-skip-member', skip_member)
-    yield
-    app.cleanup()
+    try:
+        global app
+        srcdir = sphinx_test_tempdir / 'autodoc-root'
+        if not srcdir.exists():
+            (rootdir / 'test-root').copytree(srcdir)
+        testroot = rootdir / 'test-ext-autodoc'
+        sys.path.append(testroot)
+        app = SphinxTestApp(srcdir=srcdir)
+        app.builder.env.app = app
+        app.builder.env.temp_data['docname'] = 'dummy'
+        app.connect('autodoc-process-docstring', process_docstring)
+        app.connect('autodoc-process-signature', process_signature)
+        app.connect('autodoc-skip-member', skip_member)
+        yield
+    finally:
+        app.cleanup()
+        sys.path.remove(testroot)
 
 
 directive = options = None
@@ -432,6 +436,8 @@ def test_get_doc():
     directive.env.config.autoclass_content = 'both'
     assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
 
+    from target import Base, Derived
+
     # NOTE: inspect.getdoc seems not to work with locally defined classes
     directive.env.config.autodoc_inherit_docstrings = False
     assert getdocl('method', Base.inheritedmeth) == ['Inherited function.']
@@ -509,24 +515,24 @@ def test_docstring_property_processing():
 
     directive.env.config.autodoc_docstring_signature = False
     results, docstrings = \
-        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+        genarate_docstring('attribute', 'target.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' in docstrings
     results, docstrings = \
-        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+        genarate_docstring('attribute', 'target.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
 
     directive.env.config.autodoc_docstring_signature = True
     results, docstrings = \
-        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+        genarate_docstring('attribute', 'target.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' not in docstrings
     results, docstrings = \
-        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+        genarate_docstring('attribute', 'target.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
@@ -557,11 +563,13 @@ def test_new_documenter():
         del directive.result[:]
 
     options.members = ['integer']
-    assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
+    assert_result_contains('.. py:data:: integer', 'module', 'target')
 
 
 @pytest.mark.usefixtures('setup_test')
 def test_attrgetter_using():
+    from target import Class
+
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
 
@@ -586,10 +594,10 @@ def test_attrgetter_using():
 
     options.members = ALL
     options.inherited_members = False
-    assert_getter_works('class', 'test_autodoc.Class', Class, ['meth'])
+    assert_getter_works('class', 'target.Class', Class, ['meth'])
 
     options.inherited_members = True
-    assert_getter_works('class', 'test_autodoc.Class', Class, ['meth', 'inheritedmeth'])
+    assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -656,11 +664,11 @@ def test_generate():
     assert_warns("failed to import function 'foobar' from module 'util'",
                  'function', 'util.foobar', more_content=None)
     # method missing
-    assert_warns("failed to import method 'Class.foobar' from module 'test_autodoc';",
-                 'method', 'test_autodoc.Class.foobar', more_content=None)
+    assert_warns("failed to import method 'Class.foobar' from module 'target';",
+                 'method', 'target.Class.foobar', more_content=None)
 
     # test auto and given content mixing
-    directive.env.ref_context['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'target'
     assert_result_contains('   Function.', 'method', 'Class.meth')
     add_content = ViewList()
     add_content.append('Content.', '', 0)
@@ -675,63 +683,63 @@ def test_generate():
     assert len(directive.result) == 0
 
     # assert that exceptions can be documented
-    assert_works('exception', 'test_autodoc.CustomEx', all_members=True)
-    assert_works('exception', 'test_autodoc.CustomEx')
+    assert_works('exception', 'target.CustomEx', all_members=True)
+    assert_works('exception', 'target.CustomEx')
 
     # test diverse inclusion settings for members
-    should = [('class', 'test_autodoc.Class')]
+    should = [('class', 'target.Class')]
     assert_processes(should, 'class', 'Class')
-    should.extend([('method', 'test_autodoc.Class.meth')])
+    should.extend([('method', 'target.Class.meth')])
     options.members = ['meth']
     options.exclude_members = set(['excludemeth'])
     assert_processes(should, 'class', 'Class')
-    should.extend([('attribute', 'test_autodoc.Class.prop'),
-                   ('attribute', 'test_autodoc.Class.descr'),
-                   ('attribute', 'test_autodoc.Class.attr'),
-                   ('attribute', 'test_autodoc.Class.docattr'),
-                   ('attribute', 'test_autodoc.Class.udocattr'),
-                   ('attribute', 'test_autodoc.Class.mdocattr'),
-                   ('attribute', 'test_autodoc.Class.inst_attr_comment'),
-                   ('attribute', 'test_autodoc.Class.inst_attr_inline'),
-                   ('attribute', 'test_autodoc.Class.inst_attr_string'),
-                   ('method', 'test_autodoc.Class.moore'),
+    should.extend([('attribute', 'target.Class.prop'),
+                   ('attribute', 'target.Class.descr'),
+                   ('attribute', 'target.Class.attr'),
+                   ('attribute', 'target.Class.docattr'),
+                   ('attribute', 'target.Class.udocattr'),
+                   ('attribute', 'target.Class.mdocattr'),
+                   ('attribute', 'target.Class.inst_attr_comment'),
+                   ('attribute', 'target.Class.inst_attr_inline'),
+                   ('attribute', 'target.Class.inst_attr_string'),
+                   ('method', 'target.Class.moore'),
                    ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
-    should.extend((('attribute', 'test_autodoc.Class.skipattr'),
-                   ('method', 'test_autodoc.Class.undocmeth'),
-                   ('method', 'test_autodoc.Class.roger')))
+    should.extend((('attribute', 'target.Class.skipattr'),
+                   ('method', 'target.Class.undocmeth'),
+                   ('method', 'target.Class.roger')))
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
-    should.append(('method', 'test_autodoc.Class.inheritedmeth'))
+    should.append(('method', 'target.Class.inheritedmeth'))
     assert_processes(should, 'class', 'Class')
 
     # test special members
     options.special_members = ['__special1__']
-    should.append(('method', 'test_autodoc.Class.__special1__'))
+    should.append(('method', 'target.Class.__special1__'))
     assert_processes(should, 'class', 'Class')
     options.special_members = ALL
-    should.append(('method', 'test_autodoc.Class.__special2__'))
+    should.append(('method', 'target.Class.__special2__'))
     assert_processes(should, 'class', 'Class')
     options.special_members = False
 
     options.members = []
     # test module flags
-    assert_result_contains('.. py:module:: test_autodoc',
-                           'module', 'test_autodoc')
+    assert_result_contains('.. py:module:: target',
+                           'module', 'target')
     options.synopsis = 'Synopsis'
-    assert_result_contains('   :synopsis: Synopsis', 'module', 'test_autodoc')
+    assert_result_contains('   :synopsis: Synopsis', 'module', 'target')
     options.deprecated = True
-    assert_result_contains('   :deprecated:', 'module', 'test_autodoc')
+    assert_result_contains('   :deprecated:', 'module', 'target')
     options.platform = 'Platform'
-    assert_result_contains('   :platform: Platform', 'module', 'test_autodoc')
+    assert_result_contains('   :platform: Platform', 'module', 'target')
     # test if __all__ is respected for modules
     options.members = ALL
-    assert_result_contains('.. py:class:: Class(arg)', 'module', 'test_autodoc')
+    assert_result_contains('.. py:class:: Class(arg)', 'module', 'target')
     try:
         assert_result_contains('.. py:exception:: CustomEx',
-                               'module', 'test_autodoc')
+                               'module', 'target')
     except AssertionError:
         pass
     else:
@@ -746,7 +754,7 @@ def test_generate():
     # test noindex flag
     options.members = []
     options.noindex = True
-    assert_result_contains('   :noindex:', 'module', 'test_autodoc')
+    assert_result_contains('   :noindex:', 'module', 'target')
     assert_result_contains('   :noindex:', 'class', 'Base')
 
     # okay, now let's get serious about mixing Python and C signature stuff
@@ -754,14 +762,14 @@ def test_generate():
                            all_members=True)
 
     # test inner class handling
-    assert_processes([('class', 'test_autodoc.Outer'),
-                      ('class', 'test_autodoc.Outer.Inner'),
-                      ('method', 'test_autodoc.Outer.Inner.meth')],
+    assert_processes([('class', 'target.Outer'),
+                      ('class', 'target.Outer.Inner'),
+                      ('method', 'target.Outer.Inner.meth')],
                      'class', 'Outer', all_members=True)
 
     # test descriptor docstrings
     assert_result_contains('   Descriptor instance docstring.',
-                           'attribute', 'test_autodoc.Class.descr')
+                           'attribute', 'target.Class.descr')
 
     # test generation for C modules (which have no source file)
     directive.env.ref_context['py:module'] = 'time'
@@ -769,7 +777,7 @@ def test_generate():
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
 
     # test autodoc_member_order == 'source'
-    directive.env.ref_context['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'target'
     options.private_members = True
     if PY3:
         roger_line = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
@@ -795,7 +803,7 @@ def test_generate():
     del directive.env.ref_context['py:module']
 
     # test attribute initialized to class instance from other module
-    directive.env.temp_data['autodoc:class'] = 'test_autodoc.Class'
+    directive.env.temp_data['autodoc:class'] = 'target.Class'
     assert_result_contains(u'   should be documented as well - s\xfc\xdf',
                            'attribute', 'mdocattr')
     del directive.env.temp_data['autodoc:class']
@@ -803,25 +811,25 @@ def test_generate():
     # test autodoc_docstring_signature
     assert_result_contains(
         '.. py:method:: DocstringSig.meth(FOO, BAR=1) -> BAZ', 'method',
-        'test_autodoc.DocstringSig.meth')
+        'target.DocstringSig.meth')
     assert_result_contains(
-        '   rest of docstring', 'method', 'test_autodoc.DocstringSig.meth')
+        '   rest of docstring', 'method', 'target.DocstringSig.meth')
     assert_result_contains(
         '.. py:method:: DocstringSig.meth2()', 'method',
-        'test_autodoc.DocstringSig.meth2')
+        'target.DocstringSig.meth2')
     assert_result_contains(
         '       indented line', 'method',
-        'test_autodoc.DocstringSig.meth2')
+        'target.DocstringSig.meth2')
     assert_result_contains(
         '.. py:classmethod:: Class.moore(a, e, f) -> happiness', 'method',
-        'test_autodoc.Class.moore')
+        'target.Class.moore')
 
     # test new attribute documenter behavior
-    directive.env.ref_context['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'target'
     options.undoc_members = True
-    assert_processes([('class', 'test_autodoc.AttCls'),
-                      ('attribute', 'test_autodoc.AttCls.a1'),
-                      ('attribute', 'test_autodoc.AttCls.a2'),
+    assert_processes([('class', 'target.AttCls'),
+                      ('attribute', 'target.AttCls.a1'),
+                      ('attribute', 'target.AttCls.a2'),
                       ], 'class', 'AttCls')
     assert_result_contains(
         '   :annotation: = hello world', 'attribute', 'AttCls.a1')
@@ -831,40 +839,40 @@ def test_generate():
     # test explicit members with instance attributes
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
-    directive.env.ref_context['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'target'
     options.inherited_members = False
     options.undoc_members = False
     options.members = ALL
     assert_processes([
-        ('class', 'test_autodoc.InstAttCls'),
-        ('attribute', 'test_autodoc.InstAttCls.ca1'),
-        ('attribute', 'test_autodoc.InstAttCls.ca2'),
-        ('attribute', 'test_autodoc.InstAttCls.ca3'),
-        ('attribute', 'test_autodoc.InstAttCls.ia1'),
-        ('attribute', 'test_autodoc.InstAttCls.ia2'),
+        ('class', 'target.InstAttCls'),
+        ('attribute', 'target.InstAttCls.ca1'),
+        ('attribute', 'target.InstAttCls.ca2'),
+        ('attribute', 'target.InstAttCls.ca3'),
+        ('attribute', 'target.InstAttCls.ia1'),
+        ('attribute', 'target.InstAttCls.ia2'),
     ], 'class', 'InstAttCls')
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
     options.members = ['ca1', 'ia1']
     assert_processes([
-        ('class', 'test_autodoc.InstAttCls'),
-        ('attribute', 'test_autodoc.InstAttCls.ca1'),
-        ('attribute', 'test_autodoc.InstAttCls.ia1'),
+        ('class', 'target.InstAttCls'),
+        ('attribute', 'target.InstAttCls.ca1'),
+        ('attribute', 'target.InstAttCls.ia1'),
     ], 'class', 'InstAttCls')
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
     del directive.env.ref_context['py:module']
 
     # test members with enum attributes
-    directive.env.ref_context['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'target'
     options.inherited_members = False
     options.undoc_members = False
     options.members = ALL
     assert_processes([
-        ('class', 'test_autodoc.EnumCls'),
-        ('attribute', 'test_autodoc.EnumCls.val1'),
-        ('attribute', 'test_autodoc.EnumCls.val2'),
-        ('attribute', 'test_autodoc.EnumCls.val3'),
+        ('class', 'target.EnumCls'),
+        ('attribute', 'target.EnumCls.val1'),
+        ('attribute', 'target.EnumCls.val2'),
+        ('attribute', 'target.EnumCls.val3'),
     ], 'class', 'EnumCls')
     assert_result_contains(
         '   :annotation: = 12', 'attribute', 'EnumCls.val1')
@@ -878,11 +886,11 @@ def test_generate():
     # test descriptor class documentation
     options.members = ['CustomDataDescriptor', 'CustomDataDescriptor2']
     assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
-                           'module', 'test_autodoc')
+                           'module', 'target')
     assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
-                           'module', 'test_autodoc')
+                           'module', 'target')
     assert_result_contains('.. py:class:: CustomDataDescriptor2(doc)',
-                           'module', 'test_autodoc')
+                           'module', 'target')
 
     # test mocked module imports
     options.members = ['TestAutodoc']
@@ -894,224 +902,3 @@ def test_generate():
     options.members = ['decoratedFunction']
     assert_result_contains('.. py:function:: decoratedFunction()',
                            'module', 'autodoc_missing_imports')
-
-
-# --- generate fodder ------------
-__all__ = ['Class']
-
-#: documentation for the integer
-integer = 1
-
-
-def raises(exc, func, *args, **kwds):
-    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
-    pass
-
-
-class CustomEx(Exception):
-    """My custom exception."""
-
-    def f(self):
-        """Exception method."""
-
-
-class CustomDataDescriptor(object):
-    """Descriptor class docstring."""
-
-    def __init__(self, doc):
-        self.__doc__ = doc
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        return 42
-
-    def meth(self):
-        """Function."""
-        return "The Answer"
-
-
-class CustomDataDescriptorMeta(type):
-    """Descriptor metaclass docstring."""
-
-
-@add_metaclass(CustomDataDescriptorMeta)
-class CustomDataDescriptor2(CustomDataDescriptor):
-    """Descriptor class with custom metaclass docstring."""
-
-
-def _funky_classmethod(name, b, c, d, docstring=None):
-    """Generates a classmethod for a class from a template by filling out
-    some arguments."""
-    def template(cls, a, b, c, d=4, e=5, f=6):
-        return a, b, c, d, e, f
-    from functools import partial
-    function = partial(template, b=b, c=c, d=d)
-    function.__name__ = name
-    function.__doc__ = docstring
-    return classmethod(function)
-
-
-class Base(object):
-    def inheritedmeth(self):
-        """Inherited function."""
-
-
-class Derived(Base):
-    def inheritedmeth(self):
-        # no docstring here
-        pass
-
-
-class Class(Base):
-    """Class to document."""
-
-    descr = CustomDataDescriptor("Descriptor instance docstring.")
-
-    def meth(self):
-        """Function."""
-
-    def undocmeth(self):
-        pass
-
-    def skipmeth(self):
-        """Method that should be skipped."""
-
-    def excludemeth(self):
-        """Method that should be excluded."""
-
-    # should not be documented
-    skipattr = 'foo'
-
-    #: should be documented -- süß
-    attr = 'bar'
-
-    @property
-    def prop(self):
-        """Property."""
-
-    docattr = 'baz'
-    """should likewise be documented -- süß"""
-
-    udocattr = 'quux'
-    u"""should be documented as well - süß"""
-
-    # initialized to any class imported from another module
-    mdocattr = StringIO()
-    """should be documented as well - süß"""
-
-    roger = _funky_classmethod("roger", 2, 3, 4)
-
-    moore = _funky_classmethod("moore", 9, 8, 7,
-                               docstring="moore(a, e, f) -> happiness")
-
-    def __init__(self, arg):
-        self.inst_attr_inline = None  #: an inline documented instance attr
-        #: a documented instance attribute
-        self.inst_attr_comment = None
-        self.inst_attr_string = None
-        """a documented instance attribute"""
-        self._private_inst_attr = None  #: a private instance attribute
-
-    def __special1__(self):
-        """documented special method"""
-
-    def __special2__(self):
-        # undocumented special method
-        pass
-
-
-class CustomDict(dict):
-    """Docstring."""
-
-
-def function(foo, *args, **kwds):
-    """
-    Return spam.
-    """
-    pass
-
-
-class Outer(object):
-    """Foo"""
-
-    class Inner(object):
-        """Foo"""
-
-        def meth(self):
-            """Foo"""
-
-    # should be documented as an alias
-    factory = dict
-
-
-class DocstringSig(object):
-    def meth(self):
-        """meth(FOO, BAR=1) -> BAZ
-First line of docstring
-
-        rest of docstring
-        """
-
-    def meth2(self):
-        """First line, no signature
-        Second line followed by indentation::
-
-            indented line
-        """
-
-    @property
-    def prop1(self):
-        """DocstringSig.prop1(self)
-        First line of docstring
-        """
-        return 123
-
-    @property
-    def prop2(self):
-        """First line of docstring
-        Second line of docstring
-        """
-        return 456
-
-
-class StrRepr(str):
-    def __repr__(self):
-        return self
-
-
-class AttCls(object):
-    a1 = StrRepr('hello\nworld')
-    a2 = None
-
-
-class InstAttCls(object):
-    """Class with documented class and instance attributes."""
-
-    #: Doc comment for class attribute InstAttCls.ca1.
-    #: It can have multiple lines.
-    ca1 = 'a'
-
-    ca2 = 'b'    #: Doc comment for InstAttCls.ca2. One line only.
-
-    ca3 = 'c'
-    """Docstring for class attribute InstAttCls.ca3."""
-
-    def __init__(self):
-        #: Doc comment for instance attribute InstAttCls.ia1
-        self.ia1 = 'd'
-
-        self.ia2 = 'e'
-        """Docstring for instance attribute InstAttCls.ia2."""
-
-
-class EnumCls(enum.Enum):
-    """
-    this is enum class
-    """
-
-    #: doc for val1
-    val1 = 12
-    val2 = 23  #: doc for val2
-    val3 = 34
-    """doc for val3"""

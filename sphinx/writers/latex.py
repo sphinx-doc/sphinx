@@ -48,7 +48,8 @@ BEGIN_DOC = r'''
 
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
-SECNUMDEPTH = 3
+LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
+                     "subsubsection", "paragraph", "subparagraph"]
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -501,9 +502,9 @@ def rstdim_to_latexdim(width_str):
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
-    sectionnames = ["part", "chapter", "section", "subsection",
-                    "subsubsection", "paragraph", "subparagraph"]
 
+    secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
+    # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
     # sphinx specific document classes
@@ -532,16 +533,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.compact_list = 0
         self.first_param = 0
 
-        # determine top section level
-        if builder.config.latex_toplevel_sectioning:
-            self.top_sectionlevel = \
-                self.sectionnames.index(builder.config.latex_toplevel_sectioning)
-        else:
-            if document.settings.docclass == 'howto':
-                self.top_sectionlevel = 2
-            else:
-                self.top_sectionlevel = 1
-
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
@@ -562,16 +553,55 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements.update({
                 'releasename':  _('Release'),
             })
+
+        # we assume LaTeX class provides \chapter command except in case
+        # of non-Japanese 'howto' case
+        self.sectionnames = LATEXSECTIONNAMES[:]
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
+            if docclass[0] == 'j':  # Japanese class...
+                pass
+            else:
+                self.sectionnames.remove('chapter')
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
+
+        # determine top section level
+        self.top_sectionlevel = 1
+        if builder.config.latex_toplevel_sectioning:
+            try:
+                self.top_sectionlevel = \
+                    self.sectionnames.index(builder.config.latex_toplevel_sectioning)
+            except ValueError:
+                logger.warning('unknown %r toplevel_sectioning for class %r' %
+                               (builder.config.latex_toplevel_sectioning, docclass))
+
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
+
+        if builder.config.numfig:
+            self.numfig_secnum_depth = builder.config.numfig_secnum_depth
+            if self.numfig_secnum_depth > 0:  # default is 1
+                # numfig_secnum_depth as passed to sphinx.sty indices same names as in
+                # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
+                if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+                   self.top_sectionlevel > 0:
+                    self.numfig_secnum_depth += self.top_sectionlevel
+                else:
+                    self.numfig_secnum_depth += self.top_sectionlevel - 1
+                # this (minus one) will serve as minimum to LaTeX's secnumdepth
+                self.numfig_secnum_depth = min(self.numfig_secnum_depth,
+                                               len(LATEXSECTIONNAMES) - 1)
+                # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
+                self.elements['sphinxpkgoptions'] += \
+                    (',numfigreset=%s' % self.numfig_secnum_depth)
+            else:
+                self.elements['sphinxpkgoptions'] += ',nonumfigreset'
+
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
@@ -628,23 +658,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
+
+        minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if document.get('tocdepth'):
-            # redece tocdepth if `part` or `chapter` is used for top_sectionlevel
+            # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
             #   tocdepth =  0: show parts and chapters
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
-            maxdepth = len(self.sectionnames) - self.top_sectionlevel
-            if tocdepth > maxdepth:
+            if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+               self.top_sectionlevel > 0:
+                tocdepth += 1  # because top_sectionlevel is shifted by -1
+            if tocdepth > len(LATEXSECTIONNAMES) - 2:  # default is 5 <-> subparagraph
                 logger.warning('too large :maxdepth:, ignored.')
-                tocdepth = maxdepth
+                tocdepth = len(LATEXSECTIONNAMES) - 2
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
-            if tocdepth >= SECNUMDEPTH:
-                # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
-                self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
+            minsecnumdepth = max(minsecnumdepth, tocdepth)
+
+        if builder.config.numfig and (builder.config.numfig_secnum_depth > 0):
+            minsecnumdepth = max(minsecnumdepth, self.numfig_secnum_depth - 1)
+
+        if minsecnumdepth > self.secnumdepth:
+            self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
+                                           minsecnumdepth
 
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \

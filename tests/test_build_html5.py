@@ -90,8 +90,8 @@ def cached_etree_parse():
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [

@@ -335,6 +335,43 @@ def test_numref_with_language_ja(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
+@pytest.mark.sphinx('latex', testroot='latex-numfig')
+def test_latex_obey_numfig_is_false(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 0})
+def test_latex_obey_numfig_secnum_depth_is_zero(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset]{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+def test_latex_obey_numfig_secnum_depth_is_two(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=2]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=3]{sphinx}' in result
+
+
 @pytest.mark.sphinx('latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
@@ -712,20 +749,16 @@ def test_latex_logo_if_not_found(app, status, warning):
         assert isinstance(exc, SphinxError)
 
 
-@pytest.mark.sphinx('latex', testroot='toctree-maxdepth',
-                    confoverrides={'latex_documents': [
-                        ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-                         'Georg Brandl', 'manual'),
-                    ]})
+@pytest.mark.sphinx('latex', testroot='toctree-maxdepth')
 def test_toctree_maxdepth_manual(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}{1}' in result
     assert '\\setcounter{secnumdepth}' not in result
-
+    assert '\\chapter{Foo}' in result
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
@@ -741,7 +774,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}{2}' in result
     assert '\\setcounter{secnumdepth}' not in result
-
+    assert '\\section{Foo}' in result
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
@@ -754,7 +787,7 @@ def test_toctree_not_found(app, status, warning):
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}' not in result
     assert '\\setcounter{secnumdepth}' not in result
-
+    assert '\\chapter{Foo A}' in result
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
@@ -804,6 +837,26 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\part{Foo}' in result
+    assert '\\chapter{Foo A}' in result
+    assert '\\chapter{Foo B}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'part',
+                   'latex_documents': [
+                    ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                     'Georg Brandl', 'howto')
+                   ]})
+def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\part{Foo}' in result
+    assert '\\section{Foo A}' in result
+    assert '\\section{Foo B}' in result
 
 
 @pytest.mark.sphinx(
@@ -816,6 +869,22 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\chapter{Foo}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'chapter',
+                   'latex_documents': [
+                    ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                     'Georg Brandl', 'howto')
+                   ]})
+def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\section{Foo}' in result
 
 
 @pytest.mark.sphinx(

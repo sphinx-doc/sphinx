@@ -141,6 +141,7 @@ Documentation using the nature theme
 Documentation using another builtin theme
 -----------------------------------------
 
+* Arcade: http://arcade.academy/ (sphinx_rtd_theme)
 * Breathe: https://breathe.readthedocs.io/ (haiku)
 * MPipe: https://vmlaker.github.io/mpipe/ (sphinx13)
 * NLTK: http://www.nltk.org/ (agogo)
