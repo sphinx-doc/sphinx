@@ -898,7 +898,7 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
-        'imported-members': bool_option,
+        'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[unicode, Callable]
 
     @classmethod
@@ -940,7 +940,8 @@ class ModuleDocumenter(Documenter):
     def get_object_members(self, want_all):
         # type: (bool) -> Tuple[bool, List[Tuple[unicode, object]]]
         if want_all:
-            if not hasattr(self.object, '__all__'):
+            if (self.options.ignore_module_all or not
+                    hasattr(self.object, '__all__')):
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, safe_getmembers(self.object)
@@ -1528,7 +1529,7 @@ class AutoDirective(Directive):
     # flags that can be given in autodoc_default_flags
     _default_flags = set([
         'members', 'undoc-members', 'inherited-members', 'show-inheritance',
-        'private-members', 'special-members',
+        'private-members', 'special-members', 'ignore-module-all'
     ])
 
     # standard docutils directive settings

@@ -68,6 +68,7 @@ def setup_test():
         members = [],
         member_order = 'alphabetic',
         exclude_members = set(),
+        ignore_module_all = False,
     )
 
     directive = Struct(
@@ -743,6 +744,12 @@ def test_generate():
         pass
     else:
         assert False, 'documented CustomEx which is not in __all__'
+
+    # test ignore-module-all
+    options.ignore_module_all = True
+    assert_result_contains('.. py:class:: Class(arg)', 'module', 'test_autodoc')
+    assert_result_contains('.. py:exception:: CustomEx', 'module',
+                           'test_autodoc')
 
     # test noindex flag
     options.members = []
