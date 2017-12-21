@@ -604,7 +604,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             try:
                 if builder.config.math_numfig:
                     self.elements['sphinxpkgoptions'] += ',mathnumfig'
-            except:
+            except AttributeError:
                 pass
 
         if builder.config.latex_logo:
