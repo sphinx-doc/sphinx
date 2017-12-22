@@ -23,8 +23,20 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
+#: XHTML DOCTYPE used for epub2 content.
+#:
+#: .. note::
+#:
+#:    The XML declaration is required for some third party epub2 validators.
+#:
+#:    Quoting the `W3C documentation <https://www.w3.org/TR/xhtml1/#strict>`_:
+#:
+#:       An XML declaration is not required in all XML documents; however XHTML
+#:       document authors are strongly encouraged to use XML declarations in all
+#:       their documents.
 
-DOCTYPE = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+DOCTYPE = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'''
 
 
