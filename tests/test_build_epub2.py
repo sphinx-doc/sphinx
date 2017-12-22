@@ -103,7 +103,10 @@ def test_build_epub(app):
 
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
-    assert metadata.find("./dc:identifier").text == app.config.epub_uid
+    identifier = metadata.find("./dc:identifier")
+    assert identifier.text == app.config.epub_identifier
+    assert identifier.attrib == {'id': app.config.epub_uid,
+                                 '{http://www.idpf.org/2007/opf}scheme': app.config.epub_scheme}
     assert metadata.find("./dc:language").text == app.config.epub_language
     assert metadata.find("./dc:title").text == app.config.epub_title
     assert metadata.find("./dc:creator").text == app.config.epub_author

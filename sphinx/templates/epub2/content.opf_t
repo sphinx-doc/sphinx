@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0"
-      unique-identifier="%(uid)s">
+      unique-identifier="{{ uid }}">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
         xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:language>{{ lang }}</dc:language>
