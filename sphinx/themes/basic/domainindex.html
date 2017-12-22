@@ -9,7 +9,7 @@
 #}
 {%- extends "layout.html" %}
 {% set title = indextitle %}
-{% block extrahead %}
+{%- block extrahead %}
 {{ super() }}
 {% if not embedded and collapse_index %}
     <script type="text/javascript">
@@ -17,7 +17,7 @@
     </script>
 {% endif %}
 {% endblock %}
-{% block body %}
+{%- block body %}
 
    {%- set groupid = idgen() %}
 

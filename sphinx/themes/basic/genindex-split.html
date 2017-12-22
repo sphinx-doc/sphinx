@@ -9,7 +9,7 @@
 #}
 {%- extends "layout.html" %}
 {% set title = _('Index') %}
-{% block body %}
+{%- block body %}
 
    <h1 id="index">{{ _('Index') }}</h1>
 
@@ -27,7 +27,7 @@
 
 {% endblock %}
 
-{% block sidebarrel %}
+{%- block sidebarrel %}
 {% if split_index %}
    <h4>Index</h4>
    <p>{% for key, dummy in genindexentries -%}

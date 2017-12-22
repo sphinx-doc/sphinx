@@ -9,14 +9,14 @@
 #}{{ warn('Now base template defindex.html is deprecated.') }}
 {%- extends "layout.html" %}
 {% set title = _('Overview') %}
-{% block body %}
+{%- block body %}
   <h1>{{ docstitle|e }}</h1>
   <p>
     {{ _('Welcome! This is') }}
     {% block description %}{{ _('the documentation for') }} {{ project|e }}
     {{ release|e }}{% if last_updated %}, {{ _('last updated') }} {{ last_updated|e }}{% endif %}{% endblock %}.
   </p>
-  {% block tables %}
+  {%- block tables %}
   <p><strong>{{ _('Indices and tables:') }}</strong></p>
   <table class="contentstable"><tr>
     <td style="width: 50%">

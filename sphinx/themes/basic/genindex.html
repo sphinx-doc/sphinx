@@ -7,7 +7,7 @@
     :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
-{% macro indexentries(firstname, links) %}
+{%- macro indexentries(firstname, links) %}
   {%- if links -%}
     <a href="{{ links[0][1] }}">
     {%- if links[0][0] %}<strong>{% endif -%}
@@ -28,7 +28,7 @@
 
 {%- extends "layout.html" %}
 {% set title = _('Index') %}
-{% block body %}
+{%- block body %}
 
 <h1 id="index">{{ _('Index') }}</h1>
 
@@ -61,7 +61,7 @@
 
 {% endblock %}
 
-{% block sidebarrel %}
+{%- block sidebarrel %}
 {% if split_index %}
    <h4>{{ _('Index') }}</h4>
    <p>{% for key, dummy in genindexentries -%}
