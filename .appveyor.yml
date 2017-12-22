@@ -39,7 +39,7 @@ test_script:
       if (-not $test_ignore) { $test_ignore = '' }
       $tests = $env:TEST
       if (-not $tests) { $tests = '' }
-      & "C:\Python$($env:PYTHON)\python.exe" run.py $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
+      & "C:\Python$($env:PYTHON)\python.exe" -m pytest $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
       Pop-Location
       if ($LastExitCode -eq 1) { Write-Host "Test Failures Occurred, leaving for test result parsing" }
       elseif ($LastExitCode -ne 0) { Write-Host "Other Error Occurred, aborting"; exit $LastExitCode }

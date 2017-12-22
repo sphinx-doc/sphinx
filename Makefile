@@ -69,7 +69,7 @@ reindent:
 
 .PHONY: test
 test:
-	@cd tests; $(PYTHON) run.py -v $(TEST)
+	@$(PYTHON) -m pytest -v $(TEST)
 
 .PHONY: test-async
 test-async:
@@ -77,7 +77,7 @@ test-async:
 
 .PHONY: covertest
 covertest:
-	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:
