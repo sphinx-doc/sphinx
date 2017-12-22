@@ -39,8 +39,5 @@ if os.path.exists(tempdir):
     shutil.rmtree(tempdir)
 os.makedirs(tempdir)
 
-print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
-sys.stdout.flush()
-
 import pytest  # NOQA
 sys.exit(pytest.main(sys.argv[1:]))

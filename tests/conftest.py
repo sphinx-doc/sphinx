@@ -26,3 +26,8 @@ if sys.version_info < (3, 5):
 @pytest.fixture(scope='session')
 def rootdir():
     return path(os.path.dirname(__file__) or '.').abspath() / 'roots'
+
+
+def pytest_report_header(config):
+    return 'Running Sphinx test suite (with Python %s)...' % (
+        sys.version.split()[0])
