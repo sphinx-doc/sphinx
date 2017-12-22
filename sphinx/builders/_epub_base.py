@@ -667,6 +667,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         metadata = {}  # type: Dict[unicode, Any]
         metadata['uid'] = self.config.epub_uid
+        metadata['id'] = self.config.epub_identifier
         metadata['title'] = self.config.epub_title
         metadata['level'] = level
         metadata['navpoints'] = navpoints

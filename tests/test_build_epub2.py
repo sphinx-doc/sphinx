@@ -84,7 +84,7 @@ def test_build_epub(app):
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
-    assert meta[0].attrib == {'name': 'dtb:uid', 'content': app.config.epub_uid}
+    assert meta[0].attrib == {'name': 'dtb:uid', 'content': app.config.epub_identifier}
     assert meta[1].attrib == {'name': 'dtb:depth', 'content': '1'}
     assert meta[2].attrib == {'name': 'dtb:totalPageCount', 'content': '0'}
     assert meta[3].attrib == {'name': 'dtb:maxPageNumber', 'content': '0'}
