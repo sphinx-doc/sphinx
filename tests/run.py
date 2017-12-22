@@ -27,19 +27,6 @@ warnings.filterwarnings('ignore', category=ImportWarning, module='pkgutil')
 warnings.filterwarnings('ignore', category=ImportWarning, module='pytest_cov')
 warnings.filterwarnings('ignore', category=PendingDeprecationWarning, module=r'_pytest\..*')
 
-# check dependencies before testing
-print('Checking dependencies...')
-for modname in ('pytest', 'mock', 'six', 'docutils', 'jinja2', 'pygments',
-                'snowballstemmer', 'babel', 'html5lib'):
-    try:
-        __import__(modname)
-    except ImportError as err:
-        if modname == 'mock' and sys.version_info[0] == 3:
-            continue
-        traceback.print_exc()
-        print('The %r package is needed to run the Sphinx test suite.' % modname)
-        sys.exit(1)
-
 # find a temp dir for testing and clean it up now
 os.environ['SPHINX_TEST_TEMPDIR'] = \
     os.path.abspath(os.path.join(testroot, 'build')) \
