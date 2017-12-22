@@ -194,10 +194,12 @@ class Make(object):
 
     def build_latexpdf(self):
         # type: () -> int
-        if self.run_generic_build('latex') > 0:
+        if self.run_generic_build('latexpdf') > 0:
             return 1
-        with cd(self.builddir_join('latex')):
-            return subprocess.call([self.makecmd, 'all-pdf'])
+        print()
+        print("Build finished; the PDF and LaTeX files are in %s." %
+              self.builddir_join('latex'))
+        return 0
 
     def build_latexpdfja(self):
         # type: () -> int
