@@ -11,13 +11,13 @@
 
 import os
 from os import path
-
-from six import text_type
+import subprocess
 
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
+from six import text_type
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.config import string_classes, ENUM
@@ -45,7 +45,9 @@ logger = logging.getLogger(__name__)
 
 class LaTeXBuilder(Builder):
     """
-    Builds LaTeX output to create PDF.
+    Builds LaTeX output.
+
+    The LaTeX output can be be later used to create PDFs.
     """
     name = 'latex'
     format = 'latex'
@@ -256,6 +258,26 @@ class LaTeXBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
+class LaTeXPDFBuilder(LaTeXBuilder):
+    """
+    Utility builder that builds LaTeX output followed by a PDF.
+    """
+    name = 'latexpdf'
+
+    def finish(self):
+        # type: () -> None
+        super(LaTeXPDFBuilder, self).finish()
+        makecmd = os.environ.get('MAKE', 'make')
+        # NOTE(stephenfin): We call things using the 'make' target because of
+        # the complexity involved in building PDFs on different platforms. In
+        # the future, we may wish to switch to using 'subprocess' but that's a
+        # big ask.
+        try:
+            subprocess.check_call([makecmd, 'all-pdf'], cwd=self.outdir)
+        except subprocess.CalledProcessError:
+            logger.exception('Failed to build PDF')
+
+
 def validate_config_values(app):
     # type: (Sphinx) -> None
     for document in app.config.latex_documents:
@@ -298,6 +320,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
+    app.add_builder(LaTeXPDFBuilder)
     app.connect('builder-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
