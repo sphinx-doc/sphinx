@@ -8,7 +8,7 @@
     :license: BSD, see LICENSE for details.
 #}
 {%- if pagename != "search" and builder != "singlehtml" %}
-<div id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none"{%- if html5_doctype %} role="search"{%- endif %}>
   <h3>{{ _('Quick search') }}</h3>
     <form class="search" action="{{ pathto('search') }}" method="get">
       <div><input type="text" name="q" /></div>
