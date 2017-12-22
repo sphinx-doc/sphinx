@@ -40,9 +40,7 @@ def _filter_warnings():
 
     ignore(category=DeprecationWarning, module='site')  # virtualenv
     ignore(category=PendingDeprecationWarning, module=r'_pytest\..*')
-    ignore(category=ImportWarning, module='backports')
     ignore(category=ImportWarning, module='pkgutil')
-    ignore(category=ImportWarning, module='pytest_cov')
 
 
 def _initialize_test_directory(session):
