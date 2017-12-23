@@ -85,6 +85,7 @@ def test_todo_not_included(app, status, warning):
     assert len(todos) == 2
     assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
 
+
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo_valid_link(app, status, warning):
@@ -107,8 +108,7 @@ def test_todo_valid_link(app, status, warning):
     target = m[0]
 
     # Look for the targets of this link.
-    labels = [m for m in re.findall(r'\\label\{([^}]*)}', content)
-        if m == target]
+    labels = [m for m in re.findall(r'\\label\{([^}]*)}', content) if m == target]
 
     # If everything is correct we should have exactly one target.
     assert len(labels) == 1

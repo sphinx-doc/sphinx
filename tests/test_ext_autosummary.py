@@ -163,7 +163,8 @@ def test_import_by_name():
     assert parent is sphinx.ext.autosummary
     assert modname == 'sphinx.ext.autosummary'
 
-    prefixed_name, obj, parent, modname = import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
+    prefixed_name, obj, parent, modname = \
+        import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
     assert prefixed_name == 'sphinx.ext.autosummary.Autosummary.get_items'
     assert obj == sphinx.ext.autosummary.Autosummary.get_items
     assert parent is sphinx.ext.autosummary.Autosummary

@@ -425,7 +425,7 @@ def test_get_doc():
     # class has __init__ method without docstring and
     # __new__ method with docstring
     # class docstring: depends on config value which one is taken
-    class I:
+    class I:  # NOQA
         """Class docstring"""
         def __new__(cls):
             """New docstring"""

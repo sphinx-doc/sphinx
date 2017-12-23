@@ -240,7 +240,6 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
             ' title="(in foo v2.0)">bartype</a>' in html)
 
 
-
 def test_missing_reference_jsdomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)

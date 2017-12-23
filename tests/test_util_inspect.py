@@ -113,7 +113,6 @@ def test_getargspec_bound_methods():
         assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
-
 def test_Signature():
     # literals
     with pytest.raises(TypeError):

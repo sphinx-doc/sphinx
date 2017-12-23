@@ -40,6 +40,7 @@ def test_graphviz_png_html(app, status, warning):
             r'}\" />\n</div>')
     assert re.search(html, content, re.S)
 
+
 @pytest.mark.sphinx('html', testroot='ext-graphviz',
                     confoverrides={'graphviz_output_format': 'svg'})
 @pytest.mark.usefixtures('if_graphviz_found')
@@ -79,6 +80,7 @@ def test_graphviz_svg_html(app, status, warning):
             r'}</p></object>\n'
             r'</div>')
     assert re.search(html, content, re.S)
+
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')

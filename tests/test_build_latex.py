@@ -773,6 +773,7 @@ def test_toctree_maxdepth_manual(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
     assert '\\chapter{Foo}' in result
 
+
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_documents': [
@@ -789,6 +790,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
     assert '\\section{Foo}' in result
 
+
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
     confoverrides={'master_doc': 'foo'})
@@ -801,6 +803,7 @@ def test_toctree_not_found(app, status, warning):
     assert '\\setcounter{tocdepth}' not in result
     assert '\\setcounter{secnumdepth}' not in result
     assert '\\chapter{Foo A}' in result
+
 
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
@@ -858,8 +861,8 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_toplevel_sectioning': 'part',
                    'latex_documents': [
-                    ('index', 'Python.tex', 'Sphinx Tests Documentation',
-                     'Georg Brandl', 'howto')
+                       ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                        'Georg Brandl', 'howto')
                    ]})
 def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
     app.builder.build_all()
@@ -888,8 +891,8 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_toplevel_sectioning': 'chapter',
                    'latex_documents': [
-                    ('index', 'Python.tex', 'Sphinx Tests Documentation',
-                     'Georg Brandl', 'howto')
+                       ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                        'Georg Brandl', 'howto')
                    ]})
 def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
     app.builder.build_all()

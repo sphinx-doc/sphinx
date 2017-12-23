@@ -96,7 +96,6 @@ def test_do_prompt_inputstrip():
 
 
 def test_do_prompt_with_nonascii():
-    d = {}
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
     }

@@ -95,7 +95,6 @@ def test_parselinenos():
         parselinenos('3-1', 10)
 
 
-
 def test_xmlname_check():
     checker = xmlname_checker()
     assert checker.match('id-pub')

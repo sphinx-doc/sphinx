@@ -28,7 +28,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir/'test-versioning').copytree(srcdir)
+        (rootdir / 'test-versioning').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)

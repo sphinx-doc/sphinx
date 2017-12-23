@@ -44,22 +44,22 @@ def test_guess_mimetype(testroot):
     assert guess_mimetype('IMG.PNG') == 'image/png'
 
     # guess by content
-    assert guess_mimetype(content=(testroot/GIF_FILENAME).bytes()) == 'image/gif'
-    assert guess_mimetype(content=(testroot/PNG_FILENAME).bytes()) == 'image/png'
-    assert guess_mimetype(content=(testroot/PDF_FILENAME).bytes()) is None
-    assert guess_mimetype(content=(testroot/TXT_FILENAME).bytes()) is None
-    assert guess_mimetype(content=(testroot/TXT_FILENAME).bytes(),
+    assert guess_mimetype(content=(testroot / GIF_FILENAME).bytes()) == 'image/gif'
+    assert guess_mimetype(content=(testroot / PNG_FILENAME).bytes()) == 'image/png'
+    assert guess_mimetype(content=(testroot / PDF_FILENAME).bytes()) is None
+    assert guess_mimetype(content=(testroot / TXT_FILENAME).bytes()) is None
+    assert guess_mimetype(content=(testroot / TXT_FILENAME).bytes(),
                           default='text/plain') == 'text/plain'
 
     # the priority of params: filename > content > default
     assert guess_mimetype('img.png',
-                          content=(testroot/GIF_FILENAME).bytes(),
+                          content=(testroot / GIF_FILENAME).bytes(),
                           default='text/plain') == 'image/png'
     assert guess_mimetype('no_extension',
-                          content=(testroot/GIF_FILENAME).bytes(),
+                          content=(testroot / GIF_FILENAME).bytes(),
                           default='text/plain') == 'image/gif'
     assert guess_mimetype('no_extension',
-                          content=(testroot/TXT_FILENAME).bytes(),
+                          content=(testroot / TXT_FILENAME).bytes(),
                           default='text/plain') == 'text/plain'
 
 

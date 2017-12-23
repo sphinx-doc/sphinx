@@ -222,6 +222,7 @@ def test_text_inconsistency_warnings(app, warning):
         u'.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert_re_search(expected_citation_warning_expr, warnings)
 
+
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')

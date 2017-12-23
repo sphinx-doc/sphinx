@@ -22,7 +22,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, env
     srcdir = sphinx_test_tempdir / 'root-envtest'
     if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
+        (rootdir / 'test-root').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     env = app.env
     yield
