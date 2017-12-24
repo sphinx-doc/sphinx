@@ -1285,7 +1285,7 @@ class ASTTemplateParamType(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         id = self.get_identifier()
-        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+        return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
     @property
     def isPack(self):
@@ -1364,7 +1364,7 @@ class ASTTemplateParamTemplateType(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         id = self.get_identifier()
-        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+        return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
     def get_identifier(self):
         # type: () -> unicode
@@ -1401,7 +1401,7 @@ class ASTTemplateParamNonType(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         id = self.get_identifier()
-        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+        return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
     def get_identifier(self):
         # type: () -> unicode
@@ -1494,7 +1494,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         id = self.get_identifier()
-        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+        return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
     @property
     def isPack(self):
@@ -1820,10 +1820,12 @@ class ASTNestedNameElement(ASTBase):
 
 
 class ASTNestedName(ASTBase):
-    def __init__(self, names, rooted):
-        # type: (List[Any], bool) -> None
+    def __init__(self, names, templates, rooted):
+        # type: (List[Any], List[bool], bool) -> None
         assert len(names) > 0
         self.names = names
+        self.templates = templates
+        assert len(self.names) == len(self.templates)
         self.rooted = rooted
 
     @property
@@ -1864,8 +1866,13 @@ class ASTNestedName(ASTBase):
         res = []  # type: List[unicode]
         if self.rooted:
             res.append('')
-        for n in self.names:
-            res.append(text_type(n))
+        for i in range(len(self.names)):
+            n = self.names[i]
+            t = self.templates[i]
+            if t:
+                res.append("template " + text_type(n))
+            else:
+                res.append(text_type(n))
         return '::'.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -1892,10 +1899,14 @@ class ASTNestedName(ASTBase):
             prefix = ''  # type: unicode
             first = True
             names = self.names[:-1] if mode == 'lastIsName' else self.names
-            for name in names:
+            for i in range(len(names)):
+                name = names[i]
+                template = self.templates[i]
                 if not first:
                     signode += nodes.Text('::')
                     prefix += '::'
+                if template:
+                    signode += nodes.Text("template ")
                 first = False
                 if name != '':
                     if (name.templateArgs and  # type: ignore
@@ -1908,6 +1919,8 @@ class ASTNestedName(ASTBase):
             if mode == 'lastIsName':
                 if len(self.names) > 1:
                     signode += addnodes.desc_addname('::', '::')
+                if self.templates[-1]:
+                    signode += nodes.Text("template ")
                 self.names[-1].describe_signature(signode, mode, env, '', symbol)
         else:
             raise Exception('Unknown description mode: %s' % mode)
@@ -3338,7 +3351,7 @@ class Symbol(object):
                 else:
                     decl = None
                 nne = ASTNestedNameElement(p.get_identifier(), None)
-                nn = ASTNestedName([nne], rooted=False)
+                nn = ASTNestedName([nne], [False], rooted=False)
                 self._add_symbols(nn, [], decl, docname)
         # add symbols for function parameters, if any
         if declaration is not None and declaration.function_params is not None:
@@ -3413,9 +3426,11 @@ class Symbol(object):
     def get_full_nested_name(self):
         # type: () -> ASTNestedName
         names = []
+        templates = []
         for nne, templateParams in self.get_lookup_key():
             names.append(nne)
-        return ASTNestedName(names, rooted=False)
+            templates.append(False)
+        return ASTNestedName(names, templates, rooted=False)
 
     def _find_named_symbol(self, identifier, templateParams,
                            templateArgs, operator,
@@ -4531,7 +4546,8 @@ class DefinitionParser(object):
 
     def _parse_nested_name(self, memberPointer=False):
         # type: (bool) -> ASTNestedName
-        names = []
+        names = []  # type: List[Any]
+        templates = []  # type: List[bool]
 
         self.skip_ws()
         rooted = False
@@ -4539,14 +4555,18 @@ class DefinitionParser(object):
             rooted = True
         while 1:
             self.skip_ws()
-            if self.skip_word_and_ws('template'):
-                self.fail("'template' in nested name not implemented.")
-            elif self.skip_word_and_ws('operator'):
+            if len(names) > 0:
+                template = self.skip_word_and_ws('template')
+            else:
+                template = False
+            templates.append(template)
+            if self.skip_word_and_ws('operator'):
                 op = self._parse_operator()
                 names.append(op)
             else:
                 if not self.match(_identifier_re):
                     if memberPointer and len(names) > 0:
+                        templates.pop()
                         break
                     self.fail("Expected identifier in nested name.")
                 identifier = self.matched_text
@@ -4571,7 +4591,7 @@ class DefinitionParser(object):
                 if memberPointer:
                     self.fail("Expected '::' in pointer to member (function).")
                 break
-        return ASTNestedName(names, rooted)
+        return ASTNestedName(names, templates, rooted)
 
     def _parse_trailing_type_spec(self):
         # type: () -> Any
@@ -4836,7 +4856,7 @@ class DefinitionParser(object):
             if self.match(_identifier_re):
                 identifier = ASTIdentifier(self.matched_text)
                 nne = ASTNestedNameElement(identifier, None)
-                declId = ASTNestedName([nne], rooted=False)
+                declId = ASTNestedName([nne], [False], rooted=False)
                 # if it's a member pointer, we may have '::', which should be an error
                 self.skip_ws()
                 if self.current_char == ':':
@@ -5477,7 +5497,7 @@ class DefinitionParser(object):
 def _make_phony_error_name():
     # type: () -> ASTNestedName
     nne = ASTNestedNameElement(ASTIdentifier("PhonyNameDueToError"), None)
-    return ASTNestedName([nne], rooted=False)
+    return ASTNestedName([nne], [False], rooted=False)
 
 
 class CPPObject(ObjectDescription):

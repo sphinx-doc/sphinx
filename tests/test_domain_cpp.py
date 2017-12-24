@@ -243,6 +243,8 @@ def test_type_definitions():
           {1: 'gpio_callback_t', 2: '15gpio_callback_t'})
     check('type', 'void (*f)(std::function<void(int i)> g)', {1: 'f', 2: '1f'})
 
+    check('type', 'T = A::template B<int>::template C<double>', {2: '1T'})
+
 
 def test_concept_definitions():
     check('concept', 'template<typename Param> A::B::Concept',

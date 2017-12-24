@@ -96,6 +96,7 @@ Bugs fixed
 * #4094: C++, allow empty template argument lists.
 * C++, also hyperlink types in the name of declarations with qualified names.
 * C++, do not add index entries for declarations inside concepts. 
+* C++, support the template disambiguator for dependent names.
 * #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
   one of figures and tables
 * #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
