@@ -118,9 +118,10 @@ files can be built by specifying individual filenames.
                         'if -a is specified')
 
     group = parser.add_argument_group('general options')
-    group.add_argument('-b', metavar='BUILDER', dest='builder',
-                       default='html',
-                       help='builder to use (default: html)')
+    group.add_argument('-b', metavar='BUILDER', dest='builders',
+                       action='append', default='html',
+                       help='builder to use, can be provided multiple times '
+                       '(default: html)')
     group.add_argument('-a', action='store_true', dest='force_all',
                        help='write all files (default: only write new and '
                        'changed files)')
@@ -282,11 +283,16 @@ def main(argv=sys.argv[1:]):  # type: ignore
     app = None
     try:
         with patch_docutils(), docutils_namespace():
-            app = Sphinx(srcdir, confdir, outdir, doctreedir, args.builder,
-                         confoverrides, status, warning, args.freshenv,
-                         args.warningiserror, args.tags, args.verbosity, args.jobs)
-            app.build(args.force_all, filenames)
-            return app.statuscode
+            for builder in args.builders:
+                app = Sphinx(srcdir, confdir, outdir, doctreedir, builder,
+                             confoverrides, status, warning, args.freshenv,
+                             args.warningiserror, args.tags, args.verbosity,
+                             args.jobs)
+                app.build(args.force_all, filenames)
+                if app.statuscode:
+                    return app.statuscode
+
+            return 0
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
         return 2
