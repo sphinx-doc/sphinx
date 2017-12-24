@@ -88,17 +88,18 @@ def get_parser():
     parser = argparse.ArgumentParser(
         usage='usage: %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
         epilog='For more information, visit <http://sphinx-doc.org/>.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""
 Generate documentation from source files.
 
-sphinx-build generates documentation from the files in SOURCEDIR and places it
-in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
-settings.  The 'sphinx-quickstart' tool may be used to generate template files,
-including 'conf.py'
+sphinx-build generates documentation from the files in SOURCEDIR and places
+it in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
+settings.  The 'sphinx-quickstart' tool may be used to generate template
+files, including 'conf.py'.
 
 sphinx-build can create documentation in different formats. A format is
-selected by specifying the builder name on the command line; it defaults to
-HTML. Builders can also perform other tasks related to documentation
+selected by specifying the builder name on the command line; it defaults
+to HTML. Builders can also perform other tasks related to documentation
 processing.
 
 By default, everything that is outdated is built. Output only for selected
@@ -113,7 +114,7 @@ files can be built by specifying individual filenames.
     parser.add_argument('outputdir',
                         help='path to output directory')
     parser.add_argument('filenames', nargs='*',
-                        help='a list of specific files to rebuild. Ignored '
+                        help='a list of specific files to rebuild, ignored '
                         'if -a is specified')
 
     group = parser.add_argument_group('general options')
@@ -147,14 +148,14 @@ files can be built by specifying individual filenames.
                        help='pass a value into HTML templates')
     group.add_argument('-t', metavar='TAG', action='append',
                        dest='tags', default=[],
-                       help='define tag: include "only" blocks with TAG')
+                       help='define tag, include "only" blocks with TAG')
     group.add_argument('-n', action='store_true', dest='nitpicky',
                        help='nit-picky mode, warn about all missing '
                        'references')
 
     group = parser.add_argument_group('console output options')
     group.add_argument('-v', action='count', dest='verbosity', default=0,
-                       help='increase verbosity (can be repeated)')
+                       help='increase verbosity, can be repeated')
     group.add_argument('-q', action='store_true', dest='quiet',
                        help='no output on stdout, just warnings on stderr')
     group.add_argument('-Q', action='store_true', dest='really_quiet',
