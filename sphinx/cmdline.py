@@ -106,7 +106,7 @@ By default, everything that is outdated is built. Output only for selected
 files can be built by specifying individual filenames.
 """)
 
-    parser.add_argument('--version', action='version', dest='show_version',
+    parser.add_argument('--version', action='version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('sourcedir',
