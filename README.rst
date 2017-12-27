@@ -22,6 +22,10 @@
    :target: https://circleci.com/gh/sphinx-doc/sphinx
    :alt: Build Status (CircleCI)
 
+.. image:: https://codecov.io/gh/sphinx-doc/sphinx/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/sphinx-doc/sphinx
+   :alt: Code Coverage Status (Codecov)
+
 Sphinx is a tool that makes it easy to create intelligent and beautiful
 documentation for Python projects (or other documents consisting of multiple
 reStructuredText sources), written by Georg Brandl.  It was originally created
