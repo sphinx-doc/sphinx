@@ -365,7 +365,7 @@ The format of the autosummary directive is documented in the
   pydoc sphinx.ext.autosummary
 """)
 
-    parser.add_argument('--version', action='version', dest='show_version',
+    parser.add_argument('--version', action='version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('source_file', nargs='+',

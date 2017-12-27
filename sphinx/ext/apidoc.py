@@ -293,7 +293,7 @@ excluded from generation.
 
 Note: By default this script will not overwrite already created files.""")
 
-    parser.add_argument('--version', action='version', dest='show_version',
+    parser.add_argument('--version', action='version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('module_path',
