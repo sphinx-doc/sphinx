@@ -1685,7 +1685,7 @@ class ASTOperatorType(ASTBase):
         return text_type(self)
 
     def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
+        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
         _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
@@ -1715,7 +1715,7 @@ class ASTOperatorLiteral(ASTBase):
         return u'operator""' + text_type(self.identifier)
 
     def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
+        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
         _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
@@ -3573,22 +3573,9 @@ class Symbol(object):
         # type: (Any, List[unicode], BuildEnvironment) -> None
         assert other is not None
         for otherChild in other.children:
-            if not otherChild.identifier:
-                if not otherChild.declaration:
-                    print("Problem in symbol tree merging")
-                    print("OtherChild.dump:")
-                    print(otherChild.dump(0))
-                    print("Other.dump:")
-                    print(other.dump(0))
-                assert otherChild.declaration
-                operator = otherChild.declaration.name.names[-1]
-                assert operator.is_operator()
-            else:
-                operator = None
-            ourChild = self._find_named_symbol(otherChild.identifier,
+            ourChild = self._find_named_symbol(otherChild.identOrOp,
                                                otherChild.templateParams,
                                                otherChild.templateArgs,
-                                               operator,
                                                templateShorthand=False,
                                                matchSelf=False)
             if ourChild is None:
@@ -4521,7 +4508,7 @@ class DefinitionParser(object):
                 if identifier in _keywords:
                     self.fail("Expected identifier in nested name, "
                               "got keyword: %s" % identifier)
-                identOrOp = ASTIdentifier(identifier)  # type: ignore
+                identOrOp = ASTIdentifier(identifier)
             # try greedily to get template arguments,
             # but otherwise a < might be because we are in an expression
             pos = self.pos
