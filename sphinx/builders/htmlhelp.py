@@ -174,6 +174,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
+    epilog = ('You can now run HTML Help Workshop with the .htp file in '
+              '%(outdir)s.')
 
     # don't copy the reST source
     copysource = False

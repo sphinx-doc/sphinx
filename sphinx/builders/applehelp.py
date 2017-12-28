@@ -75,6 +75,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     on the ``hiutil`` command line tool.
     """
     name = 'applehelp'
+    epilog = ('The help book is in %(outdir)s.\n'
+              'Note that won\'t be able to view it unless you put it in '
+              '~/Library/Documentation/Help or install it in your application '
+              'bundle.')
 
     # don't copy the reST source
     copysource = False

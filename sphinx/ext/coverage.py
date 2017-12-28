@@ -50,8 +50,12 @@ def compile_regex_list(name, exps):
 
 
 class CoverageBuilder(Builder):
-
+    """
+    Evaluates coverage of code in the documentation.
+    """
     name = 'coverage'
+    epilog = ('Testing of coverage in the sources finished, look at the '
+              'results in %(outdir)s/python.txt.')
 
     def init(self):
         # type: () -> None

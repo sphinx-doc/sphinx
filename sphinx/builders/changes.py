@@ -38,6 +38,7 @@ class ChangesBuilder(Builder):
     Write a summary with all versionadded/changed directives.
     """
     name = 'changes'
+    epilog = 'The overview file is in %(outdir)s.'
 
     def init(self):
         # type: () -> None

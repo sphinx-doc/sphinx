@@ -54,6 +54,11 @@ class Builder(object):
     name = ''  # type: unicode
     #: The builder's output format, or '' if no document output is produced.
     format = ''  # type: unicode
+    #: The message emitted upon successful build completion. This can be a
+    #: printf-style template string with the following keys: ``outdir``,
+    #: ``project``
+    epilog = ''  # type: unicode
+
     # default translator class for the builder.  This will be overrided by
     # ``app.set_translator()``.
     default_translator_class = None  # type: nodes.NodeVisitor
