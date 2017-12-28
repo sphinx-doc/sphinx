@@ -1408,9 +1408,9 @@ class ASTTemplateParamNonType(ASTBase):
         name = self.param.name
         if name:
             assert len(name.names) == 1
-            assert name.names[0].identifier
+            assert name.names[0].identOrOp
             assert not name.names[0].templateArgs
-            return name.names[0].identifier
+            return name.names[0].identOrOp
         else:
             return None
 
@@ -1650,8 +1650,8 @@ class ASTOperatorBuildIn(ASTBase):
         else:
             return u'operator' + self.op
 
-    def describe_signature(self, signode, mode, env, prefix, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
+    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
+        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
         _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
@@ -1684,7 +1684,7 @@ class ASTOperatorType(ASTBase):
         # type: () -> unicode
         return text_type(self)
 
-    def describe_signature(self, signode, mode, env, prefix, symbol):
+    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
         _verify_description_mode(mode)
         identifier = text_type(self)
@@ -1714,7 +1714,7 @@ class ASTOperatorLiteral(ASTBase):
         # type: () -> unicode
         return u'operator""' + text_type(self.identifier)
 
-    def describe_signature(self, signode, mode, env, prefix, symbol):
+    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
         _verify_description_mode(mode)
         identifier = text_type(self)
@@ -1788,9 +1788,9 @@ class ASTTemplateArgs(ASTBase):
 
 
 class ASTNestedNameElement(ASTBase):
-    def __init__(self, identifier, templateArgs):
+    def __init__(self, identOrOp, templateArgs):
         # type: (Any, Any) -> None
-        self.identifier = identifier
+        self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
     def is_operator(self):
@@ -1799,14 +1799,14 @@ class ASTNestedNameElement(ASTBase):
 
     def get_id(self, version):
         # type: (int) -> unicode
-        res = self.identifier.get_id(version)
+        res = self.identOrOp.get_id(version)
         if self.templateArgs:
             res += self.templateArgs.get_id(version)
         return res
 
     def __unicode__(self):
         # type: () -> unicode
-        res = text_type(self.identifier)
+        res = text_type(self.identOrOp)
         if self.templateArgs:
             res += text_type(self.templateArgs)
         return res
@@ -1814,7 +1814,7 @@ class ASTNestedNameElement(ASTBase):
     def describe_signature(self, signode, mode, env, prefix, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, unicode, Symbol) -> None
         tArgs = text_type(self.templateArgs) if self.templateArgs is not None else ''
-        self.identifier.describe_signature(signode, mode, env, prefix, tArgs, symbol)
+        self.identOrOp.describe_signature(signode, mode, env, prefix, tArgs, symbol)
         if self.templateArgs is not None:
             self.templateArgs.describe_signature(signode, mode, env, symbol)
 
@@ -3310,23 +3310,20 @@ class Symbol(object):
         # type: () -> None
         if not self.parent:
             # parent == None means global scope, so declaration means a parent
-            assert not self.identifier
+            assert not self.identOrOp
             assert not self.templateParams
             assert not self.templateArgs
             assert not self.declaration
             assert not self.docname
         else:
-            if not self.identifier:
-                # in case it's an operator
-                assert self.declaration
             if self.declaration:
                 assert self.docname
 
-    def __init__(self, parent, identifier,
+    def __init__(self, parent, identOrOp,
                  templateParams, templateArgs, declaration, docname):
         # type: (Any, Any, Any, Any, Any, unicode) -> None
         self.parent = parent
-        self.identifier = identifier
+        self.identOrOp = identOrOp
         self.templateParams = templateParams  # template<templateParams>
         self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
@@ -3365,8 +3362,8 @@ class Symbol(object):
                 decl = ASTDeclaration('functionParam', None, None, p)
                 assert not nn.rooted
                 assert len(nn.names) == 1
-                identifier = nn.names[0].identifier
-                Symbol(parent=self, identifier=identifier,
+                identOrOp = nn.names[0].identOrOp
+                Symbol(parent=self, identOrOp=identOrOp,
                        templateParams=None, templateArgs=None,
                        declaration=decl, docname=docname)
 
@@ -3390,12 +3387,7 @@ class Symbol(object):
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
-            # Just remove operators, because there is no identification if
-            # they got removed.
-            # Don't remove other symbols because they may be used in namespace
-            # directives.
-            if sChild.identifier or sChild.declaration:
-                newChildren.append(sChild)
+            newChildren.append(sChild)
         self.children = newChildren
 
     def get_all_symbols(self):
@@ -3415,11 +3407,7 @@ class Symbol(object):
         symbols.reverse()
         key = []
         for s in symbols:
-            if s.identifier:
-                nne = ASTNestedNameElement(s.identifier, s.templateArgs)
-            else:
-                assert s.declaration
-                nne = s.declaration.name.names[-1]
+            nne = ASTNestedNameElement(s.identOrOp, s.templateArgs)
             key.append((nne, s.templateParams))
         return key
 
@@ -3432,11 +3420,9 @@ class Symbol(object):
             templates.append(False)
         return ASTNestedName(names, templates, rooted=False)
 
-    def _find_named_symbol(self, identifier, templateParams,
-                           templateArgs, operator,
+    def _find_named_symbol(self, identOrOp, templateParams, templateArgs,
                            templateShorthand, matchSelf):
-        # type: (Any, Any, Any, Any, Any, bool) -> Symbol
-        assert (identifier is None) != (operator is None)
+        # type: (Any, Any, Any, Any, bool) -> Symbol
 
         def isSpecialization():
             # the names of the template parameters must be given exactly as args
@@ -3464,17 +3450,8 @@ class Symbol(object):
                 templateArgs = None
 
         def matches(s):
-            if s.identifier != identifier:
+            if s.identOrOp != identOrOp:
                 return False
-            if not s.identifier:
-                if not s.declaration:
-                    return False
-                assert operator
-                name = s.declaration.name.names[-1]
-                if not name.is_operator():
-                    return False
-                if text_type(name) != text_type(operator):
-                    return False
             if (s.templateParams is None) != (templateParams is None):
                 if templateParams is not None:
                     # we query with params, they must match params
@@ -3515,10 +3492,7 @@ class Symbol(object):
         names = nestedName.names
         iTemplateDecl = 0
         for name in names[:-1]:
-            # there shouldn't be anything inside an operator
-            # (other than template parameters, which are not added this way, right?)
-            assert not name.is_operator()
-            identifier = name.identifier
+            identOrOp = name.identOrOp
             templateArgs = name.templateArgs
             if templateArgs:
                 assert iTemplateDecl < len(templateDecls)
@@ -3526,27 +3500,20 @@ class Symbol(object):
                 iTemplateDecl += 1
             else:
                 templateParams = None
-            symbol = parentSymbol._find_named_symbol(identifier,
+            symbol = parentSymbol._find_named_symbol(identOrOp,
                                                      templateParams,
                                                      templateArgs,
-                                                     operator=None,
                                                      templateShorthand=False,
                                                      matchSelf=False)
             if symbol is None:
-                symbol = Symbol(parent=parentSymbol, identifier=identifier,
+                symbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
                                 templateParams=templateParams,
                                 templateArgs=templateArgs, declaration=None,
                                 docname=None)
             parentSymbol = symbol
         name = names[-1]
-        if name.is_operator():
-            identifier = None
-            templateArgs = None
-            operator = name
-        else:
-            identifier = name.identifier
-            templateArgs = name.templateArgs
-            operator = None
+        identOrOp = name.identOrOp
+        templateArgs = name.templateArgs
         if iTemplateDecl < len(templateDecls):
             if iTemplateDecl + 1 != len(templateDecls):
                 print(text_type(templateDecls))
@@ -3556,10 +3523,9 @@ class Symbol(object):
         else:
             assert iTemplateDecl == len(templateDecls)
             templateParams = None
-        symbol = parentSymbol._find_named_symbol(identifier,
+        symbol = parentSymbol._find_named_symbol(identOrOp,
                                                  templateParams,
                                                  templateArgs,
-                                                 operator,
                                                  templateShorthand=False,
                                                  matchSelf=False)
         if symbol:
@@ -3576,7 +3542,7 @@ class Symbol(object):
                 return symbol
             # It may simply be a function overload, so let's compare ids.
             isRedeclaration = True
-            candSymbol = Symbol(parent=parentSymbol, identifier=identifier,
+            candSymbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
                                 templateParams=templateParams,
                                 templateArgs=templateArgs,
                                 declaration=declaration,
@@ -3596,7 +3562,7 @@ class Symbol(object):
                 candSymbol.isRedeclaration = True
                 raise _DuplicateSymbolError(symbol, declaration)
         else:
-            symbol = Symbol(parent=parentSymbol, identifier=identifier,
+            symbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
                             templateParams=templateParams,
                             templateArgs=templateArgs,
                             declaration=declaration,
@@ -3667,12 +3633,12 @@ class Symbol(object):
             templateDecls = []
         return self._add_symbols(nestedName, templateDecls, declaration, docname)
 
-    def find_identifier(self, identifier, matchSelf):
+    def find_identifier(self, identOrOp, matchSelf):
         # type: (Any, bool) -> Symbol
-        if matchSelf and self.identifier and self.identifier == identifier:
+        if matchSelf and self.identOrOp == identOrOp:
             return self
         for s in self.children:
-            if s.identifier and s.identifier == identifier:
+            if s.identOrOp == identOrOp:
                 return s
         return None
 
@@ -3680,16 +3646,10 @@ class Symbol(object):
         # type: (List[Tuple[Any, Any]]) -> Symbol
         s = self
         for name, templateParams in key:
-            if name.is_operator():
-                identifier = None
-                templateArgs = None
-                operator = name
-            else:
-                identifier = name.identifier
-                templateArgs = name.templateArgs
-                operator = None
-            s = s._find_named_symbol(identifier, templateParams,
-                                     templateArgs, operator,
+            identOrOp = name.identOrOp
+            templateArgs = name.templateArgs
+            s = s._find_named_symbol(identOrOp,
+                                     templateParams, templateArgs,
                                      templateShorthand=False,
                                      matchSelf=False)
             if not s:
@@ -3713,13 +3673,13 @@ class Symbol(object):
         firstName = names[0]
         if not firstName.is_operator():
             while parentSymbol.parent:
-                if parentSymbol.find_identifier(firstName.identifier,
+                if parentSymbol.find_identifier(firstName.identOrOp,
                                                 matchSelf=matchSelf):
                     # if we are in the scope of a constructor but wants to reference the class
                     # we need to walk one extra up
                     if (len(names) == 1 and typ == 'class' and matchSelf and
-                            parentSymbol.parent and parentSymbol.parent.identifier and
-                            parentSymbol.parent.identifier == firstName.identifier):
+                            parentSymbol.parent and
+                            parentSymbol.parent.identOrOp == firstName.identOrOp):
                         pass
                     else:
                         break
@@ -3728,48 +3688,36 @@ class Symbol(object):
         for iName in range(len(names)):
             name = names[iName]
             if iName + 1 == len(names):
-                if name.is_operator():
-                    identifier = None
-                    templateArgs = None
-                    operator = name
-                else:
-                    identifier = name.identifier
-                    templateArgs = name.templateArgs
-                    operator = None
+                identOrOp = name.identOrOp
+                templateArgs = name.templateArgs
                 if iTemplateDecl < len(templateDecls):
                     assert iTemplateDecl + 1 == len(templateDecls)
                     templateParams = templateDecls[iTemplateDecl]
                 else:
                     assert iTemplateDecl == len(templateDecls)
                     templateParams = None
-                symbol = parentSymbol._find_named_symbol(identifier,
+                symbol = parentSymbol._find_named_symbol(identOrOp,
                                                          templateParams, templateArgs,
-                                                         operator,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf)
                 if symbol is not None:
                     return symbol
                 # try without template params and args
-                symbol = parentSymbol._find_named_symbol(identifier,
+                symbol = parentSymbol._find_named_symbol(identOrOp,
                                                          None, None,
-                                                         operator,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf)
                 return symbol
             else:
-                # there shouldn't be anything inside an operator
-                assert not name.is_operator()
-                identifier = name.identifier
+                identOrOp = name.identOrOp
                 templateArgs = name.templateArgs
                 if templateArgs and iTemplateDecl < len(templateDecls):
                     templateParams = templateDecls[iTemplateDecl]
                     iTemplateDecl += 1
                 else:
                     templateParams = None
-                symbol = parentSymbol._find_named_symbol(identifier,
-                                                         templateParams,
-                                                         templateArgs,
-                                                         operator=None,
+                symbol = parentSymbol._find_named_symbol(identOrOp,
+                                                         templateParams, templateArgs,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf)
                 if symbol is None:
@@ -3792,8 +3740,8 @@ class Symbol(object):
                 res.append(text_type(self.templateParams))
                 res.append('\n')
                 res.append('\t' * indent)
-            if self.identifier:
-                res.append(text_type(self.identifier))
+            if self.identOrOp:
+                res.append(text_type(self.identOrOp))
             else:
                 res.append(text_type(self.declaration))
             if self.templateArgs:
@@ -4561,8 +4509,7 @@ class DefinitionParser(object):
                 template = False
             templates.append(template)
             if self.skip_word_and_ws('operator'):
-                op = self._parse_operator()
-                names.append(op)
+                identOrOp = self._parse_operator()
             else:
                 if not self.match(_identifier_re):
                     if memberPointer and len(names) > 0:
@@ -4574,17 +4521,17 @@ class DefinitionParser(object):
                 if identifier in _keywords:
                     self.fail("Expected identifier in nested name, "
                               "got keyword: %s" % identifier)
-                # try greedily to get template parameters,
-                # but otherwise a < might be because we are in an expression
-                pos = self.pos
-                try:
-                    templateArgs = self._parse_template_argument_list()
-                except DefinitionError as ex:
-                    self.pos = pos
-                    templateArgs = None
-                    self.otherErrors.append(ex)
-                identifier = ASTIdentifier(identifier)  # type: ignore
-                names.append(ASTNestedNameElement(identifier, templateArgs))
+                identOrOp = ASTIdentifier(identifier)  # type: ignore
+            # try greedily to get template arguments,
+            # but otherwise a < might be because we are in an expression
+            pos = self.pos
+            try:
+                templateArgs = self._parse_template_argument_list()
+            except DefinitionError as ex:
+                self.pos = pos
+                templateArgs = None
+                self.otherErrors.append(ex)
+            names.append(ASTNestedNameElement(identOrOp, templateArgs))
 
             self.skip_ws()
             if not self.skip_string('::'):
@@ -5532,7 +5479,7 @@ class CPPObject(ObjectDescription):
         #                  then add the name to the parent scope
         symbol = ast.symbol
         assert symbol
-        assert symbol.identifier is not None
+        assert symbol.identOrOp is not None
         assert symbol.templateParams is None
         assert symbol.templateArgs is None
         parentSymbol = symbol.parent
@@ -5545,7 +5492,7 @@ class CPPObject(ObjectDescription):
         if parentDecl is None:
             # the parent is not explicitly declared
             # TODO: we could warn, but it could be a style to just assume
-            # enumerator parnets to be scoped
+            # enumerator parents to be scoped
             return
         if parentDecl.objectType != 'enum':
             # TODO: maybe issue a warning, enumerators in non-enums is weird,
@@ -5555,13 +5502,13 @@ class CPPObject(ObjectDescription):
             return
 
         targetSymbol = parentSymbol.parent
-        s = targetSymbol.find_identifier(symbol.identifier, matchSelf=False)
+        s = targetSymbol.find_identifier(symbol.identOrOp, matchSelf=False)
         if s is not None:
             # something is already declared with that name
             return
         declClone = symbol.declaration.clone()
         declClone.enumeratorScopedSymbol = symbol
-        Symbol(parent=targetSymbol, identifier=symbol.identifier,
+        Symbol(parent=targetSymbol, identOrOp=symbol.identOrOp,
                templateParams=None, templateArgs=None,
                declaration=declClone,
                docname=self.env.docname)

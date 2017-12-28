@@ -205,6 +205,9 @@ def test_expressions():
     check('class', "template<int T = 42> A", {2: "I_iE1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
 
+    exprCheck('operator()()', 'clclE')
+    exprCheck('operator()<int>()', 'clclIiEE')
+
 
 def test_type_definitions():
     check("type", "public bool b", {1: "b", 2: "1b"}, "bool b")
@@ -244,6 +247,10 @@ def test_type_definitions():
     check('type', 'void (*f)(std::function<void(int i)> g)', {1: 'f', 2: '1f'})
 
     check('type', 'T = A::template B<int>::template C<double>', {2: '1T'})
+
+    check('type', 'T = Q<A::operator()>', {2: '1T'})
+    check('type', 'T = Q<A::operator()<int>>', {2: '1T'})
+    check('type', 'T = Q<A::operator bool>', {2: '1T'})
 
 
 def test_concept_definitions():
