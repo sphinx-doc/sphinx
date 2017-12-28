@@ -5,15 +5,16 @@
 SPHINXOPTS   ?=
 SPHINXBUILD  ?= sphinx-build
 PAPER        ?=
+SOURCEDIR     = {{ rsrcdir }}
 BUILDDIR      = {{ rbuilddir }}
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_elements.papersize=a4
 PAPEROPT_letter = -D latex_elements.papersize=letter
 # $(O) is meant as a shortcut for $(SPHINXOPTS)
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) {{ rsrcdir }}
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) $(SOURCEDIR)
 # the i18n builder cannot share the environment and doctrees with the others
-I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) {{ rsrcdir }}
+I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) $(SOURCEDIR)
 
 .PHONY: help
 help:
