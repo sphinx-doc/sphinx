@@ -97,66 +97,6 @@ class Make(object):
             if not osname or os.name == osname:
                 print('  %s  %s' % (blue(bname.ljust(10)), description))
 
-    def build_html(self):
-        # type: () -> int
-        if self.run_generic_build('html') > 0:
-            return 1
-        return 0
-
-    def build_dirhtml(self):
-        # type: () -> int
-        if self.run_generic_build('dirhtml') > 0:
-            return 1
-        return 0
-
-    def build_singlehtml(self):
-        # type: () -> int
-        if self.run_generic_build('singlehtml') > 0:
-            return 1
-        return 0
-
-    def build_pickle(self):
-        # type: () -> int
-        if self.run_generic_build('pickle') > 0:
-            return 1
-        return 0
-
-    def build_json(self):
-        # type: () -> int
-        if self.run_generic_build('json') > 0:
-            return 1
-        return 0
-
-    def build_htmlhelp(self):
-        # type: () -> int
-        if self.run_generic_build('htmlhelp') > 0:
-            return 1
-        return 0
-
-    def build_qthelp(self):
-        # type: () -> int
-        if self.run_generic_build('qthelp') > 0:
-            return 1
-        return 0
-
-    def build_devhelp(self):
-        # type: () -> int
-        if self.run_generic_build('devhelp') > 0:
-            return 1
-        return 0
-
-    def build_epub(self):
-        # type: () -> int
-        if self.run_generic_build('epub') > 0:
-            return 1
-        return 0
-
-    def build_latex(self):
-        # type: () -> int
-        if self.run_generic_build('latex') > 0:
-            return 1
-        return 0
-
     def build_latexpdf(self):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
@@ -171,18 +111,6 @@ class Make(object):
         with cd(self.builddir_join('latex')):
             return subprocess.call([self.makecmd, 'all-pdf-ja'])
 
-    def build_text(self):
-        # type: () -> int
-        if self.run_generic_build('text') > 0:
-            return 1
-        return 0
-
-    def build_texinfo(self):
-        # type: () -> int
-        if self.run_generic_build('texinfo') > 0:
-            return 1
-        return 0
-
     def build_info(self):
         # type: () -> int
         if self.run_generic_build('texinfo') > 0:
@@ -194,41 +122,6 @@ class Make(object):
         # type: () -> int
         dtdir = self.builddir_join('gettext', '.doctrees')
         if self.run_generic_build('gettext', doctreedir=dtdir) > 0:
-            return 1
-        return 0
-
-    def build_changes(self):
-        # type: () -> int
-        if self.run_generic_build('changes') > 0:
-            return 1
-        return 0
-
-    def build_linkcheck(self):
-        # type: () -> int
-        res = self.run_generic_build('linkcheck')
-        return res
-
-    def build_doctest(self):
-        # type: () -> int
-        res = self.run_generic_build('doctest')
-        return res
-
-    def build_coverage(self):
-        # type: () -> int
-        if self.run_generic_build('coverage') > 0:
-            print("Has the coverage extension been enabled?")
-            return 1
-        return 0
-
-    def build_xml(self):
-        # type: () -> int
-        if self.run_generic_build('xml') > 0:
-            return 1
-        return 0
-
-    def build_pseudoxml(self):
-        # type: () -> int
-        if self.run_generic_build('pseudoxml') > 0:
             return 1
         return 0
 
