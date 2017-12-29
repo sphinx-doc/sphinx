@@ -17,7 +17,6 @@ try:
 except ImportError:
     multiprocessing = None
 
-from six import itervalues
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
