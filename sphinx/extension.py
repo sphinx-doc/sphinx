@@ -38,7 +38,7 @@ class Extension(object):
         # The extension supports parallel write or not.  The default value
         # is ``True``.  Sphinx writes parallelly documents even if
         # the extension does not tell its status.
-        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
+        self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
 def verify_required_extensions(app, requirements):
