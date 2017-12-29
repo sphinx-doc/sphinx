@@ -371,15 +371,10 @@ class Builder(object):
             docnames = set(docnames) & self.env.found_docs
 
         # determine if we can write in parallel
-        self.parallel_ok = False
         if parallel_available and self.app.parallel > 1 and self.allow_parallel:
-            self.parallel_ok = True
-            for extension in itervalues(self.app.extensions):
-                if not extension.parallel_write_safe:
-                    logger.warning('the %s extension is not safe for parallel '
-                                   'writing, doing serial write', extension.name)
-                    self.parallel_ok = False
-                    break
+            self.parallel_ok = self.app.is_parallel_allowed('write')
+        else:
+            self.parallel_ok = False
 
         #  create a task executor to use for misc. "finish-up" tasks
         # if self.parallel_ok:
