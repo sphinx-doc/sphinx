@@ -317,14 +317,17 @@ There are a couple reasons that code in Sphinx might be deprecated:
   no longer needs to support the older version of Python that doesn't include
   the library, the library will be deprecated in Sphinx.
 
-As the :ref:`deprecation-policy` describes,
-the first release of Sphinx that deprecates a feature (``A.B``) should raise a
-``RemovedInSphinxXXWarning`` (where XX is the Sphinx version where the feature
-will be removed) when the deprecated feature is invoked. Assuming we have good
-test coverage, these warnings are converted to errors when running the test
-suite with warnings enabled: ``python -Wall tests/run.py``. Thus, when adding
-a ``RemovedInSphinxXXWarning`` you need to eliminate or silence any warnings
-generated when running the tests.
+As the :ref:`deprecation-policy` describes, the first release of Sphinx that
+deprecates a feature (``A.B``) should raise a ``RemovedInSphinxXXWarning``
+(where ``XX`` is the Sphinx version where the feature will be removed) when the
+deprecated feature is invoked. Assuming we have good test coverage, these
+warnings are converted to errors when running the test suite with warnings
+enabled::
+
+    pytest -Wall
+
+Thus, when adding a ``RemovedInSphinxXXWarning`` you need to eliminate or
+silence any warnings generated when running the tests.
 
 .. _deprecation-policy:
 

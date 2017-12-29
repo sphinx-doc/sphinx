@@ -8,7 +8,9 @@
 """
 
 import os
+import shutil
 import sys
+import warnings
 
 import pytest
 from sphinx.testing.path import path
@@ -26,3 +28,35 @@ if sys.version_info < (3, 5):
 @pytest.fixture(scope='session')
 def rootdir():
     return path(os.path.dirname(__file__) or '.').abspath() / 'roots'
+
+
+def pytest_report_header(config):
+    return 'Running Sphinx test suite (with Python %s)...' % (
+        sys.version.split()[0])
+
+
+def _filter_warnings():
+    def ignore(**kwargs): warnings.filterwarnings('ignore', **kwargs)
+
+    ignore(category=DeprecationWarning, module='site')  # virtualenv
+    ignore(category=PendingDeprecationWarning, module=r'_pytest\..*')
+    ignore(category=ImportWarning, module='pkgutil')
+
+
+def _initialize_test_directory(session):
+    testroot = os.path.join(str(session.config.rootdir), 'tests')
+    tempdir = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR',
+                              os.path.join(testroot, 'build')))
+    os.environ['SPHINX_TEST_TEMPDIR'] = tempdir
+
+    print('Temporary files will be placed in %s.' % tempdir)
+
+    if os.path.exists(tempdir):
+        shutil.rmtree(tempdir)
+
+    os.makedirs(tempdir)
+
+
+def pytest_sessionstart(session):
+    _filter_warnings()
+    _initialize_test_directory(session)
