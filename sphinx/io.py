@@ -285,3 +285,9 @@ def read_doc(app, env, filename):
 def setup(app):
     app.registry.add_source_input('*', SphinxFileInput)
     app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
