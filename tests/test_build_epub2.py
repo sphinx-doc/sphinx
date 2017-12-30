@@ -70,8 +70,11 @@ class EPUBElementTree(object):
                         'epub_copyright': 'fake_epub2_copyright',
                         'epub_identifier': "9781449325299",
                         'epub_scheme': 'ISBN',
-                        'epub_uid': "BookID"}
-                    )
+                        'epub_uid': "BookID",
+                        'epub_date_creation': '2017-12-01',
+                        'epub_date_modification': '2017-12-02',
+                        'epub_date_publication': '2017-12-03',
+                    })
 def test_build_epub(app):
     # type: (SphinxTestApp) -> None
     app.build()
@@ -112,6 +115,11 @@ def test_build_epub(app):
     assert metadata.find("./dc:creator").text == app.config.epub_author
     assert metadata.find("./dc:publisher").text == app.config.epub_publisher
     assert metadata.find("./dc:rights").text == app.config.epub_copyright
+    # fixme: add unit test
+    items = metadata.findall("./dc:date")
+    assert items[0].text == app.config.epub_date_creation
+    assert items[1].text == app.config.epub_date_modification
+    assert items[2].text == app.config.epub_date_publication
 
     # content.opf / manifest
     manifest = opf.find("./idpf:manifest")

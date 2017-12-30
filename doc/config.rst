@@ -1533,6 +1533,36 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. [#] https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
 
+.. confval:: epub_date_creation
+
+   Creation date metadata.  This is put in the Dublin Core metadata.
+   The format must follow the ISO 8601 specification for XML document:
+   `Date and Time Formats <https://www.w3.org/TR/NOTE-datetime>`_
+   (i.e.: "YYYY[-MM[-DD]]").  It defaults to the current date.
+   *(only available for epub2)*
+
+   .. versionadded:: 1.6.6
+
+.. confval:: epub_date_modification
+
+   Modification date metadata.  This is put in the Dublin Core metadata.
+   The format must follow the ISO 8601 specification for XML document:
+   `Date and Time Formats <https://www.w3.org/TR/NOTE-datetime>`_
+   (i.e.: "YYYY[-MM[-DD]]").  It defaults to the current date.
+   *(only available for epub2)*
+
+   .. versionadded:: 1.6.6
+
+.. confval:: epub_date_publication
+
+   Publication date metadata.  This is put in the Dublin Core metadata.
+   The format must follow the ISO 8601 specification for XML document:
+   `Date and Time Formats <https://www.w3.org/TR/NOTE-datetime>`_
+   (i.e.: "YYYY[-MM[-DD]]").  It defaults to the current date.
+   *(only available for epub2)*
+
+   .. versionadded:: 1.6.6
+
 .. _latex-options:
 
 Options for LaTeX output

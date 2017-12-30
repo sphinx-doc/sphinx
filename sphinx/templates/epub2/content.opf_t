@@ -3,13 +3,15 @@
       unique-identifier="{{ uid }}">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
         xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:date opf:event="creation">{{ date_creation }}</dc:date>
+    <dc:date opf:event="modification">{{ date_modification }}</dc:date>
+    <dc:date opf:event="publication">{{ date_publication }}</dc:date>
     <dc:language>{{ lang }}</dc:language>
     <dc:title>{{ title }}</dc:title>
     <dc:creator opf:role="aut">{{ author }}</dc:creator>
     <dc:publisher>{{ publisher }}</dc:publisher>
     <dc:rights>{{ copyright }}</dc:rights>
     <dc:identifier id="{{ uid }}" opf:scheme="{{ scheme }}">{{ id }}</dc:identifier>
-    <dc:date>{{ date }}</dc:date>
     {%- if cover %}
     <meta name="cover" content="{{ cover }}"/>
     {%- endif %}

@@ -486,10 +486,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
         metadata['manifest_items'] = []
         metadata['spines'] = []
         metadata['guides'] = []
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        # epub3: keep 'date' metadata
+        metadata['date'] = self.esc(today)
+        # epub2: use creation, modification and publication dates
+        metadata['date_creation'] = self.esc(self.config.epub_date_creation or today)
+        metadata['date_modification'] = self.esc(self.config.epub_date_modification or today)
+        metadata['date_publication'] = self.esc(self.config.epub_date_publication or today)
         return metadata
 
     def build_content(self, outdir, outname):
