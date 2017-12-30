@@ -35,7 +35,8 @@ Bugs fixed
 * #1421: Respect the quiet flag in sphinx-quickstart
 * #4281: Race conditions when creating output directory
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
-  ``\chapter`` commands 
+  ``\chapter`` commands
+* #4363: full and enhanced implementation of the epub2 builder
 
 Testing
 --------
