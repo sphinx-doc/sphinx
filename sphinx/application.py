@@ -19,7 +19,7 @@ import posixpath
 from os import path
 from collections import deque
 
-from six import iteritems
+from six import iteritems, itervalues
 from six.moves import cStringIO
 
 from docutils import nodes
@@ -672,6 +672,34 @@ class Sphinx(object):
         # type: (unicode, unicode) -> None
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
+
+    # ---- other methods -------------------------------------------------
+    def is_parallel_allowed(self, typ):
+        # type: (unicode) -> bool
+        """Check parallel processing is allowed or not.
+
+        ``typ`` is a type of processing; ``'read'`` or ``'write'``.
+        """
+        if typ == 'read':
+            attrname = 'parallel_read_safe'
+        elif typ == 'write':
+            attrname = 'parallel_write_safe'
+        else:
+            raise ValueError('parallel type %s is not supported' % typ)
+
+        for ext in itervalues(self.extensions):
+            allowed = getattr(ext, attrname, None)
+            if allowed is None:
+                logger.warning(__("the %s extension does not declare if it is safe "
+                                  "for parallel %sing, assuming it isn't - please "
+                                  "ask the extension author to check and make it "
+                                  "explicit"), ext.name, typ)
+                logger.warning('doing serial %s', typ)
+                return False
+            elif not allowed:
+                return False
+
+        return True
 
 
 class TemplateBridge(object):

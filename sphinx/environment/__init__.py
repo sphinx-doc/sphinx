@@ -40,7 +40,6 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -558,21 +557,10 @@ class BuildEnvironment(object):
         self.app.emit('env-before-read-docs', self, docnames)
 
         # check if we should do parallel or serial read
-        par_ok = False
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            for ext in itervalues(self.app.extensions):
-                if ext.parallel_read_safe is None:
-                    logger.warning(__('the %s extension does not declare if it is safe '
-                                      'for parallel reading, assuming it isn\'t - please '
-                                      'ask the extension author to check and make it '
-                                      'explicit'), ext.name)
-                    logger.warning('doing serial read')
-                    break
-                elif ext.parallel_read_safe is False:
-                    break
-            else:
-                # all extensions support parallel-read
-                par_ok = True
+            par_ok = self.app.is_parallel_allowed('read')
+        else:
+            par_ok = False
 
         if par_ok:
             self._read_parallel(docnames, self.app, nproc=self.app.parallel)
