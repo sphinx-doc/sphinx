@@ -7,3 +7,5 @@ test for sphinx.ext.todo
    bar
 
 .. todolist::
+
+.. todolist::

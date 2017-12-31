@@ -87,7 +87,7 @@ def test_todo_not_included(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
-                    confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
+                    confoverrides={'todo_include_todos': True})
 def test_todo_valid_link(app, status, warning):
     """
     Test that the inserted "original entry" links for todo items have a target
@@ -100,11 +100,13 @@ def test_todo_valid_link(app, status, warning):
 
     content = (app.outdir / 'TodoTests.tex').text()
 
-    # Look for the link to foo. We could equally well look for the link to bar.
+    # Look for the link to foo. Note that there are two of them because the
+    # source document uses todolist twice. We could equally well look for links
+    # to bar.
     link = r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{' \
         r'\\sphinxstyleemphasis{original entry}}}}'
     m = re.findall(link, content)
-    assert len(m) == 1
+    assert len(m) == 2
     target = m[0]
 
     # Look for the targets of this link.
