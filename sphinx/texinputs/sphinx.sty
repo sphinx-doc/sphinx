@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/07/24 v1.6.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/12/12 v1.6.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -39,7 +39,7 @@
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
 \RequirePackage{amstext}
-\RequirePackage{textcomp}
+\RequirePackage[warn]{textcomp}
 \RequirePackage{titlesec}
 \@ifpackagelater{titlesec}{2016/03/15}%
  {\@ifpackagelater{titlesec}{2016/03/21}%
@@ -159,6 +159,7 @@
 % For highlighted code.
 \RequirePackage{fancyvrb}
 \fvset{fontsize=\small}
+\define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
@@ -208,6 +209,17 @@
 
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
+% fix baseline increase from Pygments latex formatter in case of error tokens
+% and keep \fboxsep's scope local via added braces
+\def\PYG@tok@err{%
+    \def\PYG@bc##1{{\setlength{\fboxsep}{-\fboxrule}%
+                    \fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}%
+}
+\def\PYG@tok@cs{%
+    \def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}%
+    \def\PYG@bc##1{{\setlength{\fboxsep}{0pt}%
+                    \colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}%
+}%
 
 
 %% OPTIONS
@@ -306,6 +318,8 @@
    % set the key handler. The "value" ##1 must be acceptable by \definecolor.
    \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
 }%
+% Default color chosen to be as in minted.sty LaTeX package!
+\sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
 % admonition boxes, "light" style
 \sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
 \sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
@@ -362,7 +376,7 @@
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
+       % workaround 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
        \ltx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
@@ -837,6 +851,34 @@
 
 % needed to create wrapper environments of fancyvrb's Verbatim
 \newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
+% serves to implement line highlighting and line wrapping
+\newcommand\sphinxFancyVerbFormatLine[1]{%
+  \expandafter\sphinx@verbatim@checkifhl\expandafter{\the\FV@CodeLineNo}%
+  \ifin@
+     \sphinxVerbatimHighlightLine{#1}%
+  \else
+     \sphinxVerbatimFormatLine{#1}%
+  \fi
+}%
+\newcommand\sphinxVerbatimHighlightLine[1]{%
+  \edef\sphinxrestorefboxsep{\fboxsep\the\fboxsep\relax}%
+  \fboxsep0pt\relax % cf LaTeX bug graphics/4524
+  \colorbox{sphinxVerbatimHighlightColor}%
+           {\sphinxrestorefboxsep\sphinxVerbatimFormatLine{#1}}%
+  % no need to restore \fboxsep here, as this ends up in a \hbox from fancyvrb
+}%
+% \sphinxVerbatimFormatLine will be set locally to one of those two:
+\newcommand\sphinxVerbatimFormatLineWrap[1]{%
+    \hsize\linewidth
+    \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+          \doublehyphendemerits\z@\finalhyphendemerits\z@
+          \strut #1\strut}%
+}%
+\newcommand\sphinxVerbatimFormatLineNoWrap[1]{\hb@xt@\linewidth{\strut #1\hss}}%
+\g@addto@macro\FV@SetupFont{%
+    \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+    \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+}%
 % Sphinx <1.5 optional argument was in fact mandatory. It is now really
 % optional and handled by original Verbatim.
 \newenvironment{sphinxVerbatim}{%
@@ -883,23 +925,19 @@
   %       to achieve this without extensive rewrite of fancyvrb.
   %     - The (not used in sphinx) obeytabs option to Verbatim is
   %       broken by this change (showtabs and tabspace work).
-  \expandafter\def\expandafter\FV@SetupFont\expandafter
-    {\FV@SetupFont\sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
-                  \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}}%
-  \def\FancyVerbFormatLine ##1{\hsize\linewidth
-          \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
-                \doublehyphendemerits\z@\finalhyphendemerits\z@
-                \strut ##1\strut}%
-          }%
-  \let\FV@Space\spx@verbatim@space
+    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineWrap
+    \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
-  \sphinxbreaksatspecials
+    \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
-  \def\FancyVerbCodes{\sphinxbreaksviaactive}%
-  \fi % end of conditional code for wrapping long code lines
-  % go around fancyvrb's check of \@currenvir
+    \fvset{codes*=\sphinxbreaksviaactive}%
+  \else % end of conditional code for wrapping long code lines
+    \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
+  \fi
+  \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
+  % workaround to fancyvrb's check of \@currenvir
   \let\VerbatimEnvironment\sphinxVerbatimEnvironment
-  % go around fancyvrb's check of current list depth
+  % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
   % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
@@ -986,7 +1024,7 @@
       \sphinxunactivateextras}%
 % now for the modified alltt environment
 \newenvironment{sphinxalltt}
-{% at start of next line to work around Emacs/AUCTeX issue with this file
+{% at start of next line to workaround Emacs/AUCTeX issue with this file
 \begin{alltt}%
  \ifspx@opt@parsedliteralwraps
    \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
@@ -1212,7 +1250,7 @@
   \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
   % start specific environment, passing the heading as argument
   \begin{sphinx#1}{#2}}
-  % in end part, need to go around a LaTeX's "feature"
+  % workaround some LaTeX "feature" of \end command
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 % use of ``notice'' is for backwards compatibility and will be removed in
 % Sphinx 1.7.

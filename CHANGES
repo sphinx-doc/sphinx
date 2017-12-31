@@ -14,6 +14,9 @@ Features added
 --------------
 
 * #4181: autodoc: Sort dictionary keys when possible
+* ``VerbatimHighlightColor`` is a new
+  :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
+* Easier customizability of LaTeX macros involved in rendering of code-blocks
 
 Bugs fixed
 ----------
@@ -23,6 +26,16 @@ Bugs fixed
 * #4221: napoleon depends on autodoc, but users need to load it manually
 * #2298: automodule fails to document a class attribute
 * #4099: C++: properly link class reference to class from inside constructor
+* #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
+* #4249: PDF output: Pygments error highlighting increases line spacing in
+  code blocks
+* #1238: Support ``:emphasize-lines:`` in PDF output
+* #4279: Sphinx crashes with pickling error when run with multiple processes and
+  remote image
+* #1421: Respect the quiet flag in sphinx-quickstart
+* #4281: Race conditions when creating output directory
+* #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
+  ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
 
 Testing

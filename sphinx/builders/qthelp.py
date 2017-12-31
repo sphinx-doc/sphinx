@@ -188,7 +188,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(outdir):
             resourcedir = root.startswith(staticdir) or \
                 root.startswith(imagesdir)
-            for fn in files:
+            for fn in sorted(files):
                 if (resourcedir and not fn.endswith('.js')) or \
                    fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
@@ -264,7 +264,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = u' ' * 4 * indentlevel + item  # type: ignore
+            item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:

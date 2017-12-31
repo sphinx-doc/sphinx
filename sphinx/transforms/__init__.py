@@ -346,5 +346,5 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
-            smartquotable = not is_smartquotable(txtnode)
-            yield (texttype[smartquotable], txtnode.astext())
+            notsmartquotable = not is_smartquotable(txtnode)
+            yield (texttype[notsmartquotable], txtnode.astext())

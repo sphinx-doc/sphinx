@@ -208,5 +208,5 @@ class NodeVisitor(object):
     def generic_visit(self, node):
         """Called if no explicit visitor function exists for a node."""
         if isinstance(node, Node):
-            for child in node:  # type: ignore
+            for child in node:
                 self.visit(child)

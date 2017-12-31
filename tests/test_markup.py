@@ -211,7 +211,8 @@ def get_verifier(verify, verify_re):
         'verify',
         u'::\n\n @Γ\\∞${}',
         None,
-        (u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+        (u'\\fvset{hllines={, ,}}%\n'
+         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
          u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          u'\\end{sphinxVerbatim}'),
     ),
