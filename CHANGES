@@ -39,6 +39,7 @@ Bugs fixed
   ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
 * Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Testing
 --------
