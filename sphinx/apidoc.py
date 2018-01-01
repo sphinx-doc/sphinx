@@ -116,7 +116,12 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         text += '\n'
 
     # build a list of directories that are szvpackages (contain an INITPY file)
-    subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
+    # and also checks the INITPY file is not empty, or there are other python
+    # source files in that folder.
+    # (depending on settings - but shall_skip() takes care of that)
+    subs = [sub for sub in subs if not
+            shall_skip(path.join(root, sub, INITPY), opts)]
+
     # if there are some package directories, add a TOC for theses subpackages
     if subs:
         text += format_heading(2, 'Subpackages')
