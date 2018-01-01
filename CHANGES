@@ -38,6 +38,7 @@ Bugs fixed
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
   ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
+* Fix links to external option docs with intersphinx (refs: #3769)
 
 Testing
 --------
