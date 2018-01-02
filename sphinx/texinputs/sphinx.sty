@@ -1580,21 +1580,21 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry     {\texttt}
-\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref   {, \pageref}
-\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
-\protected\def\sphinxstyleothertitle     {\textbf}
+\protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
 \protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 \protected\def\sphinxstyletheadfamily    {\sffamily}
-\protected\def\sphinxstyleemphasis       {\emph}
+\protected\def\sphinxstyleemphasis     #1{\emph{#1}}
 \protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
-\protected\def\sphinxstylestrong         {\textbf}
-\protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
-\protected\def\sphinxstyleabbreviation   {\textsc}
-\protected\def\sphinxstyleliteralintitle {\sphinxcode}
+\protected\def\sphinxstylestrong       #1{\textbf{#1}}
+\protected\def\sphinxstyleliteralstrong#1{\sphinxbfcode{#1}}
+\protected\def\sphinxstyleabbreviation #1{\textsc{#1}}
+\protected\def\sphinxstyleliteralintitle#1{\sphinxcode{#1}}
 \newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
 \newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % figure legend comes after caption and may contain arbitrary body elements
