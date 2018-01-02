@@ -1216,12 +1216,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_addname(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxcode{')
+        self.body.append(r'\sphinxcode{\sphinxupquote{')
         self.literal_whitespace += 1
 
     def depart_desc_addname(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.literal_whitespace -= 1
 
     def visit_desc_type(self, node):
@@ -1242,13 +1242,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_name(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxbfcode{')
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
         self.no_contractions += 1
         self.literal_whitespace += 1
 
     def depart_desc_name(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.literal_whitespace -= 1
         self.no_contractions -= 1
 
@@ -1287,11 +1287,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxbfcode{')
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
 
     def depart_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
 
     def visit_desc_content(self, node):
         # type: (nodes.Node) -> None
@@ -2177,12 +2177,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstyleliteralemphasis{')
+        self.body.append(r'\sphinxstyleliteralemphasis{\sphinxupquote{')
         self.no_contractions += 1
 
     def depart_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.no_contractions -= 1
 
     def visit_strong(self, node):
@@ -2195,12 +2195,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_literal_strong(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstyleliteralstrong{')
+        self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
         self.no_contractions += 1
 
     def depart_literal_strong(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.no_contractions -= 1
 
     def visit_abbreviation(self, node):
@@ -2259,14 +2259,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.no_contractions += 1
         if self.in_title:
-            self.body.append(r'\sphinxstyleliteralintitle{')
+            self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
         else:
-            self.body.append(r'\sphinxcode{')
+            self.body.append(r'\sphinxcode{\sphinxupquote{')
 
     def depart_literal(self, node):
         # type: (nodes.Node) -> None
         self.no_contractions -= 1
-        self.body.append('}')
+        self.body.append('}}')
 
     def visit_footnote_reference(self, node):
         # type: (nodes.Node) -> None
