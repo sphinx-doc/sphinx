@@ -1558,7 +1558,7 @@
    \let\do@noligs\sphinx@do@noligs
    \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
-  \fi {#1}}}
+  \fi {{#1}}}}% extra brace pair to fix end-space gobbling issue...
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
