@@ -17,6 +17,7 @@ Features added
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
 
 Bugs fixed
 ----------
