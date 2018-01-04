@@ -155,6 +155,18 @@ var Search = {
     var hlterms = [];
     var tmp = splitQuery(query);
     var objectterms = [];
+    
+    // prepare the exact phrase search feature
+    var exactsearchphrases = [];
+    var exactsearchpattern = /"(.*?)"/g;
+    for (;;) {
+      var exactsearchphrase = exactsearchpattern.exec(query);
+      if (exactsearchphrase === null) {
+        break;
+      }
+      exactsearchphrases.push(exactsearchphrase[1].toLowerCase());
+    }
+    
     for (i = 0; i < tmp.length; i++) {
       if (tmp[i] !== "") {
           objectterms.push(tmp[i].toLowerCase());
@@ -276,6 +288,18 @@ var Search = {
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
+                    
+                    // exclude results that don't contain exact phrases if we are searching for them
+                    var i;
+                    var lowercasedata = data.toLowerCase();
+                    for (i = 0; i < exactsearchphrases.length; i++) {
+                      if (lowercasedata.search(exactsearchphrases[i]) === -1) {
+                        resultCount--;
+                        displayNextItem();
+                        return;
+                      }
+                    }
+                    
                     if (data !== '' && data !== undefined) {
                       listItem.append(Search.makeSearchSummary(data, searchterms, hlterms));
                     }
