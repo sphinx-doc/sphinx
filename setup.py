@@ -5,6 +5,7 @@ import os
 import sys
 from distutils import log
 from distutils.cmd import Command
+import itertools
 
 import sphinx
 
@@ -57,6 +58,16 @@ extras_require = {
         'typed_ast',
     ],
 }
+
+console_scripts = list(itertools.chain.from_iterable([
+    [
+        'sphinx-build%s = sphinx.cmd.build:main' % version,
+        'sphinx-quickstart%s = sphinx.cmd.quickstart:main' % version,
+        'sphinx-apidoc%s = sphinx.ext.apidoc:main' % version,
+        'sphinx-autogen%s = sphinx.ext.autosummary.generate:main' % version,
+    ] for version in ('', '-%s' % sys.version[:1], '-%s' % sys.version[:3])
+]))
+
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
@@ -217,12 +228,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     entry_points={
-        'console_scripts': [
-            'sphinx-build = sphinx.cmd.build:main',
-            'sphinx-quickstart = sphinx.cmd.quickstart:main',
-            'sphinx-apidoc = sphinx.ext.apidoc:main',
-            'sphinx-autogen = sphinx.ext.autosummary.generate:main',
-        ],
+        'console_scripts': console_scripts,
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
