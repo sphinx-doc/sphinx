@@ -134,6 +134,11 @@ class Config(object):
 
         tls_verify = (True, 'env'),
         tls_cacerts = (None, 'env'),
+        smartquotes = (True, 'env'),
+        smartquotes_action = ('qDe', 'env'),
+        smartquotes_excludes = ({'languages': ['ja'],
+                                 'builders': ['man', 'text']},
+                                'env'),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, dirname, filename, overrides, tags):

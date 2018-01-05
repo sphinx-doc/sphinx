@@ -13,8 +13,6 @@ import docutils.parsers
 import docutils.parsers.rst
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.transforms import SphinxSmartQuotes
-
 if False:
     # For type annotation
     from typing import Any, Dict, List, Type  # NOQA
@@ -60,10 +58,11 @@ class RSTParser(docutils.parsers.rst.Parser):
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
-        """Sphinx's reST parser replaces a transform class for smart-quotes by own's"""
+        """Sphinx's reST parser replaces a transform class for smart-quotes by own's
+
+        refs: sphinx.io.SphinxStandaloneReader"""
         transforms = docutils.parsers.rst.Parser.get_transforms(self)
         transforms.remove(SmartQuotes)
-        transforms.append(SphinxSmartQuotes)
         return transforms
 
 
