@@ -18,6 +18,10 @@ Features added
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
 * Show traceback if conf.py raises an exception (refs: #4369)
+* Add :confval:`smartquotes` to disable smart quotes through ``conf.py``
+  (refs: #3967)
+* Add :confval:`smartquotes_action` and :confval:`smartquotes_excludes`
+  (refs: #4142, #4357)
 
 Bugs fixed
 ----------
