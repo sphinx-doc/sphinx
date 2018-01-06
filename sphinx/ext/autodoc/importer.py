@@ -19,7 +19,7 @@ from types import FunctionType, MethodType, ModuleType
 from six import PY2
 
 from sphinx.util import logging
-from sphinx.util.inspect import safe_getattr
+from sphinx.util.inspect import isenumclass, safe_getattr
 
 if False:
     # For type annotation
@@ -205,6 +205,12 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
     """Get members and attributes of target object."""
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
+
+    # Py34 doesn't have enum members in __dict__.
+    if sys.version_info[:2] == (3, 4) and isenumclass(subject):
+        obj_dict = dict(obj_dict)
+        for name, value in subject.__members__.items():
+            obj_dict[name] = value
 
     members = {}
     for name in dir(subject):
