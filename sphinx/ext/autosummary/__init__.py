@@ -52,10 +52,10 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
 import os
 import re
 import sys
+import ast
 import inspect
 import posixpath
 from six import string_types
@@ -401,27 +401,49 @@ class Autosummary(Directive):
 def mangle_signature(sig, max_chars=30):
     # type: (unicode, int) -> unicode
     """Reformat a function signature to a more compact form."""
-    s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
 
-    # Strip strings (which can contain things that confuse the code below)
-    s = re.sub(r"\\\\", "", s)
-    s = re.sub(r"\\'", "", s)
-    s = re.sub(r"'[^']*'", "", s)
+    # remove some non-reprable classes and the return annotation
+    sig = re.sub(r"<[^>]+>", "None", sig)
+    sig = sig.split(' -> ')[0]
 
-    # Parse the signature to arguments + options
-    args = []  # type: List[unicode]
-    opts = []  # type: List[unicode]
+    try:  # Try parsing as python code
+        f = ast.parse("def f{}: pass".format(sig)).body[0]
 
-    opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
-    while s:
-        m = opt_re.search(s)  # type: ignore
-        if not m:
-            # The rest are arguments
-            args = s.split(', ')
-            break
+        pos_args = [a.arg for a in f.args.args]
+        n_a = len(pos_args) - len(f.args.defaults)
+        kw_only_args = [a.arg for a in f.args.kwonlyargs]
+        if f.args.vararg:
+            var_arg = ["*%s" % f.args.vararg.arg]
+        elif f.args.kwonlyargs:
+            var_arg = ["*"]
+        else:
+            var_arg = []
+        kw_arg = ["**%s" % f.args.kwarg.arg] if f.args.kwarg else []
 
-        opts.insert(0, m.group(2))
-        s = m.group(1)[:-2]
+        args = pos_args[:n_a]  # type: List[str]
+        opts = pos_args[n_a:] + var_arg + kw_arg + kw_only_args  # type: List[str]
+    except SyntaxError:  # Fall back to old code
+        s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
+
+        # Strip strings (which can contain things that confuse the code below)
+        s = re.sub(r"\\\\", "", s)
+        s = re.sub(r"\\'", "", s)
+        s = re.sub(r"'[^']*'", "", s)
+
+        # Parse the signature to arguments + options
+        args = []  # type: List[unicode]
+        opts = []  # type: List[unicode]
+
+        opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
+        while s:
+            m = opt_re.search(s)  # type: ignore
+            if not m:
+                # The rest are arguments
+                args = s.split(', ')
+                break
+
+            opts.insert(0, m.group(2))
+            s = m.group(1)[:-2]
 
     # Produce a more compact signature
     sig = limited_join(", ", args, max_chars=max_chars - 2)
@@ -429,8 +451,7 @@ def mangle_signature(sig, max_chars=30):
         if not sig:
             sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars - 4)
         elif len(sig) < max_chars - 4 - 2 - 3:
-            sig += "[, %s]" % limited_join(", ", opts,
-                                           max_chars=max_chars - len(sig) - 4 - 2)
+            sig += "[, %s]" % limited_join(", ", opts, max_chars=max_chars - len(sig) - 4 - 2)
 
     return u"(%s)" % sig
 

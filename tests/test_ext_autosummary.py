@@ -47,10 +47,15 @@ def test_mangle_signature():
     (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
     (a=1, b=2, c=3) :: ([a, b, c])
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
+
+    (a: typing.Union[str, pathlib.Path], b: int=0) -> anndata.base.AnnData :: (a[, b])
+    (a, *, b=1) -> int :: (a[, *, b])
+    (a, b=1, *c) -> Union[str, pathlib.Path] :: (a[, b, *c])
+    (a, b=1, *c, d=1) :: (a[, b, *c, d])
     """
 
     TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
-            if '::' in x]
+            if '::' in x and x.strip()]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace(u"\u00a0", " ")
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
@@ -101,7 +106,7 @@ def test_get_items_summary(app, status, warning):
     # check an item in detail
     assert 'func' in autosummary_items
     func_attrs = ('func',
-                  '(arg_, *args, **kwargs)',
+                  '(arg_[, *args, **kwargs])',
                   'Test function take an argument ended with underscore.',
                   'dummy_module.func')
     assert autosummary_items['func'] == func_attrs
