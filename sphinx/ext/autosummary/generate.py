@@ -51,10 +51,12 @@ class DummyApplication(object):
     """Dummy Application class for sphinx-autogen command."""
 
     def __init__(self):
+        # type: () -> None
         self.registry = SphinxComponentRegistry()
 
 
 def setup_documenters(app):
+    # type: (Any) -> None
     from sphinx.ext.autodoc import (
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
@@ -91,7 +93,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None,
                               imported_members=False, app=None):
-    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool) -> None  # NOQA
+    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool, Any) -> None  # NOQA
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
