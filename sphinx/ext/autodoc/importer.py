@@ -151,7 +151,7 @@ def import_module(modname, warningiserror=False):
 
 
 def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[unicode], str, Callable[[Any, unicode], Any]) -> Any
+    # type: (str, List[unicode], str, Callable[[Any, unicode], Any], bool) -> Any
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
