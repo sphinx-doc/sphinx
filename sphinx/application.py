@@ -649,7 +649,7 @@ class Sphinx(object):
     def add_autodoc_attrgetter(self, typ, getter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
-        self.registy.add_autodoc_attrgetter(typ, getter)
+        self.registry.add_autodoc_attrgetter(typ, getter)
 
     def add_search_language(self, cls):
         # type: (Any) -> None
