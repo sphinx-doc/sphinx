@@ -60,9 +60,9 @@ def test_mangle_signature():
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
-    sphinx.ext.autosummary.generate.setup_documenters()
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
+    sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
     orig_get_items = sphinx.ext.autosummary.Autosummary.get_items

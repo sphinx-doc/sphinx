@@ -31,9 +31,9 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import __display_version__
 from sphinx import package_dir
-from sphinx.ext.autodoc import add_documenter
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.registry import SphinxComponentRegistry
 from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.rst import escape as rst_escape
@@ -47,20 +47,26 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-def setup_documenters():
+class DummyApplication(object):
+    """Dummy Application class for sphinx-autogen command."""
+
+    def __init__(self):
+        self.registry = SphinxComponentRegistry()
+
+
+def setup_documenters(app):
     from sphinx.ext.autodoc import (
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter
     )
-    add_documenter(ModuleDocumenter)
-    add_documenter(ClassDocumenter)
-    add_documenter(ExceptionDocumenter)
-    add_documenter(DataDocumenter)
-    add_documenter(FunctionDocumenter)
-    add_documenter(MethodDocumenter)
-    add_documenter(AttributeDocumenter)
-    add_documenter(InstanceAttributeDocumenter)
+    documenters = [
+        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
+        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
+        InstanceAttributeDocumenter
+    ]
+    for documenter in documenters:
+        app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _simple_info(msg):
@@ -395,12 +401,14 @@ The format of the autosummary directive is documented in the
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
-    setup_documenters()
+    app = DummyApplication()
+    setup_documenters(app)
     args = get_parser().parse_args(argv)
     generate_autosummary_docs(args.source_file, args.output_dir,
                               '.' + args.suffix,
                               template_dir=args.templates,
-                              imported_members=args.imported_members)
+                              imported_members=args.imported_members,
+                              app=app)
 
 
 if __name__ == '__main__':

@@ -15,9 +15,9 @@ from sphinx.ext.autosummary.generate import setup_documenters
 
 @pytest.mark.sphinx('html', testroot='templating')
 def test_layout_overloading(make_app, app_params):
-    setup_documenters()
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
+    setup_documenters(app)
     app.builder.build_update()
 
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
@@ -27,9 +27,9 @@ def test_layout_overloading(make_app, app_params):
 
 @pytest.mark.sphinx('html', testroot='templating')
 def test_autosummary_class_template_overloading(make_app, app_params):
-    setup_documenters()
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
+    setup_documenters(app)
     app.builder.build_update()
 
     result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').text(
