@@ -126,10 +126,12 @@ Features added
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
 
 Bugs fixed
 ----------
 
+* #4334: sphinx-apidoc: Don't generate references to non-existing files in TOC
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
@@ -146,6 +148,8 @@ Bugs fixed
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
   ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
+* Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Testing
 --------
