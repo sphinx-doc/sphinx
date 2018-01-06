@@ -917,6 +917,28 @@ Parameters:
         actual = str(GoogleDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
+    def test_custom_generic_sections(self):
+
+        docstrings=("""\
+Really Important Details:
+    You should listen to me!
+""",
+    """.. rubric:: Really Important Details
+
+You should listen to me!
+"""),\
+     ("""\
+Sooper Warning:
+    Stop hitting yourself!
+""",""":Warns: **Stop hitting yourself!**
+""")
+
+        testConfig=Config(napoleon_custom_sections=['Really Important Details',('Sooper Warning','warns')])
+
+        for docstring, expected in docstrings:
+            actual = str(GoogleDocstring(docstring, testConfig))
+            self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(

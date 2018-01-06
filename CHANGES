@@ -55,7 +55,7 @@ Features added
   code-blocks
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
-
+* Napoleon: added option to specify custom section tags.
 
 Features removed
 ----------------

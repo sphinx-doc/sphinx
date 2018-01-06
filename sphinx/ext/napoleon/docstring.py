@@ -162,6 +162,9 @@ class GoogleDocstring(UnicodeMixin):
                 'yield': self._parse_yields_section,
                 'yields': self._parse_yields_section,
             }  # type: Dict[unicode, Callable]
+
+        self._load_custom_sections()
+
         self._parse()
 
     def __unicode__(self):
@@ -522,6 +525,20 @@ class GoogleDocstring(UnicodeMixin):
                     line and
                     not self._is_indented(line, self._section_indent)))
 
+    def _load_custom_sections(self):
+        # type: () -> None
+
+        if self._config.napoleon_custom_sections is not None:
+            for entry in self._config.napoleon_custom_sections:
+                if isinstance(entry,string_types):
+                    # if entry is just a label, add to sections list, using generic section logic.
+                    self._sections[entry.lower()
+                    ]=self._parse_custom_generic_section
+                else:
+                    # otherwise, assume entry is container; [0] is new section, [1] is the section to alias.
+                    # in the case of key mismatch, just handle as generic section.
+                    self._sections[entry[0].lower()]=self._sections.get(entry[1].lower(),self._parse_custom_generic_section)
+
     def _parse(self):
         # type: () -> None
         self._parsed_lines = self._consume_empty()
@@ -577,6 +594,10 @@ class GoogleDocstring(UnicodeMixin):
         # type: (unicode) -> List[unicode]
         use_admonition = self._config.napoleon_use_admonition_for_examples
         return self._parse_generic_section(section, use_admonition)
+
+    def _parse_custom_generic_section(self,section):
+        # for now, no admonition for simple custom sections
+        return self._parse_generic_section(section, False)
 
     def _parse_usage_section(self, section):
         # type: (unicode) -> List[unicode]
