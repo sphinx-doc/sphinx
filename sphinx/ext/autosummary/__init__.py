@@ -615,7 +615,8 @@ def process_generate_options(app):
 
     generate_autosummary_docs(genfiles, builder=app.builder,
                               warn=logger.warning, info=logger.info,
-                              suffix=suffix, base_path=app.srcdir)
+                              suffix=suffix, base_path=app.srcdir,
+                              inherited_members=app.config.autosummary_inherited_members)
 
 
 def setup(app):
@@ -639,4 +640,5 @@ def setup(app):
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_inherited_members', 'all', 'env', [str])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

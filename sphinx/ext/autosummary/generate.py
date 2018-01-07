@@ -78,12 +78,38 @@ def _underline(title, line='='):
 
 # -- Generating output ---------------------------------------------------------
 
+def _should_skip_inherited_member(obj, membername, inherited_members):
+    """Determine if a member should be omitted from documentation according to
+     the inherited_members config value.
+    """
+
+    assert inherited_members in ('all', 'overridden', 'none'), inherited_members
+    if inherited_members == 'all':
+        # Document all inherited members
+        return False
+
+    method = getattr(obj, membername)
+    base_methods = [
+        getattr(base, membername) for base in obj.__bases__ if hasattr(base, membername)]
+
+    if inherited_members == 'overridden':
+        # Document only overridden members
+        return any(_ is method for _ in base_methods)
+    elif inherited_members == 'none':
+        # Document only new members
+        return len(base_methods) > 0
+    else:
+        assert False
+
+
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None,
-                              imported_members=False):
+                              imported_members=False, inherited_members=None):
     # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool) -> None  # NOQA
 
+    if inherited_members not in ('all', 'overridden', 'none'):
+        raise ValueError('Invalid value for inherited_members: %s' % inherited_members)
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -170,7 +196,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     documenter = get_documenter(value, obj)
                     if documenter.objtype == typ:
                         if typ == 'method':
-                            items.append(name)
+                            if not _should_skip_inherited_member(obj, name, inherited_members):
+                                items.append(name)
                         elif imported or getattr(value, '__module__', None) == obj.__name__:
                             # skip imported members if expected
                             items.append(name)
@@ -220,7 +247,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir)
+                                  template_dir=template_dir,
+                                  inherited_members=inherited_members)
 
 
 # -- Finding documented entries in files ---------------------------------------
