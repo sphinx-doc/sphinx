@@ -191,7 +191,7 @@ def test_extension_parsed(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-toc',
+    coderoot='test-apidoc-toc/mypackage',
     options=["--implicit-namespaces"],
 )
 def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
@@ -222,7 +222,7 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-toc',
+    coderoot='test-apidoc-toc/mypackage',
 )
 def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
     """All references in toc should exist. This test doesn't say if
