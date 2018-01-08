@@ -157,10 +157,6 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
-        if not path.isdir(outdir):
-            logger.info('making output directory...')
-            ensuredir(outdir)
-
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
@@ -196,6 +192,10 @@ class Sphinx(object):
 
         # preload builder module (before init config values)
         self.preload_builder(buildername)
+
+        if not path.isdir(outdir):
+            logger.info('making output directory...')
+            ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
