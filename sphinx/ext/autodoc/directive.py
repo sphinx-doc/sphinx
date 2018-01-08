@@ -12,7 +12,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import AutoDirective, get_documenters
+from sphinx.ext.autodoc import get_documenters
 from sphinx.util import logging
 from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
