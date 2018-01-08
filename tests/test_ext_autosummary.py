@@ -77,6 +77,10 @@ def test_get_items_summary(make_app, app_params):
 
     def handler(app, what, name, obj, options, lines):
         assert isinstance(lines, list)
+
+        # ensure no docstring is processed twice:
+        assert 'THIS HAS BEEN HANDLED' not in lines
+        lines.append('THIS HAS BEEN HANDLED')
     app.connect('autodoc-process-docstring', handler)
 
     sphinx.ext.autosummary.Autosummary.get_items = new_get_items

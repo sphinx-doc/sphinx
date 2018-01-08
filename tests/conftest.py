@@ -35,14 +35,6 @@ def pytest_report_header(config):
         sys.version.split()[0])
 
 
-def _filter_warnings():
-    def ignore(**kwargs): warnings.filterwarnings('ignore', **kwargs)
-
-    ignore(category=DeprecationWarning, module='site')  # virtualenv
-    ignore(category=PendingDeprecationWarning, module=r'_pytest\..*')
-    ignore(category=ImportWarning, module='pkgutil')
-
-
 def _initialize_test_directory(session):
     testroot = os.path.join(str(session.config.rootdir), 'tests')
     tempdir = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR',
@@ -58,5 +50,4 @@ def _initialize_test_directory(session):
 
 
 def pytest_sessionstart(session):
-    _filter_warnings()
     _initialize_test_directory(session)

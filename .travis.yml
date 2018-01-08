@@ -6,7 +6,6 @@ cache: pip
 env:
   global:
     - PYTHONFAULTHANDLER=x
-    - PYTHONWARNINGS=all
     - SKIP_LATEX_BUILD=1
 
 matrix:

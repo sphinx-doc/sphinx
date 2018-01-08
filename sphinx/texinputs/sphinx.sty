@@ -1459,8 +1459,8 @@
 %
 \newenvironment{productionlist}{%
 %  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}%
-  \def\productioncont##1{\\& &\sphinxcode{##1}}%
+  \def\production##1##2{\\\sphinxcode{\sphinxupquote{##1}}&::=&\sphinxcode{\sphinxupquote{##2}}}%
+  \def\productioncont##1{\\& &\sphinxcode{\sphinxupquote{##1}}}%
   \parindent=2em
   \indent
   \setlength{\LTpre}{0pt}%
@@ -1541,15 +1541,13 @@
 
 %% TEXT STYLING
 %
-% Some custom font markup commands.
-\protected\def\sphinxstrong#1{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
 % first set catcodes and then fetch its argument. We also make the contents
 % breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
+\protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
       \sphinxbreaksviaactive\let\sphinxafterbreak\empty
@@ -1560,12 +1558,15 @@
    \let\do@noligs\sphinx@do@noligs
    \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
-  \fi {\texttt{#1}}}}
+  \fi {{#1}}}}% extra brace pair to fix end-space gobbling issue...
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
 
-\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries{}#1}}
+% Some custom font markup commands.
+\protected\def\sphinxstrong#1{\textbf{#1}}
+\protected\def\sphinxcode#1{\texttt{#1}}
+\protected\def\sphinxbfcode#1{\textbf{\sphinxcode{#1}}}
 \protected\def\sphinxemail#1{\textsf{#1}}
 \protected\def\sphinxtablecontinued#1{\textsf{#1}}
 \protected\def\sphinxtitleref#1{\emph{#1}}
@@ -1579,21 +1580,21 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry     {\texttt}
-\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref   {, \pageref}
-\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
-\protected\def\sphinxstyleothertitle     {\textbf}
+\protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
 \protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 \protected\def\sphinxstyletheadfamily    {\sffamily}
-\protected\def\sphinxstyleemphasis       {\emph}
+\protected\def\sphinxstyleemphasis     #1{\emph{#1}}
 \protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
-\protected\def\sphinxstylestrong         {\textbf}
-\protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
-\protected\def\sphinxstyleabbreviation   {\textsc}
-\protected\def\sphinxstyleliteralintitle {\sphinxcode}
+\protected\def\sphinxstylestrong       #1{\textbf{#1}}
+\protected\def\sphinxstyleliteralstrong#1{\sphinxbfcode{#1}}
+\protected\def\sphinxstyleabbreviation #1{\textsc{#1}}
+\protected\def\sphinxstyleliteralintitle#1{\sphinxcode{#1}}
 \newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
 \newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % figure legend comes after caption and may contain arbitrary body elements

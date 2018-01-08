@@ -13,6 +13,7 @@ Incompatible changes
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
 * #4274: sphinx-build returns 2 as an exit code on argument error
+* #4389: output directory will be created after loading extensions
 
 Deprecated
 ----------
@@ -21,6 +22,8 @@ Deprecated
   values will be accepted at 2.0.
 * ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
   ``sphinx.util.inspect.Signature`` instead.
+* ``sphinx.ext.autodoc.AutodocReporter`` is replaced by ``sphinx.util.docutils.
+  switch_source_input()`` and now deprecated.  It will be removed in Sphinx-2.0.
 * ``sphinx.ext.autodoc.add_documenter()`` and ``AutoDirective._register`` is now
   deprecated.  Please use ``app.add_autodocumenter()`` instead.
 * ``AutoDirective._special_attrgetters`` is now deprecated.  Please use
@@ -59,7 +62,7 @@ Features added
   code-blocks
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
-
+* #4093: sphinx-build creates empty directories for unknown targets/builders
 
 Features removed
 ----------------
@@ -105,6 +108,9 @@ Bugs fixed
   one of figures and tables
 * #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
   setting
+* #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
+  to Joel Nothman.
+* #4081: Warnings and errors colored the same when building
 
 Testing
 --------
@@ -130,10 +136,12 @@ Features added
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
 
 Bugs fixed
 ----------
 
+* #4334: sphinx-apidoc: Don't generate references to non-existing files in TOC
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
@@ -150,6 +158,8 @@ Bugs fixed
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
   ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
+* Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Testing
 --------

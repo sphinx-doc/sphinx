@@ -157,10 +157,6 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
-        if not path.isdir(outdir):
-            logger.info('making output directory...')
-            ensuredir(outdir)
-
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
@@ -196,6 +192,10 @@ class Sphinx(object):
 
         # preload builder module (before init config values)
         self.preload_builder(buildername)
+
+        if not path.isdir(outdir):
+            logger.info('making output directory...')
+            ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
@@ -642,9 +642,9 @@ class Sphinx(object):
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext.autodoc import AutoDirective
-        self.add_directive('auto' + cls.objtype, AutoDirective)
+        from sphinx.ext.autodoc.directive import AutodocDirective
         self.registry.add_documenter(cls.objtype, cls)
+        self.add_directive('auto' + cls.objtype, AutodocDirective)
 
     def add_autodoc_attrgetter(self, typ, getter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None

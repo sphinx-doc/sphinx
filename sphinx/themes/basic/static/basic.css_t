@@ -82,8 +82,20 @@ div.sphinxsidebar input {
 }
 
 div.sphinxsidebar #searchbox input[type="text"] {
-    width: 170px;
+    float: left;
+    width: 80%;
+    padding: 0.25em;
+    box-sizing: border-box;
 }
+
+div.sphinxsidebar #searchbox input[type="submit"] {
+    float: left;
+    width: 20%;
+    border-left: none;
+    padding: 0.25em;
+    box-sizing: border-box;
+}
+
 
 img {
     border: 0;
