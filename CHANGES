@@ -13,6 +13,7 @@ Incompatible changes
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
 * #4274: sphinx-build returns 2 as an exit code on argument error
+* #4389: output directory will be created after loading extensions
 
 Deprecated
 ----------
@@ -55,6 +56,7 @@ Features added
   code-blocks
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
+* #4093: sphinx-build creates empty directories for unknown targets/builders
 
 
 Features removed
