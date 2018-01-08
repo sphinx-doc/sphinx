@@ -1,6 +1,11 @@
 Release 1.7 (in development)
 ============================
 
+Dependencies
+------------
+
+* Add ``packaging`` package
+
 Incompatible changes
 --------------------
 
@@ -57,7 +62,7 @@ Features added
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
 * #4093: sphinx-build creates empty directories for unknown targets/builders
-
+* #4183: doctest: ``:pyversion:`` option also follows PEP-440 specification
 
 Features removed
 ----------------
