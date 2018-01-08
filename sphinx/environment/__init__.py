@@ -67,6 +67,7 @@ default_settings = {
     'sectsubtitle_xform': False,
     'halt_level': 5,
     'file_insertion_enabled': True,
+    'smartquotes_locales': [],
 }
 
 # This is increased every time an environment attribute is added
