@@ -103,6 +103,8 @@ Bugs fixed
   one of figures and tables
 * #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
   setting
+* #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
+  to Joel Nothman.
 
 Testing
 --------
