@@ -58,7 +58,6 @@ Features added
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
 * #4093: sphinx-build creates empty directories for unknown targets/builders
 
-
 Features removed
 ----------------
 
@@ -105,6 +104,7 @@ Bugs fixed
   setting
 * #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
   to Joel Nothman.
+* #4081: Warnings and errors colored the same when building
 
 Testing
 --------
