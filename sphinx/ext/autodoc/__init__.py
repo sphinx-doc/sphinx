@@ -1477,7 +1477,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         AttributeDocumenter.add_content(self, more_content, no_docstring=True)
 
 
-class AutoDirective(object):
+class AutodocRegistry(object):
     """
     A registry of Documenters and attrgetters.
 
@@ -1497,6 +1497,9 @@ class AutoDirective(object):
 
     # a registry of type -> getattr function
     _special_attrgetters = {}  # type: Dict[Type, Callable]
+
+
+AutoDirective = AutodocRegistry  # for backward compatibility
 
 
 def add_documenter(cls):
