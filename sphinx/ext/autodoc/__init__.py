@@ -296,9 +296,7 @@ class Documenter(object):
     def documenters(self):
         # type: () -> Dict[unicode, Type[Documenter]]
         """Returns registered Documenter classes"""
-        classes = dict(AutoDirective._registry)  # registered directly
-        classes.update(self.env.app.registry.documenters)  # registered by API
-        return classes
+        return get_documenters(self.env.app)
 
     def add_line(self, line, source, *lineno):
         # type: (unicode, unicode, int) -> None
