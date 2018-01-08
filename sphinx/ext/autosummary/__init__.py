@@ -72,7 +72,7 @@ from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.ext.autodoc import Options
+from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 
 if False:
@@ -153,9 +153,9 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
-class FakeDirective(object):
-    env = {}  # type: Dict
-    genopt = Options()
+class FakeDirective(DocumenterBridge):
+    def __init__(self):
+        super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
 def get_documenter(obj, parent):

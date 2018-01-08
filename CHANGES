@@ -22,6 +22,8 @@ Deprecated
   values will be accepted at 2.0.
 * ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
   ``sphinx.util.inspect.Signature`` instead.
+* ``sphinx.ext.autodoc.AutodocReporter`` is replaced by ``sphinx.util.docutils.
+  switch_source_input()`` and now deprecated.  It will be removed in Sphinx-2.0.
 
 Features added
 --------------
