@@ -5,13 +5,27 @@
 
     Test math extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import re
+import subprocess
 
 import pytest
+
+
+def has_binary(binary):
+    try:
+        subprocess.check_output([binary])
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            # handle file not found error.
+            return False
+        else:
+            return True
+    return True
 
 
 @pytest.mark.sphinx(
@@ -34,6 +48,8 @@ def test_jsmath(app, status, warning):
     assert '<div class="math">\na + 1 &lt; b</div>' in content
 
 
+@pytest.mark.skipif(not has_binary('dvipng'),
+                    reason='Requires dvipng" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
                     confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
@@ -49,6 +65,8 @@ def test_imgmath_png(app, status, warning):
     assert re.search(html, content, re.S)
 
 
+@pytest.mark.skipif(not has_binary('dvisvgm'),
+                    reason='Requires dvisvgm" binary')
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
                     confoverrides={'extensions': ['sphinx.ext.imgmath'],
                                    'imgmath_image_format': 'svg'})
@@ -139,3 +157,52 @@ def test_math_eqref_format_latex(app, status, warning):
     content = (app.outdir / 'test.tex').text()
     macro = r'Referencing equation Eq.\\ref{equation:math:foo}.'
     assert re.search(macro, content, re.S)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'numfig': True,
+                                   'math_numfig': True})
+def test_mathjax_numfig_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'math.html').text()
+    html = ('<div class="math" id="equation-math:0">\n'
+            '<span class="eqno">(1.2)')
+    assert html in content
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">(1.1)</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath'],
+                                   'jsmath_path': 'dummy.js',
+                                   'numfig': True,
+                                   'math_numfig': True})
+def test_jsmath_numfig_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'math.html').text()
+    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math:0"'
+    assert html in content
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">(1.1)</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
+                                   'numfig': True,
+                                   'numfig_secnum_depth': 0,
+                                   'math_numfig': True})
+def test_imgmath_numfig_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'page.html').text()
+    html = '<span class="eqno">(3)<a class="headerlink" href="#equation-bar"'
+    assert html in content
+    html = ('<p>Referencing equations <a class="reference internal" '
+            'href="math.html#equation-foo">(1)</a> and '
+            '<a class="reference internal" href="#equation-bar">(3)</a>.</p>')
+    assert html in content

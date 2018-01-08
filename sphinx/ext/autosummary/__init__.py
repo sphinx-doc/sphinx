@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -325,7 +325,7 @@ class Autosummary(Directive):
             # -- Grab the summary
 
             documenter.add_content(None)
-            doc = list(documenter.process_doc([self.result.data]))
+            doc = self.result.data
 
             while doc and not doc[0].strip():
                 doc.pop(0)

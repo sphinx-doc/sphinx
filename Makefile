@@ -69,15 +69,15 @@ reindent:
 
 .PHONY: test
 test:
-	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
+	@$(PYTHON) -m pytest -v $(TEST)
 
 .PHONY: test-async
 test-async:
-	@cd tests; $(PYTHON) run.py -v $(TEST)
+	@echo "This target no longer does anything and will be removed imminently"
 
 .PHONY: covertest
 covertest:
-	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:

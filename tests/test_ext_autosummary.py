@@ -5,7 +5,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -73,6 +73,10 @@ def test_get_items_summary(app, status, warning):
 
     def handler(app, what, name, obj, options, lines):
         assert isinstance(lines, list)
+
+        # ensure no docstring is processed twice:
+        assert 'THIS HAS BEEN HANDLED' not in lines
+        lines.append('THIS HAS BEEN HANDLED')
     app.connect('autodoc-process-docstring', handler)
 
     sphinx.ext.autosummary.Autosummary.get_items = new_get_items
@@ -163,7 +167,8 @@ def test_import_by_name():
     assert parent is sphinx.ext.autosummary
     assert modname == 'sphinx.ext.autosummary'
 
-    prefixed_name, obj, parent, modname = import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
+    prefixed_name, obj, parent, modname = \
+        import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
     assert prefixed_name == 'sphinx.ext.autosummary.Autosummary.get_items'
     assert obj == sphinx.ext.autosummary.Autosummary.get_items
     assert parent is sphinx.ext.autosummary.Autosummary

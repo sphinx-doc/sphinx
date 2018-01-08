@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -688,8 +688,7 @@ class Documenter(object):
             elif (namespace, membername) in attr_docs:
                 if want_all and membername.startswith('_'):
                     # ignore members whose name starts with _ by default
-                    keep = self.options.private_members and \
-                        (has_doc or self.options.undoc_members)
+                    keep = self.options.private_members
                 else:
                     # keep documented attributes
                     keep = True
@@ -871,7 +870,7 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
-        'imported-members': bool_option,
+        'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[unicode, Callable]
 
     @classmethod
@@ -913,7 +912,8 @@ class ModuleDocumenter(Documenter):
     def get_object_members(self, want_all):
         # type: (bool) -> Tuple[bool, List[Tuple[unicode, object]]]
         if want_all:
-            if not hasattr(self.object, '__all__'):
+            if (self.options.ignore_module_all or not
+                    hasattr(self.object, '__all__')):
                 # for implicit module members, check __module__ to avoid
                 # documenting imported objects
                 return True, safe_getmembers(self.object)

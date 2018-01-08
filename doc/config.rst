@@ -138,12 +138,10 @@ General configuration
 
    - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
      entry in :confval:`unused_docs`)
-   - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
-     in :confval:`exclude_trees`)
+   - ``'library/xml'`` -- ignores the ``library/xml`` directory
    - ``'library/xml*'`` -- ignores all files and directories starting with
      ``library/xml``
-   - ``'**/.svn'`` -- ignores all ``.svn`` directories (replaces entry in
-     :confval:`exclude_dirnames`)
+   - ``'**/.svn'`` -- ignores all ``.svn`` directories
 
    :confval:`exclude_patterns` is also consulted when looking for static files
    in :confval:`html_static_path` and :confval:`html_extra_path`.
@@ -315,8 +313,8 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   have a caption.  At same time, the `numref` role is enabled.  For now, it
-   works only with the HTML builder and LaTeX builder. Default is ``False``.
+   have a caption.  The :rst:role:`numref` role is enabled.
+   Obeyed so far only by HTML and LaTeX builders. Default is ``False``.
 
    .. note::
 
@@ -339,12 +337,22 @@ General configuration
 
 .. confval:: numfig_secnum_depth
 
-   The scope of figure numbers, that is, the numfig feature numbers figures
-   in which scope. ``0`` means "whole document". ``1`` means "in a section".
-   Sphinx numbers like x.1, x.2, x.3... ``2`` means "in a subsection". Sphinx
-   numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
+   - if set to ``0``, figures, tables and code-blocks are continuously numbered
+     starting at ``1``.
+   - if ``1`` (default) numbers will be ``x.1``, ``x.2``, ... with ``x``
+     the section number (top level sectioning; no ``x.`` if no section).
+     This naturally applies only if section numbering has been activated via
+     the ``:numbered:`` option of the :rst:dir:`toctree` directive.
+   - ``2`` means that numbers will be ``x.y.1``, ``x.y.2``, ... if located in
+     a sub-section (but still ``x.1``, ``x.2``, ... if located directly under a
+     section and ``1``, ``2``, ... if not in any top level section.)
+   - etc...
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 1.7
+      The LaTeX builder obeys this setting (if :confval:`numfig` is set to
+      ``True``).
 
 .. confval:: tls_verify
 
@@ -1450,10 +1458,6 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of different
    depth in one list.  The default value is ``True``.
 
-   .. note::
-
-      ``epub3`` builder ignores ``epub_tocdup`` option(always ``False``)
-
 .. confval:: epub_tocscope
 
    This setting control the scope of the epub table of contents.  The setting
@@ -1615,9 +1619,14 @@ These options influence LaTeX output. See further :doc:`latex`.
 .. confval:: latex_toplevel_sectioning
 
    This value determines the topmost sectioning unit. It should be chosen from
-   ``part``, ``chapter`` or ``section``. The default is ``None``; the topmost
-   sectioning unit is switched by documentclass. ``section`` is used if
+   ``'part'``, ``'chapter'`` or ``'section'``. The default is ``None``;
+   the topmost
+   sectioning unit is switched by documentclass: ``section`` is used if
    documentclass will be ``howto``, otherwise ``chapter`` will be used.
+
+   Note that if LaTeX uses ``\part`` command, then the numbering of sectioning
+   units one level deep gets off-sync with HTML numbering, because LaTeX
+   numbers continuously ``\chapter`` (or ``\section`` for ``howto``.)
 
    .. versionadded:: 1.4
 

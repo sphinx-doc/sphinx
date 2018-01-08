@@ -5,7 +5,7 @@
 
     Test the versioning implementation.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir/'test-versioning').copytree(srcdir)
+        (rootdir / 'test-versioning').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)

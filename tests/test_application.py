@@ -5,13 +5,14 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from docutils import nodes
 
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
+from sphinx.util import logging
 
 from sphinx.testing.util import strip_escseq
 import pytest
@@ -86,3 +87,38 @@ def test_add_source_parser(app, status, warning):
     assert set(app.registry.get_source_parsers().keys()) == set(['*', '.md', '.test'])
     assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
     assert app.registry.get_source_parsers()['.test'].__name__ == 'TestSourceParser'
+
+
+@pytest.mark.sphinx(testroot='extensions')
+def test_add_is_parallel_allowed(app, status, warning):
+    logging.setup(app, status, warning)
+
+    assert app.is_parallel_allowed('read') is True
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+
+    app.setup_extension('read_parallel')
+    assert app.is_parallel_allowed('read') is True
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+    app.extensions.pop('read_parallel')
+
+    app.setup_extension('write_parallel')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is True
+    assert 'the write_parallel extension does not declare' in warning.getvalue()
+    app.extensions.pop('write_parallel')
+    warning.truncate(0)  # reset warnings
+
+    app.setup_extension('read_serial')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+    app.extensions.pop('read_serial')
+
+    app.setup_extension('write_serial')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is False
+    assert 'the write_serial extension does not declare' in warning.getvalue()
+    app.extensions.pop('write_serial')
+    warning.truncate(0)  # reset warnings

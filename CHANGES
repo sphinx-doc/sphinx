@@ -13,6 +13,7 @@ Incompatible changes
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
 * #4274: sphinx-build returns 2 as an exit code on argument error
+* #4389: output directory will be created after loading extensions
 
 Deprecated
 ----------
@@ -51,7 +52,13 @@ Features added
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
-
+* #4166: Add :confval:`math_numfig` for equation numbering by section (refs:
+  #3991, #4080). Thanks to Oliver Jahn.
+* #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, and
+  code-blocks
+* #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
+* #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
+* #4093: sphinx-build creates empty directories for unknown targets/builders
 
 Features removed
 ----------------
@@ -92,6 +99,14 @@ Bugs fixed
 * #4094: C++, allow empty template argument lists.
 * C++, also hyperlink types in the name of declarations with qualified names.
 * C++, do not add index entries for declarations inside concepts. 
+* C++, support the template disambiguator for dependent names.
+* #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
+  one of figures and tables
+* #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
+  setting
+* #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
+  to Joel Nothman.
+* #4081: Warnings and errors colored the same when building
 
 Testing
 --------
@@ -117,10 +132,12 @@ Features added
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
 
 Bugs fixed
 ----------
 
+* #4334: sphinx-apidoc: Don't generate references to non-existing files in TOC
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
@@ -133,6 +150,12 @@ Bugs fixed
 * #4279: Sphinx crashes with pickling error when run with multiple processes and
   remote image
 * #1421: Respect the quiet flag in sphinx-quickstart
+* #4281: Race conditions when creating output directory
+* #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
+  ``\chapter`` commands 
+* #4214: Two todolist directives break sphinx-1.6.5
+* Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Testing
 --------

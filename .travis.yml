@@ -2,46 +2,49 @@ language: python
 sudo: false
 dist: trusty
 cache: pip
-python:
-  - "pypy-5.4.1"
-  - "3.6"
-  - "3.5"
-  - "3.4"
-  - "2.7"
-  - "nightly"
+
 env:
   global:
-    - TEST='-v --durations 25'
     - PYTHONFAULTHANDLER=x
     - PYTHONWARNINGS=all
     - SKIP_LATEX_BUILD=1
-  matrix:
-    - DOCUTILS=0.13.1
-    - DOCUTILS=0.14
+
 matrix:
-  exclude:
-    - python: "3.4"
-      env: DOCUTILS=0.13.1
-    - python: "3.5"
-      env: DOCUTILS=0.13.1
-    - python: "3.6"
-      env: DOCUTILS=0.13.1
-    - python: nightly
-      env: DOCUTILS=0.13.1
-    - python: "pypy-5.4.1"
-      env: DOCUTILS=0.13.1
+  include:
+    - python: 'pypy'
+      env: TOXENV=pypy
+    - python: '2.7'
+      env:
+        - TOXENV=du13
+        - PYTEST_ADDOPTS = --cov sphinx --cov-append --cov-config setup.cfg
+    - python: '3.4'
+      env: TOXENV=py34
+    - python: '3.5'
+      env: TOXENV=py35
+    - python: '3.6'
+      env:
+        - TOXENV=py36
+        - PYTEST_ADDOPTS = --cov sphinx --cov-append --cov-config setup.cfg
+    - python: 'nightly'
+      env: TOXENV=py37
+    - python: '3.6'
+      env: TOXENV=docs
+    - python: '3.6'
+      env: TOXENV=mypy
+    - python: '2.7'
+      env: TOXENV=flake8
+
 addons:
   apt:
     packages:
       - graphviz
       - imagemagick
+
 install:
-  - pip install -U pip setuptools
-  - pip install docutils==$DOCUTILS
-  - pip install .[test,websupport]
-  - pip install flake8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then python3.6 -m pip install mypy typed-ast; fi
+  - pip install -U tox codecov
+
 script:
-  - flake8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make type-check test-async; fi
-  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
+  - tox -- -v
+
+after_success:
+  - codecov

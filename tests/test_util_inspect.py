@@ -5,7 +5,7 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import sys
@@ -111,7 +111,6 @@ def test_getargspec_bound_methods():
         # On py2, the inspect functions can't properly handle wrapped
         # functions (no __wrapped__ support)
         assert expected_bound == inspect.getargspec(wrapped_bound_method)
-
 
 
 def test_Signature():

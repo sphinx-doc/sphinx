@@ -6,7 +6,7 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,6 +16,7 @@ import sphinx
 from sphinx.locale import _
 from sphinx.application import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
+from sphinx.ext.mathbase import get_node_equation_number
 
 
 def html_visit_math(self, node):
@@ -35,7 +36,8 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                self.body.append('<span class="eqno">(%s)' % node['number'])
+                number = get_node_equation_number(self, node)
+                self.body.append('<span class="eqno">(%s)' % number)
                 self.add_permalink_ref(node, _('Permalink to this equation'))
                 self.body.append('</span>')
             self.body.append(self.starttag(node, 'div', CLASS='math'))

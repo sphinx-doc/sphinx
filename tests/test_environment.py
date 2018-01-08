@@ -5,7 +5,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pytest
@@ -22,7 +22,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, env
     srcdir = sphinx_test_tempdir / 'root-envtest'
     if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
+        (rootdir / 'test-root').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     env = app.env
     yield
