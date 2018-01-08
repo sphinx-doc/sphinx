@@ -642,16 +642,14 @@ class Sphinx(object):
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext import autodoc
         from sphinx.ext.autodoc.directive import AutodocDirective
-        autodoc.add_documenter(cls)
+        self.registry.add_documenter(cls.objtype, cls)
         self.add_directive('auto' + cls.objtype, AutodocDirective)
 
-    def add_autodoc_attrgetter(self, type, getter):
-        # type: (Any, Callable) -> None
-        logger.debug('[app] adding autodoc attrgetter: %r', (type, getter))
-        from sphinx.ext import autodoc
-        autodoc.AutoDirective._special_attrgetters[type] = getter
+    def add_autodoc_attrgetter(self, typ, getter):
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
+        self.registry.add_autodoc_attrgetter(typ, getter)
 
     def add_search_language(self, cls):
         # type: (Any) -> None

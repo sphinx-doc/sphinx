@@ -112,7 +112,7 @@ def skip_member(app, what, name, obj, skip, options):
 @pytest.mark.usefixtures('setup_test')
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert len(directive.result) == 0, directive.result
         assert len(_warnings) == 1, _warnings
@@ -120,7 +120,7 @@ def test_generate():
         del _warnings[:]
 
     def assert_works(objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
         # print '\n'.join(directive.result)
@@ -134,7 +134,7 @@ def test_generate():
         assert set(processed_docstrings) | set(processed_signatures) == set(items)
 
     def assert_result_contains(item, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
@@ -142,7 +142,7 @@ def test_generate():
         del directive.result[:]
 
     def assert_order(items, objtype, name, member_order, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.options.member_order = member_order
         inst.generate(**kw)
         assert len(_warnings) == 0, _warnings

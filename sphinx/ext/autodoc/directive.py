@@ -12,7 +12,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import AutoDirective
+from sphinx.ext.autodoc import get_documenters
 from sphinx.util import logging
 from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
@@ -127,7 +127,7 @@ class AutodocDirective(Directive):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = AutoDirective._registry[objtype]
+        doccls = get_documenters(env.app)[objtype]
 
         # process the options with the selected documenter's option_spec
         try:

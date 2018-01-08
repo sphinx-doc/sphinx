@@ -57,10 +57,14 @@ def test_mangle_signature():
 
 
 @pytest.mark.sphinx('dummy', **default_kw)
-def test_get_items_summary(app, status, warning):
+def test_get_items_summary(make_app, app_params):
+    import sphinx.ext.autosummary
+    import sphinx.ext.autosummary.generate
+    args, kwargs = app_params
+    app = make_app(*args, **kwargs)
+    sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
-    import sphinx.ext.autosummary
     orig_get_items = sphinx.ext.autosummary.Autosummary.get_items
 
     autosummary_items = {}
@@ -85,7 +89,7 @@ def test_get_items_summary(app, status, warning):
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
-    html_warnings = warning.getvalue()
+    html_warnings = app._warning.getvalue()
     assert html_warnings == ''
 
     expected_values = {

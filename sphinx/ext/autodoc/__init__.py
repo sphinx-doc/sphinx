@@ -14,16 +14,15 @@
 import re
 import sys
 import inspect
-import traceback
 import warnings
 
-from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, string_types
+from six import iteritems, itervalues, text_type, class_types, string_types
 
 from docutils.statemachine import ViewList
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.ext.autodoc.importer import mock, import_module
+from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.util import rpartition, force_decode
@@ -33,7 +32,7 @@ from sphinx.application import ExtensionError
 from sphinx.util import logging
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumclass, isenumattribute, getdoc
+    isenumattribute, getdoc
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -257,14 +256,10 @@ class Documenter(object):
 
     option_spec = {'noindex': bool_option}  # type: Dict[unicode, Callable]
 
-    @staticmethod
-    def get_attr(obj, name, *defargs):
+    def get_attr(self, obj, name, *defargs):
         # type: (Any, unicode, Any) -> Any
         """getattr() override for types such as Zope interfaces."""
-        for typ, func in iteritems(AutoDirective._special_attrgetters):
-            if isinstance(obj, typ):
-                return func(obj, name, *defargs)
-        return safe_getattr(obj, name, *defargs)
+        return autodoc_attrgetter(self.env.app, obj, name, *defargs)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -296,6 +291,12 @@ class Documenter(object):
         self.parent = None          # type: Any
         # the module analyzer to get at attribute docs, or None
         self.analyzer = None        # type: Any
+
+    @property
+    def documenters(self):
+        # type: () -> Dict[unicode, Type[Documenter]]
+        """Returns registered Documenter classes"""
+        return get_documenters(self.env.app)
 
     def add_line(self, line, source, *lineno):
         # type: (unicode, unicode, int) -> None
@@ -357,56 +358,15 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
-        if self.objpath:
-            logger.debug('[autodoc] from %s import %s',
-                         self.modname, '.'.join(self.objpath))
-        # always enable mock import hook
-        # it will do nothing if autodoc_mock_imports is empty
         with mock(self.env.config.autodoc_mock_imports):
             try:
-                logger.debug('[autodoc] import %s', self.modname)
-                obj = import_module(self.modname, self.env.config.autodoc_warningiserror)
-                parent = None
-                self.module = obj
-                logger.debug('[autodoc] => %r', obj)
-                for part in self.objpath:
-                    parent = obj
-                    logger.debug('[autodoc] getattr(_, %r)', part)
-                    obj = self.get_attr(obj, part)
-                    logger.debug('[autodoc] => %r', obj)
-                    self.object_name = part
-                self.parent = parent
-                self.object = obj
+                ret = import_object(self.modname, self.objpath, self.objtype,
+                                    attrgetter=self.get_attr,
+                                    warningiserror=self.env.config.autodoc_warningiserror)
+                self.module, self.parent, self.object_name, self.object = ret
                 return True
-            except (AttributeError, ImportError) as exc:
-                if self.objpath:
-                    errmsg = 'autodoc: failed to import %s %r from module %r' % \
-                             (self.objtype, '.'.join(self.objpath), self.modname)
-                else:
-                    errmsg = 'autodoc: failed to import %s %r' % \
-                             (self.objtype, self.fullname)
-
-                if isinstance(exc, ImportError):
-                    # import_module() raises ImportError having real exception obj and
-                    # traceback
-                    real_exc, traceback_msg = exc.args
-                    if isinstance(real_exc, SystemExit):
-                        errmsg += ('; the module executes module level statement ' +
-                                   'and it might call sys.exit().')
-                    elif isinstance(real_exc, ImportError):
-                        errmsg += ('; the following exception was raised:\n%s' %
-                                   real_exc.args[0])
-                    else:
-                        errmsg += ('; the following exception was raised:\n%s' %
-                                   traceback_msg)
-                else:
-                    errmsg += ('; the following exception was raised:\n%s' %
-                               traceback.format_exc())
-
-                if PY2:
-                    errmsg = errmsg.decode('utf-8')  # type: ignore
-                logger.debug(errmsg)
-                self.directive.warn(errmsg)
+            except ImportError as exc:
+                self.directive.warn(exc.args[0])
                 self.env.note_reread()
                 return False
 
@@ -579,57 +539,24 @@ class Documenter(object):
         If *want_all* is True, return all members.  Else, only return those
         members given by *self.options.members* (which may also be none).
         """
-        analyzed_member_names = set()
-        if self.analyzer:
-            attr_docs = self.analyzer.find_attr_docs()
-            namespace = '.'.join(self.objpath)
-            for item in iteritems(attr_docs):
-                if item[0][0] == namespace:
-                    analyzed_member_names.add(item[0][1])
+        members = get_object_members(self.object, self.objpath, self.get_attr, self.analyzer)
         if not want_all:
             if not self.options.members:
                 return False, []
             # specific members given
-            members = []
-            for mname in self.options.members:
-                try:
-                    members.append((mname, self.get_attr(self.object, mname)))
-                except AttributeError:
-                    if mname not in analyzed_member_names:
-                        self.directive.warn('missing attribute %s in object %s'
-                                            % (mname, self.fullname))
+            selected = []
+            for name in self.options.members:
+                if name in members:
+                    selected.append((name, members[name].value))
+                else:
+                    self.directive.warn('missing attribute %s in object %s' %
+                                        (name, self.fullname))
+            return False, sorted(selected)
         elif self.options.inherited_members:
-            # safe_getmembers() uses dir() which pulls in members from all
-            # base classes
-            members = safe_getmembers(self.object, attr_getter=self.get_attr)
+            return False, sorted((m.name, m.value) for m in itervalues(members))
         else:
-            # __dict__ contains only the members directly defined in
-            # the class (but get them via getattr anyway, to e.g. get
-            # unbound method objects instead of function objects);
-            # using list(iterkeys()) because apparently there are objects for which
-            # __dict__ changes while getting attributes
-            try:
-                obj_dict = self.get_attr(self.object, '__dict__')
-            except AttributeError:
-                members = []
-            else:
-                members = [(mname, self.get_attr(self.object, mname, None))
-                           for mname in list(iterkeys(obj_dict))]
-
-            # Py34 doesn't have enum members in __dict__.
-            if isenumclass(self.object):
-                members.extend(
-                    item for item in self.object.__members__.items()
-                    if item not in members
-                )
-
-        membernames = set(m[0] for m in members)
-        # add instance attributes from the analyzer
-        for aname in analyzed_member_names:
-            if aname not in membernames and \
-               (want_all or aname in self.options.members):
-                members.append((aname, INSTANCEATTR))
-        return False, sorted(members)
+            return False, sorted((m.name, m.value) for m in itervalues(members)
+                                 if m.directly_defined)
 
     def filter_members(self, members, want_all):
         # type: (List[Tuple[unicode, Any]], bool) -> List[Tuple[unicode, Any, bool]]
@@ -741,7 +668,7 @@ class Documenter(object):
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in itervalues(AutoDirective._registry)
+            classes = [cls for cls in itervalues(self.documenters)
                        if cls.can_document_member(member, mname, isattr, self)]
             if not classes:
                 # don't know how to document this member
@@ -1477,26 +1404,44 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         AttributeDocumenter.add_content(self, more_content, no_docstring=True)
 
 
+class DeprecatedDict(dict):
+    def __init__(self, message):
+        self.message = message
+        super(DeprecatedDict, self).__init__()
+
+    def __setitem__(self, key, value):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).__setitem__(key, value)
+
+    def setdefault(self, key, default=None):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).setdefault(key, default)
+
+    def update(self, other=None):
+        warnings.warn(self.message, RemovedInSphinx20Warning)
+        super(DeprecatedDict, self).update(other)
+
+
 class AutodocRegistry(object):
     """
     A registry of Documenters and attrgetters.
-
-    The *_registry* attribute is used to store registered Documenters.
-
-    The *_special_attrgetters* attribute is used to customize ``getattr()``
-    calls that the Documenters make; its entries are of the form ``type:
-    getattr_function``.
 
     Note: When importing an object, all items along the import chain are
     accessed using the descendant's *_special_attrgetters*, thus this
     dictionary should include all necessary functions for accessing
     attributes of the parents.
     """
-    # a registry of objtype -> documenter class
-    _registry = {}  # type: Dict[unicode, Type[Documenter]]
+    # a registry of objtype -> documenter class (Deprecated)
+    _registry = DeprecatedDict(
+        'AutoDirective._registry has been deprecated. '
+        'Please use app.add_autodocumenter() instead.'
+    )  # type: Dict[unicode, Type[Documenter]]
 
     # a registry of type -> getattr function
-    _special_attrgetters = {}  # type: Dict[Type, Callable]
+    _special_attrgetters = DeprecatedDict(
+        'AutoDirective._special_attrgetters has been deprecated. '
+        'Please use app.add_autodoc_attrgetter() instead.'
+    )  # type: Dict[Type, Callable]
 
 
 AutoDirective = AutodocRegistry  # for backward compatibility
@@ -1505,6 +1450,10 @@ AutoDirective = AutodocRegistry  # for backward compatibility
 def add_documenter(cls):
     # type: (Type[Documenter]) -> None
     """Register a new Documenter."""
+    warnings.warn('sphinx.ext.autodoc.add_documenter() has been deprecated. '
+                  'Please use app.add_autodocumenter() instead.',
+                  RemovedInSphinx20Warning)
+
     if not issubclass(cls, Documenter):
         raise ExtensionError('autodoc documenter %r must be a subclass '
                              'of Documenter' % cls)
@@ -1513,6 +1462,29 @@ def add_documenter(cls):
     #    raise ExtensionError('autodoc documenter for %r is already '
     #                         'registered' % cls.objtype)
     AutoDirective._registry[cls.objtype] = cls
+
+
+def get_documenters(app):
+    # type: (Sphinx) -> Dict[unicode, Type[Documenter]]
+    """Returns registered Documenter classes"""
+    classes = dict(AutoDirective._registry)  # registered directly
+    if app:
+        classes.update(app.registry.documenters)  # registered by API
+    return classes
+
+
+def autodoc_attrgetter(app, obj, name, *defargs):
+    # type: (Sphinx, Any, unicode, Any) -> Any
+    """Alternative getattr() for types"""
+    candidates = dict(AutoDirective._special_attrgetters)
+    if app:
+        candidates.update(app.registry.autodoc_attrgettrs)
+
+    for typ, func in iteritems(candidates):
+        if isinstance(obj, typ):
+            return func(obj, name, *defargs)
+
+    return safe_getattr(obj, name, *defargs)
 
 
 def setup(app):

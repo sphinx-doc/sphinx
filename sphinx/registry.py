@@ -38,6 +38,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.ext.autodoc import Documenter  # NOQA
     from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -51,7 +52,9 @@ EXTENSION_BLACKLIST = {
 
 class SphinxComponentRegistry(object):
     def __init__(self):
+        self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
+        self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
         self.domain_indices = {}        # type: Dict[unicode, List[Type[Index]]]
@@ -283,6 +286,14 @@ class SphinxComponentRegistry(object):
     def get_post_transforms(self):
         # type: () -> List[Type[Transform]]
         return self.post_transforms
+
+    def add_documenter(self, objtype, documenter):
+        # type: (unicode, Type[Documenter]) -> None
+        self.documenters[objtype] = documenter
+
+    def add_autodoc_attrgetter(self, typ, attrgetter):
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        self.autodoc_attrgettrs[typ] = attrgetter
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None
