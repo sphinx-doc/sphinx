@@ -58,7 +58,7 @@ Read the Docs
     Sphinx. They will host sphinx documentation, along with supporting a number
     of other features including version support, PDF generation, and more. The
     `Getting Started
-    <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
+    <https://read-the-docs.readthedocs.io/en/latest/getting_started.html>`_
     guide is a good place to start.
 
 Epydoc
