@@ -86,11 +86,8 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
-
-    def __init__(self, app, parsers={}, *args, **kwargs):
-        SphinxBaseReader.__init__(self, app, parsers, *args, **kwargs)
         self.smart_quotes = app.env.settings['smart_quotes']
+        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
 
     def get_transforms(self):
         transforms = SphinxBaseReader.get_transforms(self)
