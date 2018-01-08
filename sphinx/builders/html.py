@@ -157,6 +157,7 @@ class StandaloneHTMLBuilder(Builder):
     allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
+    indexer = None  # type: Any
     indexer_format = js_index  # type: Any
     indexer_dumps_unicode = True
     # create links to original images from images [True/False]
@@ -353,8 +354,6 @@ class StandaloneHTMLBuilder(Builder):
 
     def prepare_writing(self, docnames):
         # type: (Iterable[unicode]) -> nodes.Node
-        # create the search indexer
-        self.indexer = None
         if self.search:
             from sphinx.search import IndexBuilder, languages
             lang = self.config.html_search_language or self.config.language
@@ -580,6 +579,14 @@ class StandaloneHTMLBuilder(Builder):
 
         # dump the search index
         self.handle_finish()
+
+    def interrupt(self):
+        # type: () -> None
+        self.interrupt_tasks.add_task(self.copy_image_files)
+        self.interrupt_tasks.add_task(self.copy_download_files)
+        # not only copying, generating.
+        # self.interrupt_tasks.add_task(self.copy_static_files)
+        self.interrupt_tasks.add_task(self.copy_extra_files)
 
     def gen_indices(self):
         # type: () -> None
@@ -1231,6 +1238,14 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.copy_extra_files()
         self.write_buildinfo()
         self.dump_inventory()
+
+    def interrupt(self):
+        # type: () -> None
+        self.copy_image_files()
+        self.copy_download_files()
+        # not only copying, generating.
+        # self.copy_static_files()
+        self.copy_extra_files()
 
 
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):

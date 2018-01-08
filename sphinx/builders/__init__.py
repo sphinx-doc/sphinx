@@ -99,6 +99,7 @@ class Builder(object):
 
         # these get set later
         self.parallel_ok = False
+        self.interrupt_tasks = None  # type: Any
         self.finish_tasks = None  # type: Any
 
     def set_environment(self, env):
@@ -361,6 +362,9 @@ class Builder(object):
         else:
             if method == 'update' and not docnames:
                 logger.info(bold('no targets are out of date.'))
+                self.interrupt_tasks = SerialTasks()
+                self.interrupt()
+                self.interrupt_tasks.join()
                 return
 
         # filter "docnames" (list of outdated files) by the updated
@@ -474,6 +478,14 @@ class Builder(object):
         # type: (unicode, nodes.Node) -> None
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
+        """
+        pass
+
+    def interrupt(self):
+        # type: () -> None
+        """Interrupt the building process.
+
+        The default implementation does nothing.
         """
         pass
 
