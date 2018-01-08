@@ -63,12 +63,11 @@ class DocumenterBridge(object):
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[unicode]
-        self.warnings = []  # type: List[nodes.Node]
         self.result = ViewList()
 
     def warn(self, msg):
         # type: (unicode) -> None
-        self.warnings.append(self.reporter.warning(msg, line=self.lineno))
+        logger.warning(msg, line=self.lineno)
 
 
 def process_documenter_options(documenter, config, options):
@@ -134,17 +133,16 @@ class AutodocDirective(Directive):
             documenter_options = process_documenter_options(doccls, env.config, self.options)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            msg = reporter.error('An option to %s is either unknown or '
-                                 'has an invalid value: %s' % (self.name, exc),
-                                 line=lineno)
-            return [msg]
+            logger.error('An option to %s is either unknown or has an invalid value: %s' %
+                         (self.name, exc), line=lineno)
+            return []
 
         # generate the output
         params = DocumenterBridge(env, reporter, documenter_options, lineno)
         documenter = doccls(params, self.arguments[0])
         documenter.generate(more_content=self.content)
         if not params.result:
-            return params.warnings
+            return []
 
         logger.debug('[autodoc] output:\n%s', '\n'.join(params.result))
 
@@ -154,4 +152,4 @@ class AutodocDirective(Directive):
             self.state.document.settings.record_dependencies.add(fn)
 
         result = parse_generated_content(self.state, params.result, documenter)
-        return params.warnings + result
+        return result

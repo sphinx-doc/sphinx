@@ -14,6 +14,8 @@ Incompatible changes
 * #4226: apidoc: Generate new style makefile (make-mode)
 * #4274: sphinx-build returns 2 as an exit code on argument error
 * #4389: output directory will be created after loading extensions
+* autodoc does not generate warnings messages to the generated document even if
+  :confval:`keep_warnings` is True.  They are only emitted to stderr.
 
 Deprecated
 ----------
