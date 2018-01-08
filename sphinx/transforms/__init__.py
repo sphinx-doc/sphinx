@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -346,5 +346,5 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
-            smartquotable = not is_smartquotable(txtnode)
-            yield (texttype[smartquotable], txtnode.astext())
+            notsmartquotable = not is_smartquotable(txtnode)
+            yield (texttype[notsmartquotable], txtnode.astext())

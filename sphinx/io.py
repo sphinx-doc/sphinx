@@ -5,7 +5,7 @@
 
     Input/Output files
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
@@ -80,7 +80,13 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
                   RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
-                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector]
+                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector
+                  ]  # type: List[Transform]
+
+    def __init__(self, app, *args, **kwargs):
+        # type: (Sphinx, Any, Any) -> None
+        self.transforms = self.transforms + app.registry.get_transforms()
+        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -259,7 +265,7 @@ def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
     input_class = app.registry.get_source_input(filename)
-    reader = SphinxStandaloneReader()
+    reader = SphinxStandaloneReader(app)
     source = input_class(app, env, source=None, source_path=filename,
                          encoding=env.config.source_encoding)
     parser = app.registry.create_source_parser(app, filename)
@@ -279,3 +285,9 @@ def read_doc(app, env, filename):
 def setup(app):
     app.registry.add_source_input('*', SphinxFileInput)
     app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -183,7 +183,7 @@
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}
-
+\RequirePackage{remreset}% provides \@removefromreset
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
@@ -247,7 +247,10 @@
 \fi
 
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
-
+\DeclareStringOption[-1]{numfigreset}
+\DeclareBoolOption[false]{nonumfigreset}
+\DeclareBoolOption[false]{mathnumfig}
+% \DeclareBoolOption[false]{usespart}% not used
 % dimensions, we declare the \dimen registers here.
 \newdimen\sphinxverbatimsep
 \newdimen\sphinxverbatimborder
@@ -349,6 +352,9 @@
 \ProcessKeyvalOptions*
 % don't allow use of maxlistdepth via \sphinxsetup.
 \DisableKeyvalOption{sphinx}{maxlistdepth}
+\DisableKeyvalOption{sphinx}{numfigreset}
+\DisableKeyvalOption{sphinx}{nonumfigreset}
+\DisableKeyvalOption{sphinx}{mathnumfig}
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
@@ -657,12 +663,118 @@
   {\abovecaptionskip\smallskipamount
    \belowcaptionskip\smallskipamount}
 
+
 %% FOOTNOTES
 %
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
 % when minipages are in use in the various macro definitions next.
 \def\thempfootnote{\arabic{mpfootnote}}
+
+
+%% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
+\ltx@ifundefined{c@chapter}
+   {\newcounter{literalblock}}%
+   {\newcounter{literalblock}[chapter]%
+    \def\theliteralblock{\ifnum\c@chapter>\z@\arabic{chapter}.\fi
+                         \arabic{literalblock}}%
+    }%
+\ifspx@opt@nonumfigreset
+    \ltx@ifundefined{c@chapter}{}{%
+      \@removefromreset{figure}{chapter}%
+      \@removefromreset{table}{chapter}%
+      \@removefromreset{literalblock}{chapter}%
+      \ifspx@opt@mathnumfig
+        \@removefromreset{equation}{chapter}%
+      \fi
+    }%
+    \def\thefigure{\arabic{figure}}%
+    \def\thetable {\arabic{table}}%
+    \def\theliteralblock{\arabic{literalblock}}%
+    \ifspx@opt@mathnumfig
+      \def\theequation{\arabic{equation}}%
+    \fi
+\else
+\let\spx@preAthefigure\@empty
+\let\spx@preBthefigure\@empty
+% \ifspx@opt@usespart  % <-- LaTeX writer could pass such a 'usespart' boolean
+%                      %     as sphinx.sty package option
+% If document uses \part, (triggered in Sphinx by latex_toplevel_sectioning)
+% LaTeX core per default does not reset chapter or section
+% counters at each part.
+% But if we modify this, we need to redefine \thechapter, \thesection to
+% include the part number and this will cause problems in table of contents
+% because of too wide numbering. Simplest is to do nothing.
+% \fi
+\ifnum\spx@opt@numfigreset>0
+    \ltx@ifundefined{c@chapter}
+      {}
+      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}.}%
+       \g@addto@macro\spx@preBthefigure{\fi}}%
+\fi
+\ifnum\spx@opt@numfigreset>1
+    \@addtoreset{figure}{section}%
+    \@addtoreset{table}{section}%
+    \@addtoreset{literalblock}{section}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{section}%
+    \fi
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>2
+    \@addtoreset{figure}{subsection}%
+    \@addtoreset{table}{subsection}%
+    \@addtoreset{literalblock}{subsection}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subsection}%
+    \fi
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>3
+    \@addtoreset{figure}{subsubsection}%
+    \@addtoreset{table}{subsubsection}%
+    \@addtoreset{literalblock}{subsubsection}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subsubsection}%
+    \fi
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>4
+    \@addtoreset{figure}{paragraph}%
+    \@addtoreset{table}{paragraph}%
+    \@addtoreset{literalblock}{paragraph}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{paragraph}%
+    \fi
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\ifnum\spx@opt@numfigreset>5
+    \@addtoreset{figure}{subparagraph}%
+    \@addtoreset{table}{subparagraph}%
+    \@addtoreset{literalblock}{subparagraph}%
+    \ifspx@opt@mathnumfig
+      \@addtoreset{equation}{subparagraph}%
+    \fi
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
+    \g@addto@macro\spx@preBthefigure{\fi}%
+\fi
+\expandafter\g@addto@macro
+\expandafter\spx@preAthefigure\expandafter{\spx@preBthefigure}%
+\let\thefigure\spx@preAthefigure
+\let\thetable\spx@preAthefigure
+\let\theliteralblock\spx@preAthefigure
+\g@addto@macro\thefigure{\arabic{figure}}%
+\g@addto@macro\thetable{\arabic{table}}%
+\g@addto@macro\theliteralblock{\arabic{literalblock}}%
+  \ifspx@opt@mathnumfig
+    \let\theequation\spx@preAthefigure
+    \g@addto@macro\theequation{\arabic{equation}}%
+  \fi
+\fi
 
 
 %% LITERAL BLOCKS
@@ -680,15 +792,6 @@
 \let\endOriginalVerbatim\endVerbatim
 
 % for captions of literal blocks
-% also define `\theH...` macros for hyperref
-\newcounter{literalblock}
-\ltx@ifundefined{c@chapter}
-  {\@addtoreset{literalblock}{section}
-  \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
-  {\@addtoreset{literalblock}{chapter}
-  \def\theliteralblock {\ifnum\c@chapter>\z@ \thechapter.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHchapter.\arabic{literalblock}}}
 % at start of caption title
 \newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
 % this will be overwritten in document preamble by Babel translation
@@ -1356,8 +1459,8 @@
 %
 \newenvironment{productionlist}{%
 %  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}%
-  \def\productioncont##1{\\& &\sphinxcode{##1}}%
+  \def\production##1##2{\\\sphinxcode{\sphinxupquote{##1}}&::=&\sphinxcode{\sphinxupquote{##2}}}%
+  \def\productioncont##1{\\& &\sphinxcode{\sphinxupquote{##1}}}%
   \parindent=2em
   \indent
   \setlength{\LTpre}{0pt}%
@@ -1438,15 +1541,13 @@
 
 %% TEXT STYLING
 %
-% Some custom font markup commands.
-\protected\def\sphinxstrong#1{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
 % first set catcodes and then fetch its argument. We also make the contents
 % breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
+\protected\def\sphinxupquote#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
       \sphinxbreaksviaactive\let\sphinxafterbreak\empty
@@ -1457,12 +1558,15 @@
    \let\do@noligs\sphinx@do@noligs
    \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
-  \fi {\texttt{#1}}}}
+  \fi {{#1}}}}% extra brace pair to fix end-space gobbling issue...
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
 
-\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries{}#1}}
+% Some custom font markup commands.
+\protected\def\sphinxstrong#1{\textbf{#1}}
+\protected\def\sphinxcode#1{\texttt{#1}}
+\protected\def\sphinxbfcode#1{\textbf{\sphinxcode{#1}}}
 \protected\def\sphinxemail#1{\textsf{#1}}
 \protected\def\sphinxtablecontinued#1{\textsf{#1}}
 \protected\def\sphinxtitleref#1{\emph{#1}}
@@ -1476,21 +1580,21 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry     {\texttt}
-\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref   {, \pageref}
-\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
-\protected\def\sphinxstyleothertitle     {\textbf}
+\protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
 \protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 \protected\def\sphinxstyletheadfamily    {\sffamily}
-\protected\def\sphinxstyleemphasis       {\emph}
+\protected\def\sphinxstyleemphasis     #1{\emph{#1}}
 \protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
-\protected\def\sphinxstylestrong         {\textbf}
-\protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
-\protected\def\sphinxstyleabbreviation   {\textsc}
-\protected\def\sphinxstyleliteralintitle {\sphinxcode}
+\protected\def\sphinxstylestrong       #1{\textbf{#1}}
+\protected\def\sphinxstyleliteralstrong#1{\sphinxbfcode{#1}}
+\protected\def\sphinxstyleabbreviation #1{\textsc{#1}}
+\protected\def\sphinxstyleliteralintitle#1{\sphinxcode{#1}}
 \newcommand*\sphinxstylecodecontinued[1]{\footnotesize(#1)}%
 \newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % figure legend comes after caption and may contain arbitrary body elements

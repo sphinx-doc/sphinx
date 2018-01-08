@@ -5,7 +5,7 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -135,7 +135,7 @@ def get_verifier(verify, verify_re):
         '``code   sample``',
         ('<p><code class="(samp )?docutils literal"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # correct interpretation of code with whitespace
@@ -143,7 +143,7 @@ def get_verifier(verify, verify_re):
         ':samp:`code   sample`',
         ('<p><code class="(samp )?docutils literal"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # interpolation of braces in samp and file roles (HTML only)
@@ -152,7 +152,7 @@ def get_verifier(verify, verify_re):
         ('<p><code class="samp docutils literal"><span class="pre">a</span>'
          '<em><span class="pre">b</span></em>'
          '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{a\\sphinxstyleemphasis{b}c}',
+        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
     ),
     (
         # interpolation of arrows in menuselection
@@ -175,7 +175,7 @@ def get_verifier(verify, verify_re):
         ':option:`--with-option`',
         ('<p><code( class="xref std std-option docutils literal")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{-{-}with-option}$',
+        r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
     ),
     (
         # verify smarty-pants quotes
@@ -190,14 +190,14 @@ def get_verifier(verify, verify_re):
         '``"John"``',
         ('<p><code class="docutils literal"><span class="pre">'
          '&quot;John&quot;</span></code></p>'),
-        '\\sphinxcode{"John"}',
+        '\\sphinxcode{\\sphinxupquote{"John"}}',
     ),
     (
         # verify classes for inline roles
         'verify',
         ':manpage:`mp(1)`',
         '<p><em class="manpage">mp(1)</em></p>',
-        '\\sphinxstyleliteralemphasis{mp(1)}',
+        '\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
     ),
     (
         # correct escaping in normal mode

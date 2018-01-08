@@ -5,7 +5,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -53,7 +53,7 @@ VERBOSITY_MAP.update({
 COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.ERROR: 'darkred',
-    logging.WARNING: 'darkred',
+    logging.WARNING: 'red',
     logging.DEBUG: 'darkgray',
 })
 

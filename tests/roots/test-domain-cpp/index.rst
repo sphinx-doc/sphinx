@@ -28,13 +28,19 @@ directives
 
    An unscoped enum.
 
+   .. cpp:enumerator:: A
+
 .. cpp:enum-class:: MyScopedEnum
 
    A scoped enum.
 
+   .. cpp:enumerator:: B
+
 .. cpp:enum-struct:: protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
 
    A scoped enum with non-default visibility, and with a specified underlying type.
+
+   .. cpp:enumerator:: B
 
 
 .. cpp:function:: void paren_1(int, float)

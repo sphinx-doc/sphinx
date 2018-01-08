@@ -6,7 +6,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -108,14 +108,14 @@ def test_generate():
     logging.setup(app, app._status, app._warning)
 
     def assert_warns(warn_str, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert len(directive.result) == 0, directive.result
         assert warn_str in app._warning.getvalue()
         app._warning.truncate(0)
 
     def assert_works(objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
         # print '\n'.join(directive.result)
@@ -129,7 +129,7 @@ def test_generate():
         assert set(processed_docstrings) | set(processed_signatures) == set(items)
 
     def assert_result_contains(item, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
         assert app._warning.getvalue() == ''
@@ -137,7 +137,7 @@ def test_generate():
         del directive.result[:]
 
     def assert_order(items, objtype, name, member_order, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.options.member_order = member_order
         inst.generate(**kw)
         assert app._warning.getvalue() == ''

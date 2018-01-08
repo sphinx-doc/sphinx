@@ -5,7 +5,7 @@
 
     Test sphinx.ext.graphviz extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -39,6 +39,7 @@ def test_graphviz_png_html(app, status, warning):
             r'centered\n'
             r'}\" />\n</div>')
     assert re.search(html, content, re.S)
+
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz',
                     confoverrides={'graphviz_output_format': 'svg'})
@@ -79,6 +80,7 @@ def test_graphviz_svg_html(app, status, warning):
             r'}</p></object>\n'
             r'</div>')
     assert re.search(html, content, re.S)
+
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')

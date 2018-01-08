@@ -5,7 +5,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -96,7 +96,6 @@ def test_do_prompt_inputstrip():
 
 
 def test_do_prompt_with_nonascii():
-    d = {}
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
     }

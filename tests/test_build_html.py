@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,6 @@ from itertools import cycle, chain
 
 from six import PY3
 
-from sphinx import __display_version__
 from sphinx.util.inventory import InventoryFile
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
@@ -182,8 +181,8 @@ def test_html_warnings(app, warning):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [

@@ -6,7 +6,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -221,6 +221,7 @@ def test_text_inconsistency_warnings(app, warning):
         u'.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         u'.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert_re_search(expected_citation_warning_expr, warnings)
+
 
 @sphinx_intl
 @pytest.mark.sphinx('text')
