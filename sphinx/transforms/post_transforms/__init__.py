@@ -12,14 +12,16 @@
 import warnings
 
 from docutils import nodes
+from docutils.transforms.universal import SmartQuotes
 from docutils.utils import get_source_line
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.environment import NoUri
+from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
+from sphinx.util.nodes import is_smartquotable
 
 if False:
     # For type annotation
@@ -195,6 +197,23 @@ class OnlyNodeTransform(SphinxTransform):
                     node.replace_self(node.children or nodes.comment())
                 else:
                     node.replace_self(nodes.comment())
+
+
+class SphinxSmartQuotes(SmartQuotes):
+    """
+    Customized SmartQuotes to avoid transform for some extra node types.
+
+    refs: sphinx.parsers.RSTParser
+    """
+    def get_tokens(self, txtnodes):
+        # A generator that yields ``(texttype, nodetext)`` tuples for a list
+        # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
+
+        texttype = {True: 'literal',  # "literal" text is not changed:
+                    False: 'plain'}
+        for txtnode in txtnodes:
+            notsmartquotable = not is_smartquotable(txtnode)
+            yield (texttype[notsmartquotable], txtnode.astext())
 
 
 def setup(app):

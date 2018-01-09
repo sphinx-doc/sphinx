@@ -85,3 +85,8 @@ class SphinxParallelError(SphinxError):
     def __str__(self):
         # type: () -> str
         return self.message
+
+
+class NoUri(Exception):
+    """Raised by get_relative_uri if there is no URI available."""
+    pass

@@ -41,7 +41,9 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.transforms import SphinxTransformer, SphinxSmartQuotes
+from sphinx.errors import NoUri  # NOQA; for backward compatibility
+from sphinx.transforms import SphinxTransformer
+from sphinx.transforms.post_transforms import SphinxSmartQuotes
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -98,11 +100,6 @@ def sphinx_smartquotes_action(env):
             yield
         finally:
             SphinxSmartQuotes.smartquotes_action = original
-
-
-class NoUri(Exception):
-    """Raised by get_relative_uri if there is no URI available."""
-    pass
 
 
 class BuildEnvironment(object):
