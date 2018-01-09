@@ -25,7 +25,6 @@ from sphinx.transforms import (
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
     UnreferencedFootnotesDetector
 )
-from sphinx.transforms.post_transforms import SphinxSmartQuotes
 from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
@@ -87,14 +86,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        self.smart_quotes = app.env.settings['smart_quotes']
         SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
-
-    def get_transforms(self):
-        transforms = SphinxBaseReader.get_transforms(self)
-        if self.smart_quotes:
-            transforms.append(SphinxSmartQuotes)
-        return transforms
 
 
 class SphinxI18nReader(SphinxBaseReader):

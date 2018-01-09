@@ -13,7 +13,8 @@ import warnings
 
 from docutils import nodes
 from docutils.transforms.universal import SmartQuotes
-from docutils.utils import get_source_line
+from docutils.utils import get_source_line, normalize_language_tag
+from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning
@@ -202,9 +203,42 @@ class OnlyNodeTransform(SphinxTransform):
 class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     Customized SmartQuotes to avoid transform for some extra node types.
-
-    refs: sphinx.parsers.RSTParser
     """
+    def apply(self):
+        # type: () -> None
+        if self.is_available():
+            self.env.settings['smart_quotes'] = True
+        else:
+            return
+
+        SmartQuotes.apply(self)
+
+    def is_available(self):
+        # type: () -> bool
+        builders = self.config.smartquotes_excludes.get('builders', [])
+        languages = self.config.smartquotes_excludes.get('languages', [])
+
+        if self.env.settings['smart_quotes'] is False:
+            # disabled by settings['smart_quotes'] (by 3rd party's)
+            return False
+        elif self.config.smartquotes is False:
+            # disabled by confval smartquotes
+            return False
+        elif self.app.builder.name in builders:
+            # disabled by confval smartquotes_excludes['builders']
+            return False
+        elif self.config.language in languages:
+            # disabled by confval smartquotes_excludes['languages']
+            return False
+
+        # confirm selected language supports smart_quotes or not
+        language = self.env.settings['language_code']
+        for tag in normalize_language_tag(language):
+            if tag in smartchars.quotes:
+                return True
+        else:
+            return False
+
     @property
     def smartquotes_action(self):
         # type: () -> unicode
@@ -230,6 +264,7 @@ def setup(app):
     app.add_post_transform(DocReferenceMigrator)
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
+    app.add_post_transform(SphinxSmartQuotes)
 
     return {
         'version': 'builtin',

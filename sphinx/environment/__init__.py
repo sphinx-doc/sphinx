@@ -641,27 +641,7 @@ class BuildEnvironment(object):
 
         language = self.config.language or 'en'
         self.settings['language_code'] = language
-        if 'smart_quotes' not in self.settings:
-            self.settings['smart_quotes'] = self.config.smartquotes
-
-            # some conditions exclude smart quotes, overriding smart_quotes
-            for valname, vallist in iteritems(self.config.smartquotes_excludes):
-                if valname == 'builders':
-                    # this will work only for checking first build target
-                    if self.app.builder.name in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-                elif valname == 'languages':
-                    if self.config.language in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-
-        # confirm selected language supports smart_quotes or not
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                break
-        else:
-            self.settings['smart_quotes'] = False
+        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None
