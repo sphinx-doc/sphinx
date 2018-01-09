@@ -13,7 +13,7 @@ import pytest
 from sphinx.util import docutils
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes')
 def test_basic(app, status, warning):
     app.build()
 
@@ -21,7 +21,7 @@ def test_basic(app, status, warning):
     assert u'<p>– “Sphinx” is a tool that makes it easy …</p>' in content
 
 
-@pytest.mark.sphinx(buildername='text', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(buildername='text', testroot='smartquotes')
 def test_text_builder(app, status, warning):
     app.build()
 
@@ -29,7 +29,7 @@ def test_text_builder(app, status, warning):
     assert u'-- "Sphinx" is a tool that makes it easy ...' in content
 
 
-@pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(buildername='man', testroot='smartquotes')
 def test_man_builder(app, status, warning):
     app.build()
 
@@ -37,7 +37,7 @@ def test_man_builder(app, status, warning):
     assert u'\\-\\- "Sphinx" is a tool that makes it easy ...' in content
 
 
-@pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(buildername='latex', testroot='smartquotes')
 def test_latex_builder(app, status, warning):
     app.build()
 
@@ -45,7 +45,7 @@ def test_latex_builder(app, status, warning):
     assert u'\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes',
                     confoverrides={'language': 'ja'})
 def test_ja_html_builder(app, status, warning):
     app.build()
@@ -54,7 +54,7 @@ def test_ja_html_builder(app, status, warning):
     assert u'<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes',
                     confoverrides={'smartquotes': False})
 def test_smartquotes_disabled(app, status, warning):
     app.build()
@@ -65,7 +65,7 @@ def test_smartquotes_disabled(app, status, warning):
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 14),
                     reason='docutils-0.14 or above is required')
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes',
                     confoverrides={'smartquotes_action': 'q'})
 def test_smartquotes_action(app, status, warning):
     app.build()
@@ -74,7 +74,7 @@ def test_smartquotes_action(app, status, warning):
     assert u'<p>-- “Sphinx” is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
+@pytest.mark.sphinx(buildername='html', testroot='smartquotes',
                     confoverrides={'language': 'ja', 'smartquotes_excludes': {}})
 def test_smartquotes_excludes_language(app, status, warning):
     app.build()
@@ -83,7 +83,7 @@ def test_smartquotes_excludes_language(app, status, warning):
     assert u'<p>– 「Sphinx」 is a tool that makes it easy …</p>' in content
 
 
-@pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True,
+@pytest.mark.sphinx(buildername='man', testroot='smartquotes',
                     confoverrides={'smartquotes_excludes': {}})
 def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
