@@ -199,12 +199,21 @@ class OnlyNodeTransform(SphinxTransform):
                     node.replace_self(nodes.comment())
 
 
-class SphinxSmartQuotes(SmartQuotes):
+class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     Customized SmartQuotes to avoid transform for some extra node types.
 
     refs: sphinx.parsers.RSTParser
     """
+    @property
+    def smartquotes_action(self):
+        # type: () -> unicode
+        """A smartquotes_action setting for SmartQuotes.
+
+        Users can change this setting through :confval:`smartquotes_action`.
+        """
+        return self.config.smartquotes_action
+
     def get_tokens(self, txtnodes):
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
