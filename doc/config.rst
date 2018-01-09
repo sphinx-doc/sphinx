@@ -400,16 +400,10 @@ General configuration
    Accepted keys are as above ``'builders'`` or ``'languages'``.
    The values are lists.
 
-   .. note:: Currently, in case of invocation of :program:`make` with multiple
-      targets, the first target name is the only one which is tested against
-      the ``'builders'`` entry and it decides for all.  Also, a ``make text``
-      following ``make html`` needs to be issued in the form ``make text
-      O="-E"`` to force re-parsing of source files, as the cached ones are
-      already transformed.  On the other hand the issue does not arise with
-      direct usage of :program:`sphinx-build` as it caches
-      (in its default usage) the parsed source files in per builder locations.
-
    .. versionadded:: 1.6.6
+
+   .. versionchanged:: 1.7
+      This configuration is evaluated on each build.
 
 .. confval:: tls_verify
 
