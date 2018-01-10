@@ -10,6 +10,7 @@
 """
 
 import re
+import traceback
 from os import path, getenv
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
@@ -35,6 +36,7 @@ copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
+CONFIG_ERROR = "There is a programable error in your configuration file:\n\n%s"
 CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
                     "called sys.exit()"
 CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
@@ -135,6 +137,11 @@ class Config(object):
 
         tls_verify = (True, 'env'),
         tls_cacerts = (None, 'env'),
+        smartquotes = (True, 'env'),
+        smartquotes_action = ('qDe', 'env'),
+        smartquotes_excludes = ({'languages': ['ja'],
+                                 'builders': ['man', 'text']},
+                                'env'),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -155,6 +162,8 @@ class Config(object):
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
                 except SystemExit:
                     raise ConfigError(CONFIG_EXIT_ERROR)
+                except Exception:
+                    raise ConfigError(CONFIG_ERROR % traceback.format_exc())
 
         self._raw_config = config
         # these two must be preinitialized because extensions can add their

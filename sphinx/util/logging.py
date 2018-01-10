@@ -53,7 +53,7 @@ VERBOSITY_MAP.update({
 COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.ERROR: 'darkred',
-    logging.WARNING: 'darkred',
+    logging.WARNING: 'red',
     logging.DEBUG: 'darkgray',
 })
 
