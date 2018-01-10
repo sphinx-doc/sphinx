@@ -19,7 +19,6 @@ import warnings
 from os import path
 from copy import copy
 from collections import defaultdict
-from contextlib import contextmanager
 
 from six import BytesIO, itervalues, class_types, next, iteritems
 from six.moves import cPickle as pickle
@@ -41,7 +40,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.transforms import SphinxTransformer, SphinxSmartQuotes
+from sphinx.transforms import SphinxTransformer
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -82,22 +81,6 @@ versioning_conditions = {
     'text': is_translatable,
     'commentable': is_commentable,
 }  # type: Dict[unicode, Union[bool, Callable]]
-
-
-@contextmanager
-def sphinx_smartquotes_action(env):
-    # type: (BuildEnvironment) -> Generator
-    if not hasattr(SphinxSmartQuotes, 'smartquotes_action'):
-        # less than docutils-0.14
-        yield
-    else:
-        # docutils-0.14 or above
-        try:
-            original = SphinxSmartQuotes.smartquotes_action
-            SphinxSmartQuotes.smartquotes_action = env.config.smartquotes_action
-            yield
-        finally:
-            SphinxSmartQuotes.smartquotes_action = original
 
 
 class NoUri(Exception):
@@ -602,8 +585,7 @@ class BuildEnvironment(object):
             # remove all inventory entries for that file
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
-            with sphinx_smartquotes_action(self):
-                self.read_doc(docname, app)
+            self.read_doc(docname, app)
 
     def _read_parallel(self, docnames, app, nproc):
         # type: (List[unicode], Sphinx, int) -> None
@@ -615,9 +597,8 @@ class BuildEnvironment(object):
         def read_process(docs):
             # type: (List[unicode]) -> unicode
             self.app = app
-            with sphinx_smartquotes_action(self):
-                for docname in docs:
-                    self.read_doc(docname, app)
+            for docname in docs:
+                self.read_doc(docname, app)
             # allow pickling self to send it back
             return BuildEnvironment.dumps(self)
 
