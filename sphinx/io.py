@@ -19,6 +19,7 @@ from docutils.writers import UnfilteredWriter
 from six import text_type
 from typing import Any, Union  # NOQA
 
+from sphinx.transforms import SphinxTransformer
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
@@ -56,6 +57,11 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
+    def __init__(self, app, *args, **kwargs):
+        # type: (Sphinx, Any, Any) -> None
+        self.env = app.env
+        standalone.Reader.__init__(self, *args, **kwargs)
+
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -66,9 +72,16 @@ class SphinxBaseReader(standalone.Reader):
         for logging.
         """
         document = standalone.Reader.new_document(self)
+
+        # substitute transformer
+        document.transformer = SphinxTransformer(document)
+        document.transformer.set_environment(self.env)
+
+        # substitute reporter
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
         document.reporter.set_source(self.source)
+
         return document
 
 
@@ -87,7 +100,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
         self.smart_quotes = app.env.settings['smart_quotes']
-        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
+        SphinxBaseReader.__init__(self, app, *args, **kwargs)  # type: ignore
 
     def get_transforms(self):
         transforms = SphinxBaseReader.get_transforms(self)
