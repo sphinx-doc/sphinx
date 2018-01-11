@@ -113,6 +113,7 @@ Bugs fixed
 * #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
   to Joel Nothman.
 * #4081: Warnings and errors colored the same when building
+* latex: Do not display 'Release' label if :confval:`release` is not set
 
 Testing
 --------
