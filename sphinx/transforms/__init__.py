@@ -13,13 +13,12 @@ from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.utils import new_document
-from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import apply_source_workaround
 
 if False:
     # For type annotation
@@ -331,20 +330,3 @@ class SphinxContentsFilter(ContentsFilter):
     def visit_image(self, node):
         # type: (nodes.Node) -> None
         raise nodes.SkipNode
-
-
-class SphinxSmartQuotes(SmartQuotes):
-    """
-    Customized SmartQuotes to avoid transform for some extra node types.
-
-    refs: sphinx.parsers.RSTParser
-    """
-    def get_tokens(self, txtnodes):
-        # A generator that yields ``(texttype, nodetext)`` tuples for a list
-        # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
-
-        texttype = {True: 'literal',  # "literal" text is not changed:
-                    False: 'plain'}
-        for txtnode in txtnodes:
-            notsmartquotable = not is_smartquotable(txtnode)
-            yield (texttype[notsmartquotable], txtnode.astext())
