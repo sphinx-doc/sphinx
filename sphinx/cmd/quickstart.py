@@ -35,6 +35,7 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx.cmd.base import SphinxCommand
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util.console import (  # type: ignore
@@ -464,139 +465,146 @@ def valid_dir(d: Dict) -> bool:
     return True
 
 
-def get_parser() -> argparse.ArgumentParser:
-    description = __(
-        "\n"
-        "Generate required files for a Sphinx project.\n"
-        "\n"
-        "sphinx-quickstart is an interactive tool that asks some questions about your\n"
-        "project and then generates a complete documentation directory and sample\n"
-        "Makefile to be used with sphinx-build.\n"
-    )
-    parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
-        epilog=__("For more information, visit <http://sphinx-doc.org/>."),
-        description=description)
+class InitCommand(SphinxCommand):
+    """Generate required files for a Sphinx project.
 
-    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
-                        default=None,
-                        help=__('quiet mode'))
-    parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+    'sphinx init' is an interactive tool that asks some questions about your
+    project and then generates a complete documentation directory and sample
+    Makefile to be used with 'sphinx build'.
+    """
 
-    parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
-                        help=__('project root'))
+    @staticmethod
+    def _add_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 
-    group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true', default=None,
-                       help=__('if specified, separate source and build dirs'))
-    group.add_argument('--dot', metavar='DOT', default='_',
-                       help=__('replacement for dot in _templates etc.'))
+        # TODO(stephenfin): Fold this into 'add_parser' once we remove the old
+        # 'sphinx-quickstart' binary
+        parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
+                            default=None,
+                            help=__('quiet mode'))
 
-    group = parser.add_argument_group(__('Project basic options'))
-    group.add_argument('-p', '--project', metavar='PROJECT', dest='project',
-                       help=__('project name'))
-    group.add_argument('-a', '--author', metavar='AUTHOR', dest='author',
-                       help=__('author names'))
-    group.add_argument('-v', metavar='VERSION', dest='version', default='',
-                       help=__('version of project'))
-    group.add_argument('-r', '--release', metavar='RELEASE', dest='release',
-                       help=__('release of project'))
-    group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
-                       help=__('document language'))
-    group.add_argument('--suffix', metavar='SUFFIX', default='.rst',
-                       help=__('source file suffix'))
-    group.add_argument('--master', metavar='MASTER', default='index',
-                       help=__('master document name'))
-    group.add_argument('--epub', action='store_true', default=False,
-                       help=__('use epub'))
+        parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
+                            help=__('project root'))
 
-    group = parser.add_argument_group(__('Extension options'))
-    for ext in EXTENSIONS:
-        group.add_argument('--ext-%s' % ext, action='append_const',
-                           const='sphinx.ext.%s' % ext, dest='extensions',
-                           help=__('enable %s extension') % ext)
-    group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
-                       action='append', help=__('enable arbitrary extensions'))
+        group = parser.add_argument_group(__('Structure options'))
+        group.add_argument('--sep', action='store_true', default=None,
+                           help=__('if specified, separate source and build dirs'))
+        group.add_argument('--dot', metavar='DOT', default='_',
+                           help=__('replacement for dot in _templates etc.'))
 
-    group = parser.add_argument_group(__('Makefile and Batchfile creation'))
-    group.add_argument('--makefile', action='store_true', dest='makefile', default=True,
-                       help=__('create makefile'))
-    group.add_argument('--no-makefile', action='store_false', dest='makefile',
-                       help=__('do not create makefile'))
-    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=True,
-                       help=__('create batchfile'))
-    group.add_argument('--no-batchfile', action='store_false',
-                       dest='batchfile',
-                       help=__('do not create batchfile'))
-    group.add_argument('-m', '--use-make-mode', action='store_true',
-                       dest='make_mode', default=True,
-                       help=__('use make-mode for Makefile/make.bat'))
-    group.add_argument('-M', '--no-use-make-mode', action='store_false',
-                       dest='make_mode',
-                       help=__('do not use make-mode for Makefile/make.bat'))
+        group = parser.add_argument_group(__('Project basic options'))
+        group.add_argument('-p', '--project', metavar='PROJECT', dest='project',
+                           help=__('project name'))
+        group.add_argument('-a', '--author', metavar='AUTHOR', dest='author',
+                           help=__('author names'))
+        group.add_argument('-v', metavar='VERSION', dest='version', default='',
+                           help=__('version of project'))
+        group.add_argument('-r', '--release', metavar='RELEASE', dest='release',
+                           help=__('release of project'))
+        group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
+                           help=__('document language'))
+        group.add_argument('--suffix', metavar='SUFFIX', default='.rst',
+                           help=__('source file suffix'))
+        group.add_argument('--master', metavar='MASTER', default='index',
+                           help=__('master document name'))
+        group.add_argument('--epub', action='store_true', default=False,
+                           help=__('use epub'))
 
-    group = parser.add_argument_group(__('Project templating'))
-    group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
-                       dest='templatedir',
-                       help=__('template directory for template files'))
-    group.add_argument('-d', metavar='NAME=VALUE', action='append',
-                       dest='variables',
-                       help=__('define a template variable'))
+        group = parser.add_argument_group(__('Extension options'))
+        for ext in EXTENSIONS:
+            group.add_argument('--ext-%s' % ext, action='append_const',
+                               const='sphinx.ext.%s' % ext, dest='extensions',
+                               help=__('enable %s extension') % ext)
+        group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
+                           action='append', help=__('enable arbitrary extensions'))
 
-    return parser
+        group = parser.add_argument_group(__('Makefile and Batchfile creation'))
+        group.add_argument('--makefile', action='store_true', dest='makefile', default=True,
+                           help=__('create makefile'))
+        group.add_argument('--no-makefile', action='store_false', dest='makefile',
+                           help=__('do not create makefile'))
+        group.add_argument('--batchfile', action='store_true', dest='batchfile', default=True,
+                           help=__('create batchfile'))
+        group.add_argument('--no-batchfile', action='store_false',
+                           dest='batchfile',
+                           help=__('do not create batchfile'))
+        group.add_argument('-m', '--use-make-mode', action='store_true',
+                           dest='make_mode', default=True,
+                           help=__('use make-mode for Makefile/make.bat'))
+        group.add_argument('-M', '--no-use-make-mode', action='store_false',
+                           dest='make_mode',
+                           help=__('do not use make-mode for Makefile/make.bat'))
 
+        group = parser.add_argument_group(__('Project templating'))
+        group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
+                           dest='templatedir',
+                           help=__('template directory for template files'))
+        group.add_argument('-d', metavar='NAME=VALUE', action='append',
+                           dest='variables',
+                           help=__('define a template variable'))
 
-def run(args: argparse.Namespace):
-    d = vars(args)
-    # delete None or False value
-    d = {k: v for k, v in d.items() if v is not None}
+        return parser
 
-    # handle use of CSV-style extension values
-    d.setdefault('extensions', [])
-    for ext in d['extensions'][:]:
-        if ',' in ext:
-            d['extensions'].remove(ext)
-            d['extensions'].extend(ext.split(','))
+    @staticmethod
+    def _run(args: argparse.Namespace) -> int:
 
-    try:
-        if 'quiet' in d:
-            if not {'project', 'author'}.issubset(d):
-                print(__('"quiet" is specified, but any of "project" or '
-                         '"author" is not specified.'))
-                return 1
+        # TODO(stephenfin): Fold this into 'run' once we remove the old
+        # 'sphinx-quickstart' binary
 
-        if {'quiet', 'project', 'author'}.issubset(d):
-            # quiet mode with all required params satisfied, use default
-            d.setdefault('version', '')
-            d.setdefault('release', d['version'])
-            d2 = DEFAULTS.copy()
-            d2.update(d)
-            d = d2
+        d = vars(args)
+        # delete None or False value
+        d = {k: v for k, v in d.items() if v is not None}
 
-            if not valid_dir(d):
-                print()
-                print(bold(__('Error: specified path is not a directory, or sphinx'
-                              ' files already exist.')))
-                print(__('sphinx-quickstart only generate into a empty directory.'
-                         ' Please specify a new root path.'))
-                return 1
-        else:
-            ask_user(d)
-    except (KeyboardInterrupt, EOFError):
-        print()
-        print('[Interrupted.]')
-        return 130  # 128 + SIGINT
-
-    for variable in d.get('variables', []):
         try:
-            name, value = variable.split('=')
-            d[name] = value
-        except ValueError:
-            print(__('Invalid template variable: %s') % variable)
+            if 'quiet' in d:
+                if not {'project', 'author'}.issubset(d):
+                    print(__('"quiet" is specified, but any of "project" or '
+                             '"author" is not specified.'))
+                    return 1
 
-    generate(d, overwrite=False, templatedir=args.templatedir)
-    return 0
+            if {'quiet', 'project', 'author'}.issubset(d):
+                # quiet mode with all required params satisfied, use default
+                d.setdefault('version', '')
+                d.setdefault('release', d['version'])
+                d2 = DEFAULTS.copy()
+                d2.update(d)
+                d = d2
+
+                if not valid_dir(d):
+                    print()
+                    print(bold(__('Error: specified path is not a directory, or sphinx'
+                                  ' files already exist.')))
+                    print(__('sphinx-quickstart only generate into a empty directory.'
+                             ' Please specify a new root path.'))
+                    return 1
+            else:
+                ask_user(d)
+        except (KeyboardInterrupt, EOFError):
+            print()
+            print('[Interrupted.]')
+            return 130  # 128 + SIGINT
+
+        # handle use of CSV-style extension values
+        d.setdefault('extensions', [])
+        for ext in d['extensions'][:]:
+            if ',' in ext:
+                d['extensions'].remove(ext)
+                d['extensions'].extend(ext.split(','))
+
+        for variable in d.get('variables', []):
+            try:
+                name, value = variable.split('=')
+                d[name] = value
+            except ValueError:
+                print(__('Invalid template variable: %s') % variable)
+
+        generate(d, overwrite=False, templatedir=args.templatedir)
+        return 0
+
+    def add_parser(self, parser):
+        return self._add_parser(parser)
+
+    def run(self, args):
+        return self._run(args)
 
 
 def main(argv: List[str] = sys.argv[1:]) -> int:
@@ -606,14 +614,21 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
     if not color_terminal():
         nocolor()
 
-    # parse options
-    parser = get_parser()
+    desc = re.sub(r'(sphinx) (\w+)', r'\1-\2', InitCommand.__doc__)
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
+        epilog='For more information, visit <http://sphinx-doc.org/>.',
+        description=desc)
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
+    parser = InitCommand._add_parser(parser)
+
     try:
         args = parser.parse_args(argv)
     except SystemExit as err:
         return err.code
 
-    return run(args)
+    return InitCommand._run(args)
 
 
 if __name__ == '__main__':
