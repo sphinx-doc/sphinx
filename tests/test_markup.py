@@ -133,7 +133,7 @@ def get_verifier(verify, verify_re):
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
         r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
@@ -141,7 +141,7 @@ def get_verifier(verify, verify_re):
         # correct interpretation of code with whitespace
         'verify_re',
         ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
         r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
@@ -149,7 +149,8 @@ def get_verifier(verify, verify_re):
         # interpolation of braces in samp and file roles (HTML only)
         'verify',
         ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal"><span class="pre">a</span>'
+        ('<p><code class="samp docutils literal notranslate">'
+         '<span class="pre">a</span>'
          '<em><span class="pre">b</span></em>'
          '<span class="pre">c</span></code></p>'),
         '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
@@ -173,7 +174,7 @@ def get_verifier(verify, verify_re):
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
-        ('<p><code( class="xref std std-option docutils literal")?>'
+        ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
         r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
     ),
@@ -188,7 +189,7 @@ def get_verifier(verify, verify_re):
         # ... but not in literal text
         'verify',
         '``"John"``',
-        ('<p><code class="docutils literal"><span class="pre">'
+        ('<p><code class="docutils literal notranslate"><span class="pre">'
          '&quot;John&quot;</span></code></p>'),
         '\\sphinxcode{\\sphinxupquote{"John"}}',
     ),
