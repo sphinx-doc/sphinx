@@ -1403,12 +1403,9 @@
 %
 \newcommand{\py@release}{\releasename\space\version}
 \newcommand{\version}{}% part of \py@release, used by title page and headers
-% these two are not used and not documented:
-\newcommand{\shortversion}{}
-\newcommand{\setshortversion}[1]{\renewcommand{\shortversion}{#1}}
-% this one is not documented, but used in sphinxmanual.cls and sphinxhowto.cls
+% \releaseinfo is used on titlepage (sphinxmanual.cls, sphinxhowto.cls)
 \newcommand{\releaseinfo}{}
-\newcommand{\setreleaseinfo}[1]{\renewcommand{\releaseinfo}{#1}}% not used
+\newcommand{\setreleaseinfo}[1]{\renewcommand{\releaseinfo}{#1}}
 % this is inserted via template and #1=release config variable
 \newcommand{\release}[1]{\renewcommand{\version}{#1}}
 % this is defined by template to 'releasename' latex_elements key

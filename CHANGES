@@ -95,6 +95,8 @@ Features removed
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
 * LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
 * C++, support of function concepts. Thanks to mickk-on-cpp.
+* Not used and previously not documented LaTeX macros ``\shortversion``
+  and ``\setshortversion``
 
 
 Bugs fixed
