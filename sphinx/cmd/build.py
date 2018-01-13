@@ -9,12 +9,13 @@
 """
 
 import argparse
+import copy
 import locale
 import multiprocessing
 import os
 import sys
 import traceback
-from typing import Any, IO, List
+from typing import Any, IO, List, Union
 
 from docutils.utils import SystemMessage
 
@@ -101,6 +102,39 @@ def exists_path(path: str) -> str:
     return path
 
 
+def html_override(value: str) -> str:
+    return '.'.join(['html_context', value])
+
+
+class CSVAppendAction(argparse.Action):
+    """Split a CSV option and append it to a list."""
+
+    @staticmethod
+    def _decode(value: str) -> Union[str, int]:
+        """Attempt to evaluate the correct type."""
+        try:
+            return int(value)
+        except ValueError:
+            return value
+
+    def __call__(self, parser: argparse.ArgumentParser,
+                 namespace: argparse.Namespace, values: Any,
+                 option_string: Any = None) -> None:
+        try:
+            key, val = values.split('=', 1)
+        except ValueError:
+            parser.error(__(
+                '%s option argument must be in the form name=value' % option_string))
+
+        # ensure the value actually exists first
+        if not hasattr(namespace, self.dest):
+            setattr(namespace, self.dest, {})
+
+        items = copy.copy(getattr(namespace, self.dest))
+        items[key] = val
+        setattr(namespace, self.dest, items)
+
+
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
@@ -155,11 +189,11 @@ files can be built by specifying individual filenames.
                                'located (default: same as SOURCEDIR)'))
     group.add_argument('-C', action='store_true', dest='noconfig',
                        help=__('use no config file at all, only -D options'))
-    group.add_argument('-D', metavar='setting=value', action='append',
-                       dest='define', default=[],
+    group.add_argument('-D', metavar='setting=value', action=CSVAppendAction,
+                       dest='confoverrides', default={},
                        help=__('override a setting in configuration file'))
-    group.add_argument('-A', metavar='name=value', action='append',
-                       dest='htmldefine', default=[],
+    group.add_argument('-A', metavar='name=value', action=CSVAppendAction,
+                       type=html_override, dest='confoverrides', default={},
                        help=__('pass a value into HTML templates'))
     group.add_argument('-t', metavar='TAG', action='append',
                        dest='tags', default=[],
@@ -237,35 +271,16 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         warning = Tee(warning, args.warnfile)  # type: ignore
         error = warning
 
-    confoverrides = {}
-    for val in args.define:
-        try:
-            key, val = val.split('=', 1)
-        except ValueError:
-            parser.error(__('-D option argument must be in the form name=value'))
-        confoverrides[key] = val
-
-    for val in args.htmldefine:
-        try:
-            key, val = val.split('=')
-        except ValueError:
-            parser.error(__('-A option argument must be in the form name=value'))
-        try:
-            val = int(val)
-        except ValueError:
-            pass
-        confoverrides['html_context.%s' % key] = val
-
     if args.nitpicky:
-        confoverrides['nitpicky'] = True
+        args.confoverrides['nitpicky'] = True
 
     app = None
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, confoverrides, status,
-                         warning, args.freshenv, args.warningiserror,
+                         args.doctreedir, args.builder, args.confoverrides,
+                         status, warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going)
             app.build(args.force_all, args.filenames)
             return app.statuscode
