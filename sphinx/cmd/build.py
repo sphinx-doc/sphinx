@@ -94,6 +94,13 @@ def jobs_argument(value: str) -> int:
             return jobs
 
 
+def exists_path(path: str) -> str:
+    """Validate that file path is a valid one."""
+    if not os.path.exists(path):
+        raise argparse.ArgumentTypeError("{0} does not exist".format(path))
+    return path
+
+
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
@@ -122,7 +129,7 @@ files can be built by specifying individual filenames.
                         help=__('path to documentation source files'))
     parser.add_argument('outputdir',
                         help=__('path to output directory'))
-    parser.add_argument('filenames', nargs='*',
+    parser.add_argument('filenames', nargs='*', type=exists_path,
                         help=__('a list of specific files to rebuild. Ignored '
                                 'if -a is specified'))
 
@@ -210,16 +217,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
     if not args.doctreedir:
         args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
-    # handle remaining filename arguments
-    filenames = args.filenames
-    missing_files = []
-    for filename in filenames:
-        if not os.path.isfile(filename):
-            missing_files.append(filename)
-    if missing_files:
-        parser.error(__('cannot find files %r') % missing_files)
-
-    if args.force_all and filenames:
+    if args.force_all and args.filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
@@ -269,7 +267,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
                          args.tags, args.verbosity, args.jobs, args.keep_going)
-            app.build(args.force_all, filenames)
+            app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
