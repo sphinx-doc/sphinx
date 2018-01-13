@@ -35,6 +35,8 @@ class XMLBuilder(Builder):
     """
     name = 'xml'
     format = 'xml'
+    epilog = 'The XML files are in %(outdir)s.'
+
     out_suffix = '.xml'
     allow_parallel = True
 
@@ -108,6 +110,8 @@ class PseudoXMLBuilder(XMLBuilder):
     """
     name = 'pseudoxml'
     format = 'pseudoxml'
+    epilog = 'The pseudo-XML files are in %(outdir)s.'
+
     out_suffix = '.pseudoxml'
 
     _writer_class = PseudoXMLWriter

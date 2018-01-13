@@ -63,6 +63,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     an epub file.
     """
     name = 'epub'
+    epilog = 'The ePub file is in %(outdir)s.'
 
     supported_remote_images = False
     template_dir = path.join(package_dir, 'templates', 'epub3')

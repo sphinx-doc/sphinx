@@ -214,6 +214,7 @@ class MessageCatalogBuilder(I18nBuilder):
     Builds gettext-style message catalogs (.pot files).
     """
     name = 'gettext'
+    epilog = 'The message catalogs are in %(outdir)s.'
 
     def init(self):
         # type: () -> None

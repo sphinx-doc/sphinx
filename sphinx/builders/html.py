@@ -153,6 +153,8 @@ class StandaloneHTMLBuilder(Builder):
     """
     name = 'html'
     format = 'html'
+    epilog = 'The HTML pages are in %(outdir)s.'
+
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -1066,6 +1068,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     HTML page.
     """
     name = 'singlehtml'
+    epilog = 'The HTML page is in %(outdir)s.'
+
     copysource = False
 
     def get_outdated_docs(self):  # type: ignore
@@ -1328,12 +1332,14 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     """
     A Builder that dumps the generated HTML into pickle files.
     """
+    name = 'pickle'
+    epilog = 'You can now process the pickle files in %(outdir)s.'
+
     implementation = pickle
     implementation_dumps_unicode = False
     additional_dump_args = (pickle.HIGHEST_PROTOCOL,)
     indexer_format = pickle
     indexer_dumps_unicode = False
-    name = 'pickle'
     out_suffix = '.fpickle'
     globalcontext_filename = 'globalcontext.pickle'
     searchindex_filename = 'searchindex.pickle'
@@ -1347,11 +1353,13 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     """
     A builder that dumps the generated HTML into JSON files.
     """
+    name = 'json'
+    epilog = 'You can now process the JSON files in %(outdir)s.'
+
     implementation = jsonimpl
     implementation_dumps_unicode = True
     indexer_format = jsonimpl
     indexer_dumps_unicode = True
-    name = 'json'
     out_suffix = '.fjson'
     globalcontext_filename = 'globalcontext.json'
     searchindex_filename = 'searchindex.json'

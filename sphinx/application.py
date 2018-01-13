@@ -338,6 +338,13 @@ class Sphinx(object):
                                  (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
+
+            if self.statuscode == 0 and self.builder.epilog:
+                logger.info('')
+                logger.info(self.builder.epilog % {
+                    'outdir': path.relpath(self.outdir),
+                    'project': self.config.project
+                })
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)

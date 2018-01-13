@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 class TextBuilder(Builder):
     name = 'text'
     format = 'text'
+    epilog = 'The text files are in %(outdir)s.'
+
     out_suffix = '.txt'
     allow_parallel = True
     default_translator_class = TextTranslator

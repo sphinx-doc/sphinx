@@ -108,6 +108,11 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs Qt help project, contents and index files.
     """
     name = 'qthelp'
+    epilog = ('You can now run "qcollectiongenerator" with the .qhcp '
+              'project file in %(outdir)s, like this:\n'
+              '$ qcollectiongenerator %(outdir)s/%(project)s.qhcp\n'
+              'To view the help file:\n'
+              '$ assistant -collectionFile %(outdir)s/%(project)s.qhc')
 
     # don't copy the reST source
     copysource = False
