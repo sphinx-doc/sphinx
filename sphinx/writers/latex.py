@@ -549,7 +549,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
         })
-        if not self.elements['releasename']:
+        if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
                 'releasename':  _('Release'),
             })

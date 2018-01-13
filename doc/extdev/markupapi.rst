@@ -117,11 +117,29 @@ Both APIs parse the content into a given node. They are used like this::
 
    node = docutils.nodes.paragraph()
    # either
-   from sphinx.ext.autodoc import AutodocReporter
-   self.state.memo.reporter = AutodocReporter(self.result, self.state.memo.reporter)  # override reporter to avoid errors from "include" directive
    nested_parse_with_titles(self.state, self.result, node)
    # or
    self.state.nested_parse(self.result, 0, node)
+
+.. note::
+
+   ``sphinx.util.docutils.switch_source_input()`` allows to change a target file
+   during nested_parse.  It is useful to mixed contents.  For example, ``sphinx.
+   ext.autodoc`` uses it to parse docstrings::
+
+       from sphinx.util.docutils import switch_source_input
+
+       # Switch source_input between parsing content.
+       # Inside this context, all parsing errors and warnings are reported as
+       # happened in new source_input (in this case, ``self.result``).
+       with switch_source_input(self.state, self.result):
+           node = docutils.nodes.paragraph()
+           self.state.nested_parse(self.result, 0, node)
+
+   .. deprecated:: 1.7
+
+      Until Sphinx-1.6, ``sphinx.ext.autodoc.AutodocReporter`` is used for this purpose.
+      For now, it is replaced by ``switch_source_input()``.
 
 If you don't need the wrapping node, you can use any concrete node type and
 return ``node.children`` from the Directive.

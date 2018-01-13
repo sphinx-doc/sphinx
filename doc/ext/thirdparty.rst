@@ -6,7 +6,7 @@ repository.  It is open for anyone who wants to maintain an extension
 publicly; just send a short message asking for write permissions.
 
 There are also several extensions hosted elsewhere.  The `Sphinx extension
-survey <http://sphinxext-survey.readthedocs.org/en/latest/>`__ contains a
+survey <https://sphinxext-survey.readthedocs.io/>`__ contains a
 comprehensive list.
 
 If you write an extension that you think others will find useful or you think
