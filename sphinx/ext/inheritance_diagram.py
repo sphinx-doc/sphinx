@@ -32,7 +32,7 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -130,8 +130,8 @@ class InheritanceGraph(object):
     graphviz dot graph from them.
     """
     def __init__(self, class_names, currmodule, show_builtins=False,
-                 private_bases=False, parts=0, aliases=None):
-        # type: (unicode, str, bool, bool, int, Optional[Dict[unicode, unicode]]) -> None
+                 private_bases=False, parts=0, aliases=None, top_classes=[]):
+        # type: (unicode, str, bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> None  # NOQA
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -140,7 +140,7 @@ class InheritanceGraph(object):
         self.class_names = class_names
         classes = self._import_classes(class_names, currmodule)
         self.class_info = self._class_info(classes, show_builtins,
-                                           private_bases, parts, aliases)
+                                           private_bases, parts, aliases, top_classes)
         if not self.class_info:
             raise InheritanceException('No classes found for '
                                        'inheritance diagram')
@@ -153,13 +153,16 @@ class InheritanceGraph(object):
             classes.extend(import_classes(name, currmodule))
         return classes
 
-    def _class_info(self, classes, show_builtins, private_bases, parts, aliases):
-        # type: (List[Any], bool, bool, int, Optional[Dict[unicode, unicode]]) -> List[Tuple[unicode, unicode, List[unicode], unicode]]  # NOQA
+    def _class_info(self, classes, show_builtins, private_bases, parts, aliases, top_classes):
+        # type: (List[Any], bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> List[Tuple[unicode, unicode, List[unicode], unicode]]  # NOQA
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
         *parts* gives the number of dotted name parts that is removed from the
         displayed node names.
+
+        *top_classes* gives the name(s) of the top most ancestor class to traverse
+        to. Multiple names can be specified separated by comma.
         """
         all_classes = {}
         py_builtins = vars(builtins).values()
@@ -189,6 +192,10 @@ class InheritanceGraph(object):
 
             baselist = []  # type: List[unicode]
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
+
+            if fullname in top_classes:
+                return
+
             for base in cls.__bases__:
                 if not show_builtins and base in py_builtins:
                     continue
@@ -322,6 +329,7 @@ class InheritanceDiagram(Directive):
         'parts': directives.nonnegative_int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
+        'top-classes': directives.unchanged_required,
     }
 
     def run(self):
@@ -334,6 +342,11 @@ class InheritanceDiagram(Directive):
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)
+        node['top-classes'] = []
+        for cls in self.options.get('top-classes', '').split(','):
+            cls = cls.strip()
+            if cls:
+                node['top-classes'].append(cls)
 
         # Create a graph starting with the list of classes
         try:
@@ -341,7 +354,8 @@ class InheritanceDiagram(Directive):
                 class_names, env.ref_context.get('py:module'),
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
-                aliases=env.config.inheritance_alias)
+                aliases=env.config.inheritance_alias,
+                top_classes=node['top-classes'])
         except InheritanceException as err:
             return [node.document.reporter.warning(err.args[0],
                                                    line=self.lineno)]

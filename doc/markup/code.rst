@@ -121,6 +121,8 @@ emphasize particular lines::
 .. versionchanged:: 1.3
    ``lineno-start`` has been added.
 
+.. versionchanged:: 1.6.6
+   LaTeX supports the ``emphasize-lines`` option.
 
 Includes
 ^^^^^^^^
@@ -188,8 +190,8 @@ Includes
    ``lines``, the first allowed line having by convention the line number ``1``.
 
    When lines have been selected in any of the ways described above, the
-   line numbers in ``emphasize-lines`` also refer to the selection, with the
-   first selected line having number ``1``.
+   line numbers in ``emphasize-lines`` refer to those selected lines, counted
+   consecutively starting at ``1``.
 
    When specifying particular parts of a file to display, it can be useful to
    display the original line numbers. This can be done using the

@@ -5,7 +5,7 @@
 
     Test docutils.conf support for several writers.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,7 +72,7 @@ def test_texinfo(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='docutilsconf',
                     docutilsconf='[general]\nsource_link=true\n')
-@pytest.mark.skip(sys.platform == "win32" and \
+@pytest.mark.skip(sys.platform == "win32" and
                   not (sys.version_info.major >= 3 and sys.version_info.minor >= 2),
                   reason="Python < 3.2 on Win32 doesn't handle non-ASCII paths right")
 def test_docutils_source_link_with_nonascii_file(app, status, warning):

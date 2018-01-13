@@ -42,7 +42,11 @@ sys.path.insert(0, u'{{ module_path }}')
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [{{ extensions }}]
+extensions = [
+{%- for ext in extensions %}
+    '{{ ext }}',
+{%- endfor %}
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['{{ dot }}templates']
@@ -84,9 +88,6 @@ exclude_patterns = [{{ exclude_patterns }}]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = {{ ext_todo }}
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -173,8 +174,8 @@ texinfo_documents = [
      author, '{{ project_fn }}', 'One line description of project.',
      'Miscellaneous'),
 ]
+{%- if epub %}
 
-{% if epub %}
 
 # -- Options for Epub output ----------------------------------------------
 
@@ -195,9 +196,23 @@ epub_copyright = copyright
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-{% endif %}
+{%- endif %}
+{%- if extensions %}
 
-{% if ext_intersphinx %}
+
+# -- Extension configuration ----------------------------------------------
+{%- endif %}
+{%- if 'sphinx.ext.intersphinx' in extensions %}
+
+# -- Options for intersphinx extension ------------------------------------
+
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-{% endif %}
+{%- endif %}
+{%- if 'sphinx.ext.todo' in extensions %}
+
+# -- Options for todo extension -------------------------------------------
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True
+{%- endif %}

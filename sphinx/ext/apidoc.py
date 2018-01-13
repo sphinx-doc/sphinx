@@ -11,7 +11,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     http://www.sat.qc.ca/
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,7 +27,7 @@ from fnmatch import fnmatch
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
-from sphinx.util.osutil import FileAvoidWrite, walk
+from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
 if False:
     # For type annotation
@@ -117,7 +117,11 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         text += '\n'
 
     # build a list of directories that are szvpackages (contain an INITPY file)
-    subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
+    # and also checks the INITPY file is not empty, or there are other python
+    # source files in that folder.
+    # (depending on settings - but shall_skip() takes care of that)
+    subs = [sub for sub in subs if not
+            shall_skip(path.join(root, sub, INITPY), opts)]
     # if there are some package directories, add a TOC for theses subpackages
     if subs:
         text += format_heading(2, 'Subpackages')
@@ -358,8 +362,8 @@ Note: By default this script will not overwrite already created files.""")
 
     group = parser.add_argument_group('extension options')
     for ext in EXTENSIONS:
-        group.add_argument('--ext-' + ext, action='store_true',
-                           dest='ext_' + ext, default=False,
+        group.add_argument('--ext-%s' % ext, action='append_const',
+                           const='sphinx.ext.%s' % ext, dest='extensions',
                            help='enable %s extension' % ext)
 
     return parser
@@ -382,8 +386,8 @@ def main(argv=sys.argv[1:]):
     if not path.isdir(rootpath):
         print('%s is not a directory.' % rootpath, file=sys.stderr)
         sys.exit(1)
-    if not path.isdir(args.destdir) and not args.dryrun:
-        os.makedirs(args.destdir)
+    if not args.dryrun:
+        ensuredir(args.destdir)
     excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
     modules = recurse_tree(rootpath, excludes, args)
 
@@ -408,9 +412,8 @@ def main(argv=sys.argv[1:]):
             suffix = '.' + args.suffix,
             master = 'index',
             epub = True,
-            ext_autodoc = True,
-            ext_viewcode = True,
-            ext_todo = True,
+            extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
+                          'sphinx.ext.todo'],
             makefile = True,
             batchfile = True,
             make_mode = True,
@@ -420,9 +423,8 @@ def main(argv=sys.argv[1:]):
             module_path = rootpath,
             append_syspath = args.append_syspath,
         )
-        enabled_exts = {'ext_' + ext: getattr(args, 'ext_' + ext)
-                        for ext in EXTENSIONS if getattr(args, 'ext_' + ext)}
-        d.update(enabled_exts)
+        if args.extensions:
+            d['extensions'].extend(args.extensions)
 
         if isinstance(args.header, binary_type):
             d['project'] = d['project'].decode('utf-8')

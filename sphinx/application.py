@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -19,7 +19,7 @@ import posixpath
 from os import path
 from collections import deque
 
-from six import iteritems
+from six import iteritems, itervalues
 from six.moves import cStringIO
 
 from docutils import nodes
@@ -33,14 +33,13 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
-from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util.tags import Tags
-from sphinx.util.osutil import ENOENT
+from sphinx.util.osutil import ENOENT, ensuredir
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
@@ -54,7 +53,9 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
     from sphinx.extension import Extension  # NOQA
+    from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -83,6 +84,7 @@ builtin_extensions = (
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',
+    'sphinx.io',
     'sphinx.parsers',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
@@ -119,7 +121,6 @@ class Sphinx(object):
         self.env = None                         # type: BuildEnvironment
         self.registry = SphinxComponentRegistry()
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
-        self.post_transforms = []               # type: List[Transform]
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         self.srcdir = srcdir
@@ -156,10 +157,6 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
-        if not path.isdir(outdir):
-            logger.info('making output directory...')
-            os.makedirs(outdir)
-
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
@@ -195,6 +192,10 @@ class Sphinx(object):
 
         # preload builder module (before init config values)
         self.preload_builder(buildername)
+
+        if not path.isdir(outdir):
+            logger.info('making output directory...')
+            ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
@@ -443,7 +444,6 @@ class Sphinx(object):
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
-        logger.debug('[app] adding builder: %r', builder)
         self.registry.add_builder(builder)
 
     def add_config_value(self, name, default, rebuild, types=()):
@@ -463,7 +463,6 @@ class Sphinx(object):
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.registry.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
@@ -552,39 +551,30 @@ class Sphinx(object):
 
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
-        logger.debug('[app] adding domain: %r', domain)
         self.registry.add_domain(domain)
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
-        logger.debug('[app] overriding domain: %r', domain)
         self.registry.override_domain(domain)
 
     def add_directive_to_domain(self, domain, name, obj,
                                 has_content=None, argument_spec=None, **option_spec):
         # type: (unicode, unicode, Any, bool, Any, Any) -> None
-        logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, has_content, argument_spec, option_spec))
         self.registry.add_directive_to_domain(domain, name, obj,
                                               has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
-        # type: (unicode, unicode, Any) -> None
-        logger.debug('[app] adding role to domain: %r', (domain, name, role))
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
         self.registry.add_role_to_domain(domain, name, role)
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
-        logger.debug('[app] adding index to domain: %r', (domain, index))
         self.registry.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[]):
         # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        logger.debug('[app] adding object type: %r',
-                     (directivename, rolename, indextemplate, parse_node,
-                      ref_nodeclass, objname, doc_field_types))
         self.registry.add_object_type(directivename, rolename, indextemplate, parse_node,
                                       ref_nodeclass, objname, doc_field_types)
 
@@ -601,21 +591,16 @@ class Sphinx(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
         # type: (unicode, unicode, unicode, nodes.Node, unicode) -> None
-        logger.debug('[app] adding crossref type: %r',
-                     (directivename, rolename, indextemplate, ref_nodeclass,
-                      objname))
         self.registry.add_crossref_type(directivename, rolename,
                                         indextemplate, ref_nodeclass, objname)
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding transform: %r', transform)
-        SphinxStandaloneReader.transforms.append(transform)
+        self.registry.add_transform(transform)
 
     def add_post_transform(self, transform):
         # type: (Type[Transform]) -> None
-        logger.debug('[app] adding post transform: %r', transform)
-        self.post_transforms.append(transform)
+        self.registry.add_post_transform(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None
@@ -657,15 +642,14 @@ class Sphinx(object):
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext import autodoc
-        autodoc.add_documenter(cls)
-        self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
+        from sphinx.ext.autodoc.directive import AutodocDirective
+        self.registry.add_documenter(cls.objtype, cls)
+        self.add_directive('auto' + cls.objtype, AutodocDirective)
 
-    def add_autodoc_attrgetter(self, type, getter):
-        # type: (Any, Callable) -> None
-        logger.debug('[app] adding autodoc attrgetter: %r', (type, getter))
-        from sphinx.ext import autodoc
-        autodoc.AutoDirective._special_attrgetters[type] = getter
+    def add_autodoc_attrgetter(self, typ, getter):
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
+        self.registry.add_autodoc_attrgetter(typ, getter)
 
     def add_search_language(self, cls):
         # type: (Any) -> None
@@ -676,7 +660,6 @@ class Sphinx(object):
 
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
-        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         self.registry.add_source_parser(suffix, parser)
 
     def add_env_collector(self, collector):
@@ -688,6 +671,34 @@ class Sphinx(object):
         # type: (unicode, unicode) -> None
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
+
+    # ---- other methods -------------------------------------------------
+    def is_parallel_allowed(self, typ):
+        # type: (unicode) -> bool
+        """Check parallel processing is allowed or not.
+
+        ``typ`` is a type of processing; ``'read'`` or ``'write'``.
+        """
+        if typ == 'read':
+            attrname = 'parallel_read_safe'
+        elif typ == 'write':
+            attrname = 'parallel_write_safe'
+        else:
+            raise ValueError('parallel type %s is not supported' % typ)
+
+        for ext in itervalues(self.extensions):
+            allowed = getattr(ext, attrname, None)
+            if allowed is None:
+                logger.warning(__("the %s extension does not declare if it is safe "
+                                  "for parallel %sing, assuming it isn't - please "
+                                  "ask the extension author to check and make it "
+                                  "explicit"), ext.name, typ)
+                logger.warning('doing serial %s', typ)
+                return False
+            elif not allowed:
+                return False
+
+        return True
 
 
 class TemplateBridge(object):

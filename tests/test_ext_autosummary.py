@@ -5,7 +5,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -57,10 +57,14 @@ def test_mangle_signature():
 
 
 @pytest.mark.sphinx('dummy', **default_kw)
-def test_get_items_summary(app, status, warning):
+def test_get_items_summary(make_app, app_params):
+    import sphinx.ext.autosummary
+    import sphinx.ext.autosummary.generate
+    args, kwargs = app_params
+    app = make_app(*args, **kwargs)
+    sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
-    import sphinx.ext.autosummary
     orig_get_items = sphinx.ext.autosummary.Autosummary.get_items
 
     autosummary_items = {}
@@ -73,6 +77,10 @@ def test_get_items_summary(app, status, warning):
 
     def handler(app, what, name, obj, options, lines):
         assert isinstance(lines, list)
+
+        # ensure no docstring is processed twice:
+        assert 'THIS HAS BEEN HANDLED' not in lines
+        lines.append('THIS HAS BEEN HANDLED')
     app.connect('autodoc-process-docstring', handler)
 
     sphinx.ext.autosummary.Autosummary.get_items = new_get_items
@@ -81,7 +89,7 @@ def test_get_items_summary(app, status, warning):
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
-    html_warnings = warning.getvalue()
+    html_warnings = app._warning.getvalue()
     assert html_warnings == ''
 
     expected_values = {
@@ -163,7 +171,8 @@ def test_import_by_name():
     assert parent is sphinx.ext.autosummary
     assert modname == 'sphinx.ext.autosummary'
 
-    prefixed_name, obj, parent, modname = import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
+    prefixed_name, obj, parent, modname = \
+        import_by_name('sphinx.ext.autosummary.Autosummary.get_items')
     assert prefixed_name == 'sphinx.ext.autosummary.Autosummary.get_items'
     assert obj == sphinx.ext.autosummary.Autosummary.get_items
     assert parent is sphinx.ext.autosummary.Autosummary

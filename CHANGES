@@ -1,6 +1,11 @@
 Release 1.7 (in development)
 ============================
 
+Dependencies
+------------
+
+* Add ``packaging`` package
+
 Incompatible changes
 --------------------
 
@@ -12,12 +17,24 @@ Incompatible changes
   given directory.
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
+* #4274: sphinx-build returns 2 as an exit code on argument error
+* #4389: output directory will be created after loading extensions
+* autodoc does not generate warnings messages to the generated document even if
+  :confval:`keep_warnings` is True.  They are only emitted to stderr.
 
 Deprecated
 ----------
 
 * using a string value for :confval:`html_sidebars` is deprecated and only list
   values will be accepted at 2.0.
+* ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
+  ``sphinx.util.inspect.Signature`` instead.
+* ``sphinx.ext.autodoc.AutodocReporter`` is replaced by ``sphinx.util.docutils.
+  switch_source_input()`` and now deprecated.  It will be removed in Sphinx-2.0.
+* ``sphinx.ext.autodoc.add_documenter()`` and ``AutoDirective._register`` is now
+  deprecated.  Please use ``app.add_autodocumenter()`` instead.
+* ``AutoDirective._special_attrgetters`` is now deprecated.  Please use
+  ``app.add_autodoc_attrgetter()`` instead.
 
 Features added
 --------------
@@ -25,7 +42,8 @@ Features added
 * C++, handle ``decltype(auto)``.
 * #2406: C++, add proper parsing of expressions, including linking of identifiers.
 * C++, add a ``cpp:expr`` role for inserting inline C++ expressions or types.
-* #4094: C++, allow empty template argument lists.
+* C++, support explicit member instantiations with shorthand ``template`` prefix.
+* C++, make function parameters linkable, like template params.
 * #3638: Allow to change a label of reference to equation using
   ``math_eqref_format``
 
@@ -45,7 +63,18 @@ Features added
 * HTML themes can set up default sidebars through ``theme.conf``
 * #3160: html: Use ``<kdb>`` to represent ``:kbd:`` role
 * #4212: autosummary: catch all exceptions when importing modules
-
+* #4166: Add :confval:`math_numfig` for equation numbering by section (refs:
+  #3991, #4080). Thanks to Oliver Jahn.
+* #4311: Let LaTeX obey :confval:`numfig_secnum_depth` for figures, tables, and
+  code-blocks
+* #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
+* #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
+* #4093: sphinx-build creates empty directories for unknown targets/builders
+* Add ``top-classes`` option for the ``sphinx.ext.inheritance_diagram``
+  extension to limit the scope of inheritance graphs.
+* #4183: doctest: ``:pyversion:`` option also follows PEP-440 specification
+* #4235: html: Add :confval:`manpages_url` to make manpage roles to hyperlinks
+* #3570: autodoc: Do not display 'typing.' module for type hints
 
 Features removed
 ----------------
@@ -83,13 +112,26 @@ Bugs fixed
 
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
+* #4094: C++, allow empty template argument lists.
+* C++, also hyperlink types in the name of declarations with qualified names.
+* C++, do not add index entries for declarations inside concepts. 
+* C++, support the template disambiguator for dependent names.
+* #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
+  one of figures and tables
+* #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
+  setting
+* #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
+  to Joel Nothman.
+* #4081: Warnings and errors colored the same when building
+* latex: Do not display 'Release' label if :confval:`release` is not set
 
 Testing
 --------
 
 * Add support for docutils 0.14
+* Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
-Release 1.6.6 (in development)
+Release 1.6.7 (in development)
 ==============================
 
 Dependencies
@@ -104,17 +146,50 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6.6 (released Jan 08, 2018)
+=====================================
+
+Features added
+--------------
+
 * #4181: autodoc: Sort dictionary keys when possible
+* ``VerbatimHighlightColor`` is a new
+  :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
+* Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
+* Add :confval:`smartquotes` to disable smart quotes through ``conf.py``
+  (refs: #3967)
+* Add :confval:`smartquotes_action` and :confval:`smartquotes_excludes`
+  (refs: #4142, #4357)
 
 Bugs fixed
 ----------
 
+* #4334: sphinx-apidoc: Don't generate references to non-existing files in TOC
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
+* #4221: napoleon depends on autodoc, but users need to load it manually
 * #2298: automodule fails to document a class attribute
-
-Testing
---------
+* #4099: C++: properly link class reference to class from inside constructor
+* #4267: PDF build broken by Unicode U+2116 NUMERO SIGN character
+* #4249: PDF output: Pygments error highlighting increases line spacing in
+  code blocks
+* #1238: Support ``:emphasize-lines:`` in PDF output
+* #4279: Sphinx crashes with pickling error when run with multiple processes and
+  remote image
+* #1421: Respect the quiet flag in sphinx-quickstart
+* #4281: Race conditions when creating output directory
+* #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
+  ``\chapter`` commands 
+* #4214: Two todolist directives break sphinx-1.6.5
+* Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Release 1.6.5 (released Oct 23, 2017)
 =====================================

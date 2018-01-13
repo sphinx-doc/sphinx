@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -50,15 +50,12 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     :rtype: docutils.nodes.document
     """
     from sphinx.io import SphinxI18nReader
-    reader = SphinxI18nReader(
-        app=app,
-        parsers=app.registry.get_source_parsers(),
-        parser_name='restructuredtext',  # default parser
-    )
+    reader = SphinxI18nReader()
     reader.set_lineno_for_reporter(source_line)
+    parser = app.registry.create_source_parser(app, '')
     doc = reader.read(
         source=StringInput(source=source, source_path=source_path),
-        parser=reader.parser,
+        parser=parser,
         settings=settings,
     )
     try:

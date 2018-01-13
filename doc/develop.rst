@@ -138,7 +138,7 @@ own extensions.
 .. _cmakedomain: https://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
 .. _GNU Make: http://www.gnu.org/software/make/
 .. _makedomain: https://bitbucket.org/klorenz/sphinxcontrib-makedomain
-.. _inlinesyntaxhighlight: http://sphinxcontrib-inlinesyntaxhighlight.readthedocs.org
+.. _inlinesyntaxhighlight: https://sphinxcontrib-inlinesyntaxhighlight.readthedocs.io/
 .. _CMake: https://cmake.org
 .. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
 .. _restbuilder: https://pypi.python.org/pypi/sphinxcontrib-restbuilder

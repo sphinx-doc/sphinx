@@ -5,7 +5,7 @@
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -53,7 +53,7 @@ VERBOSITY_MAP.update({
 COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.ERROR: 'darkred',
-    logging.WARNING: 'darkred',
+    logging.WARNING: 'red',
     logging.DEBUG: 'darkgray',
 })
 
@@ -81,6 +81,10 @@ def convert_serializable(records):
         # extract arguments to a message and clear them
         r.msg = r.getMessage()
         r.args = ()
+
+        location = getattr(r, 'location', None)
+        if isinstance(location, nodes.Node):
+            r.location = get_node_location(location)  # type: ignore
 
 
 class SphinxWarningLogRecord(logging.LogRecord):
@@ -152,8 +156,8 @@ class NewLineStreamHandlerPY2(logging.StreamHandler):
                 # remove return code forcely when nonl=True
                 self.stream = StringIO()
                 super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])  # type: ignore
-                stream.flush()  # type: ignore
+                stream.write(self.stream.getvalue()[:-1])
+                stream.flush()
             else:
                 super(NewLineStreamHandlerPY2, self).emit(record)
         finally:
@@ -415,19 +419,24 @@ class WarningLogRecordTranslator(logging.Filter):
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
-            (source, line) = get_source_line(location)
-            if source and line:
-                record.location = "%s:%s" % (source, line)
-            elif source:
-                record.location = "%s:" % source
-            elif line:
-                record.location = "<unknown>:%s" % line
-            else:
-                record.location = None
+            record.location = get_node_location(location)
         elif location and ':' not in location:
             record.location = '%s' % self.app.env.doc2path(location)
 
         return True
+
+
+def get_node_location(node):
+    # type: (nodes.Node) -> str
+    (source, line) = get_source_line(node)
+    if source and line:
+        return "%s:%s" % (source, line)
+    elif source:
+        return "%s:" % source
+    elif line:
+        return "<unknown>:%s" % line
+    else:
+        return None
 
 
 class ColorizeFormatter(logging.Formatter):

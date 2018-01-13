@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,6 @@ from itertools import cycle, chain
 
 from six import PY3
 
-from sphinx import __display_version__
 from sphinx.util.inventory import InventoryFile
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
@@ -126,24 +125,6 @@ def check_xpath(etree, fname, path, check, be_found=True):
                                               [node.text for node in nodes]))
 
 
-def check_static_entries(outdir):
-    staticdir = outdir / '_static'
-    assert staticdir.isdir()
-    # a file from a directory entry in html_static_path
-    assert (staticdir / 'README').isfile()
-    # a directory from a directory entry in html_static_path
-    assert (staticdir / 'subdir' / 'foo.css').isfile()
-    # a file from a file entry in html_static_path
-    assert (staticdir / 'templated.css').isfile()
-    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
-    # a file from _static, but matches exclude_patterns
-    assert not (staticdir / 'excluded.css').exists()
-
-
-def check_extra_entries(outdir):
-    assert (outdir / 'robots.txt').isfile()
-
-
 @pytest.mark.sphinx('html', testroot='warnings')
 def test_html_warnings(app, warning):
     app.build()
@@ -154,15 +135,6 @@ def test_html_warnings(app, warning):
         'Warnings don\'t match:\n' + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
-
-
-@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
-    'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
-def test_static_output(app):
-    app.build()
-    check_static_entries(app.builder.outdir)
-    check_extra_entries(app.builder.outdir)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -209,8 +181,8 @@ def test_static_output(app):
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -377,7 +349,6 @@ def test_static_output(app):
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),
         (".//td[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -409,9 +380,6 @@ def test_static_output(app):
         (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
-    ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
     ],
     'genindex.html': [
         # index entries
@@ -1145,16 +1113,28 @@ def test_html_assets(app):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
-@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
+def test_html_copy_source(app):
+    app.builder.build_all()
+    assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
     app.builder.build_all()
-    content_otherext = (app.outdir / 'otherext.html').text()
-    content_images = (app.outdir / 'images.html').text()
+    assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
-    assert '<a href="_sources/otherext.foo"' in content_otherext
-    assert '<a href="_sources/images.txt"' in content_images
-    assert (app.outdir / '_sources' / 'otherext.foo').exists()
-    assert (app.outdir / '_sources' / 'images.txt').exists()
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
+def test_html_sourcelink_suffix_same(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix_empty(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
@@ -1263,3 +1243,16 @@ def test_html_sidebar(app, status, warning):
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' not in result
+
+
+@pytest.mark.parametrize('fname,expect', flat_dict({
+    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
+                   (".//em/a[@href='https://example.com/ls.1']", "", True),
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+    }))
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)

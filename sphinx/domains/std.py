@@ -5,7 +5,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -959,12 +959,18 @@ class StandardDomain(Domain):
 
     def get_full_qualified_name(self, node):
         # type: (nodes.Node) -> unicode
-        progname = node.get('std:program')
-        target = node.get('reftarget')
-        if progname is None or target is None:
-            return None
+        if node.get('reftype') == 'option':
+            progname = node.get('std:program')
+            command = ws_re.split(node.get('reftarget'))
+            if progname:
+                command.insert(0, progname)
+            option = command.pop()
+            if command:
+                return '.'.join(['-'.join(command), option])
+            else:
+                return None
         else:
-            return '.'.join([progname, target])
+            return None
 
 
 def setup(app):
