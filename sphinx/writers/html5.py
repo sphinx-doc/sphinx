@@ -49,6 +49,7 @@ class HTML5Translator(BaseTranslator):
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
         self.docnames = [builder.current_docname]  # for singlehtml builder
+        self.manpages_url = builder.config.manpages_url
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -758,9 +759,14 @@ class HTML5Translator(BaseTranslator):
     def visit_manpage(self, node):
         # type: (nodes.Node) -> None
         self.visit_literal_emphasis(node)
+        if self.manpages_url:
+            node['refuri'] = self.manpages_url.format(**dict(node))
+            self.visit_reference(node)
 
     def depart_manpage(self, node):
         # type: (nodes.Node) -> None
+        if self.manpages_url:
+            self.depart_reference(node)
         self.depart_literal_emphasis(node)
 
     # overwritten to add even/odd classes

@@ -1243,3 +1243,16 @@ def test_html_sidebar(app, status, warning):
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' not in result
+
+
+@pytest.mark.parametrize('fname,expect', flat_dict({
+    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
+                   (".//em/a[@href='https://example.com/ls.1']", "", True),
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+    }))
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
