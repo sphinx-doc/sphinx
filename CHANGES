@@ -78,6 +78,7 @@ Features added
 * #3570: autodoc: Do not display 'typing.' module for type hints
 * #4354: sphinx-build now emits finish message.  Builders can modify it through
   ``Builder.epilog`` attribute
+* #4245: html themes: Add ``language`` to javascript vars list
 
 Features removed
 ----------------
