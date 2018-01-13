@@ -65,6 +65,8 @@ Features added
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
 * #4093: sphinx-build creates empty directories for unknown targets/builders
+* Add ``top-classes`` option for the ``sphinx.ext.inheritance_diagram``
+  extension to limit the scope of inheritance graphs.
 
 Features removed
 ----------------
@@ -119,6 +121,7 @@ Testing
 --------
 
 * Add support for docutils 0.14
+* Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
 Release 1.6.7 (in development)
 ==============================
