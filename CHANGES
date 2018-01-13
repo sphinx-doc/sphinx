@@ -75,6 +75,8 @@ Features added
 * #4183: doctest: ``:pyversion:`` option also follows PEP-440 specification
 * #4235: html: Add :confval:`manpages_url` to make manpage roles to hyperlinks
 * #3570: autodoc: Do not display 'typing.' module for type hints
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
 
 Features removed
 ----------------
