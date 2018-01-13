@@ -211,15 +211,15 @@ def test_Signature_annotations():
 
     # Generic types with concrete parameters
     sig = inspect.Signature(f1).format_args()
-    assert sig == '(x: typing.List[int]) -> typing.List[int]'
+    assert sig == '(x: List[int]) -> List[int]'
 
     # TypeVars and generic types with TypeVars
     sig = inspect.Signature(f2).format_args()
-    assert sig == '(x: typing.List[T], y: typing.List[T_co], z: T) -> typing.List[T_contra]'
+    assert sig == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
 
     # Union types
     sig = inspect.Signature(f3).format_args()
-    assert sig == '(x: typing.Union[str, numbers.Integral]) -> None'
+    assert sig == '(x: Union[str, numbers.Integral]) -> None'
 
     # Quoted annotations
     sig = inspect.Signature(f4).format_args()
@@ -239,14 +239,14 @@ def test_Signature_annotations():
 
     # Callable types
     sig = inspect.Signature(f8).format_args()
-    assert sig == '(x: typing.Callable[[int, str], int]) -> None'
+    assert sig == '(x: Callable[[int, str], int]) -> None'
 
     sig = inspect.Signature(f9).format_args()
-    assert sig == '(x: typing.Callable) -> None'
+    assert sig == '(x: Callable) -> None'
 
     # Tuple types
     sig = inspect.Signature(f10).format_args()
-    assert sig == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
+    assert sig == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
 
     # Instance annotations
     sig = inspect.Signature(f11).format_args()

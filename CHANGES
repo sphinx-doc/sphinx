@@ -67,6 +67,7 @@ Features added
 * #4093: sphinx-build creates empty directories for unknown targets/builders
 * Add ``top-classes`` option for the ``sphinx.ext.inheritance_diagram``
   extension to limit the scope of inheritance graphs.
+* #3570: autodoc: Do not display 'typing.' module for type hints
 
 Features removed
 ----------------
