@@ -74,9 +74,8 @@ It adds this directive:
 
    If you have specified a module in the inheritance diagram like this::
 
-        .. inheritance-diagram::
-            dummy.test
-            :top-classes: dummy.test.B, dummy.test.C
+        .. inheritance-diagram:: dummy.test
+           :top-classes: dummy.test.B, dummy.test.C
 
    any base classes which are ancestors to ``top-classes`` and are also defined
    in the same module will be rendered as stand alone nodes. In this example
@@ -86,11 +85,8 @@ It adds this directive:
    If you don't want class A (or any other ancestors) to be visible then specify
    only the classes you would like to generate the diagram for like this::
 
-        .. inheritance-diagram::
-            dummy.test.D
-            dummy.test.E
-            dummy.test.F
-            :top-classes: dummy.test.B, dummy.test.C
+        .. inheritance-diagram:: dummy.test.D dummy.test.E dummy.test.F
+           :top-classes: dummy.test.B, dummy.test.C
 
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
