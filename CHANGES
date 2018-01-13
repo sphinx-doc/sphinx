@@ -21,6 +21,7 @@ Incompatible changes
 * #4389: output directory will be created after loading extensions
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
+* shebang line is removed from generated conf.py
 
 Deprecated
 ----------
@@ -77,6 +78,7 @@ Features added
 * #3570: autodoc: Do not display 'typing.' module for type hints
 * #4354: sphinx-build now emits finish message.  Builders can modify it through
   ``Builder.epilog`` attribute
+* #4245: html themes: Add ``language`` to javascript vars list
 * #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
   to let Google Translate know they are not translatable
 
