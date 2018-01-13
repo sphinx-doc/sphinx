@@ -4,6 +4,85 @@ pushd %~dp0
 
 REM Command file for Sphinx documentation
 
+REM Parsing of multiple commandline options and targets
+
+REM If no arguments passed at all, skip entirely
+if "%1"=="" goto make_main
+
+setlocal
+
+rem Initialize the storage variables
+set TARGETS=,
+set OPTIONS=%*
+
+rem Skip argument parsing if no arguments passed
+if "%1"=="" ( goto arg_continue )
+
+rem Skip argument parsing if arguments start with a hyphen
+if "%OPTIONS:~,1%"=="-" ( goto arg_continue )
+
+:arg_loop
+
+rem Drop from loop if OPTIONS is empty
+if "%OPTIONS%"=="" ( goto arg_continue )
+
+rem Drop from loop if first two characters of remaining OPTIONS
+rem  are a space followed by a hyphen
+if "%OPTIONS:~,2%"==" -" ( goto arg_continue )
+
+rem Shift next character from OPTIONS to TARGETS.
+rem  If it's a space, shift it as a comma, but only if the
+rem  last character of TARGETS isn't a comma
+if "%OPTIONS:~,1%"==" " (
+    if not "%TARGETS:~-1%"=="," set TARGETS=%TARGETS%,
+    ) else (
+    set TARGETS=%TARGETS%%OPTIONS:~,1%
+    )
+
+rem Either way, strip the character from OPTIONS
+set OPTIONS=%OPTIONS:~1%
+
+rem Return to top of loop
+goto arg_loop
+
+
+:arg_continue
+rem Strip leading and trailing commas from the targets list
+rem Space is left at start of string for the zero-target invocation case
+rem  (avoids NULL variable)
+if "%TARGETS:~,1%"=="," set TARGETS= %TARGETS:~1%
+if "%TARGETS:~-1%"=="," set TARGETS=%TARGETS:~,-1%
+
+REM Check if single target; if not, loop and rerun make.bat once per target
+echo %TARGETS% | findstr "," 1>nul 2>nul
+set MULTITARGET=%ERRORLEVEL%
+if %MULTITARGET% EQU 0 (
+   REM Multiple targets; loop over targets and re-execute
+   for %%G in (%TARGETS%) DO (
+      echo.
+      echo Making target '%%G' with options '%OPTIONS%':
+      echo.
+      call make %%G %OPTIONS%
+      REM Exit if error
+      if %ERRORLEVEL% GTR 0 (
+         echo.
+         echo Make error detected. Exiting...
+         echo.
+         endlocal
+         goto end
+         )
+      )
+   REM Done once looping finished
+   endlocal
+   goto end
+   )
+
+REM Executed with single target, so fall through to main make.bat commands
+endlocal & set MAKETARGET=%TARGETS% & set MAKEOPTIONS=%OPTIONS%
+
+:make_main
+
+
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
@@ -11,7 +90,7 @@ set SOURCEDIR={{ rsrcdir }}
 set BUILDDIR={{ rbuilddir }}
 set SPHINXPROJ={{ project_fn }}
 
-if "%1" == "" goto help
+if "%MAKETARGET%" == "" goto help
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -26,12 +105,17 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+%SPHINXBUILD% -M %MAKETARGET% %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %MAKEOPTIONS%
 goto end
 
 :help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %MAKEOPTIONS%
 
 :end
 popd
+exit /b
+
+:end_error
+popd
+exit /b 1
 

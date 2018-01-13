@@ -23,3 +23,7 @@ doc/locale/
 tests/.coverage
 tests/build/
 utils/regression_test.js
+
+# Ignore any residual winmake testing directory
+tests/winmake/testdir
+
