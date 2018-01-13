@@ -444,7 +444,7 @@ class HTMLTranslator(BaseTranslator):
             location=(self.builder.current_docname, node.line), **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s' % lang)
+                                 CLASS='highlight-%s notranslate' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -494,10 +494,10 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         if 'kbd' in node['classes']:
             self.body.append(self.starttag(node, 'kbd', '',
-                                           CLASS='docutils literal'))
+                                           CLASS='docutils literal notranslate'))
         else:
             self.body.append(self.starttag(node, 'code', '',
-                                           CLASS='docutils literal'))
+                                           CLASS='docutils literal notranslate'))
             self.protect_literal_text += 1
 
     def depart_literal(self, node):

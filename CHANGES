@@ -79,6 +79,8 @@ Features added
 * #4354: sphinx-build now emits finish message.  Builders can modify it through
   ``Builder.epilog`` attribute
 * #4245: html themes: Add ``language`` to javascript vars list
+* #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
+  to let Google Translate know they are not translatable
 
 Features removed
 ----------------
