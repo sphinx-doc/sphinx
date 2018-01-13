@@ -20,7 +20,8 @@ from os import path
 import doctest
 
 from six import itervalues, StringIO, binary_type, text_type, PY2
-from distutils.version import LooseVersion
+from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.version import Version
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -57,28 +58,23 @@ else:
         return text
 
 
-def compare_version(ver1, ver2, operand):
-    # type: (unicode, unicode, unicode) -> bool
-    """Compare `ver1` to `ver2`, relying on `operand`.
+def is_allowed_version(spec, version):
+    # type: (unicode, unicode) -> bool
+    """Check `spec` satisfies `version` or not.
+
+    This obeys PEP-440 specifiers:
+    https://www.python.org/dev/peps/pep-0440/#version-specifiers
 
     Some examples:
 
-        >>> compare_version('3.3', '3.5', '<=')
+        >>> is_allowed_version('3.3', '<=3.5')
         True
-        >>> compare_version('3.3', '3.2', '<=')
+        >>> is_allowed_version('3.3', '<=3.2')
         False
-        >>> compare_version('3.3a0', '3.3', '<=')
+        >>> is_allowed_version('3.3', '>3.2, <4.0')
         True
     """
-    if operand not in ('<=', '<', '==', '>=', '>'):
-        raise ValueError("'%s' is not a valid operand.")
-    v1 = LooseVersion(ver1)
-    v2 = LooseVersion(ver2)
-    return ((operand == '<=' and (v1 <= v2)) or
-            (operand == '<' and (v1 < v2)) or
-            (operand == '==' and (v1 == v2)) or
-            (operand == '>=' and (v1 >= v2)) or
-            (operand == '>' and (v1 > v2)))
+    return Version(version) in SpecifierSet(spec)
 
 
 # set up the necessary directives
@@ -143,16 +139,13 @@ class TestDirective(Directive):
                 node['options'][flag] = (option[0] == '+')
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
-                option = self.options['pyversion']
-                # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
-                operand, option_version = [item.strip() for item in option.split()]
-                running_version = platform.python_version()
-                if not compare_version(running_version, option_version, operand):
+                spec = self.options['pyversion']
+                if not is_allowed_version(spec, platform.python_version()):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
-            except ValueError:
+            except InvalidSpecifier:
                 self.state.document.reporter.warning(
-                    _("'%s' is not a valid pyversion option") % option,
+                    _("'%s' is not a valid pyversion option") % spec,
                     line=self.lineno)
         return [node]
 
