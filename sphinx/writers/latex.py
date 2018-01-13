@@ -24,7 +24,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
@@ -1852,6 +1852,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
+
+            # emit a warning about wrapfig (refs: #3289)
+            logger.warning(__('A figure having :align: option has detected. '
+                              'LaTeX might not layout it well. Please check generated PDF.'),
+                           location=node, type='latex', subtype='wrapfig')
         elif self.in_minipage:
             if ('align' not in node.attributes or
                     node.attributes['align'] == 'center'):

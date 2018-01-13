@@ -22,6 +22,8 @@ Incompatible changes
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
 * shebang line is removed from generated conf.py
+* #3289: latex: Emit warnings if the document contains aligned figures because
+  it might not be layouted well by wrapfig-macro's limitation
 
 Deprecated
 ----------
