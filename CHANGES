@@ -21,6 +21,7 @@ Incompatible changes
 * #4389: output directory will be created after loading extensions
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
+* shebang line is removed from generated conf.py
 
 Deprecated
 ----------
