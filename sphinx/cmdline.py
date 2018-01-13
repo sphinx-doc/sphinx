@@ -85,7 +85,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
 
 
 def jobs_argument(value):
-    # type (int, str) -> int
+    # type: (str) -> int
     """
     Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
     be expanded to handle other special scaling requests, such as setting job count
@@ -94,7 +94,7 @@ def jobs_argument(value):
     if value == 'auto':
         return multiprocessing.cpu_count()
     else:
-        return value
+        return int(value)
 
 
 def get_parser():
