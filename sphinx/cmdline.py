@@ -11,9 +11,9 @@
 from __future__ import print_function
 
 import argparse
+import os
 import sys
 import traceback
-from os import path
 
 from docutils.utils import SystemMessage
 from six import text_type, binary_type
@@ -24,7 +24,6 @@ from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
 if False:
@@ -184,31 +183,19 @@ def main(argv=sys.argv[1:]):  # type: ignore
     parser = get_parser()
     args = parser.parse_args(argv)
 
-    # get paths (first and second positional argument)
-    try:
-        srcdir = abspath(args.sourcedir)
-        confdir = abspath(args.confdir or srcdir)
-        if args.noconfig:
-            confdir = None
+    if args.noconfig:
+        args.confdir = None
+    elif not args.confdir:
+        args.confdir = args.sourcedir
 
-        if not path.isdir(srcdir):
-            parser.error('cannot find source directory (%s)' % srcdir)
-        if not args.noconfig and not path.isfile(path.join(confdir, 'conf.py')):
-            parser.error("config directory doesn't contain a conf.py file "
-                         "(%s)" % confdir)
-
-        outdir = abspath(args.outputdir)
-        if srcdir == outdir:
-            parser.error('source directory and destination directory are same')
-    except UnicodeError:
-        parser.error('multibyte filename not supported on this filesystem '
-                     'encoding (%r)' % fs_encoding)
+    if not args.doctreedir:
+        args.doctreedir = os.path.join(args.sourcedir, '.doctrees')
 
     # handle remaining filename arguments
     filenames = args.filenames
     missing_files = []
     for filename in filenames:
-        if not path.isfile(filename):
+        if not os.path.isfile(filename):
             missing_files.append(filename)
     if missing_files:
         parser.error('cannot find files %r' % missing_files)
@@ -225,8 +212,6 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
-
-    doctreedir = abspath(args.doctreedir or path.join(outdir, '.doctrees'))
 
     status = sys.stdout
     warning = sys.stderr
@@ -281,9 +266,10 @@ def main(argv=sys.argv[1:]):  # type: ignore
     app = None
     try:
         with patch_docutils(), docutils_namespace():
-            app = Sphinx(srcdir, confdir, outdir, doctreedir, args.builder,
-                         confoverrides, status, warning, args.freshenv,
-                         args.warningiserror, args.tags, args.verbosity, args.jobs)
+            app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
+                         args.doctreedir, args.builder, confoverrides, status,
+                         warning, args.freshenv, args.warningiserror,
+                         args.tags, args.verbosity, args.jobs)
             app.build(args.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

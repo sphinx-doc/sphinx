@@ -28,6 +28,11 @@ class SphinxWarning(SphinxError):
     category = 'Warning, treated as error'
 
 
+class ApplicationError(SphinxError):
+    """Application initialization error."""
+    category = 'Application error'
+
+
 class ExtensionError(SphinxError):
     """Raised if something's wrong with the configuration."""
     category = 'Extension error'
