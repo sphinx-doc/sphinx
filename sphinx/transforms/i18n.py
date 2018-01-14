@@ -50,7 +50,7 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     :rtype: docutils.nodes.document
     """
     from sphinx.io import SphinxI18nReader
-    reader = SphinxI18nReader()
+    reader = SphinxI18nReader(app)
     reader.set_lineno_for_reporter(source_line)
     parser = app.registry.create_source_parser(app, '')
     doc = reader.read(
