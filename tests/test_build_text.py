@@ -63,7 +63,7 @@ def test_lineblock(app, status, warning):
 def test_nonascii_title_line(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'nonascii_title.txt').text(encoding='utf-8')
-    expect_underline = '******'
+    expect_underline = '*********'
     result_underline = result.splitlines()[1].strip()
     assert expect_underline == result_underline
 
@@ -117,32 +117,6 @@ def test_secnums(app, status, warning):
     app.builder.build_all()
     contents = (app.outdir / 'contents.txt').text(encoding='utf8')
     lines = contents.splitlines()
-    assert lines[0] == "* Section A"
-    assert lines[1] == ""
-    assert lines[2] == "* Section B"
-    assert lines[3] == ""
-    assert lines[4] == "  * Sub Ba"
-    assert lines[5] == ""
-    assert lines[6] == "  * Sub Bb"
-    doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
-    expect = (
-        "Section B\n"
-        "*********\n"
-        "\n"
-        "\n"
-        "Sub Ba\n"
-        "======\n"
-        "\n"
-        "\n"
-        "Sub Bb\n"
-        "======\n"
-    )
-    assert doc2 == expect
-
-    app.config.text_add_secnumbers = True
-    app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
     assert lines[0] == "* 1. Section A"
     assert lines[1] == ""
     assert lines[2] == "* 2. Section B"
@@ -191,3 +165,28 @@ def test_secnums(app, status, warning):
     )
     assert doc2 == expect
 
+    app.config.text_add_secnumbers = False
+    app.builder.build_all()
+    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
+    lines = contents.splitlines()
+    assert lines[0] == "* Section A"
+    assert lines[1] == ""
+    assert lines[2] == "* Section B"
+    assert lines[3] == ""
+    assert lines[4] == "  * Sub Ba"
+    assert lines[5] == ""
+    assert lines[6] == "  * Sub Bb"
+    doc2 = (app.outdir / 'doc2.txt').text(encoding='utf8')
+    expect = (
+        "Section B\n"
+        "*********\n"
+        "\n"
+        "\n"
+        "Sub Ba\n"
+        "======\n"
+        "\n"
+        "\n"
+        "Sub Bb\n"
+        "======\n"
+    )
+    assert doc2 == expect
