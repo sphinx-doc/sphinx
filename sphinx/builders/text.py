@@ -97,7 +97,7 @@ def setup(app):
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
     app.add_config_value('text_newlines', 'unix', 'env')
-    app.add_config_value('text_add_secnumbers', False, 'env')
+    app.add_config_value('text_add_secnumbers', True, 'env')
     app.add_config_value('text_secnumber_suffix', '. ', 'env')
 
     return {

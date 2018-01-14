@@ -2042,7 +2042,7 @@ These options influence text output.
 .. confval:: text_add_secnumbers
 
    A boolean that decides whether section numbers are included in text output.
-   Default is ``False``.
+   Default is ``True``.
 
    .. versionadded:: 1.7
 
