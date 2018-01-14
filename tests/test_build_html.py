@@ -163,21 +163,21 @@ def test_html_warnings(app, warning):
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
-        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+        (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
-        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+        (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
          r'^    def baz\(\):\n        pass\n\s*$'),
-        (".//div[@class='inc-lines highlight-text']//pre",
+        (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
-        (".//div[@class='inc-startend highlight-text']//pre",
+        (".//div[@class='inc-startend highlight-text notranslate']//pre",
          u'^foo = "Including Unicode characters: üöä"\\n$'),
-        (".//div[@class='inc-preappend highlight-text']//pre",
+        (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
-        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+        (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
          r'def'),
-        (".//div[@class='inc-tab3 highlight-text']//pre",
+        (".//div[@class='inc-tab3 highlight-text notranslate']//pre",
          r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre/span",
+        (".//div[@class='inc-tab8 highlight-python notranslate']//pre/span",
          r'-|      |-'),
     ],
     'autodoc.html': [
@@ -1243,3 +1243,16 @@ def test_html_sidebar(app, status, warning):
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' not in result
+
+
+@pytest.mark.parametrize('fname,expect', flat_dict({
+    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
+                   (".//em/a[@href='https://example.com/ls.1']", "", True),
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+    }))
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)

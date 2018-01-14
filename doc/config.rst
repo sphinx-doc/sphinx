@@ -293,6 +293,24 @@ General configuration
 
    .. versionadded:: 1.3
 
+.. confval:: manpages_url
+
+   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   defined to ``https://manpages.debian.org/{path}``, the
+   :literal:`:manpage:`man(1)`` role will like to
+   <https://manpages.debian.org/man(1)>. The patterns available are:
+
+     * ``page`` - the manual page (``man``)
+     * ``section`` - the manual section (``1``)
+     * ``path`` - the original manual page and section specified (``man(1)``)
+
+   This also supports manpages specified as ``man.1``.
+
+   .. note:: This currently affects only HTML writers but could be
+             expanded in the future.
+
+   .. versionadded:: 1.7
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be
@@ -2020,6 +2038,20 @@ These options influence text output.
    The default is ``'*=-~"+`'``.
 
    .. versionadded:: 1.1
+
+.. confval:: text_add_secnumbers
+
+   A boolean that decides whether section numbers are included in text output.
+   Default is ``True``.
+
+   .. versionadded:: 1.7
+
+.. confval:: text_secnumber_suffix
+
+   Suffix for section numbers in text output.  Default: ``". "``. Set to ``" "``
+   to suppress the final dot on section numbers.
+
+   .. versionadded:: 1.7
 
 
 .. _man-options:

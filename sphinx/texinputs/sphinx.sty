@@ -504,7 +504,7 @@
     \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
     \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
     \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
-    \fancyhead[LE,RO]{{\py@HeaderFamily \@title, \py@release}}
+    \fancyhead[LE,RO]{{\py@HeaderFamily \@title\sphinxheadercomma\py@release}}
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
@@ -1401,18 +1401,26 @@
 % \date{}.  This allows the date to reflect the document's date and
 % release to specify the release that is documented.
 %
-\newcommand{\py@release}{}
-\newcommand{\version}{}
-\newcommand{\shortversion}{}
+\newcommand{\py@release}{\releasename\space\version}
+\newcommand{\version}{}% part of \py@release, used by title page and headers
+% \releaseinfo is used on titlepage (sphinxmanual.cls, sphinxhowto.cls)
 \newcommand{\releaseinfo}{}
-\newcommand{\releasename}{Release}
-\newcommand{\release}[1]{%
-  \renewcommand{\py@release}{\releasename\space\version}%
-  \renewcommand{\version}{#1}}
-\newcommand{\setshortversion}[1]{%
-  \renewcommand{\shortversion}{#1}}
-\newcommand{\setreleaseinfo}[1]{%
-  \renewcommand{\releaseinfo}{#1}}
+\newcommand{\setreleaseinfo}[1]{\renewcommand{\releaseinfo}{#1}}
+% this is inserted via template and #1=release config variable
+\newcommand{\release}[1]{\renewcommand{\version}{#1}}
+% this is defined by template to 'releasename' latex_elements key
+\newcommand{\releasename}{}
+% Fix issue in case release and releasename deliberately left blank
+\newcommand{\sphinxheadercomma}{, }% used in fancyhdr header definition
+\newcommand{\sphinxifemptyorblank}[1]{%
+% test after one expansion of macro #1 if contents is empty or spaces
+     \if&\expandafter\@firstofone\detokenize\expandafter{#1}&%
+     \expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}%
+\AtBeginDocument {%
+   \sphinxifemptyorblank{\releasename}
+     {\sphinxifemptyorblank{\version}{\let\sphinxheadercomma\empty}{}}
+     {}%
+}%
 
 % Allow specification of the author's address separately from the
 % author's name.  This can be used to format them differently, which

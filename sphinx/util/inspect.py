@@ -404,10 +404,18 @@ class Signature(object):
         if annotation == Ellipsis:
             return '...'
         if not isinstance(annotation, type):
-            return repr(annotation)
+            qualified_name = repr(annotation)
+            if qualified_name.startswith('typing.'):  # for typing.Union
+                return qualified_name.split('.', 1)[1]
+            else:
+                return qualified_name
 
-        qualified_name = (annotation.__module__ + '.' + annotation.__qualname__  # type: ignore
-                          if annotation else repr(annotation))
+        if not annotation:
+            qualified_name = repr(annotation)
+        elif annotation.__module__ == 'typing':
+            qualified_name = annotation.__qualname__  # type: ignore
+        else:
+            qualified_name = (annotation.__module__ + '.' + annotation.__qualname__)  # type: ignore  # NOQA
 
         if annotation.__module__ == 'builtins':
             return annotation.__qualname__  # type: ignore

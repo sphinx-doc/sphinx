@@ -165,13 +165,15 @@ def test_latex_warnings(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='basic')
-def test_latex_title(app, status, warning):
+def test_latex_basic(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\title{The basic Sphinx documentation for testing}' in result
+    assert r'\title{The basic Sphinx documentation for testing}' in result
+    assert r'\release{}' in result
+    assert r'\renewcommand{\releasename}{}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
@@ -182,6 +184,18 @@ def test_latex_title_after_admonitions(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\title{test-latex-title}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'release': '1.0'})
+def test_latex_release(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert r'\release{1.0}' in result
+    assert r'\renewcommand{\releasename}{Release}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='numfig',

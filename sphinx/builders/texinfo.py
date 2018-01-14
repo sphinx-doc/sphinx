@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 from os import path
 
 from docutils import nodes
@@ -97,6 +98,12 @@ class TexinfoBuilder(Builder):
     """
     name = 'texinfo'
     format = 'texinfo'
+    epilog = 'The Texinfo files are in %(outdir)s.'
+    if os.name == 'posix':
+        epilog += ("\nRun 'make' in that directory to run these through "
+                   "makeinfo\n"
+                   "(use 'make info' here to do that automatically).")
+
     supported_image_types = ['image/png', 'image/jpeg',
                              'image/gif']
     default_translator_class = TexinfoTranslator

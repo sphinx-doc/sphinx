@@ -43,6 +43,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs GNOME Devhelp file.
     """
     name = 'devhelp'
+    epilog = ('To view the help file:\n'
+              '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
+              '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
+              '$ devhelp')
 
     # don't copy the reST source
     copysource = False

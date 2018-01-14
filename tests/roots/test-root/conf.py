@@ -69,9 +69,10 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
 
 autodoc_mock_imports = [
     'missing_module',
-    'missing_package1.missing_module1',
-    'missing_package2.missing_module2',
-    'missing_package3.missing_module3',
+    'missing_package1',
+    'missing_package2',
+    'missing_package3',
+    'sphinx.missing_module4',
 ]
 
 # modify tags from conf.py

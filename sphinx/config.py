@@ -125,6 +125,7 @@ class Config(object):
         primary_domain = ('py', 'env', [NoneType]),
         needs_sphinx = (None, None, string_classes),
         needs_extensions = ({}, None),
+        manpages_url = (None, 'env'),
         nitpicky = (False, None),
         nitpick_ignore = ([], None),
         numfig = (False, 'env'),

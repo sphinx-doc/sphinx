@@ -236,7 +236,8 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     html = (app.outdir / 'index.html').text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
-            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            ' title="(in foo v2.0)">'
+            '<code class="xref cpp cpp-class docutils literal notranslate">'
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
