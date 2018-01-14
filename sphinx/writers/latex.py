@@ -1376,6 +1376,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table = Table(node)
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
+            if 'colwidths-given' in node.get('classes', []):
+                logger.info('both tabularcolumns and :widths: option are given. '
+                            ':widths: is ignored.', location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node):
