@@ -44,6 +44,15 @@ or use Python raw strings (``r"raw"``).
 
    Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
 
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
+
+   .. versionadded:: 1.7
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math
@@ -85,7 +94,7 @@ or use Python raw strings (``r"raw"``).
    Normally, equations are not numbered.  If you want your equation to get a
    number, use the ``label`` option.  When given, it selects an internal label
    for the equation, by which it can be cross-referenced, and causes an equation
-   number to be issued.  See :rst:role:`eqref` for an example.  The numbering
+   number to be issued.  See :rst:role:`eq` for an example.  The numbering
    style depends on the output format.
 
    There is also an option ``nowrap`` that prevents any wrapping of the given
@@ -102,8 +111,7 @@ or use Python raw strings (``r"raw"``).
 
 .. rst:role:: eq
 
-   Role for cross-referencing equations via their label.  This currently works
-   only within the same document.  Example::
+   Role for cross-referencing equations via their label.  Example::
 
       .. math:: e^{i\pi} + 1 = 0
          :label: euler

@@ -5,11 +5,12 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import traceback
 from os import path, getenv
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
@@ -35,6 +36,7 @@ copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
+CONFIG_ERROR = "There is a programable error in your configuration file:\n\n%s"
 CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
                     "called sys.exit()"
 CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
@@ -123,6 +125,7 @@ class Config(object):
         primary_domain = ('py', 'env', [NoneType]),
         needs_sphinx = (None, None, string_classes),
         needs_extensions = ({}, None),
+        manpages_url = (None, 'env'),
         nitpicky = (False, None),
         nitpick_ignore = ([], None),
         numfig = (False, 'env'),
@@ -135,6 +138,11 @@ class Config(object):
 
         tls_verify = (True, 'env'),
         tls_cacerts = (None, 'env'),
+        smartquotes = (True, 'env'),
+        smartquotes_action = ('qDe', 'env'),
+        smartquotes_excludes = ({'languages': ['ja'],
+                                 'builders': ['man', 'text']},
+                                'env'),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -155,6 +163,8 @@ class Config(object):
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
                 except SystemExit:
                     raise ConfigError(CONFIG_EXIT_ERROR)
+                except Exception:
+                    raise ConfigError(CONFIG_ERROR % traceback.format_exc())
 
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
@@ -291,7 +301,7 @@ class Config(object):
                 logger.warning("%s", exc)
         for name in config:
             if name in self.values:
-                self.__dict__[name] = config[name]
+                self.__dict__[name] = config[name]  # type: ignore
         if isinstance(self.source_suffix, string_types):  # type: ignore
             self.source_suffix = [self.source_suffix]  # type: ignore
 

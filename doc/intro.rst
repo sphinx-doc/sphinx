@@ -3,7 +3,7 @@ Introduction
 
 This is the documentation for the Sphinx documentation builder.  Sphinx is a
 tool that translates a set of reStructuredText_ source files into various output
-formats, automatically producing cross-references, indices etc.  That is, if
+formats, automatically producing cross-references, indices, etc.  That is, if
 you have a directory containing a bunch of reST-formatted documents (and
 possibly subdirectories of docs in there as well), Sphinx can generate a
 nicely-organized arrangement of HTML files (in some other directory) for easy
@@ -17,7 +17,7 @@ docs have a look at `Epydoc <http://epydoc.sourceforge.net/>`_, which also
 understands reST.
 
 For a great "introduction" to writing docs in general -- the whys and hows, see
-also `Write the docs <http://write-the-docs.readthedocs.org/>`_, written by Eric
+also `Write the docs <https://write-the-docs.readthedocs.io/>`_, written by Eric
 Holscher.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
@@ -38,7 +38,7 @@ to reStructuredText/Sphinx from other documentation systems.
   code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
-  markup; it is at `Google Code <https://github.com/wojdyr/db2rst>`_.
+  markup; it is at `GitHub <https://github.com/wojdyr/db2rst>`_.
 
 * Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
   to Sphinx: `odt2sphinx <https://pypi.python.org/pypi/odt2sphinx/>`_.

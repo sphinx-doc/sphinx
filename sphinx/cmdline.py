@@ -5,7 +5,7 @@
 
     sphinx-build command-line handling.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -182,11 +182,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
 
     parser = get_parser()
-    # parse options
-    try:
-        args = parser.parse_args(argv)
-    except SystemExit as err:
-        return err.code
+    args = parser.parse_args(argv)
 
     # get paths (first and second positional argument)
     try:
@@ -194,34 +190,28 @@ def main(argv=sys.argv[1:]):  # type: ignore
         confdir = abspath(args.confdir or srcdir)
         if args.noconfig:
             confdir = None
+
         if not path.isdir(srcdir):
-            print('Error: Cannot find source directory `%s\'.' % srcdir,
-                  file=sys.stderr)
-            return 1
+            parser.error('cannot find source directory (%s)' % srcdir)
         if not args.noconfig and not path.isfile(path.join(confdir, 'conf.py')):
-            print('Error: Config directory doesn\'t contain a conf.py file.',
-                  file=sys.stderr)
-            return 1
+            parser.error("config directory doesn't contain a conf.py file "
+                         "(%s)" % confdir)
+
         outdir = abspath(args.outputdir)
         if srcdir == outdir:
-            print('Error: source directory and destination directory are same.',
-                  file=sys.stderr)
-            return 1
+            parser.error('source directory and destination directory are same')
     except UnicodeError:
-        print(
-            'Error: Multibyte filename not supported on this filesystem '
-            'encoding (%r).' % fs_encoding, file=sys.stderr)
-        return 1
+        parser.error('multibyte filename not supported on this filesystem '
+                     'encoding (%r)' % fs_encoding)
 
     # handle remaining filename arguments
     filenames = args.filenames
-    errored = False
+    missing_files = []
     for filename in filenames:
         if not path.isfile(filename):
-            print('Error: Cannot find file %r.' % filename, file=sys.stderr)
-            errored = True
-    if errored:
-        return 1
+            missing_files.append(filename)
+    if missing_files:
+        parser.error('cannot find files %r' % missing_files)
 
     # likely encoding used for command-line arguments
     try:
@@ -231,8 +221,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
         likely_encoding = None
 
     if args.force_all and filenames:
-        print('Error: Cannot combine -a option and filenames.', file=sys.stderr)
-        return 1
+        parser.error('cannot combine -a option and filenames')
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
@@ -245,15 +234,16 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
     if args.quiet:
         status = None
+
     if args.really_quiet:
         status = warning = None
+
     if warning and args.warnfile:
         try:
             warnfp = open(args.warnfile, 'w')
         except Exception as exc:
-            print('Error: Cannot open warning file %r: %s' %
-                  (args.warnfile, exc), file=sys.stderr)
-            sys.exit(1)
+            parser.error('cannot open warning file %r: %s' % (
+                args.warnfile, exc))
         warning = Tee(warning, warnfp)  # type: ignore
         error = warning
 
@@ -262,9 +252,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
         try:
             key, val = val.split('=', 1)
         except ValueError:
-            print('Error: -D option argument must be in the form name=value.',
-                  file=sys.stderr)
-            return 1
+            parser.error('-D option argument must be in the form name=value')
         if likely_encoding and isinstance(val, binary_type):
             try:
                 val = val.decode(likely_encoding)
@@ -276,9 +264,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
         try:
             key, val = val.split('=')
         except ValueError:
-            print('Error: -A option argument must be in the form name=value.',
-                  file=sys.stderr)
-            return 1
+            parser.error('-A option argument must be in the form name=value')
         try:
             val = int(val)
         except ValueError:
@@ -302,4 +288,4 @@ def main(argv=sys.argv[1:]):  # type: ignore
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
-        return 1
+        return 2

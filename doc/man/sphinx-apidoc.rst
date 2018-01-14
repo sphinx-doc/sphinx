@@ -91,7 +91,7 @@ Options
 
    Interpret paths recursively according to PEP-0420.
 
-.. option:: -M
+.. option:: -M, --module-first
 
    Put module documentation before submodule documentation.
 
@@ -117,6 +117,14 @@ These options are used when :option:`--full` is specified:
 .. option:: -R <release>
 
    Sets the project release to put in generated files (see :confval:`release`).
+
+Environment
+-----------
+
+.. envvar:: SPHINX_APIDOC_OPTIONS
+
+   A comma-separated list of option to append to generated ``automodule``
+   directives. Defaults to ``members,undoc-members,show-inheritance``.
 
 See also
 --------

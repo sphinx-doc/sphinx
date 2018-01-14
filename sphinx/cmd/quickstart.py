@@ -5,7 +5,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import time
+from collections import OrderedDict
 from io import open
 from os import path
 
@@ -35,7 +36,7 @@ from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.console import (  # type: ignore
     purple, bold, red, turquoise, nocolor, color_terminal
 )
@@ -48,7 +49,22 @@ if False:
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
-DEFAULT_VALUE = {
+EXTENSIONS = OrderedDict([
+    ('autodoc', 'automatically insert docstrings from modules'),
+    ('doctest', 'automatically test code snippets in doctest blocks'),
+    ('intersphinx', 'link between Sphinx documentation of different projects'),
+    ('todo', 'write "todo" entries that can be shown or hidden on build'),
+    ('coverage', 'checks for documentation coverage'),
+    ('imgmath', 'include math, rendered as PNG or SVG images'),
+    ('mathjax', 'include math, rendered in the browser by MathJax'),
+    ('ifconfig', 'conditional inclusion of content based on config values'),
+    ('viewcode',
+     'include links to the source code of documented Python objects'),
+    ('githubpages',
+     'create .nojekyll file to publish the document on GitHub pages'),
+])
+
+DEFAULTS = {
     'path': '.',
     'sep': False,
     'dot': '_',
@@ -56,24 +72,11 @@ DEFAULT_VALUE = {
     'suffix': '.rst',
     'master': 'index',
     'epub': False,
-    'ext_autodoc': False,
-    'ext_doctest': False,
-    'ext_todo': False,
     'makefile': True,
     'batchfile': True,
 }
 
-EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-              'imgmath', 'mathjax', 'ifconfig', 'viewcode', 'githubpages')
-
 PROMPT_PREFIX = '> '
-
-
-def mkdir_p(dir):
-    # type: (unicode) -> None
-    if path.isdir(dir):
-        return
-    os.makedirs(dir)
 
 
 # function to get input from terminal -- overridden by the test suite
@@ -159,8 +162,8 @@ def term_decode(text):
         return text.decode('latin1')
 
 
-def do_prompt(d, key, text, default=None, validator=nonempty):
-    # type: (Dict, unicode, unicode, unicode, Callable[[unicode], Any]) -> None
+def do_prompt(text, default=None, validator=nonempty):
+    # type: (unicode, unicode, Callable[[unicode], Any]) -> Union[unicode, bool]
     while True:
         if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)  # type: unicode
@@ -191,7 +194,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             print(red('* ' + str(err)))
             continue
         break
-    d[key] = x
+    return x
 
 
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
@@ -235,7 +238,7 @@ def ask_user(d):
     * suffix:    source file suffix
     * master:    master document name
     * epub:      use epub (bool)
-    * ext_*:     extensions to use (bools)
+    * extensions:  extensions to use (list)
     * makefile:  make Makefile
     * batchfile: make command file
     """
@@ -251,7 +254,7 @@ Selected root path: %s''' % d['path']))
     else:
         print('''
 Enter the root path for documentation.''')
-        do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
+        d['path'] = do_prompt('Root path for the documentation', '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
             path.isfile(path.join(d['path'], 'source', 'conf.py')):
@@ -260,8 +263,8 @@ Enter the root path for documentation.''')
                    'selected root path.'))
         print('sphinx-quickstart will not overwrite existing Sphinx projects.')
         print()
-        do_prompt(d, 'path', 'Please enter a new root path (or just Enter '
-                  'to exit)', '', is_path)
+        d['path'] = do_prompt('Please enter a new root path (or just Enter '
+                              'to exit)', '', is_path)
         if not d['path']:
             sys.exit(1)
 
@@ -270,22 +273,22 @@ Enter the root path for documentation.''')
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.''')
-        do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
-                  boolean)
+        d['sep'] = do_prompt('Separate source and build directories (y/n)',
+                             'n', boolean)
 
     if 'dot' not in d:
         print('''
 Inside the root directory, two more directories will be created; "_templates"
 for custom HTML templates and "_static" for custom stylesheets and other static
 files. You can enter another prefix (such as ".") to replace the underscore.''')
-        do_prompt(d, 'dot', 'Name prefix for templates and static dir', '_', ok)
+        d['dot'] = do_prompt('Name prefix for templates and static dir', '_', ok)
 
     if 'project' not in d:
         print('''
 The project name will occur in several places in the built documentation.''')
-        do_prompt(d, 'project', 'Project name')
+        d['project'] = do_prompt('Project name')
     if 'author' not in d:
-        do_prompt(d, 'author', 'Author name(s)')
+        d['author'] = do_prompt('Author name(s)')
 
     if 'version' not in d:
         print('''
@@ -294,9 +297,9 @@ software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
 just set both to the same value.''')
-        do_prompt(d, 'version', 'Project version', '', allow_empty)
+        d['version'] = do_prompt('Project version', '', allow_empty)
     if 'release' not in d:
-        do_prompt(d, 'release', 'Project release', d['version'], allow_empty)
+        d['release'] = do_prompt('Project release', d['version'], allow_empty)
 
     if 'language' not in d:
         print('''
@@ -306,7 +309,7 @@ translate text that it generates into that language.
 
 For a list of supported codes, see
 http://sphinx-doc.org/config.html#confval-language.''')
-        do_prompt(d, 'language', 'Project language', 'en')
+        d['language'] = do_prompt('Project language', 'en')
         if d['language'] == 'en':
             d['language'] = None
 
@@ -314,7 +317,7 @@ http://sphinx-doc.org/config.html#confval-language.''')
         print('''
 The file name suffix for source files. Commonly, this is either ".txt"
 or ".rst".  Only files with this suffix are considered documents.''')
-        do_prompt(d, 'suffix', 'Source file suffix', '.rst', suffix)
+        d['suffix'] = do_prompt('Source file suffix', '.rst', suffix)
 
     if 'master' not in d:
         print('''
@@ -322,8 +325,8 @@ One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
 document is a custom template, you can also set this to another filename.''')
-        do_prompt(d, 'master', 'Name of your master document (without suffix)',
-                  'index')
+        d['master'] = do_prompt('Name of your master document (without suffix)',
+                                'index')
 
     while path.isfile(path.join(d['path'], d['master'] + d['suffix'])) or \
             path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix'])):
@@ -332,65 +335,40 @@ document is a custom template, you can also set this to another filename.''')
                    'selected root path.' % (d['master'] + d['suffix'])))
         print('sphinx-quickstart will not overwrite the existing file.')
         print()
-        do_prompt(d, 'master', 'Please enter a new file name, or rename the '
-                  'existing file and press Enter', d['master'])
+        d['master'] = do_prompt('Please enter a new file name, or rename the '
+                                'existing file and press Enter', d['master'])
 
     if 'epub' not in d:
         print('''
 Sphinx can also add configuration for epub output:''')
-        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/n)',
-                  'n', boolean)
+        d['epub'] = do_prompt('Do you want to use the epub builder (y/n)',
+                              'n', boolean)
 
-    if 'ext_autodoc' not in d:
-        print('''
-Please indicate if you want to use one of the following Sphinx extensions:''')
-        do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-                  'from modules (y/n)', 'n', boolean)
-    if 'ext_doctest' not in d:
-        do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-                  'in doctest blocks (y/n)', 'n', boolean)
-    if 'ext_intersphinx' not in d:
-        do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
-                  'documentation of different projects (y/n)', 'n', boolean)
-    if 'ext_todo' not in d:
-        do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
-                  'that can be shown or hidden on build (y/n)', 'n', boolean)
-    if 'ext_coverage' not in d:
-        do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
-                  'coverage (y/n)', 'n', boolean)
-    if 'ext_imgmath' not in d:
-        do_prompt(d, 'ext_imgmath', 'imgmath: include math, rendered '
-                  'as PNG or SVG images (y/n)', 'n', boolean)
-    if 'ext_mathjax' not in d:
-        do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
-                  'browser by MathJax (y/n)', 'n', boolean)
-    if d['ext_imgmath'] and d['ext_mathjax']:
-        print('''Note: imgmath and mathjax cannot be enabled at the same time.
-imgmath has been deselected.''')
-        d['ext_imgmath'] = False
-    if 'ext_ifconfig' not in d:
-        do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
-                  'content based on config values (y/n)', 'n', boolean)
-    if 'ext_viewcode' not in d:
-        do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
-                  'code of documented Python objects (y/n)', 'n', boolean)
-    if 'ext_githubpages' not in d:
-        do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
-                  'to publish the document on GitHub pages (y/n)', 'n', boolean)
+    if 'extensions' not in d:
+        print('Indicate which of the following Sphinx extensions should be '
+              'enabled:')
+        d['extensions'] = []
+        for name, description in EXTENSIONS.items():
+            if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
+                d['extensions'].append('sphinx.ext.%s' % name)
 
-    if 'no_makefile' in d:
-        d['makefile'] = False
-    elif 'makefile' not in d:
+        # Handle conflicting options
+        if set(['sphinx.ext.imgmath', 'sphinx.ext.mathjax']).issubset(
+                d['extensions']):
+            print('Note: imgmath and mathjax cannot be enabled at the same '
+                  'time. imgmath has been deselected.')
+            d['extensions'].remove('sphinx.ext.imgmath')
+
+    if 'makefile' not in d:
         print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.''')
-        do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
-    if 'no_batchfile' in d:
-        d['batchfile'] = False
-    elif 'batchfile' not in d:
-        do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
-                  'y', boolean)
+        d['makefile'] = do_prompt('Create Makefile? (y/n)', 'y', boolean)
+
+    if 'batchfile' not in d:
+        d['batchfile'] = do_prompt('Create Windows command file? (y/n)',
+                                   'y', boolean)
     print()
 
 
@@ -400,7 +378,6 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     template = QuickstartRenderer(templatedir=templatedir)
 
     texescape.init()
-    indent = ' ' * 4
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
@@ -414,10 +391,6 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
-    for name in EXTENSIONS:
-        if d.get('ext_' + name):
-            d['extensions'].append('sphinx.ext.' + name)
-    d['extensions'] = (',\n' + indent).join(repr(name) for name in d['extensions'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
@@ -433,11 +406,11 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
     if not path.isdir(d['path']):
-        mkdir_p(d['path'])
+        ensuredir(d['path'])
 
     srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
 
-    mkdir_p(srcdir)
+    ensuredir(srcdir)
     if d['sep']:
         builddir = path.join(d['path'], 'build')
         d['exclude_patterns'] = ''
@@ -448,18 +421,20 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
             'Thumbs.db', '.DS_Store',
         ])
         d['exclude_patterns'] = ', '.join(exclude_patterns)
-    mkdir_p(builddir)
-    mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
-    mkdir_p(path.join(srcdir, d['dot'] + 'static'))
+    ensuredir(builddir)
+    ensuredir(path.join(srcdir, d['dot'] + 'templates'))
+    ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath, content, newline=None):
         # type: (unicode, unicode, unicode) -> None
         if overwrite or not path.isfile(fpath):
-            print('Creating file %s.' % fpath)
+            if 'quiet' not in d:
+                print('Creating file %s.' % fpath)
             with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
-            print('File %s already exists, skipping.' % fpath)
+            if 'quiet' not in d:
+                print('File %s already exists, skipping.' % fpath)
 
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
@@ -587,28 +562,28 @@ Makefile to be used with sphinx-build.
 
     group = parser.add_argument_group('Extension options')
     for ext in EXTENSIONS:
-        group.add_argument('--ext-' + ext, action='store_true',
-                           dest='ext_' + ext, default=False,
+        group.add_argument('--ext-%s' % ext, action='append_const',
+                           const='sphinx.ext.%s' % ext, dest='extensions',
                            help='enable %s extension' % ext)
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
-                       action='append', help='enable extensions')
+                       action='append', help='enable arbitrary extensions')
 
-    # TODO(stephenfin): Consider using mutually exclusive groups here
     group = parser.add_argument_group('Makefile and Batchfile creation')
-    group.add_argument('--makefile', action='store_true', default=False,
+    group.add_argument('--makefile', action='store_true', dest='makefile',
                        help='create makefile')
-    group.add_argument('--no-makefile', action='store_true', default=False,
-                       help='not create makefile')
-    group.add_argument('--batchfile', action='store_true', default=False,
+    group.add_argument('--no-makefile', action='store_false', dest='makefile',
+                       help='do not create makefile')
+    group.add_argument('--batchfile', action='store_true', dest='batchfile',
                        help='create batchfile')
-    group.add_argument('--no-batchfile', action='store_true', default=False,
-                       help='not create batchfile')
-    group.add_argument('-M', '--no-use-make-mode', action='store_false',
-                       dest='make_mode', default=False,
-                       help='not use make-mode for Makefile/make.bat')
+    group.add_argument('--no-batchfile', action='store_false',
+                       dest='batchfile',
+                       help='do not create batchfile')
     group.add_argument('-m', '--use-make-mode', action='store_true',
                        dest='make_mode', default=True,
                        help='use make-mode for Makefile/make.bat')
+    group.add_argument('-M', '--no-use-make-mode', action='store_false',
+                       dest='make_mode',
+                       help='do not use make-mode for Makefile/make.bat')
 
     group = parser.add_argument_group('Project templating')
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
@@ -648,14 +623,9 @@ def main(argv=sys.argv[1:]):
             # quiet mode with all required params satisfied, use default
             d.setdefault('version', '')
             d.setdefault('release', d['version'])
-            d2 = DEFAULT_VALUE.copy()
-            d2.update(dict(("ext_" + ext, False) for ext in EXTENSIONS))
+            d2 = DEFAULTS.copy()
             d2.update(d)
             d = d2
-            if 'no_makefile' in d:
-                d['makefile'] = False
-            if 'no_batchfile' in d:
-                d['batchfile'] = False
 
             if not valid_dir(d):
                 print()
@@ -676,13 +646,12 @@ def main(argv=sys.argv[1:]):
         if isinstance(value, binary_type):
             d[key] = term_decode(value)
 
-    # parse extensions list
+    # handle use of CSV-style extension values
     d.setdefault('extensions', [])
     for ext in d['extensions'][:]:
         if ',' in ext:
             d['extensions'].remove(ext)
-            for modname in ext.split(','):
-                d['extensions'].append(modname)
+            d['extensions'].extend(ext.split(','))
 
     for variable in d.get('variables', []):
         try:

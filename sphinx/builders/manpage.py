@@ -5,7 +5,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,6 +40,8 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
+    epilog = 'The manual pages are in %(outdir)s.'
+
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
 

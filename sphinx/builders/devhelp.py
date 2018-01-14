@@ -7,7 +7,7 @@
 
     .. _Devhelp: http://live.gnome.org/devhelp
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -43,6 +43,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs GNOME Devhelp file.
     """
     name = 'devhelp'
+    epilog = ('To view the help file:\n'
+              '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
+              '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
+              '$ devhelp')
 
     # don't copy the reST source
     copysource = False

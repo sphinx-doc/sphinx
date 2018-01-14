@@ -6,7 +6,7 @@
     Render math in HTML via dvipng. This extension has been deprecated; please
     use sphinx.ext.imgmath instead.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,6 +30,7 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.ext.mathbase import get_node_equation_number
 
 if False:
     # For type annotation
@@ -242,7 +243,8 @@ def html_visit_displaymath(self, node):
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
-        self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+        number = get_node_equation_number(self, node)
+        self.body.append('<span class="eqno">(%s)</span>' % number)
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %

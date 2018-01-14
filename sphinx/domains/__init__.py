@@ -6,7 +6,7 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -141,7 +141,7 @@ class Domain(object):
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[unicode, Any]
+    object_types = {}       # type: Dict[unicode, ObjType]
     #: directive name -> directive class
     directives = {}         # type: Dict[unicode, Any]
     #: role name -> role callable
@@ -161,6 +161,17 @@ class Domain(object):
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env              # type: BuildEnvironment
+        self._role_cache = {}       # type: Dict[unicode, Callable]
+        self._directive_cache = {}  # type: Dict[unicode, Callable]
+        self._role2type = {}        # type: Dict[unicode, List[unicode]]
+        self._type2role = {}        # type: Dict[unicode, unicode]
+
+        # convert class variables to instance one (to enhance through API)
+        self.object_types = dict(self.object_types)
+        self.directives = dict(self.directives)
+        self.roles = dict(self.roles)
+        self.indices = list(self.indices)
+
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
@@ -170,16 +181,24 @@ class Domain(object):
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
-        self._role_cache = {}       # type: Dict[unicode, Callable]
-        self._directive_cache = {}  # type: Dict[unicode, Callable]
-        self._role2type = {}        # type: Dict[unicode, List[unicode]]
-        self._type2role = {}        # type: Dict[unicode, unicode]
         for name, obj in iteritems(self.object_types):
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
         self.objtypes_for_role = self._role2type.get    # type: Callable[[unicode], List[unicode]]  # NOQA
         self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
+
+    def add_object_type(self, name, objtype):
+        # type: (unicode, ObjType) -> None
+        """Add an object type."""
+        self.object_types[name] = objtype
+        if objtype.roles:
+            self._type2role[name] = objtype.roles[0]
+        else:
+            self._type2role[name] = ''
+
+        for role in objtype.roles:
+            self._role2type.setdefault(role, []).append(name)
 
     def role(self, name):
         # type: (unicode) -> Callable

@@ -5,7 +5,7 @@
 
     Test sphinx.ext.viewcode extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,6 +31,12 @@ def test_viewcode(app, status, warning):
     assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
     assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
     assert result.count('@decorator') == 1
+
+    # test that the class attribute is correctly documented
+    assert result.count('this is Class3') == 2
+    assert 'this is the class attribute class_attr' in result
+    # the next assert fails, until the autodoc bug gets fixed
+    assert result.count('this is the class attribute class_attr') == 2
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_linkcode'])

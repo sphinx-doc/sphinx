@@ -5,7 +5,7 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -18,8 +18,9 @@ from contextlib import contextmanager
 
 import docutils
 from docutils.languages import get_language
-from docutils.utils import Reporter
+from docutils.statemachine import StateMachine, ViewList
 from docutils.parsers.rst import directives, roles, convert_directive_function
+from docutils.utils import Reporter
 
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
@@ -30,9 +31,11 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.statemachine import State  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.io import SphinxFileInput  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
@@ -167,16 +170,34 @@ class WarningStream(object):
 
 
 class LoggingReporter(Reporter):
+    @classmethod
+    def from_reporter(cls, reporter):
+        # type: (Reporter) -> LoggingReporter
+        """Create an instance of LoggingReporter from other reporter object."""
+        return cls(reporter.source, reporter.report_level, reporter.halt_level,
+                   reporter.debug_flag, reporter.error_handler)
+
     def __init__(self, source, report_level, halt_level,
                  debug=False, error_handler='backslashreplace'):
         # type: (unicode, int, int, bool, unicode) -> None
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
+        self.source_and_line = None  # type: SphinxFileInput
 
-    def set_conditions(self, category, report_level, halt_level, debug=False):
-        # type: (unicode, int, int, bool) -> None
-        Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
+    def set_source(self, source):
+        # type: (SphinxFileInput) -> None
+        self.source_and_line = source
+
+    def system_message(self, *args, **kwargs):
+        # type: (Any, Any) -> Any
+        if kwargs.get('line') and isinstance(self.source_and_line, ViewList):
+            # replace source parameter if source is set
+            source, lineno = self.source_and_line.info(kwargs.get('line'))
+            kwargs['source'] = source
+            kwargs['line'] = lineno
+
+        return Reporter.system_message(self, *args, **kwargs)
 
 
 def is_html5_writer_available():
@@ -196,3 +217,22 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
             raise ExtensionError(__('when adding directive classes, no '
                                     'additional arguments may be given'))
         return obj
+
+
+@contextmanager
+def switch_source_input(state, content):
+    # type: (State, ViewList) -> Generator
+    """Switch current source input of state temporarily."""
+    try:
+        # remember the original ``get_source_and_line()`` method
+        get_source_and_line = state.memo.reporter.get_source_and_line
+
+        # replace it by new one
+        state_machine = StateMachine([], None)
+        state_machine.input_lines = content
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
+
+        yield
+    finally:
+        # restore the method
+        state.memo.reporter.get_source_and_line = get_source_and_line

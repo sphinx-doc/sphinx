@@ -5,7 +5,7 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -71,12 +71,12 @@ def doctree_read(app, doctree):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code
-        if entry is None or entry[0] != code:
+        if entry is False:
+            return
+        elif entry is None or entry[0] != code:
             analyzer.find_tags()
             entry = code, analyzer.tags, {}, refname
             env._viewcode_modules[modname] = entry  # type: ignore
-        elif entry is False:
-            return
         _, tags, used, _ = entry
         if fullname in tags:
             used[fullname] = docname

@@ -5,7 +5,7 @@
 
     Build input files for the Qt collection generator.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -108,6 +108,11 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs Qt help project, contents and index files.
     """
     name = 'qthelp'
+    epilog = ('You can now run "qcollectiongenerator" with the .qhcp '
+              'project file in %(outdir)s, like this:\n'
+              '$ qcollectiongenerator %(outdir)s/%(project)s.qhcp\n'
+              'To view the help file:\n'
+              '$ assistant -collectionFile %(outdir)s/%(project)s.qhc')
 
     # don't copy the reST source
     copysource = False
@@ -269,7 +274,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = u' ' * 4 * indentlevel + item  # type: ignore
+            item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:

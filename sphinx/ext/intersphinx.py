@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -304,6 +304,7 @@ def missing_reference(app, env, node, contnode):
             in_set = setname
             to_try.append((inventories.named_inventory[setname], newtarget))
             if domain:
+                node['reftarget'] = newtarget
                 full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
                 if full_qualified_name:
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))

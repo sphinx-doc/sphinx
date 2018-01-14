@@ -5,7 +5,7 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 class TextBuilder(Builder):
     name = 'text'
     format = 'text'
+    epilog = 'The text files are in %(outdir)s.'
+
     out_suffix = '.txt'
     allow_parallel = True
     default_translator_class = TextTranslator

@@ -5,7 +5,7 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -90,6 +90,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
+    epilog = ('Look for any errors in the above output or in '
+              '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None

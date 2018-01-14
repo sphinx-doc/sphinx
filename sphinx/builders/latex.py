@@ -5,7 +5,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,6 +49,12 @@ class LaTeXBuilder(Builder):
     """
     name = 'latex'
     format = 'latex'
+    epilog = 'The LaTeX files are in %(outdir)s.'
+    if os.name == 'posix':
+        epilog += ("\nRun 'make' in that directory to run these through "
+                   "(pdf)latex\n"
+                   "(use `make latexpdf' here to do that automatically).")
+
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
     default_translator_class = LaTeXTranslator

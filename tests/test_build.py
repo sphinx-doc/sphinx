@@ -5,7 +5,7 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -34,8 +34,8 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     basedir = sphinx_test_tempdir / request.node.originalname
     # Windows with versions prior to 3.2 (I think) doesn't support unicode on system path
     # so we force a non-unicode path in that case
-    if sys.platform == "win32" and \
-        not (sys.version_info.major >= 3 and sys.version_info.minor >= 2):
+    if (sys.platform == "win32" and
+            not (sys.version_info.major >= 3 and sys.version_info.minor >= 2)):
         return basedir / 'all'
     try:
         srcdir = basedir / test_name
@@ -59,13 +59,14 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     return srcdir
 
 
+# note: this test skips building docs for some builders because they have independent testcase.
+#       (html, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub', 'applehelp', 'changes', 'xml',
-        'pseudoxml', 'man', 'linkcheck',
+        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
+        'epub', 'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',

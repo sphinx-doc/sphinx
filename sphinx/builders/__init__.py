@@ -5,11 +5,10 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
 from os import path
 import warnings
 
@@ -18,13 +17,12 @@ try:
 except ImportError:
     multiprocessing = None
 
-from six import itervalues
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
-from sphinx.util.osutil import SEP, relative_uri
+from sphinx.util.osutil import SEP, ensuredir, relative_uri
 from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
@@ -56,6 +54,11 @@ class Builder(object):
     name = ''  # type: unicode
     #: The builder's output format, or '' if no document output is produced.
     format = ''  # type: unicode
+    #: The message emitted upon successful build completion. This can be a
+    #: printf-style template string with the following keys: ``outdir``,
+    #: ``project``
+    epilog = ''  # type: unicode
+
     # default translator class for the builder.  This will be overrided by
     # ``app.set_translator()``.
     default_translator_class = None  # type: nodes.NodeVisitor
@@ -79,8 +82,7 @@ class Builder(object):
         self.confdir = app.confdir
         self.outdir = app.outdir
         self.doctreedir = app.doctreedir
-        if not path.isdir(self.doctreedir):
-            os.makedirs(self.doctreedir)
+        ensuredir(self.doctreedir)
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
@@ -373,15 +375,10 @@ class Builder(object):
             docnames = set(docnames) & self.env.found_docs
 
         # determine if we can write in parallel
-        self.parallel_ok = False
         if parallel_available and self.app.parallel > 1 and self.allow_parallel:
-            self.parallel_ok = True
-            for extension in itervalues(self.app.extensions):
-                if not extension.parallel_write_safe:
-                    logger.warning('the %s extension is not safe for parallel '
-                                   'writing, doing serial write', extension.name)
-                    self.parallel_ok = False
-                    break
+            self.parallel_ok = self.app.is_parallel_allowed('write')
+        else:
+            self.parallel_ok = False
 
         #  create a task executor to use for misc. "finish-up" tasks
         # if self.parallel_ok:

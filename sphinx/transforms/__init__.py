@@ -5,9 +5,11 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import re
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -346,5 +348,23 @@ class SphinxSmartQuotes(SmartQuotes):
         texttype = {True: 'literal',  # "literal" text is not changed:
                     False: 'plain'}
         for txtnode in txtnodes:
-            smartquotable = not is_smartquotable(txtnode)
-            yield (texttype[smartquotable], txtnode.astext())
+            notsmartquotable = not is_smartquotable(txtnode)
+            yield (texttype[notsmartquotable], txtnode.astext())
+
+
+class ManpageLink(SphinxTransform):
+    """Find manpage section numbers and names"""
+    default_priority = 999
+
+    def apply(self):
+        for node in self.document.traverse(addnodes.manpage):
+            manpage = ' '.join([str(x) for x in node.children
+                                if isinstance(x, nodes.Text)])
+            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'  # noqa
+            info = {'path': manpage,
+                    'page': manpage,
+                    'section': ''}
+            r = re.match(pattern, manpage)
+            if r:
+                info = r.groupdict()
+            node.attributes.update(info)

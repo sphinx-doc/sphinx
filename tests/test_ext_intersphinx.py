@@ -5,7 +5,7 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -194,7 +194,7 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'https://docs.python.org/': inv_file,
+        'cmd': ('https://docs.python.org/', inv_file),
     }
     app.config.intersphinx_cache_limit = 0
 
@@ -213,6 +213,12 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'ls -l'
 
+    # refers inventory by name
+    kwargs = {}
+    node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == '-l'
+
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
 def test_missing_reference_cppdomain(tempdir, app, status, warning):
@@ -230,7 +236,8 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     html = (app.outdir / 'index.html').text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
-            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            ' title="(in foo v2.0)">'
+            '<code class="xref cpp cpp-class docutils literal notranslate">'
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
@@ -238,7 +245,6 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons_bartype"'
             ' title="(in foo v2.0)">bartype</a>' in html)
-
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):

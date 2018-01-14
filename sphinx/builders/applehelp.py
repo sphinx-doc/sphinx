@@ -5,7 +5,7 @@
 
     Build Apple help books.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -75,6 +75,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     on the ``hiutil`` command line tool.
     """
     name = 'applehelp'
+    epilog = ('The help book is in %(outdir)s.\n'
+              'Note that won\'t be able to view it unless you put it in '
+              '~/Library/Documentation/Help or install it in your application '
+              'bundle.')
 
     # don't copy the reST source
     copysource = False

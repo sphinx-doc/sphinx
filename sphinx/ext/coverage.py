@@ -6,7 +6,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -50,8 +50,12 @@ def compile_regex_list(name, exps):
 
 
 class CoverageBuilder(Builder):
-
+    """
+    Evaluates coverage of code in the documentation.
+    """
     name = 'coverage'
+    epilog = ('Testing of coverage in the sources finished, look at the '
+              'results in %(outdir)s/python.txt.')
 
     def init(self):
         # type: () -> None

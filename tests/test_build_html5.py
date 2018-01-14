@@ -10,7 +10,7 @@
 
     https://github.com/sphinx-doc/sphinx/pull/2805/files
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,26 +72,26 @@ def cached_etree_parse():
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
-        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+        (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
-        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+        (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
          r'^    def baz\(\):\n        pass\n\s*$'),
-        (".//div[@class='inc-lines highlight-text']//pre",
+        (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
-        (".//div[@class='inc-startend highlight-text']//pre",
+        (".//div[@class='inc-startend highlight-text notranslate']//pre",
          u'^foo = "Including Unicode characters: üöä"\\n$'),
-        (".//div[@class='inc-preappend highlight-text']//pre",
+        (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
-        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+        (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
          r'def'),
-        (".//div[@class='inc-tab3 highlight-text']//pre",
+        (".//div[@class='inc-tab3 highlight-text notranslate']//pre",
          r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre/span",
+        (".//div[@class='inc-tab8 highlight-python notranslate']//pre/span",
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
@@ -251,7 +251,6 @@ def cached_etree_parse():
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
         (".//dt[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -283,9 +282,6 @@ def cached_etree_parse():
         (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
-    ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
     ],
     'genindex.html': [
         # index entries

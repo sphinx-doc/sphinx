@@ -28,6 +28,11 @@ viewcode
    :language: python
    :pyobject: func1
 
+.. autoclass:: spam.mod3.Class3
+   :members:
+
+.. automodule:: spam.mod3
+   :members:
 
 .. toctree::
 

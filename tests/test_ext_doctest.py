@@ -5,11 +5,13 @@
 
     Test the doctest extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pytest
-from sphinx.ext.doctest import compare_version
+from sphinx.ext.doctest import is_allowed_version
+from packaging.version import InvalidVersion
+from packaging.specifiers import InvalidSpecifier
 
 cleanup_called = 0
 
@@ -26,19 +28,28 @@ def test_build(app, status, warning):
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
 
 
-def test_compare_version():
-    assert compare_version('3.3', '3.4', '<') is True
-    assert compare_version('3.3', '3.2', '<') is False
-    assert compare_version('3.3', '3.4', '<=') is True
-    assert compare_version('3.3', '3.2', '<=') is False
-    assert compare_version('3.3', '3.3', '==') is True
-    assert compare_version('3.3', '3.4', '==') is False
-    assert compare_version('3.3', '3.2', '>=') is True
-    assert compare_version('3.3', '3.4', '>=') is False
-    assert compare_version('3.3', '3.2', '>') is True
-    assert compare_version('3.3', '3.4', '>') is False
-    with pytest.raises(ValueError):
-        compare_version('3.3', '3.4', '+')
+def test_is_allowed_version():
+    assert is_allowed_version('<3.4', '3.3') is True
+    assert is_allowed_version('<3.4', '3.3') is True
+    assert is_allowed_version('<3.2', '3.3') is False
+    assert is_allowed_version('<=3.4',  '3.3') is True
+    assert is_allowed_version('<=3.2',  '3.3') is False
+    assert is_allowed_version('==3.3',  '3.3') is True
+    assert is_allowed_version('==3.4',  '3.3') is False
+    assert is_allowed_version('>=3.2',  '3.3') is True
+    assert is_allowed_version('>=3.4',  '3.3') is False
+    assert is_allowed_version('>3.2', '3.3') is True
+    assert is_allowed_version('>3.4', '3.3') is False
+    assert is_allowed_version('~=3.4', '3.4.5') is True
+    assert is_allowed_version('~=3.4', '3.5.0') is True
+
+    # invalid spec
+    with pytest.raises(InvalidSpecifier):
+        is_allowed_version('&3.4', '3.5')
+
+    # invalid version
+    with pytest.raises(InvalidVersion):
+        is_allowed_version('>3.4', 'Sphinx')
 
 
 def cleanup_call():

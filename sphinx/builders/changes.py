@@ -5,7 +5,7 @@
 
     Changelog builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,6 +38,7 @@ class ChangesBuilder(Builder):
     Write a summary with all versionadded/changed directives.
     """
     name = 'changes'
+    epilog = 'The overview file is in %(outdir)s.'
 
     def init(self):
         # type: () -> None
