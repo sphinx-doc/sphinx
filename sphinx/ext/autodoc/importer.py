@@ -23,7 +23,7 @@ from sphinx.util.inspect import isenumclass, safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, List, Optional, Set  # NOQA
+    from typing import Any, Callable, Dict, Generator, List, Optional  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -84,13 +84,7 @@ class _MockModule(ModuleType):
 class _MockImporter(object):
     def __init__(self, names):
         # type: (List[str]) -> None
-        self.base_packages = set()  # type: Set[str]
-        for n in names:
-            # Convert module names:
-            #     ['a.b.c', 'd.e']
-            # to a set of base packages:
-            #     set(['a', 'd'])
-            self.base_packages.add(n.split('.')[0])
+        self.names = names
         self.mocked_modules = []  # type: List[str]
         # enable hook by adding itself to meta_path
         sys.meta_path = sys.meta_path + [self]
@@ -106,9 +100,10 @@ class _MockImporter(object):
 
     def find_module(self, name, path=None):
         # type: (str, str) -> Any
-        base_package = name.split('.')[0]
-        if base_package in self.base_packages:
-            return self
+        # check if name is (or is a descendant of) one of our base_packages
+        for n in self.names:
+            if n == name or name.startswith(n + '.'):
+                return self
         return None
 
     def load_module(self, name):
