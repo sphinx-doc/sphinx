@@ -21,7 +21,7 @@ from sphinx.ext.mathbase import get_node_equation_number
 
 
 def html_visit_math(self, node):
-    self.body.append(self.starttag(node, 'span', '', CLASS='math'))
+    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node['latex']) +
                      self.builder.config.mathjax_inline[1] + '</span>')
@@ -29,7 +29,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    self.body.append(self.starttag(node, 'div', CLASS='math'))
+    self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
     if node['nowrap']:
         self.body.append(self.encode(node['latex']))
         self.body.append('</div>')

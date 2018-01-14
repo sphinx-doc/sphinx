@@ -40,6 +40,8 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
+    epilog = 'The manual pages are in %(outdir)s.'
+
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
 

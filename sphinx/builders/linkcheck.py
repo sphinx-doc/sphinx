@@ -90,6 +90,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
+    epilog = ('Look for any errors in the above output or in '
+              '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None

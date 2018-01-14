@@ -20,14 +20,14 @@ from sphinx.ext.mathbase import get_node_equation_number
 
 
 def html_visit_math(self, node):
-    self.body.append(self.starttag(node, 'span', '', CLASS='math'))
+    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate'))
     self.body.append(self.encode(node['latex']) + '</span>')
     raise nodes.SkipNode
 
 
 def html_visit_displaymath(self, node):
     if node['nowrap']:
-        self.body.append(self.starttag(node, 'div', CLASS='math'))
+        self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
         self.body.append(self.encode(node['latex']))
         self.body.append('</div>')
         raise nodes.SkipNode
@@ -40,7 +40,7 @@ def html_visit_displaymath(self, node):
                 self.body.append('<span class="eqno">(%s)' % number)
                 self.add_permalink_ref(node, _('Permalink to this equation'))
                 self.body.append('</span>')
-            self.body.append(self.starttag(node, 'div', CLASS='math'))
+            self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
         else:
             # but only once!
             self.body.append('<div class="math">')

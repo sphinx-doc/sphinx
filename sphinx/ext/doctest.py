@@ -271,6 +271,8 @@ class DocTestBuilder(Builder):
     Runs test snippets in the documentation.
     """
     name = 'doctest'
+    epilog = ('Testing of doctests in the sources finished, look at the '
+              'results in %(outdir)s/output.txt.')
 
     def init(self):
         # type: () -> None
