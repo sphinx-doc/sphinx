@@ -2039,6 +2039,20 @@ These options influence text output.
 
    .. versionadded:: 1.1
 
+.. confval:: text_add_secnumbers
+
+   A boolean that decides whether section numbers are included in text output.
+   Default is ``False``.
+
+   .. versionadded:: 1.7
+
+.. confval:: text_secnumber_suffix
+
+   Suffix for section numbers in text output.  Default: ``". "``. Set to ``" "``
+   to suppress the final dot on section numbers.
+
+   .. versionadded:: 1.7
+
 
 .. _man-options:
 

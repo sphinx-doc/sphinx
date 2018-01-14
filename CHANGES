@@ -88,6 +88,8 @@ Features added
   to let Google Translate know they are not translatable
 * #4137: doctest: doctest block is always highlighted as python console (pycon)
 * #4137: doctest: testcode block is always highlighted as python
+* #3998: text: Add new config values :confval:`text_add_secnumbers` and
+  :confval:`text_secnumber_suffix`
 
 Features removed
 ----------------
