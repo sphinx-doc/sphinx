@@ -22,6 +22,9 @@ Incompatible changes
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
 * shebang line is removed from generated conf.py
+* #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
+  with their descendants.  It does not mock their ancestors.  If you want to
+  mock them, please specify the name of ancestors implicitly.
 
 Deprecated
 ----------
