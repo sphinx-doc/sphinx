@@ -914,6 +914,11 @@ def test_latex_table_tabulars(app, status, warning):
     expected = get_expected('tabularcolumn')
     assert actual == expected
 
+    # list table with cell having three paragraphs
+    actual = tables['list table with cell having three paragraphs']
+    expected = get_expected('list_table_having_threeparagraphs_cell')
+    assert actual == expected
+
     # table having caption
     actual = tables['table having caption']
     expected = get_expected('table_having_caption')
