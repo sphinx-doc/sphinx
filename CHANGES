@@ -86,6 +86,8 @@ Features added
 * #4245: html themes: Add ``language`` to javascript vars list
 * #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
   to let Google Translate know they are not translatable
+* #4137: doctest: doctest block is always highlighted as python console (pycon)
+* #4137: doctest: testcode block is always highlighted as python
 
 Features removed
 ----------------

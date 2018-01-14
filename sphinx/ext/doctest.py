@@ -116,7 +116,11 @@ class TestDirective(Directive):
         if test is not None:
             # only save if it differs from code
             node['test'] = test
-        if self.name == 'testoutput':
+        if self.name == 'doctest':
+            node['language'] = 'pycon'
+        elif self.name == 'testcode':
+            node['language'] = 'python'
+        elif self.name == 'testoutput':
             # don't try to highlight output
             node['language'] = 'none'
         node['options'] = {}
