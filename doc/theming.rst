@@ -114,8 +114,19 @@ These themes are:
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     ``False``.
 
-  - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
-    include ``px`` in the value.)  Defaults to 230 pixels.
+  - **sidebarwidth** (int or str): Width of the sidebar in pixels.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'.  Defaults to 230 pixels.
+
+  - **body_min_width** (int or str): Minimal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 0 if you don't want
+    a width limit. Defaults may depend on the theme (often 450px).
+
+  - **body_max_width** (int or str): Maximal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 'none' if you don't
+    want a width limit. Defaults may depend on the theme (often 800px).
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on

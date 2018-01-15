@@ -45,6 +45,25 @@ def _toint(val):
         return 0
 
 
+def _todim(val):
+    # type (int or unicode) -> unicode
+    """
+    Make val a css dimension. In particular the following transformations
+    are performed:
+
+    - None -> 'initial' (default CSS value)
+    - 0 -> '0'
+    - ints and string representations of ints are interpreted as pixels.
+
+    Everything else is returned unchanged.
+    """
+    if val is None:
+        return 'initial'
+    elif str(val).isdigit():
+        return '0' if int(val) == 0 else '%spx' % val
+    return val
+
+
 def _slice_index(values, slices):
     # type: (List, int) -> Iterator[List]
     seq = list(values)
@@ -164,6 +183,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)

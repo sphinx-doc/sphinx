@@ -27,6 +27,8 @@ Incompatible changes
   mock them, please specify the name of ancestors implicitly.
 * #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
   (refs: #4295)
+* #4246: Limit width of text body for all themes. Conifigurable via theme
+  options ``body_min_width`` and ``body_max_width``.
 
 Deprecated
 ----------
