@@ -493,14 +493,14 @@ def test_footnote(app, status, warning):
             '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
-    assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+    assert ('\\hline %\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces \n'
             'VIDIOC\\_CROPCAP\n&\n') in result
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
-            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
+            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline \n'
             '\\end{tabulary}\n'
             '\\par\n\\sphinxattableend\\end{savenotes}\n') in result
 
@@ -912,6 +912,11 @@ def test_latex_table_tabulars(app, status, warning):
     # table with tabularcolumn
     actual = tables['table with tabularcolumn']
     expected = get_expected('tabularcolumn')
+    assert actual == expected
+
+    # list table with cell having three paragraphs
+    actual = tables['list table with cell having three paragraphs']
+    expected = get_expected('list_table_having_threeparagraphs_cell')
     assert actual == expected
 
     # table having caption

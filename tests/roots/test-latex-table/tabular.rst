@@ -68,6 +68,23 @@ cell2-1 cell2-2
 cell3-1 cell3-2
 ======= =======
 
+list table with cell having three paragraphs
+--------------------------------------------
+
+.. list-table::
+   :header-rows: 1
+
+   * - header1
+
+
+   * - cell1-1
+
+       in cell1-1
+
+       still in cell1-1
+
+
+
 table having caption
 --------------------
 
