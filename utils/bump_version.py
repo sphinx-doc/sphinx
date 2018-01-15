@@ -16,11 +16,7 @@ RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
 
 def stringify_version(version_info, in_develop=True):
-    if version_info[2] == 0:
-        version = '.'.join(str(v) for v in version_info[:2])
-    else:
-        version = '.'.join(str(v) for v in version_info[:3])
-
+    version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
         version += version_info[3][0] + str(version_info[4])
 
