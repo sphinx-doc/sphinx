@@ -92,9 +92,8 @@ class SphinxStandaloneReader(SphinxBaseReader):
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
-                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
-                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector, SphinxSmartQuotes,
-                  ManpageLink
+                  RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
