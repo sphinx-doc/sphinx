@@ -94,7 +94,11 @@ def jobs_argument(value):
     if value == 'auto':
         return multiprocessing.cpu_count()
     else:
-        return int(value)
+        jobs = int(value)
+        if jobs <= 0:
+            raise argparse.ArgumentTypeError('job number should be a positive number')
+        else:
+            return jobs
 
 
 def get_parser():
