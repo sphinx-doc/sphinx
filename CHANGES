@@ -166,6 +166,9 @@ Features added
 Bugs fixed
 ----------
 
+* #1922: html search: Upper characters problem in French
+
+
 Testing
 --------
 
