@@ -92,9 +92,8 @@ class SphinxStandaloneReader(SphinxBaseReader):
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
-                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
-                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector, SphinxSmartQuotes,
-                  ManpageLink
+                  RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
@@ -117,7 +116,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, ManpageLink]
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
