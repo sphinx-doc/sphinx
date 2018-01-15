@@ -293,6 +293,24 @@ General configuration
 
    .. versionadded:: 1.3
 
+.. confval:: manpages_url
+
+   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   defined to ``https://manpages.debian.org/{path}``, the
+   :literal:`:manpage:`man(1)`` role will like to
+   <https://manpages.debian.org/man(1)>. The patterns available are:
+
+     * ``page`` - the manual page (``man``)
+     * ``section`` - the manual section (``1``)
+     * ``path`` - the original manual page and section specified (``man(1)``)
+
+   This also supports manpages specified as ``man.1``.
+
+   .. note:: This currently affects only HTML writers but could be
+             expanded in the future.
+
+   .. versionadded:: 1.7
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be
@@ -353,6 +371,63 @@ General configuration
    .. versionchanged:: 1.7
       The LaTeX builder obeys this setting (if :confval:`numfig` is set to
       ``True``).
+
+.. confval:: smartquotes
+
+   If true, the `Docutils Smart Quotes transform`__, originally based on
+   `SmartyPants`__ (limited to English) and currently applying to many
+   languages, will be used to convert quotes and dashes to typographically
+   correct entities.  Default: ``True``.
+
+   __ http://docutils.sourceforge.net/docs/user/smartquotes.html
+   __ https://daringfireball.net/projects/smartypants/
+
+   .. versionadded:: 1.6.6
+      It replaces deprecated :confval:`html_use_smartypants`.
+      It applies by default to all builders except ``man`` and ``text``
+      (see :confval:`smartquotes_excludes`.)
+
+   A `docutils.conf`__ file located in the configuration directory (or a
+   global :file:`~/.docutils` file) is obeyed unconditionally if it
+   *deactivates* smart quotes via the corresponding `Docutils option`__.  But
+   if it *activates* them, then :confval:`smartquotes` does prevail.
+
+   __ http://docutils.sourceforge.net/docs/user/config.html
+   __ http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+
+.. confval:: smartquotes_action
+
+   This string, for use with Docutils ``0.14`` or later, customizes the Smart
+   Quotes transform.  See the file :file:`smartquotes.py` at the `Docutils
+   repository`__ for details.  The default ``'qDe'`` educates normal **q**\
+   uote characters ``"``, ``'``, em- and en-**D**\ ashes ``---``, ``--``, and
+   **e**\ llipses ``...``.
+
+   .. versionadded:: 1.6.6
+
+   __ https://sourceforge.net/p/docutils/code/HEAD/tree/trunk/docutils/
+
+.. confval:: smartquotes_excludes
+
+   This is a ``dict`` whose default is::
+
+     {'languages': ['ja'], 'builders': ['man', 'text']}
+
+   Each entry gives a sufficient condition to ignore the
+   :confval:`smartquotes` setting and deactivate the Smart Quotes transform.
+   Accepted keys are as above ``'builders'`` or ``'languages'``.
+   The values are lists.
+
+   .. note:: Currently, in case of invocation of :program:`make` with multiple
+      targets, the first target name is the only one which is tested against
+      the ``'builders'`` entry and it decides for all.  Also, a ``make text``
+      following ``make html`` needs to be issued in the form ``make text
+      O="-E"`` to force re-parsing of source files, as the cached ones are
+      already transformed.  On the other hand the issue does not arise with
+      direct usage of :program:`sphinx-build` as it caches
+      (in its default usage) the parsed source files in per builder locations.
+
+   .. versionadded:: 1.6.6
 
 .. confval:: tls_verify
 
@@ -785,15 +860,11 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_smartypants
 
-   If true, `SmartyPants <https://daringfireball.net/projects/smartypants/>`_
-   will be used to convert quotes and dashes to typographically correct
+   If true, quotes and dashes are converted to typographically correct
    entities.  Default: ``True``.
 
    .. deprecated:: 1.6
-      To disable or customize smart quotes, use the Docutils configuration file
-      (``docutils.conf``) instead to set there its `smart_quotes option`_.
-
-      .. _`smart_quotes option`: http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+      To disable smart quotes, use rather :confval:`smartquotes`.
 
 .. confval:: html_add_permalinks
 
@@ -1967,6 +2038,20 @@ These options influence text output.
    The default is ``'*=-~"+`'``.
 
    .. versionadded:: 1.1
+
+.. confval:: text_add_secnumbers
+
+   A boolean that decides whether section numbers are included in text output.
+   Default is ``True``.
+
+   .. versionadded:: 1.7
+
+.. confval:: text_secnumber_suffix
+
+   Suffix for section numbers in text output.  Default: ``". "``. Set to ``" "``
+   to suppress the final dot on section numbers.
+
+   .. versionadded:: 1.7
 
 
 .. _man-options:

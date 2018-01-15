@@ -157,10 +157,6 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
-        if not path.isdir(outdir):
-            logger.info('making output directory...')
-            ensuredir(outdir)
-
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
@@ -196,6 +192,10 @@ class Sphinx(object):
 
         # preload builder module (before init config values)
         self.preload_builder(buildername)
+
+        if not path.isdir(outdir):
+            logger.info('making output directory...')
+            ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
@@ -338,6 +338,13 @@ class Sphinx(object):
                                  (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
+
+            if self.statuscode == 0 and self.builder.epilog:
+                logger.info('')
+                logger.info(self.builder.epilog % {
+                    'outdir': path.relpath(self.outdir),
+                    'project': self.config.project
+                })
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -642,15 +649,14 @@ class Sphinx(object):
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
         logger.debug('[app] adding autodocumenter: %r', cls)
-        from sphinx.ext import autodoc
-        autodoc.add_documenter(cls)
-        self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
+        from sphinx.ext.autodoc.directive import AutodocDirective
+        self.registry.add_documenter(cls.objtype, cls)
+        self.add_directive('auto' + cls.objtype, AutodocDirective)
 
-    def add_autodoc_attrgetter(self, type, getter):
-        # type: (Any, Callable) -> None
-        logger.debug('[app] adding autodoc attrgetter: %r', (type, getter))
-        from sphinx.ext import autodoc
-        autodoc.AutoDirective._special_attrgetters[type] = getter
+    def add_autodoc_attrgetter(self, typ, getter):
+        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
+        self.registry.add_autodoc_attrgetter(typ, getter)
 
     def add_search_language(self, cls):
         # type: (Any) -> None

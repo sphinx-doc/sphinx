@@ -19,11 +19,12 @@ from docutils.writers import UnfilteredWriter
 from six import text_type
 from typing import Any, Union  # NOQA
 
+from sphinx.transforms import SphinxTransformer
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
-    UnreferencedFootnotesDetector
+    UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
 )
 from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
@@ -56,6 +57,11 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
+    def __init__(self, app, *args, **kwargs):
+        # type: (Sphinx, Any, Any) -> None
+        self.env = app.env
+        standalone.Reader.__init__(self, *args, **kwargs)
+
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -66,9 +72,16 @@ class SphinxBaseReader(standalone.Reader):
         for logging.
         """
         document = standalone.Reader.new_document(self)
+
+        # substitute transformer
+        document.transformer = SphinxTransformer(document)
+        document.transformer.set_environment(self.env)
+
+        # substitute reporter
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
         document.reporter.set_source(self.source)
+
         return document
 
 
@@ -80,13 +93,14 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
                   RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
-                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector
+                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector, SphinxSmartQuotes,
+                  ManpageLink
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
+        SphinxBaseReader.__init__(self, app, *args, **kwargs)
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -103,7 +117,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector]
+                  UnreferencedFootnotesDetector, ManpageLink]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None

@@ -15,6 +15,7 @@ Builder API
 
    .. autoattribute:: name
    .. autoattribute:: format
+   .. autoattribute:: epilog
    .. autoattribute:: supported_image_types
 
    These methods are predefined and will be called from the application:

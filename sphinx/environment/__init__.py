@@ -23,8 +23,7 @@ from collections import defaultdict
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.utils import Reporter, get_source_line, normalize_language_tag
-from docutils.utils.smartquotes import smartchars
+from docutils.utils import Reporter, get_source_line
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes, versioning
@@ -47,7 +46,7 @@ from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -66,6 +65,7 @@ default_settings = {
     'sectsubtitle_xform': False,
     'halt_level': 5,
     'file_insertion_enabled': True,
+    'smartquotes_locales': [],
 }
 
 # This is increased every time an environment attribute is added
@@ -642,17 +642,10 @@ class BuildEnvironment(object):
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        language = self.config.language or 'en'
-        self.settings['language_code'] = language
-        if 'smart_quotes' not in self.settings:
-            self.settings['smart_quotes'] = True
+        self.settings['language_code'] = self.config.language or 'en'
 
-        # confirm selected language supports smart_quotes or not
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                break
-        else:
-            self.settings['smart_quotes'] = False
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None

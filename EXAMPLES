@@ -93,7 +93,7 @@ Documentation using the classic theme
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html (customized)
 * Sprox: http://sprox.org/ (customized)
 * SymPy: http://docs.sympy.org/
-* TurboGears: https://turbogears.readthedocs.org/ (customized)
+* TurboGears: https://turbogears.readthedocs.io/ (customized)
 * tvtk: http://docs.enthought.com/mayavi/tvtk/
 * Varnish: https://www.varnish-cache.org/docs/ (customized, alabaster for index)
 * Waf: https://waf.io/apidocs/
@@ -259,7 +259,7 @@ Documentation using sphinx_bootstrap_theme
 * Bootstrap Theme: https://ryan-roemer.github.io/sphinx-bootstrap-theme/
 * C/C++ Software Development with Eclipse: http://eclipsebook.in/
 * Dataverse: http://guides.dataverse.org/
-* e-cidadania: http://e-cidadania.readthedocs.org/
+* e-cidadania: https://e-cidadania.readthedocs.io/
 * Hangfire: http://docs.hangfire.io/
 * Hedge: https://documen.tician.de/hedge/
 * ObsPy: https://docs.obspy.org/

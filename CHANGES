@@ -1,6 +1,11 @@
 Release 1.7 (in development)
 ============================
 
+Dependencies
+------------
+
+* Add ``packaging`` package
+
 Incompatible changes
 --------------------
 
@@ -13,6 +18,15 @@ Incompatible changes
 * #3929: apidoc: Move sphinx.apidoc to sphinx.ext.apidoc
 * #4226: apidoc: Generate new style makefile (make-mode)
 * #4274: sphinx-build returns 2 as an exit code on argument error
+* #4389: output directory will be created after loading extensions
+* autodoc does not generate warnings messages to the generated document even if
+  :confval:`keep_warnings` is True.  They are only emitted to stderr.
+* shebang line is removed from generated conf.py
+* #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
+  with their descendants.  It does not mock their ancestors.  If you want to
+  mock them, please specify the name of ancestors implicitly.
+* #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
+  (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
   options ``body_min_width`` and ``body_max_width``.
 
@@ -23,6 +37,12 @@ Deprecated
   values will be accepted at 2.0.
 * ``format_annotation()`` and ``formatargspec()`` is deprecated.  Please use
   ``sphinx.util.inspect.Signature`` instead.
+* ``sphinx.ext.autodoc.AutodocReporter`` is replaced by ``sphinx.util.docutils.
+  switch_source_input()`` and now deprecated.  It will be removed in Sphinx-2.0.
+* ``sphinx.ext.autodoc.add_documenter()`` and ``AutoDirective._register`` is now
+  deprecated.  Please use ``app.add_autodocumenter()`` instead.
+* ``AutoDirective._special_attrgetters`` is now deprecated.  Please use
+  ``app.add_autodoc_attrgetter()`` instead.
 
 Features added
 --------------
@@ -57,7 +77,21 @@ Features added
   code-blocks
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
-
+* #4093: sphinx-build creates empty directories for unknown targets/builders
+* Add ``top-classes`` option for the ``sphinx.ext.inheritance_diagram``
+  extension to limit the scope of inheritance graphs.
+* #4183: doctest: ``:pyversion:`` option also follows PEP-440 specification
+* #4235: html: Add :confval:`manpages_url` to make manpage roles to hyperlinks
+* #3570: autodoc: Do not display 'typing.' module for type hints
+* #4354: sphinx-build now emits finish message.  Builders can modify it through
+  ``Builder.epilog`` attribute
+* #4245: html themes: Add ``language`` to javascript vars list
+* #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
+  to let Google Translate know they are not translatable
+* #4137: doctest: doctest block is always highlighted as python console (pycon)
+* #4137: doctest: testcode block is always highlighted as python
+* #3998: text: Assign section numbers by default.  You can control it using
+  :confval:`text_add_secnumbers` and :confval:`text_secnumber_suffix`
 
 Features removed
 ----------------
@@ -88,6 +122,8 @@ Features removed
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
 * LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
 * C++, support of function concepts. Thanks to mickk-on-cpp.
+* Not used and previously not documented LaTeX macros ``\shortversion``
+  and ``\setshortversion``
 
 
 Bugs fixed
@@ -103,13 +139,18 @@ Bugs fixed
   one of figures and tables
 * #4330: PDF 'howto' documents have an incoherent default LaTeX tocdepth counter
   setting
+* #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
+  to Joel Nothman.
+* #4081: Warnings and errors colored the same when building
+* latex: Do not display 'Release' label if :confval:`release` is not set
 
 Testing
 --------
 
 * Add support for docutils 0.14
+* Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
-Release 1.6.6 (in development)
+Release 1.6.7 (in development)
 ==============================
 
 Dependencies
@@ -124,14 +165,35 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+* #1922: html search: Upper characters problem in French
+
+
+Testing
+--------
+
+Release 1.6.6 (released Jan 08, 2018)
+=====================================
+
+Features added
+--------------
+
 * #4181: autodoc: Sort dictionary keys when possible
 * ``VerbatimHighlightColor`` is a new
   :ref:`LaTeX 'sphinxsetup' <latexsphinxsetup>` key (refs: #4285)
 * Easier customizability of LaTeX macros involved in rendering of code-blocks
+* Show traceback if conf.py raises an exception (refs: #4369)
+* Add :confval:`smartquotes` to disable smart quotes through ``conf.py``
+  (refs: #3967)
+* Add :confval:`smartquotes_action` and :confval:`smartquotes_excludes`
+  (refs: #4142, #4357)
 
 Bugs fixed
 ----------
 
+* #4334: sphinx-apidoc: Don't generate references to non-existing files in TOC
 * #4206: latex: reST label between paragraphs loses paragraph break
 * #4231: html: Apply fixFirefoxAnchorBug only under Firefox
 * #4221: napoleon depends on autodoc, but users need to load it manually
@@ -148,9 +210,8 @@ Bugs fixed
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
   ``\chapter`` commands 
 * #4214: Two todolist directives break sphinx-1.6.5
-
-Testing
---------
+* Fix links to external option docs with intersphinx (refs: #3769)
+* #4091: Private members not documented without :undoc-members:
 
 Release 1.6.5 (released Oct 23, 2017)
 =====================================
