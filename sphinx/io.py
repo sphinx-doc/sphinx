@@ -116,7 +116,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector, ManpageLink]
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
