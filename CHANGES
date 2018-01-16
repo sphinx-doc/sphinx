@@ -45,7 +45,7 @@ Incompatible changes
 * shebang line is removed from generated conf.py
 * #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
   with their descendants.  It does not mock their ancestors.  If you want to
-  mock them, please specify the name of ancestors implicitly.
+  mock them, please specify the name of ancestors explicitly.
 * #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
   (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
