@@ -20,7 +20,7 @@ Options
 
 .. option:: -q, --quiet
 
-   Quiet mode that will skips interactive wizard to specify options.
+   Quiet mode that will skip interactive wizard to specify options.
    This option requires `-p`, `-a` and `-v` options.
 
 .. option:: -h, --help, --version
