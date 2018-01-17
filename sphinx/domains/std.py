@@ -782,11 +782,15 @@ class StandardDomain(Domain):
         if docname not in env.all_docs:
             return None
         else:
+            title = clean_astext(env.titles[docname])
             if node['refexplicit']:
                 # reference with explicit title
                 caption = node.astext()
+                if '{name}' in caption or '{number}' in caption:
+                    number = env.toc_secnumbers[docname].get('')
+                    caption = caption.format(name=title, number=number)
             else:
-                caption = clean_astext(env.titles[docname])
+                caption = title
             innernode = nodes.inline(caption, caption, classes=['doc'])
             return make_refnode(builder, fromdocname, docname, None, innernode)
 
