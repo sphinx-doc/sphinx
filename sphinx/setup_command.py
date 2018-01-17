@@ -148,16 +148,12 @@ class BuildDoc(Command):
         if self.build_dir is None:
             build = self.get_finalized_command('build')
             self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
-            self.mkpath(self.build_dir)  # type: ignore
 
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
 
-        self.mkpath(self.doctree_dir)  # type: ignore
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]  # type: List[Tuple[str, unicode]]
-        for _, builder_target_dir in self.builder_target_dirs:
-            self.mkpath(builder_target_dir)  # type: ignore
 
     def run(self):
         # type: () -> None
