@@ -784,6 +784,17 @@ class ASTStringLiteral(ASTBase):
         signode.append(nodes.Text(txt, txt))
 
 
+class ASTThisLiteral(ASTBase):
+    def __unicode__(self):
+        return "this"
+
+    def get_id(self, version):
+        return "fpT"
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text("this"))
+
+
 class ASTParenExpr(ASTBase):
     def __init__(self, expr):
         self.expr = expr
@@ -4124,7 +4135,10 @@ class DefinitionParser(object):
         res = self._parse_literal()
         if res is not None:
             return res
-        # TODO: try 'this' and lambda expression
+        self.skip_ws()
+        if self.skip_word("this"):
+            return ASTThisLiteral()
+        # TODO: try lambda expression
         res = self._parse_fold_or_paren_expression()
         if res is not None:
             return res

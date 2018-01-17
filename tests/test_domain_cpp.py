@@ -126,6 +126,7 @@ def test_expressions():
         expr = '5.0' + suffix
         exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
+    exprCheck('this', 'fpT')
     # TODO: test the rest
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')

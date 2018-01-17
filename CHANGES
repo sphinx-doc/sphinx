@@ -36,6 +36,7 @@ Bugs fixed
 * #4577: Enumerated sublists with explicit start with wrong number
 * #4641: A external link in TOC cannot contain "?" with ``:glob:`` option
 * C++, add missing parsing of explicit casts and typeid in expression parsing.
+* C++, add missing parsing of ``this`` in expression parsing.
 
 Testing
 --------
