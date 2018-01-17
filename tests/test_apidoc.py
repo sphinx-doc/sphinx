@@ -67,12 +67,17 @@ def test_pep_0420_enabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'a.b.c.rst').isfile()
+    assert (outdir / 'a.b.e.rst').isfile()
     assert (outdir / 'a.b.x.rst').isfile()
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
         assert "automodule:: a.b.c.d\n" in rst
         assert "automodule:: a.b.c\n" in rst
+
+    with open(outdir / 'a.b.e.rst') as f:
+        rst = f.read()
+        assert "automodule:: a.b.e.f\n" in rst
 
     with open(outdir / 'a.b.x.rst') as f:
         rst = f.read()
@@ -86,11 +91,66 @@ def test_pep_0420_enabled(make_app, apidoc):
 
     builddir = outdir / '_build' / 'text'
     assert (builddir / 'a.b.c.txt').isfile()
+    assert (builddir / 'a.b.e.txt').isfile()
     assert (builddir / 'a.b.x.txt').isfile()
 
     with open(builddir / 'a.b.c.txt') as f:
         txt = f.read()
         assert "a.b.c package\n" in txt
+
+    with open(builddir / 'a.b.e.txt') as f:
+        txt = f.read()
+        assert "a.b.e.f module\n" in txt
+
+    with open(builddir / 'a.b.x.txt') as f:
+        txt = f.read()
+        assert "a.b.x namespace\n" in txt
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-pep420',
+    options=["--implicit-namespaces", "--separate"],
+)
+def test_pep_0420_enabled_separate(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.b.c.rst').isfile()
+    assert (outdir / 'a.b.e.rst').isfile()
+    assert (outdir / 'a.b.e.f.rst').isfile()
+    assert (outdir / 'a.b.x.rst').isfile()
+    assert (outdir / 'a.b.x.y.rst').isfile()
+
+    with open(outdir / 'a.b.c.rst') as f:
+        rst = f.read()
+        assert ".. toctree::\n\n   a.b.c.d\n" in rst
+
+    with open(outdir / 'a.b.e.rst') as f:
+        rst = f.read()
+        assert ".. toctree::\n\n   a.b.e.f\n" in rst
+
+    with open(outdir / 'a.b.x.rst') as f:
+        rst = f.read()
+        assert ".. toctree::\n\n   a.b.x.y\n" in rst
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
+
+    builddir = outdir / '_build' / 'text'
+    assert (builddir / 'a.b.c.txt').isfile()
+    assert (builddir / 'a.b.e.txt').isfile()
+    assert (builddir / 'a.b.e.f.txt').isfile()
+    assert (builddir / 'a.b.x.txt').isfile()
+    assert (builddir / 'a.b.x.y.txt').isfile()
+
+    with open(builddir / 'a.b.c.txt') as f:
+        txt = f.read()
+        assert "a.b.c package\n" in txt
+
+    with open(builddir / 'a.b.e.f.txt') as f:
+        txt = f.read()
+        assert "a.b.e.f module\n" in txt
 
     with open(builddir / 'a.b.x.txt') as f:
         txt = f.read()
