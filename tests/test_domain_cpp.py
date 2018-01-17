@@ -137,7 +137,12 @@ def test_expressions():
     exprCheck('a->b->c', 'ptpt1a1b1c')
     exprCheck('i++', 'pp1i')
     exprCheck('i--', 'mm1i')
-    # TODO, those with prefixes
+    exprCheck('dynamic_cast<T&>(i)++', 'ppdcR1T1i')
+    exprCheck('static_cast<T&>(i)++', 'ppscR1T1i')
+    exprCheck('reinterpret_cast<T&>(i)++', 'pprcR1T1i')
+    exprCheck('const_cast<T&>(i)++', 'ppccR1T1i')
+    exprCheck('typeid(T).name', 'dtti1T4name')
+    exprCheck('typeid(a + b).name', 'dttepl1a1b4name')
     # unary
     exprCheck('++5', 'pp_L5E')
     exprCheck('--5', 'mm_L5E')
