@@ -17,7 +17,7 @@ Bugs fixed
 ----------
 
 * #1922: html search: Upper characters problem in French
-
+* #4412: Updated jQuery version from 3.1.0 to 3.2.1
 
 Testing
 --------
