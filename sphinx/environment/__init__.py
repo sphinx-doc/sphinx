@@ -29,7 +29,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, relpath
 from sphinx.util.websupport import is_commentable
 
 if False:
@@ -325,12 +324,7 @@ class BuildEnvironment:
 
         *filename* should be absolute or relative to the source directory.
         """
-        if filename.startswith(self.srcdir):
-            filename = relpath(filename, self.srcdir)
-        for suffix in self.config.source_suffix:
-            if filename.endswith(suffix):
-                return filename[:-len(suffix)]
-        return None
+        return self.project.path2doc(filename)
 
     def doc2path(self, docname, base=True, suffix=None):
         # type: (unicode, Union[bool, unicode], unicode) -> unicode
@@ -348,21 +342,13 @@ class BuildEnvironment:
             warnings.warn('The string style base argument for doc2path() is deprecated.',
                           RemovedInSphinx40Warning)
 
-        docname = docname.replace(SEP, path.sep)
-        if suffix is None:
-            # Use first candidate if there is not a file for any suffix
-            suffix = next(iter(self.config.source_suffix))
-            for candidate_suffix in self.config.source_suffix:
-                if path.isfile(path.join(self.srcdir, docname) +
-                               candidate_suffix):
-                    suffix = candidate_suffix
-                    break
-        if base is True:
-            return path.join(self.srcdir, docname) + suffix
-        elif base is None:
-            return docname + suffix
-        else:
-            return path.join(base, docname) + suffix  # type: ignore
+        pathname = self.project.doc2path(docname, base is True)
+        if suffix:
+            filename, _ = path.splitext(pathname)
+            pathname = filename + suffix
+        if base and base is not True:
+            pathname = path.join(base, pathname)  # type: ignore
+        return pathname
 
     def relfn2path(self, filename, docname=None):
         # type: (unicode, unicode) -> Tuple[unicode, unicode]
