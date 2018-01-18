@@ -34,6 +34,7 @@ from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.locale import __
+from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils
 from sphinx.util import import_object
@@ -137,6 +138,7 @@ class Sphinx:
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
+        self.project = None                     # type: Project
         self.registry = SphinxComponentRegistry()
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
@@ -249,6 +251,8 @@ class Sphinx:
         self.config.init_values()
         self.emit('config-inited', self.config)
 
+        # create the project
+        self.project = Project(self.srcdir, self.config.source_suffix)
         # create the builder
         self.builder = self.create_builder(buildername)
         # set up the build environment

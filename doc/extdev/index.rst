@@ -85,6 +85,7 @@ APIs used for writing extensions
 
    tutorial
    appapi
+   projectapi
    envapi
    builderapi
    collectorapi

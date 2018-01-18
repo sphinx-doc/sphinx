@@ -24,11 +24,10 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import get_matching_docs, DownloadFiles, FilenameUniqDict
+from sphinx.util import DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
-from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, relpath
 from sphinx.util.websupport import is_commentable
@@ -41,6 +40,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain  # NOQA
+    from sphinx.project import Project  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +106,7 @@ class BuildEnvironment:
         self.srcdir = None          # type: unicode
         self.config = None          # type: Config
         self.config_status = None   # type: int
+        self.project = None         # type: Project
         self.version = None         # type: Dict[unicode, unicode]
 
         # the method of doctree versioning; see set_versioning_method
@@ -122,8 +123,6 @@ class BuildEnvironment:
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
-        self.found_docs = set()     # type: Set[unicode]
-                                    # contains all existing docnames
         self.all_docs = {}          # type: Dict[unicode, float]
                                     # docname -> mtime at the time of reading
                                     # contains all read docnames
@@ -217,9 +216,13 @@ class BuildEnvironment:
         elif self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
 
+        if self.project:
+            app.project.restore(self.project)
+
         self.app = app
         self.doctreedir = app.doctreedir
         self.srcdir = app.srcdir
+        self.project = app.project
         self.version = app.registry.get_envversion(app)
 
         # initialize domains
@@ -386,25 +389,22 @@ class BuildEnvironment:
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
+    @property
+    def found_docs(self):
+        # type: () -> Set[unicode]
+        """contains all existing docnames."""
+        return self.project.docnames
+
     def find_files(self, config, builder):
         # type: (Config, Builder) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
         try:
-            matchers = compile_matchers(
-                config.exclude_patterns[:] +
-                config.templates_path +
-                builder.get_asset_paths() +
-                ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
-            )
-            self.found_docs = set()
-            for docname in get_matching_docs(self.srcdir, config.source_suffix,  # type: ignore
-                                             exclude_matchers=matchers):
-                if os.access(self.doc2path(docname), os.R_OK):
-                    self.found_docs.add(docname)
-                else:
-                    logger.warning(__("document not readable. Ignored."), location=docname)
+            exclude_paths = (self.config.exclude_patterns +
+                             self.config.templates_path +
+                             builder.get_asset_paths())
+            self.project.discovery(exclude_paths)
 
             # Current implementation is applying translated messages in the reading
             # phase.Therefore, in order to apply the updated message catalog, it is

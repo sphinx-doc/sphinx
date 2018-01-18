@@ -120,6 +120,10 @@ Sphinx runtime information
 
 The application object also provides runtime information as attributes.
 
+.. attribute:: Sphinx.project
+
+   Target project.  See :class:`.Project`.
+
 .. attribute:: Sphinx.srcdir
 
    Source directory.
