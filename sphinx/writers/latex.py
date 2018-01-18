@@ -1477,8 +1477,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             context = ('\\par\n\\vskip-\\baselineskip'
                        '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
             self.needs_linetrimming = 1
-        if len(node) > 2 and len(node.astext().split('\n')) > 2:
-            self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
