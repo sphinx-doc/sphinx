@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 import docutils
 from docutils.languages import get_language
-from docutils.statemachine import StateMachine, ViewList
+from docutils.statemachine import StateMachine
 from docutils.parsers.rst import directives, roles, convert_directive_function
 from docutils.utils import Reporter
 
@@ -33,7 +33,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
-    from docutils.statemachine import State  # NOQA
+    from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
 
