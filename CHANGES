@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #4415: autodoc classifies inherited classmethods as regular methods
+* #4415: autodoc classifies inherited staticmethods as regular methods
+
 Testing
 --------
 
@@ -45,7 +48,7 @@ Incompatible changes
 * shebang line is removed from generated conf.py
 * #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
   with their descendants.  It does not mock their ancestors.  If you want to
-  mock them, please specify the name of ancestors implicitly.
+  mock them, please specify the name of ancestors explicitly.
 * #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
   (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
@@ -190,7 +193,8 @@ Bugs fixed
 ----------
 
 * #1922: html search: Upper characters problem in French
-
+* #4412: Updated jQuery version from 3.1.0 to 3.2.1
+* #4438: math: math with labels with whitespace cause html error
 
 Testing
 --------

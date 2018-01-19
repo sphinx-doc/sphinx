@@ -154,6 +154,40 @@ def isenumattribute(x):
     return isinstance(x, enum.Enum)
 
 
+def isclassmethod(obj):
+    # type: (Any) -> bool
+    """Check if the object is classmethod."""
+    if isinstance(obj, classmethod):
+        return True
+    elif inspect.ismethod(obj):
+        if getattr(obj, 'im_self', None):  # py2
+            return True
+        elif getattr(obj, '__self__', None):  # py3
+            return True
+
+    return False
+
+
+def isstaticmethod(obj, cls=None, name=None):
+    # type: (Any, Any, unicode) -> bool
+    """Check if the object is staticmethod."""
+    if isinstance(obj, staticmethod):
+        return True
+    elif cls and name:
+        # trace __mro__ if the method is defined in parent class
+        #
+        # .. note:: This only works with new style classes.
+        for basecls in getattr(cls, '__mro__', []):
+            meth = basecls.__dict__.get(name)
+            if meth:
+                if isinstance(meth, staticmethod):
+                    return True
+                else:
+                    return False
+
+    return False
+
+
 def isdescriptor(x):
     # type: (Any) -> bool
     """Check if the object is some kind of descriptor."""

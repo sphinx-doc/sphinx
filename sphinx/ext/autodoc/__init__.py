@@ -32,7 +32,7 @@ from sphinx.application import ExtensionError
 from sphinx.util import logging
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, getdoc
+    isenumattribute, isclassmethod, isstaticmethod, getdoc
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -1261,12 +1261,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name)
+        if obj is None:
+            obj = self.object
 
-        if isinstance(obj, classmethod):
+        if isclassmethod(obj):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif isinstance(obj, staticmethod):
+        elif isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
