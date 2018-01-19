@@ -40,9 +40,9 @@ def test_jsmath(app, status, warning):
     assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
             u'title="Permalink to this equation">\xb6</a></span>'
             u'<div class="math notranslate" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
-    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math:0" '
+    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
             u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate" id="equation-math:0">\n'
+            u'<div class="math notranslate" id="equation-math-0">\n'
             u'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math notranslate">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math notranslate">\na + 1 &lt; b</div>' in content
@@ -102,7 +102,7 @@ def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="math notranslate" id="equation-index:0">\s*'
+    html = (r'<div class="math notranslate" id="equation-index-0">\s*'
             r'<span class="eqno">\(1\)<a .*>\xb6</a></span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
     assert re.search(html, content, re.S)
 
