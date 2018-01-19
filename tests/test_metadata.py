@@ -24,6 +24,9 @@ def test_docinfo(app, status, warning):
     'dedication' blocks, or the 'meta' role. Doing otherwise is probably more
     messing with the internals of sphinx than this rare use case merits.
     """
+    # remove doctree cache to rebuild forcely
+    (app.doctreedir / 'metadata.doctree').rmtree(ignore_errors=True)
+
     app.builder.build(['metadata'])
     env = app.env
     exampledocinfo = env.metadata['metadata']
