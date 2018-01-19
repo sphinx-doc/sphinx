@@ -52,8 +52,7 @@ class MathDomain(Domain):
     label = 'mathematics'
 
     initial_data = {
-        'nameids': {},  # label -> equation ID
-        'objects': {},  # equation ID -> (docname, eqno)
+        'objects': {},  # labelid -> (docname, eqno)
     }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
