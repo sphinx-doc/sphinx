@@ -64,6 +64,10 @@ class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
 
+    @classmethod
+    def inheritedclassmeth(cls):
+        """Inherited class method."""
+
 
 class Derived(Base):
     def inheritedmeth(self):

@@ -715,6 +715,7 @@ def test_generate():
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
     should.append(('method', 'target.Class.inheritedmeth'))
+    should.append(('method', 'target.Class.inheritedclassmeth'))
     assert_processes(should, 'class', 'Class')
 
     # test special members
@@ -798,6 +799,7 @@ def test_generate():
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
                   '   .. py:attribute:: Class._private_inst_attr',
+                  '   .. py:classmethod:: Class.inheritedclassmeth()',
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)

@@ -154,6 +154,20 @@ def isenumattribute(x):
     return isinstance(x, enum.Enum)
 
 
+def isclassmethod(obj):
+    # type: (Any) -> bool
+    """Check if the object is classmethod."""
+    if isinstance(obj, classmethod):
+        return True
+    elif inspect.ismethod(obj):
+        if getattr(obj, 'im_self', None):  # py2
+            return True
+        elif getattr(obj, '__self__', None):  # py3
+            return True
+
+    return False
+
+
 def isdescriptor(x):
     # type: (Any) -> bool
     """Check if the object is some kind of descriptor."""

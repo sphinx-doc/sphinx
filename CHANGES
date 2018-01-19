@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4415: autodoc classifies inherited classmethods as regular methods
+
 Testing
 --------
 
