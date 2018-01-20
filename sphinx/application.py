@@ -225,6 +225,7 @@ class Sphinx(object):
         self.builder = self.create_builder(buildername)
         # check all configuration values for permissible types
         self.config.check_types()
+        self.emit('config-inited', self.config)
         # set up source_parsers
         self._init_source_parsers()
         # set up the build environment
