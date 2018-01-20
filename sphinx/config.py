@@ -54,6 +54,10 @@ ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('rebuild', Union[bool, unicode])])
 
 
+#: represents the config value accepts any type of value.
+Any = object()
+
+
 class ENUM(object):
     """represents the config value should be a one of candidates.
 
@@ -102,7 +106,7 @@ class Config(object):
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
-        source_suffix = (['.rst'], 'env'),
+        source_suffix = (['.rst'], 'env', Any),
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
@@ -205,7 +209,10 @@ class Config(object):
             if default is None and not permitted:
                 continue  # neither inferrable nor expliclitly permitted types
             current = self[name]
-            if isinstance(permitted, ENUM):
+            if permitted is Any:
+                # any type of value is accepted
+                pass
+            elif isinstance(permitted, ENUM):
                 if not permitted.match(current):
                     logger.warning(CONFIG_ENUM_WARNING.format(
                         name=name, current=current, candidates=permitted.candidates))

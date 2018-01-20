@@ -14,6 +14,8 @@ Features added
 --------------
 
 * Add :event:`config-inited` event
+* Add ``sphinx.config.Any`` to represent the config value accepts any type of
+  value
 
 Bugs fixed
 ----------
