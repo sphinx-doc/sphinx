@@ -11,12 +11,9 @@ How do I...
 
 ... create PDF files without LaTeX?
    `rinohtype`_ provides a PDF builder that can be used as a drop-in
-   replacement for the LaTeX builder.  Alternatively, you can use `rst2pdf`_
-   version 0.12 or greater which comes with built-in Sphinx integration.  See
-   the :ref:`builders` section for details.
+   replacement for the LaTeX builder.
 
    .. _rinohtype: https://github.com/brechtm/rinohtype
-   .. _rst2pdf: https://github.com/rst2pdf/rst2pdf
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
