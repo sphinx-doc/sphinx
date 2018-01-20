@@ -80,7 +80,6 @@ class SphinxBaseReader(standalone.Reader):
         # substitute reporter
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
-        document.reporter.set_source(self.source)
 
         return document
 
