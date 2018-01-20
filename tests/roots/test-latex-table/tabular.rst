@@ -68,6 +68,20 @@ cell2-1 cell2-2
 cell3-1 cell3-2
 ======= =======
 
+table with cell in first column having three paragraphs
+-------------------------------------------------------
+
++--------------+
+| header1      |
++==============+
+| cell1-1-par1 |
+|              |
+| cell1-1-par2 |
+|              |
+| cell1-1-par3 |
++--------------+
+
+
 table having caption
 --------------------
 
