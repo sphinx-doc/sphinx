@@ -137,12 +137,14 @@ def warning(app):
 
 
 @pytest.fixture()
-def make_app(test_params):
+def make_app(test_params, monkeypatch):
     """
     provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
+    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
+
     apps = []
     syspath = sys.path[:]
 

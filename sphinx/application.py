@@ -28,7 +28,8 @@ from docutils.parsers.rst import directives, roles
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
+from sphinx.errors import (
+    ApplicationError, ConfigError, ExtensionError, VersionRequirementError)
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
@@ -43,6 +44,7 @@ from sphinx.util.osutil import ENOENT, ensuredir
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
+from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
@@ -123,10 +125,24 @@ class Sphinx(object):
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
-        self.srcdir = srcdir
+        # validate provided directories
+        self.srcdir = abspath(srcdir)
+        self.outdir = abspath(outdir)
+        self.doctreedir = abspath(doctreedir)
         self.confdir = confdir
-        self.outdir = outdir
-        self.doctreedir = doctreedir
+        if self.confdir:  # confdir is optional
+            self.confdir = abspath(self.confdir)
+            if not path.isfile(path.join(self.confdir, 'conf.py')):
+                raise ApplicationError("config directory doesn't contain a "
+                                       "conf.py file (%s)" % confdir)
+
+        if not path.isdir(self.srcdir):
+            raise ApplicationError('Cannot find source directory (%s)' %
+                                   self.srcdir)
+
+        if self.srcdir == self.outdir:
+            raise ApplicationError('Source directory and destination '
+                                   'directory cannot be identical')
 
         self.parallel = parallel
 
