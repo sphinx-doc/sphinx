@@ -69,13 +69,9 @@ Windows: Install Python and Sphinx
 Install Python
 ^^^^^^^^^^^^^^
 
-Most Windows users do not have Python, so we begin with the installation of
-Python itself.  If you have already installed Python, please skip this section.
-
-Go to https://www.python.org/, the main download site for Python. Look at the left
-sidebar and under "Quick Links", click "Windows Installer" to download.
-
-.. image:: pythonorg.png
+Most Windows users do not have Python, so we begin with the
+installation of Python itself.  If you have already installed
+Python, please skip to the next section.
 
 .. note::
 
@@ -83,69 +79,40 @@ sidebar and under "Quick Links", click "Windows Installer" to download.
    under Python 2.7, 3.4, 3.5, 3.6, with the recommended version being 2.7.  This
    chapter assumes you are installing Python 2.7.
 
-Follow the Windows installer for Python.
+Go to https://www.python.org/, the main download site for Python.
+Hover over the "Downloads" menu and select a Python version to download.
 
-.. image:: installpython.jpg
+.. image:: pythonorg.png
 
-After installation, you better add the Python executable directories to the
-environment variable ``PATH`` in order to run Python and package commands such
-as ``sphinx-build`` easily from the Command Prompt.
+Follow the Windows installer for Python.  When you reach the screen that
+lets you customize the installation, scroll to the bottom of the list
+and change "Add python.exe to Path" so that it will be installed.
 
-* Right-click the "My Computer" icon and choose "Properties"
-* Click the "Environment Variables" button under the "Advanced" tab
+.. image:: installpython.png
 
-* If "Path" (or "PATH") is already an entry in the "System variables" list, edit
-  it.  If it is not present, add a new variable called "PATH".
+Now run the **Command Prompt**.  After the command prompt window appears, type
+``python`` and Enter.  If the Python installation was successful, the
+installed Python version is printed, and you are greeted by the prompt
+``>>>``:
 
-* Add these paths, separating entries by ";":
+.. code-block:: text
 
-  - ``C:\Python27`` -- this folder contains the main Python executable
-  - ``C:\Python27\Scripts`` -- this folder will contain executables added by
-    Python packages installed with pip (see below)
+   C:\>python
+   Python 2.7.14 (v2.7.14:84471935ed, Sep 16 2017, 20:19:30) [MSC v.1500 32 bit (Intel)] on win32
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>>
 
-  This is for Python 2.7.  If you use another version of
-  Python or installed to a non-default location, change the digits "27"
-  accordingly.
-
-* Now run the **Command Prompt**.  After command prompt window appear, type
-  ``python`` and Enter.  If the Python installation was successful, the
-  installed Python version is printed, and you are greeted by the prompt
-  ``>>>``.  Type ``Ctrl+Z`` and Enter to quit.
+Type ``Ctrl+Z`` and ``Enter`` to quit.
 
 
-Install the pip command
-^^^^^^^^^^^^^^^^^^^^^^^
+Install Sphinx using pip
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Python has a very useful :command:`pip` command which can download and install
-3rd-party libraries with a single command. This is provided by the
-Python Packaging Authority(PyPA):
-https://groups.google.com/forum/#!forum/pypa-dev
+Type this line in the command prompt:
 
-To install pip, download https://bootstrap.pypa.io/get-pip.py and
-save it somewhere.  After download, invoke the command prompt, go to the
-directory with ``get-pip.py`` and run this command:
+.. code-block:: text
 
-.. code-block:: bat
-
-   C:\> python get-pip.py
-
-Now :command:`pip` command is installed.  From there we can go to the Sphinx
-install.
-
-.. note::
-
-   ``pip`` has been contained in the Python official installation after version
-   of Python-3.4.0 or Python-2.7.9.
-
-
-Installing Sphinx with pip
---------------------------
-
-If you finished the installation of pip, type this line in the command prompt:
-
-.. code-block:: bat
-
-   C:\> pip install sphinx
+   C:\>pip install sphinx
 
 After installation, type :command:`sphinx-build -h` on the command prompt.  If
 everything worked fine, you will get a Sphinx version number and a list of
