@@ -167,7 +167,7 @@ def test_mathjax_numfig_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'math.html').text()
-    html = ('<div class="math notranslate" id="equation-math:0">\n'
+    html = ('<div class="math notranslate" id="equation-math-0">\n'
             '<span class="eqno">(1.2)')
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
@@ -184,7 +184,7 @@ def test_jsmath_numfig_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'math.html').text()
-    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math:0"'
+    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math-0"'
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
             'href="#equation-foo">(1.1)</a>.</p>')
