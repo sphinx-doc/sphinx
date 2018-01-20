@@ -196,7 +196,7 @@ def ustrftime(format, *args):
         return time.strftime(text_type(format).encode(enc), *args).decode(enc)
     else:  # Py3
         # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-        # http://bugs.python.org/issue8304
+        # https://bugs.python.org/issue8304
         try:
             return time.strftime(format, *args)
         except UnicodeEncodeError:

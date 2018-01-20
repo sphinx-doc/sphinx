@@ -8,11 +8,11 @@
 
     This adds a new config value called ``extlinks`` that is created like this::
 
-       extlinks = {'exmpl': ('http://example.com/%s.html', prefix), ...}
+       extlinks = {'exmpl': ('https://example.invalid/%s.html', prefix), ...}
 
     Now you can use e.g. :exmpl:`foo` in your documents.  This will create a
-    link to ``http://example.com/foo.html``.  The link caption depends on the
-    *prefix* value given:
+    link to ``https://example.invalid/foo.html``.  The link caption depends on
+    the *prefix* value given:
 
     - If it is ``None``, the caption will be the full URL.
     - If it is a string (empty or not), the caption will be the prefix prepended
