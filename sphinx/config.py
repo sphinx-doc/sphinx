@@ -26,6 +26,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -309,8 +310,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]  # type: ignore
-        if isinstance(self.source_suffix, string_types):  # type: ignore
-            self.source_suffix = [self.source_suffix]  # type: ignore
 
     def __getattr__(self, name):
         # type: (unicode) -> Any
@@ -351,3 +350,21 @@ class Config(object):
     def filter(self, rebuild):
         # type: (str) -> Iterator[ConfigValue]
         return (value for value in self if value.rebuild == rebuild)  # type: ignore
+
+
+def convert_source_suffix(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts source_suffix to string-list."""
+    if isinstance(config.source_suffix, string_types):  # type: ignore
+        config.source_suffix = [config.source_suffix]  # type: ignore
+
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.connect('config-inited', convert_source_suffix)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
