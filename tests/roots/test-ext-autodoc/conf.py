@@ -10,3 +10,5 @@ source_suffix = '.rst'
 autodoc_mock_imports = [
     'dummy'
 ]
+
+nitpicky = True
