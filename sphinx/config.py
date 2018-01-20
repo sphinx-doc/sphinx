@@ -78,8 +78,15 @@ if PY2:
 
 
 class Config(object):
-    """
-    Configuration file abstraction.
+    """Configuration file abstraction.
+
+    The config object makes the values of all config values available as
+    attributes.
+
+    It is exposed via the :py:attr:`sphinx.application.Application.config` and
+    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
+    to get the value of :confval:`language`, use either ``app.config.language``
+    or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
