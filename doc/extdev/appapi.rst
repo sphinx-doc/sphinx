@@ -614,7 +614,7 @@ handlers to the events.  Example:
 
 .. event:: env-check-consistency (env)
 
-   Emmited when Consistency checks phase.  You can check consistency of
+   Emitted when Consistency checks phase.  You can check consistency of
    metadata for whole of documents.
 
    .. versionadded:: 1.6
