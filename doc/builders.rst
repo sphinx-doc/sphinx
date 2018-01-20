@@ -216,7 +216,7 @@ instructions.
 .. _rinohtype: https://github.com/brechtm/rinohtype
 .. _rinohtype manual: http://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
 .. _rst2pdf: https://github.com/rst2pdf/rst2pdf
-.. _rst2pdf manual: http://ralsina.me/static/manual.pdf
+.. _rst2pdf manual: https://ralsina.me/static/manual.pdf
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder

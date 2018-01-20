@@ -34,7 +34,7 @@ to reStructuredText/Sphinx from other documentation systems.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
-  <http://svn.python.org/projects/doctools/converter>`_.  It contains generic
+  <https://svn.python.org/projects/doctools/converter/>`_.  It contains generic
   code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
@@ -43,7 +43,7 @@ to reStructuredText/Sphinx from other documentation systems.
 * Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
   to Sphinx: `odt2sphinx <https://pypi.python.org/pypi/odt2sphinx/>`_.
 
-* To convert different markups, `Pandoc <http://pandoc.org/>`_ is
+* To convert different markups, `Pandoc <https://pandoc.org/>`_ is
   a very helpful tool.
 
 
