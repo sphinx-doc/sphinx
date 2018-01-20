@@ -130,24 +130,24 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{sphinxfigure-in-table}\n\\centering\n\\capstart\n'
             '\\noindent\\sphinxincludegraphics{{img}.png}\n'
-            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id7}}'
+            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id8}}'
             '\\end{sphinxfigure-in-table}\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{\\detokenize{markup:id8}}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
-            '\\label{\\detokenize{markup:id9}}'
+            '\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
-            '\\label{\\detokenize{markup:id10}}'
+            '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}' in result)
 
 
