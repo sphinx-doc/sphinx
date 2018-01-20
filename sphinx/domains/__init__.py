@@ -281,11 +281,11 @@ class Domain(object):
         cross-reference.
 
         If no resolution can be found, None can be returned; the xref node will
-        then given to the 'missing-reference' event, and if that yields no
+        then given to the :event:`missing-reference` event, and if that yields no
         resolution, replaced by *contnode*.
 
         The method can also raise :exc:`sphinx.environment.NoUri` to suppress
-        the 'missing-reference' event being emitted.
+        the :event:`missing-reference` event being emitted.
         """
         pass
 
