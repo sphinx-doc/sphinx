@@ -179,6 +179,8 @@ def cached_etree_parse():
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        # tests for numeric labels
+        (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
