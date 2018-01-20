@@ -45,7 +45,7 @@ toolkit (CMU Sphinx) and a full-text search database (Sphinx search).
 Mac OS X: Install Sphinx using MacPorts
 ---------------------------------------
 
-If you use Mac OS X `MacPorts <http://www.macports.org/>`_, use this command to
+If you use Mac OS X `MacPorts <https://www.macports.org/>`_, use this command to
 install all necessary software.
 
 .. code-block:: bash
