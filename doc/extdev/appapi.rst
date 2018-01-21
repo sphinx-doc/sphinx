@@ -91,6 +91,8 @@ package.
 
 .. automethod:: Sphinx.add_html_theme(name, theme_path)
 
+.. automethod:: Sphinx.is_parallel_allowed(typ)
+
 .. exception:: ExtensionError
 
    All these methods raise this exception if something went wrong with the
