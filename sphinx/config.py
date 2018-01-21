@@ -355,12 +355,12 @@ class Config(object):
 def convert_source_suffix(app, config):
     # type: (Sphinx, Config) -> None
     """This converts source_suffix to string-list."""
-    if isinstance(config.source_suffix, string_types):  # type: ignore
+    if isinstance(config.source_suffix, string_types):
         config.source_suffix = [config.source_suffix]  # type: ignore
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
 
     return {
