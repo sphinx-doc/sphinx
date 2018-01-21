@@ -194,7 +194,7 @@ Hyperlinks
 External links
 ^^^^^^^^^^^^^^
 
-Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
+Use ```Link text <https://domain.invalid/>`_`` for inline web links.  If the link
 text should be the web address, you don't need special markup at all, the parser
 finds links and mail addresses in ordinary text.
 
@@ -205,7 +205,7 @@ You can also separate the link and the target definition (:duref:`ref
 
    This is a paragraph that contains `a link`_.
 
-   .. _a link: http://example.com/
+   .. _a link: https://domain.invalid/
 
 
 Internal links

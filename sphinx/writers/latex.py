@@ -1775,7 +1775,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
-                # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
+                # https://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
                 (0, 'left'): ('{', '\\hspace*{\\fill}}'),
                 (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }

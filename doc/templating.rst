@@ -62,7 +62,7 @@ following contents::
 
     {% extends "!layout.html" %}
     {% block rootrellink %}
-        <li><a href="http://project.invalid/">Project Homepage</a> &raquo;</li>
+        <li><a href="https://project.invalid/">Project Homepage</a> &raquo;</li>
         {{ super() }}
     {% endblock %}
 

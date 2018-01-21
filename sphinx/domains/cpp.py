@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
           It is not the actual old code, but a replication of the behaviour.
     - v2: 1.3 <= version < now
           Standardised mangling scheme from
-          http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
+          https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.

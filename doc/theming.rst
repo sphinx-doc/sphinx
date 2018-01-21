@@ -135,7 +135,7 @@ These themes are:
   :confval:`html_sidebars` for its use.
 
   .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
-  .. _installation page: http://alabaster.readthedocs.io/en/latest/installation.html
+  .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via

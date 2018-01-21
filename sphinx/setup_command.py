@@ -120,7 +120,7 @@ class BuildDoc(Command):
 
     # Overriding distutils' Command._ensure_stringlike which doesn't support
     # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for http://bugs.python.org/issue19570
+    # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
         # type: (unicode, unicode, Any) -> Any
         val = getattr(self, option)
