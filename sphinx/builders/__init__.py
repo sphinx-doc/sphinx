@@ -275,14 +275,14 @@ class Builder:
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
 
+            if not path.isfile(filename):
+                logger.warning(__('file %r given on command line does not exist, '),
+                               filename)
+                continue
+
             if not filename.startswith(self.srcdir):
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
-                continue
-
-            if not path.isfile(filename):
-                logger.warning(__('file %r given on command line does not exist, '
-                                  'ignoring'), filename)
                 continue
 
             docname = self.env.path2doc(filename)
