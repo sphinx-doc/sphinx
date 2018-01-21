@@ -943,7 +943,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -980,6 +980,11 @@ def test_latex_table_tabulars(app, status, warning):
     expected = get_expected('tabularcolumn')
     assert actual == expected
 
+    # table with cell in first column having three paragraphs
+    actual = tables['table with cell in first column having three paragraphs']
+    expected = get_expected('table_having_threeparagraphs_cell_in_first_col')
+    assert actual == expected
+
     # table having caption
     actual = tables['table having caption']
     expected = get_expected('table_having_caption')
@@ -1009,7 +1014,7 @@ def test_latex_table_tabulars(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -1070,7 +1075,7 @@ def test_latex_table_longtable(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')

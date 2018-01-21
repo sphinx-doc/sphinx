@@ -323,6 +323,11 @@ following directive exists:
       Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``, ``Y{f}``
       and tabulary's columns.
 
+   .. note::
+
+      :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
+      directives.  If both are specified, ``:widths:`` option will be ignored.
+
 Math
 ----
 

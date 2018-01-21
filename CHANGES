@@ -1,5 +1,34 @@
-Release 1.7 (in development)
-============================
+Release 1.7.0 beta2 (in development)
+====================================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* #4467: html theme: Rename ``csss`` block to ``css``
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
+
+Bugs fixed
+----------
+
+* #4415: autodoc classifies inherited classmethods as regular methods
+* #4415: autodoc classifies inherited staticmethods as regular methods
+
+Testing
+--------
+
+Release 1.7.0 beta1 (released Jan 15, 2018)
+===========================================
 
 Dependencies
 ------------
@@ -22,6 +51,13 @@ Incompatible changes
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
 * shebang line is removed from generated conf.py
+* #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
+  with their descendants.  It does not mock their ancestors.  If you want to
+  mock them, please specify the name of ancestors explicitly.
+* #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
+  (refs: #4295)
+* #4246: Limit width of text body for all themes. Conifigurable via theme
+  options ``body_min_width`` and ``body_max_width``.
 
 Deprecated
 ----------
@@ -81,8 +117,10 @@ Features added
 * #4245: html themes: Add ``language`` to javascript vars list
 * #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
   to let Google Translate know they are not translatable
-* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
-  processes automatically.
+* #4137: doctest: doctest block is always highlighted as python console (pycon)
+* #4137: doctest: testcode block is always highlighted as python
+* #3998: text: Assign section numbers by default.  You can control it using
+  :confval:`text_add_secnumbers` and :confval:`text_secnumber_suffix`
 
 Features removed
 ----------------
@@ -158,6 +196,11 @@ Features added
 
 Bugs fixed
 ----------
+
+* #1922: html search: Upper characters problem in French
+* #4412: Updated jQuery version from 3.1.0 to 3.2.1
+* #4438: math: math with labels with whitespace cause html error
+* #2437: make full reference for classes, aliased with "alias of"
 
 Testing
 --------

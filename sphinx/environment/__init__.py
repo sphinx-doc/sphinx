@@ -19,13 +19,11 @@ import warnings
 from os import path
 from copy import copy
 from collections import defaultdict
-from contextlib import contextmanager
 
-from six import BytesIO, itervalues, class_types, next, iteritems
+from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.utils import Reporter, get_source_line, normalize_language_tag
-from docutils.utils.smartquotes import smartchars
+from docutils.utils import Reporter, get_source_line
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes, versioning
@@ -41,7 +39,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.transforms import SphinxTransformer, SphinxSmartQuotes
+from sphinx.transforms import SphinxTransformer
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -82,22 +80,6 @@ versioning_conditions = {
     'text': is_translatable,
     'commentable': is_commentable,
 }  # type: Dict[unicode, Union[bool, Callable]]
-
-
-@contextmanager
-def sphinx_smartquotes_action(env):
-    # type: (BuildEnvironment) -> Generator
-    if not hasattr(SphinxSmartQuotes, 'smartquotes_action'):
-        # less than docutils-0.14
-        yield
-    else:
-        # docutils-0.14 or above
-        try:
-            original = SphinxSmartQuotes.smartquotes_action
-            SphinxSmartQuotes.smartquotes_action = env.config.smartquotes_action
-            yield
-        finally:
-            SphinxSmartQuotes.smartquotes_action = original
 
 
 class NoUri(Exception):
@@ -602,8 +584,7 @@ class BuildEnvironment(object):
             # remove all inventory entries for that file
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
-            with sphinx_smartquotes_action(self):
-                self.read_doc(docname, app)
+            self.read_doc(docname, app)
 
     def _read_parallel(self, docnames, app, nproc):
         # type: (List[unicode], Sphinx, int) -> None
@@ -615,9 +596,8 @@ class BuildEnvironment(object):
         def read_process(docs):
             # type: (List[unicode]) -> unicode
             self.app = app
-            with sphinx_smartquotes_action(self):
-                for docname in docs:
-                    self.read_doc(docname, app)
+            for docname in docs:
+                self.read_doc(docname, app)
             # allow pickling self to send it back
             return BuildEnvironment.dumps(self)
 
@@ -662,29 +642,10 @@ class BuildEnvironment(object):
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        language = self.config.language or 'en'
-        self.settings['language_code'] = language
-        if 'smart_quotes' not in self.settings:
-            self.settings['smart_quotes'] = self.config.smartquotes
+        self.settings['language_code'] = self.config.language or 'en'
 
-            # some conditions exclude smart quotes, overriding smart_quotes
-            for valname, vallist in iteritems(self.config.smartquotes_excludes):
-                if valname == 'builders':
-                    # this will work only for checking first build target
-                    if self.app.builder.name in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-                elif valname == 'languages':
-                    if self.config.language in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-
-        # confirm selected language supports smart_quotes or not
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                break
-        else:
-            self.settings['smart_quotes'] = False
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None

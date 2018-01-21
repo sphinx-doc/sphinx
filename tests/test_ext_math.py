@@ -40,9 +40,9 @@ def test_jsmath(app, status, warning):
     assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
             u'title="Permalink to this equation">\xb6</a></span>'
             u'<div class="math notranslate" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
-    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math:0" '
+    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
             u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate" id="equation-math:0">\n'
+            u'<div class="math notranslate" id="equation-math-0">\n'
             u'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math notranslate">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math notranslate">\na + 1 &lt; b</div>' in content
@@ -102,7 +102,7 @@ def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="math notranslate" id="equation-index:0">\s*'
+    html = (r'<div class="math notranslate" id="equation-index-0">\s*'
             r'<span class="eqno">\(1\)<a .*>\xb6</a></span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
     assert re.search(html, content, re.S)
 
@@ -167,7 +167,7 @@ def test_mathjax_numfig_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'math.html').text()
-    html = ('<div class="math notranslate" id="equation-math:0">\n'
+    html = ('<div class="math notranslate" id="equation-math-0">\n'
             '<span class="eqno">(1.2)')
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
@@ -184,7 +184,7 @@ def test_jsmath_numfig_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'math.html').text()
-    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math:0"'
+    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math-0"'
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
             'href="#equation-foo">(1.1)</a>.</p>')

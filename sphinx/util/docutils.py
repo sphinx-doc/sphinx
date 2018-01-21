@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 import docutils
 from docutils.languages import get_language
-from docutils.statemachine import StateMachine, ViewList
+from docutils.statemachine import StateMachine
 from docutils.parsers.rst import directives, roles, convert_directive_function
 from docutils.utils import Reporter
 
@@ -33,7 +33,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
-    from docutils.statemachine import State  # NOQA
+    from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
 
@@ -183,21 +183,6 @@ class LoggingReporter(Reporter):
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
-        self.source_and_line = None  # type: SphinxFileInput
-
-    def set_source(self, source):
-        # type: (SphinxFileInput) -> None
-        self.source_and_line = source
-
-    def system_message(self, *args, **kwargs):
-        # type: (Any, Any) -> Any
-        if kwargs.get('line') and isinstance(self.source_and_line, ViewList):
-            # replace source parameter if source is set
-            source, lineno = self.source_and_line.info(kwargs.get('line'))
-            kwargs['source'] = source
-            kwargs['line'] = lineno
-
-        return Reporter.system_message(self, *args, **kwargs)
 
 
 def is_html5_writer_available():

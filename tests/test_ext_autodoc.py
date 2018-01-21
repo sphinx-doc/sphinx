@@ -22,3 +22,13 @@ def test_autodoc(app, status, warning):
     assert isinstance(content[3], addnodes.desc)
     assert content[3][0].astext() == 'autodoc_dummy_module.test'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
+
+    # issue sphinx-doc/sphinx#2437
+    assert content[11][-1].astext() == """Dummy class Bar with alias.
+
+
+
+my_name
+
+alias of bug2437.autodoc_dummy_foo.Foo"""
+    assert warning.getvalue() == ''
