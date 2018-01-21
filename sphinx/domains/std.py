@@ -607,8 +607,9 @@ class StandardDomain(Domain):
             if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
                 node = document.ids.get(node['refid'])
                 labelid = node['names'][0]
-            if name.isdigit() or 'refuri' in node or \
-               node.tagname.startswith('desc_'):
+            if (node.tagname == 'footnote' or
+                    'refuri' in node or
+                    node.tagname.startswith('desc_')):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
