@@ -27,15 +27,15 @@ package.
 
 .. automethod:: Sphinx.setup_extension(name)
 
+.. automethod:: Sphinx.require_sphinx(version)
+
+.. automethod:: Sphinx.connect(event, callback)
+
+.. automethod:: Sphinx.disconnect(listener_id)
+
 .. automethod:: Sphinx.add_builder(builder)
 
 .. automethod:: Sphinx.add_config_value(name, default, rebuild)
-
-.. automethod:: Sphinx.add_domain(domain)
-
-.. automethod:: Sphinx.override_domain(domain)
-
-.. automethod:: Sphinx.add_index_to_domain(domain, index)
 
 .. automethod:: Sphinx.add_event(name)
 
@@ -48,14 +48,20 @@ package.
 .. method:: Sphinx.add_directive(name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive(name, directiveclass)
 
+.. automethod:: Sphinx.add_role(name, role)
+
+.. automethod:: Sphinx.add_generic_role(name, nodeclass)
+
+.. automethod:: Sphinx.add_domain(domain)
+
+.. automethod:: Sphinx.override_domain(domain)
+
 .. method:: Sphinx.add_directive_to_domain(domain, name, func, content, arguments, \*\*options)
 .. automethod:: Sphinx.add_directive_to_domain(domain, name, directiveclass)
 
-.. automethod:: Sphinx.add_role(name, role)
-
 .. automethod:: Sphinx.add_role_to_domain(domain, name, role)
 
-.. automethod:: Sphinx.add_generic_role(name, nodeclass)
+.. automethod:: Sphinx.add_index_to_domain(domain, index)
 
 .. automethod:: Sphinx.add_object_type(directivename, rolename, indextemplate='', parse_node=None, ref_nodeclass=None, objname='', doc_field_types=[])
 
@@ -81,15 +87,9 @@ package.
 
 .. automethod:: Sphinx.add_source_parser(suffix, parser)
 
-.. automethod:: Sphinx.add_html_theme(name, theme_path)
-
 .. automethod:: Sphinx.add_env_collector(collector)
 
-.. automethod:: Sphinx.require_sphinx(version)
-
-.. automethod:: Sphinx.connect(event, callback)
-
-.. automethod:: Sphinx.disconnect(listener_id)
+.. automethod:: Sphinx.add_html_theme(name, theme_path)
 
 .. exception:: ExtensionError
 
