@@ -386,10 +386,15 @@ class Sphinx(object):
         # type: (unicode, unicode, unicode, unicode) -> None
         """Emit a warning.
 
-        If *location* is given, it should either be a tuple of (docname, lineno)
-        or a string describing the location of the warning as well as possible.
+        If *location* is given, it should either be a tuple of (*docname*,
+        *lineno*) or a string describing the location of the warning as well as
+        possible.
 
-        *type* and *subtype* are used to suppress warnings with :confval:`suppress_warnings`.
+        *type* and *subtype* are used to suppress warnings with
+        :confval:`suppress_warnings`.
+
+        .. deprecated:: 1.6
+           Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
                       RemovedInSphinx20Warning)
@@ -401,6 +406,9 @@ class Sphinx(object):
 
         If *nonl* is true, don't emit a newline at the end (which implies that
         more info output will follow soon.)
+
+        .. deprecated:: 1.6
+           Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
                       RemovedInSphinx20Warning)
@@ -408,21 +416,33 @@ class Sphinx(object):
 
     def verbose(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a verbose informational message."""
+        """Emit a verbose informational message.
+
+        .. deprecated:: 1.6
+           Use :mod:`sphinx.util.logging` instead.
+        """
         warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
                       RemovedInSphinx20Warning)
         logger.verbose(message, *args, **kwargs)
 
     def debug(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a debug-level informational message."""
+        """Emit a debug-level informational message.
+
+        .. deprecated:: 1.6
+           Use :mod:`sphinx.util.logging` instead.
+        """
         warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
                       RemovedInSphinx20Warning)
         logger.debug(message, *args, **kwargs)
 
     def debug2(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a lowlevel debug-level informational message."""
+        """Emit a lowlevel debug-level informational message.
+
+        .. deprecated:: 1.6
+           Use :mod:`sphinx.util.logging` instead.
+        """
         warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
                       RemovedInSphinx20Warning)
         logger.debug(message, *args, **kwargs)
@@ -453,9 +473,10 @@ class Sphinx(object):
         if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
+    # TODO(stephenfin): Deprecate this as it has no callers and isn't necessary
     def import_object(self, objname, source=None):
         # type: (str, unicode) -> Any
-        """Import an object from a 'module.name' string."""
+        """Import an object from a ``module.name`` string."""
         return import_object(objname, source=None)
 
     # event interface
@@ -884,6 +905,11 @@ class Sphinx(object):
                              parse_node=None, ref_nodeclass=None, objname='',
                              doc_field_types=[]):
         # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
+        """Deprecated alias for :meth:`add_object_type`.
+
+        .. deprecated:: 1.6
+           Use :meth:`add_object_type` instead.
+        """
         warnings.warn('app.add_description_unit() is now deprecated. '
                       'Use app.add_object_type() instead.',
                       RemovedInSphinx20Warning)
