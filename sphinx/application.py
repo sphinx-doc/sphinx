@@ -76,6 +76,7 @@ builtin_extensions = (
     'sphinx.builders.text',
     'sphinx.builders.websupport',
     'sphinx.builders.xml',
+    'sphinx.config',
     'sphinx.domains.c',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
@@ -228,6 +229,7 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
+        self.emit('config-inited', self.config)
 
         # check extension versions if requested
         verify_required_extensions(self, self.config.needs_extensions)

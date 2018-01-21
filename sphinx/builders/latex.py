@@ -262,9 +262,9 @@ class LaTeXBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
-def validate_config_values(app):
-    # type: (Sphinx) -> None
-    for document in app.config.latex_documents:
+def validate_config_values(app, config):
+    # type: (Sphinx, Config) -> None
+    for document in config.latex_documents:
         try:
             text_type(document[2])
         except UnicodeDecodeError:
@@ -304,7 +304,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
-    app.connect('builder-inited', validate_config_values)
+    app.connect('config-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))

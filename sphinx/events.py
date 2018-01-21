@@ -27,6 +27,7 @@ if False:
 # List of all known core events. Maps name to arguments description.
 core_events = {
     'builder-inited': '',
+    'config-inited': 'config',
     'env-get-outdated': 'env, added, changed, removed',
     'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',

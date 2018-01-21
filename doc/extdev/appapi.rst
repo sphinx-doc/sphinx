@@ -500,6 +500,12 @@ handlers to the events.  Example:
    Emitted when the builder object has been created.  It is available as
    ``app.builder``.
 
+.. event:: config-inited (app, config)
+
+   Emitted when the config object has been initialized.
+
+   .. versionadded:: 1.8
+
 .. event:: env-get-outdated (app, env, added, changed, removed)
 
    Emitted when the environment determines which source files have changed and
