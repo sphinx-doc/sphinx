@@ -284,6 +284,8 @@ class Builder(object):
     def build_all(self):
         # type: () -> None
         """Build all source files."""
+        self.compile_all_catalogs()
+
         self.build(None, summary='all source files', method='all')
 
     def build_specific(self, filenames):
@@ -307,6 +309,8 @@ class Builder(object):
 
             docnames.append(docname)
 
+        self.compile_specific_catalogs(filenames)
+
         self.build(docnames, method='specific',
                    summary='%d source files given on command '
                    'line' % len(docnames))
@@ -314,6 +318,8 @@ class Builder(object):
     def build_update(self):
         # type: () -> None
         """Only rebuild what was changed or added since last build."""
+        self.compile_update_catalogs()
+
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
             self.build(['__all__'], to_build)
