@@ -213,6 +213,7 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
+        self.emit('config-inited', self.config)
 
         # check extension versions if requested
         verify_required_extensions(self, self.config.needs_extensions)
@@ -226,7 +227,6 @@ class Sphinx(object):
         self.builder = self.create_builder(buildername)
         # check all configuration values for permissible types
         self.config.check_types()
-        self.emit('config-inited', self.config)
         # set up source_parsers
         self._init_source_parsers()
         # set up the build environment
