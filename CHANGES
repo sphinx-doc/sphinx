@@ -32,11 +32,16 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #4467: html theme: Rename ``csss`` block to ``css``
+
 Deprecated
 ----------
 
 Features added
 --------------
+
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
 
 Bugs fixed
 ----------
@@ -221,6 +226,7 @@ Bugs fixed
 * #4412: Updated jQuery version from 3.1.0 to 3.2.1
 * #4438: math: math with labels with whitespace cause html error
 * #2437: make full reference for classes, aliased with "alias of"
+* #4434: pure numbers as link targets produce warning
 
 Testing
 --------

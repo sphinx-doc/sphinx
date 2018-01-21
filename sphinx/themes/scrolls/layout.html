@@ -10,7 +10,7 @@
 #}
 {%- extends "basic/layout.html" %}
 {% set script_files = script_files + ['_static/theme_extras.js'] %}
-{%- block csss %}
+{%- block css %}
   {{ super() }}
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
 {%- endblock %}

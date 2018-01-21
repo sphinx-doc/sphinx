@@ -269,6 +269,8 @@ def test_html_warnings(app, warning):
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        # tests for numeric labels
+        (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
         (".//li", u'Smart “quotes” in English ‘text’.'),
         (".//li", u'Smart — long and – short dashes.'),
