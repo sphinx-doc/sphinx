@@ -23,6 +23,7 @@ Bugs fixed
 
 * #4415: autodoc classifies inherited classmethods as regular methods
 * #4415: autodoc classifies inherited staticmethods as regular methods
+* #4472: DOCUMENTATION_OPTIONS is not defined
 
 Testing
 --------
