@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import argparse
+import multiprocessing
 import sys
 import traceback
 from os import path
@@ -83,6 +84,23 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
                   file=stderr)
 
 
+def jobs_argument(value):
+    # type: (str) -> int
+    """
+    Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
+    be expanded to handle other special scaling requests, such as setting job count
+    to cpu_count.
+    """
+    if value == 'auto':
+        return multiprocessing.cpu_count()
+    else:
+        jobs = int(value)
+        if jobs <= 0:
+            raise argparse.ArgumentTypeError('job number should be a positive number')
+        else:
+            return jobs
+
+
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
@@ -129,10 +147,9 @@ files can be built by specifying individual filenames.
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help='path for the cached environment and doctree '
                        'files (default: OUTPUTDIR/.doctrees)')
-    group.add_argument('-j', metavar='N', default=1, type=int, dest='jobs',
+    group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
                        help='build in parallel with N processes where '
-                       'possible')
-
+                       'possible (special value "auto" will set N to cpu-count)')
     group = parser.add_argument_group('build configuration options')
     group.add_argument('-c', metavar='PATH', dest='confdir',
                        help='path where configuration file (conf.py) is '

@@ -15,6 +15,9 @@ Deprecated
 Features added
 --------------
 
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
+
 Bugs fixed
 ----------
 
