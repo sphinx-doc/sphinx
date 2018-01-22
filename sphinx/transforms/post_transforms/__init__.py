@@ -174,6 +174,21 @@ class ReferencesResolver(SphinxTransform):
                        location=node, type='ref', subtype=typ)
 
 
+class DeferredTextResolver(SphinxTransform):
+    """
+    Resolves text derived from cross-references.
+    """
+
+    default_priority = 15  # after ReferencesResolver
+
+    def apply(self):
+        # type: () -> None
+        for node in self.document.traverse(addnodes.pending_xtext):
+            text = node.astext()
+            newnode = nodes.Text(text, text)
+            node.replace_self(newnode)
+
+
 class OnlyNodeTransform(SphinxTransform):
     default_priority = 50
 
@@ -201,6 +216,7 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(DocReferenceMigrator)
     app.add_post_transform(ReferencesResolver)
+    app.add_post_transform(DeferredTextResolver)
     app.add_post_transform(OnlyNodeTransform)
 
     return {

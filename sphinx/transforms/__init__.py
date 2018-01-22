@@ -324,8 +324,9 @@ class SphinxContentsFilter(ContentsFilter):
     """
     def visit_pending_xref(self, node):
         # type: (nodes.Node) -> None
-        text = node.astext()
-        self.parent.append(nodes.literal(text, text))
+        pending = addnodes.pending_xtext()
+        pending += node.deepcopy()
+        self.parent.append(pending)
         raise nodes.SkipNode
 
     def visit_image(self, node):

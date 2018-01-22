@@ -158,7 +158,7 @@ class TocTree(object):
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        self.process_only_nodes(toc)
+                        self.sanitize_toc('', toc) # FIXME
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -298,7 +298,7 @@ class TocTree(object):
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        self.process_only_nodes(toc)
+        self.sanitize_toc(docname, toc)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -324,13 +324,26 @@ class TocTree(object):
             result.extend(toctree.children)
         return result
 
-    def process_only_nodes(self, doctree):
-        # type: (nodes.Node) -> None
+    def sanitize_toc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         # Lazy loading
+        from copy import copy
+
         from sphinx.transforms import SphinxTransformer
+        from sphinx.transforms.post_transforms import ReferencesResolver
+        from sphinx.transforms.post_transforms import DeferredTextResolver
         from sphinx.transforms.post_transforms import OnlyNodeTransform
 
-        transformer = SphinxTransformer(doctree)
-        transformer.set_environment(self.env)
-        transformer.add_transform(OnlyNodeTransform)
-        transformer.apply_transforms()
+        # set env.docname during applying post-transforms
+        backup = copy(self.env.temp_data)
+        self.env.temp_data['docname'] = docname
+
+        try:
+            transformer = SphinxTransformer(doctree)
+            transformer.set_environment(self.env)
+            transformer.add_transform(ReferencesResolver)
+            transformer.add_transform(DeferredTextResolver)
+            transformer.add_transform(OnlyNodeTransform)
+            transformer.apply_transforms()
+        finally:
+            self.env.temp_data = backup

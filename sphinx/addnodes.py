@@ -263,6 +263,16 @@ class pending_xref(nodes.Inline, nodes.Element):
     """
 
 
+class pending_xtext(nodes.Inline, nodes.Element):
+    """Node for textual cross-references that cannot be resolved without
+    complete information about all documents.
+
+    These nodes are text-only nodes whose text depends on the resolution of
+    a pending_xref.  They are resolved before writing output, in
+    BuildEnvironment.resolve_references.
+    """
+
+
 class number_reference(nodes.reference):
     """Node for number references, similar to pending_xref."""
 
