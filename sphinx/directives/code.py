@@ -364,6 +364,7 @@ class LiteralIncludeReader(object):
         return lines
 
     def dedent_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)
         else:

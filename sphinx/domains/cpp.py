@@ -609,6 +609,7 @@ class ASTBase(UnicodeMixin):
         raise NotImplementedError(repr(self))
 
     def __repr__(self):
+        # type: () -> str
         return '<%s %s>' % (self.__class__.__name__, self)
 
 

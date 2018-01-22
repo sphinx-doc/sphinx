@@ -1180,6 +1180,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def generate(self, more_content=None, real_modname=None,
                  check_module=False, all_members=False):
+        # type: (Any, str, bool, bool) -> None
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
         # If a class gets imported into the module real_modname
@@ -1312,6 +1313,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     @staticmethod
     def is_function_or_method(obj):
+        # type: (Any) -> bool
         return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
@@ -1412,18 +1414,22 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
 
 class DeprecatedDict(dict):
     def __init__(self, message):
+        # type: (str) -> None
         self.message = message
         super(DeprecatedDict, self).__init__()
 
     def __setitem__(self, key, value):
+        # type: (unicode, Any) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).__setitem__(key, value)
 
     def setdefault(self, key, default=None):
+        # type: (unicode, Any) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).setdefault(key, default)
 
-    def update(self, other=None):
+    def update(self, other=None):  # type: ignore
+        # type: (Dict) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).update(other)
 

@@ -22,6 +22,11 @@ from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
 from .deprecation import RemovedInSphinx20Warning
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+
+
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
@@ -66,6 +71,7 @@ if __version__.endswith('+'):
 
 
 def main(*args, **kwargs):
+    # type: (Any, Any) -> int
     warnings.warn(
         '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
         RemovedInSphinx20Warning,

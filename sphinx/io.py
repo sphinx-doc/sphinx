@@ -149,6 +149,7 @@ class SphinxDummyWriter(UnfilteredWriter):
 
 
 def SphinxDummySourceClass(source, *args, **kwargs):
+    # type: (Any, Any, Any) -> Any
     """Bypass source object as is to cheat Publisher."""
     return source
 
@@ -310,6 +311,7 @@ def read_doc(app, env, filename):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.registry.add_source_input('*', SphinxFileInput)
     app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
 

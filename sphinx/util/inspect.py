@@ -579,6 +579,7 @@ else:
     # of Python 3.5
 
     def _findclass(func):
+        # type: (Any) -> Any
         cls = sys.modules.get(func.__module__)
         if cls is None:
             return None
@@ -592,6 +593,7 @@ else:
         return cls
 
     def _finddoc(obj):
+        # type: (Any) -> unicode
         if inspect.isclass(obj):
             for base in obj.__mro__:
                 if base is not object:
@@ -652,6 +654,7 @@ else:
         return None
 
     def getdoc(object):
+        # type: (Any) -> unicode
         """Get the documentation string for an object.
 
         All tabs are expanded to spaces.  To clean up docstrings that are

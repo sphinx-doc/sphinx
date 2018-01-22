@@ -450,6 +450,7 @@ class Locale(SphinxTransform):
 
         # remove translated attribute that is used for avoiding double translation.
         def has_translatable(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, nodes.Element) and 'translated' in node
         for node in self.document.traverse(has_translatable):
             node.delattr('translated')

@@ -192,6 +192,7 @@ ltz = LocalTimeZone()
 
 
 def should_write(filepath, new_content):
+    # type: (unicode, unicode) -> bool
     if not path.exists(filepath):
         return True
     try:

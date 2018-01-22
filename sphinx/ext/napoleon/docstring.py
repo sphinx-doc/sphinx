@@ -963,8 +963,9 @@ class NumpyDocstring(GoogleDocstring):
         items = []
 
         def parse_item_name(text):
+            # type: (unicode) -> Tuple[unicode, unicode]
             """Match ':role:`name`' or 'name'"""
-            m = self._name_rgx.match(text)
+            m = self._name_rgx.match(text)  # type: ignore
             if m:
                 g = m.groups()
                 if g[1] is None:
@@ -974,6 +975,7 @@ class NumpyDocstring(GoogleDocstring):
             raise ValueError("%s is not a item name" % text)
 
         def push_item(name, rest):
+            # type: (unicode, List[unicode]) -> None
             if not name:
                 return
             name, role = parse_item_name(name)

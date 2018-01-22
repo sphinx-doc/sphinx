@@ -85,6 +85,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def validate_config_value(self):
+        # type: () -> None
         # <package> lang attribute, dc:language
         if not self.app.config.epub_language:
             logger.warning('conf value "epub_language" (or "language") '

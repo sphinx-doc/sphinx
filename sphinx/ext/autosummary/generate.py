@@ -82,6 +82,7 @@ def _simple_warn(msg):
 
 
 def _underline(title, line='='):
+    # type: (unicode, unicode) -> unicode
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)

@@ -78,7 +78,7 @@ class ImageDownloader(BaseImageConverter):
         try:
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)
+                timestamp = ceil(os.stat(path).st_mtime)  # type: float
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)
