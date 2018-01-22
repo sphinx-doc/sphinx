@@ -290,7 +290,7 @@ class Sphinx(object):
         # type: () -> None
         for suffix, parser in iteritems(self.registry.get_source_parsers()):
             if suffix not in self.config.source_suffix and suffix != '*':
-                self.config.source_suffix.append(suffix)
+                self.config.source_suffix[suffix] = suffix
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
