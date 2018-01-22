@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* Sphinx expects source parser modules to have supported file formats as
+  ``Parser.supported`` attribute
+
 Deprecated
 ----------
 

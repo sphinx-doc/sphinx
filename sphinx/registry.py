@@ -11,12 +11,14 @@
 from __future__ import print_function
 
 import traceback
+import warnings
 
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues
 
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.locale import __
@@ -201,6 +203,12 @@ class SphinxComponentRegistry(object):
         logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self.source_parsers:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
+
+        if len(parser.supported) == 0:
+            warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
+                          'attribute: %s' % parser.__name__,
+                          RemovedInSphinx30Warning)
+
         self.source_parsers[suffix] = parser
 
     def get_source_parser(self, filename):

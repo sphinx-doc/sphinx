@@ -13,7 +13,6 @@ templates_path = ['_templates']
 
 master_doc = 'contents'
 source_suffix = ['.txt', '.add', '.foo']
-source_parsers = {'.foo': 'parsermod.Parser'}
 
 project = 'Sphinx <Tests>'
 copyright = '2010-2016, Georg Brandl & Team'
@@ -106,9 +105,12 @@ class ClassDirective(Directive):
 
 
 def setup(app):
+    import parsermod
+
     app.add_config_value('value_from_conf_py', 42, False)
     app.add_directive('funcdir', functional_directive, opt=lambda x: x)
     app.add_directive('clsdir', ClassDirective)
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
     app.add_javascript('file://moo.js')
+    app.add_source_parser('.foo', parsermod.Parser)
