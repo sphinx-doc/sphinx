@@ -54,9 +54,11 @@ from sphinx.environment.adapters.indexentries import IndexEntries
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
-    from sphinx.domains import Domain, Index  # NOQA
+    from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
+    from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.util.tags import Tags  # NOQA
 
 # Experimental HTML5 Writer
 if is_html5_writer_available():
@@ -147,6 +149,56 @@ class Stylesheet(text_type):
         return self
 
 
+class BuildInfo(object):
+    """buildinfo file manipulator.
+
+    HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.
+    This class is a manipulator for the file.
+    """
+
+    @classmethod
+    def load(cls, f):
+        # type: (IO) -> BuildInfo
+        try:
+            lines = f.readlines()
+            assert lines[0].rstrip() == '# Sphinx build info version 1'
+            assert lines[2].startswith('config: ')
+            assert lines[3].startswith('tags: ')
+
+            build_info = BuildInfo()
+            build_info.config_hash = lines[2].split()[1].strip()
+            build_info.tags_hash = lines[3].split()[1].strip()
+            return build_info
+        except Exception as exc:
+            raise ValueError('build info file is broken: %r' % exc)
+
+    def __init__(self, config=None, tags=None):
+        # type: (Config, Tags) -> None
+        self.config_hash = u''
+        self.tags_hash = u''
+
+        if config:
+            values = dict((c.name, c.value) for c in config.filter('html'))
+            self.config_hash = get_stable_hash(values)
+
+        if tags:
+            self.tags_hash = get_stable_hash(sorted(tags))
+
+    def __eq__(self, other):  # type: ignore
+        # type: (BuildInfo) -> bool
+        return (self.config_hash == other.config_hash and
+                self.tags_hash == other.tags_hash)
+
+    def dump(self, f):
+        # type: (IO) -> None
+        f.write('# Sphinx build info version 1\n'
+                '# This file hashes the configuration used when building these files.'
+                ' When it is not found, a full rebuild will be done.\n'
+                'config: %s\n'
+                'tags: %s\n' %
+                (self.config_hash, self.tags_hash))
+
+
 class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
@@ -189,9 +241,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        # a hash of all config values that, if changed, cause a full rebuild
-        self.config_hash = ''  # type: unicode
-        self.tags_hash = ''  # type: unicode
+        self.build_info = BuildInfo(self.config, self.tags)
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
@@ -272,32 +322,19 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
-        cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
-        self.config_hash = get_stable_hash(cfgdict)
-        self.tags_hash = get_stable_hash(sorted(self.tags))
-        old_config_hash = old_tags_hash = ''
         try:
             with open(path.join(self.outdir, '.buildinfo')) as fp:
-                version = fp.readline()
-                if version.rstrip() != '# Sphinx build info version 1':
-                    raise ValueError
-                fp.readline()  # skip commentary
-                cfg, old_config_hash = fp.readline().strip().split(': ')
-                if cfg != 'config':
-                    raise ValueError
-                tag, old_tags_hash = fp.readline().strip().split(': ')
-                if tag != 'tags':
-                    raise ValueError
-        except ValueError:
-            logger.warning('unsupported build info format in %r, building all',
-                           path.join(self.outdir, '.buildinfo'))
-        except Exception:
+                buildinfo = BuildInfo.load(fp)
+
+            if self.build_info != buildinfo:
+                for docname in self.env.found_docs:
+                    yield docname
+                return
+        except ValueError as exc:
+            logger.warning('Failed to read build info file: %r', exc)
+        except IOError:
+            # ignore errors on reading
             pass
-        if old_config_hash != self.config_hash or \
-           old_tags_hash != self.tags_hash:
-            for docname in self.env.found_docs:
-                yield docname
-            return
 
         if self.templates:
             template_mtime = self.templates.newest_template_mtime()
@@ -775,14 +812,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self):
         # type: () -> None
-        # write build info file
         try:
             with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
-                fp.write('# Sphinx build info version 1\n'
-                         '# This file hashes the configuration used when building'
-                         ' these files. When it is not found, a full rebuild will'
-                         ' be done.\nconfig: %s\ntags: %s\n' %
-                         (self.config_hash, self.tags_hash))
+                self.build_info.dump(fp)
         except IOError as exc:
             logger.warning('Failed to write build info file: %r', exc)
 
@@ -1235,8 +1267,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        self.config_hash = ''
-        self.tags_hash = ''
+        self.build_info = BuildInfo(self.config, self.tags)
         self.imagedir = '_images'
         self.current_docname = None
         self.theme = None       # no theme necessary
