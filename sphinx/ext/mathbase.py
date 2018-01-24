@@ -70,7 +70,7 @@ class MathDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (Iterable[unicode], Dict) -> None
-        for labelid, (doc, eqno) in otherdata['objects'].items():
+        for labelid, doc in otherdata['objects'].items():
             if doc in docnames:
                 self.data['objects'][labelid] = doc
 
