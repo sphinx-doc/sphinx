@@ -199,13 +199,18 @@ class SphinxComponentRegistry(object):
         object_types = self.domain_object_types.setdefault('std', {})
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
-    def add_source_parser(self, suffix, parser):
-        # type: (unicode, Type[Parser]) -> None
-        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
+    def add_source_suffix(self, suffix, filetype):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         else:
-            self.source_suffix[suffix] = suffix
+            self.source_suffix[suffix] = filetype
+
+    def add_source_parser(self, suffix, parser):
+        # type: (unicode, Type[Parser]) -> None
+        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
+        self.add_source_suffix(suffix, suffix)
 
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
