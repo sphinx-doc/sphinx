@@ -108,16 +108,6 @@ class BuildDoc(Command):
         self.verbosity = 0
         self.traceback = False
 
-    def _guess_source_dir(self):
-        # type: () -> unicode
-        for guess in ('doc', 'docs'):
-            if not os.path.isdir(guess):
-                continue
-            for root, dirnames, filenames in os.walk(guess):
-                if 'conf.py' in filenames:
-                    return root
-        return os.curdir
-
     # Overriding distutils' Command._ensure_stringlike which doesn't support
     # unicode, causing finalize_options to fail if invoked again. Workaround
     # for https://bugs.python.org/issue19570
@@ -136,13 +126,7 @@ class BuildDoc(Command):
         # type: () -> None
         self.ensure_string_list('builder')
 
-        if self.source_dir is None:
-            self.source_dir = self._guess_source_dir()
-            self.announce('Using source directory %s' % self.source_dir)
-
-        self.ensure_dirname('source_dir')
-
-        if self.config_dir is None:
+        if self.source_dir and self.config_dir is None:
             self.config_dir = self.source_dir
 
         if self.build_dir is None:
