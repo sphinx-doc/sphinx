@@ -371,11 +371,14 @@ def convert_source_suffix(app, config):
     """
     source_suffix = config.source_suffix
     if isinstance(source_suffix, string_types):
-        # if str, considers as reST
-        config.source_suffix = OrderedDict({source_suffix: 'restructuredtext'})  # type: ignore
+        # if str, considers as default filetype (None)
+        #
+        # The default filetype is determined on later step.
+        # By default, it is considered as restructuredtext.
+        config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
     elif isinstance(source_suffix, (list, tuple)):
-        # if list, considers as all of them are reST
-        config.source_suffix = OrderedDict([(s, 'restructuredtext') for s in source_suffix])  # type: ignore  # NOQA
+        # if list, considers as all of them are default filetype
+        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore  # NOQA
     elif isinstance(source_suffix, dict):
         # if dict, convert it to OrderedDict
         config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore

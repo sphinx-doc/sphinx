@@ -233,7 +233,8 @@ class SphinxComponentRegistry(object):
         # type: (unicode) -> unicode
         for suffix, filetype in iteritems(self.source_suffix):
             if filename.endswith(suffix):
-                return filetype
+                # If default filetype (None), considered as restructuredtext.
+                return filetype or 'restructuredtext'
         else:
             raise FiletypeNotFoundError
 
@@ -273,8 +274,8 @@ class SphinxComponentRegistry(object):
         try:
             filetype = self.get_filetype(filename)
             input_class = self.source_inputs[filetype]
-        except FiletypeNotFoundError:
-            # use special source_input for unknown file-type '*' (if exists)
+        except (FiletypeNotFoundError, KeyError):
+            # use special source_input for unknown filetype
             input_class = self.source_inputs.get('*')
 
         if input_class is None:
@@ -376,6 +377,10 @@ def merge_source_suffix(app):
     """Merge source_suffix which specified by user and added by extensions."""
     for suffix in app.registry.source_suffix:
         if suffix not in app.config.source_suffix:
+            app.config.source_suffix[suffix] = suffix
+        elif app.config.source_suffix[suffix] is None:
+            # filetype is not specified (default filetype).
+            # So it overrides default filetype by extensions setting.
             app.config.source_suffix[suffix] = suffix
 
     # copy config.source_suffix to registry
