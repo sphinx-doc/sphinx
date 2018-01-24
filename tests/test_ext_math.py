@@ -11,6 +11,7 @@
 
 import os
 import re
+import errno
 import subprocess
 
 import pytest
@@ -20,7 +21,7 @@ def has_binary(binary):
     try:
         subprocess.check_output([binary])
     except OSError as e:
-        if e.errno == os.errno.ENOENT:
+        if e.errno == errno.ENOENT:
             # handle file not found error.
             return False
         else:

@@ -215,7 +215,12 @@ def test_Signature_annotations():
 
     # TypeVars and generic types with TypeVars
     sig = inspect.Signature(f2).format_args()
-    assert sig == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
+    if sys.version_info < (3, 7):
+        sig == ('(x: typing.List[T], y: typing.List[T_co], z: T) -> '
+                'typing.List[T_contra]')
+    else:
+        sig == ('(x: typing.List[~T], y: typing.List[+T_co], z: T) -> '
+                'typing.List[-T_contra]')
 
     # Union types
     sig = inspect.Signature(f3).format_args()
