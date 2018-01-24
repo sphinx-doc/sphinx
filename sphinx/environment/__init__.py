@@ -107,13 +107,9 @@ class BuildEnvironment(object):
             # This can happen for example when the pickle is from a
             # different version of Sphinx.
             raise IOError(exc)
-        if env.version != ENV_VERSION:
-            raise IOError('build environment version not current')
         if app:
             env.app = app
             env.config.values = app.config.values
-            if env.srcdir != app.srcdir:
-                raise IOError('source directory has changed')
         return env
 
     @classmethod
@@ -187,7 +183,7 @@ class BuildEnvironment(object):
         self._warnfunc = None  # type: Callable
 
         # this is to invalidate old pickles
-        self.version = ENV_VERSION
+        self.version = app.registry.get_envversion(app)
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -303,6 +299,19 @@ class BuildEnvironment(object):
         # type: (unicode, nodes.Node, Any) -> None
         """Like :meth:`warn`, but with source information taken from *node*."""
         self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
+
+    def need_refresh(self, app):
+        # type: (Sphinx) -> Tuple[bool, unicode]
+        """Check refresh environment is needed.
+
+        If needed, this method returns the reason for refresh.
+        """
+        if self.version != app.registry.get_envversion(app):
+            return True, 'build environment version not current'
+        elif self.srcdir != app.srcdir:
+            return True, 'source directory has changed'
+        else:
+            return False, None
 
     def clear_doc(self, docname):
         # type: (unicode) -> None

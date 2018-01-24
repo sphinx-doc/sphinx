@@ -52,6 +52,8 @@ Note that it is still necessary to register the builder using
 
 .. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
+.. _ext-metadata:
+
 Extension metadata
 ------------------
 
@@ -63,6 +65,11 @@ as metadata of the extension.  Metadata keys currently recognized are:
 * ``'version'``: a string that identifies the extension version.  It is used for
   extension version requirement checking (see :confval:`needs_extensions`) and
   informational purposes.  If not given, ``"unknown version"`` is substituted.
+* ``'env_version'``: an integer that identifies the version of env data
+  structure if the extension stores any data to environment.  It is used to
+  detect the data structure has been changed from last build.  The extensions
+  have to increment the version when data structure has changed.  If not given,
+  Sphinx considers the extension does not stores any data to environment.
 * ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
   source files can be used when the extension is loaded.  It defaults to
   ``False``, i.e. you have to explicitly specify your extension to be

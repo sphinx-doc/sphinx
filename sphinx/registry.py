@@ -341,3 +341,11 @@ class SphinxComponentRegistry(object):
 
         app.extensions[extname] = Extension(extname, mod, **metadata)
         app._setting_up_extension.pop()
+
+    def get_envversion(self, app):
+        # type: (Sphinx) -> Dict[unicode, unicode]
+        from sphinx.environment import ENV_VERSION
+        envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
+                      if ext.metadata.get('env_version')}
+        envversion['sphinx'] = ENV_VERSION
+        return envversion
