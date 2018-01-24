@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from six import PY3
 
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
@@ -1116,9 +1117,14 @@ def test_type_hints():
     verify_arg_spec(f1, '(x: typing.List[int]) -> typing.List[int]')
 
     # TypeVars and generic types with TypeVars
-    verify_arg_spec(f2, '(x: typing.List[T],'
-                        ' y: typing.List[T_co],'
-                        ' z: T) -> typing.List[T_contra]')
+    if sys.version_info < (3, 7):
+        verify_arg_spec(f2, '(x: typing.List[T],'
+                            ' y: typing.List[T_co],'
+                            ' z: T) -> typing.List[T_contra]')
+    else:
+        verify_arg_spec(f2, '(x: typing.List[~T],'
+                            ' y: typing.List[+T_co],'
+                            ' z: T) -> typing.List[-T_contra]')
 
     # Union types
     verify_arg_spec(f3, '(x: typing.Union[str, numbers.Integral]) -> None')
