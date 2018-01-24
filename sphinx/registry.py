@@ -51,10 +51,6 @@ EXTENSION_BLACKLIST = {
 }  # type: Dict[unicode, unicode]
 
 
-class FiletypeNotFoundError(Exception):
-    pass
-
-
 class SphinxComponentRegistry(object):
     def __init__(self):
         self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
@@ -229,27 +225,12 @@ class SphinxComponentRegistry(object):
         # This allows parsers not having ``supported`` filetypes.
         self.source_parsers[suffix] = parser
 
-    def get_filetype(self, filename):
-        # type: (unicode) -> unicode
-        for suffix, filetype in iteritems(self.source_suffix):
-            if filename.endswith(suffix):
-                # If default filetype (None), considered as restructuredtext.
-                return filetype or 'restructuredtext'
-        else:
-            raise FiletypeNotFoundError
-
-    def get_source_parser(self, filename):
+    def get_source_parser(self, filetype):
         # type: (unicode) -> Type[Parser]
         try:
-            filetype = self.get_filetype(filename)
-            parser_class = self.source_parsers[filetype]
-        except FiletypeNotFoundError:
-            raise SphinxError(__('Source parser for %s not registered') % filename)
-
-        if parser_class is None:
+            return self.source_parsers[filetype]
+        except KeyError:
             raise SphinxError(__('Source parser for %s not registered') % filetype)
-        else:
-            return parser_class
 
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
@@ -269,19 +250,16 @@ class SphinxComponentRegistry(object):
             raise ExtensionError(__('source_input for %r is already registered') % filetype)
         self.source_inputs[filetype] = input_class
 
-    def get_source_input(self, filename):
+    def get_source_input(self, filetype):
         # type: (unicode) -> Type[Input]
         try:
-            filetype = self.get_filetype(filename)
-            input_class = self.source_inputs[filetype]
-        except (FiletypeNotFoundError, KeyError):
-            # use special source_input for unknown filetype
-            input_class = self.source_inputs.get('*')
-
-        if input_class is None:
-            raise SphinxError(__('source_input for %s not registered') % filename)
-        else:
-            return input_class
+            return self.source_inputs[filetype]
+        except KeyError:
+            try:
+                # use special source_input for unknown filetype
+                return self.source_inputs['*']
+            except KeyError:
+                raise SphinxError(__('source_input for %s not registered') % filetype)
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None

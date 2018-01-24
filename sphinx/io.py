@@ -16,7 +16,7 @@ from docutils.core import Publisher
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type
+from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
 from sphinx.transforms import SphinxTransformer
@@ -273,14 +273,29 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
             return lineno
 
 
+class FiletypeNotFoundError(Exception):
+    pass
+
+
+def get_filetype(source_suffix, filename):
+    # type: (Dict[unicode, unicode]) -> unicode
+    for suffix, filetype in iteritems(source_suffix):
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
+
+
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
-    input_class = app.registry.get_source_input(filename)
+    filetype = get_filetype(app.config.source_suffix, filename)
+    input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
     source = input_class(app, env, source=None, source_path=filename,
                          encoding=env.config.source_encoding)
-    parser = app.registry.create_source_parser(app, filename)
+    parser = app.registry.create_source_parser(app, filetype)
 
     pub = Publisher(reader=reader,
                     parser=parser,
