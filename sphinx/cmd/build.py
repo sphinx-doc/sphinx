@@ -176,6 +176,7 @@ files can be built by specifying individual filenames.
                        help=__('do not emit colored output (default: '
                                'auto-detect)'))
     group.add_argument('-w', metavar='FILE', dest='warnfile',
+                       type=argparse.FileType('w'),
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
@@ -235,12 +236,7 @@ def build_main(argv: List[str] = sys.argv[1:]) -> int:
         status = warning = None
 
     if warning and args.warnfile:
-        try:
-            warnfp = open(args.warnfile, 'w')
-        except Exception as exc:
-            parser.error(__('cannot open warning file %r: %s') % (
-                args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore
+        warning = Tee(warning, args.warnfile)  # type: ignore
         error = warning
 
     confoverrides = {}
