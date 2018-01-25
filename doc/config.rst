@@ -113,7 +113,7 @@ General configuration
    .. versionchanged:: 1.3
       Can now be a list of extensions.
 
-   .. vesionchanged:: 1.8
+   .. versionchanged:: 1.8
       Support file type mapping
 
 .. confval:: source_encoding
