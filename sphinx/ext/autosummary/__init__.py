@@ -603,7 +603,7 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix.keys()
+    ext = list(app.config.source_suffix)
     genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 
