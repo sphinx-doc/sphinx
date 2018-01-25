@@ -278,7 +278,7 @@ class FiletypeNotFoundError(Exception):
 
 
 def get_filetype(source_suffix, filename):
-    # type: (Dict[unicode, unicode]) -> unicode
+    # type: (Dict[unicode, unicode], unicode) -> unicode
     for suffix, filetype in iteritems(source_suffix):
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
