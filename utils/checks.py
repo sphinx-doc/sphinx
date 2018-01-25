@@ -48,7 +48,8 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
     # ignore specific errors on a file-level basis yet [1]. Simply skip it.
     #
     # [1] https://gitlab.com/pycqa/flake8/issues/347
-    if os.path.samefile(filename, './sphinx/util/smartypants.py'):
+    smrt_pnts = './sphinx/util/smartypants.py'
+    if os.path.exists(smrt_pnts) and os.path.samefile(filename, smrt_pnts):
         return
 
     # if the top-level package or not inside the package, ignore
