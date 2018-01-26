@@ -16,7 +16,7 @@ from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.util import i18n, path_stabilize, logging, status_iterator
+from sphinx.util import i18n, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri
@@ -251,15 +251,13 @@ class Builder(object):
         message = 'all of %d po files' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
-    def compile_specific_catalogs(self, specified_files):
+    def compile_specific_catalogs(self, specified_docnames):
         # type: (List[unicode]) -> None
-        def to_domain(fpath):
+        def to_domain(docname):
             # type: (unicode) -> unicode
-            docname, _ = path.splitext(path_stabilize(fpath))
-            dom = find_catalog(docname, self.config.gettext_compact)
-            return dom
+            return find_catalog(docname, self.config.gettext_compact)
 
-        specified_domains = set(map(to_domain, specified_files))
+        specified_domains = set(map(to_domain, specified_docnames))
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
@@ -309,7 +307,7 @@ class Builder(object):
 
             docnames.append(docname)
 
-        self.compile_specific_catalogs(filenames)
+        self.compile_specific_catalogs(docnames)
 
         self.build(docnames, method='specific',
                    summary='%d source files given on command '

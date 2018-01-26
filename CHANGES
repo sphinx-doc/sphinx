@@ -20,6 +20,7 @@ Bugs fixed
 * #4531: autosummary: methods are not treated as attributes
 * #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
 * #4539: autodoc emits warnings for partialmethods
+* #4476: Message catalogs are not compiled when specific build
 
 Testing
 --------
