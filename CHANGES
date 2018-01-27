@@ -204,6 +204,8 @@ Bugs fixed
 * #4438: math: math with labels with whitespace cause html error
 * #2437: make full reference for classes, aliased with "alias of"
 * #4434: pure numbers as link targets produce warning
+* #4477: Build fails after building specific files
+* #4449: apidoc: include "empty" packages that contain modules
 
 Testing
 --------
