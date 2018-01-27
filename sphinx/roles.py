@@ -11,12 +11,12 @@
 
 import re
 
-from six import iteritems
 from docutils import nodes, utils
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info

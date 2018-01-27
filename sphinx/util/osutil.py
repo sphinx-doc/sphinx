@@ -10,17 +10,18 @@
 """
 from __future__ import print_function
 
+import contextlib
+import errno
+import filecmp
+import locale
 import os
 import re
+import shutil
 import sys
 import time
-import errno
-import locale
-import shutil
-import filecmp
-from os import path
-import contextlib
 from io import BytesIO, StringIO
+from os import path
+
 from six import PY2, PY3, text_type
 
 if False:

@@ -9,23 +9,22 @@
     :license: BSD, see LICENSE for details.
 """
 
+from pygments import highlight
+from pygments.filters import ErrorToken
+from pygments.formatters import HtmlFormatter, LatexFormatter
+from pygments.lexer import Lexer  # NOQA
+from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
+    CLexer, TextLexer, RstLexer
+from pygments.styles import get_style_by_name
+from pygments.util import ClassNotFound
 from six import text_type
 
+from sphinx.ext import doctest
+from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
-from sphinx.ext import doctest
-
-from pygments import highlight
-from pygments.lexer import Lexer  # NOQA
-from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
-    CLexer, TextLexer, RstLexer
-from pygments.lexers import get_lexer_by_name, guess_lexer
-from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.filters import ErrorToken
-from pygments.styles import get_style_by_name
-from pygments.util import ClassNotFound
-from sphinx.pygments_styles import SphinxStyle, NoneStyle
 
 if False:
     # For type annotation

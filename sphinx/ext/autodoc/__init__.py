@@ -11,29 +11,28 @@
     :license: BSD, see LICENSE for details.
 """
 
+import inspect
 import re
 import sys
-import inspect
 import warnings
 
+from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
 
-from docutils.statemachine import ViewList
-
 import sphinx
+from sphinx.application import ExtensionError
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
-from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.application import ExtensionError
 from sphinx.util import logging
+from sphinx.util import rpartition, force_decode
+from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
     isenumattribute, isclassmethod, isstaticmethod, getdoc
-from sphinx.util.docstrings import prepare_docstring
 
 if False:
     # For type annotation

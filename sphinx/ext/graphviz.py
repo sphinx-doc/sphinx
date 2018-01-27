@@ -10,18 +10,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import codecs
 import posixpath
+import re
+from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from hashlib import sha1
-
-from six import text_type
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
+from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError

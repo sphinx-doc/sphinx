@@ -12,12 +12,12 @@ from __future__ import absolute_import
 
 import base64
 import imghdr
-import imagesize
-from os import path
 from collections import OrderedDict
-
-from six import PY3, BytesIO, iteritems
+from os import path
 from typing import NamedTuple
+
+import imagesize
+from six import PY3, BytesIO, iteritems
 
 try:
     from PIL import Image        # check for the Python Imaging Library

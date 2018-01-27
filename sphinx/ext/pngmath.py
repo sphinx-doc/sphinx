@@ -10,27 +10,26 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import codecs
+import posixpath
+import re
 import shutil
 import tempfile
-import posixpath
+from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from hashlib import sha1
-
-from six import text_type
 
 from docutils import nodes
+from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.util import logging
-from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.osutil import ensuredir, ENOENT, cd
-from sphinx.util.pycompat import sys_encoding
-from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 from sphinx.ext.mathbase import get_node_equation_number
+from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.util import logging
+from sphinx.util.osutil import ensuredir, ENOENT, cd
+from sphinx.util.png import read_png_depth, write_png_depth
+from sphinx.util.pycompat import sys_encoding
 
 if False:
     # For type annotation

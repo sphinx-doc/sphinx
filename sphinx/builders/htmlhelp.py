@@ -11,8 +11,8 @@
 """
 from __future__ import print_function
 
-import os
 import codecs
+import os
 from os import path
 
 from docutils import nodes

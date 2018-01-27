@@ -9,14 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import posixpath
-import os
 import copy
+import os
+import posixpath
+import sys
 
-from six import string_types
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _

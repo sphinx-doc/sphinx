@@ -11,18 +11,9 @@
 
 import os
 import re
-from os import path
-from sphinx.util.i18n import format_date
-from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from collections import namedtuple
-
-try:
-    from PIL import Image
-except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+from os import path
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
 from docutils.utils import smartquotes
@@ -31,8 +22,17 @@ from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
 from sphinx.util import status_iterator
-from sphinx.util.osutil import ensuredir, copyfile
 from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.i18n import format_date
+from sphinx.util.osutil import ensuredir, copyfile
+
+try:
+    from PIL import Image
+except ImportError:
+    try:
+        import Image
+    except ImportError:
+        Image = None
 
 if False:
     # For type annotation

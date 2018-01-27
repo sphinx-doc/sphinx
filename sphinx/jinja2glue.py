@@ -11,13 +11,13 @@
 
 from os import path
 from pprint import pformat
+from typing import Any, Callable, Iterator, Tuple  # NOQA
 
-from six import string_types
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
-from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
-from typing import Any, Callable, Iterator, Tuple  # NOQA
+from jinja2.utils import open_if_exists
+from six import string_types
 
 from sphinx.application import TemplateBridge
 from sphinx.util.osutil import mtimes_of_files

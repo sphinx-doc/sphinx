@@ -10,6 +10,7 @@
 """
 
 from docutils import nodes
+
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 

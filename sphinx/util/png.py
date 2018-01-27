@@ -9,8 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import struct
 import binascii
+import struct
 
 
 LEN_IEND = 12

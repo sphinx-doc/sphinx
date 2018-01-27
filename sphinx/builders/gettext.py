@@ -11,23 +11,23 @@
 
 from __future__ import unicode_literals
 
-from os import path, walk, getenv
 from codecs import open
-from time import time
-from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
+from datetime import datetime, tzinfo, timedelta
+from os import path, walk, getenv
+from time import time
 from uuid import uuid4
 
 from six import iteritems, StringIO
 
 from sphinx.builders import Builder
+from sphinx.locale import pairindextypes
 from sphinx.util import split_index_msg, logging, status_iterator
-from sphinx.util.tags import Tags
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
-from sphinx.util.i18n import find_catalog
-from sphinx.util.console import bold  # type: ignore
-from sphinx.locale import pairindextypes
+from sphinx.util.tags import Tags
 
 if False:
     # For type annotation

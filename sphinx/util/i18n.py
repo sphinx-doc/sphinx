@@ -12,13 +12,13 @@ import gettext
 import io
 import os
 import re
-from os import path
-from datetime import datetime
 from collections import namedtuple
+from datetime import datetime
+from os import path
 
 import babel.dates
-from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
+from babel.messages.pofile import read_po
 
 from sphinx.errors import SphinxError
 from sphinx.util import logging

@@ -8,8 +8,8 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 import argparse
 import os
@@ -30,18 +30,18 @@ try:
 except ImportError:
     pass
 
+from docutils.utils import column_width
 from six import PY2, PY3, text_type, binary_type
 from six.moves import input
 from six.moves.urllib.parse import quote as urlquote
-from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
-from sphinx.util.osutil import ensuredir, make_filename
+from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
     purple, bold, red, turquoise, nocolor, color_terminal
 )
+from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.template import SphinxRenderer
-from sphinx.util import texescape
 
 if False:
     # For type annotation

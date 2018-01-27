@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
-
 import os
 import sys
 from distutils import log
 from distutils.cmd import Command
+
+from setuptools import find_packages, setup
 
 import sphinx
 
@@ -48,6 +48,7 @@ extras_require = {
         'pytest-cov',
         'html5lib',
         'flake8',
+        'flake8-import-order',
     ],
     'test:python_version<"3"': [
         'enum34',

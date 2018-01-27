@@ -7,8 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 import os
-import sys
 import shutil
+import sys
 from io import open
 
 from six import PY2, text_type

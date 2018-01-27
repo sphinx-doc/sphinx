@@ -9,15 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+from docutils import nodes
 from six import iteritems
 
-from docutils import nodes
-
 from sphinx import addnodes
-from sphinx.util import url_re, logging
-from sphinx.transforms import SphinxContentsFilter
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.transforms import SphinxContentsFilter
+from sphinx.util import url_re, logging
 
 if False:
     # For type annotation

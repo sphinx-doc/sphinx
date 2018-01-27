@@ -9,48 +9,47 @@
     :license: BSD, see LICENSE for details.
 """
 
+import codecs
+import posixpath
 import re
 import sys
-import codecs
 import warnings
-import posixpath
-from os import path
 from hashlib import md5
-
-from six import iteritems, text_type, string_types
-from six.moves import cPickle as pickle
+from os import path
 
 import docutils
 from docutils import nodes
-from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
-from docutils.utils import new_document, relative_path
 from docutils.frontend import OptionParser
+from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
+from docutils.utils import new_document, relative_path
+from six import iteritems, text_type, string_types
+from six.moves import cPickle as pickle
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl, logging, status_iterator
-from sphinx.util.i18n import format_date
-from sphinx.util.inventory import InventoryFile
-from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
-    movefile, copyfile
-from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.docutils import is_html5_writer_available
-from sphinx.util.fileutil import copy_asset
-from sphinx.util.matching import patmatch, Matcher, DOTFILES
+from sphinx.application import ENV_PICKLE_FILENAME
+from sphinx.builders import Builder
 from sphinx.config import string_classes
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.environment.adapters.toctree import TocTree
+from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, l_
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.builders import Builder
-from sphinx.application import ENV_PICKLE_FILENAME
-from sphinx.highlighting import PygmentsBridge
+from sphinx.util import jsonimpl, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import is_html5_writer_available
+from sphinx.util.fileutil import copy_asset
+from sphinx.util.i18n import format_date
+from sphinx.util.inventory import InventoryFile
+from sphinx.util.matching import patmatch, Matcher, DOTFILES
+from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
+    movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
-from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.environment.adapters.toctree import TocTree
-from sphinx.environment.adapters.indexentries import IndexEntries
 
 if False:
     # For type annotation

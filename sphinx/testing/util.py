@@ -14,16 +14,14 @@ import sys
 import warnings
 from xml.etree import ElementTree
 
-from six import string_types
-
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+from six import string_types
 
 from sphinx import application
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
-
 from sphinx.testing.path import path
 
 if False:

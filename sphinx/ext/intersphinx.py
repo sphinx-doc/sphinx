@@ -26,21 +26,20 @@
 
 from __future__ import print_function
 
-import sys
-import time
 import functools
 import posixpath
+import sys
+import time
 from os import path
-
-from six import PY3, iteritems, string_types
-from six.moves.urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import PY3, iteritems, string_types
+from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
-from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 

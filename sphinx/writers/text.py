@@ -13,10 +13,9 @@ import re
 import textwrap
 from itertools import groupby
 
-from six.moves import zip_longest
-
 from docutils import nodes, writers
 from docutils.utils import column_width
+from six.moves import zip_longest
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
