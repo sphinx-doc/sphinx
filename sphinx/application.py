@@ -33,7 +33,6 @@ from sphinx.errors import (
     ApplicationError, ConfigError, ExtensionError, VersionRequirementError
 )
 from sphinx.events import EventManager
-from sphinx.extension import verify_required_extensions
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import import_object
@@ -86,6 +85,7 @@ builtin_extensions = (
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',
+    'sphinx.extension',
     'sphinx.io',
     'sphinx.parsers',
     'sphinx.registry',
@@ -237,9 +237,6 @@ class Sphinx(object):
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
         self.emit('config-inited', self.config)
-
-        # check extension versions if requested
-        verify_required_extensions(self, self.config.needs_extensions)
 
         # check primary_domain if requested
         primary_domain = self.config.primary_domain
