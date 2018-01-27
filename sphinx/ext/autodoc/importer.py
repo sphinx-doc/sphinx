@@ -87,7 +87,7 @@ class _MockImporter(object):
         self.names = names
         self.mocked_modules = []  # type: List[str]
         # enable hook by adding itself to meta_path
-        sys.meta_path = sys.meta_path + [self]
+        sys.meta_path.insert(0, self)
 
     def disable(self):
         # remove `self` from `sys.meta_path` to disable import hook
