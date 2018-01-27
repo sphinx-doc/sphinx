@@ -209,10 +209,15 @@ class CitationReferences(SphinxTransform):
 
     def apply(self):
         # type: () -> None
+        # mark citation labels as not smartquoted
+        for citnode in self.document.traverse(nodes.citation):
+            citnode[0]['support_smartquotes'] = False
+
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
                                             reftarget=cittext, refwarn=True,
+                                            support_smartquotes=False,
                                             ids=citnode["ids"])
             refnode.source = citnode.source or citnode.parent.source
             refnode.line = citnode.line or citnode.parent.line
