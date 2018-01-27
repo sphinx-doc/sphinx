@@ -24,6 +24,7 @@ Bugs fixed
 * #4415: autodoc classifies inherited classmethods as regular methods
 * #4415: autodoc classifies inherited staticmethods as regular methods
 * #4472: DOCUMENTATION_OPTIONS is not defined
+* #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
 * #4490: autodoc: type annotation is broken with python 3.7.0a4+
 
 Testing
@@ -204,6 +205,8 @@ Bugs fixed
 * #4438: math: math with labels with whitespace cause html error
 * #2437: make full reference for classes, aliased with "alias of"
 * #4434: pure numbers as link targets produce warning
+* #4477: Build fails after building specific files
+* #4449: apidoc: include "empty" packages that contain modules
 
 Testing
 --------
