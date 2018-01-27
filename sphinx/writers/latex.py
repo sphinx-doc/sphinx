@@ -324,8 +324,8 @@ class Table:
         self.colcount = 0
         self.colspec = None                     # type: str
         self.colwidths = []                     # type: List[int]
+        self.empirical_colwidths = defaultdict(float)  # type: Dict[int, float]
         self.has_problematic = False
-        self.has_oldproblematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[str]
         self.stubs = []                         # type: List[int]
@@ -395,15 +395,26 @@ class Table:
             total = sum(self.colwidths)
             colspecs = ['\\X{%d}{%d}' % (width, total) for width in self.colwidths]
             return '{|%s|}\n' % '|'.join(colspecs)
-        elif self.has_problematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
-        elif self.get_table_type() == 'tabulary':
-            # sphinx.sty sets T to be J by default.
-            return '{|' + ('T|' * self.colcount) + '}\n'
-        elif self.has_oldproblematic:
-            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+        elif not self.get_table_type() == 'tabulary':
+            total_Y, colcount_l = 0.0, 0
+            for i in range(self.colcount):
+                estimate = self.empirical_colwidths[i]
+                if estimate > 16:
+                    total_Y += estimate
+                else:
+                    colcount_l += 1
+            linewidthratioY = total_Y / (total_Y + 16 * colcount_l)
+            colspecs = []
+            for i in range(self.colcount):
+                estimate = self.empirical_colwidths[i]
+                if estimate > 16:
+                    colspecs.append('\\Y{%.3f}' % (float(estimate) /
+                                                   total_Y * linewidthratioY))
+                else:
+                    colspecs.append('l')
+            return '{|%s|}\n' % '|'.join(colspecs)
         else:
-            return '{|' + ('l|' * self.colcount) + '}\n'
+            return '{|' + ('T|' * self.colcount) + '}\n'
 
     def add_cell(self, height, width):
         # type: (int, int) -> None
@@ -1377,30 +1388,33 @@ class LaTeXTranslator(SphinxTranslator):
                        '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
             self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
-            self.table.has_oldproblematic = True
+            for i in range(cell.col, cell.col + cell.width):
+                self.table.empirical_colwidths[i] = max(self.table.empirical_colwidths[i], 17)
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
                 self.body.append('\\sphinxstyletheadfamily ')
-        if self.needs_linetrimming:
-            self.pushbody([])
+        self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node):
         # type: (nodes.Element) -> None
+        body = self.popbody()
         if self.needs_linetrimming:
             self.needs_linetrimming = 0
-            body = self.popbody()
-
             # Remove empty lines from top of merged cell
             while body and body[0] == "\n":
                 body.pop(0)
-            self.body.extend(body)
 
+        self.body.extend(body)
         self.body.append(self.context.pop())
 
         cell = self.table.cell()
+        bodywidthpercol = float(sum(len(i) for i in body)) / cell.width
+        for i in range(cell.col, cell.col + cell.width):
+            self.table.empirical_colwidths[i] = max(
+                self.table.empirical_colwidths[i], bodywidthpercol)
         self.table.col += cell.width
 
         # fill columns if next ones are a bottom of wide-multirow cell
