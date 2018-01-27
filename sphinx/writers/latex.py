@@ -407,6 +407,13 @@ class Table(object):
             return '{|' + ('T|' * self.colcount) + '}\n'
         elif self.has_oldproblematic:
             return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+        elif self.is_longtable():
+            # Workaround: Give a default colspec to avoid overflows if ``:widths:`` or
+            # ``tabularcolumns`` are not specified.
+            # see https://github.com/sphinx-doc/sphinx/issues/3447
+            total = self.width
+            colspecs = ['\\X{%d}{%d}' % (1, total) for _ in range(total)]
+            return '{|%s|}\n' % '|'.join(colspecs)
         else:
             return '{|' + ('l|' * self.colcount) + '}\n'
 
@@ -437,6 +444,24 @@ class Table(object):
             return TableCell(self, row, col)
         except IndexError:
             return None
+
+    @property
+    def width(self):
+        # type: () -> int
+        """Returns the table width."""
+        width = 0
+        while self.cells[(0, width)]:
+            width += 1
+        return width
+
+    @property
+    def height(self):
+        # type: () -> int
+        """Returns the table height."""
+        height = 0
+        while self.cells[(height, 0)]:
+            height += 1
+        return height
 
 
 class TableCell(object):
