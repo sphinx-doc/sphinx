@@ -23,13 +23,15 @@ if False:
     # For type annotation
     from typing import Generator  # NOQA
 
-symbols_re = re.compile(r'([!-/:-@\[-`{-~])')
+symbols_re = re.compile(r'([!--/:-@\[-`{-~])')  # symbols without dot(0x2e)
 logger = logging.getLogger(__name__)
 
 
 def escape(text):
     # type: (unicode) -> unicode
-    return symbols_re.sub(r'\\\1', text)  # type: ignore
+    text = symbols_re.sub(r'\\\1', text)  # type: ignore
+    text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
+    return text
 
 
 @contextmanager

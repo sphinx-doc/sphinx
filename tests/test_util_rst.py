@@ -14,3 +14,5 @@ from sphinx.util.rst import escape
 def test_escape():
     assert escape(':ref:`id`') == r'\:ref\:\`id\`'
     assert escape('footnote [#]_') == r'footnote \[\#\]\_'
+    assert escape('sphinx.application') == r'sphinx.application'
+    assert escape('.. toctree::') == r'\.. toctree\:\:'
