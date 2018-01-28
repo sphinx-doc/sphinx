@@ -74,7 +74,7 @@ PyPI
    Jannis Leidel wrote a `setuptools command
    <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
-   http://pythonhosted.org/.
+   https://pythonhosted.org/.
 
 GitHub Pages
    Directories starting with underscores are ignored by default which breaks
@@ -103,7 +103,7 @@ Google Analytics
 
       {% block footer %}
       {{ super() }}
-      <div class="footer">This page uses <a href="http://analytics.google.com/">
+      <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
       <script type="text/javascript">
@@ -119,7 +119,7 @@ Google Analytics
       {% endblock %}
 
 
-.. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
+.. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 
 

@@ -15,7 +15,6 @@ import re
 import sys
 import time
 import codecs
-import platform
 from os import path
 import doctest
 
@@ -144,7 +143,8 @@ class TestDirective(Directive):
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 spec = self.options['pyversion']
-                if not is_allowed_version(spec, platform.python_version()):
+                python_version = '.'.join(str(v) for v in sys.version_info[:3])
+                if not is_allowed_version(spec, python_version):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
             except InvalidSpecifier:

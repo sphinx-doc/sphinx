@@ -116,11 +116,11 @@ class BuildDoc(Command):
             for root, dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
-        return None
+        return os.curdir
 
     # Overriding distutils' Command._ensure_stringlike which doesn't support
     # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for http://bugs.python.org/issue19570
+    # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
         # type: (unicode, unicode, Any) -> Any
         val = getattr(self, option)
@@ -134,30 +134,26 @@ class BuildDoc(Command):
 
     def finalize_options(self):
         # type: () -> None
+        self.ensure_string_list('builder')
+
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
             self.announce('Using source directory %s' % self.source_dir)
+
         self.ensure_dirname('source_dir')
-        if self.source_dir is None:
-            self.source_dir = os.curdir
-        self.source_dir = abspath(self.source_dir)
+
         if self.config_dir is None:
             self.config_dir = self.source_dir
-        self.config_dir = abspath(self.config_dir)
 
-        self.ensure_string_list('builder')
         if self.build_dir is None:
             build = self.get_finalized_command('build')
             self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
-            self.mkpath(self.build_dir)  # type: ignore
-        self.build_dir = abspath(self.build_dir)
+
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
-        self.mkpath(self.doctree_dir)  # type: ignore
+
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]  # type: List[Tuple[str, unicode]]
-        for _, builder_target_dir in self.builder_target_dirs:
-            self.mkpath(builder_target_dir)  # type: ignore
 
     def run(self):
         # type: () -> None

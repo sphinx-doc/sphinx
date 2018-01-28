@@ -3,7 +3,7 @@
     sphinx.ext.mathjax
     ~~~~~~~~~~~~~~~~~~
 
-    Allow `MathJax <http://mathjax.org/>`_ to be used to display math in
+    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
@@ -74,7 +74,7 @@ def setup(app):
         raise ExtensionError('sphinx.ext.mathjax: other math package is already loaded')
 
     # more information for mathjax secure url is here:
-    # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+    # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
                          'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)

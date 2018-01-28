@@ -157,7 +157,7 @@ class SphinxBaseFileInput(FileInput):
     """A base class of SphinxFileInput.
 
     It supports to replace unknown Unicode characters to '?'. And it also emits
-    Sphinx events ``source-read`` on reading.
+    Sphinx events :event:`source-read` on reading.
     """
 
     def __init__(self, app, env, *args, **kwds):

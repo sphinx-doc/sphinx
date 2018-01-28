@@ -8,7 +8,7 @@
 
 .. versionadded:: 0.6
 
-This extension allows you to embed `Graphviz <http://graphviz.org/>`_ graphs in
+This extension allows you to embed `Graphviz <https://graphviz.org/>`_ graphs in
 your documents.
 
 It adds these directives:

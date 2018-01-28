@@ -26,6 +26,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,10 @@ ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('rebuild', Union[bool, unicode])])
 
 
+#: represents the config value accepts any type of value.
+Any = object()
+
+
 class ENUM(object):
     """represents the config value should be a one of candidates.
 
@@ -78,8 +83,15 @@ if PY2:
 
 
 class Config(object):
-    """
-    Configuration file abstraction.
+    """Configuration file abstraction.
+
+    The config object makes the values of all config values available as
+    attributes.
+
+    It is exposed via the :py:attr:`sphinx.application.Application.config` and
+    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
+    to get the value of :confval:`language`, use either ``app.config.language``
+    or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
@@ -102,7 +114,7 @@ class Config(object):
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
-        source_suffix = (['.rst'], 'env'),
+        source_suffix = (['.rst'], 'env', Any),
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
@@ -205,7 +217,10 @@ class Config(object):
             if default is None and not permitted:
                 continue  # neither inferrable nor expliclitly permitted types
             current = self[name]
-            if isinstance(permitted, ENUM):
+            if permitted is Any:
+                # any type of value is accepted
+                pass
+            elif isinstance(permitted, ENUM):
                 if not permitted.match(current):
                     logger.warning(CONFIG_ENUM_WARNING.format(
                         name=name, current=current, candidates=permitted.candidates))
@@ -302,8 +317,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]  # type: ignore
-        if isinstance(self.source_suffix, string_types):  # type: ignore
-            self.source_suffix = [self.source_suffix]  # type: ignore
 
     def __getattr__(self, name):
         # type: (unicode) -> Any
@@ -344,3 +357,21 @@ class Config(object):
     def filter(self, rebuild):
         # type: (str) -> Iterator[ConfigValue]
         return (value for value in self if value.rebuild == rebuild)  # type: ignore
+
+
+def convert_source_suffix(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts source_suffix to string-list."""
+    if isinstance(config.source_suffix, string_types):
+        config.source_suffix = [config.source_suffix]  # type: ignore
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.connect('config-inited', convert_source_suffix)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

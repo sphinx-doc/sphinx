@@ -1,6 +1,7 @@
 :tocdepth: 2
 
 .. title:: set by title directive
+.. _1024:
 
 Testing various markup
 ======================
@@ -152,6 +153,7 @@ Adding \n to test unescaping.
 * :ref:`my-table-name`
 * :ref:`my-code-block`
 * :ref:`my-code-block-name`
+* :ref:`1024`
 * :numref:`my-figure`
 * :numref:`my-figure-name`
 * :numref:`my-table`

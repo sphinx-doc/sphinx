@@ -453,7 +453,8 @@ class Signature(object):
 
         if annotation.__module__ == 'builtins':
             return annotation.__qualname__  # type: ignore
-        elif isinstance(annotation, typing.GenericMeta):
+        elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
+              isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,
             # whereas __parameters__ only contains generic parameters.
             #
@@ -480,7 +481,8 @@ class Signature(object):
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
-        elif (isinstance(annotation, typing.CallableMeta) and  # type: ignore
+        elif (hasattr(typing, 'CallableMeta') and  # for py36 or below
+              isinstance(annotation, typing.CallableMeta) and  # type: ignore
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):
             # Skipped in the case of plain typing.Callable
@@ -495,7 +497,8 @@ class Signature(object):
             return '%s[%s, %s]' % (qualified_name,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
-        elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
+        elif (hasattr(typing, 'TupleMeta') and  # for py36 or below
+              isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):
             params = annotation.__tuple_params__

@@ -9,7 +9,7 @@
 
     This is derived from the "sphinx-autopackage" script, which is:
     Copyright 2008 Société des arts technologiques (SAT),
-    http://www.sat.qc.ca/
+    https://sat.qc.ca/
 
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 import argparse
+import glob
 import os
 import sys
 from os import path
@@ -194,7 +195,17 @@ def shall_skip(module, opts):
 
     # skip it if there is nothing (or just \n or \r\n) in the file
     if path.exists(module) and path.getsize(module) <= 2:
-        return True
+        skip = True
+        if os.path.basename(module) == '__init__.py':
+            pattern = path.join(path.dirname(module), '*.py')
+            # We only want to skip packages if they do not contain any
+            # .py files other than __init__.py.
+            other_modules = list(glob.glob(pattern))
+            other_modules.remove(module)
+            skip = not other_modules
+
+        if skip:
+            return True
 
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
