@@ -26,6 +26,7 @@ Bugs fixed
 * #4472: DOCUMENTATION_OPTIONS is not defined
 * #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
 * #4490: autodoc: type annotation is broken with python 3.7.0a4+
+* utils package is installed
 
 Testing
 --------
