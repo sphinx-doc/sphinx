@@ -214,7 +214,7 @@ setup(
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests', 'utils']),
     include_package_data=True,
     entry_points={
         'console_scripts': [
