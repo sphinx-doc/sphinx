@@ -304,6 +304,9 @@ class Sphinx(object):
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
                 filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
+                needed, reason = self.env.need_refresh(self)
+                if needed:
+                    raise IOError(reason)
                 self.env.domains = {}
                 for domain in self.registry.create_domains(self.env):
                     # this can raise if the data version doesn't fit

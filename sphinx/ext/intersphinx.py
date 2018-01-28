@@ -347,7 +347,11 @@ def setup(app):
     app.add_config_value('intersphinx_timeout', None, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }
 
 
 def debug(argv):

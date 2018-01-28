@@ -7,6 +7,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #4460: extensions which stores any data to environment should return the
+  version of its env data structure as metadata.  In detail, please see
+  :ref:`ext-metadata`.
+
 Deprecated
 ----------
 
