@@ -354,6 +354,8 @@ def is_smartquotable(node):
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
+    elif node.parent.get('support_smartquotes', None) is False:
+        return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False
     else:

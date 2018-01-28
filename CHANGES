@@ -210,6 +210,7 @@ Bugs fixed
 * #4434: pure numbers as link targets produce warning
 * #4477: Build fails after building specific files
 * #4449: apidoc: include "empty" packages that contain modules
+* #3917: citation labels are tranformed to ellipsis
 
 Testing
 --------
