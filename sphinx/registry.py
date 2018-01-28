@@ -332,8 +332,6 @@ class SphinxComponentRegistry(object):
 
         if metadata is None:
             metadata = {}
-            if extname == 'rst2pdf.pdfbuilder':
-                metadata['parallel_read_safe'] = True
         elif not isinstance(metadata, dict):
             logger.warning(__('extension %r returned an unsupported object from '
                               'its setup() function; it should return None or a '
