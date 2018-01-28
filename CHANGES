@@ -54,6 +54,10 @@ Bugs fixed
 * #4415: autodoc classifies inherited staticmethods as regular methods
 * #4472: DOCUMENTATION_OPTIONS is not defined
 * #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
+* #4490: autodoc: type annotation is broken with python 3.7.0a4+
+* utils package is no longer installed
+* #3952: apidoc: module header is too escaped
+* #4275: Formats accepted by sphinx.util.i18n.format_date are limited
 
 Testing
 --------
@@ -235,6 +239,7 @@ Bugs fixed
 * #4434: pure numbers as link targets produce warning
 * #4477: Build fails after building specific files
 * #4449: apidoc: include "empty" packages that contain modules
+* #3917: citation labels are tranformed to ellipsis
 
 Testing
 --------
