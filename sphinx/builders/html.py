@@ -191,7 +191,7 @@ class BuildInfo(object):
 
     def __ne__(self, other):  # type: ignore
         # type: (BuildInfo) -> bool
-        return not (self == other)
+        return not (self == other)  # for py27
 
     def dump(self, f):
         # type: (IO) -> None
