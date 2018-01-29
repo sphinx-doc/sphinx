@@ -30,6 +30,8 @@ Bugs fixed
 * #3952: apidoc: module header is too escaped
 * #4275: Formats accepted by sphinx.util.i18n.format_date are limited
 * #4493: recommonmark raises AttributeError if AutoStructify enabled
+* #4209: intersphinx: In link title, "v" should be optional if target has no
+  version
 
 Testing
 --------
