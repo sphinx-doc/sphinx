@@ -10,6 +10,9 @@ Incompatible changes
 * #4460: extensions which stores any data to environment should return the
   version of its env data structure as metadata.  In detail, please see
   :ref:`ext-metadata`.
+* The default value of :confval:`epub_author` and :confval:`epub_publisher` are
+  changed from ``'unknown'`` to the value of :confval:`author`.  This is same as
+  a ``conf.py`` file sphinx-build generates.
 
 Deprecated
 ----------
