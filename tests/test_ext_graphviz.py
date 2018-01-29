@@ -118,30 +118,32 @@ def test_graphviz_i18n(app, status, warning):
 
 
 def test_graphviz_parse_mapfile():
-    # digraph {
-    # }
+    # empty graph
+    code = ('# digraph {\n'
+            '# }\n')
     content = ('<map id="%3" name="%3">\n'
                '</map>')
-    cmap = ClickableMapDefinition('dummy.map', content)
+    cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
-    assert cmap.id == '%3'
+    assert cmap.id == 'grapvizb08107169e'
     assert len(cmap.clickable) == 0
     assert cmap.generate_clickable_map() == ''
 
-    # digraph {
-    #   foo [href="http://www.google.com/"];
-    #   foo -> bar;
-    # }
+    # normal graph
+    code = ('digraph {\n'
+            '  foo [href="http://www.google.com/"];\n'
+            '  foo -> bar;\n'
+            '}\n')
     content = ('<map id="%3" name="%3">\n'
                '<area shape="poly" id="node1" href="http://www.google.com/" title="foo" alt=""'
                ' coords="77,29,76,22,70,15,62,10,52,7,41,5,30,7,20,10,12,15,7,22,5,29,7,37,12,'
                '43,20,49,30,52,41,53,52,52,62,49,70,43,76,37"/>\n'
                '</map>')
-    cmap = ClickableMapDefinition('dummy.map', content)
+    cmap = ClickableMapDefinition('dummy.map', content, code)
     assert cmap.filename == 'dummy.map'
-    assert cmap.id == '%3'
+    assert cmap.id == 'grapviza4ccdd48ce'
     assert len(cmap.clickable) == 1
-    assert cmap.generate_clickable_map() == content
+    assert cmap.generate_clickable_map() == content.replace('%3', cmap.id)
 
     # inheritance-diagram:: sphinx.builders.html
     content = (
@@ -168,7 +170,7 @@ def test_graphviz_parse_mapfile():
         ' alt="" coords="11,3,141,19"/>\n'
         '</map>'
     )
-    cmap = ClickableMapDefinition('dummy.map', content)
+    cmap = ClickableMapDefinition('dummy.map', content, 'dummy_code')
     assert cmap.filename == 'dummy.map'
     assert cmap.id == 'inheritance66ff5471b9'
     assert len(cmap.clickable) == 0

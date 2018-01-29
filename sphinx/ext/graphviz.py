@@ -47,22 +47,29 @@ class ClickableMapDefinition(object):
     maptag_re = re.compile('<map id="(.*?)"')
     href_re = re.compile('href=".*?"')
 
-    def __init__(self, filename, content):
-        # type: (unicode, unicode) -> None
+    def __init__(self, filename, content, dot=''):
+        # type: (unicode, unicode, unicode) -> None
         self.id = None
         self.filename = filename
         self.content = content.splitlines()
         self.clickable = []  # type: List[unicode]
 
-        self.parse()
+        self.parse(dot=dot)
 
-    def parse(self):
-        # type: () -> None
+    def parse(self, dot=None):
+        # type: (None) -> None
         matched = self.maptag_re.match(self.content[0])   # type: ignore
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
 
         self.id = matched.group(1)
+        if self.id == '%3':
+            # graphviz generates wrong ID if graph name not specified
+            # https://gitlab.com/graphviz/graphviz/issues/1327
+            hashed = sha1(dot.encode('utf-8')).hexdigest()
+            self.id = 'grapviz%s' % hashed[-10:]
+            self.content[0] = self.content[0].replace('%3', self.id)
+
         for line in self.content:
             if self.href_re.search(line):
                 self.clickable.append(line)
@@ -289,7 +296,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             self.body.append(svgtag)
         else:
             with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:
-                imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read())
+                imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
                     # has a map
                     self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
