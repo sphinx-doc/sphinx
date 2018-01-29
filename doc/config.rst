@@ -451,6 +451,10 @@ Project information
 
    The documented project's name.
 
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
+
 .. confval:: copyright
 
    A copyright statement in the style ``'2008, Author Name'``.

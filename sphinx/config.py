@@ -102,6 +102,7 @@ class Config(object):
     config_values = dict(
         # general options
         project = ('Python', 'env'),
+        author = ('unknown', 'env'),
         copyright = ('', 'html'),
         version = ('', 'env'),
         release = ('', 'env'),
