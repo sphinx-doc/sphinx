@@ -24,7 +24,7 @@ from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
 )
-from test_util_inventory import inventory_v2
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -269,6 +269,25 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'baz()'
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
+def test_inventory_not_having_version(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2_not_having_version)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
+    assert rn['reftitle'] == '(in foo)'
+    assert rn[0].astext() == 'Long Module desc'
 
 
 def test_load_mappings_warnings(tempdir, app, status, warning):
