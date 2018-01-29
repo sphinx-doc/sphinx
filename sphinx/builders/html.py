@@ -188,6 +188,10 @@ class BuildInfo(object):
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
+    def __ne__(self, other):  # type: ignore
+        # type: (BuildInfo) -> bool
+        return not (self == other)  # for py27
+
     def dump(self, f):
         # type: (IO) -> None
         f.write('# Sphinx build info version 1\n'

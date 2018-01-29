@@ -212,6 +212,8 @@ Bugs fixed
 * #4477: Build fails after building specific files
 * #4449: apidoc: include "empty" packages that contain modules
 * #3917: citation labels are tranformed to ellipsis
+* #4501: graphviz: epub3 validation error caused if graph is not clickable
+* #4514: graphviz: workaround for wrong map ID which graphviz generates
 
 Testing
 --------
