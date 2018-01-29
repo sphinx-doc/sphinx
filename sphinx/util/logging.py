@@ -12,12 +12,12 @@ from __future__ import absolute_import
 
 import logging
 import logging.handlers
-from contextlib import contextmanager
 from collections import defaultdict
+from contextlib import contextmanager
 
-from six import PY2, StringIO
 from docutils import nodes
 from docutils.utils import get_source_line
+from six import PY2, StringIO
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize

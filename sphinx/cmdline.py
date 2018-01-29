@@ -20,8 +20,8 @@ from docutils.utils import SystemMessage
 from six import text_type, binary_type
 
 from sphinx import __display_version__
-from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
+from sphinx.errors import SphinxError
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils

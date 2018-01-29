@@ -53,28 +53,27 @@
     :license: BSD, see LICENSE for details.
 """
 
+import inspect
 import os
+import posixpath
 import re
 import sys
-import inspect
-import posixpath
-from six import string_types
 from types import ModuleType
 
-from six import text_type
-
+from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
-from docutils import nodes
+from six import string_types
+from six import text_type
 
 import sphinx
 from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.util import import_object, rst, logging
-from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
+from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.util import import_object, rst, logging
 
 if False:
     # For type annotation

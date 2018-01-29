@@ -34,8 +34,8 @@ from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
+from sphinx.util.osutil import ensuredir
 from sphinx.util.rst import escape as rst_escape
 
 if False:

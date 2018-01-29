@@ -12,14 +12,14 @@ from __future__ import absolute_import
 
 import re
 import types
+from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
-from contextlib import contextmanager
 
 import docutils
 from docutils.languages import get_language
-from docutils.statemachine import StateMachine
 from docutils.parsers.rst import directives, roles, convert_directive_function
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
 
 from sphinx.errors import ExtensionError

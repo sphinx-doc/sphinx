@@ -13,8 +13,8 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 
 if False:
     # For type annotation

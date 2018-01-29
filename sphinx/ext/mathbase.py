@@ -14,9 +14,9 @@ from docutils.nodes import make_id
 from docutils.parsers.rst import Directive, directives
 
 from sphinx.config import string_classes
-from sphinx.roles import XRefRole
-from sphinx.locale import __
 from sphinx.domains import Domain
+from sphinx.locale import __
+from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode, set_source_info
 

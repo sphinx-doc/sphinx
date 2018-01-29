@@ -28,7 +28,9 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
+
 from docutils.utils import smartquotes
+
 from sphinx.util.docutils import __version_info__ as docutils_version
 
 if False:  # For type annotation

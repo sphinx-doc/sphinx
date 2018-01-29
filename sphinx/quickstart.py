@@ -11,8 +11,8 @@
 
 import warnings
 
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.cmd.quickstart import main as _main
+from sphinx.deprecation import RemovedInSphinx20Warning
 
 
 def main(*args, **kwargs):

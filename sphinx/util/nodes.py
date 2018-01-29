@@ -12,9 +12,8 @@ from __future__ import absolute_import
 
 import re
 
-from six import text_type
-
 from docutils import nodes
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes

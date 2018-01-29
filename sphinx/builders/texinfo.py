@@ -13,21 +13,21 @@ import os
 from os import path
 
 from docutils import nodes
+from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from docutils.utils import new_document
-from docutils.frontend import OptionParser
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util import status_iterator
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
 if False:

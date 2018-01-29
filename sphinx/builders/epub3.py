@@ -10,12 +10,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
 from collections import namedtuple
+from os import path
 
 from sphinx import package_dir
-from sphinx.config import string_classes, ENUM
 from sphinx.builders import _epub_base
+from sphinx.config import string_classes, ENUM
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date

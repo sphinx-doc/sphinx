@@ -9,40 +9,39 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
+import fnmatch
 import os
+import re
 import sys
 import time
 import types
-import fnmatch
 import warnings
-from os import path
-from copy import copy
 from collections import defaultdict
+from copy import copy
+from os import path
 
+from docutils.frontend import OptionParser
+from docutils.utils import Reporter, get_source_line
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.utils import Reporter, get_source_line
-from docutils.frontend import OptionParser
-
 from sphinx import addnodes, versioning
-from sphinx.io import read_doc
-from sphinx.util import logging, rst
-from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir
-from sphinx.util.i18n import find_catalog_files
-from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import sphinx_domains, WarningStream
-from sphinx.util.matching import compile_matchers
-from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
-from sphinx.util.websupport import is_commentable
-from sphinx.errors import SphinxError, ExtensionError
-from sphinx.transforms import SphinxTransformer
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.errors import SphinxError, ExtensionError
+from sphinx.io import read_doc
+from sphinx.transforms import SphinxTransformer
+from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
+from sphinx.util import logging, rst
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util.i18n import find_catalog_files
+from sphinx.util.matching import compile_matchers
+from sphinx.util.nodes import is_translatable
+from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
+from sphinx.util.websupport import is_commentable
 
 if False:
     # For type annotation

@@ -15,15 +15,15 @@ import traceback
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues, string_types
 
-from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
-from sphinx.extension import Extension
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
+from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
-from sphinx.util import logging
 from sphinx.util import import_object
+from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
