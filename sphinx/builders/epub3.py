@@ -250,9 +250,9 @@ def setup(app):
     app.add_config_value('epub_max_image_width', 0, 'env')
     app.add_config_value('epub_show_urls', 'inline', 'html')
     app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')
-    app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
+    app.add_config_value('epub_description', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
 
     return {
