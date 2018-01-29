@@ -59,8 +59,8 @@ class Builder(object):
     #: ``project``
     epilog = ''  # type: unicode
 
-    # default translator class for the builder.  This will be overrided by
-    # ``app.set_translator()``.
+    #: default translator class for the builder.  This can be overrided by
+    #: :py:meth:`app.set_translator()`.
     default_translator_class = None  # type: nodes.NodeVisitor
     # doctree versioning method
     versioning_method = 'none'  # type: unicode
@@ -73,7 +73,9 @@ class Builder(object):
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types = []  # type: List[unicode]
+    #: The builder supports remote images or not.
     supported_remote_images = False
+    #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
     def __init__(self, app):
