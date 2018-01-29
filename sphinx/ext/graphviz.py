@@ -49,7 +49,7 @@ class ClickableMapDefinition(object):
 
     def __init__(self, filename, content, dot=''):
         # type: (unicode, unicode, unicode) -> None
-        self.id = None
+        self.id = None  # type: unicode
         self.filename = filename
         self.content = content.splitlines()
         self.clickable = []  # type: List[unicode]
@@ -57,7 +57,7 @@ class ClickableMapDefinition(object):
         self.parse(dot=dot)
 
     def parse(self, dot=None):
-        # type: (None) -> None
+        # type: (unicode) -> None
         matched = self.maptag_re.match(self.content[0])   # type: ignore
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
@@ -71,11 +71,11 @@ class ClickableMapDefinition(object):
             self.content[0] = self.content[0].replace('%3', self.id)
 
         for line in self.content:
-            if self.href_re.search(line):
+            if self.href_re.search(line):  # type: ignore
                 self.clickable.append(line)
 
     def generate_clickable_map(self):
-        # type: () -> None
+        # type: () -> unicode
         """Generate clickable map tags if clickable item exists.
 
         If not exists, this only returns empty string.
@@ -295,7 +295,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
-            with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:
+            with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
                     # has a map
