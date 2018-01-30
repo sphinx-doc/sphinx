@@ -153,6 +153,10 @@ def test_autosummary_generate(app, status, warning):
             '      ~Foo.__init__\n'
             '      ~Foo.bar\n'
             '   \n' in Foo)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~Foo.baz\n'
+            '   \n' in Foo)
 
 
 def test_import_by_name():
