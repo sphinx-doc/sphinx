@@ -15,12 +15,13 @@ from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
 from docutils.transforms.universal import SmartQuotes
-from docutils.utils import new_document, normalize_language_tag
+from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import logging
+from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 

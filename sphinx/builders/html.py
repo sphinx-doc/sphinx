@@ -23,7 +23,7 @@ from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
-from docutils.utils import new_document, relative_path
+from docutils.utils import relative_path
 from six import iteritems, text_type, string_types
 from six.moves import cPickle as pickle
 
@@ -41,7 +41,7 @@ from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import jsonimpl, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.util.docutils import is_html5_writer_available
+from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile

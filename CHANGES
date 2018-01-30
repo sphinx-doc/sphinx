@@ -32,6 +32,7 @@ Bugs fixed
 * #4493: recommonmark raises AttributeError if AutoStructify enabled
 * #4209: intersphinx: In link title, "v" should be optional if target has no
   version
+* #4230: slowdown in writing pages with sphinx 1.6
 
 Testing
 --------
