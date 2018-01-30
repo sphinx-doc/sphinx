@@ -254,7 +254,9 @@ def load_mappings(app):
                     update = True
                     break
 
-        if len(failures) < len(invs):
+        if failures == []:
+            pass
+        elif len(failures) < len(invs):
             logger.info("encountered some issues with some of the inventories,"
                         " but they had working alternatives:")
             for fail in failures:
