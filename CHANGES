@@ -27,6 +27,7 @@ Bugs fixed
 * #4501: graphviz: epub3 validation error caused if graph is not clickable
 * #4514: graphviz: workaround for wrong map ID which graphviz generates
 * #4525: autosectionlabel does not support parallel build
+* #3953: Do not raise warning when there is a working intersphinx inventory
 
 Testing
 --------
