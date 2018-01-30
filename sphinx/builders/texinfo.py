@@ -15,7 +15,6 @@ from os import path
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
-from docutils.utils import new_document
 
 from sphinx import addnodes
 from sphinx.builders import Builder
@@ -25,6 +24,7 @@ from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util import status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
