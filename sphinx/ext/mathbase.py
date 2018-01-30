@@ -68,7 +68,7 @@ class MathDomain(Domain):
         # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
-                self.data['objects'][labelid] = doc
+                self.data['objects'][labelid] = (doc, eqno)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
