@@ -422,3 +422,11 @@ Third Party Themes
 
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.
+
+
+Besides this, there are a lot of third party themes.  You can find them on
+PyPI__, GitHub__, sphinx-themes.org__ and so on.
+
+.. __: https://pypi.python.org/pypi?:action=browse&c=599
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
+.. __: https://sphinx-themes.org/
