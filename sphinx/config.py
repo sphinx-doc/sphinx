@@ -12,6 +12,7 @@
 import re
 import traceback
 from os import path, getenv
+from collections import OrderedDict
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 from typing import Any, NamedTuple, Union
@@ -114,7 +115,7 @@ class Config(object):
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
-        source_suffix = (['.rst'], 'env', Any),
+        source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
@@ -260,7 +261,9 @@ class Config(object):
             return value
         else:
             defvalue = self.values[name][0]
-            if isinstance(defvalue, dict):
+            if self.values[name][-1] == Any:
+                return value
+            elif isinstance(defvalue, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
                                     'ignoring (use %r to set individual elements)') %
                                  (name, name + '.key=value'))
@@ -361,9 +364,28 @@ class Config(object):
 
 def convert_source_suffix(app, config):
     # type: (Sphinx, Config) -> None
-    """This converts source_suffix to string-list."""
-    if isinstance(config.source_suffix, string_types):
-        config.source_suffix = [config.source_suffix]  # type: ignore
+    """This converts old styled source_suffix to new styled one.
+
+    * old style: str or list
+    * new style: a dict which maps from fileext to filetype
+    """
+    source_suffix = config.source_suffix
+    if isinstance(source_suffix, string_types):
+        # if str, considers as default filetype (None)
+        #
+        # The default filetype is determined on later step.
+        # By default, it is considered as restructuredtext.
+        config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
+    elif isinstance(source_suffix, (list, tuple)):
+        # if list, considers as all of them are default filetype
+        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore  # NOQA
+    elif isinstance(source_suffix, dict):
+        # if dict, convert it to OrderedDict
+        config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
+    else:
+        logger.warning(__("The config value `source_suffix' expected to "
+                          "a string, list of strings or dictionary. "
+                          "But `%r' is given." % source_suffix))
 
 
 def setup(app):

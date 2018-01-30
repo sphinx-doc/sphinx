@@ -4,6 +4,8 @@ from docutils.parsers import Parser
 
 
 class DummyMarkdownParser(Parser):
+    supported = ('markdown',)
+
     def parse(self, inputstring, document):
         document.rawsource = inputstring
 

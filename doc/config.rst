@@ -90,11 +90,31 @@ General configuration
 
 .. confval:: source_suffix
 
-   The file name extension, or list of extensions, of source files.  Only files
-   with this suffix will be read as sources.  Default is ``'.rst'``.
+   The file extensions of source files.  Sphinx considers the files with this
+   suffix as sources.  This value can be a dictionary mapping file extensions
+   to file types.  For example::
+
+      source_suffix = {
+          '.rst': 'restructuredtext',
+          '.txt': 'restructuredtext',
+          '.md': 'markdown',
+      }
+
+   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   add a new file type using source parser extensions.  Please read a document
+   of the extension to know what file type the extension supports.
+
+   This also allows a list of file extensions.  In that case, Sphinx conciders
+   that all they are ``'restructuredtext'``.  Default is
+   ``{'.rst': 'restructuredtext'}``.
+
+   .. note:: file extensions have to start with dot (like ``.rst``).
 
    .. versionchanged:: 1.3
       Can now be a list of extensions.
+
+   .. versionchanged:: 1.8
+      Support file type mapping
 
 .. confval:: source_encoding
 
@@ -122,6 +142,10 @@ General configuration
       Read more about how to use Markdown with Sphinx at :ref:`markdown`.
 
    .. versionadded:: 1.3
+
+   .. deprecated:: 1.8
+      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      a source parser.  Please use it instead.
 
 .. confval:: master_doc
 

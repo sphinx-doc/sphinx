@@ -89,9 +89,11 @@ builtin_extensions = (
     'sphinx.directives.patches',
     'sphinx.io',
     'sphinx.parsers',
+    'sphinx.registry',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.images',
+    'sphinx.util.compat',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
@@ -249,8 +251,6 @@ class Sphinx(object):
         self.builder = self.create_builder(buildername)
         # check all configuration values for permissible types
         self.config.check_types()
-        # set up source_parsers
-        self._init_source_parsers()
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
@@ -283,14 +283,6 @@ class Sphinx(object):
                 logger.info(__('done'))
             else:
                 logger.info('not available for built-in messages')
-
-    def _init_source_parsers(self):
-        # type: () -> None
-        for suffix, parser in iteritems(self.config.source_parsers):
-            self.add_source_parser(suffix, parser)
-        for suffix, parser in iteritems(self.registry.get_source_parsers()):
-            if suffix not in self.config.source_suffix and suffix != '*':
-                self.config.source_suffix.append(suffix)
 
     def _init_env(self, freshenv):
         # type: (bool) -> None

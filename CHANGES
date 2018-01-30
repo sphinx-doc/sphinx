@@ -10,9 +10,14 @@ Incompatible changes
 * #4460: extensions which stores any data to environment should return the
   version of its env data structure as metadata.  In detail, please see
   :ref:`ext-metadata`.
+* Sphinx expects source parser modules to have supported file formats as
+  ``Parser.supported`` attribute
 
 Deprecated
 ----------
+
+* :confval:`source_parsers` is deprecated. Please use ``add_source_parser()``
+  instead.
 
 Features added
 --------------
@@ -20,6 +25,7 @@ Features added
 * Add :event:`config-inited` event
 * Add ``sphinx.config.Any`` to represent the config value accepts any type of
   value
+* :confval:`source_suffix` allows a mapping fileext to file types
 
 Bugs fixed
 ----------

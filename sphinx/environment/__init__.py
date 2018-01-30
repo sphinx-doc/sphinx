@@ -381,7 +381,7 @@ class BuildEnvironment(object):
                     break
             else:
                 # document does not exist
-                suffix = self.config.source_suffix[0]
+                suffix = list(self.config.source_suffix)[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:
