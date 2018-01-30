@@ -26,6 +26,7 @@ Bugs fixed
 * #3917: citation labels are tranformed to ellipsis
 * #4501: graphviz: epub3 validation error caused if graph is not clickable
 * #4514: graphviz: workaround for wrong map ID which graphviz generates
+* #4525: autosectionlabel does not support parallel build
 
 Testing
 --------
