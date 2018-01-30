@@ -431,6 +431,55 @@ class Signature(object):
 
         Displaying complex types from ``typing`` relies on its private API.
         """
+        if sys.version_info >= (3, 7):  # py37+
+            return self.format_annotation_new(annotation)
+        else:
+            return self.format_annotation_old(annotation)
+
+    def format_annotation_new(self, annotation):
+        # type: (Any) -> str
+        """format_annotation() for py37+"""
+        module = getattr(annotation, '__module__', None)
+        if isinstance(annotation, string_types):
+            return annotation  # type: ignore
+        elif isinstance(annotation, typing.TypeVar):  # type: ignore
+            return annotation.__name__
+        elif not annotation:
+            return repr(annotation)
+        elif module == 'builtins':
+            return annotation.__qualname__
+        elif annotation is Ellipsis:
+            return '...'
+
+        if module == 'typing':
+            if getattr(annotation, '_name', None):
+                qualname = annotation._name
+            elif getattr(annotation, '__qualname__', None):
+                qualname = annotation.__qualname__
+            else:
+                qualname = self.format_annotation(annotation.__origin__)  # ex. Union
+        elif hasattr(annotation, '__qualname__'):
+            qualname = '%s.%s' % (module, annotation.__qualname__)
+        else:
+            qualname = repr(annotation)
+
+        if getattr(annotation, '__args__', None):
+            if qualname == 'Union':
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
+                return '%s[%s]' % (qualname, args)
+            elif qualname == 'Callable':
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__[:-1])
+                returns = self.format_annotation(annotation.__args__[-1])
+                return '%s[[%s], %s]' % (qualname, args, returns)
+            else:
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
+                return '%s[%s]' % (qualname, args)
+
+        return qualname
+
+    def format_annotation_old(self, annotation):
+        # type: (Any) -> str
+        """format_annotation() for py36 or below"""
         if isinstance(annotation, string_types):
             return annotation  # type: ignore
         if isinstance(annotation, typing.TypeVar):  # type: ignore

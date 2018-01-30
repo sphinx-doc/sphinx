@@ -15,7 +15,7 @@ if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
     print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
     sys.exit(1)
 
-requires = [
+install_requires = [
     'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
@@ -47,7 +47,7 @@ extras_require = {
         'pytest',
         'pytest-cov',
         'html5lib',
-        'flake8',
+        'flake8>=3.5.0',
     ],
     'test:python_version<"3"': [
         'enum34',
@@ -226,15 +226,8 @@ setup(
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
-        # consider moving this to 'flake8:local-plugins' once flake8 3.5.0 is
-        # in the wild:
-        #    http://flake8.pycqa.org/en/latest/user/configuration.html\
-        #    #using-local-plugins
-        'flake8.extension': [
-            'X101 = utils.checks:sphinx_has_header',
-        ],
     },
-    install_requires=requires,
+    install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,
 )

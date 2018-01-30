@@ -226,8 +226,7 @@ class Sphinx(object):
         # the config file itself can be an extension
         if self.config.setup:
             self._setting_up_extension = ['conf.py']
-            # py31 doesn't have 'callable' function for below check
-            if hasattr(self.config.setup, '__call__'):
+            if callable(self.config.setup):
                 self.config.setup(self)
             else:
                 raise ConfigError(
@@ -297,6 +296,9 @@ class Sphinx(object):
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
                 filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
+                needed, reason = self.env.need_refresh(self)
+                if needed:
+                    raise IOError(reason)
                 self.env.domains = {}
                 for domain in self.registry.create_domains(self.env):
                     # this can raise if the data version doesn't fit

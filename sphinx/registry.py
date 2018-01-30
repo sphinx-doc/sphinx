@@ -344,8 +344,6 @@ class SphinxComponentRegistry(object):
 
         if metadata is None:
             metadata = {}
-            if extname == 'rst2pdf.pdfbuilder':
-                metadata['parallel_read_safe'] = True
         elif not isinstance(metadata, dict):
             logger.warning(__('extension %r returned an unsupported object from '
                               'its setup() function; it should return None or a '
@@ -353,6 +351,14 @@ class SphinxComponentRegistry(object):
 
         app.extensions[extname] = Extension(extname, mod, **metadata)
         app._setting_up_extension.pop()
+
+    def get_envversion(self, app):
+        # type: (Sphinx) -> Dict[unicode, unicode]
+        from sphinx.environment import ENV_VERSION
+        envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
+                      if ext.metadata.get('env_version')}
+        envversion['sphinx'] = ENV_VERSION
+        return envversion
 
 
 def merge_source_suffix(app):
