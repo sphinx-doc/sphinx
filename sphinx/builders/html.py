@@ -171,13 +171,13 @@ class BuildInfo(object):
         except Exception as exc:
             raise ValueError('build info file is broken: %r' % exc)
 
-    def __init__(self, config=None, tags=None):
-        # type: (Config, Tags) -> None
+    def __init__(self, config=None, tags=None, config_categories=[]):
+        # type: (Config, Tags, List[unicode]) -> None
         self.config_hash = u''
         self.tags_hash = u''
 
         if config:
-            values = dict((c.name, c.value) for c in config.filter('html'))
+            values = dict((c.name, c.value) for c in config.filter(config_categories))
             self.config_hash = get_stable_hash(values)
 
         if tags:
@@ -246,7 +246,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        self.build_info = BuildInfo(self.config, self.tags)
+        self.build_info = self.create_build_info()
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
@@ -273,6 +273,10 @@ class StandaloneHTMLBuilder(Builder):
             self.app.warn(('html_experimental_html5_writer is set, but current version '
                            'is old. Docutils\' version should be 0.13 or newer, but %s.') %
                           docutils.__version__)
+
+    def create_build_info(self):
+        # type: () -> BuildInfo
+        return BuildInfo(self.config, self.tags, ['html'])
 
     def _get_translations_js(self):
         # type: () -> unicode

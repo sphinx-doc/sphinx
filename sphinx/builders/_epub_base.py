@@ -19,7 +19,7 @@ from docutils import nodes
 from docutils.utils import smartquotes
 
 from sphinx import addnodes
-from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
 from sphinx.util import logging
 from sphinx.util import status_iterator
 from sphinx.util.fileutil import copy_asset_file
@@ -158,6 +158,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.tocid = 0
         self.id_cache = {}  # type: Dict[unicode, unicode]
         self.use_index = self.get_builder_config('use_index', 'epub')
+
+    def create_build_info(self):
+        # type: () -> BuildInfo
+        return BuildInfo(self.config, self.tags, ['html', 'epub'])
 
     def get_theme_config(self):
         # type: () -> Tuple[unicode, Dict]

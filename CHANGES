@@ -37,7 +37,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.7.0 beta2 (in development)
+Release 1.7.0 beta3 (in development)
 ====================================
 
 Dependencies
@@ -46,10 +46,25 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #4467: html theme: Rename ``csss`` block to ``css``
-
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.0 beta2 (released Jan 31, 2018)
+===========================================
+
+Incompatible changes
+--------------------
+
+* #4467: html theme: Rename ``csss`` block to ``css``
 
 Features added
 --------------
@@ -72,9 +87,7 @@ Bugs fixed
 * #4209: intersphinx: In link title, "v" should be optional if target has no
   version
 * #4230: slowdown in writing pages with sphinx 1.6
-
-Testing
---------
+* #4522: epub: document is not rebuilt even if config changed
 
 Release 1.7.0 beta1 (released Jan 15, 2018)
 ===========================================
