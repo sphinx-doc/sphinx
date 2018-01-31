@@ -9,10 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import warnings
-import traceback
 import contextlib
+import sys
+import traceback
+import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 

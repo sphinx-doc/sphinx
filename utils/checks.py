@@ -11,6 +11,7 @@
 
 import os
 import re
+
 import sphinx
 
 name_mail_re = r'[\w ]+(<.*?>)?'

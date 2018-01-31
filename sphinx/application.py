@@ -13,38 +13,37 @@
 from __future__ import print_function
 
 import os
+import posixpath
 import sys
 import warnings
-import posixpath
-from os import path
 from collections import deque
-
-from six import iteritems, itervalues
-from six.moves import cStringIO
+from os import path
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+from six import iteritems, itervalues
+from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import (
-    ApplicationError, ConfigError, ExtensionError, VersionRequirementError)
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
+from sphinx.errors import (
+    ApplicationError, ConfigError, ExtensionError, VersionRequirementError
+)
 from sphinx.events import EventManager
 from sphinx.extension import verify_required_extensions
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
-from sphinx.util.tags import Tags
-from sphinx.util.osutil import ENOENT, ensuredir
+from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
-from sphinx.util.osutil import abspath
+from sphinx.util.osutil import ENOENT, abspath, ensuredir
+from sphinx.util.tags import Tags
 
 if False:
     # For type annotation

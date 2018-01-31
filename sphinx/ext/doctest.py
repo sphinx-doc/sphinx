@@ -11,27 +11,26 @@
 """
 from __future__ import absolute_import
 
+import codecs
+import doctest
 import re
 import sys
 import time
-import codecs
 from os import path
-import doctest
-
-from six import itervalues, StringIO, binary_type, text_type, PY2
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
-from packaging.version import Version
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.version import Version
+from six import itervalues, StringIO, binary_type, text_type, PY2
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.util import force_decode, logging
-from sphinx.util.nodes import set_source_info
-from sphinx.util.console import bold  # type: ignore
-from sphinx.util.osutil import fs_encoding
 from sphinx.locale import _
+from sphinx.util import force_decode, logging
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.nodes import set_source_info
+from sphinx.util.osutil import fs_encoding
 
 if False:
     # For type annotation

@@ -16,10 +16,10 @@ from docutils.writers.manpage import (
     Translator as BaseTranslator
 )
 
+import sphinx.util.docutils
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
-import sphinx.util.docutils
 from sphinx.util.i18n import format_date
 
 if False:

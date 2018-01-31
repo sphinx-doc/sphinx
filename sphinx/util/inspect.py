@@ -10,10 +10,10 @@
 """
 from __future__ import absolute_import
 
+import inspect
 import re
 import sys
 import typing
-import inspect
 from collections import OrderedDict
 
 from six import PY2, PY3, StringIO, binary_type, string_types, itervalues

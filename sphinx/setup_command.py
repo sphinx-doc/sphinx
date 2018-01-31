@@ -13,12 +13,12 @@
 """
 from __future__ import print_function
 
-import sys
 import os
-
-from six import StringIO, string_types
+import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
+
+from six import StringIO, string_types
 
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception

@@ -16,6 +16,9 @@ from docutils.io import StringInput
 from docutils.utils import relative_path
 
 from sphinx import addnodes
+from sphinx.domains.std import make_glossary_term, split_term_classifiers
+from sphinx.locale import init as init_locale
+from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import (
@@ -23,9 +26,6 @@ from sphinx.util.nodes import (
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
 from sphinx.util.pycompat import indent
-from sphinx.locale import init as init_locale
-from sphinx.transforms import SphinxTransform
-from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 if False:
     # For type annotation

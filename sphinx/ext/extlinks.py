@@ -24,8 +24,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
 from docutils import nodes, utils
+from six import iteritems
 
 import sphinx
 from sphinx.util.nodes import split_explicit_title

@@ -10,24 +10,24 @@
 """
 from __future__ import absolute_import
 
+import fnmatch
 import os
+import posixpath
 import re
 import sys
-import fnmatch
 import tempfile
-import posixpath
 import traceback
 import unicodedata
+from codecs import BOM_UTF8
+from collections import deque
+from datetime import datetime
 from os import path
 from time import mktime, strptime
-from codecs import BOM_UTF8
-from datetime import datetime
-from collections import deque
 
+from docutils.utils import relative_path
 from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
-from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging

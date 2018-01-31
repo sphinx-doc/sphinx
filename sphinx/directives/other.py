@@ -7,20 +7,19 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six.moves import range
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from six.moves import range
 
 from sphinx import addnodes
 from sphinx.locale import versionlabels, _
 from sphinx.util import url_re, docname_join
+from sphinx.util.matching import patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
-from sphinx.util.matching import patfilter
 
 if False:
     # For type annotation

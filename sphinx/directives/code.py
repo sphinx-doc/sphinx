@@ -7,8 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import codecs
+import sys
 from difflib import unified_diff
 
 from docutils import nodes

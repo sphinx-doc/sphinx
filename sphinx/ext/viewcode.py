@@ -11,9 +11,8 @@
 
 import traceback
 
-from six import iteritems, text_type
-
 from docutils import nodes
+from six import iteritems, text_type
 
 import sphinx
 from sphinx import addnodes

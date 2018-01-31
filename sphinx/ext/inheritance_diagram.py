@@ -36,16 +36,15 @@ r"""
     :license: BSD, see LICENSE for details.
 """
 
+import inspect
 import re
 import sys
-import inspect
 from hashlib import md5
-
-from six import text_type
-from six.moves import builtins
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from six import text_type
+from six.moves import builtins
 
 import sphinx
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \

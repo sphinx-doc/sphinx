@@ -15,12 +15,12 @@ import string
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util.nodes import make_refnode
+from sphinx.domains import Domain, ObjType
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, TypedField
+from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation

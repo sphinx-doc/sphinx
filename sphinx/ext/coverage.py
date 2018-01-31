@@ -10,9 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import glob
 import inspect
+import re
 from os import path
 
 from six import iteritems

@@ -12,22 +12,20 @@ from __future__ import print_function
 
 import codecs
 import pipes
-
-from os import path, environ
+import plistlib
 import shlex
+import subprocess
+from os import path, environ
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
+from sphinx.errors import SphinxError
 from sphinx.util import logging
-from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
-from sphinx.util.pycompat import htmlescape
 from sphinx.util.matching import Matcher
-from sphinx.errors import SphinxError
-
-import plistlib
-import subprocess
+from sphinx.util.osutil import copyfile, ensuredir, make_filename
+from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation

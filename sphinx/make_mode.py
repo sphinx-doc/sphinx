@@ -17,8 +17,8 @@
 from __future__ import print_function
 
 import os
-import sys
 import subprocess
+import sys
 from os import path
 
 import sphinx

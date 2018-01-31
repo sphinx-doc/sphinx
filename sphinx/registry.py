@@ -16,11 +16,11 @@ import warnings
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues
 
-from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
-from sphinx.extension import Extension
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
+from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole

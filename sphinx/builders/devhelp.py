@@ -12,17 +12,17 @@
 """
 from __future__ import absolute_import
 
-import re
 import gzip
+import re
 from os import path
 
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util import logging
-from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.util import logging
+from sphinx.util.osutil import make_filename
 
 try:
     import xml.etree.ElementTree as etree

@@ -9,9 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
-
 from docutils import nodes
+from six import iteritems
 
 from sphinx import addnodes
 from sphinx.util import url_re, logging

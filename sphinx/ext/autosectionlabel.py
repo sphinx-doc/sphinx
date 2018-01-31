@@ -10,13 +10,20 @@
 """
 
 from docutils import nodes
+
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
 logger = logging.getLogger(__name__)
 
+if False:
+    # For type annotation
+    from typing import Any, Dict  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 def register_sections_as_label(app, document):
+    # type: (Sphinx, nodes.Node) -> None
     labels = app.env.domaindata['std']['labels']
     anonlabels = app.env.domaindata['std']['anonlabels']
     for node in document.traverse(nodes.section):
@@ -38,5 +45,12 @@ def register_sections_as_label(app, document):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
     app.connect('doctree-read', register_sections_as_label)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

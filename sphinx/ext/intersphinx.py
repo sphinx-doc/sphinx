@@ -26,21 +26,20 @@
 
 from __future__ import print_function
 
-import sys
-import time
 import functools
 import posixpath
+import sys
+import time
 from os import path
-
-from six import PY3, iteritems, string_types
-from six.moves.urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import PY3, iteritems, string_types
+from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
-from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
@@ -316,8 +315,11 @@ def missing_reference(app, env, node, contnode):
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
-            newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle=_('(in %s v%s)') % (proj, version))
+            if version:
+                reftitle = _('(in %s v%s)') % (proj, version)
+            else:
+                reftitle = _('(in %s)') % (proj,)
+            newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)

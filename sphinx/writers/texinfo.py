@@ -13,10 +13,9 @@ import re
 import textwrap
 from os import path
 
+from docutils import nodes, writers
 from six import itervalues
 from six.moves import range
-
-from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError

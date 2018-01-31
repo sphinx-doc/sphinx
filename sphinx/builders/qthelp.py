@@ -9,15 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-import re
 import codecs
+import os
 import posixpath
+import re
 from os import path
 
-from six import text_type
-
 from docutils import nodes
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder

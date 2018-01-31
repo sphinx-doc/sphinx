@@ -9,28 +9,28 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
 import warnings
-
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
+from os import path
 
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
-from sphinx.util.osutil import SEP, ensuredir, relative_uri
-from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.i18n import find_catalog
+from sphinx.util.osutil import SEP, ensuredir, relative_uri
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles       # noqa
 from sphinx import directives  # noqa
+
+try:
+    import multiprocessing
+except ImportError:
+    multiprocessing = None
 
 if False:
     # For type annotation

@@ -21,9 +21,10 @@ import argparse
 import glob
 import os
 import sys
-from os import path
-from six import binary_type
 from fnmatch import fnmatch
+from os import path
+
+from six import binary_type
 
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS

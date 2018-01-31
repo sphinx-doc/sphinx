@@ -11,11 +11,11 @@
 
 import re
 import traceback
-from os import path, getenv
 from collections import OrderedDict
+from os import path, getenv
+from typing import Any, NamedTuple, Union
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
-from typing import Any, NamedTuple, Union
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_, __

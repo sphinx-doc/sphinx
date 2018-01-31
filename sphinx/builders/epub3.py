@@ -10,12 +10,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
 from collections import namedtuple
+from os import path
 
 from sphinx import package_dir
-from sphinx.config import string_classes, ENUM
 from sphinx.builders import _epub_base
+from sphinx.config import string_classes, ENUM
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
@@ -250,9 +250,9 @@ def setup(app):
     app.add_config_value('epub_max_image_width', 0, 'env')
     app.add_config_value('epub_show_urls', 'inline', 'html')
     app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')
-    app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
+    app.add_config_value('epub_description', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
 
     return {

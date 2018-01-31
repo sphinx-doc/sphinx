@@ -14,12 +14,12 @@
 
 import re
 import sys
-from os import path
 from collections import defaultdict
+from os import path
 
-from six import itervalues, text_type
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
+from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting

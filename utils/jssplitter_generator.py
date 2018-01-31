@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import re
 import json
+import re
 import subprocess
 import sys
+
 import six
 
 # find char codes they are matched with Python's (?u)\\w

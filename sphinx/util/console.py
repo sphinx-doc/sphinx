@@ -10,8 +10,8 @@
 """
 
 import os
-import sys
 import re
+import sys
 
 try:
     # check if colorama is installed to support color on Windows

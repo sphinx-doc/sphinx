@@ -10,10 +10,12 @@
 """
 from __future__ import absolute_import
 
-import os
 import codecs
+import os
 import posixpath
+
 from docutils.utils import relative_path
+
 from sphinx.util.osutil import copyfile, ensuredir, walk
 
 if False:

@@ -12,14 +12,15 @@ from __future__ import absolute_import
 
 import re
 import types
+from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
-from contextlib import contextmanager
 
 import docutils
+from docutils import nodes
 from docutils.languages import get_language
-from docutils.statemachine import StateMachine
 from docutils.parsers.rst import directives, roles, convert_directive_function
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
 
 from sphinx.errors import ExtensionError
@@ -32,7 +33,6 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 if False:
     # For type annotation
     from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
-    from docutils import nodes  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
@@ -221,3 +221,30 @@ def switch_source_input(state, content):
     finally:
         # restore the method
         state.memo.reporter.get_source_and_line = get_source_and_line
+
+
+# cache a vanilla instance of nodes.document
+# Used in new_document() function
+__document_cache__ = None  # type: nodes.document
+
+
+def new_document(source_path, settings=None):
+    # type: (unicode, Any) -> nodes.document
+    """Return a new empty document object.  This is an alternative of docutils'.
+
+    This is a simple wrapper for ``docutils.utils.new_document()``.  It
+    caches the result of docutils' and use it on second call for instanciation.
+    This makes an instantiation of document nodes much faster.
+    """
+    global __document_cache__
+    if __document_cache__ is None:
+        __document_cache__ = docutils.utils.new_document(source_path)
+
+    if settings is None:
+        # Make a copy of ``settings`` from cache to accelerate instansiation
+        settings = copy(__document_cache__.settings)
+
+    # Create a new instance of nodes.document using cached reporter
+    document = nodes.document(settings, __document_cache__.reporter, source=source_path)
+    document.note_source(source_path, -1)
+    return document

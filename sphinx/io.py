@@ -8,24 +8,24 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import codecs
+import re
 
-from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
+from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
 from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
-from sphinx.transforms import SphinxTransformer
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
     UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
 )
+from sphinx.transforms import SphinxTransformer
 from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,

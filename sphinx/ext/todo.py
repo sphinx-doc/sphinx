@@ -13,16 +13,16 @@
 """
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
-from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.texescape import tex_escape_map
-from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 if False:
     # For type annotation

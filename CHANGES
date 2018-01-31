@@ -68,6 +68,10 @@ Bugs fixed
 * utils package is no longer installed
 * #3952: apidoc: module header is too escaped
 * #4275: Formats accepted by sphinx.util.i18n.format_date are limited
+* #4493: recommonmark raises AttributeError if AutoStructify enabled
+* #4209: intersphinx: In link title, "v" should be optional if target has no
+  version
+* #4230: slowdown in writing pages with sphinx 1.6
 
 Testing
 --------
@@ -250,6 +254,8 @@ Bugs fixed
 * #4477: Build fails after building specific files
 * #4449: apidoc: include "empty" packages that contain modules
 * #3917: citation labels are tranformed to ellipsis
+* #4501: graphviz: epub3 validation error caused if graph is not clickable
+* #4514: graphviz: workaround for wrong map ID which graphviz generates
 
 Testing
 --------
