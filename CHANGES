@@ -15,6 +15,7 @@ Features added
 
 Bugs fixed
 ----------
+* #4019: inheritance_diagram AttributeError stoping make process
 
 Testing
 --------
