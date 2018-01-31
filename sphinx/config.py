@@ -342,5 +342,7 @@ class Config(object):
         self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
-        # type: (str) -> Iterator[ConfigValue]
-        return (value for value in self if value.rebuild == rebuild)  # type: ignore
+        # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
+        if isinstance(rebuild, string_types):
+            rebuild = [rebuild]
+        return (value for value in self if value.rebuild in rebuild)  # type: ignore

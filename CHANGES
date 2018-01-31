@@ -33,6 +33,7 @@ Bugs fixed
 * #4209: intersphinx: In link title, "v" should be optional if target has no
   version
 * #4230: slowdown in writing pages with sphinx 1.6
+* #4522: epub: document is not rebuilt even if config changed
 
 Testing
 --------
