@@ -28,6 +28,7 @@ Bugs fixed
 * #4514: graphviz: workaround for wrong map ID which graphviz generates
 * #4525: autosectionlabel does not support parallel build
 * #3953: Do not raise warning when there is a working intersphinx inventory
+* #4487: math: ValueError is raised on parallel build. Thanks to jschueller.
 
 Testing
 --------
