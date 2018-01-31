@@ -165,7 +165,6 @@ texinfo_documents = [
      author, '{{ project_fn }}', 'One line description of project.',
      'Miscellaneous'),
 ]
-{%- if epub %}
 
 
 # -- Options for Epub output -------------------------------------------------
@@ -187,7 +186,6 @@ epub_copyright = copyright
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-{%- endif %}
 {%- if extensions %}
 
 

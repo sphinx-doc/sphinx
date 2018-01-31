@@ -55,6 +55,7 @@ Deprecated
 ----------
 
 * :confval:`source_parsers` is deprecated
+* quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
@@ -186,6 +187,7 @@ Features added
 * #5140: linkcheck: Add better Accept header to HTTP client
 * #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
 * Add :rst:role:`math:numref` role to refer equations (Same as :rst:role:`eq`)
+* quickstart: epub builder is enabled by default
 
 Bugs fixed
 ----------
