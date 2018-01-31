@@ -475,6 +475,10 @@ Project information
 
    The documented project's name.
 
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
+
 .. confval:: copyright
 
    A copyright statement in the style ``'2008, Author Name'``.
@@ -1434,8 +1438,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_author
 
-   The author of the document.  This is put in the Dublin Core metadata.  The
-   default value is ``'unknown'``.
+   The author of the document.  This is put in the Dublin Core metadata.  It
+   defaults to the :confval:`author` option.
 
 .. confval:: epub_contributor
 
@@ -1456,8 +1460,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_publisher
 
    The publisher of the document.  This is put in the Dublin Core metadata.  You
-   may use any sensible string, e.g. the project homepage.  The default value is
-   ``'unknown'``.
+   may use any sensible string, e.g. the project homepage.  The defaults to the
+   :confval:`author` option.
 
 .. confval:: epub_copyright
 

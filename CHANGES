@@ -12,6 +12,9 @@ Incompatible changes
   :ref:`ext-metadata`.
 * Sphinx expects source parser modules to have supported file formats as
   ``Parser.supported`` attribute
+* The default value of :confval:`epub_author` and :confval:`epub_publisher` are
+  changed from ``'unknown'`` to the value of :confval:`author`.  This is same as
+  a ``conf.py`` file sphinx-build generates.
 
 Deprecated
 ----------
@@ -26,6 +29,7 @@ Features added
 * Add ``sphinx.config.Any`` to represent the config value accepts any type of
   value
 * :confval:`source_suffix` allows a mapping fileext to file types
+* Add :confval:`author` as a configuration value
 
 Bugs fixed
 ----------
