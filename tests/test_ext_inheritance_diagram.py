@@ -83,6 +83,15 @@ def test_import_classes(rootdir):
         with pytest.raises(InheritanceException):
             import_classes('unknown.Unknown', None)
 
+        # got exception InheritanceException for wrong class or module
+        # not AttributeError (refs: #4019)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown', '.')
+        with pytest.raises(InheritanceException):
+            import_classes('unknown.Unknown', '.')
+        with pytest.raises(InheritanceException):
+            import_classes('.', None)
+
         # a module having no classes
         classes = import_classes('sphinx', None)
         assert classes == []
