@@ -76,18 +76,20 @@ def try_import(objname):
         __import__(objname)
         return sys.modules.get(objname)  # type: ignore
     except ImportError:
-        try:
-            modname, attrname = module_sig_re.match(objname).groups()  # type: ignore
-        except AttributeError:
+        matched = module_sig_re.match(objname)  # type: ignore
+
+        if not matched:
             return None
-        else:
-            if modname is None:
-                return None
-            try:
-                __import__(modname)
-                return getattr(sys.modules.get(modname), attrname, None)
-            except ImportError:
-                return None
+
+        modname, attrname = matched.groups()
+
+        if modname is None:
+            return None
+        try:
+            __import__(modname)
+            return getattr(sys.modules.get(modname), attrname, None)
+        except ImportError:
+            return None
 
 
 def import_classes(name, currmodule):
