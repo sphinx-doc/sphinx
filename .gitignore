@@ -6,6 +6,7 @@
 .dir-locals.el
 .cache/
 .mypy_cache/
+.pytest_cache/
 .ropeproject/
 TAGS
 .tags
