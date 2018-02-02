@@ -75,7 +75,7 @@ def try_import(objname):
     try:
         __import__(objname)
         return sys.modules.get(objname)  # type: ignore
-    except ImportError:
+    except (ImportError, ValueError):  # ValueError,py27 -> ImportError,py3
         matched = module_sig_re.match(objname)  # type: ignore
 
         if not matched:
@@ -88,7 +88,7 @@ def try_import(objname):
         try:
             __import__(modname)
             return getattr(sys.modules.get(modname), attrname, None)
-        except ImportError:
+        except (ImportError, ValueError):  # ValueError,py27 -> ImportError,py3
             return None
 
 
