@@ -7,6 +7,7 @@
 .cache/
 .idea
 .mypy_cache/
+.pytest_cache/
 .ropeproject/
 TAGS
 .tags
