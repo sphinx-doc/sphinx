@@ -312,6 +312,38 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     assert warning.getvalue().count('\n') == 1
 
 
+def test_load_mappings_fallback(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_cache_limit = 0
+
+    # connect to invalid path
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
+    }
+    load_mappings(app)
+    assert "failed to reach any of the inventories" in warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert rn is None
+
+    # clear messages
+    status.truncate(0)
+    warning.truncate(0)
+
+    # add fallbacks to mapping
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
+                                                       inv_file)),
+    }
+    load_mappings(app)
+    assert "encountered some issues with some of the inventories" in status.getvalue()
+    assert "" == warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert isinstance(rn, nodes.reference)
+
+
 class TestStripBasicAuth(unittest.TestCase):
     """Tests for sphinx.ext.intersphinx._strip_basic_auth()"""
     def test_auth_stripped(self):

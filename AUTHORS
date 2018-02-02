@@ -74,6 +74,7 @@ Other contributors, listed alphabetically, are:
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
+* Daniel Pizetta -- inheritance diagram improvements
 
 Many thanks for all contributions!
 
