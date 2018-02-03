@@ -29,6 +29,7 @@ Bugs fixed
 * #4525: autosectionlabel does not support parallel build
 * #3953: Do not raise warning when there is a working intersphinx inventory
 * #4487: math: ValueError is raised on parallel build. Thanks to jschueller.
+* #2372: autosummary: invalid signatures are shown for type annotated functions
 
 Testing
 --------
