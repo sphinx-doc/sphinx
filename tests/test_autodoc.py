@@ -1563,3 +1563,22 @@ def test_autodoc_for_egged_code(app):
         '   :module: sample',
         ''
     ]
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_singledispatch():
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.singledispatch', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target.singledispatch',
+        '',
+        '',
+        '.. py:function:: func(arg, kwarg=None)',
+        '   func(arg: int, kwarg=None)',
+        '   func(arg: str, kwarg=None)',
+        '   :module: target.singledispatch',
+        '',
+        '   A function for general use.',
+        '   '
+    ]
