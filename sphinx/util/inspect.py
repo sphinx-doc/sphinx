@@ -307,9 +307,17 @@ class Signature(object):
             raise TypeError("can't compute signature for built-in type {}".format(subject))
 
         self.subject = subject
+        self.partialmethod_with_noargs = False
 
         if PY3:
-            self.signature = inspect.signature(subject)
+            try:
+                self.signature = inspect.signature(subject)
+            except IndexError:
+                if hasattr(subject, '_partialmethod'):  # partialmethod with no argument
+                    self.signature = None
+                    self.partialmethod_with_noargs = True
+                else:
+                    raise
         else:
             self.argspec = getargspec(subject)
 
@@ -339,7 +347,10 @@ class Signature(object):
     def parameters(self):
         # type: () -> Dict
         if PY3:
-            return self.signature.parameters
+            if self.partialmethod_with_noargs:
+                return {}
+            else:
+                return self.signature.parameters
         else:
             params = OrderedDict()  # type: Dict
             positionals = len(self.argspec.args) - len(self.argspec.defaults)
@@ -360,7 +371,7 @@ class Signature(object):
     @property
     def return_annotation(self):
         # type: () -> Any
-        if PY3:
+        if PY3 and self.signature:
             return self.signature.return_annotation
         else:
             return None
