@@ -200,6 +200,33 @@ def test_Signature_methods():
         assert sig == '(arg1, **kwargs)'
 
 
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='functools.partialmethod is available on py34 or above')
+def test_Signature_partialmethod():
+    from functools import partialmethod
+
+    class Foo(object):
+        def meth1(self, arg1, arg2, arg3=None, arg4=None):
+            pass
+
+        def meth2(self, arg1, arg2):
+            pass
+
+        foo = partialmethod(meth1, 1, 2)
+        bar = partialmethod(meth1, 1, arg3=3)
+        baz = partialmethod(meth2, 1, 2)
+
+    subject = Foo()
+    sig = inspect.Signature(subject.foo).format_args()
+    assert sig == '(arg3=None, arg4=None)'
+
+    sig = inspect.Signature(subject.bar).format_args()
+    assert sig == '(arg2, *, arg3=3, arg4=None)'
+
+    sig = inspect.Signature(subject.baz).format_args()
+    assert sig == '()'
+
+
 @pytest.mark.skipif(sys.version_info < (3, 5),
                     reason='type annotation test is available on py35 or above')
 def test_Signature_annotations():
