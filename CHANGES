@@ -57,6 +57,7 @@ Bugs fixed
 ----------
 
 * #4019: inheritance_diagram AttributeError stoping make process
+* #4539: autodoc emits warnings for partialmethods
 
 Testing
 --------
