@@ -397,10 +397,20 @@ class Autosummary(Directive):
         return [table_spec, table]
 
 
+def strip_arg_typehint(s):
+    # type: (unicode) -> unicode
+    """Strip a type hint from argument definition."""
+    return s.split(':')[0].strip()
+
+
 def mangle_signature(sig, max_chars=30):
     # type: (unicode, int) -> unicode
     """Reformat a function signature to a more compact form."""
-    s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
+    # Strip return type annotation
+    s = re.sub(r"\)\s*->\s.*$", ")", sig)
+
+    # Remove parenthesis
+    s = re.sub(r"^\((.*)\)$", r"\1", s).strip()
 
     # Strip strings (which can contain things that confuse the code below)
     s = re.sub(r"\\\\", "", s)
@@ -421,6 +431,13 @@ def mangle_signature(sig, max_chars=30):
 
         opts.insert(0, m.group(2))
         s = m.group(1)[:-2]
+
+    # Strip typehints
+    for i, arg in enumerate(args):
+        args[i] = strip_arg_typehint(arg)
+
+    for i, opt in enumerate(opts):
+        opts[i] = strip_arg_typehint(opt)
 
     # Produce a more compact signature
     sig = limited_join(", ", args, max_chars=max_chars - 2)
