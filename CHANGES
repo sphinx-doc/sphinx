@@ -1,17 +1,5 @@
-Release 1.6.7 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.6.7 (released Feb 04, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -31,9 +19,6 @@ Bugs fixed
 * #4487: math: ValueError is raised on parallel build. Thanks to jschueller.
 * #2372: autosummary: invalid signatures are shown for type annotated functions
 * #3942: html: table is not aligned to center even if ``:align: center``
-
-Testing
---------
 
 Release 1.6.6 (released Jan 08, 2018)
 =====================================
