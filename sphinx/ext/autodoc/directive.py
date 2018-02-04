@@ -12,7 +12,7 @@ from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import get_documenters
+from sphinx.ext.autodoc import Options, get_documenters
 from sphinx.util import logging
 from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
@@ -41,16 +41,6 @@ class DummyOptionSpec(object):
     def __getitem__(self, key):
         # type: (Any) -> Any
         return lambda x: x
-
-
-class Options(dict):
-    """A dict/attribute hybrid that returns None on nonexisting keys."""
-    def __getattr__(self, name):
-        # type: (unicode) -> Any
-        try:
-            return self[name.replace('_', '-')]
-        except KeyError:
-            return None
 
 
 class DocumenterBridge(object):
