@@ -18,6 +18,7 @@ Bugs fixed
 
 * #4019: inheritance_diagram AttributeError stoping make process
 * #4531: autosummary: methods are not treated as attributes
+* #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
 
 Testing
 --------
