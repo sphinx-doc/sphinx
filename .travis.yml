@@ -15,7 +15,7 @@ matrix:
     - python: '2.7'
       env:
         - TOXENV=du13
-        - PYTEST_ADDOPTS = --cov sphinx --cov-append --cov-config setup.cfg
+        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: '3.4'
       env: TOXENV=py34
     - python: '3.5'
@@ -23,7 +23,7 @@ matrix:
     - python: '3.6'
       env:
         - TOXENV=py36
-        - PYTEST_ADDOPTS = --cov sphinx --cov-append --cov-config setup.cfg
+        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
     - python: 'nightly'
       env: TOXENV=py37
     - python: '3.6'
@@ -46,4 +46,4 @@ script:
   - tox -- -v
 
 after_success:
-  - codecov
+  - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi
