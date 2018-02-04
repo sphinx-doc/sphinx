@@ -33,12 +33,6 @@ matrix:
     - python: '2.7'
       env: TOXENV=flake8
 
-addons:
-  apt:
-    packages:
-      - graphviz
-      - imagemagick
-
 install:
   - pip install -U tox codecov
 
