@@ -54,19 +54,50 @@ EXTENSION_BLACKLIST = {
 class SphinxComponentRegistry(object):
     def __init__(self):
         # type: () -> None
+        #: special attrgetter for autodoc; class object -> attrgetter
         self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
+
+        #: builders; a dict of builder name -> bulider class
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
+
+        #: autodoc documenters; a dict of documenter name -> documenter class
         self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
+
+        #: domains; a dict of domain name -> domain class
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
+
+        #: additional directives for domains
+        #: a dict of domain name -> dict of directive name -> directive
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
+
+        #: additional indices for domains
+        #: a dict of domain name -> list of index class
         self.domain_indices = {}        # type: Dict[unicode, List[Type[Index]]]
+
+        #: additional object types for domains
+        #: a dict of domain name -> dict of objtype name -> objtype
         self.domain_object_types = {}   # type: Dict[unicode, Dict[unicode, ObjType]]
+
+        #: additional roles for domains
+        #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
+
+        #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
+
+        #: source paresrs; file type -> parser class
         self.source_parsers = {}        # type: Dict[unicode, Type[Parser]]
+
+        #: source inputs; file type -> input class
         self.source_inputs = {}         # type: Dict[unicode, Input]
+
+        #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[unicode, unicode]
+
+        #: custom translators; builder name -> translator class
         self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+
+        #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
 
     def add_builder(self, builder):

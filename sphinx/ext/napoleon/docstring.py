@@ -553,7 +553,10 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_attribute_docstring(self):
         # type: () -> List[unicode]
         _type, _desc = self._consume_inline_attribute()
-        return self._format_field('', _type, _desc)
+        lines = self._format_field('', '', _desc)
+        if _type:
+            lines.extend(['', ':type: %s' % _type])
+        return lines
 
     def _parse_attributes_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -566,8 +569,11 @@ class GoogleDocstring(UnicodeMixin):
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
                 lines.extend(['.. attribute:: ' + _name, ''])
-                fields = self._format_field('', _type, _desc)
+                fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
+                if _type:
+                    lines.append('')
+                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
