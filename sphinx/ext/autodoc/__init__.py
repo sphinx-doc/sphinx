@@ -226,6 +226,18 @@ def between(marker, what=None, keepempty=False, exclude=False):
     return process
 
 
+# This class is used only in ``sphinx.ext.autodoc.directive``,
+# But we define this class here to keep compatibility (see #4538)
+class Options(dict):
+    """A dict/attribute hybrid that returns None on nonexisting keys."""
+    def __getattr__(self, name):
+        # type: (unicode) -> Any
+        try:
+            return self[name.replace('_', '-')]
+        except KeyError:
+            return None
+
+
 class Documenter(object):
     """
     A Documenter knows how to autodocument a single object type.  When
