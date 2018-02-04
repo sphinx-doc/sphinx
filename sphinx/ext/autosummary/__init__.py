@@ -101,6 +101,7 @@ def process_autosummary_toc(app, doctree):
     crawled = {}
 
     def crawl_toc(node, depth=1):
+        # type: (nodes.Node, int) -> None
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
@@ -155,6 +156,7 @@ def autosummary_table_visit_html(self, node):
 
 class FakeDirective(DocumenterBridge):
     def __init__(self):
+        # type: () -> None
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 

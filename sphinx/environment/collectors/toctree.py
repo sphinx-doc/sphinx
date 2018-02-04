@@ -66,6 +66,7 @@ class TocTreeCollector(EnvironmentCollector):
         numentries = [0]  # nonlocal again...
 
         def traverse_in_section(node, cls):
+            # type: (nodes.Node, Any) -> List[nodes.Node]
             """Like traverse(), but stay within the same section."""
             result = []
             if isinstance(node, cls):
@@ -77,6 +78,7 @@ class TocTreeCollector(EnvironmentCollector):
             return result
 
         def build_toc(node, depth=1):
+            # type: (nodes.Node, int) -> List[nodes.Node]
             entries = []
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
@@ -86,7 +88,7 @@ class TocTreeCollector(EnvironmentCollector):
                     onlynode = addnodes.only(expr=sectionnode['expr'])
                     blist = build_toc(sectionnode, depth)
                     if blist:
-                        onlynode += blist.children
+                        onlynode += blist.children  # type: ignore
                         entries.append(onlynode)
                     continue
                 if not isinstance(sectionnode, nodes.section):
@@ -145,6 +147,7 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(node, secnums, depth, titlenode=None):
+            # type: (nodes.Node, Dict, int, nodes.Node) -> None
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
             for subnode in node.children:
@@ -177,6 +180,7 @@ class TocTreeCollector(EnvironmentCollector):
                     _walk_toctree(subnode, depth)
 
         def _walk_toctree(toctreenode, depth):
+            # type: (nodes.Node, int) -> None
             if depth == 0:
                 return
             for (title, ref) in toctreenode['entries']:
@@ -216,9 +220,10 @@ class TocTreeCollector(EnvironmentCollector):
         assigned = set()  # type: Set[unicode]
         old_fignumbers = env.toc_fignumbers
         env.toc_fignumbers = {}
-        fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int], int]]
+        fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int, ...], int]]
 
         def get_section_number(docname, section):
+            # type: (unicode, nodes.Node) -> Tuple[int, ...]
             anchorname = '#' + section['ids'][0]
             secnumbers = env.toc_secnumbers.get(docname, {})
             if anchorname in secnumbers:
@@ -229,6 +234,7 @@ class TocTreeCollector(EnvironmentCollector):
             return secnum or tuple()
 
         def get_next_fignumber(figtype, secnum):
+            # type: (unicode, Tuple[int, ...]) -> Tuple[int, ...]
             counter = fignum_counter.setdefault(figtype, {})
 
             secnum = secnum[:env.config.numfig_secnum_depth]
@@ -236,6 +242,7 @@ class TocTreeCollector(EnvironmentCollector):
             return secnum + (counter[secnum],)
 
         def register_fignumber(docname, secnum, figtype, fignode):
+            # type: (unicode, Tuple[int], unicode, nodes.Node) -> None
             env.toc_fignumbers.setdefault(docname, {})
             fignumbers = env.toc_fignumbers[docname].setdefault(figtype, {})
             figure_id = fignode['ids'][0]
@@ -243,6 +250,7 @@ class TocTreeCollector(EnvironmentCollector):
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
+            # type: (unicode, nodes.Node, Tuple[int, ...]) -> None
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
@@ -268,13 +276,14 @@ class TocTreeCollector(EnvironmentCollector):
                 _walk_doctree(docname, subnode, secnum)
 
         def _walk_doc(docname, secnum):
+            # type: (unicode, Tuple[int]) -> None
             if docname not in assigned:
                 assigned.add(docname)
                 doctree = env.get_doctree(docname)
                 _walk_doctree(docname, doctree, secnum)
 
         if env.config.numfig:
-            _walk_doc(env.config.master_doc, tuple())
+            _walk_doc(env.config.master_doc, tuple())  # type: ignore
             for docname, fignums in iteritems(env.toc_fignumbers):
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)

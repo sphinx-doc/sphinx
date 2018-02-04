@@ -14,6 +14,12 @@ from docutils import nodes
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
+if False:
+    # For type annotation
+    from typing import Any, Dict  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
 logger = logging.getLogger(__name__)
 
 if False:

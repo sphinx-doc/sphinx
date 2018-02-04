@@ -27,6 +27,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
+    from typing import Generator, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -297,6 +298,7 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     default_priority = 200
 
     def apply(self):
+        # type: () -> None
         for node in self.document.footnotes:
             if node['names'] == []:
                 # footnote having duplicated number.  It is already warned at parser.
@@ -391,6 +393,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
+        # type: (List[nodes.Node]) -> Generator
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 
@@ -406,6 +409,7 @@ class ManpageLink(SphinxTransform):
     default_priority = 999
 
     def apply(self):
+        # type: () -> None
         for node in self.document.traverse(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])

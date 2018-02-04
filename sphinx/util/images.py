@@ -123,12 +123,15 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
+    # type: (unicode, IO) -> unicode
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode('utf-8').lower():
             return 'svg+xml'
     except UnicodeDecodeError:
         pass
+
+    return None
 
 
 # install test_svg() to imghdr

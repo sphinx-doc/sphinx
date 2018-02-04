@@ -158,6 +158,7 @@ class UIDTransform(SphinxTransform):
     default_priority = 100
 
     def apply(self):
+        # type: () -> None
         env = self.env
         old_doctree = None
         if env.versioning_compare:
@@ -177,6 +178,7 @@ class UIDTransform(SphinxTransform):
 
 
 def prepare(document):
+    # type: (nodes.Node) -> None
     """Simple wrapper for UIDTransform."""
     transform = UIDTransform(document)
     transform.apply()

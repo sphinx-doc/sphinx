@@ -77,6 +77,7 @@ def dedent_docstring(s):
     # type: (unicode) -> unicode
     """Remove common leading indentation from docstring."""
     def dummy():
+        # type: () -> None
         # dummy function to mock `inspect.getdoc`.
         pass
 

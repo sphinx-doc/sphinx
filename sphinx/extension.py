@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 class Extension(object):
     def __init__(self, name, module, **kwargs):
+        # type: (unicode, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs

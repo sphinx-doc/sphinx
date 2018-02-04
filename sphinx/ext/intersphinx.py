@@ -62,31 +62,33 @@ class InventoryAdapter(object):
     """Inventory adapter for environment"""
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            self.env.intersphinx_cache = {}
-            self.env.intersphinx_inventory = {}
-            self.env.intersphinx_named_inventory = {}
+            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore
+            self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
     def cache(self):
         # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
-        return self.env.intersphinx_cache
+        return self.env.intersphinx_cache  # type: ignore
 
     @property
     def main_inventory(self):
         # type: () -> Inventory
-        return self.env.intersphinx_inventory
+        return self.env.intersphinx_inventory  # type: ignore
 
     @property
     def named_inventory(self):
         # type: () -> Dict[unicode, Inventory]
-        return self.env.intersphinx_named_inventory
+        return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self):
-        self.env.intersphinx_inventory.clear()
-        self.env.intersphinx_named_inventory.clear()
+        # type: () -> None
+        self.env.intersphinx_inventory.clear()  # type: ignore
+        self.env.intersphinx_named_inventory.clear()  # type: ignore
 
 
 def _strip_basic_auth(url):
@@ -394,6 +396,7 @@ def debug(argv):
         config = MockConfig()
 
         def warn(self, msg):
+            # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
     filename = argv[1]

@@ -609,6 +609,7 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
 
 
 def epoch_to_rfc1123(epoch):
+    # type: (float) -> unicode
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
 
@@ -618,10 +619,12 @@ def epoch_to_rfc1123(epoch):
 
 
 def rfc1123_to_epoch(rfc1123):
+    # type: (str) -> float
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
 
 
 def xmlname_checker():
+    # type: () -> Pattern
     # https://www.w3.org/TR/REC-xml/#NT-Name
     # Only Python 3.3 or newer support character code in regular expression
     name_start_chars = [
@@ -640,6 +643,7 @@ def xmlname_checker():
     ]
 
     def convert(entries, splitter=u'|'):
+        # type: (Any, unicode) -> unicode
         results = []
         for entry in entries:
             if isinstance(entry, list):

@@ -15,7 +15,14 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.apidoc import main as _main
 
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
 def main(*args, **kwargs):
+    # type: (Any, Any) -> None
     warnings.warn(
         '`sphinx.apidoc.main()` has moved to `sphinx.ext.apidoc.main()`.',
         RemovedInSphinx20Warning,

@@ -24,7 +24,7 @@ from sphinx.util.osutil import mtimes_of_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA
@@ -46,7 +46,7 @@ def _toint(val):
 
 
 def _todim(val):
-    # type (int or unicode) -> unicode
+    # type: (Union[int, unicode]) -> unicode
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -61,7 +61,7 @@ def _todim(val):
         return 'initial'
     elif str(val).isdigit():
         return '0' if int(val) == 0 else '%spx' % val
-    return val
+    return val  # type: ignore
 
 
 def _slice_index(values, slices):

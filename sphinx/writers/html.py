@@ -689,6 +689,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</td>')
 
     def visit_option_group(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_option_group(self, node)
         self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
@@ -845,6 +846,7 @@ class HTMLTranslator(BaseTranslator):
         node.column = 0
 
     def visit_entry(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_entry(self, node)
         if self.body[-1] == '&nbsp;':
             self.body[-1] = '&#160;'
@@ -864,6 +866,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
     def visit_field_name(self, node):
+        # type: (nodes.Node) -> None
         context_count = len(self.context)
         BaseTranslator.visit_field_name(self, node)
         if context_count != len(self.context):

@@ -96,28 +96,32 @@ class CSSContainer(list):
     the entry with Stylesheet class.
     """
     def append(self, obj):
+        # type: (Union[unicode, Stylesheet]) -> None
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).append(obj)
         else:
-            super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))
+            super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
 
     def insert(self, index, obj):
+        # type: (int, Union[unicode, Stylesheet]) -> None
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
                       RemovedInSphinx20Warning)
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).insert(index, obj)
         else:
-            super(CSSContainer, self).insert(index, Stylesheet(obj, None, 'stylesheet'))
+            super(CSSContainer, self).insert(index, Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
 
-    def extend(self, other):
+    def extend(self, other):  # type: ignore
+        # type: (List[Union[unicode, Stylesheet]]) -> None
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
                       RemovedInSphinx20Warning)
         for item in other:
             self.append(item)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other):  # type: ignore
+        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
                       RemovedInSphinx20Warning)
@@ -126,6 +130,7 @@ class CSSContainer(list):
         return self
 
     def __add__(self, other):
+        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
         ret = CSSContainer(self)
         ret += other
         return ret
@@ -320,6 +325,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def default_translator_class(self):
+        # type: () -> nodes.NodeVisitor
         use_html5_writer = self.config.html_experimental_html5_writer
         if use_html5_writer is None:
             use_html5_writer = self.default_html5_translator

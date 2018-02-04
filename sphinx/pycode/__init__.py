@@ -27,17 +27,19 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
+        # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
             return cls(BytesIO(string), modname, srcname)
-        return cls(StringIO(string), modname, srcname, decoded=True)
+        return cls(StringIO(string), modname, srcname, decoded=True)  # type: ignore
 
     @classmethod
     def for_file(cls, filename, modname):
+        # type: (unicode, unicode) -> ModuleAnalyzer
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
             with open(filename, 'rb') as f:
-                obj = cls(f, modname, filename)
+                obj = cls(f, modname, filename)  # type: ignore
                 cls.cache['file', filename] = obj
         except Exception as err:
             raise PycodeError('error opening %r' % filename, err)
@@ -45,6 +47,7 @@ class ModuleAnalyzer(object):
 
     @classmethod
     def for_module(cls, modname):
+        # type: (str) -> ModuleAnalyzer
         if ('module', modname) in cls.cache:
             entry = cls.cache['module', modname]
             if isinstance(entry, PycodeError):
@@ -126,7 +129,7 @@ if __name__ == '__main__':
     # ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
     ma = ModuleAnalyzer.for_file('sphinx/environment.py',
                                  'sphinx.environment')
-    ma.tokenize()
+    ma.tokenize()  # type: ignore
     x1 = time.time()
     ma.parse()
     x2 = time.time()

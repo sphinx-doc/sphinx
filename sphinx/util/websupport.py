@@ -10,5 +10,8 @@
 try:
     from sphinxcontrib.websupport.utils import is_commentable  # NOQA
 except ImportError:
+    from docutils import nodes  # NOQA
+
     def is_commentable(node):
+        # type: (nodes.Node) -> bool
         raise RuntimeError
