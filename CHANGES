@@ -207,7 +207,7 @@ Testing
 * Add support for docutils 0.14
 * Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
-Release 1.6.7 (in development)
+Release 1.6.8 (in development)
 ==============================
 
 Dependencies
@@ -221,6 +221,15 @@ Deprecated
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.6.7 (released Feb 04, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -240,9 +249,6 @@ Bugs fixed
 * #4487: math: ValueError is raised on parallel build. Thanks to jschueller.
 * #2372: autosummary: invalid signatures are shown for type annotated functions
 * #3942: html: table is not aligned to center even if ``:align: center``
-
-Testing
---------
 
 Release 1.6.6 (released Jan 08, 2018)
 =====================================
