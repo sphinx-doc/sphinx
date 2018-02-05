@@ -21,6 +21,8 @@ Deprecated
 
 * :confval:`source_parsers` is deprecated. Please use ``add_source_parser()``
   instead.
+* ``app.import_object()`` is deprecated.  Please use
+  ``sphinx.util.import_object()`` instead.
 
 Features added
 --------------

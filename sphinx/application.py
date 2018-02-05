@@ -27,7 +27,7 @@ from six.moves import cStringIO
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import (
     ApplicationError, ConfigError, ExtensionError, VersionRequirementError
@@ -460,10 +460,16 @@ class Sphinx(object):
         if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
-    # TODO(stephenfin): Deprecate this as it has no callers and isn't necessary
     def import_object(self, objname, source=None):
         # type: (str, unicode) -> Any
-        """Import an object from a ``module.name`` string."""
+        """Import an object from a ``module.name`` string.
+
+        .. deprecated:: 1.8
+           Use ``sphinx.util.import_object()`` instead.
+        """
+        warnings.warn('app.import_object() is deprecated. '
+                      'Use sphinx.util.add_object_type() instead.',
+                      RemovedInSphinx30Warning)
         return import_object(objname, source=None)
 
     # event interface
