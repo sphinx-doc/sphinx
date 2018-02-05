@@ -41,7 +41,7 @@ from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
-from sphinx.util.osutil import ENOENT, abspath, ensuredir
+from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
 
 if False:
@@ -282,7 +282,8 @@ class Sphinx(object):
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
-        if freshenv:
+        filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
+        if freshenv or not os.path.exists(filename):
             self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
             for domain in self.registry.create_domains(self.env):
@@ -290,7 +291,6 @@ class Sphinx(object):
         else:
             try:
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
-                filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
                 needed, reason = self.env.need_refresh(self)
                 if needed:
@@ -301,10 +301,7 @@ class Sphinx(object):
                     self.env.domains[domain.name] = domain
                 logger.info(__('done'))
             except Exception as err:
-                if isinstance(err, IOError) and err.errno == ENOENT:
-                    logger.info(__('not yet created'))
-                else:
-                    logger.info(__('failed: %s'), err)
+                logger.info(__('failed: %s'), err)
                 self._init_env(freshenv=True)
 
     def preload_builder(self, name):
