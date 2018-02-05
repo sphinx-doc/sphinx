@@ -18,6 +18,7 @@ import sys
 import tempfile
 import traceback
 import unicodedata
+import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
@@ -29,6 +30,7 @@ from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -172,6 +174,9 @@ def copy_static_entry(source, targetdir, builder, context={},
 
     Handles all possible cases of files, directories and subdirectories.
     """
+    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
+                  RemovedInSphinx30Warning)
+
     if exclude_matchers:
         relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
