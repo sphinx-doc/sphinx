@@ -20,7 +20,7 @@ from collections import deque
 from os import path
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import Directive, directives, roles
 from six import iteritems, itervalues
 from six.moves import cStringIO
 
@@ -687,8 +687,6 @@ class Sphinx(object):
         self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
 
-    # TODO(stephenfin): Remove docutils 0.4 style parsing and update the
-    # example to use the newer style
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
         """Register a Docutils directive.
@@ -726,6 +724,8 @@ class Sphinx(object):
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
+        .. deprecated:: 1.8
+           Docutils 0.4-style (function based) directives support is deprecated.
         """
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
@@ -736,6 +736,11 @@ class Sphinx(object):
                            type='app', subtype='add_directive')
         directive = directive_helper(obj, content, arguments, **options)
         directives.register_directive(name, directive)
+
+        if not isinstance(obj, Directive):
+            warnings.warn('function based directive support is now deprecated. '
+                          'Use class based directive instead.',
+                          RemovedInSphinx30Warning)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None
