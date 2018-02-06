@@ -687,20 +687,23 @@ class Sphinx(object):
         """
         if typ == 'read':
             attrname = 'parallel_read_safe'
-            gerund_typ = __("reading")
+            message = __("the %s extension does not declare if it is safe "
+                         "for parallel reading, assuming it isn't - please "
+                         "ask the extension author to check and make it "
+                         "explicit")
         elif typ == 'write':
             attrname = 'parallel_write_safe'
-            gerund_typ = __("writing")
+            message = __("the %s extension does not declare if it is safe "
+                         "for parallel writing, assuming it isn't - please "
+                         "ask the extension author to check and make it "
+                         "explicit")
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
         for ext in itervalues(self.extensions):
             allowed = getattr(ext, attrname, None)
             if allowed is None:
-                logger.warning(__("the %s extension does not declare if it is safe "
-                                  "for parallel %s, assuming it isn't - please "
-                                  "ask the extension author to check and make it "
-                                  "explicit"), ext.name, gerund_typ)
+                logger.warning(message, ext.name)
                 logger.warning('doing serial %s', typ)
                 return False
             elif not allowed:
