@@ -1,122 +1,181 @@
 :orphan:
 
+=================
 Installing Sphinx
 =================
-
-Since Sphinx is written in the Python language, you need to install Python
-(the required version is at least 2.7) and Sphinx.
-
-Sphinx packages are available on the `Python Package Index
-<https://pypi.python.org/pypi/Sphinx>`_.
-
-You can also download a snapshot from the Git repository:
-
-* as a `.tar.gz <https://github.com/sphinx-doc/sphinx/archive/master.tar.gz>`__
-  file or
-* as a `.zip <https://github.com/sphinx-doc/sphinx/archive/master.zip>`_ file
-
-There are introductions for several environments:
 
 .. contents::
    :depth: 1
    :local:
    :backlinks: none
 
+Overview
+--------
 
-Debian/Ubuntu: Install Sphinx using packaging system
-----------------------------------------------------
+Sphinx is written in `Python`__ and supports both Python 2.7 and Python 3.3+.
+We recommend the latter.
 
-You may install using this command if you use Debian/Ubuntu.
-
-.. code-block:: bash
-
-   $ apt-get install python-sphinx
+__ http://docs.python-guide.org/en/latest/
 
 
-Other Linux distributions
--------------------------
+Linux
+-----
 
-Most Linux distributions have Sphinx in their package repositories.  Usually the
-package is called "python-sphinx", "python-Sphinx" or "sphinx".  Be aware that
-there are two other packages with "sphinx" in their name: a speech recognition
-toolkit (CMU Sphinx) and a full-text search database (Sphinx search).
+Debian/Ubuntu
+~~~~~~~~~~~~~
 
-
-Mac OS X: Install Sphinx using MacPorts
----------------------------------------
-
-If you use Mac OS X `MacPorts <https://www.macports.org/>`_, use this command to
-install all necessary software.
+Install either ``python3-sphinx`` (Python 3) or ``python-sphinx`` (Python 2)
+using :command:`apt-get`:
 
 .. code-block:: bash
 
-   $ sudo port install py27-sphinx
+   $ apt-get install python3-sphinx
+
+If it not already present, this will install Python for you.
+
+RHEL, CentOS
+~~~~~~~~~~~~
+
+Install ``python-sphinx`` using :command:`yum`:
+
+.. code-block:: bash
+
+   $ yum install python-sphinx
+
+If it not already present, this will install Python for you.
+
+Other distributions
+~~~~~~~~~~~~~~~~~~~
+
+Most Linux distributions have Sphinx in their package repositories.  Usually
+the package is called ``python3-sphinx``, ``python-sphinx`` or ``sphinx``.  Be
+aware that there are at least two other packages with ``sphinx`` in their name:
+a speech recognition toolkit (*CMU Sphinx*) and a full-text search database
+(*Sphinx search*).
+
+
+macOS
+-----
+
+Sphinx can be installed using `Homebrew`__ or `MacPorts`__.
+
+__ https://brew.sh/
+__ https://www.macports.org/
+
+Homebrew
+~~~~~~~~
+
+.. code-block:: bash
+
+   $ brew install sphinx-doc
+
+For more information, refer to the `package overview`__.
+
+__ http://formulae.brew.sh/formula/sphinx-doc
+
+MacPorts
+~~~~~~~~
+
+Install either ``python36-sphinx`` (Python 3) or ``python27-sphinx`` (Python 2)
+using :command:`port`:
+
+.. code-block:: bash
+
+   $ sudo port install py36-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
 .. code-block:: bash
 
-   $ sudo port select --set python python27
-   $ sudo port select --set sphinx py27-sphinx
+   $ sudo port select --set python python36
+   $ sudo port select --set sphinx py36-sphinx
 
-Type :command:`which sphinx-quickstart` to check if the installation was
-successful.
+For more information, refer to the `package overview`__.
 
-
-Windows: Install Python and Sphinx
-----------------------------------
-
-Install Python
-^^^^^^^^^^^^^^
-
-Most Windows users do not have Python, so we begin with the
-installation of Python itself.  If you have already installed
-Python, please skip to the next section.
-
-.. note::
-
-   Currently, Python offers two major versions, 2.x and 3.x. Sphinx 1.6 can run
-   under Python 2.7, 3.4, 3.5, 3.6, with the recommended version being 2.7.  This
-   chapter assumes you are installing Python 2.7.
-
-Go to https://www.python.org/, the main download site for Python.
-Hover over the "Downloads" menu and select a Python version to download.
-
-.. image:: pythonorg.png
-
-Follow the Windows installer for Python.  When you reach the screen that
-lets you customize the installation, scroll to the bottom of the list
-and change "Add python.exe to Path" so that it will be installed.
-
-.. image:: installpython.png
-
-Now run the **Command Prompt**.  After the command prompt window appears, type
-``python`` and Enter.  If the Python installation was successful, the
-installed Python version is printed, and you are greeted by the prompt
-``>>>``:
-
-.. code-block:: text
-
-   C:\>python
-   Python 2.7.14 (v2.7.14:84471935ed, Sep 16 2017, 20:19:30) [MSC v.1500 32 bit (Intel)] on win32
-   Type "help", "copyright", "credits" or "license" for more information.
-   >>>
-
-Type ``Ctrl+Z`` and ``Enter`` to quit.
+__ https://www.macports.org/ports.php?by=library&substr=py36-sphinx
 
 
-Install Sphinx using pip
-^^^^^^^^^^^^^^^^^^^^^^^^
+Windows
+-------
 
-Type this line in the command prompt:
+.. todo:: Could we start packaging this?
 
-.. code-block:: text
+Most Windows users do not have Python installed by default, so we begin with
+the installation of Python itself.  If you are unsure, open the *Command
+Prompt* (:kbd:`Control-r` and type :command:`cmd`).  Once the command prompt is
+open, type :command:`python --version` and press Enter.  If Python is
+available, you will see the version of Python printed to the screen.  If you do
+not have Python installed, refer to the `Hitchhikers Guide to Python's`__
+Python on Windows installation guides. You can install either `Python 3`__ or
+`Python 2.7`__. Python 3 is recommended.
 
-   C:\>pip install sphinx
+Once Python is installed, you can install Sphinx using :command:`pip`.  Refer
+to the :ref:`pip installation instructions <install-pypi>` below for more
+information.
 
-After installation, type :command:`sphinx-build -h` on the command prompt.  If
-everything worked fine, you will get a Sphinx version number and a list of
-options for this command.
+__ http://docs.python-guide.org/en/latest/
+__ http://docs.python-guide.org/en/latest/starting/install3/win/
+__ http://docs.python-guide.org/en/latest/starting/install/win/
 
-That it.  Installation is over.  Head to :doc:`tutorial` to make a Sphinx
-project.
+
+.. _install-pypi:
+
+Installation from PyPI
+----------------------
+
+Sphinx packages are published on the `Python Package Index
+<https://pypi.python.org/pypi/Sphinx>`_.  The preferred tool for installing
+packages from *PyPI* is :command:`pip`.  This tool is provided with all modern
+versions of Python.
+
+On Linux or MacOS, you should open your terminal and run the following command.
+
+.. code-block:: shell
+
+   $ pip install -U sphinx
+
+On Windows, you should open *Command Prompt* (:kbd:`Control-r` and type
+:command:`cmd`) and run the same command.
+
+.. code-block:: bat
+
+   C:\> pip install -U sphinx
+
+After installation, type :command:`sphinx-build --version` on the command
+prompt.  If everything worked fine, you will see the version number for the
+Sphinx package you just installed.
+
+Installation from *PyPI* also allows you to install the latest development
+release.  You will not generally need (or want) to do this, but it can be
+useful if you see a possible bug in the latest stable release.  To do this, use
+the ``--pre`` flag.
+
+.. code-block:: shell
+
+   $ pip install -U --pre sphinx
+
+
+Installation from source
+------------------------
+
+You can install Sphinx directly from a clone of the `Git repository`__.  This
+can be done either by cloning the repo and installing from the local clone, on
+simply installing directly via :command:`git`.
+
+.. code-block:: shell
+
+   $ git clone https://github.com/sphinx-doc/sphinx
+   $ cd sphinx
+   $ pip install .
+
+.. code-block:: shell
+
+   $ pip install git+https://github.com/sphinx-doc/sphinx
+
+You can also download a snapshot of the Git repo in either `tar.gz`__ or
+`zip`__ format.  Once downloaded and extracted, these can be installed with
+:command:`pip` as above.
+
+__ https://github.com/sphinx-doc/sphinx
+__ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz
+__ https://github.com/sphinx-doc/sphinx/archive/master.zip
