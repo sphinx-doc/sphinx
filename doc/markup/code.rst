@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 .. _code-examples:
 
@@ -8,14 +8,16 @@ Showing code examples
 .. index:: pair: code; examples
            single: sourcecode
 
+.. todo:: Rework this to remove the bullet points
+
 Examples of Python source code or interactive sessions are represented using
 standard reST literal blocks.  They are started by a ``::`` at the end of the
 preceding paragraph and delimited by indentation.
 
 Representing an interactive session requires including the prompts and output
 along with the Python code.  No special markup is required for interactive
-sessions.  After the last line of input or output presented, there should not be
-an "unused" primary prompt; this is an example of what *not* to do::
+sessions.  After the last line of input or output presented, there should not
+be an "unused" primary prompt; this is an example of what *not* to do::
 
    >>> 1 + 1
    2
@@ -24,10 +26,10 @@ an "unused" primary prompt; this is an example of what *not* to do::
 Syntax highlighting is done with `Pygments <http://pygments.org>`_ and handled
 in a smart way:
 
-* There is a "highlighting language" for each source file.  Per default, this is
-  ``'python'`` as the majority of files will have to highlight Python snippets,
-  but the doc-wide default can be set with the :confval:`highlight_language`
-  config value.
+* There is a "highlighting language" for each source file.  Per default, this
+  is ``'python'`` as the majority of files will have to highlight Python
+  snippets, but the doc-wide default can be set with the
+  :confval:`highlight_language` config value.
 
 * Within Python highlighting mode, interactive sessions are recognized
   automatically and highlighted appropriately.  Normal Python code is only
@@ -44,7 +46,8 @@ in a smart way:
 
         .. highlight:: c
 
-     This language is used until the next ``highlight`` directive is encountered.
+     This language is used until the next ``highlight`` directive is
+     encountered.
 
 * For documents that have to show snippets in different languages, there's also
   a :rst:dir:`code-block` directive that is given the highlighting language
@@ -78,9 +81,9 @@ Line numbers
 ^^^^^^^^^^^^
 
 Pygments can generate line numbers for code blocks.  For
-automatically-highlighted blocks (those started by ``::``), line numbers must be
-switched on in a :rst:dir:`highlight` directive, with the ``linenothreshold``
-option::
+automatically-highlighted blocks (those started by ``::``), line numbers must
+be switched on in a :rst:dir:`highlight` directive, with the
+``linenothreshold`` option::
 
    .. highlight:: python
       :linenothreshold: 5
@@ -131,13 +134,13 @@ Includes
 
    Longer displays of verbatim text may be included by storing the example text
    in an external file containing only plain text.  The file may be included
-   using the ``literalinclude`` directive. [1]_ For example, to include the
+   using the ``literalinclude`` directive. [#]_ For example, to include the
    Python source file :file:`example.py`, use::
 
       .. literalinclude:: example.py
 
-   The file name is usually relative to the current file's path.  However, if it
-   is absolute (starting with ``/``), it is relative to the top source
+   The file name is usually relative to the current file's path.  However, if
+   it is absolute (starting with ``/``), it is relative to the top source
    directory.
 
    Tabs in the input are expanded if you give a ``tab-width`` option with the
@@ -168,8 +171,8 @@ Includes
       .. literalinclude:: example.py
          :pyobject: Timer.start
 
-   This would only include the code lines belonging to the ``start()`` method in
-   the ``Timer`` class within the file.
+   This would only include the code lines belonging to the ``start()`` method
+   in the ``Timer`` class within the file.
 
    Alternately, you can specify exactly which lines to include by giving a
    ``lines`` option::
@@ -181,16 +184,17 @@ Includes
 
    Another way to control which part of the file is included is to use the
    ``start-after`` and ``end-before`` options (or only one of them).  If
-   ``start-after`` is given as a string option, only lines that follow the first
-   line containing that string are included.  If ``end-before`` is given as a
-   string option, only lines that precede the first lines containing that string
-   are included.
+   ``start-after`` is given as a string option, only lines that follow the
+   first line containing that string are included.  If ``end-before`` is given
+   as a string option, only lines that precede the first lines containing that
+   string are included.
 
    With lines selected using ``start-after`` it is still possible to use
-   ``lines``, the first allowed line having by convention the line number ``1``.
+   ``lines``, the first allowed line having by convention the line number
+   ``1``.
 
-   When lines have been selected in any of the ways described above, the
-   line numbers in ``emphasize-lines`` refer to those selected lines, counted
+   When lines have been selected in any of the ways described above, the line
+   numbers in ``emphasize-lines`` refer to those selected lines, counted
    consecutively starting at ``1``.
 
    When specifying particular parts of a file to display, it can be useful to
@@ -202,15 +206,14 @@ Includes
    ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
    highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
 
-
-   If you want to show the diff of the code, you can specify the old
-   file by giving a ``diff`` option::
+   If you want to show the diff of the code, you can specify the old file by
+   giving a ``diff`` option::
 
       .. literalinclude:: example.py
          :diff: example.py.orig
 
-   This shows the diff between example.py and example.py.orig with unified diff
-   format.
+   This shows the diff between ``example.py`` and ``example.py.orig`` with
+   unified diff format.
 
    .. versionadded:: 0.4.3
       The ``encoding`` option.
@@ -242,11 +245,9 @@ For example::
 
       print 'Explicit is better than implicit.'
 
-
 :rst:dir:`literalinclude` also supports the ``caption`` and ``name`` option.
-``caption`` has an additional feature that if you leave the value empty, the shown
-filename will be exactly the one given as an argument.
-
+``caption`` has an additional feature that if you leave the value empty, the
+shown filename will be exactly the one given as an argument.
 
 Dedent
 ^^^^^^
@@ -263,8 +264,7 @@ block. For example::
 
 :rst:dir:`code-block` also supports the ``dedent`` option.
 
-
 .. rubric:: Footnotes
 
-.. [1] There is a standard ``.. include`` directive, but it raises errors if the
+.. [#] There is a standard ``.. include`` directive, but it raises errors if the
        file is not found.  This one only emits a warning.

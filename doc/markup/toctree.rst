@@ -1,8 +1,8 @@
 .. highlight:: rst
 .. _toctree-directive:
 
-The TOC tree
-============
+Table of contents
+-----------------
 
 .. index:: pair: table of; contents
 
@@ -15,6 +15,11 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    Simple "inclusion" of one file in another can be done with the
    :dudir:`include` directive.
+
+.. note::
+
+   For local tables of contents, use the standard reST :dudir:`contents
+   directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -192,7 +197,7 @@ tables of contents.  The ``toctree`` directive is the central element.
       Added "caption" and "name" option.
 
 Special names
--------------
+^^^^^^^^^^^^^
 
 Sphinx reserves some document names for its own use; you should not try to
 create documents with these names -- it will cause problems.
@@ -204,11 +209,12 @@ The special document names (and pages generated for them) are:
   These are used for the general index, the Python module index, and the search
   page, respectively.
 
-  The general index is populated with entries from modules, all index-generating
-  :ref:`object descriptions <basic-domain-markup>`, and from :rst:dir:`index`
-  directives.
+  The general index is populated with entries from modules, all
+  index-generating :ref:`object descriptions <basic-domain-markup>`, and from
+  :rst:dir:`index` directives.
 
-  The Python module index contains one entry per :rst:dir:`py:module` directive.
+  The Python module index contains one entry per :rst:dir:`py:module`
+  directive.
 
   The search page contains a form that uses the generated JSON search index and
   JavaScript to full-text search the generated documents for search words; it
@@ -216,9 +222,9 @@ The special document names (and pages generated for them) are:
 
 * every name beginning with ``_``
 
-  Though only few such names are currently used by Sphinx, you should not create
-  documents or document-containing directories with such names.  (Using ``_`` as
-  a prefix for a custom template directory is fine.)
+  Though only few such names are currently used by Sphinx, you should not
+  create documents or document-containing directories with such names.  (Using
+  ``_`` as a prefix for a custom template directory is fine.)
 
 .. warning::
 
@@ -238,5 +244,5 @@ The special document names (and pages generated for them) are:
 
 .. [#] A note on available globbing syntax: you can use the standard shell
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
-       these all don't match slashes.  A double star ``**`` can be used to match
-       any sequence of characters *including* slashes.
+       these all don't match slashes.  A double star ``**`` can be used to
+       match any sequence of characters *including* slashes.

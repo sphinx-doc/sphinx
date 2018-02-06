@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 Miscellaneous markup
 ====================
@@ -186,10 +186,9 @@ Use :ref:`reStructuredText tables <rst-tables>`, i.e. either
 The :dudir:`table` directive serves as optional wrapper of the *grid* and
 *simple* syntaxes.
 
-They work fine in
-HTML output, however there are some gotchas when using tables in LaTeX: the
-column width is hard to determine correctly automatically.  For this reason, the
-following directive exists:
+They work fine in HTML output, however there are some gotchas when using tables
+in LaTeX: the column width is hard to determine correctly automatically.  For
+this reason, the following directive exists:
 
 .. rst:directive:: .. tabularcolumns:: column spec
 
@@ -297,6 +296,8 @@ following directive exists:
 Math
 ----
 
+.. todo:: Move this in here.
+
 See :ref:`math-support`.
 
 .. rubric:: Footnotes
@@ -307,4 +308,3 @@ See :ref:`math-support`.
 
        Note that the current builder tag is not available in ``conf.py``, it is
        only available after the builder is initialized.
-

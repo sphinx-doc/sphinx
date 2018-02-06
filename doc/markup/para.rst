@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 Paragraph-level markup
 ----------------------
@@ -7,7 +7,7 @@ Paragraph-level markup
            pair: changes; in version
 
 These directives create short paragraphs and can be used inside information
-units as well as normal text:
+units as well as normal text.
 
 .. rst:directive:: .. note::
 
@@ -61,9 +61,6 @@ units as well as normal text:
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
-
---------------
-
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
@@ -104,7 +101,6 @@ units as well as normal text:
       assumed to only contain footnote definitions and therefore would create an
       empty heading.
 
-
 .. rst:directive:: centered
 
    This directive creates a centered boldfaced line of text.  Use it as
@@ -115,7 +111,6 @@ units as well as normal text:
    .. deprecated:: 1.1
       This presentation-only directive is a legacy from older versions.  Use a
       :rst:dir:`rst-class` directive instead and add an appropriate style.
-
 
 .. rst:directive:: hlist
 
@@ -136,16 +131,6 @@ units as well as normal text:
          * horizontally
 
    .. versionadded:: 0.6
-
-
-Table-of-contents markup
-------------------------
-
-The :rst:dir:`toctree` directive, which generates tables of contents of
-subdocuments, is described in :ref:`toctree-directive`.
-
-For local tables of contents, use the standard reST :dudir:`contents directive
-<table-of-contents>`.
 
 
 .. _glossary-directive:
@@ -222,11 +207,11 @@ the definition of the symbol.  There is this directive:
 
 .. rst:directive:: .. productionlist:: [name]
 
-   This directive is used to enclose a group of productions.  Each production is
-   given on a single line and consists of a name, separated by a colon from the
-   following definition.  If the definition spans multiple lines, each
-   continuation line must begin with a colon placed at the same column as in the
-   first line.
+   This directive is used to enclose a group of productions.  Each production
+   is given on a single line and consists of a name, separated by a colon from
+   the following definition.  If the definition spans multiple lines, each
+   continuation line must begin with a colon placed at the same column as in
+   the first line.
 
    The argument to :rst:dir:`productionlist` serves to distinguish different
    sets of production lists that belong to different grammars.
@@ -234,9 +219,10 @@ the definition of the symbol.  There is this directive:
    Blank lines are not allowed within ``productionlist`` directive arguments.
 
    The definition can contain token names which are marked as interpreted text
-   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates cross-references
-   to the productions of these tokens.  Outside of the production list, you can
-   reference to token productions using :rst:role:`token`.
+   (e.g. ``sum ::= `integer` "+" `integer```) -- this generates
+   cross-references to the productions of these tokens.  Outside of the
+   production list, you can reference to token productions using
+   :rst:role:`token`.
 
    Note that no further reST parsing is done in the production, so that you
    don't have to escape ``*`` or ``|`` characters.
