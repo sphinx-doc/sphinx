@@ -71,8 +71,8 @@ def test_reporting_with_autodoc(app, status, warning, capfd):
     failures = [l for l in lines if l.startswith('File')]
     expected = [
         'File "dir/inner.rst", line 1, in default',
-        'File "dir/bar.py", line 2, in default',
-        'File "foo.py", line 3, in default',
+        'File "dir/bar.py", line ?, in default',
+        'File "foo.py", line ?, in default',
         'File "index.rst", line 4, in default',
     ]
     for location in expected:
