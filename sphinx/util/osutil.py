@@ -19,10 +19,13 @@ import re
 import shutil
 import sys
 import time
+import warnings
 from io import BytesIO, StringIO
 from os import path
 
 from six import PY2, PY3, text_type
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
@@ -181,8 +184,10 @@ def make_filename(string):
 
 def ustrftime(format, *args):
     # type: (unicode, Any) -> unicode
-    # [DEPRECATED] strftime for unicode strings
-    # It will be removed at Sphinx-1.5
+    """[DEPRECATED] strftime for unicode strings."""
+    warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
+                  RemovedInSphinx30Warning)
+
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
