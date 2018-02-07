@@ -214,7 +214,7 @@ class SphinxComponentRegistry(object):
             parser_class = self.source_parsers.get('*')
 
         if parser_class is None:
-            raise SphinxError(__('Source parser for %s not registered') % filename)
+            raise SphinxError(__('source_parser for %s not registered') % filename)
         else:
             if isinstance(parser_class, string_types):
                 parser_class = import_object(parser_class, 'source parser')  # type: ignore
