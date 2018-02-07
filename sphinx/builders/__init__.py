@@ -16,7 +16,7 @@ from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.util import i18n, path_stabilize, logging, status_iterator
+from sphinx.util import i18n, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri
@@ -251,15 +251,13 @@ class Builder(object):
         message = 'all of %d po files' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
-    def compile_specific_catalogs(self, specified_files):
+    def compile_specific_catalogs(self, specified_docnames):
         # type: (List[unicode]) -> None
-        def to_domain(fpath):
+        def to_domain(docname):
             # type: (unicode) -> unicode
-            docname, _ = path.splitext(path_stabilize(fpath))
-            dom = find_catalog(docname, self.config.gettext_compact)
-            return dom
+            return find_catalog(docname, self.config.gettext_compact)
 
-        specified_domains = set(map(to_domain, specified_files))
+        specified_domains = set(map(to_domain, specified_docnames))
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
@@ -284,42 +282,42 @@ class Builder(object):
     def build_all(self):
         # type: () -> None
         """Build all source files."""
+        self.compile_all_catalogs()
+
         self.build(None, summary='all source files', method='all')
 
     def build_specific(self, filenames):
         # type: (List[unicode]) -> None
         """Only rebuild as much as needed for changes in the *filenames*."""
-        # bring the filenames to the canonical format, that is,
-        # relative to the source directory and without source_suffix.
-        dirlen = len(self.srcdir) + 1
-        to_write = []
-        suffixes = None  # type: Tuple[unicode]
-        suffixes = tuple(self.config.source_suffix)  # type: ignore
+        docnames = []  # type: List[unicode]
+
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
+
             if not filename.startswith(self.srcdir):
                 logger.warning('file %r given on command line is not under the '
                                'source directory, ignoring', filename)
                 continue
-            if not (path.isfile(filename) or
-                    any(path.isfile(filename + suffix) for suffix in suffixes)):
+
+            docname = self.env.path2doc(filename)
+            if not docname:
                 logger.warning('file %r given on command line does not exist, '
                                'ignoring', filename)
                 continue
-            filename = filename[dirlen:]
-            for suffix in suffixes:
-                if filename.endswith(suffix):
-                    filename = filename[:-len(suffix)]
-                    break
-            filename = filename.replace(path.sep, SEP)
-            to_write.append(filename)
-        self.build(to_write, method='specific',
+
+            docnames.append(docname)
+
+        self.compile_specific_catalogs(docnames)
+
+        self.build(docnames, method='specific',
                    summary='%d source files given on command '
-                   'line' % len(to_write))
+                   'line' % len(docnames))
 
     def build_update(self):
         # type: () -> None
         """Only rebuild what was changed or added since last build."""
+        self.compile_update_catalogs()
+
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
             self.build(['__all__'], to_build)

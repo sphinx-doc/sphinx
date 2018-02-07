@@ -320,13 +320,10 @@ class Sphinx(object):
         # type: (bool, List[unicode]) -> None
         try:
             if force_all:
-                self.builder.compile_all_catalogs()
                 self.builder.build_all()
             elif filenames:
-                self.builder.compile_specific_catalogs(filenames)
                 self.builder.build_specific(filenames)
             else:
-                self.builder.compile_update_catalogs()
                 self.builder.build_update()
 
             status = (self.statuscode == 0 and
