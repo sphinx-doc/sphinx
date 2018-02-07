@@ -383,6 +383,23 @@ Doctest summary
             return filename.encode(fs_encoding)
         return filename
 
+    @staticmethod
+    def get_line_number(node):
+        # type: (nodes.Node) -> Optional[int]
+        """Get the real line number or admit we don't know."""
+        # TODO:  Work out how to store or calculate real (file-relative)
+        #       line numbers for doctest blocks in docstrings.
+        if ':docstring of ' in path.basename(node.source or ''):
+            # The line number is given relative to the stripped docstring,
+            # not the file.  This is correct where it is set, in
+            # `docutils.nodes.Node.setup_child`, but Sphinx should report
+            # relative to the file, not the docstring.
+            return None
+        if node.line is not None:
+            # TODO: find the root cause of this off by one error.
+            return node.line - 1
+        return None
+
     def test_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         groups = {}  # type: Dict[unicode, TestGroup]
@@ -411,12 +428,13 @@ Doctest summary
         for node in doctree.traverse(condition):
             source = node['test'] if 'test' in node else node.astext()
             filename = self.get_filename_for_node(node, docname)
+            line_number = self.get_line_number(node)
             if not source:
                 logger.warning('no code/output in %s block at %s:%s',
                                node.get('testnodetype', 'doctest'),
-                               filename, node.line)
+                               filename, line_number)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            filename=filename, lineno=node.line,
+                            filename=filename, lineno=line_number,
                             options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
