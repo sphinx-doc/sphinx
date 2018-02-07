@@ -20,14 +20,14 @@ from collections import deque
 from os import path
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
+from docutils.parsers.rst import Directive, directives, roles
 from six import iteritems, itervalues
 from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import (
     ApplicationError, ConfigError, ExtensionError, VersionRequirementError
@@ -41,7 +41,7 @@ from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
-from sphinx.util.osutil import ENOENT, abspath, ensuredir
+from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
 
 if False:
@@ -282,7 +282,8 @@ class Sphinx(object):
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
-        if freshenv:
+        filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
+        if freshenv or not os.path.exists(filename):
             self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
             for domain in self.registry.create_domains(self.env):
@@ -290,7 +291,6 @@ class Sphinx(object):
         else:
             try:
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
-                filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
                 needed, reason = self.env.need_refresh(self)
                 if needed:
@@ -301,10 +301,7 @@ class Sphinx(object):
                     self.env.domains[domain.name] = domain
                 logger.info(__('done'))
             except Exception as err:
-                if isinstance(err, IOError) and err.errno == ENOENT:
-                    logger.info(__('not yet created'))
-                else:
-                    logger.info(__('failed: %s'), err)
+                logger.info(__('failed: %s'), err)
                 self._init_env(freshenv=True)
 
     def preload_builder(self, name):
@@ -463,10 +460,16 @@ class Sphinx(object):
         if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
-    # TODO(stephenfin): Deprecate this as it has no callers and isn't necessary
     def import_object(self, objname, source=None):
         # type: (str, unicode) -> Any
-        """Import an object from a ``module.name`` string."""
+        """Import an object from a ``module.name`` string.
+
+        .. deprecated:: 1.8
+           Use ``sphinx.util.import_object()`` instead.
+        """
+        warnings.warn('app.import_object() is deprecated. '
+                      'Use sphinx.util.add_object_type() instead.',
+                      RemovedInSphinx30Warning)
         return import_object(objname, source=None)
 
     # event interface
@@ -684,8 +687,6 @@ class Sphinx(object):
         self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
 
-    # TODO(stephenfin): Remove docutils 0.4 style parsing and update the
-    # example to use the newer style
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
         """Register a Docutils directive.
@@ -723,6 +724,8 @@ class Sphinx(object):
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
+        .. deprecated:: 1.8
+           Docutils 0.4-style (function based) directives support is deprecated.
         """
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
@@ -733,6 +736,11 @@ class Sphinx(object):
                            type='app', subtype='add_directive')
         directive = directive_helper(obj, content, arguments, **options)
         directives.register_directive(name, directive)
+
+        if not isinstance(obj, Directive):
+            warnings.warn('function based directive support is now deprecated. '
+                          'Use class based directive instead.',
+                          RemovedInSphinx30Warning)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None

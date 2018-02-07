@@ -16,7 +16,7 @@ from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.util import i18n, path_stabilize, logging, status_iterator
+from sphinx.util import i18n, import_object, path_stabilize, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri
@@ -159,8 +159,8 @@ class Builder(object):
         # type: () -> None
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = self.app.import_object(
-                self.config.template_bridge, 'template_bridge setting')()
+            self.templates = import_object(self.config.template_bridge,
+                                           'template_bridge setting')()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()

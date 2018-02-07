@@ -21,6 +21,10 @@ Deprecated
 
 * :confval:`source_parsers` is deprecated. Please use ``add_source_parser()``
   instead.
+* ``Application.import_object()`` is deprecated.  Please use
+  ``sphinx.util.import_object()`` instead.
+* Drop function based directive support.  For now, Sphinx only supports class
+  based directives.
 
 Features added
 --------------
