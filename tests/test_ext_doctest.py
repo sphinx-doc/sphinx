@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
+from six import PY2
 from sphinx.ext.doctest import is_allowed_version
 from packaging.version import InvalidVersion
 from packaging.specifiers import InvalidSpecifier
@@ -57,6 +58,9 @@ def cleanup_call():
     cleanup_called += 1
 
 
+@pytest.mark.xfail(
+    PY2, reason='node.source points to document instead of filename',
+)
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
 def test_reporting_with_autodoc(app, status, warning, capfd):
     # Patch builder to get a copy of the output
