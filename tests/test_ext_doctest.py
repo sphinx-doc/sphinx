@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
+from six import PY2
 from sphinx.ext.doctest import is_allowed_version
 from packaging.version import InvalidVersion
 from packaging.specifiers import InvalidSpecifier
@@ -73,3 +74,9 @@ def test_reporting_with_autodoc(app, status, warning, capfd):
     ]
     for location in expected:
         assert location in failures
+
+
+if PY2:
+    test_reporting_with_autodoc = pytest.mark.xfail(
+        reason='node.source points to document (not filename) under Python 2'
+    )(test_reporting_with_autodoc)
