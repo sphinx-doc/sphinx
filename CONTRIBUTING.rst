@@ -61,8 +61,8 @@ of the core developers before it is merged into the main repository.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
-   **master** branch for next major version, or **stable** branch for next
-   minor version.
+   ``master`` branch for next major version, or ``X.Y`` branch for next
+   minor version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
@@ -92,12 +92,13 @@ These are the basic steps needed to start developing on Sphinx.
 #. Checkout the appropriate branch.
 
    For changes that should be included in the next minor release (namely bug
-   fixes), use the ``stable`` branch. ::
+   fixes), use the ``X.Y`` branch. ::
 
-       git checkout stable
+       git checkout X.Y
 
    For new features or other substantial changes that should wait until the
-   next major release, use the ``master`` branch.
+   next major release, use the ``master`` branch  (see `Branch Model`_ for
+   detail).
 
 #. Setup a virtual environment.
 
@@ -187,7 +188,7 @@ These are the basic steps needed to start developing on Sphinx.
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``stable``) on ``sphinx-doc/sphinx`` using the GitHub interface.
+   or ``X.Y``).
 
 #. Wait for a core developer to review your changes.
 
@@ -303,6 +304,24 @@ Debugging Tips
 
      $ npm install
      $ node_modules/.bin/grunt build # -> dest/*.global.js
+
+
+Branch Model
+------------
+
+Sphinx project uses following branches for developing.
+
+``master``
+    Used for main development.  All improvement and refactoring, bug fixes
+    are allowed.
+
+``X.Y``
+    Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
+    stable release.  Only bug fixes and stable changes are allowed.  Only the
+    most recent stable release is currently retained. When a new version is
+    released, the old release branch will be deleted and replaced by an
+    equivalent tag.
+
 
 Deprecating a feature
 ---------------------
