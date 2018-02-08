@@ -1123,6 +1123,11 @@ def test_html_assets(app):
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
 
+    # html_js_files
+    assert '<script type="text/javascript" src="_static/js/custom.js"></script>' in content
+    assert ('<script async="async" type="text/javascript" src="https://example.com/script.js">'
+            '</script>' in content)
+
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):

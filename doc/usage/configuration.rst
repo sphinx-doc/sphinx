@@ -874,6 +874,22 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.8
 
+.. confval:: html_js_files
+
+   A list of JavaScript *filename*.  The entry must be a *filename* string or a
+   tuple containing the *filename* string and the *attributes* dictionary.  The
+   *filename* must be relative to the :confval:`html_static_path`, or a full
+   URI with scheme like ``http://example.org/script.js``.  The *attributes* is
+   used for attributes of ``<script>`` tag.  It defaults to an empty list.
+
+   Example::
+
+       html_js_files = ['script.js',
+                        'https://example.com/scripts/custom.js',
+                        ('custom.js', {'async': 'async'})]
+
+   .. versionadded:: 1.8
+
 .. confval:: html_static_path
 
    A list of paths that contain custom static files (such as style

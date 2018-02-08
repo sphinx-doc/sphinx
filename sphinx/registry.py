@@ -91,6 +91,9 @@ class SphinxComponentRegistry(object):
         #: a dict of node class -> tuple of figtype and title_getter function
         self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[unicode, TitleGetter]]
 
+        #: js_files; list of JS paths or URLs
+        self.js_files = []              # type: List[Tuple[unicode, Dict[unicode, unicode]]]
+
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[unicode, unicode]]
 
@@ -417,6 +420,11 @@ class SphinxComponentRegistry(object):
 
     def add_css_files(self, filename, **attributes):
         self.css_files.append((filename, attributes))
+
+    def add_js_file(self, filename, **attributes):
+        # type: (unicode, **unicode) -> None
+        logger.debug('[app] adding js_file: %r, %r', filename, attributes)
+        self.js_files.append((filename, attributes))  # type: ignore
 
     def add_latex_package(self, name, options):
         # type: (unicode, unicode) -> None
