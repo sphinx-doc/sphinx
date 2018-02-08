@@ -13,7 +13,6 @@
 from __future__ import print_function
 
 import os
-import posixpath
 import sys
 import warnings
 from collections import deque
@@ -979,13 +978,7 @@ class Sphinx(object):
 
         .. versionadded:: 0.5
         """
-        logger.debug('[app] adding javascript: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder
-        if '://' in filename:
-            StandaloneHTMLBuilder.script_files.append(filename)
-        else:
-            StandaloneHTMLBuilder.script_files.append(
-                posixpath.join('_static', filename))
+        self.registry.add_javascript(filename)
 
     def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
@@ -1004,16 +997,7 @@ class Sphinx(object):
            more information, refer to the `documentation
            <https://mdn.io/Web/CSS/Alternative_style_sheets>`__.
         """
-        logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
-        if '://' not in filename:
-            filename = posixpath.join('_static', filename)
-        if alternate:
-            rel = u'alternate stylesheet'
-        else:
-            rel = u'stylesheet'
-        css = Stylesheet(filename, title, rel)  # type: ignore
-        StandaloneHTMLBuilder.css_files.append(css)
+        self.registry.add_stylesheet(filename, alternate, title)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
