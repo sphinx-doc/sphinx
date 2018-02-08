@@ -92,11 +92,6 @@ def userdesc_parse(env, sig, signode):
     return x
 
 
-def functional_directive(name, arguments, options, content, lineno,
-                         content_offset, block_text, state, state_machine):
-    return [nodes.strong(text='from function: %s' % options['opt'])]
-
-
 class ClassDirective(Directive):
     option_spec = {'opt': lambda x: x}
 
@@ -108,7 +103,6 @@ def setup(app):
     import parsermod
 
     app.add_config_value('value_from_conf_py', 42, False)
-    app.add_directive('funcdir', functional_directive, opt=lambda x: x)
     app.add_directive('clsdir', ClassDirective)
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')

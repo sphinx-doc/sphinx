@@ -186,7 +186,6 @@ def test_html_warnings(app, warning):
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
-        (".//strong", 'from function: Foo'),
         (".//strong", 'from class: Bar'),
     ],
     'markup.html': [

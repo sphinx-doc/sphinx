@@ -3,8 +3,5 @@ Extension API tests
 
 Testing directives:
 
-.. funcdir::
-   :opt: Foo
-
 .. clsdir::
    :opt: Bar
