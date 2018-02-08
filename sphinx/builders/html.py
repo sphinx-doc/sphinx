@@ -154,6 +154,7 @@ class Stylesheet(text_type):
         self.filename = filename
         self.attributes = attributes
         self.attributes.setdefault('rel', 'stylesheet')
+        self.attributes.setdefault('type', 'text/css')
         if args:  # old style arguments (rel, title)
             self.attributes['rel'] = args[0]
             self.attributes['title'] = args[1]
@@ -340,6 +341,22 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self):
         # type: () -> None
         for filename, attrs in self.app.registry.css_files:
+            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
+
+        for entry in self.get_builder_config('css_files', 'html'):
+            if isinstance(entry, string_types):
+                filename = entry
+                attrs = {}
+            else:
+                try:
+                    filename, attrs = entry
+                except (TypeError, ValueError):
+                    logger.warning('invalid css_file: %r', entry)
+                    continue
+
+            if '://' not in filename:
+                filename = path.join('_static', filename)
+
             self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
 
     @property
@@ -1008,9 +1025,11 @@ class StandaloneHTMLBuilder(Builder):
 
         def css_tag(css):
             # type: (Stylesheet) -> unicode
-            attrs = ['%s="%s"' % (key, htmlescape(value, True))
-                     for key, value in css.attributes.items()
-                     if value is not None]
+            attrs = []
+            for key in sorted(css.attributes):
+                value = css.attributes[key]
+                if value is not None:
+                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
             attrs.append('href="%s"' % pathto(css.filename, resource=True))
             return '<link %s />' % ' '.join(attrs)
         ctx['css_tag'] = css_tag
@@ -1468,6 +1487,7 @@ def setup(app):
     app.add_config_value('html_style', None, 'html', string_classes)
     app.add_config_value('html_logo', None, 'html', string_classes)
     app.add_config_value('html_favicon', None, 'html', string_classes)
+    app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
