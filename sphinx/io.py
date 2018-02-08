@@ -209,7 +209,7 @@ class SphinxBaseFileInput(FileInput):
 
 class SphinxFileInput(SphinxBaseFileInput):
     """A basic FileInput for Sphinx."""
-    pass
+    supported = ('*',)  # special source input
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):
@@ -226,6 +226,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
        For that reason, ``sphinx.parsers.RSTParser`` should be used with this to parse
        a content correctly.
     """
+    supported = ('restructuredtext', '.rst')
 
     def prepend_prolog(self, text, prolog):
         # type: (StringList, unicode) -> None
@@ -312,8 +313,8 @@ def read_doc(app, env, filename):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.registry.add_source_input('*', SphinxFileInput)
-    app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
+    app.registry.add_source_input(SphinxFileInput)
+    app.registry.add_source_input(SphinxRSTFileInput)
 
     return {
         'version': 'builtin',
