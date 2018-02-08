@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
+from six import PY2
 from sphinx.ext.doctest import is_allowed_version
 from packaging.version import InvalidVersion
 from packaging.specifiers import InvalidSpecifier
@@ -55,3 +56,27 @@ def test_is_allowed_version():
 def cleanup_call():
     global cleanup_called
     cleanup_called += 1
+
+
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
+def test_reporting_with_autodoc(app, status, warning, capfd):
+    # Patch builder to get a copy of the output
+    written = []
+    app.builder._warn_out = written.append
+    app.builder.build_all()
+    lines = '\n'.join(written).split('\n')
+    failures = [l for l in lines if l.startswith('File')]
+    expected = [
+        'File "dir/inner.rst", line 1, in default',
+        'File "dir/bar.py", line ?, in default',
+        'File "foo.py", line ?, in default',
+        'File "index.rst", line 4, in default',
+    ]
+    for location in expected:
+        assert location in failures
+
+
+if PY2:
+    test_reporting_with_autodoc = pytest.mark.xfail(
+        reason='node.source points to document (not filename) under Python 2'
+    )(test_reporting_with_autodoc)
