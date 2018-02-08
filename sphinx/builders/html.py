@@ -292,7 +292,17 @@ class StandaloneHTMLBuilder(Builder):
         for filename, alternate, title in self.app.registry.stylesheets:
             self.add_stylesheet(filename, alternate, title)
 
-    def add_stylesheet(self, filename, alternate, title):
+        for stylesheet in self.get_builder_config('stylesheets', 'html'):
+            if isinstance(stylesheet, string_types):
+                self.add_stylesheet(stylesheet)
+            else:
+                try:
+                    filename, alternate, title = stylesheet
+                    self.add_stylesheet(filename, alternate, title)
+                except (TypeError, ValueError):
+                    logger.warning('invalid stylesheet: %r', stylesheet)
+
+    def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
         if '://' not in filename:
             # make a new path; the css file will be copied to ``_static`` directory
@@ -307,6 +317,9 @@ class StandaloneHTMLBuilder(Builder):
     def init_script_files(self):
         # type: () -> None
         for filename in self.app.registry.javascripts:
+            self.add_javascript(filename)
+
+        for filename in self.get_builder_config('javascripts', 'html'):
             self.add_javascript(filename)
 
         if self.config.language and self._get_translations_js():
@@ -1470,6 +1483,8 @@ def setup(app):
     app.add_config_value('html_style', None, 'html', string_classes)
     app.add_config_value('html_logo', None, 'html', string_classes)
     app.add_config_value('html_favicon', None, 'html', string_classes)
+    app.add_config_value('html_stylesheets', [], 'html')
+    app.add_config_value('html_javascripts', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
