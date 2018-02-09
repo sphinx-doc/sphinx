@@ -34,7 +34,7 @@ from sphinx.util.osutil import fs_encoding
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, List, Sequence, Set, Tuple  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -223,17 +223,18 @@ class TestGroup(object):
 
 
 class TestCode(object):
-    def __init__(self, code, type, lineno, options=None):
-        # type: (unicode, unicode, int, Dict) -> None
+    def __init__(self, code, type, filename, lineno, options=None):
+        # type: (unicode, unicode, Optional[str], int, Optional[Dict]) -> None
         self.code = code
         self.type = type
+        self.filename = filename
         self.lineno = lineno
         self.options = options or {}
 
     def __repr__(self):  # type: ignore
         # type: () -> unicode
-        return 'TestCode(%r, %r, %r, options=%r)' % (
-            self.code, self.type, self.lineno, self.options)
+        return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
+            self.code, self.type, self.filename, self.lineno, self.options)
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
@@ -366,6 +367,36 @@ Doctest summary
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)
 
+    def get_filename_for_node(self, node, docname):
+        # type: (nodes.Node, unicode) -> str
+        """Try to get the file which actually contains the doctest, not the
+        filename of the document it's included in."""
+        try:
+            filename = path.relpath(node.source, self.env.srcdir)\
+                .rsplit(':docstring of ', maxsplit=1)[0]
+        except Exception:
+            filename = self.env.doc2path(docname, base=None)
+        if PY2:
+            return filename.encode(fs_encoding)
+        return filename
+
+    @staticmethod
+    def get_line_number(node):
+        # type: (nodes.Node) -> Optional[int]
+        """Get the real line number or admit we don't know."""
+        # TODO:  Work out how to store or calculate real (file-relative)
+        #       line numbers for doctest blocks in docstrings.
+        if ':docstring of ' in path.basename(node.source or ''):
+            # The line number is given relative to the stripped docstring,
+            # not the file.  This is correct where it is set, in
+            # `docutils.nodes.Node.setup_child`, but Sphinx should report
+            # relative to the file, not the docstring.
+            return None
+        if node.line is not None:
+            # TODO: find the root cause of this off by one error.
+            return node.line - 1
+        return None
+
     def test_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         groups = {}  # type: Dict[unicode, TestGroup]
@@ -392,13 +423,16 @@ Doctest summary
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
                     and 'testnodetype' in node
         for node in doctree.traverse(condition):
-            source = 'test' in node and node['test'] or node.astext()
+            source = node['test'] if 'test' in node else node.astext()
+            filename = self.get_filename_for_node(node, docname)
+            line_number = self.get_line_number(node)
             if not source:
                 logger.warning('no code/output in %s block at %s:%s',
                                node.get('testnodetype', 'doctest'),
-                               self.env.doc2path(docname), node.line)
+                               filename, line_number)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            lineno=node.line, options=node.get('options'))
+                            filename=filename, lineno=line_number,
+                            options=node.get('options'))
             node_groups = node.get('groups', ['default'])
             if '*' in node_groups:
                 add_to_all_groups.append(code)
@@ -412,12 +446,12 @@ Doctest summary
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
-                            'testsetup', lineno=0)
+                            'testsetup', filename=None, lineno=0)
             for group in itervalues(groups):
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
-                            'testcleanup', lineno=0)
+                            'testcleanup', filename=None, lineno=0)
             for group in itervalues(groups):
                 group.add_code(code)
         if not groups:
@@ -426,7 +460,7 @@ Doctest summary
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-' * len(docname)))
         for group in itervalues(groups):
-            self.test_group(group, self.env.doc2path(docname, base=None))
+            self.test_group(group)
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)
         self.setup_failures += res_f
@@ -445,13 +479,8 @@ Doctest summary
         # type: (unicode, unicode, unicode, Any, bool) -> Any
         return compile(code, name, self.type, flags, dont_inherit)
 
-    def test_group(self, group, filename):
-        # type: (TestGroup, unicode) -> None
-        if PY2:
-            filename_str = filename.encode(fs_encoding)
-        else:
-            filename_str = filename
-
+    def test_group(self, group):
+        # type: (TestGroup) -> None
         ns = {}  # type: Dict
 
         def run_setup_cleanup(runner, testcodes, what):
@@ -466,7 +495,7 @@ Doctest summary
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
                                           '%s (%s code)' % (group.name, what),
-                                          filename_str, 0, None)
+                                          testcodes[0].filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
@@ -487,10 +516,10 @@ Doctest summary
                 try:
                     test = parser.get_doctest(  # type: ignore
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
-                        group.name, filename_str, code[0].lineno)
+                        group.name, code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning('ignoring invalid doctest code: %r', code[0].code,
-                                   location=(filename, code[0].lineno))
+                                   location=(code[0].filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue
@@ -518,7 +547,7 @@ Doctest summary
                     lineno=code[0].lineno,
                     options=options)
                 test = doctest.DocTest([example], {}, group.name,  # type: ignore
-                                       filename_str, code[0].lineno, None)
+                                       code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns

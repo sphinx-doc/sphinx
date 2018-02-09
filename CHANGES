@@ -20,6 +20,7 @@ Bugs fixed
 * #4531: autosummary: methods are not treated as attributes
 * #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
 * #4539: autodoc emits warnings for partialmethods
+* #4223: doctest: failing tests reported in wrong file, at wrong line
 
 Testing
 --------
@@ -190,7 +191,7 @@ Bugs fixed
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 * #4094: C++, allow empty template argument lists.
 * C++, also hyperlink types in the name of declarations with qualified names.
-* C++, do not add index entries for declarations inside concepts. 
+* C++, do not add index entries for declarations inside concepts.
 * C++, support the template disambiguator for dependent names.
 * #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
   one of figures and tables
@@ -284,7 +285,7 @@ Bugs fixed
 * #1421: Respect the quiet flag in sphinx-quickstart
 * #4281: Race conditions when creating output directory
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
-  ``\chapter`` commands 
+  ``\chapter`` commands
 * #4214: Two todolist directives break sphinx-1.6.5
 * Fix links to external option docs with intersphinx (refs: #3769)
 * #4091: Private members not documented without :undoc-members:
