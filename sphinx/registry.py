@@ -30,7 +30,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Dict, Iterator, List, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -81,6 +81,9 @@ class SphinxComponentRegistry(object):
         #: additional roles for domains
         #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
+
+        #: LaTeX packages; list of package names and its options
+        self.latex_packages = []        # type: List[Tuple[unicode, unicode]]
 
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
@@ -340,6 +343,11 @@ class SphinxComponentRegistry(object):
     def add_autodoc_attrgetter(self, typ, attrgetter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         self.autodoc_attrgettrs[typ] = attrgetter
+
+    def add_latex_package(self, name, options):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding latex package: %r', name)
+        self.latex_packages.append((name, options))
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None
