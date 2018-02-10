@@ -21,7 +21,6 @@ from inspect import isclass
 from os import path
 from typing import TYPE_CHECKING
 
-from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
 from six import itervalues
 from six.moves import cStringIO
@@ -37,6 +36,7 @@ from sphinx.errors import (
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.util import docutils
 from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util import pycompat  # noqa: F401
@@ -48,6 +48,7 @@ from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
+    from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -611,13 +612,12 @@ class Sphinx(object):
            Added the support for keyword arguments giving visit functions.
         """
         logger.debug('[app] adding node: %r', (node, kwds))
-        if not kwds.pop('override', False) and \
-           hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        if not kwds.pop('override', False) and docutils.is_node_registered(node):
             logger.warning(__('while setting up extension %s: node class %r is '
                               'already registered, its visitors will be overridden'),
                            self._setting_up_extension, node.__name__,
                            type='app', subtype='add_node')
-        nodes._add_node_class_names([node.__name__])
+        docutils.register_node(node)
         self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
