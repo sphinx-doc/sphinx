@@ -108,7 +108,8 @@ def test_add_is_parallel_allowed(app, status, warning):
     app.setup_extension('write_parallel')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is True
-    assert 'the write_parallel extension does not declare' in warning.getvalue()
+    assert ("the write_parallel extension does not declare if it is safe "
+            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
     app.extensions.pop('write_parallel')
     warning.truncate(0)  # reset warnings
 
@@ -121,6 +122,7 @@ def test_add_is_parallel_allowed(app, status, warning):
     app.setup_extension('write_serial')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is False
-    assert 'the write_serial extension does not declare' in warning.getvalue()
+    assert ("the write_serial extension does not declare if it is safe "
+            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
     app.extensions.pop('write_serial')
     warning.truncate(0)  # reset warnings

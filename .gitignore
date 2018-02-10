@@ -11,8 +11,9 @@
 .ropeproject/
 TAGS
 .tags
-.tox
-.venv
+.tox/
+.tx/
+.venv/
 .coverage
 htmlcov
 .DS_Store

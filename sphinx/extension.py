@@ -52,7 +52,7 @@ def verify_needs_extensions(app, config):
     for extname, reqversion in iteritems(config.needs_extensions):
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(__('The %s extension is required by needs_extensions settings,'
+            logger.warning(__('The %s extension is required by needs_extensions settings, '
                               'but it is not loaded.'), extname)
             continue
 
