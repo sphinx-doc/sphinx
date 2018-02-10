@@ -16,7 +16,7 @@ from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.util import i18n, path_stabilize, logging, status_iterator
+from sphinx.util import i18n, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri
@@ -255,11 +255,14 @@ class Builder(object):
         # type: (List[unicode]) -> None
         def to_domain(fpath):
             # type: (unicode) -> unicode
-            docname, _ = path.splitext(path_stabilize(fpath))
-            dom = find_catalog(docname, self.config.gettext_compact)
-            return dom
+            docname = self.env.path2doc(path.abspath(fpath))
+            if docname:
+                return find_catalog(docname, self.config.gettext_compact)
+            else:
+                return None
 
         specified_domains = set(map(to_domain, specified_files))
+        specified_domains.discard(None)
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
