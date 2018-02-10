@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 import re
 import types
+import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
@@ -24,6 +25,7 @@ from docutils.parsers.rst import directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -192,6 +194,10 @@ def is_html5_writer_available():
 
 def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
     # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+    warnings.warn('function based directive support is now deprecated. '
+                  'Use class based directive instead.',
+                  RemovedInSphinx30Warning)
+
     if isinstance(obj, (types.FunctionType, types.MethodType)):
         obj.content = has_content                       # type: ignore
         obj.arguments = argument_spec or (0, 0, False)  # type: ignore

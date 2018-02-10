@@ -25,6 +25,7 @@ Deprecated
   ``sphinx.util.import_object()`` instead.
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
+* ``sphinx.util.docutils.directive_helper()`` is deprecated.
 
 Features added
 --------------

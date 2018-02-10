@@ -703,13 +703,12 @@ class Sphinx(object):
                               'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
-        directive = directive_helper(obj, content, arguments, **options)
-        directives.register_directive(name, directive)
 
         if not isclass(obj) or not issubclass(obj, Directive):
-            warnings.warn('function based directive support is now deprecated. '
-                          'Use class based directive instead.',
-                          RemovedInSphinx30Warning)
+            directive = directive_helper(obj, content, arguments, **options)
+            directives.register_directive(name, directive)
+        else:
+            directives.register_directive(name, obj)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None

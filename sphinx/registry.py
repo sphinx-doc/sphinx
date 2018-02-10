@@ -12,9 +12,11 @@ from __future__ import print_function
 
 import traceback
 import warnings
+from inspect import isclass
 from types import MethodType
 from typing import TYPE_CHECKING
 
+from docutils.parsers.rst import Directive
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues
 
@@ -186,8 +188,12 @@ class SphinxComponentRegistry(object):
                      (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
+
         directives = self.domain_directives.setdefault(domain, {})
-        directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
+        if not isclass(obj) or not issubclass(obj, Directive):
+            directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
+        else:
+            directives[name] = obj
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
