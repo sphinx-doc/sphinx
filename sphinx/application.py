@@ -737,7 +737,7 @@ class Sphinx(object):
         directive = directive_helper(obj, content, arguments, **options)
         directives.register_directive(name, directive)
 
-        if not isinstance(obj, Directive):
+        if not issubclass(obj, Directive):
             warnings.warn('function based directive support is now deprecated. '
                           'Use class based directive instead.',
                           RemovedInSphinx30Warning)
