@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     from sphinx.extension import Extension  # NOQA
     from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -132,7 +132,6 @@ class Sphinx(object):
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.registry = SphinxComponentRegistry()
-        self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         # validate provided directories
@@ -252,8 +251,6 @@ class Sphinx(object):
         self._init_env(freshenv)
         # set up the builder
         self._init_builder()
-        # set up the enumerable nodes
-        self._init_enumerable_nodes()
 
     def _init_i18n(self):
         # type: () -> None
@@ -322,11 +319,6 @@ class Sphinx(object):
         self.builder.set_environment(self.env)
         self.builder.init()
         self.emit('builder-inited')
-
-    def _init_enumerable_nodes(self):
-        # type: () -> None
-        for node, settings in iteritems(self.enumerable_nodes):
-            self.env.get_domain('std').enumerable_nodes[node] = settings  # type: ignore
 
     # ---- main "build" method -------------------------------------------------
 
@@ -661,7 +653,7 @@ class Sphinx(object):
                     setattr(translator, 'depart_' + node.__name__, depart)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
-        # type: (nodes.Node, unicode, Callable, Any) -> None
+        # type: (nodes.Node, unicode, TitleGetter, Any) -> None
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -685,8 +677,16 @@ class Sphinx(object):
 
         .. versionadded:: 1.4
         """
-        self.enumerable_nodes[node] = (figtype, title_getter)
+        self.registry.add_enumerable_node(node, figtype, title_getter)
         self.add_node(node, **kwds)
+
+    @property
+    def enumerable_nodes(self):
+        # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
+        warnings.warn('app.enumerable_nodes() is deprecated. '
+                      'Use app.get_domain("std").enumerable_nodes instead.',
+                      RemovedInSphinx30Warning)
+        return self.registry.enumerable_nodes
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None

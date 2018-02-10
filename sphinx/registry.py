@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,10 @@ class SphinxComponentRegistry(object):
         #: additional roles for domains
         #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
+
+        #: additional enumerable nodes
+        #: a dict of node class -> tuple of figtype and title_getter function
+        self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[unicode, TitleGetter]]
 
         #: LaTeX packages; list of package names and its options
         self.latex_packages = []        # type: List[Tuple[unicode, unicode]]
@@ -348,6 +352,11 @@ class SphinxComponentRegistry(object):
         # type: (unicode, unicode) -> None
         logger.debug('[app] adding latex package: %r', name)
         self.latex_packages.append((name, options))
+
+    def add_enumerable_node(self, node, figtype, title_getter=None):
+        # type: (nodes.Node, unicode, TitleGetter) -> None
+        logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
+        self.enumerable_nodes[node] = (figtype, title_getter)
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None
