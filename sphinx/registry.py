@@ -12,6 +12,7 @@ from __future__ import print_function
 
 import traceback
 import warnings
+from types import MethodType
 from typing import TYPE_CHECKING
 
 from pkg_resources import iter_entry_points
@@ -103,6 +104,10 @@ class SphinxComponentRegistry(object):
 
         #: custom translators; builder name -> translator class
         self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+
+        #: custom handlers for translators
+        #: a dict of builder name -> dict of node name -> visitor and departure functions
+        self.translation_handlers = {}  # type: Dict[unicode, Dict[unicode, Tuple[Callable, Callable]]]  # NOQA
 
         #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
@@ -312,15 +317,41 @@ class SphinxComponentRegistry(object):
         logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.translators[name] = translator
 
+    def add_translation_handlers(self, node, **kwargs):
+        # type: (nodes.Node, Any) -> None
+        logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
+        for builder_name, handlers in iteritems(kwargs):
+            translation_handlers = self.translation_handlers.setdefault(builder_name, {})
+            try:
+                visit, depart = handlers  # unpack once for assertion
+                translation_handlers[node.__name__] = (visit, depart)
+            except ValueError:
+                raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
+                                        'function tuple: %r=%r') % builder_name, handlers)
+
     def get_translator_class(self, builder):
         # type: (Builder) -> Type[nodes.NodeVisitor]
         return self.translators.get(builder.name,
                                     builder.default_translator_class)
 
-    def create_translator(self, builder, document):
-        # type: (Builder, nodes.Node) -> nodes.NodeVisitor
+    def create_translator(self, builder, *args):
+        # type: (Builder, Any) -> nodes.NodeVisitor
         translator_class = self.get_translator_class(builder)
-        return translator_class(builder, document)
+        assert translator_class, "translator not found for %s" % builder.name
+        translator = translator_class(*args)
+
+        # transplant handlers for custom nodes to translator instance
+        handlers = self.translation_handlers.get(builder.name, None)
+        if handlers is None:
+            # retry with builder.format
+            handlers = self.translation_handlers.get(builder.format, {})
+
+        for name, (visit, depart) in iteritems(handlers):
+            setattr(translator, 'visit_' + name, MethodType(visit, translator))
+            if depart:
+                setattr(translator, 'depart_' + name, MethodType(depart, translator))
+
+        return translator
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None

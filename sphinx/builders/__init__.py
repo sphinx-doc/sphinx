@@ -127,9 +127,7 @@ class Builder(object):
         This method returns an instance of ``default_translator_class`` by default.
         Users can replace the translator class with ``app.set_translator()`` API.
         """
-        translator_class = self.app.registry.get_translator_class(self)
-        assert translator_class, "translator not found for %s" % self.__class__.__name__
-        return translator_class(*args)
+        return self.app.registry.create_translator(self, *args)
 
     @property
     def translator_class(self):

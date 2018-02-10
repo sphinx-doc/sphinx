@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
-from six import iteritems, itervalues
+from six import itervalues
 from six.moves import cStringIO
 
 import sphinx
@@ -41,7 +41,7 @@ from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import is_html5_writer_available, directive_helper
+from sphinx.util.docutils import directive_helper
 from sphinx.util.i18n import find_catalog_source_files
 from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
@@ -618,39 +618,7 @@ class Sphinx(object):
                            self._setting_up_extension, node.__name__,
                            type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
-        for key, val in iteritems(kwds):
-            try:
-                visit, depart = val
-            except ValueError:
-                raise ExtensionError(__('Value for key %r must be a '
-                                        '(visit, depart) function tuple') % key)
-            translator = self.registry.translators.get(key)
-            translators = []
-            if translator is not None:
-                translators.append(translator)
-            elif key == 'html':
-                from sphinx.writers.html import HTMLTranslator
-                translators.append(HTMLTranslator)
-                if is_html5_writer_available():
-                    from sphinx.writers.html5 import HTML5Translator
-                    translators.append(HTML5Translator)
-            elif key == 'latex':
-                from sphinx.writers.latex import LaTeXTranslator
-                translators.append(LaTeXTranslator)
-            elif key == 'text':
-                from sphinx.writers.text import TextTranslator
-                translators.append(TextTranslator)
-            elif key == 'man':
-                from sphinx.writers.manpage import ManualPageTranslator
-                translators.append(ManualPageTranslator)
-            elif key == 'texinfo':
-                from sphinx.writers.texinfo import TexinfoTranslator
-                translators.append(TexinfoTranslator)
-
-            for translator in translators:
-                setattr(translator, 'visit_' + node.__name__, visit)
-                if depart:
-                    setattr(translator, 'depart_' + node.__name__, depart)
+        self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
         # type: (nodes.Node, unicode, TitleGetter, Any) -> None
