@@ -141,7 +141,6 @@ Documentation using the nature theme
 Documentation using another builtin theme
 -----------------------------------------
 
-* Arcade: http://arcade.academy/ (sphinx_rtd_theme)
 * Breathe: https://breathe.readthedocs.io/ (haiku)
 * MPipe: https://vmlaker.github.io/mpipe/ (sphinx13)
 * NLTK: http://www.nltk.org/ (agogo)
@@ -159,6 +158,8 @@ Documentation using sphinx_rtd_theme
 
 * Annotator: http://docs.annotatorjs.org/
 * Ansible: https://docs.ansible.com/ (customized)
+* Arcade: http://arcade.academy/
+* aria2: https://aria2.github.io/manual/en/html/
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * Autofac: http://docs.autofac.org/
 * BigchainDB: https://docs.bigchaindb.com/
