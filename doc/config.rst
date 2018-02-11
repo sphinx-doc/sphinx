@@ -797,6 +797,9 @@ that use Sphinx's HTMLWriter class.
    theme.  If you only want to add or override a few things compared to the
    theme's stylesheet, use CSS ``@import`` to import the theme's stylesheet.
 
+   .. deprecated:: 1.8
+      Use :confval:`html_stylesheets` instead.
+
 .. confval:: html_title
 
    The "title" for HTML documentation generated with Sphinx's own templates.

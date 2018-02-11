@@ -31,7 +31,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -1463,6 +1463,15 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
         SerializingHTMLBuilder.init(self)
 
 
+def deprecate_html_style(app, config):
+    # type: (Sphinx, Config) -> None
+    if config.html_style:
+        warnings.warn('The confval: html_style is deprecated. '
+                      'Please use html_stylesheets instead.',
+                      RemovedInSphinx30Warning)
+        config.html_stylesheets.insert(0, config.html_style)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1511,6 +1520,9 @@ def setup(app):
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
+
+    # events
+    app.connect('config-inited', deprecate_html_style)
 
     return {
         'version': 'builtin',
