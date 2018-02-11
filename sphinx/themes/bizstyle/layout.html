@@ -9,7 +9,10 @@
 #}
 {% extends "basic/layout.html" %}
 
-{% set script_files = script_files + ["_static/bizstyle.js"] %}
+{%- macro script() %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/bizstyle.js', 1) }}"></script>
+{%- endmacro %}
 
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
