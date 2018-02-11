@@ -232,11 +232,13 @@ class SphinxComponentRegistry(object):
             parser.set_application(app)
         return parser
 
-    def add_source_input(self, filetype, input_class):
-        # type: (unicode, Type[Input]) -> None
-        if filetype in self.source_inputs:
-            raise ExtensionError(__('source_input for %r is already registered') % filetype)
-        self.source_inputs[filetype] = input_class
+    def add_source_input(self, input_class):
+        # type: (Type[Input]) -> None
+        for filetype in input_class.supported:
+            if filetype in self.source_inputs:
+                raise ExtensionError(__('source_input for %r is already registered') %
+                                     filetype)
+            self.source_inputs[filetype] = input_class
 
     def get_source_input(self, filename):
         # type: (unicode) -> Type[Input]
