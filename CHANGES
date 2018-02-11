@@ -25,6 +25,7 @@ Bugs fixed
   ``sphinx-build`` as arguments (refs: #4560)
 * #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
   are in the raw source; no smart quotes, nothig fancy.
+* #4581: apidoc: Excluded modules still included
 
 Testing
 --------
