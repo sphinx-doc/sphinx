@@ -1102,13 +1102,25 @@ class Sphinx(object):
         assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
-    def add_source_parser(self, suffix, parser):
-        # type: (unicode, Parser) -> None
-        """Register a parser class for specified *suffix*.
+    def add_source_suffix(self, suffix, filetype):
+        # type: (unicode, unicode) -> None
+        """Register a suffix of source files.
+
+        Same as :confval:`source_suffix`.  The users can override this
+        using the setting.
+        """
+        self.registry.add_source_suffix(suffix, filetype)
+
+    def add_source_parser(self, *args):
+        # type: (Any) -> None
+        """Register a parser class.
 
         .. versionadded:: 1.4
+        .. versionchanged:: 1.8
+           *suffix* argument is deprecated.  It only accepts *parser* argument.
+           Use :meth:`add_source_suffix` API to register suffix instead.
         """
-        self.registry.add_source_parser(suffix, parser)
+        self.registry.add_source_parser(*args)
 
     def add_env_collector(self, collector):
         # type: (Type[EnvironmentCollector]) -> None
