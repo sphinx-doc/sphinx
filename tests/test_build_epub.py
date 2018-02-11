@@ -317,6 +317,34 @@ def test_epub_writing_mode(app):
     assert 'writing-mode: vertical-rl;' in css
 
 
+@pytest.mark.sphinx('epub', testroot='html_assets')
+def test_epub_assets(app):
+    app.builder.build_all()
+
+    # epub_sytlesheets (same as html_css_files)
+    content = (app.outdir / 'index.xhtml').text()
+    assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
+            in content)
+    assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
+            'href="https://example.com/custom.css" />' in content)
+
+
+@pytest.mark.sphinx('epub', testroot='html_assets',
+                    confoverrides={'epub_css_files': ['css/epub.css']})
+def test_epub_css_files(app):
+    app.builder.build_all()
+
+    # epub_css_files
+    content = (app.outdir / 'index.xhtml').text()
+    assert '<link rel="stylesheet" type="text/css" href="_static/css/epub.css" />' in content
+
+    # files in html_css_files are not outputed
+    assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
+            not in content)
+    assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
+            'href="https://example.com/custom.css" />' not in content)
+
+
 @pytest.mark.sphinx('epub')
 def test_run_epubcheck(app):
     app.build()

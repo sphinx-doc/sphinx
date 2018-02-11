@@ -247,6 +247,7 @@ def setup(app):
     app.add_config_value('epub_guide', (), 'env')
     app.add_config_value('epub_pre_files', [], 'env')
     app.add_config_value('epub_post_files', [], 'env')
+    app.add_config_value('epub_css_files', lambda config: config.html_css_files, 'epub')
     app.add_config_value('epub_exclude_files', [], 'env')
     app.add_config_value('epub_tocdepth', 3, 'env')
     app.add_config_value('epub_tocdup', True, 'env')

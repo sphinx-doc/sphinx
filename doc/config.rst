@@ -1524,6 +1524,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.1
 
+.. confval:: epub_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  For more
+   information, see :confval:`html_css_files`.
+
+   .. versionadded:: 1.8
+
 .. confval:: epub_guide
 
    Meta data for the guide element of :file:`content.opf`. This is a
