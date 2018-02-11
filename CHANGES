@@ -35,7 +35,8 @@ Features added
 * :confval:`source_suffix` allows a mapping fileext to file types
 * Add :confval:`author` as a configuration value
 * #2852: imgconverter: Support to convert GIF to PNG
-* Add :confval:`html_stylesheets` and :confval:`html_javascripts`
+* Add :confval:`html_stylesheets`, :confval:`html_javascripts` and
+  :confval:`epub_stylesheets`
 
 Bugs fixed
 ----------

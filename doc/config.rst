@@ -59,9 +59,6 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
-.. seealso:: Additional configurations, such as adding stylesheets,
-   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
-
 
 General configuration
 ---------------------
@@ -878,6 +875,14 @@ that use Sphinx's HTMLWriter class.
       The dotfiles in the extra directory will be copied to the output directory.
       And it refers :confval:`exclude_patterns` on copying extra files and
       directories, and ignores if path matches to patterns.
+
+.. confval:: html_stylesheets
+
+   .. versionadded:: 1.8
+
+.. confval:: html_javascripts
+
+   .. versionadded:: 1.8
 
 .. confval:: html_last_updated_fmt
 
