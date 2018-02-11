@@ -27,6 +27,8 @@ Deprecated
   based directives.
 * :confval:`html_style` is deprecated. Please use :confval:`html_stylesheets`
   instead
+* ``builder.script_files`` is deprecated.  Please use ``add_javascript()``
+  instead.
 
 Features added
 --------------

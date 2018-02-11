@@ -90,7 +90,7 @@ def get_stable_hash(obj):
 
 
 class CSSContainer(list):
-    """The container of stylesheets.
+    """The container for stylesheets.
 
     To support the extensions which access the container directly, this wraps
     the entry with Stylesheet class.
@@ -151,6 +151,39 @@ class Stylesheet(text_type):
         self.rel = rel
 
         return self
+
+
+class JSContainer(list):
+    """The container for javascripts."""
+    def insert(self, index, obj):
+        # type: (int, unicode) -> None
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        super(JSContainer, self).insert(index, obj)
+
+    def extend(self, other):  # type: ignore
+        # type: (List[unicode]) -> None
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        for item in other:
+            self.append(item)
+
+    def __iadd__(self, other):  # type: ignore
+        # type: (List[unicode]) -> JSContainer
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        for item in other:
+            self.append(item)
+        return self
+
+    def __add__(self, other):
+        # type: (List[unicode]) -> JSContainer
+        ret = JSContainer(self)
+        ret += other
+        return ret
 
 
 class BuildInfo(object):
@@ -248,9 +281,9 @@ class StandaloneHTMLBuilder(Builder):
         super(StandaloneHTMLBuilder, self).__init__(app)
 
         # javascript files
-        self.script_files = ['_static/jquery.js',
-                             '_static/underscore.js',
-                             '_static/doctools.js']  # type: List[unicode]
+        self.script_files = JSContainer(['_static/jquery.js',
+                                         '_static/underscore.js',
+                                         '_static/doctools.js'])  # type: List[unicode]
         # stylesheet files
         self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
