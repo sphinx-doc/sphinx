@@ -23,6 +23,8 @@ Bugs fixed
 * #4223: doctest: failing tests reported in wrong file, at wrong line
 * i18n: message catalogs are not compiled if specific filenames are given for
   ``sphinx-build`` as arguments (refs: #4560)
+* #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
+  are in the raw source; no smart quotes, nothig fancy.
 
 Testing
 --------
