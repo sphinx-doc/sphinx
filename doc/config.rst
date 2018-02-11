@@ -878,9 +878,23 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_stylesheets
 
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string, the *alternate* (of boolean type) and
+   *title* (a string).  The *filename* must be relative to the
+   :confval:`html_static_path`, or a full URI with scheme like
+   ``http://example.org/style.css``.  It defaults to an empty list.
+
+   For more information about *alternate*, refer to the `MDN web docs`__.
+
+   __ https://mdn.io/Web/CSS/Alternative_style_sheets
+
    .. versionadded:: 1.8
 
 .. confval:: html_javascripts
+
+   A list of JavaScript *filename*.  The *filename* must be relative to the
+   :confval:`html_static_path`, or a full URI with scheme.  It defaults to
+   an empty list.
 
    .. versionadded:: 1.8
 
@@ -1543,6 +1557,13 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    It is a list of tuples containing the file name and the title.  This option
    can be used to add an appendix.  If the title is empty, no entry is added
    to :file:`toc.ncx`.  The default value is ``[]``.
+
+.. confval:: epub_stylesheets
+
+   A list of CSS files.  See :confval:`html_stylesheets` for details.  By
+   default, it defaults to the value of ``html_stylesheets``.
+
+   .. versionadded:: 1.8
 
 .. confval:: epub_exclude_files
 

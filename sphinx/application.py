@@ -985,17 +985,16 @@ class Sphinx(object):
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
-        will include.  Like for :meth:`add_javascript`, the filename must be
-        relative to the HTML static path, or a full URI with scheme.
+        will include.  The filename must be relative to the HTML static path,
+        or a full URI with scheme.  See :confval:`html_stylesheets` for
+        details.
 
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
            Optional ``alternate`` and/or ``title`` attributes can be supplied
            with the *alternate* (of boolean type) and *title* (a string)
-           arguments. The default is no title and *alternate* = ``False``. For
-           more information, refer to the `documentation
-           <https://mdn.io/Web/CSS/Alternative_style_sheets>`__.
+           arguments. The default is no title and *alternate* = ``False``.
         """
         self.registry.add_stylesheet(filename, alternate, title)
 
