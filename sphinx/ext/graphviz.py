@@ -341,7 +341,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
                 post = r'\hspace*{\fill}}'
         self.body.append('\n%s' % pre)
 
-    self.body.append(r'\includegraphics{%s}' % fname)
+    self.body.append(r'\sphinxincludegraphics[]{%s}' % fname)
 
     if not is_inline:
         self.body.append('%s\n' % post)

@@ -40,7 +40,7 @@ def test_inheritance_diagram_latex(app, status, warning):
     content = (app.outdir / 'Python.tex').text()
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
-               '\\\\includegraphics{inheritance-\\w+.pdf}\n'
+               '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
                '\\\\caption{Test Foo!}\\\\label{\\\\detokenize{index:id1}}\\\\end{figure}')
     assert re.search(pattern, content, re.M)
 
