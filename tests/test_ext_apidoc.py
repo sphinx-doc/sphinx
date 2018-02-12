@@ -25,7 +25,8 @@ def apidoc(rootdir, tempdir, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
     outdir = tempdir / 'out'
-    args = ['-o', outdir, '-F', coderoot] + kwargs.get('options', [])
+    excludes = [coderoot / e for e in kwargs.get('excludes', [])]
+    args = ['-o', outdir, '-F', coderoot] + excludes + kwargs.get('options', [])
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 
@@ -207,6 +208,20 @@ def test_trailing_underscore(make_app, apidoc):
         rst = f.read()
         assert "package_ package\n" in rst
         assert "package_.module_ module\n" in rst
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-pep420/a',
+    excludes=["b/c/d.py", "b/e/f.py"],
+    options=["--implicit-namespaces", "--separate"],
+)
+def test_excludes(apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'a.b.c.rst').isfile()  # generated because not empty
+    assert not (outdir / 'a.b.e.rst').isfile()  # skipped because of empty after excludes
+    assert (outdir / 'a.b.x.rst').isfile()
+    assert (outdir / 'a.b.x.y.rst').isfile()
 
 
 @pytest.mark.apidoc(
