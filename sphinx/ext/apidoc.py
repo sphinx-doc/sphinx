@@ -108,8 +108,8 @@ def create_module_file(package, module, opts):
     write_file(makename(package, module), text, opts)
 
 
-def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace):
-    # type: (unicode, unicode, unicode, List[unicode], Any, List[unicode], bool) -> None
+def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace, excludes=[]):  # NOQA
+    # type: (unicode, unicode, unicode, List[unicode], Any, List[unicode], bool, List[unicode]) -> None  # NOQA
     """Build the text of the file and write the file."""
     text = format_heading(1, ('%s package' if not is_namespace else "%s namespace")
                           % makename(master_package, subroot))
@@ -123,7 +123,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
     # source files in that folder.
     # (depending on settings - but shall_skip() takes care of that)
     subs = [sub for sub in subs if not
-            shall_skip(path.join(root, sub, INITPY), opts)]
+            shall_skip(path.join(root, sub, INITPY), opts, excludes)]
     # if there are some package directories, add a TOC for theses subpackages
     if subs:
         text += format_heading(2, 'Subpackages')
@@ -133,7 +133,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         text += '\n'
 
     submods = [path.splitext(sub)[0] for sub in py_files
-               if not shall_skip(path.join(root, sub), opts) and
+               if not shall_skip(path.join(root, sub), opts, excludes) and
                sub != INITPY]
     if submods:
         text += format_heading(2, 'Submodules')
@@ -187,8 +187,8 @@ def create_modules_toc_file(modules, opts, name='modules'):
     write_file(name, text, opts)
 
 
-def shall_skip(module, opts):
-    # type: (unicode, Any) -> bool
+def shall_skip(module, opts, excludes=[]):
+    # type: (unicode, Any, List[unicode]) -> bool
     """Check if we want to skip this module."""
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
@@ -196,16 +196,14 @@ def shall_skip(module, opts):
 
     # skip it if there is nothing (or just \n or \r\n) in the file
     if path.exists(module) and path.getsize(module) <= 2:
-        skip = True
         if os.path.basename(module) == '__init__.py':
-            pattern = path.join(path.dirname(module), '*.py')
             # We only want to skip packages if they do not contain any
             # .py files other than __init__.py.
-            other_modules = list(glob.glob(pattern))
-            other_modules.remove(module)
-            skip = not other_modules
-
-        if skip:
+            basemodule = path.dirname(module)
+            for module in glob.glob(path.join(basemodule, '*.py')):
+                if not is_excluded(path.join(basemodule, module), excludes):
+                    return True
+        else:
             return True
 
     # skip if it has a "private" name and this is selected
@@ -267,7 +265,7 @@ def recurse_tree(rootpath, excludes, opts):
                 # a namespace and there is something there to document
                 if not is_namespace or len(py_files) > 0:
                     create_package_file(root, root_package, subpackage,
-                                        py_files, opts, subs, is_namespace)
+                                        py_files, opts, subs, is_namespace, excludes)
                     toplevels.append(makename(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package

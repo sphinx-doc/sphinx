@@ -42,8 +42,8 @@ Bugs fixed
 Testing
 --------
 
-Release 1.7.0 beta3 (in development)
-====================================
+Release 1.7.1 (in development)
+==============================
 
 Dependencies
 ------------
@@ -60,60 +60,23 @@ Features added
 Bugs fixed
 ----------
 
-* #4019: inheritance_diagram AttributeError stoping make process
-* #4531: autosummary: methods are not treated as attributes
-* #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
-* #4539: autodoc emits warnings for partialmethods
-* #4223: doctest: failing tests reported in wrong file, at wrong line
-* i18n: message catalogs are not compiled if specific filenames are given for
-  ``sphinx-build`` as arguments (refs: #4560)
-* #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
-  are in the raw source; no smart quotes, nothig fancy.
-
 Testing
 --------
 
-Release 1.7.0 beta2 (released Jan 31, 2018)
-===========================================
-
-Incompatible changes
---------------------
-
-* #4467: html theme: Rename ``csss`` block to ``css``
-
-Features added
---------------
-
-* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
-  processes automatically.
-
-Bugs fixed
-----------
-
-* #4415: autodoc classifies inherited classmethods as regular methods
-* #4415: autodoc classifies inherited staticmethods as regular methods
-* #4472: DOCUMENTATION_OPTIONS is not defined
-* #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
-* #4490: autodoc: type annotation is broken with python 3.7.0a4+
-* utils package is no longer installed
-* #3952: apidoc: module header is too escaped
-* #4275: Formats accepted by sphinx.util.i18n.format_date are limited
-* #4493: recommonmark raises AttributeError if AutoStructify enabled
-* #4209: intersphinx: In link title, "v" should be optional if target has no
-  version
-* #4230: slowdown in writing pages with sphinx 1.6
-* #4522: epub: document is not rebuilt even if config changed
-
-Release 1.7.0 beta1 (released Jan 15, 2018)
-===========================================
+Release 1.7.0 (released Feb 12, 2018)
+=====================================
 
 Dependencies
 ------------
+
+1.7.0b1
 
 * Add ``packaging`` package
 
 Incompatible changes
 --------------------
+
+1.7.0b1
 
 * #3668: The arguments has changed of main functions for each command
 * #3893: Unknown html_theme_options throw warnings instead of errors
@@ -136,8 +99,14 @@ Incompatible changes
 * #4246: Limit width of text body for all themes. Conifigurable via theme
   options ``body_min_width`` and ``body_max_width``.
 
+1.7.0b2
+
+* #4467: html theme: Rename ``csss`` block to ``css``
+
 Deprecated
 ----------
+
+1.7.0b1
 
 * using a string value for :confval:`html_sidebars` is deprecated and only list
   values will be accepted at 2.0.
@@ -152,6 +121,8 @@ Deprecated
 
 Features added
 --------------
+
+1.7.0b1
 
 * C++, handle ``decltype(auto)``.
 * #2406: C++, add proper parsing of expressions, including linking of identifiers.
@@ -199,8 +170,15 @@ Features added
 * #3998: text: Assign section numbers by default.  You can control it using
   :confval:`text_add_secnumbers` and :confval:`text_secnumber_suffix`
 
+1.7.0b2
+
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
+
 Features removed
 ----------------
+
+1.7.0b1
 
 * Configuration variables
 
@@ -235,6 +213,8 @@ Features removed
 Bugs fixed
 ----------
 
+1.7.0b1
+
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 * #4094: C++, allow empty template argument lists.
@@ -250,32 +230,43 @@ Bugs fixed
 * #4081: Warnings and errors colored the same when building
 * latex: Do not display 'Release' label if :confval:`release` is not set
 
+1.7.0b2
+
+* #4415: autodoc classifies inherited classmethods as regular methods
+* #4415: autodoc classifies inherited staticmethods as regular methods
+* #4472: DOCUMENTATION_OPTIONS is not defined
+* #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
+* #4490: autodoc: type annotation is broken with python 3.7.0a4+
+* utils package is no longer installed
+* #3952: apidoc: module header is too escaped
+* #4275: Formats accepted by sphinx.util.i18n.format_date are limited
+* #4493: recommonmark raises AttributeError if AutoStructify enabled
+* #4209: intersphinx: In link title, "v" should be optional if target has no
+  version
+* #4230: slowdown in writing pages with sphinx 1.6
+* #4522: epub: document is not rebuilt even if config changed
+
+1.7.0b3
+
+* #4019: inheritance_diagram AttributeError stoping make process
+* #4531: autosummary: methods are not treated as attributes
+* #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
+* #4539: autodoc emits warnings for partialmethods
+* #4223: doctest: failing tests reported in wrong file, at wrong line
+* i18n: message catalogs are not compiled if specific filenames are given for
+  ``sphinx-build`` as arguments (refs: #4560)
+* #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
+  are in the raw source; no smart quotes, nothig fancy.
+* #4581: apidoc: Excluded modules still included
+
+
 Testing
 --------
+
+1.7.0b1
 
 * Add support for docutils 0.14
 * Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
-
-Release 1.6.8 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 1.6.7 (released Feb 04, 2018)
 =====================================
