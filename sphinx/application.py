@@ -17,6 +17,7 @@ import posixpath
 import sys
 import warnings
 from collections import deque
+from inspect import isclass
 from os import path
 
 from docutils import nodes
@@ -737,7 +738,7 @@ class Sphinx(object):
         directive = directive_helper(obj, content, arguments, **options)
         directives.register_directive(name, directive)
 
-        if not issubclass(obj, Directive):
+        if not isclass(obj) or not issubclass(obj, Directive):
             warnings.warn('function based directive support is now deprecated. '
                           'Use class based directive instead.',
                           RemovedInSphinx30Warning)
