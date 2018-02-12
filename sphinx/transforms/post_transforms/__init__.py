@@ -20,6 +20,7 @@ from sphinx.environment import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
+from sphinx.util.nodes import process_only_nodes
 
 if False:
     # For type annotation
@@ -183,18 +184,7 @@ class OnlyNodeTransform(SphinxTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        for node in self.document.traverse(addnodes.only):
-            try:
-                ret = self.app.builder.tags.eval_condition(node['expr'])
-            except Exception as err:
-                logger.warning('exception while evaluating only directive expression: %s', err,
-                               location=node)
-                node.replace_self(node.children or nodes.comment())
-            else:
-                if ret:
-                    node.replace_self(node.children or nodes.comment())
-                else:
-                    node.replace_self(nodes.comment())
+        process_only_nodes(self.document, self.app.builder.tags)
 
 
 def setup(app):
