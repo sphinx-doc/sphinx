@@ -85,6 +85,8 @@ autodoc_mock_imports = [
 tags.add('confpytag')  # NOQA
 
 
+download_interpolate = True
+
 # -- extension API
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
@@ -111,3 +113,4 @@ def setup(app):
     app.add_javascript('file://moo.js')
     app.add_source_suffix('.foo', 'foo')
     app.add_source_parser(parsermod.Parser)
+    app.add_config_value('image_variable', 'download.png', False)

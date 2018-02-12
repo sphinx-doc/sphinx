@@ -19,9 +19,9 @@ test-warnings
 .. literalinclude:: wrongenc.inc
    :language: none
 
-.. a non-existing download
+.. an undefined variable and non-existing download
 
-Don't download :download:`this <nonexisting.png>`.
+Fail to format and don't download :download:`this <{{undefined_variable}}>`.
 
 .. Invalid index markup
 .. index::

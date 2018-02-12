@@ -267,6 +267,8 @@ General configuration
    * app.add_generic_role
    * app.add_source_parser
    * download.not_readable
+   * download.undefined
+   * download.jinja2_error
    * image.not_readable
    * ref.term
    * ref.ref
@@ -298,6 +300,10 @@ General configuration
    .. versionchanged:: 1.6
 
       Added ``ref.footnote``
+
+   .. versionchanged:: 1.6
+
+      Added ``download.undefined`` and ``download.jinja2_error``
 
 .. confval:: needs_sphinx
 
@@ -473,6 +479,23 @@ General configuration
    The certificates are used to verify server certifications.
 
    .. versionadded:: 1.5
+
+.. confval:: download_interpolate
+
+    If true, filename paths in :rst:dir:`:download:` inline directives will be
+    handled as a Jinja2 template and rendered through a sandboxed environment
+    that has access to all config values. For example, if presented with the
+    following::
+
+        :download:`a PDF file <../build/latex/{{latex_build_product}}>`
+
+    and assuming ``conf.py`` contains a variable ``latex_build_product`` that has
+    the value ``somefile.pdf``, then the resulting path will become
+    ``../build/latex/somefile.pdf``.
+
+    Default is ``False``.
+
+    .. versionadded:: 1.8
 
 Project information
 -------------------
