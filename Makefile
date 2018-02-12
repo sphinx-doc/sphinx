@@ -63,17 +63,9 @@ clean-mypyfiles:
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
-.PHONY: reindent
-reindent:
-	@echo "This target no longer does anything and will be removed imminently"
-
 .PHONY: test
 test:
 	@$(PYTHON) -m pytest -v $(TEST)
-
-.PHONY: test-async
-test-async:
-	@echo "This target no longer does anything and will be removed imminently"
 
 .PHONY: covertest
 covertest:
@@ -86,6 +78,6 @@ build:
 .PHONY: docs
 docs:
 ifndef target
-	  $(info You need to give a provide a target variable, e.g. `make docs target=html`.)
+	$(info You need to give a provide a target variable, e.g. `make docs target=html`.)
 endif
-	  $(MAKE) -C doc $(target)
+	$(MAKE) -C doc $(target)
