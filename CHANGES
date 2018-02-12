@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #4260: autodoc: keyword only argument separator is not disappeared if it is
+  appeared at top of the argument list
+
 Testing
 --------
 
