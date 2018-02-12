@@ -3,14 +3,6 @@ PYTHON ?= python
 .PHONY: all
 all: clean-pyc clean-backupfiles style-check type-check test
 
-.PHONY: style-check
-style-check:
-	@flake8
-
-.PHONY: type-check
-type-check:
-	mypy sphinx/
-
 .PHONY: clean
 clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
 
@@ -58,6 +50,14 @@ clean-buildfiles:
 .PHONY: clean-mypyfiles
 clean-mypyfiles:
 	rm -rf .mypy_cache/
+
+.PHONY: style-check
+style-check:
+	@flake8
+
+.PHONY: type-check
+type-check:
+	mypy sphinx/
 
 .PHONY: pylint
 pylint:
