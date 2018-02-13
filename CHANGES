@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4608: epub: Invalid meta tag is generated
+
 Testing
 --------
 
