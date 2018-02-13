@@ -143,6 +143,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
         self.globalcontext['html_tag'] = self.html_tag
         self.globalcontext['use_meta_charset'] = self.use_meta_charset
+        self.globalcontext['skip_ua_compatible'] = True
 
     def build_navlist(self, navnodes):
         # type: (List[nodes.Node]) -> List[NavPoint]
