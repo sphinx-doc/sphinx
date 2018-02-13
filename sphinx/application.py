@@ -823,7 +823,7 @@ class Sphinx(object):
         Like :meth:`add_role`, but the role is added to the domain named
         *domain*.
 
-       .. versionadded:: 1.0
+        .. versionadded:: 1.0
         """
         self.registry.add_role_to_domain(domain, name, role)
 
