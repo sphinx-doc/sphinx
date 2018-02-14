@@ -122,7 +122,7 @@ class Sphinx(object):
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
-        self.srcdir = srcdir
+        self.srcdir = srcdir                    # type: unicode
         self.confdir = confdir
         self.outdir = outdir
         self.doctreedir = doctreedir

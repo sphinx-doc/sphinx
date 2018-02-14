@@ -169,8 +169,8 @@ class BuildEnvironment(object):
         # type: (Sphinx) -> None
         self.app = app
         self.doctreedir = app.doctreedir
-        self.srcdir = app.srcdir
-        self.config = app.config
+        self.srcdir = app.srcdir  # type: unicode
+        self.config = app.config  # type: Config
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -187,7 +187,7 @@ class BuildEnvironment(object):
         self._warnfunc = None  # type: Callable
 
         # this is to invalidate old pickles
-        self.version = ENV_VERSION
+        self.version = ENV_VERSION  # type: int
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -252,8 +252,8 @@ class BuildEnvironment(object):
                                     # lineno, module, descname, content)
 
         # these map absolute path -> (docnames, unique filename)
-        self.images = FilenameUniqDict()
-        self.dlfiles = FilenameUniqDict()
+        self.images = FilenameUniqDict()    # type: FilenameUniqDict
+        self.dlfiles = FilenameUniqDict()   # type: FilenameUniqDict
 
         # the original URI for images
         self.original_image_uri = {}  # type: Dict[unicode, unicode]

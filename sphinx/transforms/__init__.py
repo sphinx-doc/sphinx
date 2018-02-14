@@ -374,7 +374,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             return False
 
         # confirm selected language supports smart_quotes or not
-        language = self.env.settings['language_code']
+        language = self.env.settings['language_code']  # type: ignore
         for tag in normalize_language_tag(language):
             if tag in smartchars.quotes:
                 return True

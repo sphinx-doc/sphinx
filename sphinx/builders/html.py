@@ -594,9 +594,9 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]  # NOQA
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
+        self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')  # type: unicode
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()

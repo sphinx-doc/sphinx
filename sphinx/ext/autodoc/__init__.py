@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from docutils import nodes  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc.directive import DocumenterBridge  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -281,7 +282,7 @@ class Documenter(object):
     def __init__(self, directive, name, indent=u''):
         # type: (DocumenterBridge, unicode, unicode) -> None
         self.directive = directive
-        self.env = directive.env
+        self.env = directive.env    # type: BuildEnvironment
         self.options = directive.genopt
         self.name = name
         self.indent = indent
@@ -745,7 +746,7 @@ class Documenter(object):
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        self.real_modname = real_modname or self.get_real_modname()
+        self.real_modname = real_modname or self.get_real_modname()  # type: str
 
         # try to also get a source code analyzer for attribute docs
         try:
