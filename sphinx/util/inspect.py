@@ -390,7 +390,8 @@ class Signature(object):
             # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
             #     func(a, b, *, c, d):
             if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                                  param.POSITIONAL_ONLY):
+                                                                  param.POSITIONAL_ONLY,
+                                                                  None):
                 args.append('*')
 
             if param.kind in (param.POSITIONAL_ONLY,
