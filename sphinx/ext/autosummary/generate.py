@@ -34,8 +34,8 @@ from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
+from sphinx.util.osutil import ensuredir
 from sphinx.util.rst import escape as rst_escape
 
 if False:
@@ -82,6 +82,7 @@ def _simple_warn(msg):
 
 
 def _underline(title, line='='):
+    # type: (unicode, unicode) -> unicode
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)
@@ -170,7 +171,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 except TemplateNotFound:
                     template = template_env.get_template('autosummary/base.rst')
 
-            def get_members(obj, typ, include_public=[], imported=False):
+            def get_members(obj, typ, include_public=[], imported=True):
                 # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]  # NOQA
                 items = []  # type: List[unicode]
                 for name in dir(obj):
@@ -180,9 +181,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                         continue
                     documenter = get_documenter(app, value, obj)
                     if documenter.objtype == typ:
-                        if typ == 'method':
-                            items.append(name)
-                        elif imported or getattr(value, '__module__', None) == obj.__name__:
+                        if imported or getattr(value, '__module__', None) == obj.__name__:
                             # skip imported members if expected
                             items.append(name)
                 public = [x for x in items
@@ -202,9 +201,9 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['methods'], ns['all_methods'] = \
-                    get_members(obj, 'method', ['__init__'], imported=imported_members)
+                    get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
-                    get_members(obj, 'attribute', imported=imported_members)
+                    get_members(obj, 'attribute')
 
             parts = name.split('.')
             if doc.objtype in ('method', 'attribute'):
@@ -231,7 +230,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir)
+                                  template_dir=template_dir, app=app)
 
 
 # -- Finding documented entries in files ---------------------------------------

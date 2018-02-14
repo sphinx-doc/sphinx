@@ -58,15 +58,21 @@ Sample namedtuple subclass
 
 .. attribute:: attr1
 
-   *Arbitrary type* -- Quick description of attr1
+   Quick description of attr1
+
+   :type: Arbitrary type
 
 .. attribute:: attr2
 
-   *Another arbitrary type* -- Quick description of attr2
+   Quick description of attr2
+
+   :type: Another arbitrary type
 
 .. attribute:: attr3
 
-   *Type* -- Adds a newline after the type
+   Adds a newline after the type
+
+   :type: Type
 """
 
         self.assertEqual(expected, actual)
@@ -266,6 +272,45 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
     )]
 
+    def test_sphinx_admonitions(self):
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+        config = Config()
+        for section, admonition in admonition_map.items():
+            # Multiline
+            actual = str(GoogleDocstring(("{}:\n"
+                      "    this is the first line\n"
+                      "\n"
+                      "    and this is the second line\n"
+                      ).format(section), config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+            # Single line
+            actual = str(GoogleDocstring(("{}:\n"
+                      "    this is a single line\n"
+                      ).format(section), config))
+            expect = (".. {}:: this is a single line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+
     def test_docstrings(self):
         config = Config(
             napoleon_use_param=False,
@@ -323,7 +368,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   :class:`numpy.ndarray` -- super-dooper attribute
+   super-dooper attribute
+
+   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -336,7 +383,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   *numpy.ndarray* -- super-dooper attribute
+   super-dooper attribute
+
+   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 
@@ -1092,6 +1141,46 @@ class NumpyDocstringTest(BaseDocstringTest):
                  description of yielded value
         """
     )]
+
+    def test_sphinx_admonitions(self):
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+        config = Config()
+        for section, admonition in admonition_map.items():
+            # Multiline
+            actual = str(NumpyDocstring(("{}\n"
+                      "{}\n"
+                      "    this is the first line\n"
+                      "\n"
+                      "    and this is the second line\n"
+                      ).format(section, '-'*len(section)), config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+            # Single line
+            actual = str(NumpyDocstring(("{}\n"
+                      "{}\n"
+                      "    this is a single line\n"
+                      ).format(section, '-'*len(section)), config))
+            expect = (".. {}:: this is a single line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
 
     def test_docstrings(self):
         config = Config(

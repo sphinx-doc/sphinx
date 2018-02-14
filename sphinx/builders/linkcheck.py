@@ -9,16 +9,16 @@
     :license: BSD, see LICENSE for details.
 """
 
+import codecs
 import re
 import socket
-import codecs
 import threading
 from os import path
 
+from docutils import nodes
 from requests.exceptions import HTTPError
 from six.moves import queue, html_parser
 from six.moves.urllib.parse import unquote
-from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
 # removed in Python 3.5, however for backward compatibility reasons, we're not
@@ -58,6 +58,7 @@ class AnchorCheckParser(html_parser.HTMLParser):
         self.found = False
 
     def handle_starttag(self, tag, attrs):
+        # type: (Any, Any) -> None
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
@@ -90,6 +91,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
+    epilog = ('Look for any errors in the above output or in '
+              '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None

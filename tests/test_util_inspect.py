@@ -200,6 +200,33 @@ def test_Signature_methods():
         assert sig == '(arg1, **kwargs)'
 
 
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='functools.partialmethod is available on py34 or above')
+def test_Signature_partialmethod():
+    from functools import partialmethod
+
+    class Foo(object):
+        def meth1(self, arg1, arg2, arg3=None, arg4=None):
+            pass
+
+        def meth2(self, arg1, arg2):
+            pass
+
+        foo = partialmethod(meth1, 1, 2)
+        bar = partialmethod(meth1, 1, arg3=3)
+        baz = partialmethod(meth2, 1, 2)
+
+    subject = Foo()
+    sig = inspect.Signature(subject.foo).format_args()
+    assert sig == '(arg3=None, arg4=None)'
+
+    sig = inspect.Signature(subject.bar).format_args()
+    assert sig == '(arg2, *, arg3=3, arg4=None)'
+
+    sig = inspect.Signature(subject.baz).format_args()
+    assert sig == '()'
+
+
 @pytest.mark.skipif(sys.version_info < (3, 5),
                     reason='type annotation test is available on py35 or above')
 def test_Signature_annotations():
@@ -211,15 +238,15 @@ def test_Signature_annotations():
 
     # Generic types with concrete parameters
     sig = inspect.Signature(f1).format_args()
-    assert sig == '(x: typing.List[int]) -> typing.List[int]'
+    assert sig == '(x: List[int]) -> List[int]'
 
     # TypeVars and generic types with TypeVars
     sig = inspect.Signature(f2).format_args()
-    assert sig == '(x: typing.List[T], y: typing.List[T_co], z: T) -> typing.List[T_contra]'
+    assert sig == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
 
     # Union types
     sig = inspect.Signature(f3).format_args()
-    assert sig == '(x: typing.Union[str, numbers.Integral]) -> None'
+    assert sig == '(x: Union[str, numbers.Integral]) -> None'
 
     # Quoted annotations
     sig = inspect.Signature(f4).format_args()
@@ -239,14 +266,14 @@ def test_Signature_annotations():
 
     # Callable types
     sig = inspect.Signature(f8).format_args()
-    assert sig == '(x: typing.Callable[[int, str], int]) -> None'
+    assert sig == '(x: Callable[[int, str], int]) -> None'
 
     sig = inspect.Signature(f9).format_args()
-    assert sig == '(x: typing.Callable) -> None'
+    assert sig == '(x: Callable) -> None'
 
     # Tuple types
     sig = inspect.Signature(f10).format_args()
-    assert sig == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
+    assert sig == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
 
     # Instance annotations
     sig = inspect.Signature(f11).format_args()

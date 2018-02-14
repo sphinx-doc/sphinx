@@ -9,7 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
-from sphinx.ext.doctest import compare_version
+from six import PY2
+from sphinx.ext.doctest import is_allowed_version
+from packaging.version import InvalidVersion
+from packaging.specifiers import InvalidSpecifier
 
 cleanup_called = 0
 
@@ -26,21 +29,51 @@ def test_build(app, status, warning):
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
 
 
-def test_compare_version():
-    assert compare_version('3.3', '3.4', '<') is True
-    assert compare_version('3.3', '3.2', '<') is False
-    assert compare_version('3.3', '3.4', '<=') is True
-    assert compare_version('3.3', '3.2', '<=') is False
-    assert compare_version('3.3', '3.3', '==') is True
-    assert compare_version('3.3', '3.4', '==') is False
-    assert compare_version('3.3', '3.2', '>=') is True
-    assert compare_version('3.3', '3.4', '>=') is False
-    assert compare_version('3.3', '3.2', '>') is True
-    assert compare_version('3.3', '3.4', '>') is False
-    with pytest.raises(ValueError):
-        compare_version('3.3', '3.4', '+')
+def test_is_allowed_version():
+    assert is_allowed_version('<3.4', '3.3') is True
+    assert is_allowed_version('<3.4', '3.3') is True
+    assert is_allowed_version('<3.2', '3.3') is False
+    assert is_allowed_version('<=3.4',  '3.3') is True
+    assert is_allowed_version('<=3.2',  '3.3') is False
+    assert is_allowed_version('==3.3',  '3.3') is True
+    assert is_allowed_version('==3.4',  '3.3') is False
+    assert is_allowed_version('>=3.2',  '3.3') is True
+    assert is_allowed_version('>=3.4',  '3.3') is False
+    assert is_allowed_version('>3.2', '3.3') is True
+    assert is_allowed_version('>3.4', '3.3') is False
+    assert is_allowed_version('~=3.4', '3.4.5') is True
+    assert is_allowed_version('~=3.4', '3.5.0') is True
+
+    # invalid spec
+    with pytest.raises(InvalidSpecifier):
+        is_allowed_version('&3.4', '3.5')
+
+    # invalid version
+    with pytest.raises(InvalidVersion):
+        is_allowed_version('>3.4', 'Sphinx')
 
 
 def cleanup_call():
     global cleanup_called
     cleanup_called += 1
+
+
+@pytest.mark.xfail(
+    PY2, reason='node.source points to document instead of filename',
+)
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
+def test_reporting_with_autodoc(app, status, warning, capfd):
+    # Patch builder to get a copy of the output
+    written = []
+    app.builder._warn_out = written.append
+    app.builder.build_all()
+    lines = '\n'.join(written).split('\n')
+    failures = [l for l in lines if l.startswith('File')]
+    expected = [
+        'File "dir/inner.rst", line 1, in default',
+        'File "dir/bar.py", line ?, in default',
+        'File "foo.py", line ?, in default',
+        'File "index.rst", line 4, in default',
+    ]
+    for location in expected:
+        assert location in failures

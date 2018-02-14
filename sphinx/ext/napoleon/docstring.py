@@ -14,6 +14,7 @@
 import collections
 import inspect
 import re
+from functools import partial
 
 from six import string_types, u
 from six.moves import range
@@ -140,13 +141,19 @@ class GoogleDocstring(UnicodeMixin):
             self._sections = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
+                'attention': partial(self._parse_admonition, 'attention'),
                 'attributes': self._parse_attributes_section,
+                'caution': partial(self._parse_admonition, 'caution'),
+                'danger': partial(self._parse_admonition, 'danger'),
+                'error': partial(self._parse_admonition, 'error'),
                 'example': self._parse_examples_section,
                 'examples': self._parse_examples_section,
+                'hint': partial(self._parse_admonition, 'hint'),
+                'important': partial(self._parse_admonition, 'important'),
                 'keyword args': self._parse_keyword_arguments_section,
                 'keyword arguments': self._parse_keyword_arguments_section,
                 'methods': self._parse_methods_section,
-                'note': self._parse_note_section,
+                'note': partial(self._parse_admonition, 'note'),
                 'notes': self._parse_notes_section,
                 'other parameters': self._parse_other_parameters_section,
                 'parameters': self._parse_parameters_section,
@@ -155,9 +162,10 @@ class GoogleDocstring(UnicodeMixin):
                 'raises': self._parse_raises_section,
                 'references': self._parse_references_section,
                 'see also': self._parse_see_also_section,
-                'todo': self._parse_todo_section,
-                'warning': self._parse_warning_section,
-                'warnings': self._parse_warning_section,
+                'tip': partial(self._parse_admonition, 'tip'),
+                'todo': partial(self._parse_admonition, 'todo'),
+                'warning': partial(self._parse_admonition, 'warning'),
+                'warnings': partial(self._parse_admonition, 'warning'),
                 'warns': self._parse_warns_section,
                 'yield': self._parse_yields_section,
                 'yields': self._parse_yields_section,
@@ -570,10 +578,18 @@ class GoogleDocstring(UnicodeMixin):
                     lines = self._consume_to_next_section()
             self._parsed_lines.extend(lines)
 
+    def _parse_admonition(self, admonition, section):
+        # type (unicode, unicode) -> List[unicode]
+        lines = self._consume_to_next_section()
+        return self._format_admonition(admonition, lines)
+
     def _parse_attribute_docstring(self):
         # type: () -> List[unicode]
         _type, _desc = self._consume_inline_attribute()
-        return self._format_field('', _type, _desc)
+        lines = self._format_field('', '', _desc)
+        if _type:
+            lines.extend(['', ':type: %s' % _type])
+        return lines
 
     def _parse_attributes_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -586,8 +602,11 @@ class GoogleDocstring(UnicodeMixin):
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
                 lines.extend(['.. attribute:: ' + _name, ''])
-                fields = self._format_field('', _type, _desc)
+                fields = self._format_field('', '', _desc)
                 lines.extend(self._indent(fields, 3))
+                if _type:
+                    lines.append('')
+                    lines.extend(self._indent([':type: %s' % _type], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
@@ -644,11 +663,6 @@ class GoogleDocstring(UnicodeMixin):
                 lines.extend([u''] + self._indent(_desc, 3))
             lines.append('')
         return lines
-
-    def _parse_note_section(self, section):
-        # type: (unicode) -> List[unicode]
-        lines = self._consume_to_next_section()
-        return self._format_admonition('note', lines)
 
     def _parse_notes_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -741,19 +755,8 @@ class GoogleDocstring(UnicodeMixin):
         return lines
 
     def _parse_see_also_section(self, section):
-        # type: (unicode) -> List[unicode]
-        lines = self._consume_to_next_section()
-        return self._format_admonition('seealso', lines)
-
-    def _parse_todo_section(self, section):
-        # type: (unicode) -> List[unicode]
-        lines = self._consume_to_next_section()
-        return self._format_admonition('todo', lines)
-
-    def _parse_warning_section(self, section):
-        # type: (unicode) -> List[unicode]
-        lines = self._consume_to_next_section()
-        return self._format_admonition('warning', lines)
+        # type (unicode) -> List[unicode]
+        return self._parse_admonition('seealso', section)
 
     def _parse_warns_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -987,8 +990,9 @@ class NumpyDocstring(GoogleDocstring):
         items = []
 
         def parse_item_name(text):
+            # type: (unicode) -> Tuple[unicode, unicode]
             """Match ':role:`name`' or 'name'"""
-            m = self._name_rgx.match(text)
+            m = self._name_rgx.match(text)  # type: ignore
             if m:
                 g = m.groups()
                 if g[1] is None:
@@ -998,6 +1002,7 @@ class NumpyDocstring(GoogleDocstring):
             raise ValueError("%s is not a item name" % text)
 
         def push_item(name, rest):
+            # type: (unicode, List[unicode]) -> None
             if not name:
                 return
             name, role = parse_item_name(name)

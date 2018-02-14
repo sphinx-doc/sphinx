@@ -9,8 +9,8 @@
 
 # (ab)use the Jinja parser for parsing our boolean expressions
 from jinja2 import nodes
-from jinja2.parser import Parser
 from jinja2.environment import Environment
+from jinja2.parser import Parser
 
 env = Environment()
 

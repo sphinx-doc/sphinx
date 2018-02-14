@@ -12,13 +12,13 @@ import gettext
 import io
 import os
 import re
-from os import path
-from datetime import datetime
 from collections import namedtuple
+from datetime import datetime
+from os import path
 
 import babel.dates
-from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
+from babel.messages.pofile import read_po
 
 from sphinx.errors import SphinxError
 from sphinx.util import logging
@@ -152,33 +152,44 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
 
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
 date_format_mappings = {
-    '%a': 'EEE',     # Weekday as locale’s abbreviated name.
-    '%A': 'EEEE',    # Weekday as locale’s full name.
-    '%b': 'MMM',     # Month as locale’s abbreviated name.
-    '%B': 'MMMM',    # Month as locale’s full name.
-    '%c': 'medium',  # Locale’s appropriate date and time representation.
-    '%d': 'dd',      # Day of the month as a zero-padded decimal number.
-    '%H': 'HH',      # Hour (24-hour clock) as a decimal number [00,23].
-    '%I': 'hh',      # Hour (12-hour clock) as a decimal number [01,12].
-    '%j': 'DDD',     # Day of the year as a zero-padded decimal number.
-    '%m': 'MM',      # Month as a zero-padded decimal number.
-    '%M': 'mm',      # Minute as a decimal number [00,59].
-    '%p': 'a',       # Locale’s equivalent of either AM or PM.
-    '%S': 'ss',      # Second as a decimal number.
-    '%U': 'WW',      # Week number of the year (Sunday as the first day of the week)
-                     # as a zero padded decimal number. All days in a new year preceding
-                     # the first Sunday are considered to be in week 0.
-    '%w': 'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
-    '%W': 'WW',      # Week number of the year (Monday as the first day of the week)
-                     # as a decimal number. All days in a new year preceding the first
-                     # Monday are considered to be in week 0.
-    '%x': 'medium',  # Locale’s appropriate date representation.
-    '%X': 'medium',  # Locale’s appropriate time representation.
-    '%y': 'YY',      # Year without century as a zero-padded decimal number.
-    '%Y': 'YYYY',    # Year with century as a decimal number.
-    '%Z': 'zzzz',    # Time zone name (no characters if no time zone exists).
-    '%%': '%',
+    '%a':  'EEE',     # Weekday as locale’s abbreviated name.
+    '%A':  'EEEE',    # Weekday as locale’s full name.
+    '%b':  'MMM',     # Month as locale’s abbreviated name.
+    '%B':  'MMMM',    # Month as locale’s full name.
+    '%c':  'medium',  # Locale’s appropriate date and time representation.
+    '%-d': 'd',       # Day of the month as a decimal number.
+    '%d':  'dd',      # Day of the month as a zero-padded decimal number.
+    '%-H': 'H',       # Hour (24-hour clock) as a decimal number [0,23].
+    '%H':  'HH',      # Hour (24-hour clock) as a zero-padded decimal number [00,23].
+    '%-I': 'h',       # Hour (12-hour clock) as a decimal number [1,12].
+    '%I':  'hh',      # Hour (12-hour clock) as a zero-padded decimal number [01,12].
+    '%-j': 'D',       # Day of the year as a decimal number.
+    '%j':  'DDD',     # Day of the year as a zero-padded decimal number.
+    '%-m': 'M',       # Month as a decimal number.
+    '%m':  'MM',      # Month as a zero-padded decimal number.
+    '%-M': 'm',       # Minute as a decimal number [0,59].
+    '%M':  'mm',      # Minute as a zero-padded decimal number [00,59].
+    '%p':  'a',       # Locale’s equivalent of either AM or PM.
+    '%-S': 's',       # Second as a decimal number.
+    '%S':  'ss',      # Second as a zero-padded decimal number.
+    '%U':  'WW',      # Week number of the year (Sunday as the first day of the week)
+                      # as a zero padded decimal number. All days in a new year preceding
+                      # the first Sunday are considered to be in week 0.
+    '%w':  'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
+    '%-W': 'W',       # Week number of the year (Monday as the first day of the week)
+                      # as a decimal number. All days in a new year preceding the first
+                      # Monday are considered to be in week 0.
+    '%W':  'WW',      # Week number of the year (Monday as the first day of the week)
+                      # as a zero-padded decimal number.
+    '%x':  'medium',  # Locale’s appropriate date representation.
+    '%X':  'medium',  # Locale’s appropriate time representation.
+    '%y':  'YY',      # Year without century as a zero-padded decimal number.
+    '%Y':  'YYYY',    # Year with century as a decimal number.
+    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%%':  '%',
 }
+
+date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
@@ -214,7 +225,7 @@ def format_date(format, date=None, language=None):
             date = datetime.now()
 
     result = []
-    tokens = re.split('(%.)', format)
+    tokens = date_format_re.split(format)
     for token in tokens:
         if token in date_format_mappings:
             babel_format = date_format_mappings.get(token, '')

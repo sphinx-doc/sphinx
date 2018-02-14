@@ -9,10 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import warnings
-import traceback
 import contextlib
+import sys
+import traceback
+import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 
@@ -23,7 +23,7 @@ from sphinx.util.inspect import isenumclass, safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, List, Optional, Set  # NOQA
+    from typing import Any, Callable, Dict, Generator, List, Optional  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -84,18 +84,13 @@ class _MockModule(ModuleType):
 class _MockImporter(object):
     def __init__(self, names):
         # type: (List[str]) -> None
-        self.base_packages = set()  # type: Set[str]
-        for n in names:
-            # Convert module names:
-            #     ['a.b.c', 'd.e']
-            # to a set of base packages:
-            #     set(['a', 'd'])
-            self.base_packages.add(n.split('.')[0])
+        self.names = names
         self.mocked_modules = []  # type: List[str]
         # enable hook by adding itself to meta_path
-        sys.meta_path = sys.meta_path + [self]
+        sys.meta_path.insert(0, self)
 
     def disable(self):
+        # type: () -> None
         # remove `self` from `sys.meta_path` to disable import hook
         sys.meta_path = [i for i in sys.meta_path if i is not self]
         # remove mocked modules from sys.modules to avoid side effects after
@@ -106,9 +101,10 @@ class _MockImporter(object):
 
     def find_module(self, name, path=None):
         # type: (str, str) -> Any
-        base_package = name.split('.')[0]
-        if base_package in self.base_packages:
-            return self
+        # check if name is (or is a descendant of) one of our base_packages
+        for n in self.names:
+            if n == name or name.startswith(n + '.'):
+                return self
         return None
 
     def load_module(self, name):
@@ -135,6 +131,7 @@ def mock(names):
 
 
 def import_module(modname, warningiserror=False):
+    # type: (str, bool) -> Any
     """
     Call __import__(modname), convert exceptions to ImportError
     """

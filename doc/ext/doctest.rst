@@ -80,11 +80,23 @@ a comma-separated list of group names.
          .. doctest::
             :pyversion: > 3.3
 
-     The supported operands are ``<``, ``<=``, ``==``, ``>=``, ``>``, and
-     comparison is performed by `distutils.version.LooseVersion
-     <https://www.python.org/dev/peps/pep-0386/#distutils>`__.
+     The following operands are supported:
+
+     * ``~=``: Compatible release clause
+     * ``==``: Version matching clause
+     * ``!=``: Version exclusion clause
+     * ``<=``, ``>=``: Inclusive ordered comparison clause
+     * ``<``, ``>``: Exclusive ordered comparison clause
+     * ``===``: Arbitrary equality clause.
+
+     ``pyversion`` option is followed `PEP-440: Version Specifiers
+     <https://www.python.org/dev/peps/pep-0440/#version-specifiers>`__.
 
      .. versionadded:: 1.6
+
+     .. versionchanged:: 1.7
+
+        Supported PEP-440 operands and notations
 
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed

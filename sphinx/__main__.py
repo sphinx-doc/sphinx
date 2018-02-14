@@ -8,7 +8,9 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
 import sys
-from sphinx import main
+
+from sphinx.cmd.build import main
 
 sys.exit(main(sys.argv[1:]))

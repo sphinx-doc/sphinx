@@ -8,8 +8,8 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import bisect
+import re
 import unicodedata
 from itertools import groupby
 

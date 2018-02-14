@@ -1,8 +1,82 @@
-Release 1.7 (in development)
-============================
+Release 1.8.0 (in development)
+==============================
+
+Dependencies
+------------
 
 Incompatible changes
 --------------------
+
+* #4460: extensions which stores any data to environment should return the
+  version of its env data structure as metadata.  In detail, please see
+  :ref:`ext-metadata`.
+* Sphinx expects source parser modules to have supported file formats as
+  ``Parser.supported`` attribute
+* The default value of :confval:`epub_author` and :confval:`epub_publisher` are
+  changed from ``'unknown'`` to the value of :confval:`author`.  This is same as
+  a ``conf.py`` file sphinx-build generates.
+
+Deprecated
+----------
+
+* :confval:`source_parsers` is deprecated. Please use ``add_source_parser()``
+  instead.
+* ``Application.import_object()`` is deprecated.  Please use
+  ``sphinx.util.import_object()`` instead.
+* Drop function based directive support.  For now, Sphinx only supports class
+  based directives.
+
+Features added
+--------------
+
+* Add :event:`config-inited` event
+* Add ``sphinx.config.Any`` to represent the config value accepts any type of
+  value
+* :confval:`source_suffix` allows a mapping fileext to file types
+* Add :confval:`author` as a configuration value
+* #2852: imgconverter: Support to convert GIF to PNG
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.0 (released Feb 12, 2018)
+=====================================
+
+Dependencies
+------------
+
+1.7.0b1
+
+* Add ``packaging`` package
+
+Incompatible changes
+--------------------
+
+1.7.0b1
 
 * #3668: The arguments has changed of main functions for each command
 * #3893: Unknown html_theme_options throw warnings instead of errors
@@ -16,9 +90,23 @@ Incompatible changes
 * #4389: output directory will be created after loading extensions
 * autodoc does not generate warnings messages to the generated document even if
   :confval:`keep_warnings` is True.  They are only emitted to stderr.
+* shebang line is removed from generated conf.py
+* #2557: autodoc: :confval:`autodoc_mock_imports` only mocks specified modules
+  with their descendants.  It does not mock their ancestors.  If you want to
+  mock them, please specify the name of ancestors explicitly.
+* #3620: html theme: move DOCUMENTATION_OPTIONS to independent JavaScript file
+  (refs: #4295)
+* #4246: Limit width of text body for all themes. Conifigurable via theme
+  options ``body_min_width`` and ``body_max_width``.
+
+1.7.0b2
+
+* #4467: html theme: Rename ``csss`` block to ``css``
 
 Deprecated
 ----------
+
+1.7.0b1
 
 * using a string value for :confval:`html_sidebars` is deprecated and only list
   values will be accepted at 2.0.
@@ -33,6 +121,8 @@ Deprecated
 
 Features added
 --------------
+
+1.7.0b1
 
 * C++, handle ``decltype(auto)``.
 * #2406: C++, add proper parsing of expressions, including linking of identifiers.
@@ -65,11 +155,32 @@ Features added
 * #947: autodoc now supports ignore-module-all to ignore a module's ``__all__``
 * #4332: Let LaTeX obey :confval:`math_numfig` for equation numbering
 * #4093: sphinx-build creates empty directories for unknown targets/builders
+* Add ``top-classes`` option for the ``sphinx.ext.inheritance_diagram``
+  extension to limit the scope of inheritance graphs.
+* #4183: doctest: ``:pyversion:`` option also follows PEP-440 specification
+* #4235: html: Add :confval:`manpages_url` to make manpage roles to hyperlinks
+* #3570: autodoc: Do not display 'typing.' module for type hints
+* #4354: sphinx-build now emits finish message.  Builders can modify it through
+  ``Builder.epilog`` attribute
+* #4245: html themes: Add ``language`` to javascript vars list
+* #4079: html: Add ``notranslate`` class to each code-blocks, literals and maths
+  to let Google Translate know they are not translatable
+* #4137: doctest: doctest block is always highlighted as python console (pycon)
+* #4137: doctest: testcode block is always highlighted as python
+* #3998: text: Assign section numbers by default.  You can control it using
+  :confval:`text_add_secnumbers` and :confval:`text_secnumber_suffix`
+
+1.7.0b2
+
+* #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
+  processes automatically.
 * Napoleon: added option to specify custom section tags.
 
 
 Features removed
 ----------------
+
+1.7.0b1
 
 * Configuration variables
 
@@ -97,16 +208,20 @@ Features removed
 * LaTeX environment ``notice``, use ``sphinxadmonition`` instead
 * LaTeX ``\sphinxstylethead``, use ``\sphinxstyletheadfamily``
 * C++, support of function concepts. Thanks to mickk-on-cpp.
+* Not used and previously not documented LaTeX macros ``\shortversion``
+  and ``\setshortversion``
 
 
 Bugs fixed
 ----------
 
+1.7.0b1
+
 * #3882: Update the order of files for HTMLHelp and QTHelp
 * #3962: sphinx-apidoc does not recognize implicit namespace packages correctly
 * #4094: C++, allow empty template argument lists.
 * C++, also hyperlink types in the name of declarations with qualified names.
-* C++, do not add index entries for declarations inside concepts. 
+* C++, do not add index entries for declarations inside concepts.
 * C++, support the template disambiguator for dependent names.
 * #4314: For PDF 'howto' documents, numbering of code-blocks differs from the
   one of figures and tables
@@ -115,32 +230,67 @@ Bugs fixed
 * #4198: autosummary emits multiple 'autodoc-process-docstring' event. Thanks
   to Joel Nothman.
 * #4081: Warnings and errors colored the same when building
+* latex: Do not display 'Release' label if :confval:`release` is not set
+
+1.7.0b2
+
+* #4415: autodoc classifies inherited classmethods as regular methods
+* #4415: autodoc classifies inherited staticmethods as regular methods
+* #4472: DOCUMENTATION_OPTIONS is not defined
+* #4491: autodoc: prefer _MockImporter over other importers in sys.meta_path
+* #4490: autodoc: type annotation is broken with python 3.7.0a4+
+* utils package is no longer installed
+* #3952: apidoc: module header is too escaped
+* #4275: Formats accepted by sphinx.util.i18n.format_date are limited
+* #4493: recommonmark raises AttributeError if AutoStructify enabled
+* #4209: intersphinx: In link title, "v" should be optional if target has no
+  version
+* #4230: slowdown in writing pages with sphinx 1.6
+* #4522: epub: document is not rebuilt even if config changed
+
+1.7.0b3
+
+* #4019: inheritance_diagram AttributeError stoping make process
+* #4531: autosummary: methods are not treated as attributes
+* #4538: autodoc: ``sphinx.ext.autodoc.Options`` has been moved
+* #4539: autodoc emits warnings for partialmethods
+* #4223: doctest: failing tests reported in wrong file, at wrong line
+* i18n: message catalogs are not compiled if specific filenames are given for
+  ``sphinx-build`` as arguments (refs: #4560)
+* #4027: sphinx.ext.autosectionlabel now expects labels to be the same as they
+  are in the raw source; no smart quotes, nothig fancy.
+* #4581: apidoc: Excluded modules still included
+
 
 Testing
 --------
 
+1.7.0b1
+
 * Add support for docutils 0.14
+* Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
-Release 1.6.7 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.6.7 (released Feb 04, 2018)
+=====================================
 
 Bugs fixed
 ----------
 
-Testing
---------
+* #1922: html search: Upper characters problem in French
+* #4412: Updated jQuery version from 3.1.0 to 3.2.1
+* #4438: math: math with labels with whitespace cause html error
+* #2437: make full reference for classes, aliased with "alias of"
+* #4434: pure numbers as link targets produce warning
+* #4477: Build fails after building specific files
+* #4449: apidoc: include "empty" packages that contain modules
+* #3917: citation labels are tranformed to ellipsis
+* #4501: graphviz: epub3 validation error caused if graph is not clickable
+* #4514: graphviz: workaround for wrong map ID which graphviz generates
+* #4525: autosectionlabel does not support parallel build
+* #3953: Do not raise warning when there is a working intersphinx inventory
+* #4487: math: ValueError is raised on parallel build. Thanks to jschueller.
+* #2372: autosummary: invalid signatures are shown for type annotated functions
+* #3942: html: table is not aligned to center even if ``:align: center``
 
 Release 1.6.6 (released Jan 08, 2018)
 =====================================
@@ -176,7 +326,7 @@ Bugs fixed
 * #1421: Respect the quiet flag in sphinx-quickstart
 * #4281: Race conditions when creating output directory
 * #4315: For PDF 'howto' documents, ``latex_toplevel_sectioning='part'`` generates
-  ``\chapter`` commands 
+  ``\chapter`` commands
 * #4214: Two todolist directives break sphinx-1.6.5
 * Fix links to external option docs with intersphinx (refs: #3769)
 * #4091: Private members not documented without :undoc-members:

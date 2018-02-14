@@ -49,7 +49,7 @@ div.sphinxsidebarwrapper {
 
 div.sphinxsidebar {
     float: left;
-    width: {{ theme_sidebarwidth|toint }}px;
+    width: {{ theme_sidebarwidth|todim }};
     margin-left: -100%;
     font-size: 90%;
     word-wrap: break-word;
@@ -211,6 +211,11 @@ table.modindextable td {
 
 /* -- general body styles --------------------------------------------------- */
 
+div.body {
+    min-width: {{ theme_body_min_width|todim }};
+    max-width: {{ theme_body_max_width|todim }};
+}
+
 div.body p, div.body dd, div.body li, div.body blockquote {
     -moz-hyphens: auto;
     -ms-hyphens: auto;
@@ -342,6 +347,11 @@ div.body p.centered {
 table.docutils {
     border: 0;
     border-collapse: collapse;
+}
+
+table.align-center {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 table caption span.caption-number {

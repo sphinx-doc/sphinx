@@ -8,23 +8,24 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import codecs
+import re
 
-from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
+from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type
+from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
-    UnreferencedFootnotesDetector, SphinxSmartQuotes
+    UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
 )
+from sphinx.transforms import SphinxTransformer
 from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
@@ -56,6 +57,11 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
+    def __init__(self, app, *args, **kwargs):
+        # type: (Sphinx, Any, Any) -> None
+        self.env = app.env
+        standalone.Reader.__init__(self, *args, **kwargs)
+
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
@@ -66,9 +72,15 @@ class SphinxBaseReader(standalone.Reader):
         for logging.
         """
         document = standalone.Reader.new_document(self)
+
+        # substitute transformer
+        document.transformer = SphinxTransformer(document)
+        document.transformer.set_environment(self.env)
+
+        # substitute reporter
         reporter = document.reporter
         document.reporter = LoggingReporter.from_reporter(reporter)
-        document.reporter.set_source(self.source)
+
         return document
 
 
@@ -79,21 +91,14 @@ class SphinxStandaloneReader(SphinxBaseReader):
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
-                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
-                  RefOnlyBulletListTransform, UnreferencedFootnotesDetector
+                  RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        self.smart_quotes = app.env.settings['smart_quotes']
-        SphinxBaseReader.__init__(self, *args, **kwargs)  # type: ignore
-
-    def get_transforms(self):
-        transforms = SphinxBaseReader.get_transforms(self)
-        if self.smart_quotes:
-            transforms.append(SphinxSmartQuotes)
-        return transforms
+        SphinxBaseReader.__init__(self, app, *args, **kwargs)
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -110,7 +115,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
-                  UnreferencedFootnotesDetector]
+                  UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
@@ -144,6 +149,7 @@ class SphinxDummyWriter(UnfilteredWriter):
 
 
 def SphinxDummySourceClass(source, *args, **kwargs):
+    # type: (Any, Any, Any) -> Any
     """Bypass source object as is to cheat Publisher."""
     return source
 
@@ -152,7 +158,7 @@ class SphinxBaseFileInput(FileInput):
     """A base class of SphinxFileInput.
 
     It supports to replace unknown Unicode characters to '?'. And it also emits
-    Sphinx events ``source-read`` on reading.
+    Sphinx events :event:`source-read` on reading.
     """
 
     def __init__(self, app, env, *args, **kwds):
@@ -203,7 +209,7 @@ class SphinxBaseFileInput(FileInput):
 
 class SphinxFileInput(SphinxBaseFileInput):
     """A basic FileInput for Sphinx."""
-    pass
+    supported = ('*',)  # special source input
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):
@@ -220,6 +226,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
        For that reason, ``sphinx.parsers.RSTParser`` should be used with this to parse
        a content correctly.
     """
+    supported = ('restructuredtext',)
 
     def prepend_prolog(self, text, prolog):
         # type: (StringList, unicode) -> None
@@ -268,14 +275,29 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
             return lineno
 
 
+class FiletypeNotFoundError(Exception):
+    pass
+
+
+def get_filetype(source_suffix, filename):
+    # type: (Dict[unicode, unicode], unicode) -> unicode
+    for suffix, filetype in iteritems(source_suffix):
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
+
+
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
-    input_class = app.registry.get_source_input(filename)
+    filetype = get_filetype(app.config.source_suffix, filename)
+    input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
     source = input_class(app, env, source=None, source_path=filename,
                          encoding=env.config.source_encoding)
-    parser = app.registry.create_source_parser(app, filename)
+    parser = app.registry.create_source_parser(app, filetype)
 
     pub = Publisher(reader=reader,
                     parser=parser,
@@ -290,8 +312,9 @@ def read_doc(app, env, filename):
 
 
 def setup(app):
-    app.registry.add_source_input('*', SphinxFileInput)
-    app.registry.add_source_input('restructuredtext', SphinxRSTFileInput)
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.registry.add_source_input(SphinxFileInput)
+    app.registry.add_source_input(SphinxRSTFileInput)
 
     return {
         'version': 'builtin',

@@ -9,28 +9,28 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
 import warnings
-
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None
+from os import path
 
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.util import i18n, path_stabilize, logging, status_iterator
-from sphinx.util.osutil import SEP, ensuredir, relative_uri
-from sphinx.util.i18n import find_catalog
+from sphinx.util import i18n, import_object, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.i18n import find_catalog
+from sphinx.util.osutil import SEP, ensuredir, relative_uri
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles       # noqa
 from sphinx import directives  # noqa
+
+try:
+    import multiprocessing
+except ImportError:
+    multiprocessing = None
 
 if False:
     # For type annotation
@@ -54,8 +54,13 @@ class Builder(object):
     name = ''  # type: unicode
     #: The builder's output format, or '' if no document output is produced.
     format = ''  # type: unicode
-    # default translator class for the builder.  This will be overrided by
-    # ``app.set_translator()``.
+    #: The message emitted upon successful build completion. This can be a
+    #: printf-style template string with the following keys: ``outdir``,
+    #: ``project``
+    epilog = ''  # type: unicode
+
+    #: default translator class for the builder.  This can be overrided by
+    #: :py:meth:`app.set_translator()`.
     default_translator_class = None  # type: nodes.NodeVisitor
     # doctree versioning method
     versioning_method = 'none'  # type: unicode
@@ -68,7 +73,9 @@ class Builder(object):
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types = []  # type: List[unicode]
+    #: The builder supports remote images or not.
     supported_remote_images = False
+    #: The builder supports data URIs or not.
     supported_data_uri_images = False
 
     def __init__(self, app):
@@ -152,8 +159,8 @@ class Builder(object):
         # type: () -> None
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = self.app.import_object(
-                self.config.template_bridge, 'template_bridge setting')()
+            self.templates = import_object(self.config.template_bridge,
+                                           'template_bridge setting')()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
@@ -250,11 +257,14 @@ class Builder(object):
         # type: (List[unicode]) -> None
         def to_domain(fpath):
             # type: (unicode) -> unicode
-            docname, _ = path.splitext(path_stabilize(fpath))
-            dom = find_catalog(docname, self.config.gettext_compact)
-            return dom
+            docname = self.env.path2doc(path.abspath(fpath))
+            if docname:
+                return find_catalog(docname, self.config.gettext_compact)
+            else:
+                return None
 
         specified_domains = set(map(to_domain, specified_files))
+        specified_domains.discard(None)
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,

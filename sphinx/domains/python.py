@@ -11,19 +11,18 @@
 
 import re
 
-from six import iteritems
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType, Index
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
@@ -912,6 +911,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

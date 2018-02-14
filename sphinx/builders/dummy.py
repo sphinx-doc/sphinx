@@ -21,6 +21,8 @@ if False:
 
 class DummyBuilder(Builder):
     name = 'dummy'
+    epilog = 'The dummy builder generates no files.'
+
     allow_parallel = True
 
     def init(self):

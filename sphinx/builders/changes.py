@@ -15,13 +15,13 @@ from os import path
 from six import iteritems
 
 from sphinx import package_dir
+from sphinx.builders import Builder
 from sphinx.locale import _
 from sphinx.theming import HTMLThemeFactory
-from sphinx.builders import Builder
 from sphinx.util import logging
-from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.pycompat import htmlescape
 
 if False:
@@ -38,6 +38,7 @@ class ChangesBuilder(Builder):
     Write a summary with all versionadded/changed directives.
     """
     name = 'changes'
+    epilog = 'The overview file is in %(outdir)s.'
 
     def init(self):
         # type: () -> None

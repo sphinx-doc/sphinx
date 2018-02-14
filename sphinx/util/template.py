@@ -10,6 +10,7 @@
 """
 
 import os
+
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir

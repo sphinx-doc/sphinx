@@ -13,16 +13,16 @@
 """
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
-from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.texescape import tex_escape_map
-from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 if False:
     # For type annotation
@@ -258,4 +258,8 @@ def setup(app):
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
     app.connect('env-merge-info', merge_info)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }

@@ -12,12 +12,12 @@ from __future__ import absolute_import
 
 import logging
 import logging.handlers
-from contextlib import contextmanager
 from collections import defaultdict
+from contextlib import contextmanager
 
-from six import PY2, StringIO
 from docutils import nodes
 from docutils.utils import get_source_line
+from six import PY2, StringIO
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
@@ -60,11 +60,18 @@ COLOR_MAP.update({
 
 def getLogger(name):
     # type: (str) -> SphinxLoggerAdapter
-    """Get logger wrapped by SphinxLoggerAdapter.
+    """Get logger wrapped by :class:`sphinx.util.logging.SphinxLoggerAdapter`.
 
     Sphinx logger always uses ``sphinx.*`` namesapce to be independent from
-    settings of root logger.  It enables to log stably even if 3rd party
-    extension or imported application resets logger settings.
+    settings of root logger.  It ensure logging is consistent even if a
+    third-party extension or imported application resets logger settings.
+
+    Example usage::
+
+        >>> from sphinx.utils import logging
+        >>> logger = logging.getLogger(__name__)
+        >>> logger.info('Hello, this is an extension!')
+        Hello, this is an extension!
     """
     # add sphinx prefix to name forcely
     logger = logging.getLogger(NAMESPACE + '.' + name)
@@ -217,7 +224,10 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 @contextmanager
 def pending_warnings():
     # type: () -> Generator
-    """contextmanager to pend logging warnings temporary."""
+    """Contextmanager to pend logging warnings temporary.
+
+    Similar to :func:`pending_logging`.
+    """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
     memhandler.setLevel(logging.WARNING)
@@ -243,7 +253,16 @@ def pending_warnings():
 @contextmanager
 def pending_logging():
     # type: () -> Generator
-    """contextmanager to pend logging all logs temporary."""
+    """Contextmanager to pend logging all logs temporary.
+
+    For example::
+
+        >>> with pending_logging():
+        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>>     some_long_process()
+        >>>
+        Warning message!  # the warning is flushed here
+    """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
 

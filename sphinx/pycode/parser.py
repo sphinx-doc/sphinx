@@ -8,11 +8,11 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import ast
 import inspect
-import tokenize
 import itertools
+import re
+import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
@@ -77,6 +77,7 @@ def dedent_docstring(s):
     # type: (unicode) -> unicode
     """Remove common leading indentation from docstring."""
     def dummy():
+        # type: () -> None
         # dummy function to mock `inspect.getdoc`.
         pass
 

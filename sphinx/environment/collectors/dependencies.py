@@ -13,8 +13,8 @@ from os import path
 
 from docutils.utils import relative_path
 
-from sphinx.util.osutil import getcwd, fs_encoding
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.util.osutil import getcwd, fs_encoding
 
 if False:
     # For type annotation

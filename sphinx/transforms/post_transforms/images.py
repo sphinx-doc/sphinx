@@ -10,15 +10,15 @@
 """
 
 import os
-from math import ceil
 from hashlib import sha1
+from math import ceil
 
-from six import text_type
 from docutils import nodes
+from six import text_type
 
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
 
@@ -78,7 +78,7 @@ class ImageDownloader(BaseImageConverter):
         try:
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)
+                timestamp = ceil(os.stat(path).st_mtime)  # type: float
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)

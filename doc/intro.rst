@@ -3,12 +3,12 @@ Introduction
 
 This is the documentation for the Sphinx documentation builder.  Sphinx is a
 tool that translates a set of reStructuredText_ source files into various output
-formats, automatically producing cross-references, indices etc.  That is, if
+formats, automatically producing cross-references, indices, etc.  That is, if
 you have a directory containing a bunch of reST-formatted documents (and
 possibly subdirectories of docs in there as well), Sphinx can generate a
 nicely-organized arrangement of HTML files (in some other directory) for easy
 browsing and navigation.  But from the same source, it can also generate a PDF
-file using LaTeX, `rinohtype`_ or `rst2pdf`_ (see :ref:`builders`).
+file using LaTeX.
 
 The focus is on hand-written documentation, rather than auto-generated API docs.
 Though there is support for that kind of documentation as well (which is
@@ -21,7 +21,6 @@ also `Write the docs <https://write-the-docs.readthedocs.io/>`_, written by Eric
 Holscher.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rst2pdf: https://github.com/rst2pdf/rst2pdf
 
 Conversion from other systems
 -----------------------------
@@ -34,16 +33,16 @@ to reStructuredText/Sphinx from other documentation systems.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
-  <http://svn.python.org/projects/doctools/converter>`_.  It contains generic
+  <https://svn.python.org/projects/doctools/converter/>`_.  It contains generic
   code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
-  markup; it is at `Google Code <https://github.com/wojdyr/db2rst>`_.
+  markup; it is at `GitHub <https://github.com/wojdyr/db2rst>`_.
 
 * Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
   to Sphinx: `odt2sphinx <https://pypi.python.org/pypi/odt2sphinx/>`_.
 
-* To convert different markups, `Pandoc <http://pandoc.org/>`_ is
+* To convert different markups, `Pandoc <https://pandoc.org/>`_ is
   a very helpful tool.
 
 

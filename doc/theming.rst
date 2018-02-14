@@ -114,8 +114,19 @@ These themes are:
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     ``False``.
 
-  - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
-    include ``px`` in the value.)  Defaults to 230 pixels.
+  - **sidebarwidth** (int or str): Width of the sidebar in pixels.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'.  Defaults to 230 pixels.
+
+  - **body_min_width** (int or str): Minimal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 0 if you don't want
+    a width limit. Defaults may depend on the theme (often 450px).
+
+  - **body_max_width** (int or str): Maximal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 'none' if you don't
+    want a width limit. Defaults may depend on the theme (often 800px).
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on
@@ -124,7 +135,7 @@ These themes are:
   :confval:`html_sidebars` for its use.
 
   .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
-  .. _installation page: http://alabaster.readthedocs.io/en/latest/installation.html
+  .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via
@@ -411,3 +422,11 @@ Third Party Themes
 
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.
+
+
+Besides this, there are a lot of third party themes.  You can find them on
+PyPI__, GitHub__, sphinx-themes.org__ and so on.
+
+.. __: https://pypi.python.org/pypi?:action=browse&c=599
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
+.. __: https://sphinx-themes.org/

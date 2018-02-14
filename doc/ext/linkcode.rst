@@ -44,4 +44,4 @@ function that returns an URL based on the object.
           if not info['module']:
               return None
           filename = info['module'].replace('.', '/')
-          return "http://somesite/sourcerepo/%s.py" % filename
+          return "https://somesite/sourcerepo/%s.py" % filename

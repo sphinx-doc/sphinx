@@ -47,6 +47,7 @@ def test_mangle_signature():
     (a, b={'c=d, ': 3, '\\\\': 3}) :: (a[, b])
     (a=1, b=2, c=3) :: ([a, b, c])
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
+    (a: int, b: int) -> str :: (a, b)
     """
 
     TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
@@ -152,6 +153,10 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      ~Foo.__init__\n'
             '      ~Foo.bar\n'
+            '   \n' in Foo)
+    assert ('   .. autosummary::\n'
+            '   \n'
+            '      ~Foo.baz\n'
             '   \n' in Foo)
 
 

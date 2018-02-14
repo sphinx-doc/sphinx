@@ -130,24 +130,24 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{sphinxfigure-in-table}\n\\centering\n\\capstart\n'
             '\\noindent\\sphinxincludegraphics{{img}.png}\n'
-            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id7}}'
+            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id8}}'
             '\\end{sphinxfigure-in-table}\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{\\detokenize{markup:id8}}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
-            '\\label{\\detokenize{markup:id9}}'
+            '\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
-            '\\label{\\detokenize{markup:id10}}'
+            '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}' in result)
 
 
@@ -165,13 +165,15 @@ def test_latex_warnings(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='basic')
-def test_latex_title(app, status, warning):
+def test_latex_basic(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\title{The basic Sphinx documentation for testing}' in result
+    assert r'\title{The basic Sphinx documentation for testing}' in result
+    assert r'\release{}' in result
+    assert r'\renewcommand{\releasename}{}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
@@ -182,6 +184,18 @@ def test_latex_title_after_admonitions(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\title{test-latex-title}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'release': '1.0'})
+def test_latex_release(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert r'\release{1.0}' in result
+    assert r'\renewcommand{\releasename}{Release}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='numfig',
@@ -929,7 +943,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -966,6 +980,11 @@ def test_latex_table_tabulars(app, status, warning):
     expected = get_expected('tabularcolumn')
     assert actual == expected
 
+    # table with cell in first column having three paragraphs
+    actual = tables['table with cell in first column having three paragraphs']
+    expected = get_expected('table_having_threeparagraphs_cell_in_first_col')
+    assert actual == expected
+
     # table having caption
     actual = tables['table having caption']
     expected = get_expected('table_having_caption')
@@ -995,7 +1014,7 @@ def test_latex_table_tabulars(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -1056,7 +1075,7 @@ def test_latex_table_longtable(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')

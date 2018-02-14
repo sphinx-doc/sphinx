@@ -11,20 +11,20 @@
 from __future__ import print_function
 
 import argparse
+import multiprocessing
+import os
 import sys
 import traceback
-from os import path
 
 from docutils.utils import SystemMessage
 from six import text_type, binary_type
 
 from sphinx import __display_version__
-from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
+from sphinx.errors import SphinxError
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
 if False:
@@ -83,6 +83,23 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
                   file=stderr)
 
 
+def jobs_argument(value):
+    # type: (str) -> int
+    """
+    Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
+    be expanded to handle other special scaling requests, such as setting job count
+    to cpu_count.
+    """
+    if value == 'auto':
+        return multiprocessing.cpu_count()
+    else:
+        jobs = int(value)
+        if jobs <= 0:
+            raise argparse.ArgumentTypeError('job number should be a positive number')
+        else:
+            return jobs
+
+
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
@@ -129,10 +146,9 @@ files can be built by specifying individual filenames.
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
                        help='path for the cached environment and doctree '
                        'files (default: OUTPUTDIR/.doctrees)')
-    group.add_argument('-j', metavar='N', default=1, type=int, dest='jobs',
+    group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
                        help='build in parallel with N processes where '
-                       'possible')
-
+                       'possible (special value "auto" will set N to cpu-count)')
     group = parser.add_argument_group('build configuration options')
     group.add_argument('-c', metavar='PATH', dest='confdir',
                        help='path where configuration file (conf.py) is '
@@ -184,31 +200,19 @@ def main(argv=sys.argv[1:]):  # type: ignore
     parser = get_parser()
     args = parser.parse_args(argv)
 
-    # get paths (first and second positional argument)
-    try:
-        srcdir = abspath(args.sourcedir)
-        confdir = abspath(args.confdir or srcdir)
-        if args.noconfig:
-            confdir = None
+    if args.noconfig:
+        args.confdir = None
+    elif not args.confdir:
+        args.confdir = args.sourcedir
 
-        if not path.isdir(srcdir):
-            parser.error('cannot find source directory (%s)' % srcdir)
-        if not args.noconfig and not path.isfile(path.join(confdir, 'conf.py')):
-            parser.error("config directory doesn't contain a conf.py file "
-                         "(%s)" % confdir)
-
-        outdir = abspath(args.outputdir)
-        if srcdir == outdir:
-            parser.error('source directory and destination directory are same')
-    except UnicodeError:
-        parser.error('multibyte filename not supported on this filesystem '
-                     'encoding (%r)' % fs_encoding)
+    if not args.doctreedir:
+        args.doctreedir = os.path.join(args.sourcedir, '.doctrees')
 
     # handle remaining filename arguments
     filenames = args.filenames
     missing_files = []
     for filename in filenames:
-        if not path.isfile(filename):
+        if not os.path.isfile(filename):
             missing_files.append(filename)
     if missing_files:
         parser.error('cannot find files %r' % missing_files)
@@ -225,8 +229,6 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
-
-    doctreedir = abspath(args.doctreedir or path.join(outdir, '.doctrees'))
 
     status = sys.stdout
     warning = sys.stderr
@@ -281,9 +283,10 @@ def main(argv=sys.argv[1:]):  # type: ignore
     app = None
     try:
         with patch_docutils(), docutils_namespace():
-            app = Sphinx(srcdir, confdir, outdir, doctreedir, args.builder,
-                         confoverrides, status, warning, args.freshenv,
-                         args.warningiserror, args.tags, args.verbosity, args.jobs)
+            app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
+                         args.doctreedir, args.builder, confoverrides, status,
+                         warning, args.freshenv, args.warningiserror,
+                         args.tags, args.verbosity, args.jobs)
             app.build(args.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

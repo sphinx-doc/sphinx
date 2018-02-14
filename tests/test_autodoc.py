@@ -715,6 +715,8 @@ def test_generate():
     assert_processes(should, 'class', 'Class')
     options.inherited_members = True
     should.append(('method', 'target.Class.inheritedmeth'))
+    should.append(('method', 'target.Class.inheritedclassmeth'))
+    should.append(('method', 'target.Class.inheritedstaticmeth'))
     assert_processes(should, 'class', 'Class')
 
     # test special members
@@ -798,7 +800,9 @@ def test_generate():
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
                   '   .. py:attribute:: Class._private_inst_attr',
+                  '   .. py:classmethod:: Class.inheritedclassmeth()',
                   '   .. py:method:: Class.inheritedmeth()',
+                  '   .. py:staticmethod:: Class.inheritedstaticmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
     del directive.env.ref_context['py:module']
@@ -903,3 +907,50 @@ def test_generate():
     options.members = ['decoratedFunction']
     assert_result_contains('.. py:function:: decoratedFunction()',
                            'module', 'autodoc_missing_imports')
+
+
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='functools.partialmethod is available on py34 or above')
+@pytest.mark.usefixtures('setup_test')
+def test_partialmethod():
+    def call_autodoc(objtype, name):
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate()
+        result = list(directive.result)
+        del directive.result[:]
+        return result
+
+    options.inherited_members = True
+    options.undoc_members = True
+    expected = [
+        '',
+        '.. py:class:: Cell',
+        '   :module: target.partialmethod',
+        '',
+        '   An example for partialmethod.',
+        '   ',
+        '   refs: https://docs.python.jp/3/library/functools.html#functools.partialmethod',
+        '   ',
+        '   ',
+        '   .. py:method:: Cell.set_alive() -> None',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Make a cell alive.',
+        '      ',
+        '   ',
+        '   .. py:method:: Cell.set_dead() -> None',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Make a cell dead.',
+        '      ',
+        '   ',
+        '   .. py:method:: Cell.set_state(state)',
+        '      :module: target.partialmethod',
+        '   ',
+        '      Update state of cell to *state*.',
+        '      ',
+    ]
+    if sys.version_info < (3, 5, 4):
+        expected = '\n'.join(expected).replace(' -> None', '').split('\n')
+
+    assert call_autodoc('class', 'target.partialmethod.Cell') == expected

@@ -12,25 +12,24 @@
 import os
 from os import path
 
+from docutils import nodes
+from docutils.frontend import OptionParser
+from docutils.io import FileOutput
 from six import text_type
 
-from docutils import nodes
-from docutils.io import FileOutput
-from docutils.utils import new_document
-from docutils.frontend import OptionParser
-
 from sphinx import package_dir, addnodes, highlighting
-from sphinx.config import string_classes, ENUM
-from sphinx.errors import SphinxError, ConfigError
-from sphinx.locale import _
 from sphinx.builders import Builder
+from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import SphinxError, ConfigError
+from sphinx.locale import _
 from sphinx.util import texescape, logging, status_iterator
-from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import new_document
+from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import SEP, make_filename
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 if False:
@@ -49,6 +48,12 @@ class LaTeXBuilder(Builder):
     """
     name = 'latex'
     format = 'latex'
+    epilog = 'The LaTeX files are in %(outdir)s.'
+    if os.name == 'posix':
+        epilog += ("\nRun 'make' in that directory to run these through "
+                   "(pdf)latex\n"
+                   "(use `make latexpdf' here to do that automatically).")
+
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
     default_translator_class = LaTeXTranslator
@@ -256,9 +261,9 @@ class LaTeXBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
-def validate_config_values(app):
-    # type: (Sphinx) -> None
-    for document in app.config.latex_documents:
+def validate_config_values(app, config):
+    # type: (Sphinx, Config) -> None
+    for document in config.latex_documents:
         try:
             text_type(document[2])
         except UnicodeDecodeError:
@@ -298,7 +303,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
-    app.connect('builder-inited', validate_config_values)
+    app.connect('config-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))

@@ -10,12 +10,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-from os import path
 from collections import namedtuple
+from os import path
 
 from sphinx import package_dir
-from sphinx.config import string_classes, ENUM
 from sphinx.builders import _epub_base
+from sphinx.config import string_classes, ENUM
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
@@ -63,6 +63,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     an epub file.
     """
     name = 'epub'
+    epilog = 'The ePub file is in %(outdir)s.'
 
     supported_remote_images = False
     template_dir = path.join(package_dir, 'templates', 'epub3')
@@ -84,6 +85,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def validate_config_value(self):
+        # type: () -> None
         # <package> lang attribute, dc:language
         if not self.app.config.epub_language:
             logger.warning('conf value "epub_language" (or "language") '
@@ -227,15 +229,15 @@ def setup(app):
 
     # config values
     app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
-    app.add_config_value('epub_theme', 'epub', 'html')
-    app.add_config_value('epub_theme_options', {}, 'html')
-    app.add_config_value('epub_title', lambda self: self.html_title, 'html')
-    app.add_config_value('epub_author', 'unknown', 'html')
-    app.add_config_value('epub_language', lambda self: self.language or 'en', 'html')
-    app.add_config_value('epub_publisher', 'unknown', 'html')
-    app.add_config_value('epub_copyright', lambda self: self.copyright, 'html')
-    app.add_config_value('epub_identifier', 'unknown', 'html')
-    app.add_config_value('epub_scheme', 'unknown', 'html')
+    app.add_config_value('epub_theme', 'epub', 'epub')
+    app.add_config_value('epub_theme_options', {}, 'epub')
+    app.add_config_value('epub_title', lambda self: self.html_title, 'epub')
+    app.add_config_value('epub_author', lambda self: self.author, 'epub')
+    app.add_config_value('epub_language', lambda self: self.language or 'en', 'epub')
+    app.add_config_value('epub_publisher', lambda self: self.author, 'epub')
+    app.add_config_value('epub_copyright', lambda self: self.copyright, 'epub')
+    app.add_config_value('epub_identifier', 'unknown', 'epub')
+    app.add_config_value('epub_scheme', 'unknown', 'epub')
     app.add_config_value('epub_uid', 'unknown', 'env')
     app.add_config_value('epub_cover', (), 'env')
     app.add_config_value('epub_guide', (), 'env')
@@ -247,11 +249,11 @@ def setup(app):
     app.add_config_value('epub_tocscope', 'default', 'env')
     app.add_config_value('epub_fix_images', False, 'env')
     app.add_config_value('epub_max_image_width', 0, 'env')
-    app.add_config_value('epub_show_urls', 'inline', 'html')
-    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')
-    app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
+    app.add_config_value('epub_show_urls', 'inline', 'epub')
+    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'epub')
+    app.add_config_value('epub_description', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
 
     return {

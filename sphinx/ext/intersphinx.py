@@ -26,21 +26,20 @@
 
 from __future__ import print_function
 
-import sys
-import time
 import functools
 import posixpath
+import sys
+import time
 from os import path
-
-from six import PY3, iteritems, string_types
-from six.moves.urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import PY3, iteritems, string_types
+from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
-from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
@@ -63,31 +62,33 @@ class InventoryAdapter(object):
     """Inventory adapter for environment"""
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            self.env.intersphinx_cache = {}
-            self.env.intersphinx_inventory = {}
-            self.env.intersphinx_named_inventory = {}
+            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore
+            self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
     def cache(self):
         # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
-        return self.env.intersphinx_cache
+        return self.env.intersphinx_cache  # type: ignore
 
     @property
     def main_inventory(self):
         # type: () -> Inventory
-        return self.env.intersphinx_inventory
+        return self.env.intersphinx_inventory  # type: ignore
 
     @property
     def named_inventory(self):
         # type: () -> Dict[unicode, Inventory]
-        return self.env.intersphinx_named_inventory
+        return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self):
-        self.env.intersphinx_inventory.clear()
-        self.env.intersphinx_named_inventory.clear()
+        # type: () -> None
+        self.env.intersphinx_inventory.clear()  # type: ignore
+        self.env.intersphinx_named_inventory.clear()  # type: ignore
 
 
 def _strip_basic_auth(url):
@@ -179,9 +180,9 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
-                       inv, err.__class__, err)
-        return
+        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
+                    inv, err.__class__, err)
+        raise
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
@@ -197,8 +198,9 @@ def fetch_inventory(app, uri, inv):
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
-        logger.warning('intersphinx inventory %r not readable due to %s: %s',
-                       inv, err.__class__.__name__, err)
+        err.args = ('intersphinx inventory %r not readable due to %s: %s',
+                    inv, err.__class__.__name__, err)
+        raise
     else:
         return invdata
 
@@ -232,6 +234,7 @@ def load_mappings(app):
         else:
             invs = inv  # type: ignore
 
+        failures = []
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
@@ -241,11 +244,29 @@ def load_mappings(app):
                     or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
                 logger.info('loading intersphinx inventory from %s...', safe_inv_url)
-                invdata = fetch_inventory(app, uri, inv)
+                try:
+                    invdata = fetch_inventory(app, uri, inv)
+                except Exception as err:
+                    failures.append(err.args)
+                    continue
+
                 if invdata:
                     inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
+
+        if failures == []:
+            pass
+        elif len(failures) < len(invs):
+            logger.info("encountered some issues with some of the inventories,"
+                        " but they had working alternatives:")
+            for fail in failures:
+                logger.info(*fail)
+        else:
+            logger.warning("failed to reach any of the inventories "
+                           "with the following issues:")
+            for fail in failures:
+                logger.warning(*fail)
 
     if update:
         inventories.clear()
@@ -316,8 +337,11 @@ def missing_reference(app, env, node, contnode):
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
-            newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle=_('(in %s v%s)') % (proj, version))
+            if version:
+                reftitle = _('(in %s v%s)') % (proj, version)
+            else:
+                reftitle = _('(in %s)') % (proj,)
+            newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
@@ -347,7 +371,11 @@ def setup(app):
     app.add_config_value('intersphinx_timeout', None, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }
 
 
 def debug(argv):
@@ -368,6 +396,7 @@ def debug(argv):
         config = MockConfig()
 
         def warn(self, msg):
+            # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
     filename = argv[1]

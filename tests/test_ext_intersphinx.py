@@ -24,7 +24,7 @@ from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
 )
-from test_util_inventory import inventory_v2
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -236,7 +236,8 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     html = (app.outdir / 'index.html').text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
-            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            ' title="(in foo v2.0)">'
+            '<code class="xref cpp cpp-class docutils literal notranslate">'
             '<span class="pre">Bar</span></code></a>' in html)
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#foons"'
@@ -270,6 +271,25 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     assert rn.astext() == 'baz()'
 
 
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
+def test_inventory_not_having_version(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2_not_having_version)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
+    assert rn['reftitle'] == '(in foo)'
+    assert rn[0].astext() == 'Long Module desc'
+
+
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
@@ -290,6 +310,38 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     # load the inventory and check if it's done correctly
     load_mappings(app)
     assert warning.getvalue().count('\n') == 1
+
+
+def test_load_mappings_fallback(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_cache_limit = 0
+
+    # connect to invalid path
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
+    }
+    load_mappings(app)
+    assert "failed to reach any of the inventories" in warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert rn is None
+
+    # clear messages
+    status.truncate(0)
+    warning.truncate(0)
+
+    # add fallbacks to mapping
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
+                                                       inv_file)),
+    }
+    load_mappings(app)
+    assert "encountered some issues with some of the inventories" in status.getvalue()
+    assert "" == warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert isinstance(rn, nodes.reference)
 
 
 class TestStripBasicAuth(unittest.TestCase):

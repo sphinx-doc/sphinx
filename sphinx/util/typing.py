@@ -9,11 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
 from typing import Callable, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+from six import PY3
 
 
 if PY3:

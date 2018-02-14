@@ -12,21 +12,20 @@
 import re
 from copy import deepcopy
 
-from six import iteritems, text_type
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from six import iteritems, text_type
 
 from sphinx import addnodes
-from sphinx.environment import NoUri
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType
+from sphinx.environment import NoUri
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
-from sphinx.util.docfields import Field, GroupedField
 
 
 if False:
@@ -49,7 +48,7 @@ logger = logging.getLogger(__name__)
           It is not the actual old code, but a replication of the behaviour.
     - v2: 1.3 <= version < now
           Standardised mangling scheme from
-          http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
+          https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
@@ -610,6 +609,7 @@ class ASTBase(UnicodeMixin):
         raise NotImplementedError(repr(self))
 
     def __repr__(self):
+        # type: () -> str
         return '<%s %s>' % (self.__class__.__name__, self)
 
 
@@ -6099,6 +6099,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

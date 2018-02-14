@@ -18,6 +18,7 @@ Other co-maintainers:
 Other contributors, listed alphabetically, are:
 
 * Alastair Houghton -- Apple Help builder
+* Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension
@@ -33,7 +34,9 @@ Other contributors, listed alphabetically, are:
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
+* Zac Hatfield-Dodds -- doctest reporting improvements
 * Doug Hellmann -- graphviz improvements
+* Tim Hoffmann -- theme improvements
 * Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
@@ -46,6 +49,7 @@ Other contributors, listed alphabetically, are:
 * Will Maier -- directory HTML builder
 * Jacob Mason -- websupport library (GSOC project)
 * Glenn Matthews -- python domain signature improvements
+* Kurt McKee -- documentation updates
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Bruce Mitchener -- Minor epub improvement
@@ -67,9 +71,11 @@ Other contributors, listed alphabetically, are:
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
 * Michael Wilson -- Intersphinx HTTP basic auth support
+* Matthew Woodcraft -- text output improvements
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
+* Daniel Pizetta -- inheritance diagram improvements
 
 Many thanks for all contributions!
 

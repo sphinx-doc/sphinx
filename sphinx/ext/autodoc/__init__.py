@@ -11,29 +11,28 @@
     :license: BSD, see LICENSE for details.
 """
 
+import inspect
 import re
 import sys
-import inspect
 import warnings
 
+from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
 
-from docutils.statemachine import ViewList
-
 import sphinx
+from sphinx.application import ExtensionError
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
-from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
-from sphinx.application import ExtensionError
 from sphinx.util import logging
+from sphinx.util import rpartition, force_decode
+from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, getdoc
-from sphinx.util.docstrings import prepare_docstring
+    isenumattribute, isclassmethod, isstaticmethod, getdoc
 
 if False:
     # For type annotation
@@ -225,6 +224,18 @@ def between(marker, what=None, keepempty=False, exclude=False):
         if lines and lines[-1]:
             lines.append('')
     return process
+
+
+# This class is used only in ``sphinx.ext.autodoc.directive``,
+# But we define this class here to keep compatibility (see #4538)
+class Options(dict):
+    """A dict/attribute hybrid that returns None on nonexisting keys."""
+    def __getattr__(self, name):
+        # type: (unicode) -> Any
+        try:
+            return self[name.replace('_', '-')]
+        except KeyError:
+            return None
 
 
 class Documenter(object):
@@ -1158,8 +1169,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None
         if self.doc_as_attr:
-            classname = safe_getattr(self.object, '__name__', None)
+            classname = safe_getattr(self.object, '__qualname__', None)
+            if not classname:
+                classname = safe_getattr(self.object, '__name__', None)
             if classname:
+                module = safe_getattr(self.object, '__module__', None)
+                parentmodule = safe_getattr(self.parent, '__module__', None)
+                if module and module != parentmodule:
+                    classname = str(module) + u'.' + str(classname)
                 content = ViewList(
                     [_('alias of :class:`%s`') % classname], source='')
                 ModuleLevelDocumenter.add_content(self, content,
@@ -1175,6 +1192,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def generate(self, more_content=None, real_modname=None,
                  check_module=False, all_members=False):
+        # type: (Any, str, bool, bool) -> None
         # Do not pass real_modname and use the name from the __module__
         # attribute of the class.
         # If a class gets imported into the module real_modname
@@ -1261,12 +1279,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name)
+        if obj is None:
+            obj = self.object
 
-        if isinstance(obj, classmethod):
+        if isclassmethod(obj):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif isinstance(obj, staticmethod):
+        elif isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
@@ -1305,6 +1325,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     @staticmethod
     def is_function_or_method(obj):
+        # type: (Any) -> bool
         return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
@@ -1405,18 +1426,22 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
 
 class DeprecatedDict(dict):
     def __init__(self, message):
+        # type: (str) -> None
         self.message = message
         super(DeprecatedDict, self).__init__()
 
     def __setitem__(self, key, value):
+        # type: (unicode, Any) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).__setitem__(key, value)
 
     def setdefault(self, key, default=None):
+        # type: (unicode, Any) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).setdefault(key, default)
 
-    def update(self, other=None):
+    def update(self, other=None):  # type: ignore
+        # type: (Dict) -> None
         warnings.warn(self.message, RemovedInSphinx20Warning)
         super(DeprecatedDict, self).update(other)
 

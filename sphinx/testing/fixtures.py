@@ -22,16 +22,19 @@ from six import StringIO, string_types
 from . import util
 
 if False:
-    from typing import Dict, Union  # NOQA
+    # For type annotation
+    from typing import Any, Dict, Union  # NOQA
 
 
 @pytest.fixture(scope='session')
 def rootdir():
+    # type: () -> None
     return None
 
 
 @pytest.fixture
 def app_params(request, test_params, shared_result, sphinx_test_tempdir, rootdir):
+    # type: (Any, Any, Any, Any, Any) -> None
     """
     parameters that is specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -137,12 +140,14 @@ def warning(app):
 
 
 @pytest.fixture()
-def make_app(test_params):
+def make_app(test_params, monkeypatch):
     """
     provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
+    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
+
     apps = []
     syspath = sys.path[:]
 
@@ -153,7 +158,7 @@ def make_app(test_params):
         app_ = util.SphinxTestApp(*args, **kwargs)  # type: Union[util.SphinxTestApp, util.SphinxTestAppWrapperForSkipBuilding]  # NOQA
         apps.append(app_)
         if test_params['shared_result']:
-            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)  # type: ignore
         return app_
     yield make
 

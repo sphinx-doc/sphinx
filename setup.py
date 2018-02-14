@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
-
 import os
 import sys
 from distutils import log
 from distutils.cmd import Command
+
+from setuptools import find_packages, setup
 
 import sphinx
 
@@ -15,7 +15,7 @@ if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
     print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
     sys.exit(1)
 
-requires = [
+install_requires = [
     'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
@@ -26,6 +26,7 @@ requires = [
     'imagesize',
     'requests>=2.0.0',
     'setuptools',
+    'packaging',
     'sphinxcontrib-websupport',
 ]
 
@@ -46,7 +47,8 @@ extras_require = {
         'pytest',
         'pytest-cov',
         'html5lib',
-        'flake8',
+        'flake8>=3.5.0',
+        'flake8-import-order',
     ],
     'test:python_version<"3"': [
         'enum34',
@@ -213,7 +215,7 @@ setup(
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests', 'utils']),
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -225,15 +227,8 @@ setup(
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
-        # consider moving this to 'flake8:local-plugins' once flake8 3.5.0 is
-        # in the wild:
-        #    http://flake8.pycqa.org/en/latest/user/configuration.html\
-        #    #using-local-plugins
-        'flake8.extension': [
-            'X101 = utils.checks:sphinx_has_header',
-        ],
     },
-    install_requires=requires,
+    install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,
 )

@@ -72,21 +72,21 @@ def cached_etree_parse():
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
-        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+        (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
-        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+        (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
          r'^    def baz\(\):\n        pass\n\s*$'),
-        (".//div[@class='inc-lines highlight-text']//pre",
+        (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
-        (".//div[@class='inc-startend highlight-text']//pre",
+        (".//div[@class='inc-startend highlight-text notranslate']//pre",
          u'^foo = "Including Unicode characters: üöä"\\n$'),
-        (".//div[@class='inc-preappend highlight-text']//pre",
+        (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
-        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+        (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
          r'def'),
-        (".//div[@class='inc-tab3 highlight-text']//pre",
+        (".//div[@class='inc-tab3 highlight-text notranslate']//pre",
          r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre/span",
+        (".//div[@class='inc-tab8 highlight-python notranslate']//pre/span",
          r'-|      |-'),
     ],
     'autodoc.html': [
@@ -95,7 +95,6 @@ def cached_etree_parse():
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
-        (".//strong", 'from function: Foo'),
         (".//strong", 'from class: Bar'),
     ],
     'markup.html': [
@@ -178,6 +177,8 @@ def cached_etree_parse():
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        # tests for numeric labels
+        (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),

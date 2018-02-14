@@ -9,20 +9,25 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
+
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
-from docutils.utils import new_document
 from docutils.transforms.universal import SmartQuotes
+from docutils.utils import normalize_language_tag
+from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import logging
+from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
+    from typing import Generator, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -209,10 +214,15 @@ class CitationReferences(SphinxTransform):
 
     def apply(self):
         # type: () -> None
+        # mark citation labels as not smartquoted
+        for citnode in self.document.traverse(nodes.citation):
+            citnode[0]['support_smartquotes'] = False
+
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
                                             reftarget=cittext, refwarn=True,
+                                            support_smartquotes=False,
                                             ids=citnode["ids"])
             refnode.source = citnode.source or citnode.parent.source
             refnode.line = citnode.line or citnode.parent.line
@@ -288,6 +298,7 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     default_priority = 200
 
     def apply(self):
+        # type: () -> None
         for node in self.document.footnotes:
             if node['names'] == []:
                 # footnote having duplicated number.  It is already warned at parser.
@@ -333,13 +344,56 @@ class SphinxContentsFilter(ContentsFilter):
         raise nodes.SkipNode
 
 
-class SphinxSmartQuotes(SmartQuotes):
+class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     Customized SmartQuotes to avoid transform for some extra node types.
 
     refs: sphinx.parsers.RSTParser
     """
+    def apply(self):
+        # type: () -> None
+        if not self.is_available():
+            return
+
+        SmartQuotes.apply(self)
+
+    def is_available(self):
+        # type: () -> bool
+        builders = self.config.smartquotes_excludes.get('builders', [])
+        languages = self.config.smartquotes_excludes.get('languages', [])
+
+        if self.document.settings.smart_quotes is False:
+            # disabled by 3rd party extension (workaround)
+            return False
+        elif self.config.smartquotes is False:
+            # disabled by confval smartquotes
+            return False
+        elif self.app.builder.name in builders:
+            # disabled by confval smartquotes_excludes['builders']
+            return False
+        elif self.config.language in languages:
+            # disabled by confval smartquotes_excludes['languages']
+            return False
+
+        # confirm selected language supports smart_quotes or not
+        language = self.env.settings['language_code']
+        for tag in normalize_language_tag(language):
+            if tag in smartchars.quotes:
+                return True
+        else:
+            return False
+
+    @property
+    def smartquotes_action(self):
+        # type: () -> unicode
+        """A smartquotes_action setting for SmartQuotes.
+
+        Users can change this setting through :confval:`smartquotes_action`.
+        """
+        return self.config.smartquotes_action
+
     def get_tokens(self, txtnodes):
+        # type: (List[nodes.Node]) -> Generator
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 
@@ -348,3 +402,22 @@ class SphinxSmartQuotes(SmartQuotes):
         for txtnode in txtnodes:
             notsmartquotable = not is_smartquotable(txtnode)
             yield (texttype[notsmartquotable], txtnode.astext())
+
+
+class ManpageLink(SphinxTransform):
+    """Find manpage section numbers and names"""
+    default_priority = 999
+
+    def apply(self):
+        # type: () -> None
+        for node in self.document.traverse(addnodes.manpage):
+            manpage = ' '.join([str(x) for x in node.children
+                                if isinstance(x, nodes.Text)])
+            pattern = r'^(?P<path>(?P<page>.+)[\(\.](?P<section>[1-9]\w*)?\)?)$'  # noqa
+            info = {'path': manpage,
+                    'page': manpage,
+                    'section': ''}
+            r = re.match(pattern, manpage)
+            if r:
+                info = r.groupdict()
+            node.attributes.update(info)

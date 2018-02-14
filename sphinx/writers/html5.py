@@ -9,13 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import posixpath
 import os
+import posixpath
+import sys
 
-from six import string_types
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
@@ -49,6 +49,7 @@ class HTML5Translator(BaseTranslator):
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
         self.docnames = [builder.current_docname]  # for singlehtml builder
+        self.manpages_url = builder.config.manpages_url
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -389,7 +390,7 @@ class HTML5Translator(BaseTranslator):
             location=(self.builder.current_docname, node.line), **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s' % lang)
+                                 CLASS='highlight-%s notranslate' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -439,10 +440,10 @@ class HTML5Translator(BaseTranslator):
         # type: (nodes.Node) -> None
         if 'kbd' in node['classes']:
             self.body.append(self.starttag(node, 'kbd', '',
-                                           CLASS='docutils literal'))
+                                           CLASS='docutils literal notranslate'))
         else:
             self.body.append(self.starttag(node, 'code', '',
-                                           CLASS='docutils literal'))
+                                           CLASS='docutils literal notranslate'))
             self.protect_literal_text += 1
 
     def depart_literal(self, node):
@@ -758,9 +759,14 @@ class HTML5Translator(BaseTranslator):
     def visit_manpage(self, node):
         # type: (nodes.Node) -> None
         self.visit_literal_emphasis(node)
+        if self.manpages_url:
+            node['refuri'] = self.manpages_url.format(**dict(node))
+            self.visit_reference(node)
 
     def depart_manpage(self, node):
         # type: (nodes.Node) -> None
+        if self.manpages_url:
+            self.depart_reference(node)
         self.depart_literal_emphasis(node)
 
     # overwritten to add even/odd classes

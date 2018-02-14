@@ -10,25 +10,27 @@
 """
 from __future__ import absolute_import
 
+import fnmatch
 import os
+import posixpath
 import re
 import sys
-import fnmatch
 import tempfile
-import posixpath
 import traceback
 import unicodedata
+import warnings
+from codecs import BOM_UTF8
+from collections import deque
+from datetime import datetime
 from os import path
 from time import mktime, strptime
-from codecs import BOM_UTF8
-from datetime import datetime
-from collections import deque
 
+from docutils.utils import relative_path
 from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
-from docutils.utils import relative_path
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -172,6 +174,9 @@ def copy_static_entry(source, targetdir, builder, context={},
 
     Handles all possible cases of files, directories and subdirectories.
     """
+    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
+                  RemovedInSphinx30Warning)
+
     if exclude_matchers:
         relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
@@ -609,6 +614,7 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
 
 
 def epoch_to_rfc1123(epoch):
+    # type: (float) -> unicode
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
 
@@ -618,10 +624,12 @@ def epoch_to_rfc1123(epoch):
 
 
 def rfc1123_to_epoch(rfc1123):
+    # type: (str) -> float
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
 
 
 def xmlname_checker():
+    # type: () -> Pattern
     # https://www.w3.org/TR/REC-xml/#NT-Name
     # Only Python 3.3 or newer support character code in regular expression
     name_start_chars = [
@@ -640,6 +648,7 @@ def xmlname_checker():
     ]
 
     def convert(entries, splitter=u'|'):
+        # type: (Any, unicode) -> unicode
         results = []
         for entry in entries:
             if isinstance(entry, list):

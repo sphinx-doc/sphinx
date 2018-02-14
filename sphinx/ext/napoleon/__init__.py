@@ -50,7 +50,7 @@ class Config(object):
         napoleon_custom_sections = None
 
     .. _Google style:
-       http://google.github.io/styleguide/pyguide.html
+       https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
        https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 

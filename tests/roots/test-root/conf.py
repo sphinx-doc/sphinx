@@ -13,7 +13,6 @@ templates_path = ['_templates']
 
 master_doc = 'contents'
 source_suffix = ['.txt', '.add', '.foo']
-source_parsers = {'.foo': 'parsermod.Parser'}
 
 project = 'Sphinx <Tests>'
 copyright = '2010-2016, Georg Brandl & Team'
@@ -69,9 +68,10 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
 
 autodoc_mock_imports = [
     'missing_module',
-    'missing_package1.missing_module1',
-    'missing_package2.missing_module2',
-    'missing_package3.missing_module3',
+    'missing_package1',
+    'missing_package2',
+    'missing_package3',
+    'sphinx.missing_module4',
 ]
 
 # modify tags from conf.py
@@ -92,11 +92,6 @@ def userdesc_parse(env, sig, signode):
     return x
 
 
-def functional_directive(name, arguments, options, content, lineno,
-                         content_offset, block_text, state, state_machine):
-    return [nodes.strong(text='from function: %s' % options['opt'])]
-
-
 class ClassDirective(Directive):
     option_spec = {'opt': lambda x: x}
 
@@ -105,9 +100,11 @@ class ClassDirective(Directive):
 
 
 def setup(app):
+    import parsermod
+
     app.add_config_value('value_from_conf_py', 42, False)
-    app.add_directive('funcdir', functional_directive, opt=lambda x: x)
     app.add_directive('clsdir', ClassDirective)
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
     app.add_javascript('file://moo.js')
+    app.add_source_parser('.foo', parsermod.Parser)

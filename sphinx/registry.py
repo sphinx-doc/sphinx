@@ -11,19 +11,20 @@
 from __future__ import print_function
 
 import traceback
+import warnings
 
 from pkg_resources import iter_entry_points
-from six import iteritems, itervalues, string_types
+from six import iteritems, itervalues
 
-from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
-from sphinx.extension import Extension
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
+from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
+from sphinx.extension import Extension
 from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util import import_object
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
@@ -52,18 +53,51 @@ EXTENSION_BLACKLIST = {
 
 class SphinxComponentRegistry(object):
     def __init__(self):
+        # type: () -> None
+        #: special attrgetter for autodoc; class object -> attrgetter
         self.autodoc_attrgettrs = {}    # type: Dict[Type, Callable[[Any, unicode, Any], Any]]
+
+        #: builders; a dict of builder name -> bulider class
         self.builders = {}              # type: Dict[unicode, Type[Builder]]
+
+        #: autodoc documenters; a dict of documenter name -> documenter class
         self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
+
+        #: domains; a dict of domain name -> domain class
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
+
+        #: additional directives for domains
+        #: a dict of domain name -> dict of directive name -> directive
         self.domain_directives = {}     # type: Dict[unicode, Dict[unicode, Any]]
+
+        #: additional indices for domains
+        #: a dict of domain name -> list of index class
         self.domain_indices = {}        # type: Dict[unicode, List[Type[Index]]]
+
+        #: additional object types for domains
+        #: a dict of domain name -> dict of objtype name -> objtype
         self.domain_object_types = {}   # type: Dict[unicode, Dict[unicode, ObjType]]
+
+        #: additional roles for domains
+        #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
+
+        #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
-        self.source_parsers = {}        # type: Dict[unicode, Parser]
+
+        #: source paresrs; file type -> parser class
+        self.source_parsers = {}        # type: Dict[unicode, Type[Parser]]
+
+        #: source inputs; file type -> input class
         self.source_inputs = {}         # type: Dict[unicode, Input]
+
+        #: source suffix: suffix -> file type
+        self.source_suffix = {}         # type: Dict[unicode, unicode]
+
+        #: custom translators; builder name -> translator class
         self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+
+        #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
 
     def add_builder(self, builder):
@@ -197,28 +231,43 @@ class SphinxComponentRegistry(object):
         object_types = self.domain_object_types.setdefault('std', {})
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
+    def add_source_suffix(self, suffix, filetype):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
+        if suffix in self.source_suffix:
+            raise ExtensionError(__('source_parser for %r is already registered') % suffix)
+        else:
+            self.source_suffix[suffix] = filetype
+
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Type[Parser]) -> None
         logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
-        if suffix in self.source_parsers:
-            raise ExtensionError(__('source_parser for %r is already registered') % suffix)
+        self.add_source_suffix(suffix, suffix)
+
+        if len(parser.supported) == 0:
+            warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
+                          'attribute: %s' % parser.__name__,
+                          RemovedInSphinx30Warning)
+
+        # create a map from filetype to parser
+        for filetype in parser.supported:
+            if filetype in self.source_parsers:
+                raise ExtensionError(__('source_parser for %r is already registered') %
+                                     filetype)
+            else:
+                self.source_parsers[filetype] = parser
+
+        # also maps suffix to parser
+        #
+        # This allows parsers not having ``supported`` filetypes.
         self.source_parsers[suffix] = parser
 
-    def get_source_parser(self, filename):
+    def get_source_parser(self, filetype):
         # type: (unicode) -> Type[Parser]
-        for suffix, parser_class in iteritems(self.source_parsers):
-            if filename.endswith(suffix):
-                break
-        else:
-            # use special parser for unknown file-extension '*' (if exists)
-            parser_class = self.source_parsers.get('*')
-
-        if parser_class is None:
-            raise SphinxError(__('Source parser for %s not registered') % filename)
-        else:
-            if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')  # type: ignore
-            return parser_class
+        try:
+            return self.source_parsers[filetype]
+        except KeyError:
+            raise SphinxError(__('Source parser for %s not registered') % filetype)
 
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
@@ -232,27 +281,24 @@ class SphinxComponentRegistry(object):
             parser.set_application(app)
         return parser
 
-    def add_source_input(self, filetype, input_class):
-        # type: (unicode, Type[Input]) -> None
-        if filetype in self.source_inputs:
-            raise ExtensionError(__('source_input for %r is already registered') % filetype)
-        self.source_inputs[filetype] = input_class
-
-    def get_source_input(self, filename):
-        # type: (unicode) -> Type[Input]
-        parser = self.get_source_parser(filename)
-        for filetype in parser.supported:
+    def add_source_input(self, input_class):
+        # type: (Type[Input]) -> None
+        for filetype in input_class.supported:
             if filetype in self.source_inputs:
-                input_class = self.source_inputs[filetype]
-                break
-        else:
-            # use special source_input for unknown file-type '*' (if exists)
-            input_class = self.source_inputs.get('*')
+                raise ExtensionError(__('source_input for %r is already registered') %
+                                     filetype)
+            self.source_inputs[filetype] = input_class
 
-        if input_class is None:
-            raise SphinxError(__('source_input for %s not registered') % filename)
-        else:
-            return input_class
+    def get_source_input(self, filetype):
+        # type: (unicode) -> Type[Input]
+        try:
+            return self.source_inputs[filetype]
+        except KeyError:
+            try:
+                # use special source_input for unknown filetype
+                return self.source_inputs['*']
+            except KeyError:
+                raise SphinxError(__('source_input for %s not registered') % filetype)
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
@@ -332,8 +378,6 @@ class SphinxComponentRegistry(object):
 
         if metadata is None:
             metadata = {}
-            if extname == 'rst2pdf.pdfbuilder':
-                metadata['parallel_read_safe'] = True
         elif not isinstance(metadata, dict):
             logger.warning(__('extension %r returned an unsupported object from '
                               'its setup() function; it should return None or a '
@@ -341,3 +385,37 @@ class SphinxComponentRegistry(object):
 
         app.extensions[extname] = Extension(extname, mod, **metadata)
         app._setting_up_extension.pop()
+
+    def get_envversion(self, app):
+        # type: (Sphinx) -> Dict[unicode, unicode]
+        from sphinx.environment import ENV_VERSION
+        envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
+                      if ext.metadata.get('env_version')}
+        envversion['sphinx'] = ENV_VERSION
+        return envversion
+
+
+def merge_source_suffix(app):
+    # type: (Sphinx) -> None
+    """Merge source_suffix which specified by user and added by extensions."""
+    for suffix in app.registry.source_suffix:
+        if suffix not in app.config.source_suffix:
+            app.config.source_suffix[suffix] = suffix
+        elif app.config.source_suffix[suffix] is None:
+            # filetype is not specified (default filetype).
+            # So it overrides default filetype by extensions setting.
+            app.config.source_suffix[suffix] = suffix
+
+    # copy config.source_suffix to registry
+    app.registry.source_suffix = app.config.source_suffix
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.connect('builder-inited', merge_source_suffix)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

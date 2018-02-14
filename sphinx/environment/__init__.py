@@ -9,46 +9,42 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import os
+import re
 import sys
 import time
 import types
-import fnmatch
 import warnings
-from os import path
-from copy import copy
 from collections import defaultdict
-from contextlib import contextmanager
+from copy import copy
+from os import path
 
-from six import BytesIO, itervalues, class_types, next, iteritems
+from docutils.frontend import OptionParser
+from docutils.utils import Reporter, get_source_line
+from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.utils import Reporter, get_source_line, normalize_language_tag
-from docutils.utils.smartquotes import smartchars
-from docutils.frontend import OptionParser
-
 from sphinx import addnodes, versioning
-from sphinx.io import read_doc
-from sphinx.util import logging, rst
-from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir
-from sphinx.util.i18n import find_catalog_files
-from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import sphinx_domains, WarningStream
-from sphinx.util.matching import compile_matchers
-from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
-from sphinx.util.websupport import is_commentable
-from sphinx.errors import SphinxError, ExtensionError
-from sphinx.transforms import SphinxTransformer, SphinxSmartQuotes
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.errors import SphinxError, ExtensionError
+from sphinx.io import read_doc
+from sphinx.transforms import SphinxTransformer
+from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
+from sphinx.util import logging, rst
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util.i18n import find_catalog_files
+from sphinx.util.matching import compile_matchers
+from sphinx.util.nodes import is_translatable
+from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
+from sphinx.util.websupport import is_commentable
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -61,7 +57,9 @@ default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'https://www.python.org/dev/peps/',
+    'pep_references': None,
     'rfc_base_url': 'https://tools.ietf.org/html/',
+    'rfc_references': None,
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
@@ -82,22 +80,6 @@ versioning_conditions = {
     'text': is_translatable,
     'commentable': is_commentable,
 }  # type: Dict[unicode, Union[bool, Callable]]
-
-
-@contextmanager
-def sphinx_smartquotes_action(env):
-    # type: (BuildEnvironment) -> Generator
-    if not hasattr(SphinxSmartQuotes, 'smartquotes_action'):
-        # less than docutils-0.14
-        yield
-    else:
-        # docutils-0.14 or above
-        try:
-            original = SphinxSmartQuotes.smartquotes_action
-            SphinxSmartQuotes.smartquotes_action = env.config.smartquotes_action
-            yield
-        finally:
-            SphinxSmartQuotes.smartquotes_action = original
 
 
 class NoUri(Exception):
@@ -125,13 +107,9 @@ class BuildEnvironment(object):
             # This can happen for example when the pickle is from a
             # different version of Sphinx.
             raise IOError(exc)
-        if env.version != ENV_VERSION:
-            raise IOError('build environment version not current')
         if app:
             env.app = app
             env.config.values = app.config.values
-            if env.srcdir != app.srcdir:
-                raise IOError('source directory has changed')
         return env
 
     @classmethod
@@ -205,7 +183,7 @@ class BuildEnvironment(object):
         self._warnfunc = None  # type: Callable
 
         # this is to invalidate old pickles
-        self.version = ENV_VERSION
+        self.version = app.registry.get_envversion(app)
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -322,6 +300,19 @@ class BuildEnvironment(object):
         """Like :meth:`warn`, but with source information taken from *node*."""
         self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
 
+    def need_refresh(self, app):
+        # type: (Sphinx) -> Tuple[bool, unicode]
+        """Check refresh environment is needed.
+
+        If needed, this method returns the reason for refresh.
+        """
+        if self.version != app.registry.get_envversion(app):
+            return True, 'build environment version not current'
+        elif self.srcdir != app.srcdir:
+            return True, 'source directory has changed'
+        else:
+            return False, None
+
     def clear_doc(self, docname):
         # type: (unicode) -> None
         """Remove all traces of a source file in the inventory."""
@@ -358,17 +349,16 @@ class BuildEnvironment(object):
         app.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename):
-        # type: (unicode) -> unicode
+        # type: (unicode) -> Optional[unicode]
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
         """
         if filename.startswith(self.srcdir):
-            filename = filename[len(self.srcdir) + 1:]
+            filename = os.path.relpath(filename, self.srcdir)
         for suffix in self.config.source_suffix:
-            if fnmatch.fnmatch(filename, '*' + suffix):
+            if filename.endswith(suffix):
                 return filename[:-len(suffix)]
-        # the file does not have docname
         return None
 
     def doc2path(self, docname, base=True, suffix=None):
@@ -382,15 +372,13 @@ class BuildEnvironment(object):
         """
         docname = docname.replace(SEP, path.sep)
         if suffix is None:
-            candidate_suffix = None  # type: unicode
+            # Use first candidate if there is not a file for any suffix
+            suffix = next(iter(self.config.source_suffix))
             for candidate_suffix in self.config.source_suffix:
                 if path.isfile(path.join(self.srcdir, docname) +
                                candidate_suffix):
                     suffix = candidate_suffix
                     break
-            else:
-                # document does not exist
-                suffix = self.config.source_suffix[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:
@@ -602,8 +590,7 @@ class BuildEnvironment(object):
             # remove all inventory entries for that file
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
-            with sphinx_smartquotes_action(self):
-                self.read_doc(docname, app)
+            self.read_doc(docname, app)
 
     def _read_parallel(self, docnames, app, nproc):
         # type: (List[unicode], Sphinx, int) -> None
@@ -615,9 +602,8 @@ class BuildEnvironment(object):
         def read_process(docs):
             # type: (List[unicode]) -> unicode
             self.app = app
-            with sphinx_smartquotes_action(self):
-                for docname in docs:
-                    self.read_doc(docname, app)
+            for docname in docs:
+                self.read_doc(docname, app)
             # allow pickling self to send it back
             return BuildEnvironment.dumps(self)
 
@@ -662,29 +648,10 @@ class BuildEnvironment(object):
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        language = self.config.language or 'en'
-        self.settings['language_code'] = language
-        if 'smart_quotes' not in self.settings:
-            self.settings['smart_quotes'] = self.config.smartquotes
+        self.settings['language_code'] = self.config.language or 'en'
 
-            # some conditions exclude smart quotes, overriding smart_quotes
-            for valname, vallist in iteritems(self.config.smartquotes_excludes):
-                if valname == 'builders':
-                    # this will work only for checking first build target
-                    if self.app.builder.name in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-                elif valname == 'languages':
-                    if self.config.language in vallist:
-                        self.settings['smart_quotes'] = False
-                        break
-
-        # confirm selected language supports smart_quotes or not
-        for tag in normalize_language_tag(language):
-            if tag in smartchars.quotes:
-                break
-        else:
-            self.settings['smart_quotes'] = False
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None

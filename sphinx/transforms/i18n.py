@@ -16,6 +16,9 @@ from docutils.io import StringInput
 from docutils.utils import relative_path
 
 from sphinx import addnodes
+from sphinx.domains.std import make_glossary_term, split_term_classifiers
+from sphinx.locale import init as init_locale
+from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import (
@@ -23,9 +26,6 @@ from sphinx.util.nodes import (
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
 from sphinx.util.pycompat import indent
-from sphinx.locale import init as init_locale
-from sphinx.transforms import SphinxTransform
-from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 if False:
     # For type annotation
@@ -50,9 +50,9 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     :rtype: docutils.nodes.document
     """
     from sphinx.io import SphinxI18nReader
-    reader = SphinxI18nReader()
+    reader = SphinxI18nReader(app)
     reader.set_lineno_for_reporter(source_line)
-    parser = app.registry.create_source_parser(app, '')
+    parser = app.registry.create_source_parser(app, '.rst')
     doc = reader.read(
         source=StringInput(source=source, source_path=source_path),
         parser=parser,
@@ -450,6 +450,7 @@ class Locale(SphinxTransform):
 
         # remove translated attribute that is used for avoiding double translation.
         def has_translatable(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, nodes.Element) and 'translated' in node
         for node in self.document.traverse(has_translatable):
             node.delattr('translated')

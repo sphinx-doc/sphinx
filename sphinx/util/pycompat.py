@@ -9,8 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import codecs
+import sys
 
 from six import PY3, text_type, exec_
 

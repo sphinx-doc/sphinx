@@ -72,7 +72,7 @@ If you wish to install `Sphinx` for development purposes, refer to `the
 contributors guide`__.
 
 __ https://pypi.python.org/pypi/Sphinx
-__ CONTRIBUTING.rst
+__ http://www.sphinx-doc.org/en/master/devguide.html
 
 Documentation
 =============
@@ -93,14 +93,14 @@ For information on running tests locally, refer to `the contributors guide`__.
 __ https://travis-ci.org/sphinx-doc/sphinx
 __ https://ci.appveyor.com/project/sphinxdoc/sphinx
 __ https://circleci.com/gh/sphinx-doc/sphinx
-__ CONTRIBUTING.rst
+__ http://www.sphinx-doc.org/en/master/devguide.html
 
 Contributing
 ============
 
 Refer to `the contributors guide`__.
 
-__ CONTRIBUTING.rst
+__ http://www.sphinx-doc.org/en/master/devguide.html
 
 Release signatures
 ==================

@@ -12,17 +12,16 @@
 import re
 import unicodedata
 
-from six import iteritems
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
 
@@ -607,8 +606,9 @@ class StandardDomain(Domain):
             if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
                 node = document.ids.get(node['refid'])
                 labelid = node['names'][0]
-            if name.isdigit() or 'refuri' in node or \
-               node.tagname.startswith('desc_'):
+            if (node.tagname == 'footnote' or
+                    'refuri' in node or
+                    node.tagname.startswith('desc_')):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
@@ -979,6 +979,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

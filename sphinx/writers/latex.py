@@ -14,12 +14,12 @@
 
 import re
 import sys
-from os import path
 from collections import defaultdict
+from os import path
 
-from six import itervalues, text_type
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
+from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
@@ -549,7 +549,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
         })
-        if not self.elements['releasename']:
+        if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
                 'releasename':  _('Release'),
             })
@@ -1376,6 +1376,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table = Table(node)
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
+            if 'colwidths-given' in node.get('classes', []):
+                logger.info('both tabularcolumns and :widths: option are given. '
+                            ':widths: is ignored.', location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node):
@@ -1508,8 +1511,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              % (cell.width, self.table.colcount))
             context = ('\\par\n\\vskip-\\baselineskip'
                        '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
-            self.needs_linetrimming = 1
-        if len(node) > 2 and len(node.astext().split('\n')) > 2:
             self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_oldproblematic = True
@@ -1774,7 +1775,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
-                # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
+                # https://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
                 (0, 'left'): ('{', '\\hspace*{\\fill}}'),
                 (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }
@@ -1853,28 +1854,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
-            if ('align' not in node.attributes or
-                    node.attributes['align'] == 'center'):
-                self.body.append('\n\\begin{center}')
-                self.context.append('\\end{center}\n')
-            else:
-                self.body.append('\n\\begin{flush%s}' % node.attributes['align'])
-                self.context.append('\\end{flush%s}\n' % node.attributes['align'])
+            self.body.append('\n\\begin{center}')
+            self.context.append('\\end{center}\n')
         else:
-            if ('align' not in node.attributes or
-                    node.attributes['align'] == 'center'):
-                # centering does not add vertical space like center.
-                align = '\n\\centering'
-                align_end = ''
-            else:
-                # TODO non vertical space for other alignments.
-                align = '\\begin{flush%s}' % node.attributes['align']
-                align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\n\\begin{figure}[%s]%s\n' % (
-                self.elements['figure_align'], align))
+            self.body.append('\n\\begin{figure}[%s]\n\\centering\n' %
+                             self.elements['figure_align'])
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
-            self.context.append(ids + align_end + '\\end{figure}\n')
+            self.context.append(ids + '\\end{figure}\n')
 
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
@@ -1901,9 +1888,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('\n\\begin{sphinxlegend}')
 
     def depart_legend(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('\\end{sphinxlegend}\n')
 
     def visit_admonition(self, node):

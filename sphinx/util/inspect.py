@@ -10,10 +10,10 @@
 """
 from __future__ import absolute_import
 
+import inspect
 import re
 import sys
 import typing
-import inspect
 from collections import OrderedDict
 
 from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
@@ -154,6 +154,40 @@ def isenumattribute(x):
     return isinstance(x, enum.Enum)
 
 
+def isclassmethod(obj):
+    # type: (Any) -> bool
+    """Check if the object is classmethod."""
+    if isinstance(obj, classmethod):
+        return True
+    elif inspect.ismethod(obj):
+        if getattr(obj, 'im_self', None):  # py2
+            return True
+        elif getattr(obj, '__self__', None):  # py3
+            return True
+
+    return False
+
+
+def isstaticmethod(obj, cls=None, name=None):
+    # type: (Any, Any, unicode) -> bool
+    """Check if the object is staticmethod."""
+    if isinstance(obj, staticmethod):
+        return True
+    elif cls and name:
+        # trace __mro__ if the method is defined in parent class
+        #
+        # .. note:: This only works with new style classes.
+        for basecls in getattr(cls, '__mro__', []):
+            meth = basecls.__dict__.get(name)
+            if meth:
+                if isinstance(meth, staticmethod):
+                    return True
+                else:
+                    return False
+
+    return False
+
+
 def isdescriptor(x):
     # type: (Any) -> bool
     """Check if the object is some kind of descriptor."""
@@ -273,9 +307,17 @@ class Signature(object):
             raise TypeError("can't compute signature for built-in type {}".format(subject))
 
         self.subject = subject
+        self.partialmethod_with_noargs = False
 
         if PY3:
-            self.signature = inspect.signature(subject)
+            try:
+                self.signature = inspect.signature(subject)
+            except IndexError:
+                if hasattr(subject, '_partialmethod'):  # partialmethod with no argument
+                    self.signature = None
+                    self.partialmethod_with_noargs = True
+                else:
+                    raise
         else:
             self.argspec = getargspec(subject)
 
@@ -305,7 +347,10 @@ class Signature(object):
     def parameters(self):
         # type: () -> Dict
         if PY3:
-            return self.signature.parameters
+            if self.partialmethod_with_noargs:
+                return {}
+            else:
+                return self.signature.parameters
         else:
             params = OrderedDict()  # type: Dict
             positionals = len(self.argspec.args) - len(self.argspec.defaults)
@@ -326,7 +371,7 @@ class Signature(object):
     @property
     def return_annotation(self):
         # type: () -> Any
-        if PY3:
+        if PY3 and self.signature:
             return self.signature.return_annotation
         else:
             return None
@@ -397,6 +442,55 @@ class Signature(object):
 
         Displaying complex types from ``typing`` relies on its private API.
         """
+        if sys.version_info >= (3, 7):  # py37+
+            return self.format_annotation_new(annotation)
+        else:
+            return self.format_annotation_old(annotation)
+
+    def format_annotation_new(self, annotation):
+        # type: (Any) -> str
+        """format_annotation() for py37+"""
+        module = getattr(annotation, '__module__', None)
+        if isinstance(annotation, string_types):
+            return annotation  # type: ignore
+        elif isinstance(annotation, typing.TypeVar):  # type: ignore
+            return annotation.__name__
+        elif not annotation:
+            return repr(annotation)
+        elif module == 'builtins':
+            return annotation.__qualname__
+        elif annotation is Ellipsis:
+            return '...'
+
+        if module == 'typing':
+            if getattr(annotation, '_name', None):
+                qualname = annotation._name
+            elif getattr(annotation, '__qualname__', None):
+                qualname = annotation.__qualname__
+            else:
+                qualname = self.format_annotation(annotation.__origin__)  # ex. Union
+        elif hasattr(annotation, '__qualname__'):
+            qualname = '%s.%s' % (module, annotation.__qualname__)
+        else:
+            qualname = repr(annotation)
+
+        if getattr(annotation, '__args__', None):
+            if qualname == 'Union':
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
+                return '%s[%s]' % (qualname, args)
+            elif qualname == 'Callable':
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__[:-1])
+                returns = self.format_annotation(annotation.__args__[-1])
+                return '%s[[%s], %s]' % (qualname, args, returns)
+            else:
+                args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
+                return '%s[%s]' % (qualname, args)
+
+        return qualname
+
+    def format_annotation_old(self, annotation):
+        # type: (Any) -> str
+        """format_annotation() for py36 or below"""
         if isinstance(annotation, string_types):
             return annotation  # type: ignore
         if isinstance(annotation, typing.TypeVar):  # type: ignore
@@ -404,14 +498,23 @@ class Signature(object):
         if annotation == Ellipsis:
             return '...'
         if not isinstance(annotation, type):
-            return repr(annotation)
+            qualified_name = repr(annotation)
+            if qualified_name.startswith('typing.'):  # for typing.Union
+                return qualified_name.split('.', 1)[1]
+            else:
+                return qualified_name
 
-        qualified_name = (annotation.__module__ + '.' + annotation.__qualname__  # type: ignore
-                          if annotation else repr(annotation))
+        if not annotation:
+            qualified_name = repr(annotation)
+        elif annotation.__module__ == 'typing':
+            qualified_name = annotation.__qualname__  # type: ignore
+        else:
+            qualified_name = (annotation.__module__ + '.' + annotation.__qualname__)  # type: ignore  # NOQA
 
         if annotation.__module__ == 'builtins':
             return annotation.__qualname__  # type: ignore
-        elif isinstance(annotation, typing.GenericMeta):
+        elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
+              isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,
             # whereas __parameters__ only contains generic parameters.
             #
@@ -438,7 +541,8 @@ class Signature(object):
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
-        elif (isinstance(annotation, typing.CallableMeta) and  # type: ignore
+        elif (hasattr(typing, 'CallableMeta') and  # for py36 or below
+              isinstance(annotation, typing.CallableMeta) and  # type: ignore
               getattr(annotation, '__args__', None) is not None and
               hasattr(annotation, '__result__')):
             # Skipped in the case of plain typing.Callable
@@ -453,7 +557,8 @@ class Signature(object):
             return '%s[%s, %s]' % (qualified_name,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
-        elif (isinstance(annotation, typing.TupleMeta) and  # type: ignore
+        elif (hasattr(typing, 'TupleMeta') and  # for py36 or below
+              isinstance(annotation, typing.TupleMeta) and  # type: ignore
               hasattr(annotation, '__tuple_params__') and
               hasattr(annotation, '__tuple_use_ellipsis__')):
             params = annotation.__tuple_params__
@@ -474,6 +579,7 @@ else:
     # of Python 3.5
 
     def _findclass(func):
+        # type: (Any) -> Any
         cls = sys.modules.get(func.__module__)
         if cls is None:
             return None
@@ -487,6 +593,7 @@ else:
         return cls
 
     def _finddoc(obj):
+        # type: (Any) -> unicode
         if inspect.isclass(obj):
             for base in obj.__mro__:
                 if base is not object:
@@ -547,6 +654,7 @@ else:
         return None
 
     def getdoc(object):
+        # type: (Any) -> unicode
         """Get the documentation string for an object.
 
         All tabs are expanded to spaces.  To clean up docstrings that are

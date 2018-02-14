@@ -53,28 +53,27 @@
     :license: BSD, see LICENSE for details.
 """
 
+import inspect
 import os
+import posixpath
 import re
 import sys
-import inspect
-import posixpath
-from six import string_types
 from types import ModuleType
 
-from six import text_type
-
+from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
-from docutils import nodes
+from six import string_types
+from six import text_type
 
 import sphinx
 from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.util import import_object, rst, logging
-from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
+from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.util import import_object, rst, logging
 
 if False:
     # For type annotation
@@ -102,6 +101,7 @@ def process_autosummary_toc(app, doctree):
     crawled = {}
 
     def crawl_toc(node, depth=1):
+        # type: (nodes.Node, int) -> None
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
@@ -156,6 +156,7 @@ def autosummary_table_visit_html(self, node):
 
 class FakeDirective(DocumenterBridge):
     def __init__(self):
+        # type: () -> None
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
@@ -398,10 +399,20 @@ class Autosummary(Directive):
         return [table_spec, table]
 
 
+def strip_arg_typehint(s):
+    # type: (unicode) -> unicode
+    """Strip a type hint from argument definition."""
+    return s.split(':')[0].strip()
+
+
 def mangle_signature(sig, max_chars=30):
     # type: (unicode, int) -> unicode
     """Reformat a function signature to a more compact form."""
-    s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
+    # Strip return type annotation
+    s = re.sub(r"\)\s*->\s.*$", ")", sig)
+
+    # Remove parenthesis
+    s = re.sub(r"^\((.*)\)$", r"\1", s).strip()
 
     # Strip strings (which can contain things that confuse the code below)
     s = re.sub(r"\\\\", "", s)
@@ -422,6 +433,13 @@ def mangle_signature(sig, max_chars=30):
 
         opts.insert(0, m.group(2))
         s = m.group(1)[:-2]
+
+    # Strip typehints
+    for i, arg in enumerate(args):
+        args[i] = strip_arg_typehint(arg)
+
+    for i, opt in enumerate(opts):
+        opts[i] = strip_arg_typehint(opt)
 
     # Produce a more compact signature
     sig = limited_join(", ", args, max_chars=max_chars - 2)
@@ -603,7 +621,7 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix
+    ext = list(app.config.source_suffix)
     genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 

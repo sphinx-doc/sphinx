@@ -90,11 +90,31 @@ General configuration
 
 .. confval:: source_suffix
 
-   The file name extension, or list of extensions, of source files.  Only files
-   with this suffix will be read as sources.  Default is ``'.rst'``.
+   The file extensions of source files.  Sphinx considers the files with this
+   suffix as sources.  This value can be a dictionary mapping file extensions
+   to file types.  For example::
+
+      source_suffix = {
+          '.rst': 'restructuredtext',
+          '.txt': 'restructuredtext',
+          '.md': 'markdown',
+      }
+
+   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   add a new file type using source parser extensions.  Please read a document
+   of the extension to know what file type the extension supports.
+
+   This also allows a list of file extensions.  In that case, Sphinx conciders
+   that all they are ``'restructuredtext'``.  Default is
+   ``{'.rst': 'restructuredtext'}``.
+
+   .. note:: file extensions have to start with dot (like ``.rst``).
 
    .. versionchanged:: 1.3
       Can now be a list of extensions.
+
+   .. versionchanged:: 1.8
+      Support file type mapping
 
 .. confval:: source_encoding
 
@@ -122,6 +142,10 @@ General configuration
       Read more about how to use Markdown with Sphinx at :ref:`markdown`.
 
    .. versionadded:: 1.3
+
+   .. deprecated:: 1.8
+      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      a source parser.  Please use it instead.
 
 .. confval:: master_doc
 
@@ -293,6 +317,24 @@ General configuration
 
    .. versionadded:: 1.3
 
+.. confval:: manpages_url
+
+   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   defined to ``https://manpages.debian.org/{path}``, the
+   :literal:`:manpage:`man(1)`` role will like to
+   <https://manpages.debian.org/man(1)>. The patterns available are:
+
+     * ``page`` - the manual page (``man``)
+     * ``section`` - the manual section (``1``)
+     * ``path`` - the original manual page and section specified (``man(1)``)
+
+   This also supports manpages specified as ``man.1``.
+
+   .. note:: This currently affects only HTML writers but could be
+             expanded in the future.
+
+   .. versionadded:: 1.7
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be
@@ -432,6 +474,10 @@ Project information
 .. confval:: project
 
    The documented project's name.
+
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
 
 .. confval:: copyright
 
@@ -1392,8 +1438,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_author
 
-   The author of the document.  This is put in the Dublin Core metadata.  The
-   default value is ``'unknown'``.
+   The author of the document.  This is put in the Dublin Core metadata.  It
+   defaults to the :confval:`author` option.
 
 .. confval:: epub_contributor
 
@@ -1414,8 +1460,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_publisher
 
    The publisher of the document.  This is put in the Dublin Core metadata.  You
-   may use any sensible string, e.g. the project homepage.  The default value is
-   ``'unknown'``.
+   may use any sensible string, e.g. the project homepage.  The defaults to the
+   :confval:`author` option.
 
 .. confval:: epub_copyright
 
@@ -2020,6 +2066,20 @@ These options influence text output.
    The default is ``'*=-~"+`'``.
 
    .. versionadded:: 1.1
+
+.. confval:: text_add_secnumbers
+
+   A boolean that decides whether section numbers are included in text output.
+   Default is ``True``.
+
+   .. versionadded:: 1.7
+
+.. confval:: text_secnumber_suffix
+
+   Suffix for section numbers in text output.  Default: ``". "``. Set to ``" "``
+   to suppress the final dot on section numbers.
+
+   .. versionadded:: 1.7
 
 
 .. _man-options:

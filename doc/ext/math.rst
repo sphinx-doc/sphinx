@@ -248,7 +248,7 @@ Sphinx.
 
    __ https://cdjns.com
 
-   __ http://docs.mathjax.org/en/latest/start.html
+   __ https://docs.mathjax.org/en/latest/start.html
 
    The path can be absolute or relative; if it is relative, it is relative to
    the ``_static`` directory of the built docs.
@@ -258,7 +258,7 @@ Sphinx.
    documentation set on one server, it is advisable to install MathJax in a
    shared location.
 
-   You can also give a full ``http://`` URL different from the CDN URL.
+   You can also give a full ``https://`` URL different from the CDN URL.
 
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
@@ -284,9 +284,9 @@ package jsMath_.  It provides this config value:
    a shared location.
 
 
-.. _dvipng: http://savannah.nongnu.org/projects/dvipng/
+.. _dvipng: https://savannah.nongnu.org/projects/dvipng/
 .. _dvisvgm: http://dvisvgm.bplaced.net/
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
-.. _preview-latex package: http://www.gnu.org/software/auctex/preview-latex.html
-.. _AmSMath LaTeX package: http://www.ams.org/publications/authors/tex/amslatex
+.. _preview-latex package: https://www.gnu.org/software/auctex/preview-latex.html
+.. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
