@@ -19,6 +19,7 @@ Bugs fixed
 * #4608: epub: Invalid meta tag is generated
 * #4260: autodoc: keyword only argument separator is not disappeared if it is
   appeared at top of the argument list
+* #4617: quickstart: PROJECT_DIR argument is required
 
 Testing
 --------
