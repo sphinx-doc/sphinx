@@ -154,7 +154,7 @@ class Stylesheet(text_type):
 
 
 class JSContainer(list):
-    """The container for javascripts."""
+    """The container for JavaScript scripts."""
     def insert(self, index, obj):
         # type: (int, unicode) -> None
         warnings.warn('builder.script_files is deprecated. '
