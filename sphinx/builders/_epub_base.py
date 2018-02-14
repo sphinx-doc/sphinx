@@ -13,6 +13,7 @@ import os
 import re
 from collections import namedtuple
 from os import path
+from typing import TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from docutils import nodes
@@ -34,8 +35,7 @@ except ImportError:
     except ImportError:
         Image = None
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

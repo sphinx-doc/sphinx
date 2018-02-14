@@ -9,14 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from six import iteritems
 
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -9,10 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import List, Sequence  # NOQA
 
 

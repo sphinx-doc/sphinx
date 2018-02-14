@@ -16,6 +16,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
@@ -51,8 +52,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA

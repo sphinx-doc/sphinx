@@ -11,6 +11,7 @@
 
 import warnings
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -32,8 +33,7 @@ try:
 except ImportError:
     multiprocessing = None
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA

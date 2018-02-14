@@ -10,6 +10,7 @@
 """
 
 import sys
+from typing import TYPE_CHECKING
 
 from six import PY2, iteritems
 
@@ -17,8 +18,7 @@ import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List  # NOQA
 
 

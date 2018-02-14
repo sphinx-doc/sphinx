@@ -9,12 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes
 
 from sphinx.environment.collectors import EnvironmentCollector
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

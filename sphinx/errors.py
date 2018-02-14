@@ -10,8 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-if False:
-    # For type annotation
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
     from typing import Any  # NOQA
 
 
