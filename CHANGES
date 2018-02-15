@@ -23,6 +23,7 @@ Deprecated
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.testing.util.remove_unicode_literal()``
+* ``sphinx.util.get_matching_docs()`` is deprecated
 * ``sphinx.util.osutil.walk()``
 * ``translatablestrings`` variable for LaTeX template
 

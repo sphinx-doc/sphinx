@@ -30,7 +30,7 @@ from docutils.utils import relative_path
 from six import text_type, binary_type
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -111,6 +111,8 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
 
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
+    warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
+                  RemovedInSphinx40Warning)
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:

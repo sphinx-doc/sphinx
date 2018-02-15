@@ -143,6 +143,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.get_matching_docs()``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.get_matching_files()``
+
    * - ``sphinx.util.osutil.walk()``
      - 2.0
      - 4.0
