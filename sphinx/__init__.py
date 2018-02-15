@@ -67,27 +67,28 @@ def main(*args, **kwargs):
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
+    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
     return build.main(*args, **kwargs)
 
 
-def build_main(argv=sys.argv[1:]):
+def build_main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
     warnings.warn(
         '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    return build.build_main(argv)
+    return build.build_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
-def make_main(argv=sys.argv[1:]):
+def make_main(argv=sys.argv):
     """Sphinx build "make mode" entry."""
     warnings.warn(
         '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    return build.make_main(argv)
+    return build.make_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
 if __name__ == '__main__':

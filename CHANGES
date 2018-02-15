@@ -23,6 +23,7 @@ Bugs fixed
 * #4260: autodoc: keyword only argument separator is not disappeared if it is
   appeared at top of the argument list
 * #4623: sphinx.build_main no longer exists in 1.7.0
+* #4615: The argument of ``sphinx.build`` has been changed in 1.7.0
 
 Testing
 --------
