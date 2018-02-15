@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 import os
+import sys
 import warnings
 from os import path
 
@@ -67,6 +68,26 @@ def main(*args, **kwargs):
         stacklevel=2,
     )
     return build.main(*args, **kwargs)
+
+
+def build_main(argv=sys.argv[1:]):
+    """Sphinx build "main" command-line entry."""
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.build_main(argv)
+
+
+def make_main(argv=sys.argv[1:]):
+    """Sphinx build "make mode" entry."""
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.make_main(argv)
 
 
 if __name__ == '__main__':

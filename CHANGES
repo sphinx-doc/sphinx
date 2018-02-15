@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* #4623: ``sphinx.build_main()`` is deprecated. Use
+  ``sphinx.cmd.build.build_main()`` instead.
+
 Features added
 --------------
 
@@ -19,6 +22,7 @@ Bugs fixed
 * #4608: epub: Invalid meta tag is generated
 * #4260: autodoc: keyword only argument separator is not disappeared if it is
   appeared at top of the argument list
+* #4623: sphinx.build_main no longer exists in 1.7.0
 
 Testing
 --------
