@@ -39,6 +39,7 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util import pycompat  # noqa: F401
+from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
@@ -126,6 +127,7 @@ class Sphinx(object):
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
+        self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
         self._setting_up_extension = ['?']      # type: List[unicode]
@@ -332,6 +334,7 @@ class Sphinx(object):
 
     def build(self, force_all=False, filenames=None):
         # type: (bool, List[unicode]) -> None
+        self.phase = BuildPhase.READING
         try:
             if force_all:
                 self.builder.compile_all_catalogs()
