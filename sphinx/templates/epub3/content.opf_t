@@ -11,7 +11,7 @@
     <dc:contributor>{{ contributor }}</dc:contributor>
     <dc:publisher>{{ publisher }}</dc:publisher>
     <dc:rights>{{ copyright }}</dc:rights>
-    <dc:identifier opf:scheme="{{ scheme }}">{{ id }}</dc:identifier>
+    <dc:identifier id="doc-id" opf:scheme="{{ scheme }}">{{ id }}</dc:identifier>
     <dc:date>{{ date }}</dc:date>
     <meta property="dcterms:modified">{{ date }}</meta>
     <meta property="ibooks:version">{{ version }}</meta>
