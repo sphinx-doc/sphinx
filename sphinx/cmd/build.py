@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.cmdline
-    ~~~~~~~~~~~~~~
+    sphinx.cmd.build
+    ~~~~~~~~~~~~~~~~
 
-    sphinx-build command-line handling.
+    Build documentation from a provided source.
 
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -194,8 +194,16 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
+def make_main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
+    """Sphinx build "make mode" entry."""
+    from sphinx import make_mode
+    return make_mode.run_make_mode(argv[1:])  # type: ignore
+
+
+def build_main(argv=sys.argv[1:]):  # type: ignore
+    # type: (List[unicode]) -> int
+    """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
     args = parser.parse_args(argv)
@@ -292,3 +300,15 @@ def main(argv=sys.argv[1:]):  # type: ignore
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, error)
         return 2
+
+
+def main(argv=sys.argv[1:]):  # type: ignore
+    # type: (List[unicode]) -> int
+    if sys.argv[1:2] == ['-M']:
+        return make_main(argv)
+    else:
+        return build_main(argv)
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))

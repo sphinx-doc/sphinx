@@ -18,7 +18,6 @@ import os
 import warnings
 from os import path
 
-from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
 from .deprecation import RemovedInSphinx20Warning
 
@@ -77,6 +76,7 @@ def main(*args, **kwargs):
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
+    from .cmd import build
     return build.main(*args, **kwargs)
 
 
@@ -86,4 +86,5 @@ if __name__ == '__main__':
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
+    from .cmd import build
     build.main()
