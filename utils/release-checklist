@@ -5,23 +5,23 @@ for stable releases
 -------------------
 
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check **X.Y** branch is green
-* Run `git fetch; git status` and check nothing changed
-* `python utils/bump_version.py X.Y.Z`
-* Check diff by `git diff`
+* Run ``git fetch; git status`` and check nothing changed
+* ``python utils/bump_version.py X.Y.Z``
+* Check diff by ``git diff``
 * Edit CHANGES if empty section exists
-* `git commit -am 'Bump to X.Y.Z final'`
-* `make clean`
-* `python setup.py release bdist_wheel sdist upload --identity=[your key]`
+* ``git commit -am 'Bump to X.Y.Z final'``
+* ``make clean``
+* ``python setup.py release bdist_wheel sdist upload --identity=[your key]``
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
-* `git tag vX.Y.Z`
-* `python utils/bump_version.py --in-develop X.Y.Zb0` (ex. 1.5.3b0)
+* ``git tag vX.Y.Z``
+* ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
 * Check diff by `git diff`
-* `git commit -am 'Bump version'`
-* `git push origin X.Y --tags`
-* `git checkout master`
-* `git merge X.Y`
-* `git push origin master`
-* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
+* ``git commit -am 'Bump version'``
+* ``git push origin X.Y --tags``
+* ``git checkout master``
+* ``git merge X.Y``
+* ``git push origin master``
+* Update ``sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>``_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -29,28 +29,28 @@ for first beta releases
 -----------------------
 
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check **master** branch is green
-* Run `git fetch; git status` and check nothing changed
-* Run `python setup.py extract_messages`
-* Run `(cd sphinx/locale; tx push -s)`
-* `python utils/bump_version.py X.Y.0b1`
-* Check diff by `git diff`
+* Run ``git fetch; git status`` and check nothing changed
+* Run ``python setup.py extract_messages``
+* Run ``(cd sphinx/locale; tx push -s)``
+* ``python utils/bump_version.py X.Y.0b1``
+* Check diff by ``git diff``
 * Edit CHANGES if empty section exists
-* `git commit -am 'Bump to X.Y.0 beta1'`
-* `make clean`
-* `python setup.py release bdist_wheel sdist upload --identity=[your key]`
+* ``git commit -am 'Bump to X.Y.0 beta1'``
+* ``make clean``
+* ``python setup.py release bdist_wheel sdist upload --identity=[your key]``
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
-* `git tag vX.Y.0b1`
-* `python utils/bump_version.py --in-develop X.Y.0b2` (ex. 1.6.0b2)
-* Check diff by `git diff`
-* `git commit -am 'Bump version'`
-* `git checkout -b X.Y`
-* `git push origin X.Y --tags`
-* `git checkout master`
-* `git merge X.Y`
-* `python utils/bump_version.py --in-develop A.B.0b0` (ex. 1.7.0b0)
-* Check diff by `git diff`
-* `git commit -am 'Bump version'`
-* `git push origin master`
+* ``git tag vX.Y.0b1``
+* ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
+* Check diff by `git diff``
+* ``git commit -am 'Bump version'``
+* ``git checkout -b X.Y``
+* ``git push origin X.Y --tags``
+* ``git checkout master``
+* ``git merge X.Y``
+* ``python utils/bump_version.py --in-develop A.B.0b0`` (ex. 1.7.0b0)
+* Check diff by ``git diff``
+* ``git commit -am 'Bump version'``
+* ``git push origin master``
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
@@ -59,22 +59,22 @@ for other beta releases
 -----------------------
 
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check **X.Y** branch is green
-* Run `git fetch; git status` and check nothing changed
-* `python utils/bump_version.py X.Y.0bN`
-* Check diff by `git diff`
+* Run ``git fetch; git status`` and check nothing changed
+* ``python utils/bump_version.py X.Y.0bN``
+* Check diff by ``git diff``
 * Edit CHANGES if empty section exists
-* `git commit -am 'Bump to X.Y.0 betaN'`
-* `make clean`
-* `python setup.py release bdist_wheel sdist upload --identity=[your key]`
+* ``git commit -am 'Bump to X.Y.0 betaN'``
+* ``make clean``
+* ``python setup.py release bdist_wheel sdist upload --identity=[your key]``
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
-* `git tag vX.Y.0bN`
-* `python utils/bump_version.py --in-develop X.Y.0bM` (ex. 1.6.0b3)
-* Check diff by `git diff`
-* `git commit -am 'Bump version'`
-* `git push origin X.Y --tags`
-* `git checkout master`
-* `git merge X.Y`
-* `git push origin master`
+* ``git tag vX.Y.0bN``
+* ``python utils/bump_version.py --in-develop X.Y.0bM`` (ex. 1.6.0b3)
+* Check diff by `git diff``
+* ``git commit -am 'Bump version'``
+* ``git push origin X.Y --tags``
+* ``git checkout master``
+* ``git merge X.Y``
+* ``git push origin master``
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
@@ -83,29 +83,29 @@ for major releases
 ------------------
 
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check **X.Y** branch is green
-* Run `git fetch; git status` and check nothing changed
-* Run `(cd sphinx/locale; tx pull -a -f)`
-* Run `python setup.py compile_catalog`
-* Run `git add sphinx`
-* Run `git commit -am 'Update message catalogs'`
-* `python utils/bump_version.py X.Y.0`
-* Check diff by `git diff`
+* Run ``git fetch; git status`` and check nothing changed
+* Run ``(cd sphinx/locale; tx pull -a -f)``
+* Run ``python setup.py compile_catalog``
+* Run ``git add sphinx``
+* Run ``git commit -am 'Update message catalogs'``
+* ``python utils/bump_version.py X.Y.0``
+* Check diff by ``git diff``
 * Edit CHANGES if empty section exists
-* `git commit -am 'Bump to X.Y.0 final'`
-* `make clean`
-* `python setup.py release bdist_wheel sdist upload --identity=[your key]`
+* ``git commit -am 'Bump to X.Y.0 final'``
+* ``make clean``
+* ``python setup.py release bdist_wheel sdist upload --identity=[your key]``
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
-* `git tag vX.Y.0`
-* `python utils/bump_version.py --in-develop X.Y.1b0` (ex. 1.6.1b0)
-* Check diff by `git diff`
-* `git commit -am 'Bump version'`
-* `git push origin X.Y --tags`
-* `git checkout master`
-* `git merge X.Y`
-* `git push origin master`
-* `git checkout A.B` (checkout old stable)
-* Run `git tag A.B` to paste a tag instead branch
-* Run `git push origin :A.B --tags` to remove old stable branch
+* ``git tag vX.Y.0``
+* ``python utils/bump_version.py --in-develop X.Y.1b0`` (ex. 1.6.1b0)
+* Check diff by ``git diff``
+* ``git commit -am 'Bump version'``
+* ``git push origin X.Y --tags``
+* ``git checkout master``
+* ``git merge X.Y``
+* ``git push origin master``
+* ``git checkout A.B`` (checkout old stable)
+* Run ``git tag A.B`` to paste a tag instead branch
+* Run ``git push origin :A.B --tags`` to remove old stable branch
 * open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
