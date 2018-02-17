@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed (Since 1.7.0)
+
 Features added
 --------------
 
@@ -22,6 +25,8 @@ Bugs fixed
 * #4622: epub: :confval:`epub_scheme` does not effect to content.opf
 * #4627: graphviz: Fit graphviz images to page
 * #4617: quickstart: PROJECT_DIR argument is required
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed
 
 Testing
 --------
