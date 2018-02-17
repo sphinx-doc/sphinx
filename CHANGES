@@ -20,7 +20,7 @@ Bugs fixed
 * #4260: autodoc: keyword only argument separator is not disappeared if it is
   appeared at top of the argument list
 * #4622: epub: :confval:`epub_scheme` does not effect to content.opf
-
+* #4627: graphviz: Fit graphviz images to page
 
 Testing
 --------
