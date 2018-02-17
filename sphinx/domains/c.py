@@ -117,6 +117,11 @@ class CObject(ObjectDescription):
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform a C signature into RST nodes."""
+        is_funcptr = False
+
+        def format_name(name):
+            return '(*{})'.format(name) if is_funcptr else name
+
         # first try the function pointer signature regex, it's more specific
         m = c_funcptr_sig_re.match(sig)  # type: ignore
         if m is None:
@@ -127,18 +132,23 @@ class CObject(ObjectDescription):
 
         signode += addnodes.desc_type('', '')
         self._parse_type(signode[-1], rettype)
-        try:
-            classname, funcname = name.split('::', 1)
-            classname += '::'
-            signode += addnodes.desc_addname(classname, classname)
-            signode += addnodes.desc_name(funcname, funcname)
-            # name (the full name) is still both parts
-        except ValueError:
-            signode += addnodes.desc_name(name, name)
-        # clean up parentheses from canonical name
+
+        # clean up parentheses from name and remember that
         m = c_funcptr_name_re.match(name)
         if m:
             name = m.group(1)
+            is_funcptr = True
+
+        try:
+            classname, funcname = name.split('::', 1)
+            classname += '::'
+            fullname = format_name(funcname)
+            signode += addnodes.desc_addname(classname, classname)
+            signode += addnodes.desc_name(fullname, fullname)
+            # name (the full name) is still both parts
+        except ValueError:
+            fullname = format_name(name)
+            signode += addnodes.desc_name(fullname, fullname)
 
         typename = self.env.ref_context.get('c:type')
         if self.name == 'c:member' and typename:
