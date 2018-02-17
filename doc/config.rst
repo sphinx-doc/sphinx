@@ -59,9 +59,6 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
-.. seealso:: Additional configurations, such as adding stylesheets,
-   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
-
 
 General configuration
 ---------------------
@@ -800,6 +797,9 @@ that use Sphinx's HTMLWriter class.
    theme.  If you only want to add or override a few things compared to the
    theme's stylesheet, use CSS ``@import`` to import the theme's stylesheet.
 
+   .. deprecated:: 1.8
+      Use :confval:`html_stylesheets` instead.
+
 .. confval:: html_title
 
    The "title" for HTML documentation generated with Sphinx's own templates.
@@ -878,6 +878,28 @@ that use Sphinx's HTMLWriter class.
       The dotfiles in the extra directory will be copied to the output directory.
       And it refers :confval:`exclude_patterns` on copying extra files and
       directories, and ignores if path matches to patterns.
+
+.. confval:: html_stylesheets
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string, the *alternate* (of boolean type) and
+   *title* (a string).  The *filename* must be relative to the
+   :confval:`html_static_path`, or a full URI with scheme like
+   ``http://example.org/style.css``.  It defaults to an empty list.
+
+   For more information about *alternate*, refer to the `MDN web docs`__.
+
+   __ https://mdn.io/Web/CSS/Alternative_style_sheets
+
+   .. versionadded:: 1.8
+
+.. confval:: html_javascripts
+
+   A list of JavaScript *filename*.  The *filename* must be relative to the
+   :confval:`html_static_path`, or a full URI with scheme.  It defaults to
+   an empty list.
+
+   .. versionadded:: 1.8
 
 .. confval:: html_last_updated_fmt
 
@@ -1538,6 +1560,13 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    It is a list of tuples containing the file name and the title.  This option
    can be used to add an appendix.  If the title is empty, no entry is added
    to :file:`toc.ncx`.  The default value is ``[]``.
+
+.. confval:: epub_stylesheets
+
+   A list of CSS files.  See :confval:`html_stylesheets` for details.  By
+   default, it defaults to the value of ``html_stylesheets``.
+
+   .. versionadded:: 1.8
 
 .. confval:: epub_exclude_files
 

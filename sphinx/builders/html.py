@@ -31,7 +31,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -90,7 +90,7 @@ def get_stable_hash(obj):
 
 
 class CSSContainer(list):
-    """The container of stylesheets.
+    """The container for stylesheets.
 
     To support the extensions which access the container directly, this wraps
     the entry with Stylesheet class.
@@ -151,6 +151,39 @@ class Stylesheet(text_type):
         self.rel = rel
 
         return self
+
+
+class JSContainer(list):
+    """The container for JavaScript scripts."""
+    def insert(self, index, obj):
+        # type: (int, unicode) -> None
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        super(JSContainer, self).insert(index, obj)
+
+    def extend(self, other):  # type: ignore
+        # type: (List[unicode]) -> None
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        for item in other:
+            self.append(item)
+
+    def __iadd__(self, other):  # type: ignore
+        # type: (List[unicode]) -> JSContainer
+        warnings.warn('builder.script_files is deprecated. '
+                      'Please use app.add_javascript() instead.',
+                      RemovedInSphinx30Warning)
+        for item in other:
+            self.append(item)
+        return self
+
+    def __add__(self, other):
+        # type: (List[unicode]) -> JSContainer
+        ret = JSContainer(self)
+        ret += other
+        return ret
 
 
 class BuildInfo(object):
@@ -237,17 +270,22 @@ class StandaloneHTMLBuilder(Builder):
     # use html5 translator by default
     default_html5_translator = False
 
-    # This is a class attribute because it is mutated by Sphinx.add_javascript.
-    script_files = ['_static/jquery.js', '_static/underscore.js',
-                    '_static/doctools.js']  # type: List[unicode]
-    # Ditto for this one (Sphinx.add_stylesheet).
-    css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
-
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
     # cached publisher object for snippets
     _publisher = None
+
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        super(StandaloneHTMLBuilder, self).__init__(app)
+
+        # javascript files
+        self.script_files = JSContainer(['_static/jquery.js',
+                                         '_static/underscore.js',
+                                         '_static/doctools.js'])  # type: List[unicode]
+        # stylesheet files
+        self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     def init(self):
         # type: () -> None
@@ -269,10 +307,9 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.link_suffix = self.out_suffix
 
-        if self.config.language is not None:
-            if self._get_translations_js():
-                self.script_files.append('_static/translations.js')
         self.use_index = self.get_builder_config('use_index', 'html')
+        self.init_script_files()
+        self.init_css_files()
 
         if self.config.html_experimental_html5_writer and not html5_ready:
             self.app.warn(('html_experimental_html5_writer is set, but current version '
@@ -283,10 +320,54 @@ class StandaloneHTMLBuilder(Builder):
         # type: () -> BuildInfo
         return BuildInfo(self.config, self.tags, ['html'])
 
+    def init_css_files(self):
+        # type: () -> None
+        for filename, alternate, title in self.app.registry.stylesheets:
+            self.add_stylesheet(filename, alternate, title)
+
+        for stylesheet in self.get_builder_config('stylesheets', 'html'):
+            if isinstance(stylesheet, string_types):
+                self.add_stylesheet(stylesheet)
+            else:
+                try:
+                    filename, alternate, title = stylesheet
+                    self.add_stylesheet(filename, alternate, title)
+                except (TypeError, ValueError):
+                    logger.warning('invalid stylesheet: %r', stylesheet)
+
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
+        if '://' not in filename:
+            # make a new path; the css file will be copied to ``_static`` directory
+            filename = posixpath.join('_static', filename)
+        if alternate:
+            rel = u'alternate stylesheet'
+        else:
+            rel = u'stylesheet'
+        css = Stylesheet(filename, title, rel)  # type: ignore
+        self.css_files.append(css)
+
+    def init_script_files(self):
+        # type: () -> None
+        for filename in self.app.registry.javascripts:
+            self.add_javascript(filename)
+
+        for filename in self.get_builder_config('javascripts', 'html'):
+            self.add_javascript(filename)
+
+        if self.config.language and self._get_translations_js():
+            self.add_javascript('translations.js')
+
+    def add_javascript(self, filename):
+        # type: (unicode) -> None
+        if '://' not in filename:
+            filename = posixpath.join('_static', filename)
+
+        self.script_files.append(filename)
+
     def _get_translations_js(self):
         # type: () -> unicode
-        candidates = [path.join(dir, self.config.language,
-                                'LC_MESSAGES', 'sphinx.js')
+        candidates = [path.join(dir, self.config.language, 'LC_MESSAGES', 'sphinx.js')
                       for dir in self.config.locale_dirs] + \
                      [path.join(package_dir, 'locale', self.config.language,
                                 'LC_MESSAGES', 'sphinx.js'),
@@ -1309,6 +1390,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.templates = None   # no template bridge necessary
         self.init_templates()
         self.init_highlighter()
+        self.init_script_files()
+        self.init_css_files()
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
@@ -1413,6 +1496,15 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
         SerializingHTMLBuilder.init(self)
 
 
+def deprecate_html_style(app, config):
+    # type: (Sphinx, Config) -> None
+    if config.html_style:
+        warnings.warn('The confval: html_style is deprecated. '
+                      'Please use html_stylesheets instead.',
+                      RemovedInSphinx30Warning)
+        config.html_stylesheets.insert(0, config.html_style)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1433,6 +1525,8 @@ def setup(app):
     app.add_config_value('html_style', None, 'html', string_classes)
     app.add_config_value('html_logo', None, 'html', string_classes)
     app.add_config_value('html_favicon', None, 'html', string_classes)
+    app.add_config_value('html_stylesheets', [], 'html')
+    app.add_config_value('html_javascripts', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
@@ -1459,6 +1553,9 @@ def setup(app):
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
+
+    # events
+    app.connect('config-inited', deprecate_html_style)
 
     return {
         'version': 'builtin',

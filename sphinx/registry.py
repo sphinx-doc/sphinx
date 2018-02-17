@@ -30,7 +30,7 @@ from sphinx.util.docutils import directive_helper
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -82,6 +82,9 @@ class SphinxComponentRegistry(object):
         #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
 
+        #: javascripts; list of JS paths or URLs
+        self.javascripts = []           # type: List[unicode]
+
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
@@ -93,6 +96,9 @@ class SphinxComponentRegistry(object):
 
         #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[unicode, unicode]
+
+        #: stylesheets; list of CSS info
+        self.stylesheets = []           # type: List[Tuple[unicode, bool, unicode]]
 
         #: custom translators; builder name -> translator class
         self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
@@ -340,6 +346,16 @@ class SphinxComponentRegistry(object):
     def add_autodoc_attrgetter(self, typ, attrgetter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         self.autodoc_attrgettrs[typ] = attrgetter
+
+    def add_javascript(self, filename):
+        # type: (unicode) -> None
+        logger.debug('[app] adding javascript: %r', filename)
+        self.javascripts.append(filename)
+
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
+        logger.debug('[app] adding stylesheet: %r', filename)
+        self.stylesheets.append((filename, alternate, title))
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None

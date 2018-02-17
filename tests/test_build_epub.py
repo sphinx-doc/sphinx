@@ -245,3 +245,30 @@ def test_epub_writing_mode(app):
     # vertical / writing-mode (CSS)
     css = (app.outdir / '_static' / 'epub.css').text()
     assert 'writing-mode: vertical-rl;' in css
+
+
+@pytest.mark.sphinx('epub', testroot='html_assets')
+def test_epub_assets(app):
+    app.builder.build_all()
+
+    # epub_sytlesheets (same as html_stylesheets)
+    content = (app.outdir / 'index.xhtml').text()
+    assert '<link rel="stylesheet" href="_static/css/style.css" type="text/css" />' in content
+    assert ('<link rel="alternate stylesheet" href="https://example.com/custom.css" '
+            'type="text/css" title="title" />' in content)
+
+
+@pytest.mark.sphinx('epub', testroot='html_assets',
+                    confoverrides={'epub_stylesheets': ['css/epub.css']})
+def test_epub_stylesheets(app):
+    app.builder.build_all()
+
+    # epub_sytlesheets
+    content = (app.outdir / 'index.xhtml').text()
+    assert '<link rel="stylesheet" href="_static/css/epub.css" type="text/css" />' in content
+
+    # files in html_stylesheets are not outputed
+    assert ('<link rel="stylesheet" href="_static/css/style.css" type="text/css" />'
+            not in content)
+    assert ('<link rel="alternate stylesheet" href="https://example.com/custom.css" '
+            'type="text/css" title="title" />' not in content)

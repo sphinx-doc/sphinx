@@ -13,7 +13,6 @@
 from __future__ import print_function
 
 import os
-import posixpath
 import sys
 import warnings
 from collections import deque
@@ -979,41 +978,25 @@ class Sphinx(object):
 
         .. versionadded:: 0.5
         """
-        logger.debug('[app] adding javascript: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder
-        if '://' in filename:
-            StandaloneHTMLBuilder.script_files.append(filename)
-        else:
-            StandaloneHTMLBuilder.script_files.append(
-                posixpath.join('_static', filename))
+        self.registry.add_javascript(filename)
 
     def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
-        will include.  Like for :meth:`add_javascript`, the filename must be
-        relative to the HTML static path, or a full URI with scheme.
+        will include.  The filename must be relative to the HTML static path,
+        or a full URI with scheme.  See :confval:`html_stylesheets` for
+        details.
 
         .. versionadded:: 1.0
 
         .. versionchanged:: 1.6
            Optional ``alternate`` and/or ``title`` attributes can be supplied
            with the *alternate* (of boolean type) and *title* (a string)
-           arguments. The default is no title and *alternate* = ``False``. For
-           more information, refer to the `documentation
-           <https://mdn.io/Web/CSS/Alternative_style_sheets>`__.
+           arguments. The default is no title and *alternate* = ``False``.
         """
-        logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
-        if '://' not in filename:
-            filename = posixpath.join('_static', filename)
-        if alternate:
-            rel = u'alternate stylesheet'
-        else:
-            rel = u'stylesheet'
-        css = Stylesheet(filename, title, rel)  # type: ignore
-        StandaloneHTMLBuilder.css_files.append(css)
+        self.registry.add_stylesheet(filename, alternate, title)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
