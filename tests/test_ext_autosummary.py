@@ -9,13 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
 from six import iteritems, StringIO
 
-from sphinx.ext.autosummary import mangle_signature, import_by_name
-
+from sphinx.ext.autosummary import mangle_signature, import_by_name, extract_summary
 from sphinx.testing.util import etree_parse
-
-import pytest
 
 html_warnfile = StringIO()
 
@@ -55,6 +53,14 @@ def test_mangle_signature():
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace(u"\u00a0", " ")
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
+
+
+def test_extract_summary():
+    doc = ['',
+           'This is a first sentence. And second one.',
+           '',
+           'Second block is here']
+    assert extract_summary(doc) == 'This is a first sentence.'
 
 
 @pytest.mark.sphinx('dummy', **default_kw)

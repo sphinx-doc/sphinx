@@ -340,27 +340,7 @@ class Autosummary(Directive):
             # -- Grab the summary
 
             documenter.add_content(None)
-            doc = self.result.data
-
-            while doc and not doc[0].strip():
-                doc.pop(0)
-
-            # If there's a blank line, then we can assume the first sentence /
-            # paragraph has ended, so anything after shouldn't be part of the
-            # summary
-            for i, piece in enumerate(doc):
-                if not piece.strip():
-                    doc = doc[:i]
-                    break
-
-            # Try to find the "first sentence", which may span multiple lines
-            m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
-            if m:
-                summary = m.group(1).strip()
-            elif doc:
-                summary = doc[0].strip()
-            else:
-                summary = ''
+            summary = extract_summary(self.result.data[:])
 
             items.append((display_name, sig, summary, real_name))
 
@@ -465,6 +445,34 @@ def mangle_signature(sig, max_chars=30):
                                            max_chars=max_chars - len(sig) - 4 - 2)
 
     return u"(%s)" % sig
+
+
+def extract_summary(doc):
+    # type: (List[unicode]) -> unicode
+    """Extract summary from docstring."""
+
+    # Skip a blank lines at the top
+    while doc and not doc[0].strip():
+        doc.pop(0)
+
+    # If there's a blank line, then we can assume the first sentence /
+    # paragraph has ended, so anything after shouldn't be part of the
+    # summary
+    for i, piece in enumerate(doc):
+        if not piece.strip():
+            doc = doc[:i]
+            break
+
+    # Try to find the "first sentence", which may span multiple lines
+    m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
+    if m:
+        summary = m.group(1).strip()
+    elif doc:
+        summary = doc[0].strip()
+    else:
+        summary = ''
+
+    return summary
 
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
