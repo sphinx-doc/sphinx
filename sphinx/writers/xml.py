@@ -9,11 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import writers
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
 

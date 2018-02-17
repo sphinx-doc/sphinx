@@ -10,6 +10,7 @@
 """
 
 import re
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 from six import iteritems
@@ -21,8 +22,7 @@ from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA

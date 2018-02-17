@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import traceback
+from typing import TYPE_CHECKING
 
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues, string_types
@@ -27,8 +28,7 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA

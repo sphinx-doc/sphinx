@@ -20,6 +20,7 @@
 import os
 import re
 import sys
+from typing import TYPE_CHECKING
 
 from six import iteritems, PY3
 
@@ -39,8 +40,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List  # NOQA
 
 

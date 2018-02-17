@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes, utils
 from docutils.nodes import make_id
 from docutils.parsers.rst import Directive, directives
@@ -20,8 +22,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode, set_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA

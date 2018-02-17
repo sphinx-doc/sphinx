@@ -40,6 +40,7 @@ import inspect
 import re
 import sys
 from hashlib import md5
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -52,8 +53,7 @@ from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import force_decode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

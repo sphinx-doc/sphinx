@@ -18,7 +18,6 @@ import os
 import warnings
 from os import path
 
-from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
 from .deprecation import RemovedInSphinx20Warning
 
@@ -61,6 +60,7 @@ if __version__.endswith('+'):
 
 
 def main(*args, **kwargs):
+    from .cmd import build
     warnings.warn(
         '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
         RemovedInSphinx20Warning,
@@ -70,6 +70,7 @@ def main(*args, **kwargs):
 
 
 if __name__ == '__main__':
+    from .cmd import build
     warnings.warn(
         '`sphinx` has moved to `sphinx.build`.',
         RemovedInSphinx20Warning,

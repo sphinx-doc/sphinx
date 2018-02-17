@@ -10,6 +10,7 @@
 """
 
 import traceback
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from six import iteritems, text_type
@@ -21,8 +22,7 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

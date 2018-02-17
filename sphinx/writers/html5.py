@@ -12,6 +12,7 @@
 import os
 import posixpath
 import sys
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
@@ -22,8 +23,7 @@ from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any  # NOQA
     from sphinx.builders.html import StandaloneHTMLBuilder  # NOQA
 

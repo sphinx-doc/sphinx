@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes
 from six import iteritems
 
@@ -18,8 +20,7 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import url_re, logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

@@ -11,7 +11,7 @@
 
 from os import path
 from pprint import pformat
-from typing import Any, Callable, Iterator, Tuple  # NOQA
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Tuple  # NOQA
 
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
@@ -22,8 +22,7 @@ from six import string_types
 from sphinx.application import TemplateBridge
 from sphinx.util.osutil import mtimes_of_files
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA

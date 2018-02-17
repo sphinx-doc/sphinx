@@ -9,12 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from sphinx.search import SearchLanguage
 
 import snowballstemmer
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, Set  # NOQA
 
 js_stemmer = u"""

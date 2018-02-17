@@ -17,6 +17,7 @@ import re
 import sys
 import time
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -32,8 +33,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import fs_encoding
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

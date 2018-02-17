@@ -16,6 +16,7 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
@@ -51,8 +52,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -594,9 +594,9 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]  # NOQA
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
-        self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
+        self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')  # type: unicode
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
         self.docwriter.assemble_parts()

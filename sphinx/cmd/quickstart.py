@@ -19,6 +19,7 @@ import time
 from collections import OrderedDict
 from io import open
 from os import path
+from typing import TYPE_CHECKING
 
 # try to import readline, unix specific enhancement
 try:
@@ -43,8 +44,7 @@ from sphinx.util.console import (  # type: ignore
 from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.template import SphinxRenderer
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)

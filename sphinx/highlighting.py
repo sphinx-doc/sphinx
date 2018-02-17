@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -26,8 +28,7 @@ from sphinx.util import logging
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict  # NOQA
     from pygments.formatter import Formatter  # NOQA
 
