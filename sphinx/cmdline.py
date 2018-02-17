@@ -18,7 +18,9 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
+    import argparse  # NOQA
     from typing import Any, IO, List, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 def handle_exception(app, args, exception, stderr=sys.stderr):
@@ -47,4 +49,3 @@ def main(argv=sys.argv[1:]):  # type: ignore
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning)
     return build.main(argv)
-
