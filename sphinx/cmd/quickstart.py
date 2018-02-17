@@ -533,7 +533,7 @@ Makefile to be used with sphinx-build.
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
-    parser.add_argument('path', metavar='PROJECT_DIR', default='.',
+    parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
                         help='output path')
 
     group = parser.add_argument_group('Structure options')

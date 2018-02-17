@@ -21,6 +21,7 @@ Bugs fixed
   appeared at top of the argument list
 * #4622: epub: :confval:`epub_scheme` does not effect to content.opf
 * #4627: graphviz: Fit graphviz images to page
+* #4617: quickstart: PROJECT_DIR argument is required
 
 Testing
 --------
