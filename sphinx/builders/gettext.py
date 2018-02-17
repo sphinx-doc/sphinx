@@ -12,7 +12,7 @@
 from __future__ import unicode_literals
 
 from codecs import open
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
 from os import path, walk, getenv
 from time import time
@@ -68,8 +68,8 @@ class Catalog(object):
         # type: () -> None
         self.messages = []  # type: List[unicode]
                             # retain insertion order, a la OrderedDict
-        self.metadata = {}  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
-                            # msgid -> file, line, uid
+        self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
+                                       # msgid -> file, line, uid
 
     def add(self, msg, origin):
         # type: (unicode, MsgOrigin) -> None
@@ -236,7 +236,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def _extract_from_template(self):
         # type: () -> None
-        files = self._collect_templates()
+        files = list(self._collect_templates())
+        files.sort()
         logger.info(bold('building [%s]: ' % self.name), nonl=1)
         logger.info('targets for %d template files', len(files))
 
