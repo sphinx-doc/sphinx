@@ -56,11 +56,26 @@ def test_mangle_signature():
 
 
 def test_extract_summary():
+    from sphinx.util.docutils import new_document
+    from mock import Mock
+    settings = Mock(language_code='',
+                    id_prefix='',
+                    auto_id_prefix='',
+                    pep_reference=False,
+                    rfc_reference=False)
+    document = new_document('', settings)
+
+    # normal case
     doc = ['',
            'This is a first sentence. And second one.',
            '',
            'Second block is here']
-    assert extract_summary(doc) == 'This is a first sentence.'
+    assert extract_summary(doc, document) == 'This is a first sentence.'
+
+    # inliner case
+    doc = ['This sentence contains *emphasis text having dots.*,',
+           'it does not break sentence.']
+    assert extract_summary(doc, document) == ' '.join(doc)
 
 
 @pytest.mark.sphinx('dummy', **default_kw)
@@ -101,7 +116,7 @@ def test_get_items_summary(make_app, app_params):
 
     expected_values = {
         'withSentence': 'I have a sentence which spans multiple lines.',
-        'noSentence': "this doesn't start with a",
+        'noSentence': "this doesn't start with a capital.",
         'emptyLine': "This is the real summary",
         'module_attr': 'This is a module attribute',
         'C.class_attr': 'This is a class attribute',

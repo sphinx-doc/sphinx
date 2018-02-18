@@ -64,6 +64,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import ViewList
 from six import string_types
 from six import text_type
@@ -77,6 +78,7 @@ from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
+from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
@@ -340,7 +342,7 @@ class Autosummary(Directive):
             # -- Grab the summary
 
             documenter.add_content(None)
-            summary = extract_summary(self.result.data[:])
+            summary = extract_summary(self.result.data[:], self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
@@ -447,8 +449,8 @@ def mangle_signature(sig, max_chars=30):
     return u"(%s)" % sig
 
 
-def extract_summary(doc):
-    # type: (List[unicode]) -> unicode
+def extract_summary(doc, document):
+    # type: (List[unicode], Any) -> unicode
     """Extract summary from docstring."""
 
     # Skip a blank lines at the top
@@ -464,13 +466,19 @@ def extract_summary(doc):
             break
 
     # Try to find the "first sentence", which may span multiple lines
-    m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
-    if m:
-        summary = m.group(1).strip()
-    elif doc:
-        summary = doc[0].strip()
+    sentences = " ".join(doc).split('.')
+    if len(sentences) == 1:
+        summary = sentences[0].strip()
     else:
         summary = ''
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        while sentences:
+            summary += sentences.pop(0) + '.'
+            node = new_document('', document.settings)
+            state_machine.run([summary], node)
+            if not node.traverse(nodes.system_message):
+                # considered as that splitting by period does not break inline markups
+                break
 
     return summary
 
