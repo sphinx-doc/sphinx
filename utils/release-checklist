@@ -15,13 +15,13 @@ for stable releases
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
 * ``git tag vX.Y.Z``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
-* Check diff by `git diff`
+* Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
 * ``git push origin X.Y --tags``
 * ``git checkout master``
 * ``git merge X.Y``
 * ``git push origin master``
-* Update ``sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>``_
+* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
 
@@ -41,7 +41,7 @@ for first beta releases
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
 * ``git tag vX.Y.0b1``
 * ``python utils/bump_version.py --in-develop X.Y.0b2`` (ex. 1.6.0b2)
-* Check diff by `git diff``
+* Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
 * ``git checkout -b X.Y``
 * ``git push origin X.Y --tags``
