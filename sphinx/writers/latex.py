@@ -1581,9 +1581,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         # type: (nodes.Node) -> None
+        def get_nested_level(node):
+            # type: (nodes.Node) -> int
+            if node is None:
+                return 0
+            elif isinstance(node, nodes.enumerated_list):
+                return get_nested_level(node.parent) + 1
+            else:
+                return get_nested_level(node.parent)
+
         self.body.append('\\begin{enumerate}\n')
         if 'start' in node:
-            self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
+            nested = get_nested_level(node)
+            self.body.append('\\setcounter{enum%s}{%d}\n' % ('i' * nested, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 
