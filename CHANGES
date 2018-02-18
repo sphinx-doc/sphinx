@@ -12,6 +12,8 @@ Deprecated
 
 * #4623: ``sphinx.build_main()`` is deprecated. Use
   ``sphinx.cmd.build.build_main()`` instead.
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed (Since 1.7.0)
 
 Features added
 --------------
@@ -27,6 +29,8 @@ Bugs fixed
 * #4617: quickstart: PROJECT_DIR argument is required
 * #4623: sphinx.build_main no longer exists in 1.7.0
 * #4615: The argument of ``sphinx.build`` has been changed in 1.7.0
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed
 
 Testing
 --------
