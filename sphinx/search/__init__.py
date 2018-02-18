@@ -10,6 +10,7 @@
 """
 import re
 from os import path
+from typing import TYPE_CHECKING
 
 from six import iteritems, itervalues, text_type, string_types
 from six.moves import cPickle as pickle
@@ -21,8 +22,7 @@ from sphinx.util import jsdump, rpartition
 from sphinx.util.pycompat import htmlescape
 from sphinx.search.jssplitter import splitter_code
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

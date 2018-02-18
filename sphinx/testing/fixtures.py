@@ -15,13 +15,14 @@ import subprocess
 import sys
 from collections import namedtuple
 from tempfile import gettempdir
+from typing import TYPE_CHECKING
 
 import pytest
 from six import StringIO, string_types
 
 from . import util
 
-if False:
+if TYPE_CHECKING:
     from typing import Dict, Union  # NOQA
 
 

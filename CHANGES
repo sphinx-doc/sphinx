@@ -22,6 +22,9 @@ Bugs fixed
 * #4608: epub: Invalid meta tag is generated
 * #4260: autodoc: keyword only argument separator is not disappeared if it is
   appeared at top of the argument list
+* #4622: epub: :confval:`epub_scheme` does not effect to content.opf
+* #4627: graphviz: Fit graphviz images to page
+* #4617: quickstart: PROJECT_DIR argument is required
 * #4623: sphinx.build_main no longer exists in 1.7.0
 * #4615: The argument of ``sphinx.build`` has been changed in 1.7.0
 

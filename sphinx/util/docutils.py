@@ -15,6 +15,7 @@ import types
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
+from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
@@ -30,8 +31,7 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

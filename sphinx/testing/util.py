@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import warnings
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from docutils import nodes
@@ -24,7 +25,7 @@ from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 
-if False:
+if TYPE_CHECKING:
     from typing import List  # NOQA
 
 

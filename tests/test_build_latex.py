@@ -767,7 +767,8 @@ def test_image_in_section(app, status, warning):
     assert ('\\chapter{Another section}' in result)
 
 
-@pytest.mark.sphinx('latex', confoverrides={'latex_logo': 'notfound.jpg'})
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'latex_logo': 'notfound.jpg'})
 def test_latex_logo_if_not_found(app, status, warning):
     try:
         app.builder.build_all()

@@ -10,6 +10,7 @@
 """
 import codecs
 import re
+from typing import TYPE_CHECKING
 
 from docutils.core import Publisher
 from docutils.io import FileInput, NullOutput
@@ -33,8 +34,7 @@ from sphinx.transforms.i18n import (
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
@@ -289,7 +289,7 @@ def read_doc(app, env, filename):
                     source_class=SphinxDummySourceClass,
                     destination=NullOutput())
     pub.set_components(None, 'restructuredtext', None)
-    pub.process_programmatic_settings(None, env.settings, None)
+    pub.process_programmatic_settings(None, env.settings, None)  # type: ignore
     pub.set_source(source, filename)
     pub.publish()
     return pub.document
