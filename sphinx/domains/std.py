@@ -11,6 +11,7 @@
 
 import re
 import unicodedata
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -25,8 +26,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

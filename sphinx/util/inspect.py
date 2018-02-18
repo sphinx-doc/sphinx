@@ -15,14 +15,14 @@ import re
 import sys
 import typing
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
@@ -390,7 +390,8 @@ class Signature(object):
             # insert '*' between POSITIONAL args and KEYWORD_ONLY args::
             #     func(a, b, *, c, d):
             if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                                  param.POSITIONAL_ONLY):
+                                                                  param.POSITIONAL_ONLY,
+                                                                  None):
                 args.append('*')
 
             if param.kind in (param.POSITIONAL_ONLY,

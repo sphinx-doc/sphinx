@@ -12,6 +12,7 @@
 
 from collections import namedtuple
 from os import path
+from typing import TYPE_CHECKING
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
@@ -21,8 +22,7 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, List  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -144,6 +144,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
         self.globalcontext['html_tag'] = self.html_tag
         self.globalcontext['use_meta_charset'] = self.use_meta_charset
+        self.globalcontext['skip_ua_compatible'] = True
 
     def build_navlist(self, navnodes):
         # type: (List[nodes.Node]) -> List[NavPoint]

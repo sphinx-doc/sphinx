@@ -14,6 +14,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import get_source_line
@@ -22,8 +23,7 @@ from six import PY2, StringIO
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA

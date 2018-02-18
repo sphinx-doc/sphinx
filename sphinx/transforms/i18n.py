@@ -10,6 +10,7 @@
 """
 
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -27,8 +28,7 @@ from sphinx.util.nodes import (
 )
 from sphinx.util.pycompat import indent
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA

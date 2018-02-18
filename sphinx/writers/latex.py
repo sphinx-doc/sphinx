@@ -16,6 +16,7 @@ import re
 import sys
 from collections import defaultdict
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
@@ -32,8 +33,7 @@ from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 

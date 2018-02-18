@@ -59,6 +59,7 @@ import posixpath
 import re
 import sys
 from types import ModuleType
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -75,8 +76,7 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils.utils import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA

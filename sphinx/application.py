@@ -19,6 +19,7 @@ import warnings
 from collections import deque
 from inspect import isclass
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
@@ -45,8 +46,7 @@ from sphinx.util.i18n import find_catalog_source_files
 from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
@@ -136,9 +136,9 @@ class Sphinx(object):
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)
-        self.outdir = abspath(outdir)
-        self.doctreedir = abspath(doctreedir)
+        self.srcdir = abspath(srcdir)           # type: unicode
+        self.outdir = abspath(outdir)           # type: unicode
+        self.doctreedir = abspath(doctreedir)   # type: unicode
         self.confdir = confdir
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)

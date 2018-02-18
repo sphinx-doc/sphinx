@@ -8,16 +8,18 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
+
 import os
 import re
 import zlib
+from typing import TYPE_CHECKING
 
 from six import PY3
 
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Callable, Dict, IO, Iterator, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

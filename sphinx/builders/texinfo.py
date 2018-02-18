@@ -11,6 +11,7 @@
 
 import os
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -30,8 +31,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
 

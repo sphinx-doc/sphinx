@@ -14,6 +14,7 @@ import glob
 import inspect
 import re
 from os import path
+from typing import TYPE_CHECKING
 
 from six import iteritems
 from six.moves import cPickle as pickle
@@ -23,8 +24,7 @@ from sphinx.builders import Builder
 from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, List, Pattern, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

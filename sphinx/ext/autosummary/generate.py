@@ -25,6 +25,7 @@ import os
 import pydoc
 import re
 import sys
+from typing import TYPE_CHECKING
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -38,8 +39,7 @@ from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.rst import escape as rst_escape
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Tuple, List  # NOQA
     from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA

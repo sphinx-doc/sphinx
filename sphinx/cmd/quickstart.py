@@ -19,6 +19,7 @@ import time
 from collections import OrderedDict
 from io import open
 from os import path
+from typing import TYPE_CHECKING
 
 # try to import readline, unix specific enhancement
 try:
@@ -43,8 +44,7 @@ from sphinx.util.console import (  # type: ignore
 from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.template import SphinxRenderer
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
@@ -533,7 +533,7 @@ Makefile to be used with sphinx-build.
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
-    parser.add_argument('path', metavar='PROJECT_DIR', default='.',
+    parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
                         help='output path')
 
     group = parser.add_argument_group('Structure options')

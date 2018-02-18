@@ -6,6 +6,9 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
+
+from typing import TYPE_CHECKING
 
 # (ab)use the Jinja parser for parsing our boolean expressions
 from jinja2 import nodes
@@ -14,8 +17,7 @@ from jinja2.parser import Parser
 
 env = Environment()
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Iterator, List  # NOQA
 
 

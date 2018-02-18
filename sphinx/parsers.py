@@ -9,14 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 import docutils.parsers
 import docutils.parsers.rst
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Type  # NOQA
     from docutils import nodes  # NOQA
     from docutils.transforms import Transform  # NOQA

@@ -24,6 +24,7 @@ from collections import deque
 from datetime import datetime
 from os import path
 from time import mktime, strptime
+from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
 from six import text_type, binary_type, itervalues
@@ -48,8 +49,7 @@ from sphinx.util.nodes import (   # noqa
     caption_ref_re)
 from sphinx.util.matching import patfilter  # noqa
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
 
 

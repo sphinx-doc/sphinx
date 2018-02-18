@@ -10,9 +10,9 @@
 """
 
 import sys
+from typing import TYPE_CHECKING
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import List  # NOQA
 
 
