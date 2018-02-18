@@ -69,7 +69,7 @@ class Catalog(object):
         self.messages = []  # type: List[unicode]
                             # retain insertion order, a la OrderedDict
         self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
-                                       # msgid -> file, line, uid
+                                        # msgid -> file, line, uid
 
     def add(self, msg, origin):
         # type: (unicode, MsgOrigin) -> None
