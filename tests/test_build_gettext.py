@@ -167,7 +167,7 @@ def test_gettext_template(app):
     assert "Sphinx %(version)s" in result
 
 
-@pytest.mark.sphinx('gettext', testroot='intl-template')
+@pytest.mark.sphinx('gettext', testroot='gettext-template')
 def test_gettext_template_msgid_order_in_sphinxpot(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
