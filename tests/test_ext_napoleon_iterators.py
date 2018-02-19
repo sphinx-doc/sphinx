@@ -10,8 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 from unittest import TestCase
+
+from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 
 
 class BaseIteratorsTest(TestCase):

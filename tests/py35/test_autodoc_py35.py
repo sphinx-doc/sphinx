@@ -11,16 +11,15 @@
 """
 
 # "raises" imported for usage by autodoc
-import six
 import sys
-from sphinx.testing.util import SphinxTestApp, Struct
+
 import pytest
-
-from six import StringIO
+import six
 from docutils.statemachine import ViewList
+from six import StringIO
 
-from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.ext.autodoc import add_documenter, FunctionDocumenter, ALL  # NOQA
+from sphinx.testing.util import SphinxTestApp, Struct
 from sphinx.util import logging
 
 app = None
@@ -279,8 +278,8 @@ class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
 
-if six.PY3 and sys.version_info[:2] >= (3, 5):
 
+if six.PY3 and sys.version_info[:2] >= (3, 5):
     async def _other_coro_func():
         return "run"
 
@@ -345,5 +344,4 @@ class Class(Base):
 
         async def do_coroutine(self):
             """A documented coroutine function"""
-
-            attr_coro_result = await _other_coro_func()
+            attr_coro_result = await _other_coro_func()  # NOQA

@@ -8,14 +8,13 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pytest
 from docutils import nodes
 
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
-from sphinx.util import logging
-
 from sphinx.testing.util import strip_escseq
-import pytest
+from sphinx.util import logging
 
 
 def test_events(app, status, warning):

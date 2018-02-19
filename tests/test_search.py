@@ -11,13 +11,13 @@
 
 from collections import namedtuple
 
-from six import BytesIO
+import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
+from six import BytesIO
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
-import pytest
 
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 

@@ -11,8 +11,8 @@
 
 import re
 
-from docutils import nodes
 import pytest
+from docutils import nodes
 
 
 @pytest.mark.sphinx('text', testroot='directive-only')

@@ -12,9 +12,9 @@
 import sys
 import time
 
+import pytest
 from six import PY2, text_type, StringIO
 from six.moves import input
-import pytest
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs

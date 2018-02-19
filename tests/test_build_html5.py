@@ -18,10 +18,9 @@ import xml.etree.cElementTree as ElementTree
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
+from test_build_html import flat_dict, tail_check, check_xpath
 
 from sphinx.util.docutils import is_html5_writer_available
-
-from test_build_html import flat_dict, tail_check, check_xpath
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)

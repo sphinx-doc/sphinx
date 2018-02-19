@@ -9,8 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes
 import mock
+from docutils import nodes
 
 from sphinx.domains.std import StandardDomain
 

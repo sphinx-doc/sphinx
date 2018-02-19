@@ -11,15 +11,15 @@
 
 import os
 import re
+import xml.etree.cElementTree as ElementTree
 from itertools import cycle, chain
 
+import pytest
+from html5lib import getTreeBuilder, HTMLParser
 from six import PY3
 
-from sphinx.util.inventory import InventoryFile
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-import xml.etree.cElementTree as ElementTree
-from html5lib import getTreeBuilder, HTMLParser
-import pytest
+from sphinx.util.inventory import InventoryFile
 
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
@@ -1250,7 +1250,8 @@ def test_html_sidebar(app, status, warning):
     'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
                    (".//em/a[@href='https://example.com/ls.1']", "", True),
                    (".//em/a[@href='https://example.com/sphinx.']", "", True)]
-    }))
+
+}))
 @pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
     'manpages_url': 'https://example.com/{page}.{section}'})
 @pytest.mark.test_params(shared_result='test_build_html_manpage_url')

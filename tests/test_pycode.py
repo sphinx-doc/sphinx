@@ -10,6 +10,7 @@
 """
 
 import os
+
 from six import PY2
 
 import sphinx

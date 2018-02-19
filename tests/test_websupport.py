@@ -9,14 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
+
 from sphinx.websupport import WebSupport
 try:
     sqlalchemy_missing = False
     import sqlalchemy  # NOQA
 except ImportError:
     sqlalchemy_missing = True
-
-import pytest
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')

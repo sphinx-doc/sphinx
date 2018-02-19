@@ -9,4 +9,3 @@ rst_epilog = '''
     :height: 15pt
     :alt: alternative_text
 '''
-

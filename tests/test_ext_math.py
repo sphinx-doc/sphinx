@@ -9,9 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-import re
 import errno
+import re
 import subprocess
 
 import pytest
@@ -37,10 +36,12 @@ def test_jsmath(app, status, warning):
     content = (app.outdir / 'math.html').text()
 
     assert '<div class="math notranslate">\na^2 + b^2 = c^2</div>' in content
-    assert '<div class="math notranslate">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
+    assert ('<div class="math notranslate">\n\\begin{split}a + 1 &lt; b\\end{split}</div>'
+            in content)
     assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
             u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
+            u'<div class="math notranslate" id="equation-foo">\ne^{i\\pi} = 1</div>'
+            in content)
     assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
             u'title="Permalink to this equation">\xb6</a></span>'
             u'<div class="math notranslate" id="equation-math-0">\n'
