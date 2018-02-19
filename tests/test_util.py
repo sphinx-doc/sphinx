@@ -12,12 +12,11 @@
 import pytest
 from mock import patch
 
-from sphinx.util import logging
+from sphinx.testing.util import strip_escseq
 from sphinx.util import (
     display_chunk, encode_uri, parselinenos, status_iterator, xmlname_checker
 )
-
-from sphinx.testing.util import strip_escseq
+from sphinx.util import logging
 
 
 def test_encode_uri():

@@ -11,18 +11,17 @@
 from __future__ import print_function
 
 import codecs
+import os
+
+import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
+from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.parallel import ParallelTasks
-
-import pytest
-from sphinx.testing.util import strip_escseq
-
-import os
 
 
 def test_info_and_warning(app, status, warning):

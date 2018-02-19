@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
+import os
+import sys
+
+from docutils import nodes
+from docutils.parsers.rst import Directive
+
+from sphinx import addnodes
+
 
 sys.path.append(os.path.abspath('.'))
 
@@ -76,15 +83,10 @@ autodoc_mock_imports = [
 ]
 
 # modify tags from conf.py
-tags.add('confpytag')
+tags.add('confpytag')  # NOQA
+
 
 # -- extension API
-
-from docutils import nodes
-from docutils.parsers.rst import Directive
-from sphinx import addnodes
-
-
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
     signode += addnodes.desc_name(x, x)

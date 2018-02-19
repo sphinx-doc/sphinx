@@ -13,19 +13,18 @@ from __future__ import print_function
 import os
 import re
 from itertools import product
-from subprocess import Popen, PIPE
 from shutil import copyfile
+from subprocess import Popen, PIPE
 
-from six import PY3
 import pytest
+from six import PY3
+from test_build_html import ENV_WARNINGS
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import cd, ensuredir
-from sphinx.util import docutils
-from sphinx.writers.latex import LaTeXTranslator
-
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-from test_build_html import ENV_WARNINGS
+from sphinx.util import docutils
+from sphinx.util.osutil import cd, ensuredir
+from sphinx.writers.latex import LaTeXTranslator
 
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']

@@ -1,6 +1,5 @@
-from typing import List, TypeVar, Union, Callable, Tuple
-
 from numbers import Integral
+from typing import List, TypeVar, Union, Callable, Tuple
 
 
 def f0(x: int, y: Integral) -> None:

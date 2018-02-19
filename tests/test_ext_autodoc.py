@@ -10,7 +10,9 @@
 """
 
 import pickle
+
 import pytest
+
 from sphinx import addnodes
 
 

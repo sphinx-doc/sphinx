@@ -11,15 +11,14 @@
 """
 
 from collections import namedtuple
-
-# inspect.cleandoc() implements the trim() function from PEP 257
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase
 
+import mock
+
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-import mock
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):

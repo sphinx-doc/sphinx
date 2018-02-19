@@ -10,13 +10,14 @@
 """
 from __future__ import print_function
 
-import os
 import datetime
+import os
 
 import pytest
 from babel.messages.mofile import read_mo
-from sphinx.util import i18n
+
 from sphinx.errors import SphinxError
+from sphinx.util import i18n
 
 
 def test_catalog_info_for_file_and_path():

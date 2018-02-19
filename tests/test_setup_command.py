@@ -10,15 +10,15 @@
 """
 
 import os
-import sys
 import subprocess
+import sys
 from collections import namedtuple
-import sphinx
+from textwrap import dedent
 
 import pytest
 
+import sphinx
 from sphinx.util.osutil import cd
-from textwrap import dedent
 
 
 @pytest.fixture
