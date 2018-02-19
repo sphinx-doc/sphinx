@@ -33,6 +33,7 @@ Bugs fixed
   been changed
 * #4630: Have order on msgids in sphinx.pot deterministic
 * #4563: autosummary: Incorrect end of line punctuation detection
+* #4577: Enumerated sublists with explicit start with wrong number
 
 Testing
 --------

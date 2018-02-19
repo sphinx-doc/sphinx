@@ -1143,3 +1143,14 @@ def test_latex_image_in_parsed_literal(app, status, warning):
     assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
             '{\\scalebox{2.000000}{\\sphinxincludegraphics[height=1cm]{{pic}.png}}}'
             '}AFTER') in result
+
+
+@pytest.mark.sphinx('latex', testroot='nested-enumerated-list')
+def test_latex_nested_enumerated_list(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert r'\setcounter{enumi}{4}' in result
+    assert r'\setcounter{enumii}{3}' in result
+    assert r'\setcounter{enumiii}{9}' in result
+    assert r'\setcounter{enumii}{2}' in result
