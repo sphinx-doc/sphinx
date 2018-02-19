@@ -16,8 +16,7 @@ from docutils import nodes
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
