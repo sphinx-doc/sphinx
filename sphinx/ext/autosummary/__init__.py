@@ -58,23 +58,27 @@ import os
 import posixpath
 import re
 import sys
+import warnings
 from types import ModuleType
 from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import ViewList
 from six import string_types
 from six import text_type
 
 import sphinx
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
+from sphinx.util.docutils import new_document
 
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
@@ -153,13 +157,17 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
+# current application object (used in `get_documenter()`).
+_app = None  # type: Sphinx
+
+
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
-def get_documenter(app, obj, parent):
-    # type: (Sphinx, Any, Any) -> Type[Documenter]
+def get_documenter(*args):
+    # type: (Any) -> Type[Documenter]
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -168,6 +176,16 @@ def get_documenter(app, obj, parent):
     belongs to.
     """
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
+    if len(args) == 3:
+        # new style arguments: (app, obj, parent)
+        app, obj, parent = args
+    else:
+        # old style arguments: (obj, parent)
+        app = _app
+        obj, parent = args
+        warnings.warn('the interface of get_documenter() has been changed. '
+                      'Please give application object as first argument.',
+                      RemovedInSphinx20Warning)
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False
@@ -324,27 +342,7 @@ class Autosummary(Directive):
             # -- Grab the summary
 
             documenter.add_content(None)
-            doc = self.result.data
-
-            while doc and not doc[0].strip():
-                doc.pop(0)
-
-            # If there's a blank line, then we can assume the first sentence /
-            # paragraph has ended, so anything after shouldn't be part of the
-            # summary
-            for i, piece in enumerate(doc):
-                if not piece.strip():
-                    doc = doc[:i]
-                    break
-
-            # Try to find the "first sentence", which may span multiple lines
-            m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
-            if m:
-                summary = m.group(1).strip()
-            elif doc:
-                summary = doc[0].strip()
-            else:
-                summary = ''
+            summary = extract_summary(self.result.data[:], self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
@@ -449,6 +447,40 @@ def mangle_signature(sig, max_chars=30):
                                            max_chars=max_chars - len(sig) - 4 - 2)
 
     return u"(%s)" % sig
+
+
+def extract_summary(doc, document):
+    # type: (List[unicode], Any) -> unicode
+    """Extract summary from docstring."""
+
+    # Skip a blank lines at the top
+    while doc and not doc[0].strip():
+        doc.pop(0)
+
+    # If there's a blank line, then we can assume the first sentence /
+    # paragraph has ended, so anything after shouldn't be part of the
+    # summary
+    for i, piece in enumerate(doc):
+        if not piece.strip():
+            doc = doc[:i]
+            break
+
+    # Try to find the "first sentence", which may span multiple lines
+    sentences = " ".join(doc).split('.')
+    if len(sentences) == 1:
+        summary = sentences[0].strip()
+    else:
+        summary = ''
+        state_machine = RSTStateMachine(state_classes, 'Body')
+        while sentences:
+            summary += sentences.pop(0) + '.'
+            node = new_document('', document.settings)
+            state_machine.run([summary], node)
+            if not node.traverse(nodes.system_message):
+                # considered as that splitting by period does not break inline markups
+                break
+
+    return summary
 
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
