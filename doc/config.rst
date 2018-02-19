@@ -1219,15 +1219,20 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
-.. confval:: htmlhelp_basename
-
-   Output file base name for HTML help builder.  Default is ``'pydoc'``.
-
 .. confval:: html_experimental_html5_writer
 
    Output is processed with HTML5 writer.  This feature needs docutils 0.13 or newer.  Default is ``False``.
 
    .. versionadded:: 1.6
+
+.. _htmlhelp-options:
+
+Options for HTML help output
+-----------------------------
+
+.. confval:: htmlhelp_basename
+
+   Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
 .. _applehelp-options:
 
