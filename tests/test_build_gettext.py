@@ -10,9 +10,9 @@
 """
 from __future__ import print_function
 
+import gettext
 import os
 import re
-import gettext
 from subprocess import Popen, PIPE
 
 import pytest

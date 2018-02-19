@@ -2,8 +2,10 @@
 mod2
 """
 
+
 def decorator(f):
     return f
+
 
 @decorator
 def func2(a, b):

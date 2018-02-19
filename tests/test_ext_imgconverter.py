@@ -9,8 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pytest
 import os
+
+import pytest
 
 
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')

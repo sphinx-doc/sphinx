@@ -10,13 +10,14 @@
 """
 
 import pickle
-from docutils import nodes
+import sys
+from textwrap import dedent
+
 import mock
 import pytest
-from textwrap import dedent
-from sphinx.errors import SphinxError
-import sys
+from docutils import nodes
 
+from sphinx.errors import SphinxError
 from sphinx.testing.path import path
 
 

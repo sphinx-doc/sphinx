@@ -11,13 +11,13 @@
 
 import re
 
-from six import text_type
 import pytest
+from six import text_type
 
+import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
-import sphinx.domains.cpp as cppDomain
 
 
 def parse(name, string):

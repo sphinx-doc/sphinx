@@ -11,15 +11,14 @@
 """
 
 import sys
-from six import PY3
 
-from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 import pytest
-
 from docutils.statemachine import ViewList
+from six import PY3
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 
 app = None

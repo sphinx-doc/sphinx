@@ -2,7 +2,6 @@
 import os
 
 import mod_resource
-
 import mod_something
 
 

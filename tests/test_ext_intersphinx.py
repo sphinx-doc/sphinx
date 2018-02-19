@@ -9,22 +9,22 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import unittest
+from io import BytesIO
 
-from docutils import nodes
 import mock
 import pytest
 import requests
-from io import BytesIO
-import os
+from docutils import nodes
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
 )
-from test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 
 
 def fake_node(domain, type, target, content, **attrs):

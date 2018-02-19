@@ -12,13 +12,13 @@
 from __future__ import print_function
 
 import os
-import re
 import pickle
-from docutils import nodes
+import re
 
-from babel.messages import pofile, mofile
-from six import string_types
 import pytest
+from babel.messages import pofile, mofile
+from docutils import nodes
+from six import string_types
 
 from sphinx.testing.util import (
     path, etree_parse, strip_escseq,
