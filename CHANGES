@@ -32,6 +32,7 @@ Bugs fixed
 * autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
   been changed
 * #4630: Have order on msgids in sphinx.pot deterministic
+* #4563: autosummary: Incorrect end of line punctuation detection
 
 Testing
 --------
