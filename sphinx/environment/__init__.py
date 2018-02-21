@@ -530,6 +530,7 @@ class BuildEnvironment(object):
         self.doctreedir = doctreedir
         self.find_files(config, self.app.builder)
         self.config = config
+        self._update_settings(config)
 
         # this cache also needs to be updated every time
         self._nitpick_ignore = set(self.config.nitpick_ignore)
@@ -632,6 +633,17 @@ class BuildEnvironment(object):
             if docname not in already:
                 yield docname
 
+    def _update_settings(self, config):
+        # type: (Config) -> None
+        """Update settings by new config."""
+        self.settings['input_encoding'] = config.source_encoding
+        self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
+        self.settings['gettext_compact'] = config.gettext_compact
+        self.settings['language_code'] = config.language or 'en'
+
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
+
     # --------- SINGLE FILE READING --------------------------------------------
 
     def prepare_settings(self, docname):
@@ -642,16 +654,6 @@ class BuildEnvironment(object):
         self.temp_data['default_role'] = self.config.default_role
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
-
-        self.settings['input_encoding'] = self.config.source_encoding
-        self.settings['trim_footnote_reference_space'] = \
-            self.config.trim_footnote_reference_space
-        self.settings['gettext_compact'] = self.config.gettext_compact
-
-        self.settings['language_code'] = self.config.language or 'en'
-
-        # Allow to disable by 3rd party extension (workaround)
-        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None
