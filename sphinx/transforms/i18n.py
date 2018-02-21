@@ -92,8 +92,7 @@ class Locale(SphinxTransform):
         assert source.startswith(self.env.srcdir)
         docname = path.splitext(relative_path(path.join(self.env.srcdir, 'dummy'),
                                               source))[0]
-        textdomain = find_catalog(docname,
-                                  self.document.settings.gettext_compact)
+        textdomain = find_catalog(docname, self.config.gettext_compact)
 
         # fetch translations
         dirs = [path.join(self.env.srcdir, directory)
