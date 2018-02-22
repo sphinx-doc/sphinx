@@ -25,6 +25,8 @@ Deprecated
   ``sphinx.util.import_object()`` instead.
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
+* ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
+  been deprecated.  Please use ``Sphinx.add_source_suffix()`` instead.
 
 Features added
 --------------

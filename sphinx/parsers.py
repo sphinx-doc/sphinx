@@ -92,7 +92,7 @@ class RSTParser(docutils.parsers.rst.Parser):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.add_source_parser('.rst', RSTParser)
+    app.add_source_parser(RSTParser)
 
     return {
         'version': 'builtin',

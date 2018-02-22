@@ -85,7 +85,9 @@ package.
 
 .. automethod:: Sphinx.add_search_language(cls)
 
-.. automethod:: Sphinx.add_source_parser(suffix, parser)
+.. automethod:: Sphinx.add_source_suffix(suffix, filetype)
+
+.. automethod:: Sphinx.add_source_parser(parser)
 
 .. automethod:: Sphinx.add_env_collector(collector)
 

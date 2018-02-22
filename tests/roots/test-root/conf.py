@@ -109,4 +109,5 @@ def setup(app):
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
     app.add_javascript('file://moo.js')
-    app.add_source_parser('.foo', parsermod.Parser)
+    app.add_source_suffix('.foo', 'foo')
+    app.add_source_parser(parsermod.Parser)

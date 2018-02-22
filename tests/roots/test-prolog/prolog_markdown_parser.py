@@ -11,4 +11,5 @@ class DummyMarkdownParser(Parser):
 
 
 def setup(app):
-    app.add_source_parser('.md', DummyMarkdownParser)
+    app.add_source_suffix('.md', 'markdown')
+    app.add_source_parser(DummyMarkdownParser)
