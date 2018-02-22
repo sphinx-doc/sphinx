@@ -14,6 +14,8 @@ Deprecated
   ``sphinx.cmd.build.build_main()`` instead.
 * autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
   been changed (Since 1.7.0)
+* #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated. Use
+  ``sphinx.ext.intersphinx.inspect_main()`` instead.
 
 Features added
 --------------
@@ -39,6 +41,7 @@ Bugs fixed
 * C++, add missing parsing of ``this`` in expression parsing.
 * #4655: Fix incomplete localization strings in Polish
 * #4653: Fix error reporting for parameterless ImportErrors
+* #4664: Reading objects.inv fails again
 
 Testing
 --------
