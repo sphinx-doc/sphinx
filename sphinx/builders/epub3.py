@@ -133,6 +133,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
         metadata['date'] = self.esc(format_date("%Y-%m-%dT%H:%M:%SZ"))
         metadata['version'] = self.esc(self.config.version)
+        metadata['epub_version'] = self.config.epub_version
         return metadata
 
     def prepare_writing(self, docnames):
@@ -229,6 +230,7 @@ def setup(app):
 
     # config values
     app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')
     app.add_config_value('epub_title', lambda self: self.html_title, 'epub')
