@@ -38,7 +38,6 @@ Bugs fixed
 * C++, add missing parsing of explicit casts and typeid in expression parsing.
 * C++, add missing parsing of ``this`` in expression parsing.
 * #4655: Fix incomplete localization strings in Polish
-* #4653: Fix error reporting for parameterless ImportErrors
 
 Testing
 --------
