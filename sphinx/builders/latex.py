@@ -62,7 +62,7 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         self.docnames = []          # type: Iterable[unicode]
         self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
-        self.usepackages = []       # type: List[unicode]
+        self.usepackages = self.app.registry.latex_packages
         texescape.init()
 
     def get_outdated_docs(self):

@@ -22,3 +22,6 @@ if PY3:
 # common role functions
 RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
                         Tuple[List[nodes.Node], List[nodes.Node]]]
+
+# title getter functions for enumerable nodes (see sphinx.domains.std)
+TitleGetter = Callable[[nodes.Node], unicode]
