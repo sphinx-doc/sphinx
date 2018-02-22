@@ -6205,7 +6205,7 @@ class CPPDomain(Domain):
         if target is None:
             return None
         parentKey = node.get("cpp:parent_key", None)
-        if parentKey is None:
+        if parentKey is None or len(parentKey) <= 0:
             return None
 
         rootSymbol = self.data['root_symbol']
