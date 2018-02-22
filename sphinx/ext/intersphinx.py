@@ -375,7 +375,7 @@ def setup(app):
 def debug(argv):
     # type: (List[unicode]) -> None
     """Debug functionality to print out an inventory"""
-    if len(argv) < 2:
+    if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
@@ -392,7 +392,7 @@ def debug(argv):
         def warn(self, msg):
             print(msg, file=sys.stderr)
 
-    filename = argv[1]
+    filename = argv[0]
     invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
     for key in sorted(invdata or {}):
         print(key)
