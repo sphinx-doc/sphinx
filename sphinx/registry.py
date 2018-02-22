@@ -257,10 +257,23 @@ class SphinxComponentRegistry(object):
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, suffix, parser):
-        # type: (unicode, Type[Parser]) -> None
-        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
-        self.add_source_suffix(suffix, suffix)
+    def add_source_parser(self, *args):
+        # type: (Any) -> None
+        logger.debug('[app] adding search source_parser: %r', args)
+        if len(args) == 1:
+            # new sytle arguments: (source_parser)
+            suffix = None       # type: unicode
+            parser = args[0]    # type: Type[Parser]
+        else:
+            # old style arguments: (suffix, source_parser)
+            warnings.warn('app.add_source_parser() does not support suffix argument. '
+                          'Use app.add_source_suffix() instead.',
+                          RemovedInSphinx30Warning)
+            suffix = args[0]
+            parser = args[1]
+
+        if suffix:
+            self.add_source_suffix(suffix, suffix)
 
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
@@ -277,8 +290,9 @@ class SphinxComponentRegistry(object):
 
         # also maps suffix to parser
         #
-        # This allows parsers not having ``supported`` filetypes.
-        self.source_parsers[suffix] = parser
+        # This rescues old styled parsers which does not have ``supported`` filetypes.
+        if suffix:
+            self.source_parsers[suffix] = parser
 
     def get_source_parser(self, filetype):
         # type: (unicode) -> Type[Parser]
@@ -452,13 +466,13 @@ class SphinxComponentRegistry(object):
 def merge_source_suffix(app):
     # type: (Sphinx) -> None
     """Merge source_suffix which specified by user and added by extensions."""
-    for suffix in app.registry.source_suffix:
+    for suffix, filetype in iteritems(app.registry.source_suffix):
         if suffix not in app.config.source_suffix:
-            app.config.source_suffix[suffix] = suffix
+            app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] is None:
             # filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
-            app.config.source_suffix[suffix] = suffix
+            app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry
     app.registry.source_suffix = app.config.source_suffix

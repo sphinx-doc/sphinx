@@ -18,6 +18,7 @@ from docutils import nodes
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, import_object, logging, status_iterator
+from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri
@@ -363,6 +364,7 @@ class Builder(object):
             logger.info('done')
 
             # global actions
+            self.app.phase = BuildPhase.CONSISTENCY_CHECK
             logger.info(bold('checking consistency... '), nonl=True)
             self.env.check_consistency()
             logger.info('done')
@@ -370,6 +372,8 @@ class Builder(object):
             if method == 'update' and not docnames:
                 logger.info(bold('no targets are out of date.'))
                 return
+
+        self.app.phase = BuildPhase.RESOLVING
 
         # filter "docnames" (list of outdated files) by the updated
         # found_docs of the environment; this will remove docs that
@@ -435,7 +439,9 @@ class Builder(object):
         with logging.pending_warnings():
             for docname in status_iterator(docnames, 'writing output... ', "darkgreen",
                                            len(docnames), self.app.verbosity):
+                self.app.phase = BuildPhase.RESOLVING
                 doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.app.phase = BuildPhase.WRITING
                 self.write_doc_serialized(docname, doctree)
                 self.write_doc(docname, doctree)
 
@@ -443,18 +449,22 @@ class Builder(object):
         # type: (Sequence[unicode], int) -> None
         def write_process(docs):
             # type: (List[Tuple[unicode, nodes.Node]]) -> None
+            self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
+        self.app.phase = BuildPhase.RESOLVING
         doctree = self.env.get_and_resolve_doctree(firstname, self)
+        self.app.phase = BuildPhase.WRITING
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
+        self.app.phase = BuildPhase.RESOLVING
         for chunk in status_iterator(chunks, 'writing output... ', "darkgreen",
                                      len(chunks), self.app.verbosity):
             arg = []

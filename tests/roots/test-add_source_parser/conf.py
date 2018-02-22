@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 
 class DummyMarkdownParser(Parser):
-    pass
+    supported = ('markdown',)
 
 
 extensions = ['source_parser']

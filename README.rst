@@ -81,6 +81,15 @@ Documentation is available from `sphinx-doc.org`__.
 
 __ http://www.sphinx-doc.org/
 
+Get in touch
+============
+
+- Report bugs, suggest features or view the source code `on GitHub`_.
+- For less well defined questions or ideas, use the `mailing list`_.
+
+.. _on GitHub: https://github.com/sphinx-doc/sphinx
+.. _mailing list: https://groups.google.com/forum/#!forum/sphinx-users
+
 Testing
 =======
 
