@@ -16,7 +16,9 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import SphinxError
 from sphinx.util import i18n, import_object, logging, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
@@ -344,7 +346,7 @@ class Builder(object):
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
-            updated_docnames = set(self.env.update(self.config, self.srcdir, self.doctreedir))
+            updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
         logger.info(bold('looking for now-outdated files... '), nonl=1)
@@ -402,6 +404,106 @@ class Builder(object):
 
         # wait for all tasks
         self.finish_tasks.join()
+
+    def read(self):
+        # type: () -> List[unicode]
+        """(Re-)read all files new or changed since last update.
+
+        Store all environment docnames in the canonical format (ie using SEP as
+        a separator in place of os.path.sep).
+        """
+        updated, reason = self.env.update_config(self.config, self.srcdir, self.doctreedir)
+
+        logger.info(bold('updating environment: '), nonl=True)
+
+        self.env.find_files(self.config, self)
+        added, changed, removed = self.env.get_outdated_files(updated)
+
+        # allow user intervention as well
+        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
+            changed.update(set(docs) & self.env.found_docs)
+
+        # if files were added or removed, all documents with globbed toctrees
+        # must be reread
+        if added or removed:
+            # ... but not those that already were removed
+            changed.update(self.env.glob_toctrees & self.env.found_docs)
+
+        if changed:
+            logger.info('[%s] ', reason, nonl=True)
+        logger.info('%s added, %s changed, %s removed',
+                    len(added), len(changed), len(removed))
+
+        # clear all files no longer present
+        for docname in removed:
+            self.app.emit('env-purge-doc', self.env, docname)
+            self.env.clear_doc(docname)
+
+        # read all new and changed files
+        docnames = sorted(added | changed)
+        # allow changing and reordering the list of docs to read
+        self.app.emit('env-before-read-docs', self.env, docnames)
+
+        # check if we should do parallel or serial read
+        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+            par_ok = self.app.is_parallel_allowed('read')
+        else:
+            par_ok = False
+
+        if par_ok:
+            self._read_parallel(docnames, nproc=self.app.parallel)
+        else:
+            self._read_serial(docnames)
+
+        if self.config.master_doc not in self.env.all_docs:
+            raise SphinxError('master file %s not found' %
+                              self.env.doc2path(self.config.master_doc))
+
+        for retval in self.app.emit('env-updated', self.env):
+            if retval is not None:
+                docnames.extend(retval)
+
+        return sorted(docnames)
+
+    def _read_serial(self, docnames):
+        # type: (List[unicode]) -> None
+        for docname in status_iterator(docnames, 'reading sources... ', "purple",
+                                       len(docnames), self.app.verbosity):
+            # remove all inventory entries for that file
+            self.app.emit('env-purge-doc', self.env, docname)
+            self.env.clear_doc(docname)
+            self.env.read_doc(docname, self.app)
+
+    def _read_parallel(self, docnames, nproc):
+        # type: (List[unicode], int) -> None
+        # clear all outdated docs at once
+        for docname in docnames:
+            self.app.emit('env-purge-doc', self.env, docname)
+            self.env.clear_doc(docname)
+
+        def read_process(docs):
+            # type: (List[unicode]) -> unicode
+            self.env.app = self.app
+            for docname in docs:
+                self.env.read_doc(docname, self.app)
+            # allow pickling self to send it back
+            return BuildEnvironment.dumps(self.env)
+
+        def merge(docs, otherenv):
+            # type: (List[unicode], unicode) -> None
+            env = BuildEnvironment.loads(otherenv)
+            self.env.merge_info_from(docs, env, self.app)
+
+        tasks = ParallelTasks(nproc)
+        chunks = make_chunks(docnames, nproc)
+
+        for chunk in status_iterator(chunks, 'reading sources... ', "purple",
+                                     len(chunks), self.app.verbosity):
+            tasks.add_task(read_process, chunk, merge)
+
+        # make sure all threads have finished
+        logger.info(bold('waiting for workers...'))
+        tasks.join()
 
     def write(self, build_docnames, updated_docnames, method='update'):
         # type: (Iterable[unicode], Sequence[unicode], unicode) -> None
