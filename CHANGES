@@ -1,11 +1,5 @@
-Release 1.7.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
+Release 1.7.1 (released Feb 23, 2018)
+=====================================
 
 Deprecated
 ----------
@@ -16,9 +10,6 @@ Deprecated
   been changed (Since 1.7.0)
 * #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated. Use
   ``sphinx.ext.intersphinx.inspect_main()`` instead.
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -44,9 +35,6 @@ Bugs fixed
 * #4664: Reading objects.inv fails again
 * #4662: ``any`` refs with ``term`` targets crash when an ambiguity is
   encountered
-
-Testing
---------
 
 Release 1.7.0 (released Feb 12, 2018)
 =====================================
