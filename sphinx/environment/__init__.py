@@ -506,38 +506,12 @@ class BuildEnvironment(object):
         Store all environment docnames in the canonical format (ie using SEP as
         a separator in place of os.path.sep).
         """
-        config_changed = False
-        if self.config is None:
-            msg = '[new config] '
-            config_changed = True
-        else:
-            # check if a config value was changed that affects how
-            # doctrees are read
-            for confval in config.filter('env'):
-                if self.config[confval.name] != confval.value:
-                    msg = '[config changed] '
-                    config_changed = True
-                    break
-            else:
-                msg = ''
-            # this value is not covered by the above loop because it is handled
-            # specially by the config class
-            if self.config.extensions != config.extensions:
-                msg = '[extensions changed] '
-                config_changed = True
-        # the source and doctree directories may have been relocated
-        self.srcdir = srcdir
-        self.doctreedir = doctreedir
-        self.find_files(config, self.app.builder)
-        self.config = config
-        self._update_settings(config)
-
-        # this cache also needs to be updated every time
-        self._nitpick_ignore = set(self.config.nitpick_ignore)
+        updated, reason = self.update_config(config, srcdir, doctreedir)
 
         logger.info(bold('updating environment: '), nonl=True)
 
-        added, changed, removed = self.get_outdated_files(config_changed)
+        self.find_files(config, self.app.builder)
+        added, changed, removed = self.get_outdated_files(updated)
 
         # allow user intervention as well
         for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
@@ -549,9 +523,10 @@ class BuildEnvironment(object):
             # ... but not those that already were removed
             changed.update(self.glob_toctrees & self.found_docs)
 
-        msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
-                                                     len(removed))
-        logger.info(msg)
+        if changed:
+            logger.info('[%s] ', reason, nonl=True)
+        logger.info('%s added, %s changed, %s removed',
+                    len(added), len(changed), len(removed))
 
         # clear all files no longer present
         for docname in removed:
@@ -632,6 +607,37 @@ class BuildEnvironment(object):
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
+
+    def update_config(self, config, srcdir, doctreedir):
+        # type: (Config, unicode, unicode) -> Tuple[bool, unicode]
+        """Update configurations by new one."""
+        changed_reason = ''
+        if self.config is None:
+            changed_reason = 'new config'
+        else:
+            # check if a config value was changed that affects how
+            # doctrees are read
+            for confval in config.filter('env'):
+                if self.config[confval.name] != confval.value:
+                    changed_reason = 'config changed'
+                    break
+
+            # this value is not covered by the above loop because it is handled
+            # specially by the config class
+            if self.config.extensions != config.extensions:
+                changed_reason = 'extensions changed'
+
+        # the source and doctree directories may have been relocated
+        self.srcdir = srcdir
+        self.doctreedir = doctreedir
+        self.config = config
+        self._update_settings(config)
+
+        # this cache also needs to be updated every time
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
+
+        # return tuple of (changed, reason)
+        return bool(changed_reason), changed_reason
 
     def _update_settings(self, config):
         # type: (Config) -> None
