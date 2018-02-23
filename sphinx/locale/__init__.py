@@ -304,3 +304,48 @@ def get_translator(catalog='sphinx'):
     if hasattr(translator, 'ugettext'):
         translator.gettext = translator.ugettext
     return translator
+
+
+def get_translation(catalog):
+    # type: (unicode) -> Callable[[unicode, *Any], unicode]
+    """Get a translation function based on the *catalog*, *locale_dir*.
+
+    The extension can use this API to translate the messages on the
+    extension::
+
+        import os
+        from sphinx.locale import get_translation
+
+        _ = get_translation(__name__)
+        text = _('Hello Sphinx!')
+
+
+        def setup(app):
+            package_dir = path.abspath(path.dirname(__file__))
+            locale_dir = os.path.join(package_dir, 'locales')
+            app.add_message_catalog(__name__, locale_dir)
+
+    With this code, sphinx searches a message catalog from
+    ``${package_dir}/locales/${language}/LC_MESSAGES/${__name__}.mo``
+    The :confval:`language` is used for the searching.
+
+    .. versionadded:: 1.8
+    """
+    def lazy_gettext(message):
+        # type: (unicode) -> unicode
+        translator = get_translator(catalog)
+        return translator.gettext(message)
+
+    def gettext(message, *args):
+        # type: (unicode, *Any) -> unicode
+        if catalog not in translators:
+            # not initialized yet
+            return _TranslationProxy(lazy_gettext, message)
+        else:
+            translator = get_translator(catalog)
+            if len(args) <= 1:
+                return translator.gettext(message)
+            else:  # support pluralization
+                return translator.ngettext(message, args[0], args[1])
+
+    return gettext
