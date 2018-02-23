@@ -30,6 +30,7 @@ import functools
 import posixpath
 import sys
 import time
+import warnings
 from os import path
 from typing import TYPE_CHECKING
 
@@ -40,6 +41,7 @@ from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
@@ -375,6 +377,15 @@ def setup(app):
 def debug(argv):
     # type: (List[unicode]) -> None
     """Debug functionality to print out an inventory"""
+    warnings.warn('sphinx.ext.intersphinx.debug() is deprecated. '
+                  'Please use inspect_main() instead',
+                  RemovedInSphinx20Warning)
+    inspect_main(argv[1:])
+
+
+def inspect_main(argv):
+    # type: (List[unicode]) -> None
+    """Debug functionality to print out an inventory"""
     if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
@@ -406,4 +417,4 @@ if __name__ == '__main__':
     import logging  # type: ignore
     logging.basicConfig()
 
-    debug(argv=sys.argv[1:])  # type: ignore
+    inspect_main(argv=sys.argv[1:])  # type: ignore
