@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``BuildEnvironment._nitpick_ignore``
+     - 1.8
+     - 3.0
+     - :confval:`nitpick_ignore`
+
    * - ``warn()`` (template helper function)
      - 1.8
      - 3.0
