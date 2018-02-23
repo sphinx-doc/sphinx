@@ -42,6 +42,8 @@ Bugs fixed
 * #4655: Fix incomplete localization strings in Polish
 * #4653: Fix error reporting for parameterless ImportErrors
 * #4664: Reading objects.inv fails again
+* #4662: ``any`` refs with ``term`` targets crash when an ambiguity is
+  encountered
 
 Testing
 --------
