@@ -12,6 +12,7 @@ normal order
    bar/*
    baz
    qux/index
+   hyperref <https://sphinx-doc.org/?q=sphinx>
 
 reversed order
 -------------

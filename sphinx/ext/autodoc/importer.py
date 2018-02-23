@@ -181,7 +181,7 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             if isinstance(real_exc, SystemExit):
                 errmsg += ('; the module executes module level statement '
                            'and it might call sys.exit().')
-            elif isinstance(real_exc, ImportError):
+            elif isinstance(real_exc, ImportError) and real_exc.args:
                 errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
             else:
                 errmsg += '; the following exception was raised:\n%s' % traceback_msg
