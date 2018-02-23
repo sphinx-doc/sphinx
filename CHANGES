@@ -27,12 +27,13 @@ Release 1.7.1 (released Feb 23, 2018)
 Deprecated
 ----------
 
-* #4623: ``sphinx.build_main()`` is deprecated. Use
-  ``sphinx.cmd.build.build_main()`` instead.
+* #4623: ``sphinx.build_main()`` is deprecated.
 * autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
   been changed (Since 1.7.0)
-* #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated. Use
-  ``sphinx.ext.intersphinx.inspect_main()`` instead.
+* #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated.
+
+For more details, see `deprecation APIs list
+<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
 
 Bugs fixed
 ----------
