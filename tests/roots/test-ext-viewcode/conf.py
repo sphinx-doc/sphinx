@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.abspath('.'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
@@ -9,7 +9,7 @@ master_doc = 'index'
 exclude_patterns = ['_build']
 
 
-if 'test_linkcode' in tags:
+if 'test_linkcode' in tags:  # NOQA
     extensions.remove('sphinx.ext.viewcode')
     extensions.append('sphinx.ext.linkcode')
 

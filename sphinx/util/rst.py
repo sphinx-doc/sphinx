@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 import re
 from contextlib import contextmanager
+from typing import TYPE_CHECKING
 
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
@@ -19,8 +20,7 @@ from docutils.utils import Reporter
 
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Generator  # NOQA
 
 symbols_re = re.compile(r'([!--/:-@\[-`{-~])')  # symbols without dot(0x2e)

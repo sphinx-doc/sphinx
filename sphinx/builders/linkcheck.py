@@ -14,6 +14,7 @@ import re
 import socket
 import threading
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from requests.exceptions import HTTPError
@@ -37,8 +38,7 @@ from sphinx.util.console import (  # type: ignore
 )
 from sphinx.util.requests import is_ssl_error
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA

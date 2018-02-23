@@ -12,10 +12,11 @@
 from __future__ import unicode_literals
 
 from codecs import open
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
 from os import path, walk, getenv
 from time import time
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from six import iteritems, StringIO
@@ -29,8 +30,7 @@ from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
@@ -68,8 +68,8 @@ class Catalog(object):
         # type: () -> None
         self.messages = []  # type: List[unicode]
                             # retain insertion order, a la OrderedDict
-        self.metadata = {}  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
-                            # msgid -> file, line, uid
+        self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]  # NOQA
+                                        # msgid -> file, line, uid
 
     def add(self, msg, origin):
         # type: (unicode, MsgOrigin) -> None
@@ -237,7 +237,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def _extract_from_template(self):
         # type: () -> None
-        files = self._collect_templates()
+        files = list(self._collect_templates())
+        files.sort()
         logger.info(bold('building [%s]: ' % self.name), nonl=1)
         logger.info('targets for %d template files', len(files))
 

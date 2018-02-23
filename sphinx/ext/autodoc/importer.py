@@ -15,14 +15,14 @@ import traceback
 import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
+from typing import TYPE_CHECKING
 
 from six import PY2
 
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Generator, List, Optional  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -181,7 +181,7 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             if isinstance(real_exc, SystemExit):
                 errmsg += ('; the module executes module level statement '
                            'and it might call sys.exit().')
-            elif isinstance(real_exc, ImportError):
+            elif isinstance(real_exc, ImportError) and real_exc.args:
                 errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
             else:
                 errmsg += '; the following exception was raised:\n%s' % traceback_msg

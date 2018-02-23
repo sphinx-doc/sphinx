@@ -10,4 +10,3 @@ rst_epilog = '''
     :align: middle
     :alt: alternative_text
 '''
-

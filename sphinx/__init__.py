@@ -15,6 +15,7 @@
 from __future__ import absolute_import
 
 import os
+import sys
 import warnings
 from os import path
 
@@ -23,6 +24,7 @@ from .deprecation import RemovedInSphinx20Warning
 
 if False:
     # For type annotation
+    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
     from typing import Any  # NOQA
 
 
@@ -71,20 +73,43 @@ if __version__.endswith('+'):
 
 def main(*args, **kwargs):
     # type: (Any, Any) -> int
+    from .cmd import build
     warnings.warn(
         '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    from .cmd import build
+    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
     return build.main(*args, **kwargs)
 
 
+def build_main(argv=sys.argv):
+    """Sphinx build "main" command-line entry."""
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.build_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
+
+
+def make_main(argv=sys.argv):
+    """Sphinx build "make mode" entry."""
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.make_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
+
+
 if __name__ == '__main__':
+    from .cmd import build
     warnings.warn(
         '`sphinx` has moved to `sphinx.build`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    from .cmd import build
     build.main()

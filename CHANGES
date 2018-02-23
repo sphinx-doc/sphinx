@@ -25,6 +25,9 @@ Deprecated
   ``sphinx.util.import_object()`` instead.
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
+* ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
+  been deprecated.  Please use ``Sphinx.add_source_suffix()`` instead.
+* ``sphinx.util.docutils.directive_helper()`` is deprecated.
 * ``sphinx.cmdline`` is deprecated.  Please use ``sphinx.cmd.build`` instead.
 
 Features added
@@ -43,7 +46,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.7.1 (in development)
+Release 1.7.2 (in development)
 ==============================
 
 Dependencies
@@ -63,6 +66,44 @@ Bugs fixed
 
 Testing
 --------
+
+Release 1.7.1 (released Feb 23, 2018)
+=====================================
+
+Deprecated
+----------
+
+* #4623: ``sphinx.build_main()`` is deprecated. Use
+  ``sphinx.cmd.build.build_main()`` instead.
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed (Since 1.7.0)
+* #4664: ``sphinx.ext.intersphinx.debug()`` is deprecated. Use
+  ``sphinx.ext.intersphinx.inspect_main()`` instead.
+
+Bugs fixed
+----------
+
+* #4608: epub: Invalid meta tag is generated
+* #4260: autodoc: keyword only argument separator is not disappeared if it is
+  appeared at top of the argument list
+* #4622: epub: :confval:`epub_scheme` does not effect to content.opf
+* #4627: graphviz: Fit graphviz images to page
+* #4617: quickstart: PROJECT_DIR argument is required
+* #4623: sphinx.build_main no longer exists in 1.7.0
+* #4615: The argument of ``sphinx.build`` has been changed in 1.7.0
+* autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
+  been changed
+* #4630: Have order on msgids in sphinx.pot deterministic
+* #4563: autosummary: Incorrect end of line punctuation detection
+* #4577: Enumerated sublists with explicit start with wrong number
+* #4641: A external link in TOC cannot contain "?" with ``:glob:`` option
+* C++, add missing parsing of explicit casts and typeid in expression parsing.
+* C++, add missing parsing of ``this`` in expression parsing.
+* #4655: Fix incomplete localization strings in Polish
+* #4653: Fix error reporting for parameterless ImportErrors
+* #4664: Reading objects.inv fails again
+* #4662: ``any`` refs with ``term`` targets crash when an ambiguity is
+  encountered
 
 Release 1.7.0 (released Feb 12, 2018)
 =====================================
@@ -175,6 +216,8 @@ Features added
 
 * #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
   processes automatically.
+* Napoleon: added option to specify custom section tags.
+
 
 Features removed
 ----------------

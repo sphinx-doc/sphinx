@@ -11,6 +11,7 @@
 
 import re
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -28,8 +29,7 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
 
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -530,6 +530,12 @@ _expression_bin_ops = [
 _expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
 _expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
                               ">>=", "<<=", "&=", "^=", "|="]
+_id_explicit_cast = {
+    'dynamic_cast': 'dc',
+    'static_cast': 'sc',
+    'const_cast': 'cc',
+    'reinterpret_cast': 'rc'
+}
 
 
 class NoOldIdError(UnicodeMixin, Exception):
@@ -779,6 +785,17 @@ class ASTStringLiteral(ASTBase):
         signode.append(nodes.Text(txt, txt))
 
 
+class ASTThisLiteral(ASTBase):
+    def __unicode__(self):
+        return "this"
+
+    def get_id(self, version):
+        return "fpT"
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text("this"))
+
+
 class ASTParenExpr(ASTBase):
     def __init__(self, expr):
         self.expr = expr
@@ -1025,6 +1042,56 @@ class ASTNoexceptExpr(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('noexcept('))
         self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTExplicitCast(ASTBase):
+    def __init__(self, cast, typ, expr):
+        assert cast in _id_explicit_cast
+        self.cast = cast
+        self.typ = typ
+        self.expr = expr
+
+    def __unicode__(self):
+        res = [self.cast]
+        res.append('<')
+        res.append(text_type(self.typ))
+        res.append('>(')
+        res.append(text_type(self.expr))
+        res.append(')')
+        return u''.join(res)
+
+    def get_id(self, version):
+        return (_id_explicit_cast[self.cast] +
+                self.typ.get_id(version) +
+                self.expr.get_id(version))
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text(self.cast))
+        signode.append(nodes.Text('<'))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text('>'))
+        signode.append(nodes.Text('('))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTTypeId(ASTBase):
+    def __init__(self, typeOrExpr, isType):
+        self.typeOrExpr = typeOrExpr
+        self.isType = isType
+
+    def __unicode__(self):
+        return 'typeid(' + text_type(self.typeOrExpr) + ')'
+
+    def get_id(self, version):
+        prefix = 'ti' if self.isType else 'te'
+        return prefix + self.typeOrExpr.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('typeid'))
+        signode.append(nodes.Text('('))
+        self.typeOrExpr.describe_signature(signode, mode, env, symbol)
         signode.append(nodes.Text(')'))
 
 
@@ -4069,7 +4136,10 @@ class DefinitionParser(object):
         res = self._parse_literal()
         if res is not None:
             return res
-        # TODO: try 'this' and lambda expression
+        self.skip_ws()
+        if self.skip_word("this"):
+            return ASTThisLiteral()
+        # TODO: try lambda expression
         res = self._parse_fold_or_paren_expression()
         if res is not None:
             return res
@@ -4097,39 +4167,94 @@ class DefinitionParser(object):
         #  | "typeid" "(" expression ")"
         #  | "typeid" "(" type-id ")"
 
-        # TODO: try the productions with prefixes:
-        #     dynamic_cast, static_cast, reinterpret_cast, const_cast, typeid
         prefixType = None
-        pos = self.pos
-        try:
-            prefix = self._parse_primary_expression()
-            prefixType = 'expr'
-        except DefinitionError as eOuter:
-            self.pos = pos
+        prefix = None  # type: Any
+        self.skip_ws()
+
+        cast = None
+        for c in _id_explicit_cast:
+            if self.skip_word_and_ws(c):
+                cast = c
+                break
+        if cast is not None:
+            prefixType = "cast"
+            if not self.skip_string("<"):
+                self.fail("Expected '<' afer '%s'." % cast)
+            typ = self._parse_type(False)
+            self.skip_ws()
+            if not self.skip_string_and_ws(">"):
+                self.fail("Expected '>' after type in '%s'." % cast)
+            if not self.skip_string("("):
+                self.fail("Expected '(' in '%s'." % cast)
+
+            def parser():
+                return self._parse_expression(inTemplate=False)
+            expr = self._parse_expression_fallback([')'], parser)
+            self.skip_ws()
+            if not self.skip_string(")"):
+                self.fail("Expected ')' to end '%s'." % cast)
+            prefix = ASTExplicitCast(cast, typ, expr)
+        elif self.skip_word_and_ws("typeid"):
+            prefixType = "typeid"
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after 'typeid'.")
+            pos = self.pos
             try:
-                # we are potentially casting, so save parens for us
-                # TODO: hmm, would we need to try both with operatorCast and with None?
-                prefix = self._parse_type(False, 'operatorCast')
-                prefixType = 'typeOperatorCast'
-                #  | simple-type-specifier "(" expression-list [opt] ")"
-                #  | simple-type-specifier braced-init-list
-                #  | typename-specifier "(" expression-list [opt] ")"
-                #  | typename-specifier braced-init-list
-                self.skip_ws()
-                if self.current_char != '(' and self.current_char != '{':
-                    self.fail("Expecting '(' or '{' after type in cast expression.")
-            except DefinitionError as eInner:
+                typ = self._parse_type(False)
+                prefix = ASTTypeId(typ, isType=True)
+                if not self.skip_string(')'):
+                    self.fail("Expected ')' to end 'typeid' of type.")
+            except DefinitionError as eType:
                 self.pos = pos
-                header = "Error in postfix expression, expected primary expression or type."
-                errors = []
-                errors.append((eOuter, "If primary expression"))
-                errors.append((eInner, "If type"))
-                raise self._make_multi_error(errors, header)
+                try:
+
+                    def parser():
+                        return self._parse_expression(inTemplate=False)
+                    expr = self._parse_expression_fallback([')'], parser)
+                    prefix = ASTTypeId(expr, isType=False)
+                    if not self.skip_string(')'):
+                        self.fail("Expected ')' to end 'typeid' of expression.")
+                except DefinitionError as eExpr:
+                    self.pos = pos
+                    header = "Error in 'typeid(...)'."
+                    header += " Expected type or expression."
+                    errors = []
+                    errors.append((eType, "If type"))
+                    errors.append((eExpr, "If expression"))
+                    raise self._make_multi_error(errors, header)
+        else:  # a primary expression or a type
+            pos = self.pos
+            try:
+                prefix = self._parse_primary_expression()
+                prefixType = 'expr'
+            except DefinitionError as eOuter:
+                self.pos = pos
+                try:
+                    # we are potentially casting, so save parens for us
+                    # TODO: hmm, would we need to try both with operatorCast and with None?
+                    prefix = self._parse_type(False, 'operatorCast')
+                    prefixType = 'typeOperatorCast'
+                    #  | simple-type-specifier "(" expression-list [opt] ")"
+                    #  | simple-type-specifier braced-init-list
+                    #  | typename-specifier "(" expression-list [opt] ")"
+                    #  | typename-specifier braced-init-list
+                    self.skip_ws()
+                    if self.current_char != '(' and self.current_char != '{':
+                        self.fail("Expecting '(' or '{' after type in cast expression.")
+                except DefinitionError as eInner:
+                    self.pos = pos
+                    header = "Error in postfix expression,"
+                    header += " expected primary expression or type."
+                    errors = []
+                    errors.append((eOuter, "If primary expression"))
+                    errors.append((eInner, "If type"))
+                    raise self._make_multi_error(errors, header)
+
         # and now parse postfixes
         postFixes = []
         while True:
             self.skip_ws()
-            if prefixType == 'expr':
+            if prefixType in ['expr', 'cast', 'typeid']:
                 if self.skip_string_and_ws('['):
                     expr = self._parse_expression(inTemplate=False)
                     self.skip_ws()

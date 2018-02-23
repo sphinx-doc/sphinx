@@ -15,6 +15,7 @@ import inspect
 import re
 import sys
 import warnings
+from typing import TYPE_CHECKING
 
 from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
@@ -34,13 +35,13 @@ from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
     isenumattribute, isclassmethod, isstaticmethod, getdoc
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc.directive import DocumenterBridge  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -281,7 +282,7 @@ class Documenter(object):
     def __init__(self, directive, name, indent=u''):
         # type: (DocumenterBridge, unicode, unicode) -> None
         self.directive = directive
-        self.env = directive.env
+        self.env = directive.env    # type: BuildEnvironment
         self.options = directive.genopt
         self.name = name
         self.indent = indent
@@ -745,7 +746,7 @@ class Documenter(object):
         # where the attribute documentation would actually be found in.
         # This is used for situations where you have a module that collects the
         # functions and classes of internal submodules.
-        self.real_modname = real_modname or self.get_real_modname()
+        self.real_modname = real_modname or self.get_real_modname()  # type: str
 
         # try to also get a source code analyzer for attribute docs
         try:

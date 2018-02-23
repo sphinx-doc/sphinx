@@ -10,6 +10,7 @@
 import codecs
 import sys
 from difflib import unified_diff
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -21,8 +22,7 @@ from sphinx.util import logging
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA

@@ -9,10 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 import pytest
-from six import PY2
-from sphinx.ext.doctest import is_allowed_version
-from packaging.version import InvalidVersion
 from packaging.specifiers import InvalidSpecifier
+from packaging.version import InvalidVersion
+from six import PY2
+
+from sphinx.ext.doctest import is_allowed_version
 
 cleanup_called = 0
 

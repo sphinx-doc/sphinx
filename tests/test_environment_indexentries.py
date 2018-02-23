@@ -10,10 +10,11 @@
 """
 
 from collections import namedtuple
-from sphinx import locale
-from sphinx.environment.adapters.indexentries import IndexEntries
 
 import mock
+
+from sphinx import locale
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 Environment = namedtuple('Environment', 'indexentries')
 

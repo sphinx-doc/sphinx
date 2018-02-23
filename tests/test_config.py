@@ -9,9 +9,9 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY3, iteritems
-import pytest
 import mock
+import pytest
+from six import PY3, iteritems
 
 import sphinx
 from sphinx.config import Config

@@ -10,14 +10,15 @@
 """
 from __future__ import print_function
 
+from typing import TYPE_CHECKING
+
 from six import iteritems, BytesIO, StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 from sphinx.util import get_module_source, detect_encoding
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 

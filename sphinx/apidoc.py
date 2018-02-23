@@ -10,13 +10,12 @@
 """
 
 import warnings
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.apidoc import main as _main
 
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -28,6 +27,7 @@ def main(*args, **kwargs):
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
+    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
     _main(*args, **kwargs)
 
 

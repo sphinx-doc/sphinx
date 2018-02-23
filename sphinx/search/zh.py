@@ -11,6 +11,7 @@
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
@@ -21,8 +22,7 @@ try:
 except ImportError:
     JIEBA = False
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, List  # NOQA
 
 english_stopwords = set(u"""

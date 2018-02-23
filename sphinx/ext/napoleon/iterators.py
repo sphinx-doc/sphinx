@@ -12,9 +12,9 @@
 """
 
 import collections
+from typing import TYPE_CHECKING
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Iterable  # NOQA
 
 

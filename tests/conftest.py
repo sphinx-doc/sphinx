@@ -10,9 +10,9 @@
 import os
 import shutil
 import sys
-import warnings
 
 import pytest
+
 from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
@@ -21,6 +21,9 @@ pytest_plugins = 'sphinx.testing.fixtures'
 collect_ignore = ['roots']
 
 # Disable Python version-specific
+if sys.version_info < (3,):
+    collect_ignore += ['py3']
+
 if sys.version_info < (3, 5):
     collect_ignore += ['py35']
 

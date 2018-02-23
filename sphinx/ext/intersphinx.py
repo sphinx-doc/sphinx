@@ -30,7 +30,9 @@ import functools
 import posixpath
 import sys
 import time
+import warnings
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
@@ -39,12 +41,12 @@ from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -381,7 +383,16 @@ def setup(app):
 def debug(argv):
     # type: (List[unicode]) -> None
     """Debug functionality to print out an inventory"""
-    if len(argv) < 2:
+    warnings.warn('sphinx.ext.intersphinx.debug() is deprecated. '
+                  'Please use inspect_main() instead',
+                  RemovedInSphinx20Warning)
+    inspect_main(argv[1:])
+
+
+def inspect_main(argv):
+    # type: (List[unicode]) -> None
+    """Debug functionality to print out an inventory"""
+    if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
@@ -399,7 +410,7 @@ def debug(argv):
             # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
-    filename = argv[1]
+    filename = argv[0]
     invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
     for key in sorted(invdata or {}):
         print(key)
@@ -413,4 +424,4 @@ if __name__ == '__main__':
     import logging  # type: ignore
     logging.basicConfig()
 
-    debug(argv=sys.argv[1:])  # type: ignore
+    inspect_main(argv=sys.argv[1:])  # type: ignore

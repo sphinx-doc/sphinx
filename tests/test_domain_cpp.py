@@ -11,13 +11,13 @@
 
 import re
 
-from six import text_type
 import pytest
+from six import text_type
 
+import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
-import sphinx.domains.cpp as cppDomain
 
 
 def parse(name, string):
@@ -126,6 +126,7 @@ def test_expressions():
         expr = '5.0' + suffix
         exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
+    exprCheck('this', 'fpT')
     # TODO: test the rest
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
@@ -137,7 +138,12 @@ def test_expressions():
     exprCheck('a->b->c', 'ptpt1a1b1c')
     exprCheck('i++', 'pp1i')
     exprCheck('i--', 'mm1i')
-    # TODO, those with prefixes
+    exprCheck('dynamic_cast<T&>(i)++', 'ppdcR1T1i')
+    exprCheck('static_cast<T&>(i)++', 'ppscR1T1i')
+    exprCheck('reinterpret_cast<T&>(i)++', 'pprcR1T1i')
+    exprCheck('const_cast<T&>(i)++', 'ppccR1T1i')
+    exprCheck('typeid(T).name', 'dtti1T4name')
+    exprCheck('typeid(a + b).name', 'dttepl1a1b4name')
     # unary
     exprCheck('++5', 'pp_L5E')
     exprCheck('--5', 'mm_L5E')

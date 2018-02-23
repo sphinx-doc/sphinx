@@ -16,6 +16,7 @@ import re
 import sys
 from collections import defaultdict
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
@@ -32,8 +33,7 @@ from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 
@@ -1581,9 +1581,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         # type: (nodes.Node) -> None
+        def get_nested_level(node):
+            # type: (nodes.Node) -> int
+            if node is None:
+                return 0
+            elif isinstance(node, nodes.enumerated_list):
+                return get_nested_level(node.parent) + 1
+            else:
+                return get_nested_level(node.parent)
+
         self.body.append('\\begin{enumerate}\n')
         if 'start' in node:
-            self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
+            nested = get_nested_level(node)
+            self.body.append('\\setcounter{enum%s}{%d}\n' % ('i' * nested, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 

@@ -11,6 +11,7 @@
 
 import os
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -32,8 +33,7 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -62,7 +62,7 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         self.docnames = []          # type: Iterable[unicode]
         self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
-        self.usepackages = []       # type: List[unicode]
+        self.usepackages = self.app.registry.latex_packages
         texescape.init()
 
     def get_outdated_docs(self):

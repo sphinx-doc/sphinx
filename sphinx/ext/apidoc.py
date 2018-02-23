@@ -23,6 +23,7 @@ import os
 import sys
 from fnmatch import fnmatch
 from os import path
+from typing import TYPE_CHECKING
 
 from six import binary_type
 
@@ -31,8 +32,7 @@ from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, List, Tuple  # NOQA
 
 # automodule options

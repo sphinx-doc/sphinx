@@ -9,21 +9,20 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import pickle
+import re
 
+import pytest
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
-import pytest
-
-from sphinx.testing.util import assert_node
 
 
 @pytest.fixture

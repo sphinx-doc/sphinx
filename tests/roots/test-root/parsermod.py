@@ -1,5 +1,5 @@
-from docutils.parsers import Parser
 from docutils import nodes
+from docutils.parsers import Parser
 
 
 class Parser(Parser):

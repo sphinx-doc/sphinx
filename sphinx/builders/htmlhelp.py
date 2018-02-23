@@ -14,6 +14,7 @@ from __future__ import print_function
 import codecs
 import os
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -24,8 +25,7 @@ from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -11,6 +11,7 @@
 
 import codecs
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils.io import StringOutput
 
@@ -19,8 +20,7 @@ from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter, TextTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA

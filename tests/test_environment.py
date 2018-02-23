@@ -10,9 +10,9 @@
 """
 import pytest
 
-from sphinx.testing.util import SphinxTestApp, path
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.testing.util import SphinxTestApp, path
 
 app = env = None
 
