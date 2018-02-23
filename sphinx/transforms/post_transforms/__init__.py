@@ -135,10 +135,12 @@ class ReferencesResolver(SphinxTransform):
         if not results:
             return None
         if len(results) > 1:
-            nice_results = ' or '.join(':%s:`%s`' % (name, role["reftitle"])
-                                       for name, role in results)
+            def stringify(name, node):
+                reftitle = node.get('reftitle', node.astext())
+                return ':%s:`%s`' % (name, reftitle)
+            candidates = ' or '.join(stringify(name, role) for name, role in results)
             logger.warning(__('more than one target found for \'any\' cross-'
-                              'reference %r: could be %s'), target, nice_results,
+                              'reference %r: could be %s'), target, candidates,
                            location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
