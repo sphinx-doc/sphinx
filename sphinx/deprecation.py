@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 
 class RemovedInSphinx18Warning(DeprecationWarning):
     pass
@@ -27,3 +29,38 @@ class RemovedInSphinx30Warning(PendingDeprecationWarning):
 
 
 RemovedInNextVersionWarning = RemovedInSphinx18Warning
+
+
+class DeprecatedDict(dict):
+    """A deprecated dict which warns on each access."""
+
+    def __init__(self, data, message, warning):
+        # type: (Dict, str, DeprecationWarning) -> None
+        self.message = message
+        self.warning = warning
+        super(DeprecatedDict, self).__init__(data)
+
+    def __setitem__(self, key, value):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        super(DeprecatedDict, self).__setitem__(key, value)
+
+    def setdefault(self, key, default=None):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).setdefault(key, default)
+
+    def __getitem__(self, key):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).__getitem__(key)
+
+    def get(self, key, default=None):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).get(key, default)
+
+    def update(self, other=None):  # type: ignore
+        # type: (Dict) -> None
+        warnings.warn(self.message, self.warning)
+        super(DeprecatedDict, self).update(other)

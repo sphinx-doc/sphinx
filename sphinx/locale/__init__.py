@@ -344,11 +344,8 @@ admonitionlabels = {
     'warning':   _('Warning'),
 }  # type: Dict[unicode, unicode]
 
-versionlabels = {
-    'versionadded':   _('New in version %s'),
-    'versionchanged': _('Changed in version %s'),
-    'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
+# Moved to sphinx.directives.other (will be overrided later)
+versionlabels = {}
 
 # XXX Python specific
 pairindextypes = {
