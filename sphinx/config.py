@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple, Union
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.errors import ConfigError
-from sphinx.locale import l_, __
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
@@ -143,10 +143,10 @@ class Config(object):
         nitpick_ignore = ([], None),
         numfig = (False, 'env'),
         numfig_secnum_depth = (1, 'env'),
-        numfig_format = ({'section': l_('Section %s'),
-                          'figure': l_('Fig. %s'),
-                          'table': l_('Table %s'),
-                          'code-block': l_('Listing %s')},
+        numfig_format = ({'section': _('Section %s'),
+                          'figure': _('Fig. %s'),
+                          'table': _('Table %s'),
+                          'code-block': _('Listing %s')},
                          'env'),
 
         tls_verify = (True, 'env'),
@@ -204,7 +204,7 @@ class Config(object):
         # type: () -> None
         # check all values for deviation from the default value's type, since
         # that can result in TypeErrors all over the place
-        # NB. since config values might use l_() we have to wait with calling
+        # NB. since config values might use _() we have to wait with calling
         # this method until i18n is initialized
         for name in self._raw_config:
             if name not in self.values:
@@ -214,7 +214,7 @@ class Config(object):
             permitted = settings[2] if len(settings) == 3 else ()
 
             if hasattr(default, '__call__'):
-                default = default(self)  # could invoke l_()
+                default = default(self)  # could invoke _()
             if default is None and not permitted:
                 continue  # neither inferrable nor expliclitly permitted types
             current = self[name]

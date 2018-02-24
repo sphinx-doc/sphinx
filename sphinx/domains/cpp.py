@@ -21,7 +21,7 @@ from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import NoUri
-from sphinx.locale import l_, _
+from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
@@ -5563,16 +5563,16 @@ class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
     doc_field_types = [
-        GroupedField('parameter', label=l_('Parameters'),
+        GroupedField('parameter', label=_('Parameters'),
                      names=('param', 'parameter', 'arg', 'argument'),
                      can_collapse=True),
-        GroupedField('template parameter', label=l_('Template Parameters'),
+        GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=l_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
+        Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
 
@@ -5985,13 +5985,13 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':      ObjType(l_('class'),      'class',             'type', 'identifier'),
-        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'identifier'),
-        'member':     ObjType(l_('member'),     'member',    'var'),
-        'type':       ObjType(l_('type'),                            'type', 'identifier'),
-        'concept':    ObjType(l_('concept'),    'concept',                   'identifier'),
-        'enum':       ObjType(l_('enum'),       'enum',              'type', 'identifier'),
-        'enumerator': ObjType(l_('enumerator'), 'enumerator')
+        'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
+        'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
+        'member':     ObjType(_('member'),     'member',    'var'),
+        'type':       ObjType(_('type'),                            'type', 'identifier'),
+        'concept':    ObjType(_('concept'),    'concept',                   'identifier'),
+        'enum':       ObjType(_('enum'),       'enum',              'type', 'identifier'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator')
     }
 
     directives = {

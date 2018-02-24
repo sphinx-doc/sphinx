@@ -37,7 +37,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.highlighting import PygmentsBridge
-from sphinx.locale import _, l_
+from sphinx.locale import _
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import jsonimpl, logging, status_iterator
@@ -1427,7 +1427,7 @@ def setup(app):
     app.add_config_value('html_theme_path', [], 'html')
     app.add_config_value('html_theme_options', {}, 'html')
     app.add_config_value('html_title',
-                         lambda self: l_('%s %s documentation') % (self.project, self.release),
+                         lambda self: _('%s %s documentation') % (self.project, self.release),
                          'html', string_classes)
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
     app.add_config_value('html_style', None, 'html', string_classes)
