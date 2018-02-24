@@ -347,13 +347,5 @@ admonitionlabels = {
 # Moved to sphinx.directives.other (will be overrided later)
 versionlabels = {}
 
-# XXX Python specific
-pairindextypes = {
-    'module':    _('module'),
-    'keyword':   _('keyword'),
-    'operator':  _('operator'),
-    'object':    _('object'),
-    'exception': _('exception'),
-    'statement': _('statement'),
-    'builtin':   _('built-in function'),
-}  # Dict[unicode, _TranslationProxy]
+# Moved to sphinx.domains.python (will be overrided later)
+pairindextypes = {}
