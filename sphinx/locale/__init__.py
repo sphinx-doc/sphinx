@@ -281,7 +281,7 @@ def init(locale_dirs, language, catalog='sphinx'):
             if translator is None:
                 translator = trans
             else:
-                translator._catalog.update(trans._catalog)  # type: ignore
+                translator.add_fallback(trans)
         except Exception:
             # Language couldn't be found in the specified path
             pass
