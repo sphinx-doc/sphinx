@@ -28,6 +28,7 @@ Deprecated
 * ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
   been deprecated.  Please use ``Sphinx.add_source_suffix()`` instead.
 * ``sphinx.util.docutils.directive_helper()`` is deprecated.
+* ``sphinx.cmdline`` is deprecated.  Please use ``sphinx.cmd.build`` instead.
 
 Features added
 --------------
