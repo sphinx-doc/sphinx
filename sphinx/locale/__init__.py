@@ -11,6 +11,8 @@
 
 import gettext
 import warnings
+from collections import defaultdict
+from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
 from six import text_type
@@ -198,7 +200,7 @@ def lazy_gettext(string):
     return _TranslationProxy(mygettext, string)  # type: ignore
 
 
-translators = {}  # type: Dict[unicode, Any]
+translators = defaultdict(NullTranslations)  # type: Dict[unicode, NullTranslations]
 
 
 def __(message, *args):
@@ -221,7 +223,7 @@ def init(locale_dirs, language, catalog='sphinx'):
     global translators
     translator = translators.get(catalog)
     # ignore previously failed attempts to find message catalogs
-    if isinstance(translator, gettext.NullTranslations):
+    if isinstance(translator, NullTranslations):
         translator = None
     # the None entry is the system's default locale path
     has_translation = True
@@ -240,7 +242,7 @@ def init(locale_dirs, language, catalog='sphinx'):
             pass
     # guarantee translators[catalog] exists
     if translator is None:
-        translator = gettext.NullTranslations()
+        translator = NullTranslations()
         has_translation = False
     translators[catalog] = translator
     if hasattr(translator, 'ugettext'):
@@ -249,14 +251,8 @@ def init(locale_dirs, language, catalog='sphinx'):
 
 
 def get_translator(catalog='sphinx'):
-    # type: (unicode) -> gettext.NullTranslations
-    global translators
-    translator = translators.get(catalog)
-    if translator is None:
-        translator = gettext.NullTranslations()
-    if hasattr(translator, 'ugettext'):
-        translator.gettext = translator.ugettext
-    return translator
+    # type: (unicode) -> NullTranslations
+    return translators[catalog]
 
 
 def get_translation(catalog):
