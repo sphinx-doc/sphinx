@@ -228,11 +228,17 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # the None entry is the system's default locale path
     has_translation = True
 
+    if language and '_' in language:
+        # for language having country code (like "de_AT")
+        languages = [language, language.split('_')[0]]
+    else:
+        languages = [language]
+
     # loading
     for dir_ in locale_dirs:
         try:
             trans = gettext.translation(catalog, localedir=dir_,  # type: ignore
-                                        languages=[language])  # type: ignore
+                                        languages=languages)  # type: ignore
             if translator is None:
                 translator = trans
             else:
