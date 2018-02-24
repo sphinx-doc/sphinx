@@ -10,10 +10,13 @@
 """
 
 import gettext
+import warnings
 from typing import TYPE_CHECKING
 
-from six import PY3, text_type
+from six import text_type
 from six.moves import UserString
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
@@ -180,6 +183,8 @@ def mygettext(string):
     """Used instead of _ when creating TranslationProxies, because _ is
     not bound yet at that time.
     """
+    warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
+                  RemovedInSphinx30Warning)
     return _(string)
 
 
@@ -188,64 +193,12 @@ def lazy_gettext(string):
     """A lazy version of `gettext`."""
     # if isinstance(string, _TranslationProxy):
     #     return string
+    warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
+                  RemovedInSphinx30Warning)
     return _TranslationProxy(mygettext, string)  # type: ignore
 
 
-l_ = lazy_gettext
-
-
-admonitionlabels = {
-    'attention': l_('Attention'),
-    'caution':   l_('Caution'),
-    'danger':    l_('Danger'),
-    'error':     l_('Error'),
-    'hint':      l_('Hint'),
-    'important': l_('Important'),
-    'note':      l_('Note'),
-    'seealso':   l_('See also'),
-    'tip':       l_('Tip'),
-    'warning':   l_('Warning'),
-}  # type: Dict[unicode, unicode]
-
-versionlabels = {
-    'versionadded':   l_('New in version %s'),
-    'versionchanged': l_('Changed in version %s'),
-    'deprecated':     l_('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
-
-# XXX Python specific
-pairindextypes = {
-    'module':    l_('module'),
-    'keyword':   l_('keyword'),
-    'operator':  l_('operator'),
-    'object':    l_('object'),
-    'exception': l_('exception'),
-    'statement': l_('statement'),
-    'builtin':   l_('built-in function'),
-}  # Dict[unicode, _TranslationProxy]
-
 translators = {}  # type: Dict[unicode, Any]
-
-if PY3:
-    def _(message, *args):
-        # type: (unicode, *Any) -> unicode
-        try:
-            if len(args) <= 1:
-                return translators['sphinx'].gettext(message)
-            else:  # support pluralization
-                return translators['sphinx'].ngettext(message, args[0], args[1])
-        except KeyError:
-            return message
-else:
-    def _(message, *args):
-        # type: (unicode, *Any) -> unicode
-        try:
-            if len(args) <= 1:
-                return translators['sphinx'].ugettext(message)
-            else:  # support pluralization
-                return translators['sphinx'].ungettext(message, args[0], args[1])
-        except KeyError:
-            return message
 
 
 def __(message, *args):
@@ -349,3 +302,45 @@ def get_translation(catalog):
                 return translator.ngettext(message, args[0], args[1])
 
     return gettext
+
+
+# A shortcut for sphinx-core
+_ = get_translation('sphinx')
+
+
+def l_(*args):
+    warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
+                  RemovedInSphinx30Warning)
+    return _(*args)
+
+
+# labels
+admonitionlabels = {
+    'attention': _('Attention'),
+    'caution':   _('Caution'),
+    'danger':    _('Danger'),
+    'error':     _('Error'),
+    'hint':      _('Hint'),
+    'important': _('Important'),
+    'note':      _('Note'),
+    'seealso':   _('See also'),
+    'tip':       _('Tip'),
+    'warning':   _('Warning'),
+}  # type: Dict[unicode, unicode]
+
+versionlabels = {
+    'versionadded':   _('New in version %s'),
+    'versionchanged': _('Changed in version %s'),
+    'deprecated':     _('Deprecated since version %s'),
+}  # type: Dict[unicode, unicode]
+
+# XXX Python specific
+pairindextypes = {
+    'module':    _('module'),
+    'keyword':   _('keyword'),
+    'operator':  _('operator'),
+    'object':    _('object'),
+    'exception': _('exception'),
+    'statement': _('statement'),
+    'builtin':   _('built-in function'),
+}  # Dict[unicode, _TranslationProxy]
