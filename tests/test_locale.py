@@ -17,7 +17,7 @@ from sphinx import locale
 @pytest.fixture(autouse=True)
 def cleanup_translations():
     yield
-    locale.translators = {}
+    locale.translators.clear()
 
 
 def test_init(rootdir):
@@ -32,6 +32,13 @@ def test_init(rootdir):
     _ = locale.get_translation('myext')
     assert _('Hello world') == 'HELLO WORLD'
     assert _('Hello sphinx') == 'Hello sphinx'
+    assert _('Hello reST') == 'Hello reST'
+
+    # load a catalog to unrelated namespace
+    locale.init([rootdir / 'test-locale' / 'locale2'], 'en', 'myext', 'mynamespace')
+    _ = locale.get_translation('myext')
+    assert _('Hello world') == 'HELLO WORLD'
+    assert _('Hello sphinx') == 'Hello sphinx'  # nothing changed here
     assert _('Hello reST') == 'Hello reST'
 
     # load both locale1 and locale2

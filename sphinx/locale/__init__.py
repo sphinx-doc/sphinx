@@ -200,7 +200,7 @@ def lazy_gettext(string):
     return _TranslationProxy(mygettext, string)  # type: ignore
 
 
-translators = defaultdict(NullTranslations)  # type: Dict[unicode, NullTranslations]
+translators = defaultdict(NullTranslations)  # type: Dict[Tuple[unicode, unicode], NullTranslations]  # NOQA
 
 
 def __(message, *args):
@@ -213,7 +213,7 @@ def __(message, *args):
     return message if len(args) <= 1 else args[0]
 
 
-def init(locale_dirs, language, catalog='sphinx'):
+def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # type: (List, unicode, unicode) -> Tuple[Any, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
@@ -221,7 +221,7 @@ def init(locale_dirs, language, catalog='sphinx'):
     together (thus making ``init`` reentrable).
     """
     global translators
-    translator = translators.get(catalog)
+    translator = translators.get((namespace, catalog))
     # ignore previously failed attempts to find message catalogs
     if isinstance(translator, NullTranslations):
         translator = None
@@ -240,23 +240,28 @@ def init(locale_dirs, language, catalog='sphinx'):
         except Exception:
             # Language couldn't be found in the specified path
             pass
-    # guarantee translators[catalog] exists
+    # guarantee translators[(namespace, catalog)] exists
     if translator is None:
         translator = NullTranslations()
         has_translation = False
-    translators[catalog] = translator
+    translators[(namespace, catalog)] = translator
     if hasattr(translator, 'ugettext'):
         translator.gettext = translator.ugettext
     return translator, has_translation
 
 
-def get_translator(catalog='sphinx'):
-    # type: (unicode) -> NullTranslations
-    return translators[catalog]
+def get_translator(catalog='sphinx', namespace='general'):
+    # type: (unicode, unicode) -> NullTranslations
+    return translators[(namespace, catalog)]
 
 
-def get_translation(catalog):
-    # type: (unicode) -> Callable[[unicode, *Any], unicode]
+def is_translator_registered(catalog='sphinx', namespace='general'):
+    # type: (unicode, unicode) -> bool
+    return (namespace, catalog) in translators
+
+
+def get_translation(catalog, namespace='general'):
+    # type: (unicode, unicode) -> Callable[[unicode, *Any], unicode]
     """Get a translation function based on the *catalog*, *locale_dir*.
 
     The extension can use this API to translate the messages on the
@@ -282,16 +287,16 @@ def get_translation(catalog):
     """
     def lazy_gettext(message):
         # type: (unicode) -> unicode
-        translator = get_translator(catalog)
+        translator = get_translator(catalog, namespace)
         return translator.gettext(message)
 
     def gettext(message, *args):
         # type: (unicode, *Any) -> unicode
-        if catalog not in translators:
+        if is_translator_registered(catalog, namespace):
             # not initialized yet
             return _TranslationProxy(lazy_gettext, message)
         else:
-            translator = get_translator(catalog)
+            translator = get_translator(catalog, namespace)
             if len(args) <= 1:
                 return translator.gettext(message)
             else:  # support pluralization
