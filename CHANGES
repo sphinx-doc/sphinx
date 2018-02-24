@@ -50,6 +50,7 @@ Dependencies
 
 Incompatible changes
 --------------------
+* apidoc: As a consequence of a bug fix (#4520#) and cleaning up the code, folders with an empty __init__.py are no longer excluded from TOC.
 
 Deprecated
 ----------
@@ -75,6 +76,7 @@ Bugs fixed
 * #4615: The argument of ``sphinx.build`` has been changed in 1.7.0
 * autosummary: The interface of ``sphinx.ext.autosummary.get_documenter()`` has
   been changed
+* #4520#: apidoc: Subpackage not in toc (introduced in 1.6.6) now fixed.
 
 Testing
 --------
