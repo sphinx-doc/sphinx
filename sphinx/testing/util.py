@@ -19,7 +19,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 from six import string_types
 
-from sphinx import application
+from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
@@ -147,6 +147,7 @@ class SphinxTestApp(application.Sphinx):
         AutoDirective._registry.clear()
         ModuleAnalyzer.cache.clear()
         LaTeXBuilder.usepackages = []
+        locale.translators.clear()
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
         directives._directives = self._saved_directives
