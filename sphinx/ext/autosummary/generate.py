@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import argparse
 import codecs
+import locale
 import os
 import pydoc
 import re
@@ -30,6 +31,7 @@ from typing import TYPE_CHECKING
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
+import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
@@ -402,6 +404,9 @@ The format of the autosummary directive is documented in the
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     app = DummyApplication()
     setup_documenters(app)
     args = get_parser().parse_args(argv)

@@ -10,6 +10,7 @@
 """
 
 import gettext
+import locale
 import warnings
 from collections import defaultdict
 from gettext import NullTranslations
@@ -203,16 +204,6 @@ def lazy_gettext(string):
 translators = defaultdict(NullTranslations)  # type: Dict[Tuple[unicode, unicode], NullTranslations]  # NOQA
 
 
-def __(message, *args):
-    # type: (unicode, *Any) -> unicode
-    """A dummy wrapper to i18n'ize exceptions and command line messages.
-
-    In future, the messages are translated using LC_MESSAGES or any other
-    locale settings.
-    """
-    return message if len(args) <= 1 else args[0]
-
-
 def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     # type: (List, unicode, unicode) -> Tuple[Any, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
@@ -254,6 +245,13 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     if hasattr(translator, 'ugettext'):
         translator.gettext = translator.ugettext
     return translator, has_translation
+
+
+def init_console(locale_dir, catalog):
+    # type: (unicode, unicode) -> None
+    """Initialize locale for console."""
+    language, _ = locale.getlocale(locale.LC_MESSAGES)  # encoding is ignored
+    return init([locale_dir], language, catalog, 'console')
 
 
 def get_translator(catalog='sphinx', namespace='general'):
@@ -313,6 +311,7 @@ def get_translation(catalog, namespace='general'):
 
 # A shortcut for sphinx-core
 _ = get_translation('sphinx')
+__ = get_translation('sphinx', 'console')
 
 
 def l_(*args):

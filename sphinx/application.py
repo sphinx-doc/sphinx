@@ -1124,6 +1124,7 @@ class Sphinx(object):
         .. versionadded:: 1.8
         """
         locale.init([locale_dir], self.config.language, catalog)
+        locale.init_console(locale_dir, catalog)
 
     # ---- other methods -------------------------------------------------
     def is_parallel_allowed(self, typ):

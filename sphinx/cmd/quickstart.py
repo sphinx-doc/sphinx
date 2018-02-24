@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import argparse
+import locale
 import os
 import re
 import sys
@@ -36,6 +37,7 @@ from six import PY2, PY3, text_type, binary_type
 from six.moves import input
 from six.moves.urllib.parse import quote as urlquote
 
+import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
@@ -598,6 +600,9 @@ Makefile to be used with sphinx-build.
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     if not color_terminal():
         nocolor()
 

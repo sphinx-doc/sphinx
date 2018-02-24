@@ -40,6 +40,7 @@ Features added
 * :confval:`source_suffix` allows a mapping fileext to file types
 * Add :confval:`author` as a configuration value
 * #2852: imgconverter: Support to convert GIF to PNG
+* ``sphinx-build`` command supports i18n console output
 
 Bugs fixed
 ----------
