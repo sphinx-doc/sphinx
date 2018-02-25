@@ -273,7 +273,7 @@ class Sphinx(object):
             locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs  # type: ignore  # NOQA
         else:
             locale_dirs = []
-        self.translator, has_translation = locale.init(locale_dirs, self.config.language)
+        self.translator, has_translation = locale.init(locale_dirs, self.config.language)  # type: ignore  # NOQA
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated

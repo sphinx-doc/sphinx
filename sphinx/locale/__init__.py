@@ -205,7 +205,7 @@ translators = defaultdict(NullTranslations)  # type: Dict[Tuple[unicode, unicode
 
 
 def init(locale_dirs, language, catalog='sphinx', namespace='general'):
-    # type: (List, unicode, unicode) -> Tuple[Any, bool]
+    # type: (List[unicode], unicode, unicode, unicode) -> Tuple[NullTranslations, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -229,7 +229,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     for dir_ in locale_dirs:
         try:
             trans = gettext.translation(catalog, localedir=dir_,  # type: ignore
-                                        languages=languages)  # type: ignore
+                                        languages=languages)
             if translator is None:
                 translator = trans
             else:
@@ -243,12 +243,12 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
         has_translation = False
     translators[(namespace, catalog)] = translator
     if hasattr(translator, 'ugettext'):
-        translator.gettext = translator.ugettext
+        translator.gettext = translator.ugettext  # type: ignore
     return translator, has_translation
 
 
 def init_console(locale_dir, catalog):
-    # type: (unicode, unicode) -> None
+    # type: (unicode, unicode) -> Tuple[NullTranslations, bool]
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -273,11 +273,10 @@ def _lazy_translate(catalog, namespace, message):
     not bound yet at that time.
     """
     translator = get_translator(catalog, namespace)
-    return translator.gettext(message)
+    return translator.gettext(message)  # type: ignore
 
 
 def get_translation(catalog, namespace='general'):
-    # type: (unicode, unicode) -> Callable[[unicode, *Any], unicode]
     """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
@@ -305,13 +304,13 @@ def get_translation(catalog, namespace='general'):
         # type: (unicode, *Any) -> unicode
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)
+            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:
-                return translator.gettext(message)
+                return translator.gettext(message)  # type: ignore
             else:  # support pluralization
-                return translator.ngettext(message, args[0], args[1])
+                return translator.ngettext(message, args[0], args[1])  # type: ignore
 
     return gettext
 

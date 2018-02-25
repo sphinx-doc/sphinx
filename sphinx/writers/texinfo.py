@@ -237,7 +237,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             'project': self.escape(self.builder.config.project),
             'copyright': self.escape(self.builder.config.copyright),
             'date': self.escape(self.builder.config.today or
-                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
+                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),
                                             language=self.builder.config.language))
         })
         # title
