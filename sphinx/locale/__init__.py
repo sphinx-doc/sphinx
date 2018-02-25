@@ -214,7 +214,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     global translators
     translator = translators.get((namespace, catalog))
     # ignore previously failed attempts to find message catalogs
-    if isinstance(translator, NullTranslations):
+    if translator.__class__ is NullTranslations:
         translator = None
     # the None entry is the system's default locale path
     has_translation = True

@@ -41,9 +41,8 @@ def test_init(rootdir):
     assert _('Hello sphinx') == 'Hello sphinx'  # nothing changed here
     assert _('Hello reST') == 'Hello reST'
 
-    # load both locale1 and locale2
-    locale.init([rootdir / 'test-locale' / 'locale1',
-                 rootdir / 'test-locale' / 'locale2'], 'en', 'myext')
+    # load locale2 in addition
+    locale.init([rootdir / 'test-locale' / 'locale2'], 'en', 'myext')
     _ = locale.get_translation('myext')
     assert _('Hello world') == 'HELLO WORLD'
     assert _('Hello sphinx') == 'HELLO SPHINX'

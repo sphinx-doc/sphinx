@@ -47,6 +47,8 @@ Features added
 Bugs fixed
 ----------
 
+* i18n: message catalogs were reset on each initialization
+
 Testing
 --------
 
