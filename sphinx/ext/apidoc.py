@@ -195,7 +195,7 @@ def shall_skip(module, opts, excludes=[]):
         return True
 
     # skip it if there is nothing (or just \n or \r\n) in the file
-    if path.exists(module) and path.getsize(module) <= 2:
+    if path.exists(module):
         if os.path.basename(module) == '__init__.py':
             # We only want to skip packages if they do not contain any
             # .py files other than __init__.py.
