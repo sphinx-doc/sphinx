@@ -249,7 +249,10 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
 
 def init_console(locale_dir, catalog):
     # type: (unicode, unicode) -> None
-    """Initialize locale for console."""
+    """Initialize locale for console.
+
+    .. versionadded:: 1.8
+    """
     language, _ = locale.getlocale(locale.LC_MESSAGES)  # encoding is ignored
     return init([locale_dir], language, catalog, 'console')
 
@@ -275,7 +278,7 @@ def _lazy_translate(catalog, namespace, message):
 
 def get_translation(catalog, namespace='general'):
     # type: (unicode, unicode) -> Callable[[unicode, *Any], unicode]
-    """Get a translation function based on the *catalog*, *locale_dir*.
+    """Get a translation function based on the *catalog* and *namespace*.
 
     The extension can use this API to translate the messages on the
     extension::
@@ -314,7 +317,11 @@ def get_translation(catalog, namespace='general'):
 
 
 # A shortcut for sphinx-core
+#: Translation function for messages on documentation (menu, labels, themes and so on).
+#: This function follows :confval:`language` setting.
 _ = get_translation('sphinx')
+#: Translation function for console messages
+#: This function follows locale setting (`LC_ALL`, `LC_MESSAGES` and so on).
 __ = get_translation('sphinx', 'console')
 
 

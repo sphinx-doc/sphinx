@@ -1119,7 +1119,7 @@ class Sphinx(object):
 
         The *catalog* is a name of catalog, and *locale_dir* is a base path
         of message catalog.  For more details, see
-        :func:`sphinx.locales.get_translation()`.
+        :func:`sphinx.locale.get_translation()`.
 
         .. versionadded:: 1.8
         """

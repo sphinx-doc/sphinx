@@ -93,3 +93,4 @@ APIs used for writing extensions
    parserapi
    nodes
    logging
+   i18n

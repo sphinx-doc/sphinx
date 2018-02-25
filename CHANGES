@@ -41,6 +41,8 @@ Features added
 * Add :confval:`author` as a configuration value
 * #2852: imgconverter: Support to convert GIF to PNG
 * ``sphinx-build`` command supports i18n console output
+* Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
+  support translation for 3rd party extensions
 
 Bugs fixed
 ----------
