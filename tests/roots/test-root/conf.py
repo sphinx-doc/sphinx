@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
+import os
+import sys
+
+from docutils import nodes
+from docutils.parsers.rst import Directive
+
+from sphinx import addnodes
+
 
 sys.path.append(os.path.abspath('.'))
 
@@ -75,15 +82,10 @@ autodoc_mock_imports = [
 ]
 
 # modify tags from conf.py
-tags.add('confpytag')
+tags.add('confpytag')  # NOQA
+
 
 # -- extension API
-
-from docutils import nodes
-from docutils.parsers.rst import Directive
-from sphinx import addnodes
-
-
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
     signode += addnodes.desc_name(x, x)
@@ -107,4 +109,5 @@ def setup(app):
     app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
                         userdesc_parse, objname='user desc')
     app.add_javascript('file://moo.js')
-    app.add_source_parser('.foo', parsermod.Parser)
+    app.add_source_suffix('.foo', 'foo')
+    app.add_source_parser(parsermod.Parser)

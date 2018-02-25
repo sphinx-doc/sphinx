@@ -8,11 +8,12 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import sys
-from six import PY3
 import functools
+import sys
 from textwrap import dedent
+
 import pytest
+from six import PY3
 
 from sphinx.util import inspect
 

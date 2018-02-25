@@ -12,8 +12,11 @@ from __future__ import print_function
 
 import traceback
 import warnings
+from inspect import isclass
+from types import MethodType
 from typing import TYPE_CHECKING
 
+from docutils.parsers.rst import Directive
 from pkg_resources import iter_entry_points
 from six import iteritems, itervalues
 
@@ -30,7 +33,7 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Dict, Iterator, List, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -40,7 +43,7 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +85,13 @@ class SphinxComponentRegistry(object):
         #: a dict of domain name -> dict of role name -> role impl.
         self.domain_roles = {}          # type: Dict[unicode, Dict[unicode, Union[RoleFunction, XRefRole]]]  # NOQA
 
+        #: additional enumerable nodes
+        #: a dict of node class -> tuple of figtype and title_getter function
+        self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[unicode, TitleGetter]]
+
+        #: LaTeX packages; list of package names and its options
+        self.latex_packages = []        # type: List[Tuple[unicode, unicode]]
+
         #: post transforms; list of transforms
         self.post_transforms = []       # type: List[Type[Transform]]
 
@@ -96,6 +106,10 @@ class SphinxComponentRegistry(object):
 
         #: custom translators; builder name -> translator class
         self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+
+        #: custom handlers for translators
+        #: a dict of builder name -> dict of node name -> visitor and departure functions
+        self.translation_handlers = {}  # type: Dict[unicode, Dict[unicode, Tuple[Callable, Callable]]]  # NOQA
 
         #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
@@ -174,8 +188,12 @@ class SphinxComponentRegistry(object):
                      (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
+
         directives = self.domain_directives.setdefault(domain, {})
-        directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
+        if not isclass(obj) or not issubclass(obj, Directive):
+            directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
+        else:
+            directives[name] = obj
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
@@ -239,10 +257,23 @@ class SphinxComponentRegistry(object):
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, suffix, parser):
-        # type: (unicode, Type[Parser]) -> None
-        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
-        self.add_source_suffix(suffix, suffix)
+    def add_source_parser(self, *args):
+        # type: (Any) -> None
+        logger.debug('[app] adding search source_parser: %r', args)
+        if len(args) == 1:
+            # new sytle arguments: (source_parser)
+            suffix = None       # type: unicode
+            parser = args[0]    # type: Type[Parser]
+        else:
+            # old style arguments: (suffix, source_parser)
+            warnings.warn('app.add_source_parser() does not support suffix argument. '
+                          'Use app.add_source_suffix() instead.',
+                          RemovedInSphinx30Warning)
+            suffix = args[0]
+            parser = args[1]
+
+        if suffix:
+            self.add_source_suffix(suffix, suffix)
 
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
@@ -259,8 +290,9 @@ class SphinxComponentRegistry(object):
 
         # also maps suffix to parser
         #
-        # This allows parsers not having ``supported`` filetypes.
-        self.source_parsers[suffix] = parser
+        # This rescues old styled parsers which does not have ``supported`` filetypes.
+        if suffix:
+            self.source_parsers[suffix] = parser
 
     def get_source_parser(self, filetype):
         # type: (unicode) -> Type[Parser]
@@ -305,15 +337,41 @@ class SphinxComponentRegistry(object):
         logger.info(bold(__('Change of translator for the %s builder.') % name))
         self.translators[name] = translator
 
+    def add_translation_handlers(self, node, **kwargs):
+        # type: (nodes.Node, Any) -> None
+        logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
+        for builder_name, handlers in iteritems(kwargs):
+            translation_handlers = self.translation_handlers.setdefault(builder_name, {})
+            try:
+                visit, depart = handlers  # unpack once for assertion
+                translation_handlers[node.__name__] = (visit, depart)
+            except ValueError:
+                raise ExtensionError(__('kwargs for add_node() must be a (visit, depart) '
+                                        'function tuple: %r=%r') % builder_name, handlers)
+
     def get_translator_class(self, builder):
         # type: (Builder) -> Type[nodes.NodeVisitor]
         return self.translators.get(builder.name,
                                     builder.default_translator_class)
 
-    def create_translator(self, builder, document):
-        # type: (Builder, nodes.Node) -> nodes.NodeVisitor
+    def create_translator(self, builder, *args):
+        # type: (Builder, Any) -> nodes.NodeVisitor
         translator_class = self.get_translator_class(builder)
-        return translator_class(builder, document)
+        assert translator_class, "translator not found for %s" % builder.name
+        translator = translator_class(*args)
+
+        # transplant handlers for custom nodes to translator instance
+        handlers = self.translation_handlers.get(builder.name, None)
+        if handlers is None:
+            # retry with builder.format
+            handlers = self.translation_handlers.get(builder.format, {})
+
+        for name, (visit, depart) in iteritems(handlers):
+            setattr(translator, 'visit_' + name, MethodType(visit, translator))
+            if depart:
+                setattr(translator, 'depart_' + name, MethodType(depart, translator))
+
+        return translator
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
@@ -340,6 +398,16 @@ class SphinxComponentRegistry(object):
     def add_autodoc_attrgetter(self, typ, attrgetter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         self.autodoc_attrgettrs[typ] = attrgetter
+
+    def add_latex_package(self, name, options):
+        # type: (unicode, unicode) -> None
+        logger.debug('[app] adding latex package: %r', name)
+        self.latex_packages.append((name, options))
+
+    def add_enumerable_node(self, node, figtype, title_getter=None):
+        # type: (nodes.Node, unicode, TitleGetter) -> None
+        logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
+        self.enumerable_nodes[node] = (figtype, title_getter)
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None
@@ -398,13 +466,13 @@ class SphinxComponentRegistry(object):
 def merge_source_suffix(app):
     # type: (Sphinx) -> None
     """Merge source_suffix which specified by user and added by extensions."""
-    for suffix in app.registry.source_suffix:
+    for suffix, filetype in iteritems(app.registry.source_suffix):
         if suffix not in app.config.source_suffix:
-            app.config.source_suffix[suffix] = suffix
+            app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] is None:
             # filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
-            app.config.source_suffix[suffix] = suffix
+            app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry
     app.registry.source_suffix = app.config.source_suffix

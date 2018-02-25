@@ -11,15 +11,14 @@
 """
 
 from collections import namedtuple
-
-# inspect.cleandoc() implements the trim() function from PEP 257
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase
 
+import mock
+
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-import mock
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -290,10 +289,10 @@ class GoogleDocstringTest(BaseDocstringTest):
         for section, admonition in admonition_map.items():
             # Multiline
             actual = str(GoogleDocstring(("{}:\n"
-                      "    this is the first line\n"
-                      "\n"
-                      "    and this is the second line\n"
-                      ).format(section), config))
+                                          "    this is the first line\n"
+                                          "\n"
+                                          "    and this is the second line\n"
+                                          ).format(section), config))
             expect = (".. {}::\n"
                       "\n"
                       "   this is the first line\n"
@@ -304,12 +303,11 @@ class GoogleDocstringTest(BaseDocstringTest):
 
             # Single line
             actual = str(GoogleDocstring(("{}:\n"
-                      "    this is a single line\n"
-                      ).format(section), config))
+                                          "    this is a single line\n"
+                                          ).format(section), config))
             expect = (".. {}:: this is a single line\n"
                       ).format(admonition)
             self.assertEqual(expect, actual)
-
 
     def test_docstrings(self):
         config = Config(
@@ -968,21 +966,21 @@ Parameters:
 
     def test_custom_generic_sections(self):
 
-        docstrings=("""\
+        docstrings = (("""\
 Really Important Details:
     You should listen to me!
-""",
-    """.. rubric:: Really Important Details
+""", """.. rubric:: Really Important Details
 
 You should listen to me!
-"""),\
-     ("""\
+"""),
+                      ("""\
 Sooper Warning:
     Stop hitting yourself!
-""",""":Warns: **Stop hitting yourself!**
-""")
+""", """:Warns: **Stop hitting yourself!**
+"""))
 
-        testConfig=Config(napoleon_custom_sections=['Really Important Details',('Sooper Warning','warns')])
+        testConfig = Config(napoleon_custom_sections=['Really Important Details',
+                                                      ('Sooper Warning', 'warns')])
 
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring, testConfig))
@@ -1160,11 +1158,11 @@ class NumpyDocstringTest(BaseDocstringTest):
         for section, admonition in admonition_map.items():
             # Multiline
             actual = str(NumpyDocstring(("{}\n"
-                      "{}\n"
-                      "    this is the first line\n"
-                      "\n"
-                      "    and this is the second line\n"
-                      ).format(section, '-'*len(section)), config))
+                                         "{}\n"
+                                         "    this is the first line\n"
+                                         "\n"
+                                         "    and this is the second line\n"
+                                         ).format(section, '-' * len(section)), config))
             expect = (".. {}::\n"
                       "\n"
                       "   this is the first line\n"
@@ -1175,9 +1173,9 @@ class NumpyDocstringTest(BaseDocstringTest):
 
             # Single line
             actual = str(NumpyDocstring(("{}\n"
-                      "{}\n"
-                      "    this is a single line\n"
-                      ).format(section, '-'*len(section)), config))
+                                         "{}\n"
+                                         "    this is a single line\n"
+                                         ).format(section, '-' * len(section)), config))
             expect = (".. {}:: this is a single line\n"
                       ).format(admonition)
             self.assertEqual(expect, actual)

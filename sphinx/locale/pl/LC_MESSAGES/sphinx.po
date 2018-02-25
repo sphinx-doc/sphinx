@@ -1293,17 +1293,17 @@ msgstr "Treść"
 #: sphinx/transforms/post_transforms/__init__.py:139
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "znaleziono więcej niż jeden cel dla cross-referencji „any”: może być %s"
+msgstr "znaleziono więcej niż jeden cel dla cross-referencji „any” %r: może być %s"
 
 #: sphinx/transforms/post_transforms/__init__.py:169
 #, python-format
 msgid "%s:%s reference target not found: %%(target)s"
-msgstr "nie znaleziono celu referencji %s:%s: %%(cel)e"
+msgstr "nie znaleziono celu referencji %s:%s: %%(target)s"
 
 #: sphinx/transforms/post_transforms/__init__.py:172
 #, python-format
 msgid "%r reference target not found: %%(target)s"
-msgstr "nie znaleziono celu referencji %r: %%(cel)e"
+msgstr "nie znaleziono celu referencji %r: %%(target)s"
 
 #: sphinx/util/docutils.py:202
 msgid "when adding directive classes, no additional arguments may be given"

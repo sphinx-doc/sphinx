@@ -10,12 +10,11 @@
 """
 
 import pytest
-from mock import Mock
 from docutils import nodes
+from mock import Mock
 
 from sphinx import addnodes
 from sphinx.domains.javascript import JavaScriptDomain
-
 from sphinx.testing.util import assert_node
 
 

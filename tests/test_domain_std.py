@@ -9,14 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes
 import mock
+from docutils import nodes
 
 from sphinx.domains.std import StandardDomain
 
 
 def test_process_doc_handle_figure_caption():
     env = mock.Mock(domaindata={})
+    env.app.registry.enumerable_nodes = {}
     figure_node = nodes.figure(
         '',
         nodes.caption('caption text', 'caption text'),
@@ -40,6 +41,7 @@ def test_process_doc_handle_figure_caption():
 
 def test_process_doc_handle_table_title():
     env = mock.Mock(domaindata={})
+    env.app.registry.enumerable_nodes = {}
     table_node = nodes.table(
         '',
         nodes.title('title text', 'title text'),
@@ -63,6 +65,7 @@ def test_process_doc_handle_table_title():
 
 def test_get_full_qualified_name():
     env = mock.Mock(domaindata={})
+    env.app.registry.enumerable_nodes = {}
     domain = StandardDomain(env)
 
     # normal references

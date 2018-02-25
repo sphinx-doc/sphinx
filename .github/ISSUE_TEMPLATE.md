@@ -1,5 +1,13 @@
 Subject: <what happen when you do on which document project>
 
+<!--
+  Important: This is a list of issues for Sphinx, not a forum.
+  If you'd like to post a question, please move to sphinx-users group.
+  https://groups.google.com/forum/#!forum/sphinx-users
+
+  Thanks,
+-->
+
 ### Problem
 - <Detail of problem>
 

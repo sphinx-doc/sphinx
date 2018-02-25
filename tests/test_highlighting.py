@@ -10,9 +10,9 @@
 """
 
 import mock
+from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
-from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
 

@@ -9,8 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-import zlib
 import posixpath
+import zlib
 
 from six import BytesIO
 

@@ -9,8 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pytest
 import os
+
+import pytest
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader

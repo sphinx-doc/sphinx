@@ -10,13 +10,12 @@
 """
 
 import warnings
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.apidoc import main as _main
 
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -13,19 +13,18 @@ from __future__ import print_function
 import os
 import re
 from itertools import product
-from subprocess import Popen, PIPE
 from shutil import copyfile
+from subprocess import Popen, PIPE
 
-from six import PY3
 import pytest
+from six import PY3
+from test_build_html import ENV_WARNINGS
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import cd, ensuredir
-from sphinx.util import docutils
-from sphinx.writers.latex import LaTeXTranslator
-
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-from test_build_html import ENV_WARNINGS
+from sphinx.util import docutils
+from sphinx.util.osutil import cd, ensuredir
+from sphinx.writers.latex import LaTeXTranslator
 
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
@@ -1143,3 +1142,14 @@ def test_latex_image_in_parsed_literal(app, status, warning):
     assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
             '{\\scalebox{2.000000}{\\sphinxincludegraphics[height=1cm]{{pic}.png}}}'
             '}AFTER') in result
+
+
+@pytest.mark.sphinx('latex', testroot='nested-enumerated-list')
+def test_latex_nested_enumerated_list(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert r'\setcounter{enumi}{4}' in result
+    assert r'\setcounter{enumii}{3}' in result
+    assert r'\setcounter{enumiii}{9}' in result
+    assert r'\setcounter{enumii}{2}' in result

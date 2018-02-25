@@ -15,9 +15,8 @@ import pytest
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
-from sphinx.versioning import add_uids, merge_doctrees, get_ratio
-
 from sphinx.testing.util import SphinxTestApp
+from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
 
 app = original = original_uids = None

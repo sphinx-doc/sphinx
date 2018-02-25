@@ -24,6 +24,7 @@ from .deprecation import RemovedInSphinx20Warning
 
 if False:
     # For type annotation
+    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
     from typing import Any  # NOQA
 
 
@@ -84,6 +85,7 @@ def main(*args, **kwargs):
 
 def build_main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
+    from .cmd import build
     warnings.warn(
         '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
         RemovedInSphinx20Warning,
@@ -94,6 +96,7 @@ def build_main(argv=sys.argv):
 
 def make_main(argv=sys.argv):
     """Sphinx build "make mode" entry."""
+    from .cmd import build
     warnings.warn(
         '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
         RemovedInSphinx20Warning,

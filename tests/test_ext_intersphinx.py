@@ -9,22 +9,22 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import unittest
+from io import BytesIO
 
-from docutils import nodes
 import mock
 import pytest
 import requests
-from io import BytesIO
-import os
+from docutils import nodes
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
-    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
 )
-from test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -393,10 +393,10 @@ def test_getsafeurl_unauthed():
     assert expected == actual
 
 
-def test_debug_noargs(capsys):
-    """debug interface, without arguments"""
+def test_inspect_main_noargs(capsys):
+    """inspect_main interface, without arguments"""
     with pytest.raises(SystemExit):
-        debug(['sphinx/ext/intersphinx.py'])
+        inspect_main([])
 
     expected = (
         "Print out an inventory file.\n"
@@ -407,12 +407,12 @@ def test_debug_noargs(capsys):
     assert stderr == expected + "\n"
 
 
-def test_debug_file(capsys, tempdir):
-    """debug interface, with file argument"""
+def test_inspect_main_file(capsys, tempdir):
+    """inspect_main interface, with file argument"""
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
 
-    debug(['sphinx/ext/intersphinx.py', str(inv_file)])
+    inspect_main([str(inv_file)])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
@@ -420,8 +420,8 @@ def test_debug_file(capsys, tempdir):
 
 
 @mock.patch('requests.get')
-def test_debug_url(fake_get, capsys):
-    """debug interface, with url argument"""
+def test_inspect_main_url(fake_get, capsys):
+    """inspect_main interface, with url argument"""
     raw = BytesIO(inventory_v2)
     real_read = raw.read
 
@@ -436,7 +436,7 @@ def test_debug_url(fake_get, capsys):
     resp.raw = raw
     fake_get.return_value = resp
 
-    debug(['sphinx/ext/intersphinx.py', url])
+    inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")

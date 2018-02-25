@@ -10,7 +10,9 @@
 """
 
 import os
+
 import pytest
+
 from sphinx.ext.inheritance_diagram import InheritanceDiagram
 
 
@@ -48,25 +50,24 @@ def test_inheritance_diagram(app, status, warning):
     for cls in graphs['basic_diagram'].class_info:
         # use in b/c traversing order is different sometimes
         assert cls in [
-                        ('dummy.test.A', 'dummy.test.A', [], None),
-                        ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-                        ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
-                        ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-                        ('dummy.test.D', 'dummy.test.D',
-                            ['dummy.test.B', 'dummy.test.C'], None),
-                        ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None)
-                    ]
+            ('dummy.test.A', 'dummy.test.A', [], None),
+            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
+            ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
+            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
+            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
+            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None)
+        ]
 
     # inheritance diagram using :parts: 1 option
     for cls in graphs['diagram_w_parts'].class_info:
         assert cls in [
-                        ('A', 'dummy.test.A', [], None),
-                        ('F', 'dummy.test.F', ['C'], None),
-                        ('C', 'dummy.test.C', ['A'], None),
-                        ('E', 'dummy.test.E', ['B'], None),
-                        ('D', 'dummy.test.D', ['B', 'C'], None),
-                        ('B', 'dummy.test.B', ['A'], None)
-                    ]
+            ('A', 'dummy.test.A', [], None),
+            ('F', 'dummy.test.F', ['C'], None),
+            ('C', 'dummy.test.C', ['A'], None),
+            ('E', 'dummy.test.E', ['B'], None),
+            ('D', 'dummy.test.D', ['B', 'C'], None),
+            ('B', 'dummy.test.B', ['A'], None)
+        ]
 
     # inheritance diagram with 1 top class
     # :top-classes: dummy.test.B
@@ -79,15 +80,13 @@ def test_inheritance_diagram(app, status, warning):
     #
     for cls in graphs['diagram_w_1_top_class'].class_info:
         assert cls in [
-                        ('dummy.test.A', 'dummy.test.A', [], None),
-                        ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-                        ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
-                        ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-                        ('dummy.test.D', 'dummy.test.D',
-                            ['dummy.test.B', 'dummy.test.C'], None),
-                        ('dummy.test.B', 'dummy.test.B', [], None)
-                    ]
-
+            ('dummy.test.A', 'dummy.test.A', [], None),
+            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
+            ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
+            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
+            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
+            ('dummy.test.B', 'dummy.test.B', [], None)
+        ]
 
     # inheritance diagram with 2 top classes
     # :top-classes: dummy.test.B, dummy.test.C
@@ -100,13 +99,12 @@ def test_inheritance_diagram(app, status, warning):
     #
     for cls in graphs['diagram_w_2_top_classes'].class_info:
         assert cls in [
-                        ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-                        ('dummy.test.C', 'dummy.test.C', [], None),
-                        ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-                        ('dummy.test.D', 'dummy.test.D',
-                            ['dummy.test.B', 'dummy.test.C'], None),
-                        ('dummy.test.B', 'dummy.test.B', [], None)
-                    ]
+            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
+            ('dummy.test.C', 'dummy.test.C', [], None),
+            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
+            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
+            ('dummy.test.B', 'dummy.test.B', [], None)
+        ]
 
     # inheritance diagram with 2 top classes and specifiying the entire module
     # rendering should be
@@ -123,11 +121,10 @@ def test_inheritance_diagram(app, status, warning):
     # this is a known issue.
     for cls in graphs['diagram_module_w_2_top_classes'].class_info:
         assert cls in [
-                        ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-                        ('dummy.test.C', 'dummy.test.C', [], None),
-                        ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-                        ('dummy.test.D', 'dummy.test.D',
-                            ['dummy.test.B', 'dummy.test.C'], None),
-                        ('dummy.test.B', 'dummy.test.B', [], None),
-                        ('dummy.test.A', 'dummy.test.A', [], None),
-                    ]
+            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
+            ('dummy.test.C', 'dummy.test.C', [], None),
+            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
+            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
+            ('dummy.test.B', 'dummy.test.B', [], None),
+            ('dummy.test.A', 'dummy.test.A', [], None),
+        ]

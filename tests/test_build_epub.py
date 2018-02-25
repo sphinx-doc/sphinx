@@ -9,9 +9,23 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
 import pytest
+
+
+# check given command is runnable
+def runnable(command):
+    try:
+        p = Popen(command, stdout=PIPE)
+    except OSError:
+        # command not found
+        return False
+    else:
+        p.communicate()
+        return p.returncode
 
 
 class EPUBElementTree(object):
@@ -245,3 +259,18 @@ def test_epub_writing_mode(app):
     # vertical / writing-mode (CSS)
     css = (app.outdir / '_static' / 'epub.css').text()
     assert 'writing-mode: vertical-rl;' in css
+
+
+@pytest.mark.sphinx('epub')
+def test_run_epubcheck(app):
+    app.build()
+
+    epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
+    if runnable('java') and os.path.exists(epubcheck):
+        p = Popen(['java', '-jar', epubcheck, app.outdir / 'Sphinx.epub'],
+                  stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        if p.returncode != 0:
+            print(stdout)
+            print(stderr)
+            assert False, 'epubcheck exited with return code %s' % p.returncode

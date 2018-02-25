@@ -11,6 +11,7 @@
 
 import re
 import unicodedata
+from copy import copy
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -521,6 +522,15 @@ class StandardDomain(Domain):
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
     }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+
+    def __init__(self, env):
+        # type: (BuildEnvironment) -> None
+        super(StandardDomain, self).__init__(env)
+
+        # set up enumerable nodes
+        self.enumerable_nodes = copy(self.enumerable_nodes)  # create a copy for this instance
+        for node, settings in iteritems(env.app.registry.enumerable_nodes):
+            self.enumerable_nodes[node] = settings
 
     def clear_doc(self, docname):
         # type: (unicode) -> None

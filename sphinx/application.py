@@ -21,9 +21,8 @@ from inspect import isclass
 from os import path
 from typing import TYPE_CHECKING
 
-from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
-from six import iteritems, itervalues
+from six import itervalues
 from six.moves import cStringIO
 
 import sphinx
@@ -37,17 +36,20 @@ from sphinx.errors import (
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.util import docutils
 from sphinx.util import import_object
 from sphinx.util import logging
 from sphinx.util import pycompat  # noqa: F401
+from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import is_html5_writer_available, directive_helper
+from sphinx.util.docutils import directive_helper
 from sphinx.util.i18n import find_catalog_source_files
 from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
+    from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -56,7 +58,7 @@ if TYPE_CHECKING:
     from sphinx.extension import Extension  # NOQA
     from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -126,13 +128,13 @@ class Sphinx(object):
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
+        self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.registry = SphinxComponentRegistry()
-        self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.html_themes = {}                   # type: Dict[unicode, unicode]
 
         # validate provided directories
@@ -252,8 +254,6 @@ class Sphinx(object):
         self._init_env(freshenv)
         # set up the builder
         self._init_builder()
-        # set up the enumerable nodes
-        self._init_enumerable_nodes()
 
     def _init_i18n(self):
         # type: () -> None
@@ -323,15 +323,11 @@ class Sphinx(object):
         self.builder.init()
         self.emit('builder-inited')
 
-    def _init_enumerable_nodes(self):
-        # type: () -> None
-        for node, settings in iteritems(self.enumerable_nodes):
-            self.env.get_domain('std').enumerable_nodes[node] = settings  # type: ignore
-
     # ---- main "build" method -------------------------------------------------
 
     def build(self, force_all=False, filenames=None):
         # type: (bool, List[unicode]) -> None
+        self.phase = BuildPhase.READING
         try:
             if force_all:
                 self.builder.compile_all_catalogs()
@@ -619,49 +615,16 @@ class Sphinx(object):
            Added the support for keyword arguments giving visit functions.
         """
         logger.debug('[app] adding node: %r', (node, kwds))
-        if not kwds.pop('override', False) and \
-           hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        if not kwds.pop('override', False) and docutils.is_node_registered(node):
             logger.warning(__('while setting up extension %s: node class %r is '
                               'already registered, its visitors will be overridden'),
                            self._setting_up_extension, node.__name__,
                            type='app', subtype='add_node')
-        nodes._add_node_class_names([node.__name__])
-        for key, val in iteritems(kwds):
-            try:
-                visit, depart = val
-            except ValueError:
-                raise ExtensionError(__('Value for key %r must be a '
-                                        '(visit, depart) function tuple') % key)
-            translator = self.registry.translators.get(key)
-            translators = []
-            if translator is not None:
-                translators.append(translator)
-            elif key == 'html':
-                from sphinx.writers.html import HTMLTranslator
-                translators.append(HTMLTranslator)
-                if is_html5_writer_available():
-                    from sphinx.writers.html5 import HTML5Translator
-                    translators.append(HTML5Translator)
-            elif key == 'latex':
-                from sphinx.writers.latex import LaTeXTranslator
-                translators.append(LaTeXTranslator)
-            elif key == 'text':
-                from sphinx.writers.text import TextTranslator
-                translators.append(TextTranslator)
-            elif key == 'man':
-                from sphinx.writers.manpage import ManualPageTranslator
-                translators.append(ManualPageTranslator)
-            elif key == 'texinfo':
-                from sphinx.writers.texinfo import TexinfoTranslator
-                translators.append(TexinfoTranslator)
-
-            for translator in translators:
-                setattr(translator, 'visit_' + node.__name__, visit)
-                if depart:
-                    setattr(translator, 'depart_' + node.__name__, depart)
+        docutils.register_node(node)
+        self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
-        # type: (nodes.Node, unicode, Callable, Any) -> None
+        # type: (nodes.Node, unicode, TitleGetter, Any) -> None
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -685,8 +648,16 @@ class Sphinx(object):
 
         .. versionadded:: 1.4
         """
-        self.enumerable_nodes[node] = (figtype, title_getter)
+        self.registry.add_enumerable_node(node, figtype, title_getter)
         self.add_node(node, **kwds)
+
+    @property
+    def enumerable_nodes(self):
+        # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
+        warnings.warn('app.enumerable_nodes() is deprecated. '
+                      'Use app.get_domain("std").enumerable_nodes instead.',
+                      RemovedInSphinx30Warning)
+        return self.registry.enumerable_nodes
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
@@ -735,13 +706,12 @@ class Sphinx(object):
                               'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
-        directive = directive_helper(obj, content, arguments, **options)
-        directives.register_directive(name, directive)
 
         if not isclass(obj) or not issubclass(obj, Directive):
-            warnings.warn('function based directive support is now deprecated. '
-                          'Use class based directive instead.',
-                          RemovedInSphinx30Warning)
+            directive = directive_helper(obj, content, arguments, **options)
+            directives.register_directive(name, directive)
+        else:
+            directives.register_directive(name, obj)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None
@@ -1032,9 +1002,7 @@ class Sphinx(object):
 
         .. versionadded:: 1.3
         """
-        logger.debug('[app] adding latex package: %r', packagename)
-        if hasattr(self.builder, 'usepackages'):  # only for LaTeX builder
-            self.builder.usepackages.append((packagename, options))  # type: ignore
+        self.registry.add_latex_package(packagename, options)
 
     def add_lexer(self, alias, lexer):
         # type: (unicode, Any) -> None
@@ -1102,13 +1070,25 @@ class Sphinx(object):
         assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
-    def add_source_parser(self, suffix, parser):
-        # type: (unicode, Parser) -> None
-        """Register a parser class for specified *suffix*.
+    def add_source_suffix(self, suffix, filetype):
+        # type: (unicode, unicode) -> None
+        """Register a suffix of source files.
+
+        Same as :confval:`source_suffix`.  The users can override this
+        using the setting.
+        """
+        self.registry.add_source_suffix(suffix, filetype)
+
+    def add_source_parser(self, *args):
+        # type: (Any) -> None
+        """Register a parser class.
 
         .. versionadded:: 1.4
+        .. versionchanged:: 1.8
+           *suffix* argument is deprecated.  It only accepts *parser* argument.
+           Use :meth:`add_source_suffix` API to register suffix instead.
         """
-        self.registry.add_source_parser(suffix, parser)
+        self.registry.add_source_parser(*args)
 
     def add_env_collector(self, collector):
         # type: (Type[EnvironmentCollector]) -> None
