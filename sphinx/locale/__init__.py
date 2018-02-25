@@ -264,6 +264,15 @@ def is_translator_registered(catalog='sphinx', namespace='general'):
     return (namespace, catalog) in translators
 
 
+def _lazy_translate(catalog, namespace, message):
+    # type: (unicode, unicode, unicode) -> unicode
+    """Used instead of _ when creating TranslationProxy, because _ is
+    not bound yet at that time.
+    """
+    translator = get_translator(catalog, namespace)
+    return translator.gettext(message)
+
+
 def get_translation(catalog, namespace='general'):
     # type: (unicode, unicode) -> Callable[[unicode, *Any], unicode]
     """Get a translation function based on the *catalog*, *locale_dir*.
@@ -289,16 +298,11 @@ def get_translation(catalog, namespace='general'):
 
     .. versionadded:: 1.8
     """
-    def lazy_gettext(message):
-        # type: (unicode) -> unicode
-        translator = get_translator(catalog, namespace)
-        return translator.gettext(message)
-
     def gettext(message, *args):
         # type: (unicode, *Any) -> unicode
-        if is_translator_registered(catalog, namespace):
+        if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(lazy_gettext, message)
+            return _TranslationProxy(_lazy_translate, catalog, namespace, message)
         else:
             translator = get_translator(catalog, namespace)
             if len(args) <= 1:
