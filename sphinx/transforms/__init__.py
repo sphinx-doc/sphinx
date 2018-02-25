@@ -20,7 +20,7 @@ from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
 
 from sphinx import addnodes
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
@@ -262,8 +262,8 @@ class AutoIndexUpgrader(SphinxTransform):
         # type: () -> None
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
-                msg = ('4 column based index found. '
-                       'It might be a bug of extensions you use: %r' % node['entries'])
+                msg = __('4 column based index found. '
+                         'It might be a bug of extensions you use: %r') % node['entries']
                 logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
@@ -304,13 +304,13 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                 # footnote having duplicated number.  It is already warned at parser.
                 pass
             elif node['names'][0] not in self.document.footnote_refs:
-                logger.warning('Footnote [%s] is not referenced.', node['names'][0],
+                logger.warning(__('Footnote [%s] is not referenced.'), node['names'][0],
                                type='ref', subtype='footnote',
                                location=node)
 
         for node in self.document.autofootnotes:
             if not any(ref['auto'] == node['auto'] for ref in self.document.autofootnote_refs):
-                logger.warning('Footnote [#] is not referenced.',
+                logger.warning(__('Footnote [#] is not referenced.'),
                                type='ref', subtype='footnote',
                                location=node)
 

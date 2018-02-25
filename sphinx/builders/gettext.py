@@ -23,6 +23,7 @@ from six import iteritems, StringIO
 
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
+from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
@@ -215,7 +216,7 @@ class MessageCatalogBuilder(I18nBuilder):
     Builds gettext-style message catalogs (.pot files).
     """
     name = 'gettext'
-    epilog = 'The message catalogs are in %(outdir)s.'
+    epilog = __('The message catalogs are in %(outdir)s.')
 
     def init(self):
         # type: () -> None
@@ -239,12 +240,12 @@ class MessageCatalogBuilder(I18nBuilder):
         # type: () -> None
         files = list(self._collect_templates())
         files.sort()
-        logger.info(bold('building [%s]: ' % self.name), nonl=1)
-        logger.info('targets for %d template files', len(files))
+        logger.info(bold(__('building [%s]: ') % self.name), nonl=1)
+        logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in status_iterator(files, 'reading templates... ', "purple",  # type: ignore  # NOQA
+        for template in status_iterator(files, __('reading templates... '), "purple",  # type: ignore  # NOQA
                                         len(files), self.app.verbosity):
             with open(template, 'r', encoding='utf-8') as f:  # type: ignore
                 context = f.read()
@@ -268,7 +269,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
-                                                   "writing message catalogs... ",
+                                                   __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
                                                    lambda textdomain__: textdomain__[0]):

@@ -20,7 +20,7 @@ from six.moves import range
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
@@ -648,8 +648,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
         elif not isinstance(parent, nodes.section):
-            logger.warning('encountered title node not in section, topic, table, '
-                           'admonition or sidebar',
+            logger.warning(__('encountered title node not in section, topic, table, '
+                              'admonition or sidebar'),
                            location=(self.curfilestack[-1], node.line))
             self.visit_rubric(node)
         else:
@@ -1318,7 +1318,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 node.parent.get('literal_block'))):
             self.body.append('\n@caption{')
         else:
-            logger.warning('caption not inside a figure.',
+            logger.warning(__('caption not inside a figure.'),
                            location=(self.curfilestack[-1], node.line))
 
     def depart_caption(self, node):
@@ -1421,12 +1421,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def unimplemented_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unimplemented node type: %r", node,
+        logger.warning(__("unimplemented node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unknown node type: %r", node,
+        logger.warning(__("unknown node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_departure(self, node):
@@ -1743,9 +1743,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html'))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

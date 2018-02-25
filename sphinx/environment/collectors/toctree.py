@@ -17,6 +17,7 @@ from six import iteritems
 from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.locale import __
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.util import url_re, logging
 
@@ -189,8 +190,8 @@ class TocTreeCollector(EnvironmentCollector):
                     # don't mess with those
                     continue
                 elif ref in assigned:
-                    logger.warning('%s is already assigned section numbers '
-                                   '(nested numbered toctree?)', ref,
+                    logger.warning(__('%s is already assigned section numbers '
+                                      '(nested numbered toctree?)'), ref,
                                    location=toctreenode, type='toc', subtype='secnum')
                 elif ref in env.tocs:
                     secnums = env.toc_secnumbers[ref] = {}

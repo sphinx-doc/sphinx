@@ -24,6 +24,7 @@ from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
 from sphinx.errors import SphinxError
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, walk
 
@@ -70,14 +71,14 @@ class CatalogInfo(LocaleFileInfoBase):
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning('reading error: %s, %s', self.po_path, exc)
+                logger.warning(__('reading error: %s, %s'), self.po_path, exc)
                 return
 
         with io.open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:
-                logger.warning('writing error: %s, %s', self.mo_path, exc)
+                logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
 
 
 def find_catalog(docname, compaction):
@@ -210,8 +211,8 @@ def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
         # fallback to English
         return formatter(date, format, locale='en')
     except AttributeError:
-        logger.warning('Invalid date format. Quote the string by single quote '
-                       'if you want to output it directly: %s', format)
+        logger.warning(__('Invalid date format. Quote the string by single quote '
+                          'if you want to output it directly: %s'), format)
         return format
 
 

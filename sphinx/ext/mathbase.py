@@ -98,7 +98,7 @@ class MathDomain(Domain):
                     eqref_format = env.config.math_eqref_format or "({number})"
                     title = nodes.Text(eqref_format.format(number=number))
                 except KeyError as exc:
-                    logger.warning('Invalid math_eqref_format: %r', exc,
+                    logger.warning(__('Invalid math_eqref_format: %r'), exc,
                                    location=node)
                     title = nodes.Text("(%d)" % number)
                     title = nodes.Text("(%d)" % number)
@@ -309,7 +309,7 @@ def latex_visit_eqref(self, node):
             ref = '\\ref{%s}' % label
             self.body.append(eqref_format.format(number=ref))
         except KeyError as exc:
-            logger.warning('Invalid math_eqref_format: %r', exc,
+            logger.warning(__('Invalid math_eqref_format: %r'), exc,
                            location=node)
             self.body.append('\\eqref{%s}' % label)
     else:

@@ -22,7 +22,7 @@ from six import iteritems
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
@@ -158,9 +158,9 @@ class Cmdoption(ObjectDescription):
             potential_option = potential_option.strip()
             m = option_desc_re.match(potential_option)  # type: ignore
             if not m:
-                logger.warning('Malformed option description %r, should '
-                               'look like "opt", "-opt args", "--opt args", '
-                               '"/opt args" or "+opt args"', potential_option,
+                logger.warning(__('Malformed option description %r, should '
+                                  'look like "opt", "-opt args", "--opt args", '
+                                  '"/opt args" or "+opt args"'), potential_option,
                                location=(self.env.docname, self.lineno))
                 continue
             optname, args = m.groups()
@@ -591,7 +591,7 @@ class StandardDomain(Domain):
             label = node[0].astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
-                logger.warning('duplicate citation %s, other instance in %s', label, path,
+                logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
                                location=node, type='ref', subtype='citation')
             self.data['citations'][label] = (docname, node['ids'][0], node.line)
 
@@ -623,8 +623,8 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in labels:
-                logger.warning('duplicate label %s, ' % name + 'other instance '
-                               'in ' + env.doc2path(labels[name][0]),
+                logger.warning(__('duplicate label %s, other instance in %s'),
+                               name, env.doc2path(labels[name][0]),
                                location=node)
             anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
@@ -648,7 +648,7 @@ class StandardDomain(Domain):
         # type: () -> None
         for name, (docname, labelid, lineno) in iteritems(self.data['citations']):
             if name not in self.data['citation_refs']:
-                logger.warning('Citation [%s] is not referenced.', name,
+                logger.warning(__('Citation [%s] is not referenced.'), name,
                                type='ref', subtype='citation',
                                location=(docname, lineno))
 
@@ -726,7 +726,7 @@ class StandardDomain(Domain):
             return None
 
         if env.config.numfig is False:
-            logger.warning('numfig is disabled. :numref: is ignored.', location=node)
+            logger.warning(__('numfig is disabled. :numref: is ignored.'), location=node)
             return contnode
 
         target_node = env.get_doctree(docname).ids.get(labelid)
@@ -739,7 +739,7 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warning("no number is assigned for %s: %s", figtype, labelid,
+            logger.warning(__("no number is assigned for %s: %s"), figtype, labelid,
                            location=node)
             return contnode
 
@@ -750,7 +750,7 @@ class StandardDomain(Domain):
                 title = env.config.numfig_format.get(figtype, '')
 
             if figname is None and '{name}' in title:
-                logger.warning('the link has no caption: %s', title, location=node)
+                logger.warning(__('the link has no caption: %s'), title, location=node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
@@ -764,10 +764,10 @@ class StandardDomain(Domain):
                     # old style format (cf. "Fig.%s")
                     newtitle = title % fignum
         except KeyError as exc:
-            logger.warning('invalid numfig_format: %s (%r)', title, exc, location=node)
+            logger.warning(__('invalid numfig_format: %s (%r)'), title, exc, location=node)
             return contnode
         except TypeError:
-            logger.warning('invalid numfig_format: %s', title, location=node)
+            logger.warning(__('invalid numfig_format: %s'), title, location=node)
             return contnode
 
         return self.build_reference_node(fromdocname, builder,

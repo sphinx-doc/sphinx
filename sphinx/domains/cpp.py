@@ -21,7 +21,7 @@ from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import NoUri
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
@@ -3656,8 +3656,8 @@ class Symbol(object):
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
                     name = text_type(ourChild.declaration)
-                    msg = "Duplicate declaration, also defined in '%s'.\n"
-                    msg += "Declaration is '%s'."
+                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                             "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
                     logger.warning(msg, location=otherChild.docname)
                 else:
@@ -6053,8 +6053,8 @@ class CPPDomain(Domain):
         for name, docname in otherdata['names'].items():
             if docname in docnames:
                 if name in ourNames:
-                    msg = "Duplicate declaration, also defined in '%s'.\n"
-                    msg += "Name of declaration is '%s'."
+                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                             "Name of declaration is '%s'.")
                     msg = msg % (ourNames[name], name)
                     logger.warning(msg, docname)
                 else:

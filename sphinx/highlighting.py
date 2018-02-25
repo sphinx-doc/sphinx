@@ -23,6 +23,7 @@ from pygments.util import ClassNotFound
 from six import text_type
 
 from sphinx.ext import doctest
+from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
 from sphinx.util.pycompat import htmlescape
@@ -132,7 +133,7 @@ class PygmentsBridge(object):
                 try:
                     lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
                 except ClassNotFound:
-                    logger.warning('Pygments lexer name %r is not known', lang,
+                    logger.warning(__('Pygments lexer name %r is not known'), lang,
                                    location=location)
                     lexer = lexers['none']
                 else:
@@ -153,8 +154,8 @@ class PygmentsBridge(object):
             if lang == 'default':
                 pass  # automatic highlighting failed.
             else:
-                logger.warning('Could not lex literal_block as "%s". '
-                               'Highlighting skipped.', lang,
+                logger.warning(__('Could not lex literal_block as "%s". '
+                                  'Highlighting skipped.'), lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
             hlsource = highlight(source, lexers['none'], formatter)

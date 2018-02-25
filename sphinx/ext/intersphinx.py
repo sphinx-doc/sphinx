@@ -42,7 +42,7 @@ from six.moves.urllib.parse import urlsplit, urlunsplit
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
@@ -223,7 +223,7 @@ def load_mappings(app):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
-                logger.warning('intersphinx identifier %r is not string. Ignored', name)
+                logger.warning(__('intersphinx identifier %r is not string. Ignored'), name)
                 continue
         else:
             # old format, no name
@@ -265,8 +265,8 @@ def load_mappings(app):
             for fail in failures:
                 logger.info(*fail)
         else:
-            logger.warning("failed to reach any of the inventories "
-                           "with the following issues:")
+            logger.warning(__("failed to reach any of the inventories "
+                              "with the following issues:"))
             for fail in failures:
                 logger.warning(*fail)
 
