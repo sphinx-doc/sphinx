@@ -11,11 +11,11 @@ Sphinx documentation contents
    usage/quickstart
    usage/restructuredtext/index
    usage/markdown
+   usage/configuration
 
    intro
    man/index
    builders
-   config
    intl
    theming
    setuptools
