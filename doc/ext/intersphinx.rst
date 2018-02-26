@@ -38,7 +38,10 @@ Behind the scenes, this works as follows:
   specified individually, e.g. if the docs should be buildable without Internet
   access.
 
-To use intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
+Configuring Intersphinx
+-----------------------
+
+To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
 :confval:`extensions` config value, and use these new config values to activate
 linking:
 
@@ -84,7 +87,7 @@ linking:
    To add links to modules and objects in the Python standard library
    documentation, use::
 
-      intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None)}
+      intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
    This will download the corresponding :file:`objects.inv` file from the
    Internet and generate links to the pages under the given URI.  The downloaded
@@ -94,12 +97,12 @@ linking:
    A second example, showing the meaning of a non-``None`` value of the second
    tuple item::
 
-      intersphinx_mapping = {'python': ('https://docs.python.org/3.4',
+      intersphinx_mapping = {'python': ('https://docs.python.org/3',
                                         'python-inv.txt')}
 
    This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
-   ``https://docs.python.org/3.4``.  It is up to you to update the inventory file
+   ``https://docs.python.org/3``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
    **Multiple target for the inventory**
@@ -113,7 +116,7 @@ linking:
    this to specify mirror sites for server downtime of the primary
    inventory::
 
-      intersphinx_mapping = {'python': ('https://docs.python.org/3.4',
+      intersphinx_mapping = {'python': ('https://docs.python.org/3',
                                         (None, 'python-inv.txt'))}
 
 .. confval:: intersphinx_cache_limit
@@ -132,3 +135,13 @@ linking:
       timeout is not a time limit on the entire response download; rather, an
       exception is raised if the server has not issued a response for timeout
       seconds.
+
+Showing all links of an Intersphinx mapping file
+------------------------------------------------
+
+To show all Intersphinx links and their targets of an Intersphinx mapping file, run
+``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when searching for the root cause of a broken
+Intersphinx link in a documentation project. The following example prints the Intersphinx mapping of the Python 3
+documentation::
+
+   $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv

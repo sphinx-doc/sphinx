@@ -112,13 +112,17 @@ Options
 
    Enable `sphinx.ext.viewcode` extension.
 
+.. option:: --ext-githubpages
+
+   Enable `sphinx.ext.githubpages` extension.
+
 .. option:: --extensions=EXTENSIONS
 
-   Enable arbitary extensions.
+   Enable arbitrary extensions.
 
 .. rubric:: Makefile and Batchfile Creation Options
 
-.. option:: --use-make-mode, --no-use-make-mode
+.. option:: --use-make-mode (-m), --no-use-make-mode (-M)
 
    :file:`Makefile/make.bat` uses (or doesn't use) :ref:`make-mode <make_mode>`.
    Default is ``use``, which generates a more concise :file:`Makefile/make.bat`.
