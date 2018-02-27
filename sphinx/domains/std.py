@@ -725,14 +725,14 @@ class StandardDomain(Domain):
         if not docname:
             return None
 
-        if env.config.numfig is False:
-            logger.warning('numfig is disabled. :numref: is ignored.', location=node)
-            return contnode
-
         target_node = env.get_doctree(docname).ids.get(labelid)
         figtype = self.get_figtype(target_node)
         if figtype is None:
             return None
+
+        if figtype != 'section' and env.config.numfig is False:
+            logger.warning('numfig is disabled. :numref: is ignored.', location=node)
+            return contnode
 
         try:
             fignumber = self.get_fignumber(env, builder, figtype, docname, target_node)
