@@ -26,21 +26,19 @@ from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from sphinx import addnodes, versioning
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.io import read_doc
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
+from sphinx.util import get_matching_docs, FilenameUniqDict
 from sphinx.util import logging, rst
-from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains, WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
-from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 
 if TYPE_CHECKING:
@@ -499,130 +497,6 @@ class BuildEnvironment(object):
 
         return added, changed, removed
 
-    def update(self, config, srcdir, doctreedir):
-        # type: (Config, unicode, unicode) -> List[unicode]
-        """(Re-)read all files new or changed since last update.
-
-        Store all environment docnames in the canonical format (ie using SEP as
-        a separator in place of os.path.sep).
-        """
-        config_changed = False
-        if self.config is None:
-            msg = '[new config] '
-            config_changed = True
-        else:
-            # check if a config value was changed that affects how
-            # doctrees are read
-            for confval in config.filter('env'):
-                if self.config[confval.name] != confval.value:
-                    msg = '[config changed] '
-                    config_changed = True
-                    break
-            else:
-                msg = ''
-            # this value is not covered by the above loop because it is handled
-            # specially by the config class
-            if self.config.extensions != config.extensions:
-                msg = '[extensions changed] '
-                config_changed = True
-        # the source and doctree directories may have been relocated
-        self.srcdir = srcdir
-        self.doctreedir = doctreedir
-        self.find_files(config, self.app.builder)
-        self.config = config
-
-        # this cache also needs to be updated every time
-        self._nitpick_ignore = set(self.config.nitpick_ignore)
-
-        logger.info(bold('updating environment: '), nonl=True)
-
-        added, changed, removed = self.get_outdated_files(config_changed)
-
-        # allow user intervention as well
-        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
-            changed.update(set(docs) & self.found_docs)
-
-        # if files were added or removed, all documents with globbed toctrees
-        # must be reread
-        if added or removed:
-            # ... but not those that already were removed
-            changed.update(self.glob_toctrees & self.found_docs)
-
-        msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
-                                                     len(removed))
-        logger.info(msg)
-
-        # clear all files no longer present
-        for docname in removed:
-            self.app.emit('env-purge-doc', self, docname)
-            self.clear_doc(docname)
-
-        # read all new and changed files
-        docnames = sorted(added | changed)
-        # allow changing and reordering the list of docs to read
-        self.app.emit('env-before-read-docs', self, docnames)
-
-        # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            par_ok = self.app.is_parallel_allowed('read')
-        else:
-            par_ok = False
-
-        if par_ok:
-            self._read_parallel(docnames, self.app, nproc=self.app.parallel)
-        else:
-            self._read_serial(docnames, self.app)
-
-        if config.master_doc not in self.all_docs:
-            raise SphinxError('master file %s not found' %
-                              self.doc2path(config.master_doc))
-
-        for retval in self.app.emit('env-updated', self):
-            if retval is not None:
-                docnames.extend(retval)
-
-        return sorted(docnames)
-
-    def _read_serial(self, docnames, app):
-        # type: (List[unicode], Sphinx) -> None
-        for docname in status_iterator(docnames, 'reading sources... ', "purple",
-                                       len(docnames), self.app.verbosity):
-            # remove all inventory entries for that file
-            app.emit('env-purge-doc', self, docname)
-            self.clear_doc(docname)
-            self.read_doc(docname, app)
-
-    def _read_parallel(self, docnames, app, nproc):
-        # type: (List[unicode], Sphinx, int) -> None
-        # clear all outdated docs at once
-        for docname in docnames:
-            app.emit('env-purge-doc', self, docname)
-            self.clear_doc(docname)
-
-        def read_process(docs):
-            # type: (List[unicode]) -> unicode
-            self.app = app
-            for docname in docs:
-                self.read_doc(docname, app)
-            # allow pickling self to send it back
-            return BuildEnvironment.dumps(self)
-
-        def merge(docs, otherenv):
-            # type: (List[unicode], unicode) -> None
-            env = BuildEnvironment.loads(otherenv)
-            self.merge_info_from(docs, env, app)
-
-        tasks = ParallelTasks(nproc)
-        chunks = make_chunks(docnames, nproc)
-
-        for chunk in status_iterator(chunks, 'reading sources... ', "purple",
-                                     len(chunks), self.app.verbosity):
-            tasks.add_task(read_process, chunk, merge)
-
-        # make sure all threads have finished
-        logger.info(bold('waiting for workers...'))
-        tasks.join()
-
     def check_dependents(self, app, already):
         # type: (Sphinx, Set[unicode]) -> Iterator[unicode]
         to_rewrite = []  # type: List[unicode]
@@ -631,6 +505,48 @@ class BuildEnvironment(object):
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
+
+    def update_config(self, config, srcdir, doctreedir):
+        # type: (Config, unicode, unicode) -> Tuple[bool, unicode]
+        """Update configurations by new one."""
+        changed_reason = ''
+        if self.config is None:
+            changed_reason = 'new config'
+        else:
+            # check if a config value was changed that affects how
+            # doctrees are read
+            for confval in config.filter('env'):
+                if self.config[confval.name] != confval.value:
+                    changed_reason = 'config changed'
+                    break
+
+            # this value is not covered by the above loop because it is handled
+            # specially by the config class
+            if self.config.extensions != config.extensions:
+                changed_reason = 'extensions changed'
+
+        # the source and doctree directories may have been relocated
+        self.srcdir = srcdir
+        self.doctreedir = doctreedir
+        self.config = config
+        self._update_settings(config)
+
+        # this cache also needs to be updated every time
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
+
+        # return tuple of (changed, reason)
+        return bool(changed_reason), changed_reason
+
+    def _update_settings(self, config):
+        # type: (Config) -> None
+        """Update settings by new config."""
+        self.settings['input_encoding'] = config.source_encoding
+        self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
+        self.settings['gettext_compact'] = config.gettext_compact
+        self.settings['language_code'] = config.language or 'en'
+
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
 
     # --------- SINGLE FILE READING --------------------------------------------
 
@@ -642,16 +558,6 @@ class BuildEnvironment(object):
         self.temp_data['default_role'] = self.config.default_role
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
-
-        self.settings['input_encoding'] = self.config.source_encoding
-        self.settings['trim_footnote_reference_space'] = \
-            self.config.trim_footnote_reference_space
-        self.settings['gettext_compact'] = self.config.gettext_compact
-
-        self.settings['language_code'] = self.config.language or 'en'
-
-        # Allow to disable by 3rd party extension (workaround)
-        self.settings.setdefault('smart_quotes', True)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None
@@ -937,3 +843,23 @@ class BuildEnvironment(object):
         for domain in self.domains.values():
             domain.check_consistency()
         self.app.emit('env-check-consistency', self)
+
+    # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    def update(self, config, srcdir, doctreedir):
+        # type: (Config, unicode, unicode) -> List[unicode]
+        warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning)
+        return self.app.builder.read()
+
+    def _read_serial(self, docnames, app):
+        # type: (List[unicode], Sphinx) -> None
+        warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning)
+        return self.app.builder._read_serial(docnames)
+
+    def _read_parallel(self, docnames, app, nproc):
+        # type: (List[unicode], Sphinx, int) -> None
+        warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
+                      RemovedInSphinx30Warning)
+        return self.app.builder._read_parallel(docnames, nproc)
