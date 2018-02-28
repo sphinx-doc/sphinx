@@ -58,7 +58,7 @@ class DocumenterBridge(object):
 
     def warn(self, msg):
         # type: (unicode) -> None
-        logger.warning(msg, line=self.lineno)
+        logger.warning(msg, location=(self.env.docname, self.lineno))
 
 
 def process_documenter_options(documenter, config, options):
@@ -125,7 +125,7 @@ class AutodocDirective(Directive):
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error('An option to %s is either unknown or has an invalid value: %s' %
-                         (self.name, exc), line=lineno)
+                         (self.name, exc), location=(source, lineno))
             return []
 
         # generate the output
