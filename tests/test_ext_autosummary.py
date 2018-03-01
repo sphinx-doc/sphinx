@@ -55,7 +55,7 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-def test_extract_summary():
+def test_extract_summary(capsys):
     from sphinx.util.docutils import new_document
     from mock import Mock
     settings = Mock(language_code='',
@@ -76,6 +76,9 @@ def test_extract_summary():
     doc = ['This sentence contains *emphasis text having dots.*,',
            'it does not break sentence.']
     assert extract_summary(doc, document) == ' '.join(doc)
+
+    _, err = capsys.readouterr()
+    assert err == ''
 
 
 @pytest.mark.sphinx('dummy', **default_kw)

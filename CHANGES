@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #4669: sphinx.build_main and sphinx.make_main throw NameError
+* #4685: autosummary emits meaningless warnings
 
 Testing
 --------
