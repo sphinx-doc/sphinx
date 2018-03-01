@@ -580,7 +580,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
 
         if builder.config.numfig:

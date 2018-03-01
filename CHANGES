@@ -31,6 +31,7 @@ Deprecated
 * ``sphinx.cmdline`` is deprecated.  Please use ``sphinx.cmd.build`` instead.
 * All ``env.update()``, ``env._read_serial()`` and ``env._read_parallel()`` are
   deprecated.  Please use ``builder.read()`` instead.
+* ``sphinx.locale.l_()`` is deprecated.  Please use ``_()`` instead
 
 Features added
 --------------
@@ -41,9 +42,14 @@ Features added
 * :confval:`source_suffix` allows a mapping fileext to file types
 * Add :confval:`author` as a configuration value
 * #2852: imgconverter: Support to convert GIF to PNG
+* ``sphinx-build`` command supports i18n console output
+* Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
+  support translation for 3rd party extensions
 
 Bugs fixed
 ----------
+
+* i18n: message catalogs were reset on each initialization
 
 Testing
 --------

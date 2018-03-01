@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import argparse
+import locale
 import multiprocessing
 import os
 import sys
@@ -20,7 +21,8 @@ from typing import TYPE_CHECKING
 from docutils.utils import SystemMessage
 from six import text_type, binary_type
 
-from sphinx import __display_version__
+import sphinx.locale
+from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
@@ -304,6 +306,9 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
 
 def main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     if sys.argv[1:2] == ['-M']:
         return make_main(argv)
     else:

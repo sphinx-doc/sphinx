@@ -93,6 +93,8 @@ package.
 
 .. automethod:: Sphinx.add_html_theme(name, theme_path)
 
+.. automethod:: Sphinx.add_message_catalog(catalog, locale_dir)
+
 .. automethod:: Sphinx.is_parallel_allowed(typ)
 
 .. exception:: ExtensionError

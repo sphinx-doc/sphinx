@@ -325,14 +325,13 @@ def _patch_python_domain():
         pass
     else:
         import sphinx.domains.python
-        import sphinx.locale
-        l_ = sphinx.locale.lazy_gettext
+        from sphinx.locale import _
         for doc_field in sphinx.domains.python.PyObject.doc_field_types:
             if doc_field.name == 'parameter':
                 doc_field.names = ('param', 'parameter', 'arg', 'argument')
                 break
         sphinx.domains.python.PyObject.doc_field_types.append(
-            PyTypedField('keyword', label=l_('Keyword Arguments'),
+            PyTypedField('keyword', label=_('Keyword Arguments'),
                          names=('keyword', 'kwarg', 'kwparam'),
                          typerolename='obj', typenames=('paramtype', 'kwtype'),
                          can_collapse=True))

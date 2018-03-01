@@ -125,7 +125,7 @@ class DefaultSubstitutions(SphinxTransform):
                 text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),  # type: ignore
+                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                        language=self.config.language)
                 ref.replace_self(nodes.Text(text, text))
 

@@ -273,7 +273,7 @@ class Sphinx(object):
             locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs  # type: ignore  # NOQA
         else:
             locale_dirs = []
-        self.translator, has_translation = locale.init(locale_dirs, self.config.language)
+        self.translator, has_translation = locale.init(locale_dirs, self.config.language)  # type: ignore  # NOQA
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
@@ -1112,6 +1112,19 @@ class Sphinx(object):
         """
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
+
+    def add_message_catalog(self, catalog, locale_dir):
+        # type: (unicode, unicode) -> None
+        """Register a message catalog.
+
+        The *catalog* is a name of catalog, and *locale_dir* is a base path
+        of message catalog.  For more details, see
+        :func:`sphinx.locale.get_translation()`.
+
+        .. versionadded:: 1.8
+        """
+        locale.init([locale_dir], self.config.language, catalog)
+        locale.init_console(locale_dir, catalog)
 
     # ---- other methods -------------------------------------------------
     def is_parallel_allowed(self, typ):

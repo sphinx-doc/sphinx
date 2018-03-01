@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import argparse
 import glob
+import locale
 import os
 import sys
 from fnmatch import fnmatch
@@ -27,7 +28,8 @@ from typing import TYPE_CHECKING
 
 from six import binary_type
 
-from sphinx import __display_version__
+import sphinx.locale
+from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
@@ -382,6 +384,9 @@ Note: By default this script will not overwrite already created files.""")
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Parse and check the command line arguments."""
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     parser = get_parser()
     args = parser.parse_args(argv)
 
