@@ -200,9 +200,13 @@ def shall_skip(module, opts, excludes=[]):
             # We only want to skip packages if they do not contain any
             # .py files other than __init__.py.
             basemodule = path.dirname(module)
-            for module in glob.glob(path.join(basemodule, '*.py')):
-                if not is_excluded(path.join(basemodule, module), excludes):
-                    return True
+            for pyfile in glob.glob(path.join(basemodule, '*.py')):
+                if (not is_excluded(path.join(basemodule, pyfile), excludes)
+                        and os.path.basename(pyfile) != '__init__.py'):
+                    # found at least one non empty file which should not
+                    # be skipped
+                    return False
+            return True
         else:
             return True
 
