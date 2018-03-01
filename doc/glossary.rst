@@ -86,3 +86,7 @@ Glossary
    source directory
       The directory which, including its subdirectories, contains all source
       files for one Sphinx project.
+
+   reStructuredText
+      An easy-to-read, what-you-see-is-what-you-get plaintext markup syntax and
+      parser system.

@@ -63,8 +63,8 @@ source code files.
 Getting Started
 ---------------
 
-1. After :doc:`setting up Sphinx <../tutorial>` to build your docs, enable
-   napoleon in the Sphinx `conf.py` file::
+1. After :doc:`setting up Sphinx </usage/quickstart>` to build your docs,
+   enable napoleon in the Sphinx `conf.py` file::
 
        # conf.py
 

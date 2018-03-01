@@ -69,5 +69,5 @@ highlighting support, you must also install the Pygments_ library.
 Usage
 -----
 
-See :doc:`tutorial` for an introduction.  It also contains links to more
-advanced sections in this manual for the topics it discusses.
+See :doc:`/usage/quickstart` for an introduction.  It also contains links to
+more advanced sections in this manual for the topics it discusses.
