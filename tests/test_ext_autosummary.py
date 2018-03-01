@@ -77,6 +77,10 @@ def test_extract_summary(capsys):
            'it does not break sentence.']
     assert extract_summary(doc, document) == ' '.join(doc)
 
+    # abbreviations
+    doc = ['Blabla, i.e. bla.']
+    assert extract_summary(doc, document) == 'Blabla, i.e.'
+
     _, err = capsys.readouterr()
     assert err == ''
 
