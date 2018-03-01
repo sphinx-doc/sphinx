@@ -39,6 +39,7 @@ from six.moves.urllib.parse import quote as urlquote
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx.locale import __
 from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
     purple, bold, red, turquoise, nocolor, color_terminal
@@ -52,18 +53,18 @@ if TYPE_CHECKING:
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
 EXTENSIONS = OrderedDict([
-    ('autodoc', 'automatically insert docstrings from modules'),
-    ('doctest', 'automatically test code snippets in doctest blocks'),
-    ('intersphinx', 'link between Sphinx documentation of different projects'),
-    ('todo', 'write "todo" entries that can be shown or hidden on build'),
-    ('coverage', 'checks for documentation coverage'),
-    ('imgmath', 'include math, rendered as PNG or SVG images'),
-    ('mathjax', 'include math, rendered in the browser by MathJax'),
-    ('ifconfig', 'conditional inclusion of content based on config values'),
+    ('autodoc', __('automatically insert docstrings from modules')),
+    ('doctest', __('automatically test code snippets in doctest blocks')),
+    ('intersphinx', __('link between Sphinx documentation of different projects')),
+    ('todo', __('write "todo" entries that can be shown or hidden on build')),
+    ('coverage', __('checks for documentation coverage')),
+    ('imgmath', __('include math, rendered as PNG or SVG images')),
+    ('mathjax', __('include math, rendered in the browser by MathJax')),
+    ('ifconfig', __('conditional inclusion of content based on config values')),
     ('viewcode',
-     'include links to the source code of documented Python objects'),
+     __('include links to the source code of documented Python objects')),
     ('githubpages',
-     'create .nojekyll file to publish the document on GitHub pages'),
+     __('create .nojekyll file to publish the document on GitHub pages')),
 ])
 
 DEFAULTS = {
@@ -96,7 +97,7 @@ def is_path(x):
     # type: (unicode) -> unicode
     x = path.expanduser(x)
     if path.exists(x) and not path.isdir(x):
-        raise ValidationError("Please enter a valid path name.")
+        raise ValidationError(__("Please enter a valid path name."))
     return x
 
 
@@ -108,7 +109,7 @@ def allow_empty(x):
 def nonempty(x):
     # type: (unicode) -> unicode
     if not x:
-        raise ValidationError("Please enter some text.")
+        raise ValidationError(__("Please enter some text."))
     return x
 
 
@@ -117,7 +118,7 @@ def choice(*l):
     def val(x):
         # type: (unicode) -> unicode
         if x not in l:
-            raise ValidationError('Please enter one of %s.' % ', '.join(l))
+            raise ValidationError(__('Please enter one of %s.') % ', '.join(l))
         return x
     return val
 
@@ -125,15 +126,15 @@ def choice(*l):
 def boolean(x):
     # type: (unicode) -> bool
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
-        raise ValidationError("Please enter either 'y' or 'n'.")
+        raise ValidationError(__("Please enter either 'y' or 'n'."))
     return x.upper() in ('Y', 'YES')
 
 
 def suffix(x):
     # type: (unicode) -> unicode
     if not (x[0:1] == '.' and len(x) > 1):
-        raise ValidationError("Please enter a file suffix, "
-                              "e.g. '.rst' or '.txt'.")
+        raise ValidationError(__("Please enter a file suffix, "
+                                 "e.g. '.rst' or '.txt'."))
     return x
 
 
@@ -155,9 +156,9 @@ def term_decode(text):
     if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
         return text.decode('ascii')
 
-    print(turquoise('* Note: non-ASCII characters entered '
-                    'and terminal encoding unknown -- assuming '
-                    'UTF-8 or Latin-1.'))
+    print(turquoise(__('* Note: non-ASCII characters entered '
+                       'and terminal encoding unknown -- assuming '
+                       'UTF-8 or Latin-1.')))
     try:
         return text.decode('utf-8')
     except UnicodeDecodeError:
@@ -178,9 +179,9 @@ def do_prompt(text, default=None, validator=nonempty):
                 if TERM_ENCODING:
                     prompt = prompt.encode(TERM_ENCODING)
                 else:
-                    print(turquoise('* Note: non-ASCII default value provided '
-                                    'and terminal encoding unknown -- assuming '
-                                    'UTF-8 or Latin-1.'))
+                    print(turquoise(__('* Note: non-ASCII default value provided '
+                                       'and terminal encoding unknown -- assuming '
+                                       'UTF-8 or Latin-1.')))
                     try:
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
@@ -245,110 +246,110 @@ def ask_user(d):
     * batchfile: make command file
     """
 
-    print(bold('Welcome to the Sphinx %s quickstart utility.') % __display_version__)
-    print('''
+    print(bold(__('Welcome to the Sphinx %s quickstart utility.')) % __display_version__)
+    print(__('''
 Please enter values for the following settings (just press Enter to
-accept a default value, if one is given in brackets).''')
+accept a default value, if one is given in brackets).'''))
 
     if 'path' in d:
-        print(bold('''
-Selected root path: %s''' % d['path']))
+        print(bold(__('''
+Selected root path: %s''') % d['path']))
     else:
-        print('''
-Enter the root path for documentation.''')
-        d['path'] = do_prompt('Root path for the documentation', '.', is_path)
+        print(__('''
+Enter the root path for documentation.'''))
+        d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
             path.isfile(path.join(d['path'], 'source', 'conf.py')):
         print()
-        print(bold('Error: an existing conf.py has been found in the '
-                   'selected root path.'))
-        print('sphinx-quickstart will not overwrite existing Sphinx projects.')
+        print(bold(__('Error: an existing conf.py has been found in the '
+                      'selected root path.')))
+        print(__('sphinx-quickstart will not overwrite existing Sphinx projects.'))
         print()
-        d['path'] = do_prompt('Please enter a new root path (or just Enter '
-                              'to exit)', '', is_path)
+        d['path'] = do_prompt(__('Please enter a new root path (or just Enter '
+                                 'to exit)'), '', is_path)
         if not d['path']:
             sys.exit(1)
 
     if 'sep' not in d:
-        print('''
+        print(__('''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
-"source" and "build" directories within the root path.''')
-        d['sep'] = do_prompt('Separate source and build directories (y/n)',
+"source" and "build" directories within the root path.'''))
+        d['sep'] = do_prompt(__('Separate source and build directories (y/n)'),
                              'n', boolean)
 
     if 'dot' not in d:
-        print('''
+        print(__('''
 Inside the root directory, two more directories will be created; "_templates"
 for custom HTML templates and "_static" for custom stylesheets and other static
-files. You can enter another prefix (such as ".") to replace the underscore.''')
-        d['dot'] = do_prompt('Name prefix for templates and static dir', '_', ok)
+files. You can enter another prefix (such as ".") to replace the underscore.'''))
+        d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
-        print('''
-The project name will occur in several places in the built documentation.''')
-        d['project'] = do_prompt('Project name')
+        print(__('''
+The project name will occur in several places in the built documentation.'''))
+        d['project'] = do_prompt(__('Project name'))
     if 'author' not in d:
-        d['author'] = do_prompt('Author name(s)')
+        d['author'] = do_prompt(__('Author name(s)'))
 
     if 'version' not in d:
-        print('''
+        print(__('''
 Sphinx has the notion of a "version" and a "release" for the
 software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
-just set both to the same value.''')
-        d['version'] = do_prompt('Project version', '', allow_empty)
+just set both to the same value.'''))
+        d['version'] = do_prompt(__('Project version'), '', allow_empty)
     if 'release' not in d:
-        d['release'] = do_prompt('Project release', d['version'], allow_empty)
+        d['release'] = do_prompt(__('Project release'), d['version'], allow_empty)
 
     if 'language' not in d:
-        print('''
+        print(__('''
 If the documents are to be written in a language other than English,
 you can select a language here by its language code. Sphinx will then
 translate text that it generates into that language.
 
 For a list of supported codes, see
-http://sphinx-doc.org/config.html#confval-language.''')
-        d['language'] = do_prompt('Project language', 'en')
+http://sphinx-doc.org/config.html#confval-language.'''))
+        d['language'] = do_prompt(__('Project language'), 'en')
         if d['language'] == 'en':
             d['language'] = None
 
     if 'suffix' not in d:
-        print('''
+        print(__('''
 The file name suffix for source files. Commonly, this is either ".txt"
-or ".rst".  Only files with this suffix are considered documents.''')
-        d['suffix'] = do_prompt('Source file suffix', '.rst', suffix)
+or ".rst".  Only files with this suffix are considered documents.'''))
+        d['suffix'] = do_prompt(__('Source file suffix'), '.rst', suffix)
 
     if 'master' not in d:
-        print('''
+        print(__('''
 One document is special in that it is considered the top node of the
 "contents tree", that is, it is the root of the hierarchical structure
 of the documents. Normally, this is "index", but if your "index"
-document is a custom template, you can also set this to another filename.''')
-        d['master'] = do_prompt('Name of your master document (without suffix)',
+document is a custom template, you can also set this to another filename.'''))
+        d['master'] = do_prompt(__('Name of your master document (without suffix)'),
                                 'index')
 
     while path.isfile(path.join(d['path'], d['master'] + d['suffix'])) or \
             path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix'])):
         print()
-        print(bold('Error: the master file %s has already been found in the '
-                   'selected root path.' % (d['master'] + d['suffix'])))
-        print('sphinx-quickstart will not overwrite the existing file.')
+        print(bold(__('Error: the master file %s has already been found in the '
+                      'selected root path.') % (d['master'] + d['suffix'])))
+        print(__('sphinx-quickstart will not overwrite the existing file.'))
         print()
-        d['master'] = do_prompt('Please enter a new file name, or rename the '
-                                'existing file and press Enter', d['master'])
+        d['master'] = do_prompt(__('Please enter a new file name, or rename the '
+                                   'existing file and press Enter'), d['master'])
 
     if 'epub' not in d:
-        print('''
-Sphinx can also add configuration for epub output:''')
-        d['epub'] = do_prompt('Do you want to use the epub builder (y/n)',
+        print(__('''
+Sphinx can also add configuration for epub output:'''))
+        d['epub'] = do_prompt(__('Do you want to use the epub builder (y/n)'),
                               'n', boolean)
 
     if 'extensions' not in d:
-        print('Indicate which of the following Sphinx extensions should be '
-              'enabled:')
+        print(__('Indicate which of the following Sphinx extensions should be '
+                 'enabled:'))
         d['extensions'] = []
         for name, description in EXTENSIONS.items():
             if do_prompt('%s: %s (y/n)' % (name, description), 'n', boolean):
@@ -357,19 +358,19 @@ Sphinx can also add configuration for epub output:''')
         # Handle conflicting options
         if set(['sphinx.ext.imgmath', 'sphinx.ext.mathjax']).issubset(
                 d['extensions']):
-            print('Note: imgmath and mathjax cannot be enabled at the same '
-                  'time. imgmath has been deselected.')
+            print(__('Note: imgmath and mathjax cannot be enabled at the same '
+                     'time. imgmath has been deselected.'))
             d['extensions'].remove('sphinx.ext.imgmath')
 
     if 'makefile' not in d:
-        print('''
+        print(__('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
-directly.''')
-        d['makefile'] = do_prompt('Create Makefile? (y/n)', 'y', boolean)
+directly.'''))
+        d['makefile'] = do_prompt(__('Create Makefile? (y/n)'), 'y', boolean)
 
     if 'batchfile' not in d:
-        d['batchfile'] = do_prompt('Create Windows command file? (y/n)',
+        d['batchfile'] = do_prompt(__('Create Windows command file? (y/n)'),
                                    'y', boolean)
     print()
 
@@ -431,12 +432,12 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         # type: (unicode, unicode, unicode) -> None
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
-                print('Creating file %s.' % fpath)
+                print(__('Creating file %s.') % fpath)
             with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
             if 'quiet' not in d:
-                print('File %s already exists, skipping.' % fpath)
+                print(__('File %s already exists, skipping.') % fpath)
 
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
@@ -472,18 +473,18 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if silent:
         return
     print()
-    print(bold('Finished: An initial directory structure has been created.'))
-    print('''
+    print(bold(__('Finished: An initial directory structure has been created.')))
+    print(__('''
 You should now populate your master file %s and create other documentation
-source files. ''' % masterfile + ((d['makefile'] or d['batchfile']) and '''\
+source files. ''') % masterfile + ((d['makefile'] or d['batchfile']) and __('''\
 Use the Makefile to build the docs, like so:
    make builder
-''' or '''\
+''') or __('''\
 Use the sphinx-build command to build the docs, like so:
    sphinx-build -b builder %s %s
-''' % (srcdir, builddir)) + '''\
+''') % (srcdir, builddir)) + __('''\
 where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
-''')
+'''))
 
 
 def valid_dir(d):
@@ -520,80 +521,80 @@ def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <PROJECT_DIR>',
-        epilog="For more information, visit <http://sphinx-doc.org/>.",
-        description="""
+        epilog=__("For more information, visit <http://sphinx-doc.org/>."),
+        description=__("""
 Generate required files for a Sphinx project.
 
 sphinx-quickstart is an interactive tool that asks some questions about your
 project and then generates a complete documentation directory and sample
 Makefile to be used with sphinx-build.
-""")
+"""))
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
                         default=False,
-                        help='quiet mode')
+                        help=__('quiet mode'))
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
-                        help='output path')
+                        help=__('output path'))
 
-    group = parser.add_argument_group('Structure options')
+    group = parser.add_argument_group(__('Structure options'))
     group.add_argument('--sep', action='store_true',
-                       help='if specified, separate source and build dirs')
+                       help=__('if specified, separate source and build dirs'))
     group.add_argument('--dot', metavar='DOT',
-                       help='replacement for dot in _templates etc.')
+                       help=__('replacement for dot in _templates etc.'))
 
-    group = parser.add_argument_group('Project basic options')
+    group = parser.add_argument_group(__('Project basic options'))
     group.add_argument('-p', '--project', metavar='PROJECT', dest='project',
-                       help='project name')
+                       help=__('project name'))
     group.add_argument('-a', '--author', metavar='AUTHOR', dest='author',
-                       help='author names')
+                       help=__('author names'))
     group.add_argument('-v', metavar='VERSION', dest='version', default='',
-                       help='version of project')
+                       help=__('version of project'))
     group.add_argument('-r', '--release', metavar='RELEASE', dest='release',
-                       help='release of project')
+                       help=__('release of project'))
     group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
-                       help='document language')
+                       help=__('document language'))
     group.add_argument('--suffix', metavar='SUFFIX',
-                       help='source file suffix')
+                       help=__('source file suffix'))
     group.add_argument('--master', metavar='MASTER',
-                       help='master document name')
+                       help=__('master document name'))
     group.add_argument('--epub', action='store_true', default=False,
-                       help='use epub')
+                       help=__('use epub'))
 
-    group = parser.add_argument_group('Extension options')
+    group = parser.add_argument_group(__('Extension options'))
     for ext in EXTENSIONS:
         group.add_argument('--ext-%s' % ext, action='append_const',
                            const='sphinx.ext.%s' % ext, dest='extensions',
-                           help='enable %s extension' % ext)
+                           help=__('enable %s extension') % ext)
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
-                       action='append', help='enable arbitrary extensions')
+                       action='append', help=__('enable arbitrary extensions'))
 
-    group = parser.add_argument_group('Makefile and Batchfile creation')
+    group = parser.add_argument_group(__('Makefile and Batchfile creation'))
     group.add_argument('--makefile', action='store_true', dest='makefile',
-                       help='create makefile')
+                       help=__('create makefile'))
     group.add_argument('--no-makefile', action='store_false', dest='makefile',
-                       help='do not create makefile')
+                       help=__('do not create makefile'))
     group.add_argument('--batchfile', action='store_true', dest='batchfile',
-                       help='create batchfile')
+                       help=__('create batchfile'))
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
-                       help='do not create batchfile')
+                       help=__('do not create batchfile'))
     group.add_argument('-m', '--use-make-mode', action='store_true',
                        dest='make_mode', default=True,
-                       help='use make-mode for Makefile/make.bat')
+                       help=__('use make-mode for Makefile/make.bat'))
     group.add_argument('-M', '--no-use-make-mode', action='store_false',
                        dest='make_mode',
-                       help='do not use make-mode for Makefile/make.bat')
+                       help=__('do not use make-mode for Makefile/make.bat'))
 
-    group = parser.add_argument_group('Project templating')
+    group = parser.add_argument_group(__('Project templating'))
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',
                        dest='templatedir',
-                       help='template directory for template files')
+                       help=__('template directory for template files'))
     group.add_argument('-d', metavar='NAME=VALUE', action='append',
                        dest='variables',
-                       help='define a template variable')
+                       help=__('define a template variable'))
 
     return parser
 
@@ -620,8 +621,8 @@ def main(argv=sys.argv[1:]):
     try:
         if 'quiet' in d:
             if not set(['project', 'author']).issubset(d):
-                print('''"quiet" is specified, but any of "project" or \
-"author" is not specified.''')
+                print(__('''"quiet" is specified, but any of "project" or \
+"author" is not specified.'''))
                 return 1
 
         if set(['quiet', 'project', 'author']).issubset(d):
@@ -634,10 +635,10 @@ def main(argv=sys.argv[1:]):
 
             if not valid_dir(d):
                 print()
-                print(bold('Error: specified path is not a directory, or sphinx'
-                           ' files already exist.'))
-                print('sphinx-quickstart only generate into a empty directory.'
-                      ' Please specify a new root path.')
+                print(bold(__('Error: specified path is not a directory, or sphinx'
+                              ' files already exist.')))
+                print(__('sphinx-quickstart only generate into a empty directory.'
+                         ' Please specify a new root path.'))
                 return 1
         else:
             ask_user(d)
@@ -663,7 +664,7 @@ def main(argv=sys.argv[1:]):
             name, value = variable.split('=')
             d[name] = value
         except ValueError:
-            print('Invalid template variable: %s' % variable)
+            print(__('Invalid template variable: %s') % variable)
 
     generate(d, templatedir=args.templatedir)
     return 0

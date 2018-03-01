@@ -25,6 +25,7 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
+from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
@@ -38,7 +39,7 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
     # type: (Sphinx, Any, Union[Exception, KeyboardInterrupt], IO) -> None
     if args.pdb:
         import pdb
-        print(red('Exception occurred while building, starting debugger:'),
+        print(red(__('Exception occurred while building, starting debugger:')),
               file=stderr)
         traceback.print_exc()
         pdb.post_mortem(sys.exc_info()[2])
@@ -48,40 +49,40 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             traceback.print_exc(None, stderr)
             print(file=stderr)
         if isinstance(exception, KeyboardInterrupt):
-            print('interrupted!', file=stderr)
+            print(__('interrupted!'), file=stderr)
         elif isinstance(exception, SystemMessage):
-            print(red('reST markup error:'), file=stderr)
+            print(red(__('reST markup error:')), file=stderr)
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
             print(terminal_safe(text_type(exception)), file=stderr)
         elif isinstance(exception, UnicodeError):
-            print(red('Encoding error:'), file=stderr)
+            print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(text_type(exception)), file=stderr)
             tbpath = save_traceback(app)
-            print(red('The full traceback has been saved in %s, if you want '
-                      'to report the issue to the developers.' % tbpath),
+            print(red(__('The full traceback has been saved in %s, if you want '
+                         'to report the issue to the developers.') % tbpath),
                   file=stderr)
         elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
-            print(red('Recursion error:'), file=stderr)
+            print(red(__('Recursion error:')), file=stderr)
             print(terminal_safe(text_type(exception)), file=stderr)
             print(file=stderr)
-            print('This can happen with very large or deeply nested source '
-                  'files.  You can carefully increase the default Python '
-                  'recursion limit of 1000 in conf.py with e.g.:', file=stderr)
-            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
+            print(__('This can happen with very large or deeply nested source '
+                     'files.  You can carefully increase the default Python '
+                     'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
+            print(__('    import sys; sys.setrecursionlimit(1500)'), file=stderr)
         else:
-            print(red('Exception occurred:'), file=stderr)
+            print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
             tbpath = save_traceback(app)
-            print(red('The full traceback has been saved in %s, if you '
-                      'want to report the issue to the developers.' % tbpath),
+            print(red(__('The full traceback has been saved in %s, if you '
+                         'want to report the issue to the developers.') % tbpath),
                   file=stderr)
-            print('Please also report this if it was a user error, so '
-                  'that a better error message can be provided next time.',
+            print(__('Please also report this if it was a user error, so '
+                     'that a better error message can be provided next time.'),
                   file=stderr)
-            print('A bug report can be filed in the tracker at '
-                  '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!',
+            print(__('A bug report can be filed in the tracker at '
+                     '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!'),
                   file=stderr)
 
 
@@ -97,7 +98,7 @@ def jobs_argument(value):
     else:
         jobs = int(value)
         if jobs <= 0:
-            raise argparse.ArgumentTypeError('job number should be a positive number')
+            raise argparse.ArgumentTypeError(__('job number should be a positive number'))
         else:
             return jobs
 
@@ -106,8 +107,8 @@ def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
         usage='usage: %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
-        epilog='For more information, visit <http://sphinx-doc.org/>.',
-        description="""
+        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        description=__("""
 Generate documentation from source files.
 
 sphinx-build generates documentation from the files in SOURCEDIR and places it
@@ -122,76 +123,76 @@ processing.
 
 By default, everything that is outdated is built. Output only for selected
 files can be built by specifying individual filenames.
-""")
+"""))
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('sourcedir',
-                        help='path to documentation source files')
+                        help=__('path to documentation source files'))
     parser.add_argument('outputdir',
-                        help='path to output directory')
+                        help=__('path to output directory'))
     parser.add_argument('filenames', nargs='*',
-                        help='a list of specific files to rebuild. Ignored '
-                        'if -a is specified')
+                        help=__('a list of specific files to rebuild. Ignored '
+                                'if -a is specified'))
 
-    group = parser.add_argument_group('general options')
+    group = parser.add_argument_group(__('general options'))
     group.add_argument('-b', metavar='BUILDER', dest='builder',
                        default='html',
-                       help='builder to use (default: html)')
+                       help=__('builder to use (default: html)'))
     group.add_argument('-a', action='store_true', dest='force_all',
-                       help='write all files (default: only write new and '
-                       'changed files)')
+                       help=__('write all files (default: only write new and '
+                               'changed files)'))
     group.add_argument('-E', action='store_true', dest='freshenv',
-                       help='don\'t use a saved environment, always read '
-                       'all files')
+                       help=__('don\'t use a saved environment, always read '
+                               'all files'))
     group.add_argument('-d', metavar='PATH', dest='doctreedir',
-                       help='path for the cached environment and doctree '
-                       'files (default: OUTPUTDIR/.doctrees)')
+                       help=__('path for the cached environment and doctree '
+                               'files (default: OUTPUTDIR/.doctrees)'))
     group.add_argument('-j', metavar='N', default=1, type=jobs_argument, dest='jobs',
-                       help='build in parallel with N processes where '
-                       'possible (special value "auto" will set N to cpu-count)')
+                       help=__('build in parallel with N processes where '
+                               'possible (special value "auto" will set N to cpu-count)'))
     group = parser.add_argument_group('build configuration options')
     group.add_argument('-c', metavar='PATH', dest='confdir',
-                       help='path where configuration file (conf.py) is '
-                       'located (default: same as SOURCEDIR)')
+                       help=__('path where configuration file (conf.py) is '
+                               'located (default: same as SOURCEDIR)'))
     group.add_argument('-C', action='store_true', dest='noconfig',
-                       help='use no config file at all, only -D options')
+                       help=__('use no config file at all, only -D options'))
     group.add_argument('-D', metavar='setting=value', action='append',
                        dest='define', default=[],
-                       help='override a setting in configuration file')
+                       help=__('override a setting in configuration file'))
     group.add_argument('-A', metavar='name=value', action='append',
                        dest='htmldefine', default=[],
-                       help='pass a value into HTML templates')
+                       help=__('pass a value into HTML templates'))
     group.add_argument('-t', metavar='TAG', action='append',
                        dest='tags', default=[],
-                       help='define tag: include "only" blocks with TAG')
+                       help=__('define tag: include "only" blocks with TAG'))
     group.add_argument('-n', action='store_true', dest='nitpicky',
-                       help='nit-picky mode, warn about all missing '
-                       'references')
+                       help=__('nit-picky mode, warn about all missing '
+                               'references'))
 
-    group = parser.add_argument_group('console output options')
+    group = parser.add_argument_group(__('console output options'))
     group.add_argument('-v', action='count', dest='verbosity', default=0,
-                       help='increase verbosity (can be repeated)')
+                       help=__('increase verbosity (can be repeated)'))
     group.add_argument('-q', action='store_true', dest='quiet',
-                       help='no output on stdout, just warnings on stderr')
+                       help=__('no output on stdout, just warnings on stderr'))
     group.add_argument('-Q', action='store_true', dest='really_quiet',
-                       help='no output at all, not even warnings')
+                       help=__('no output at all, not even warnings'))
     group.add_argument('--color', action='store_const', const='yes',
                        default='auto',
-                       help='do emit colored output (default: auto-detect)')
+                       help=__('do emit colored output (default: auto-detect)'))
     group.add_argument('-N', '--no-color', dest='color', action='store_const',
                        const='no',
-                       help='do not emit colored output (default: '
-                       'auto-detect)')
+                       help=__('do not emit colored output (default: '
+                               'auto-detect)'))
     group.add_argument('-w', metavar='FILE', dest='warnfile',
-                       help='write warnings (and errors) to given file')
+                       help=__('write warnings (and errors) to given file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
-                       help='turn warnings into errors')
+                       help=__('turn warnings into errors'))
     group.add_argument('-T', action='store_true', dest='traceback',
-                       help='show full traceback on exception')
+                       help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',
-                       help='run Pdb on exception')
+                       help=__('run Pdb on exception'))
 
     return parser
 
@@ -225,7 +226,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         if not os.path.isfile(filename):
             missing_files.append(filename)
     if missing_files:
-        parser.error('cannot find files %r' % missing_files)
+        parser.error(__('cannot find files %r') % missing_files)
 
     # likely encoding used for command-line arguments
     try:
@@ -235,7 +236,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         likely_encoding = None
 
     if args.force_all and filenames:
-        parser.error('cannot combine -a option and filenames')
+        parser.error(__('cannot combine -a option and filenames'))
 
     if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
         nocolor()
@@ -254,7 +255,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             warnfp = open(args.warnfile, 'w')
         except Exception as exc:
-            parser.error('cannot open warning file %r: %s' % (
+            parser.error(__('cannot open warning file %r: %s') % (
                 args.warnfile, exc))
         warning = Tee(warning, warnfp)  # type: ignore
         error = warning
@@ -264,7 +265,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             key, val = val.split('=', 1)
         except ValueError:
-            parser.error('-D option argument must be in the form name=value')
+            parser.error(__('-D option argument must be in the form name=value'))
         if likely_encoding and isinstance(val, binary_type):
             try:
                 val = val.decode(likely_encoding)
@@ -276,7 +277,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             key, val = val.split('=')
         except ValueError:
-            parser.error('-A option argument must be in the form name=value')
+            parser.error(__('-A option argument must be in the form name=value'))
         try:
             val = int(val)
         except ValueError:
