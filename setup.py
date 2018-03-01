@@ -3,6 +3,7 @@ import os
 import sys
 from distutils import log
 from distutils.cmd import Command
+from io import StringIO
 
 from setuptools import find_packages, setup
 
@@ -64,6 +65,20 @@ extras_require = {
 
 cmdclass = {}
 
+
+class Tee(object):
+    def __init__(self, stream):
+        self.stream = stream
+        self.buffer = StringIO()
+
+    def write(self, s):
+        self.stream.write(s)
+        self.buffer.write(s)
+
+    def flush(self):
+        self.stream.flush()
+
+
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
@@ -81,7 +96,13 @@ else:
         """
 
         def run(self):
-            compile_catalog.run(self)
+            try:
+                sys.stderr = Tee(sys.stderr)
+                compile_catalog.run(self)
+            finally:
+                if sys.stderr.buffer.getvalue():
+                    print("Compiling failed.")
+                    sys.exit(1)
 
             if isinstance(self.domain, list):
                 for domain in self.domain:
