@@ -2,7 +2,6 @@
 import os
 import sys
 from distutils import log
-from distutils.cmd import Command
 
 from setuptools import find_packages, setup
 
@@ -150,32 +149,6 @@ else:
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
-
-
-class CompileGrammarCommand(Command):
-    description = 'Compile python grammar file for pycode'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from sphinx.pycode.pgen2.driver import compile_grammar
-
-        compile_grammar('sphinx/pycode/Grammar-py2.txt')
-        print('sphinx/pycode/Grammar-py2.txt ... done')
-
-        compile_grammar('sphinx/pycode/Grammar-py3.txt')
-        print('sphinx/pycode/Grammar-py3.txt ... done')
-
-    def sub_commands(self):
-        pass
-
-
-cmdclass['compile_grammar'] = CompileGrammarCommand
 
 
 setup(
