@@ -562,12 +562,12 @@ class Documenter(object):
                 else:
                     logger.warning('missing attribute %s in object %s' %
                                    (name, self.fullname))
-            return False, sorted(selected)
+            return False, selected
         elif self.options.inherited_members:
-            return False, sorted((m.name, m.value) for m in itervalues(members))
+            return False, [(m.name, m.value) for m in itervalues(members)]
         else:
-            return False, sorted((m.name, m.value) for m in itervalues(members)
-                                 if m.directly_defined)
+            return False, [(m.name, m.value) for m in itervalues(members)
+                           if m.directly_defined]
 
     def filter_members(self, members, want_all):
         # type: (List[Tuple[unicode, Any]], bool) -> List[Tuple[unicode, Any, bool]]

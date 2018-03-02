@@ -661,3 +661,17 @@ def xmlname_checker():
     name_chars_regex = convert(name_chars)
     return re.compile(u'(%s)(%s|%s)*' % (
         start_chars_regex, start_chars_regex, name_chars_regex))
+
+
+def dir_ordered(obj):
+    # type: (Any) -> List[str]
+    attrs = []
+    parent = getattr(obj, '__class__', None)
+    if parent is not None:
+        attrs.extend(list(getattr(parent, '__dict__', {})))
+    attrs.extend(list(getattr(obj, '__dict__', {})))
+    attrs.extend(dir(obj))
+    # Drop duplicates
+    _seen = set()
+    attrs = [a for a in attrs if a not in _seen and not _seen.add(a)]
+    return attrs

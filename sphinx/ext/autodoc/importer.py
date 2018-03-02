@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING
 
 from six import PY2
 
-from sphinx.util import logging
+from sphinx.util import dir_ordered, logging
 from sphinx.util.inspect import isenumclass, safe_getattr
 
 if TYPE_CHECKING:
@@ -210,7 +210,7 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
             obj_dict[name] = value
 
     members = {}
-    for name in dir(subject):
+    for name in dir_ordered(subject):
         try:
             value = attrgetter(subject, name)
             directly_defined = name in obj_dict

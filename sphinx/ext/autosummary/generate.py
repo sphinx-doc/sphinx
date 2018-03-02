@@ -37,6 +37,7 @@ from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.util import dir_ordered
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.rst import escape as rst_escape
@@ -176,7 +177,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             def get_members(obj, typ, include_public=[], imported=True):
                 # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]  # NOQA
                 items = []  # type: List[unicode]
-                for name in dir(obj):
+                for name in dir_ordered(obj):
                     try:
                         value = safe_getattr(obj, name)
                     except AttributeError:
@@ -193,7 +194,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             ns = {}  # type: Dict[unicode, Any]
 
             if doc.objtype == 'module':
-                ns['members'] = dir(obj)
+                ns['members'] = dir_ordered(obj)
                 ns['functions'], ns['all_functions'] = \
                     get_members(obj, 'function', imported=imported_members)
                 ns['classes'], ns['all_classes'] = \
@@ -201,7 +202,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj, 'exception', imported=imported_members)
             elif doc.objtype == 'class':
-                ns['members'] = dir(obj)
+                ns['members'] = dir_ordered(obj)
                 ns['methods'], ns['all_methods'] = \
                     get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
