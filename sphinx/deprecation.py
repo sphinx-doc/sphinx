@@ -11,6 +11,11 @@
 
 import warnings
 
+if False:
+    # For type annotation
+    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
+    from typing import Any, Dict, Type  # NOQA
+
 
 class RemovedInSphinx18Warning(DeprecationWarning):
     pass
@@ -35,7 +40,7 @@ class DeprecatedDict(dict):
     """A deprecated dict which warns on each access."""
 
     def __init__(self, data, message, warning):
-        # type: (Dict, str, DeprecationWarning) -> None
+        # type: (Dict, str, Type[Warning]) -> None
         self.message = message
         self.warning = warning
         super(DeprecatedDict, self).__init__(data)
@@ -51,7 +56,7 @@ class DeprecatedDict(dict):
         return super(DeprecatedDict, self).setdefault(key, default)
 
     def __getitem__(self, key):
-        # type: (unicode, Any) -> None
+        # type: (unicode) -> None
         warnings.warn(self.message, self.warning)
         return super(DeprecatedDict, self).__getitem__(key)
 

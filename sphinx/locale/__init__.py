@@ -345,7 +345,7 @@ admonitionlabels = {
 }  # type: Dict[unicode, unicode]
 
 # Moved to sphinx.directives.other (will be overrided later)
-versionlabels = {}
+versionlabels = {}  # type: Dict[unicode, unicode]
 
 # Moved to sphinx.domains.python (will be overrided later)
-pairindextypes = {}
+pairindextypes = {}  # type: Dict[unicode, unicode]
