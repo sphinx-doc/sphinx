@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -159,7 +160,7 @@ class CodeBlock(Directive):
             try:
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
-                return [document.reporter.warning(str(exc), line=self.lineno)]
+                return [document.reporter.warning(text_type(exc), line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -456,7 +457,7 @@ class LiteralInclude(Directive):
 
             return [retnode]
         except Exception as exc:
-            return [document.reporter.warning(str(exc), line=self.lineno)]
+            return [document.reporter.warning(text_type(exc), line=self.lineno)]
 
 
 def setup(app):

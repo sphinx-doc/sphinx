@@ -11,6 +11,8 @@
 
 from typing import TYPE_CHECKING
 
+from six import text_type
+
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util import split_index_msg, logging
@@ -45,7 +47,7 @@ class IndexEntriesCollector(EnvironmentCollector):
                 for entry in node['entries']:
                     split_index_msg(entry[0], entry[1])
             except ValueError as exc:
-                logger.warning(str(exc), location=node)
+                logger.warning(text_type(exc), location=node)
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:
