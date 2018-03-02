@@ -13,32 +13,25 @@ import warnings
 
 from docutils import nodes
 from docutils.nodes import make_id
-from docutils.parsers.rst import directives
 
-from sphinx.addnodes import math
+from sphinx.addnodes import math, math_block as displaymath
 from sphinx.config import string_classes
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_refnode, set_source_info
+from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
-
-
-class displaymath(nodes.Part, nodes.Element):
-    pass
 
 
 class eqref(nodes.Inline, nodes.TextElement):
@@ -65,6 +58,7 @@ class MathDomain(Domain):
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
         displaymath: ('displaymath', None),
+        nodes.math_block: ('displaymath', None),
     }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     def clear_doc(self, docname):
@@ -210,85 +204,6 @@ def is_in_section_title(node):
     return False
 
 
-class MathDirective(SphinxDirective):
-
-    has_content = True
-    required_arguments = 0
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {
-        'label': directives.unchanged,
-        'name': directives.unchanged,
-        'nowrap': directives.flag,
-    }
-
-    def run(self):
-        # type: () -> List[nodes.Node]
-        latex = '\n'.join(self.content)
-        if self.arguments and self.arguments[0]:
-            latex = self.arguments[0] + '\n\n' + latex
-        node = displaymath()
-        node['latex'] = latex
-        node['number'] = None
-        node['label'] = None
-        if 'name' in self.options:
-            node['label'] = self.options['name']
-        if 'label' in self.options:
-            node['label'] = self.options['label']
-        node['nowrap'] = 'nowrap' in self.options
-        node['docname'] = self.env.docname
-        ret = [node]
-        set_source_info(self, node)
-        if hasattr(self, 'src'):
-            node.source = self.src
-        self.add_target(ret)
-        return ret
-
-    def add_target(self, ret):
-        # type: (List[nodes.Node]) -> None
-        node = ret[0]
-
-        # assign label automatically if math_number_all enabled
-        if node['label'] == '' or (self.config.math_number_all and not node['label']):
-            seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
-
-        # no targets and numbers are needed
-        if not node['label']:
-            return
-
-        # register label to domain
-        domain = self.env.get_domain('math')
-        try:
-            eqno = domain.add_equation(self.env, self.env.docname, node['label'])  # type: ignore  # NOQA
-            node['number'] = eqno
-
-            # add target node
-            node_id = make_id('equation-%s' % node['label'])
-            target = nodes.target('', '', ids=[node_id])
-            self.state.document.note_explicit_target(target)
-            ret.insert(0, target)
-        except UserWarning as exc:
-            self.state_machine.reporter.warning(exc.args[0], line=self.lineno)
-
-
-def latex_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    if not node['label']:
-        label = None
-    else:
-        label = "equation:%s:%s" % (node['docname'], node['label'])
-
-    if node['nowrap']:
-        if label:
-            self.body.append(r'\label{%s}' % label)
-        self.body.append(node['latex'])
-    else:
-        self.body.append(wrap_displaymath(node['latex'], label,
-                                          self.builder.config.math_number_all))
-    raise nodes.SkipNode
-
-
 def latex_visit_eqref(self, node):
     # type: (nodes.NodeVisitor, eqref) -> None
     label = "equation:%s:%s" % (node['docname'], node['target'])
@@ -306,51 +221,14 @@ def latex_visit_eqref(self, node):
     raise nodes.SkipNode
 
 
-def text_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    self.new_state()
-    self.add_text(node['latex'])
-    self.end_state()
-    raise nodes.SkipNode
-
-
-def man_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    self.visit_centered(node)
-
-
-def man_depart_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    self.depart_centered(node)
-
-
-def texinfo_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    if node.get('label'):
-        self.add_anchor(node['label'], node)
-    self.body.append('\n\n@example\n%s\n@end example\n\n' %
-                     self.escape_arg(node['latex']))
-
-
-def texinfo_depart_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
-    pass
-
-
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
-    app.add_config_value('math_number_all', False, 'env')
     app.add_config_value('math_eqref_format', None, 'env', string_classes)
     app.add_config_value('math_numfig', True, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  html=htmlinlinevisitors)
-    app.add_node(displaymath,
-                 latex=(latex_visit_displaymath, None),
-                 text=(text_visit_displaymath, None),
-                 man=(man_visit_displaymath, man_depart_displaymath),
-                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+    app.add_node(displaymath, override=True,
                  html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('eq', EqXRefRole(warn_dangling=True))
-    app.add_directive('math', MathDirective)

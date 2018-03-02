@@ -38,7 +38,7 @@ def html_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
-        self.body.append(self.encode(node['latex']))
+        self.body.append(self.encode(node.astext()))
         self.body.append('</div>')
         raise nodes.SkipNode
 
@@ -49,7 +49,7 @@ def html_visit_displaymath(self, node):
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
-    parts = [prt for prt in node['latex'].split('\n\n') if prt.strip()]
+    parts = [prt for prt in node.astext().split('\n\n') if prt.strip()]
     if len(parts) > 1:  # Add alignment if there are more than 1 equation
         self.body.append(r' \begin{align}\begin{aligned}')
     for i, part in enumerate(parts):

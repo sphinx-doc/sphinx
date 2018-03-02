@@ -230,3 +230,10 @@ def test_math_compat(app, status, warning):
                      [nodes.math, "E=mc^2"],
                      '\nInline my math: ',
                      [nodes.math, "E = mc^2"]))
+        assert_node(doctree[0][2],
+                    ([nodes.title, "block"],
+                     [nodes.math_block, "a^2+b^2=c^2\n\n"],
+                     [nodes.paragraph, "Second math"],
+                     [nodes.math_block, "e^{i\\pi}+1=0\n\n"],
+                     [nodes.paragraph, "Multi math equations"],
+                     [nodes.math_block, "E = mc^2"]))

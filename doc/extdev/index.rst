@@ -136,6 +136,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``docutils.nodes.math``
 
+   * - ``sphinx.ext.mathbase.displaymath`` (node)
+     - 1.8
+     - 3.0
+     - ``docutils.nodes.math_block``
+
    * - ``viewcode_import`` (config value)
      - 1.8
      - 3.0

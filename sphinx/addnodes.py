@@ -187,7 +187,7 @@ class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
 
 
-# math node
+# math nodes
 
 
 class math(nodes.math):
@@ -206,6 +206,29 @@ class math(nodes.math):
             return self.astext()
         else:
             return nodes.math.__getitem__(self, key)
+
+
+class math_block(nodes.math_block):
+    """Node for block level equations.
+
+    .. deprecated:: 1.8
+    """
+
+    def __getitem__(self, key):
+        if key == 'latex' and 'latex' not in self.attributes:
+            warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
+                          "Therefore please use ``node.astext()`` to get an equation instead.",
+                          RemovedInSphinx30Warning)
+            return self.astext()
+        else:
+            return nodes.math_block.__getitem__(self, key)
+
+
+class displaymath(math_block):
+    """Node for block level equations.
+
+    .. deprecated:: 1.8
+    """
 
 
 # other directive-level nodes

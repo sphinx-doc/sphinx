@@ -18,7 +18,7 @@ from docutils.utils import column_width
 from six.moves import zip_longest
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _, __
+from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 
 if False:
@@ -1187,11 +1187,11 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_math_block(self, node):
         # type: (nodes.Node) -> None
-        logger.warning(__('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
-                       location=(self.builder.current_docname, node.line))
-        raise nodes.SkipNode
+        self.new_state()
+
+    def depart_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.end_state()
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

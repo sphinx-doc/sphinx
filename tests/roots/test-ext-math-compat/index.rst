@@ -18,8 +18,4 @@ Second math
 
 Multi math equations
 
-.. math::
-
-   S &= \pi r^2
-
-   V &= \frac{4}{3} \pi r^3
+.. my-math::

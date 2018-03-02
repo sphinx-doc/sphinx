@@ -2549,10 +2549,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math_block(self, node):
         # type: (nodes.Node) -> None
-        logger.warning(__('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
-                       location=(self.curfilestack[-1], node.line))
+        if node.get('label'):
+            label = "equation:%s:%s" % (node['docname'], node['label'])
+        else:
+            label = None
+
+        if node.get('nowrap'):
+            if label:
+                self.body.append(r'\label{%s}' % label)
+            self.body.append(node.astext())
+        else:
+            def is_equation(part):
+                # type: (unicode) -> unicode
+                return part.strip()
+
+            from sphinx.ext.mathbase import wrap_displaymath
+            self.body.append(wrap_displaymath(node.astext(), label,
+                                              self.builder.config.math_number_all))
         raise nodes.SkipNode
 
     def unknown_visit(self, node):

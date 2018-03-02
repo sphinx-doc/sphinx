@@ -8,6 +8,7 @@
 """
 
 from docutils import nodes
+from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
@@ -105,6 +106,63 @@ class ListTable(tables.ListTable):
         return title, message
 
 
+class MathDirective(SphinxDirective):
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+    option_spec = {
+        'label': directives.unchanged,
+        'name': directives.unchanged,
+        'nowrap': directives.flag,
+    }
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        latex = '\n'.join(self.content)
+        if self.arguments and self.arguments[0]:
+            latex = self.arguments[0] + '\n\n' + latex
+        node = nodes.math_block(latex, latex,
+                                docname=self.state.document.settings.env.docname,
+                                number=self.options.get('name'),
+                                label=self.options.get('label'),
+                                nowrap='nowrap' in self.options)
+        ret = [node]
+        set_source_info(self, node)
+        if hasattr(self, 'src'):
+            node.source = self.src
+        self.add_target(ret)
+        return ret
+
+    def add_target(self, ret):
+        # type: (List[nodes.Node]) -> None
+        node = ret[0]
+
+        # assign label automatically if math_number_all enabled
+        if node['label'] == '' or (self.config.math_number_all and not node['label']):
+            seq = self.env.new_serialno('sphinx.ext.math#equations')
+            node['label'] = "%s:%d" % (self.env.docname, seq)
+
+        # no targets and numbers are needed
+        if not node['label']:
+            return
+
+        # register label to domain
+        domain = self.env.get_domain('math')
+        try:
+            eqno = domain.add_equation(self.env, self.env.docname, node['label'])  # type: ignore  # NOQA
+            node['number'] = eqno
+
+            # add target node
+            node_id = make_id('equation-%s' % node['label'])
+            target = nodes.target('', '', ids=[node_id])
+            self.state.document.note_explicit_target(target)
+            ret.insert(0, target)
+        except UserWarning as exc:
+            self.state_machine.reporter.warning(exc.args[0], line=self.lineno)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict
     directives.register_directive('figure', Figure)
@@ -112,6 +170,7 @@ def setup(app):
     directives.register_directive('table', RSTTable)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('list-table', ListTable)
+    directives.register_directive('math', MathDirective)
 
     return {
         'version': 'builtin',
