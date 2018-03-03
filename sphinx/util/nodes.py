@@ -17,7 +17,6 @@ from docutils import nodes
 from six import text_type
 
 from sphinx import addnodes
-from sphinx.locale import pairindextypes
 from sphinx.util import logging
 
 if TYPE_CHECKING:
@@ -240,6 +239,8 @@ indextypes = [
 
 def process_index_entry(entry, targetid):
     # type: (unicode, unicode) -> List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    from sphinx.domains.python import pairindextypes
+
     indexentries = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]
     entry = entry.strip()
     oentry = entry

@@ -16,7 +16,8 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from six import iteritems
 
-from sphinx import addnodes
+from sphinx import addnodes, locale
+from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index
 from sphinx.locale import _
@@ -42,6 +43,24 @@ py_sig_re = re.compile(
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
+
+
+pairindextypes = {
+    'module':    _('module'),
+    'keyword':   _('keyword'),
+    'operator':  _('operator'),
+    'object':    _('object'),
+    'exception': _('exception'),
+    'statement': _('statement'),
+    'builtin':   _('built-in function'),
+}  # Dict[unicode, unicode]
+
+locale.pairindextypes = DeprecatedDict(
+    pairindextypes,
+    'sphinx.locale.pairindextypes is deprecated. '
+    'Please use sphinx.domains.python.pairindextypes instead.',
+    RemovedInSphinx30Warning
+)
 
 
 def _pseudo_parse_arglist(signode, arglist):

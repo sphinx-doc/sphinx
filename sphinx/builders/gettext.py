@@ -22,7 +22,7 @@ from uuid import uuid4
 from six import iteritems, StringIO
 
 from sphinx.builders import Builder
-from sphinx.locale import pairindextypes
+from sphinx.domains.python import pairindextypes
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog

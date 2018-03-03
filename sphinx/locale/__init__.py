@@ -344,19 +344,8 @@ admonitionlabels = {
     'warning':   _('Warning'),
 }  # type: Dict[unicode, unicode]
 
-versionlabels = {
-    'versionadded':   _('New in version %s'),
-    'versionchanged': _('Changed in version %s'),
-    'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
+# Moved to sphinx.directives.other (will be overrided later)
+versionlabels = {}  # type: Dict[unicode, unicode]
 
-# XXX Python specific
-pairindextypes = {
-    'module':    _('module'),
-    'keyword':   _('keyword'),
-    'operator':  _('operator'),
-    'object':    _('object'),
-    'exception': _('exception'),
-    'statement': _('statement'),
-    'builtin':   _('built-in function'),
-}  # Dict[unicode, _TranslationProxy]
+# Moved to sphinx.domains.python (will be overrided later)
+pairindextypes = {}  # type: Dict[unicode, unicode]

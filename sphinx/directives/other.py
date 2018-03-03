@@ -16,8 +16,9 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from six.moves import range
 
-from sphinx import addnodes
-from sphinx.locale import versionlabels, _
+from sphinx import addnodes, locale
+from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.matching import patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
@@ -26,6 +27,20 @@ from sphinx.util.nodes import explicit_title_re, set_source_info, \
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+versionlabels = {
+    'versionadded':   _('New in version %s'),
+    'versionchanged': _('Changed in version %s'),
+    'deprecated':     _('Deprecated since version %s'),
+}  # type: Dict[unicode, unicode]
+
+locale.versionlabels = DeprecatedDict(
+    versionlabels,
+    'sphinx.locale.versionlabels is deprecated. '
+    'Please use sphinx.directives.other.versionlabels instead.',
+    RemovedInSphinx30Warning
+)
 
 
 def int_or_nothing(argument):
