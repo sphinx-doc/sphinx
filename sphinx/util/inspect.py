@@ -114,7 +114,7 @@ else:  # 2.7
             func = func.func
         if not inspect.isfunction(func):
             raise TypeError('%r is not a Python function' % func)
-        args, varargs, varkw = inspect.getargs(func.__code__)  # type: ignore
+        args, varargs, varkw = inspect.getargs(func.__code__)
         func_defaults = func.__defaults__
         if func_defaults is None:
             func_defaults = []
@@ -124,13 +124,13 @@ else:  # 2.7
             args = args[parts[0]:]
         if parts[1]:
             for arg in parts[1]:
-                i = args.index(arg) - len(args)
+                i = args.index(arg) - len(args)  # type: ignore
                 del args[i]
                 try:
                     del func_defaults[i]
                 except IndexError:
                     pass
-        return inspect.ArgSpec(args, varargs, varkw, func_defaults)
+        return inspect.ArgSpec(args, varargs, varkw, func_defaults)  # type: ignore
 
 try:
     import enum
