@@ -223,6 +223,14 @@ class LoggingReporter(Reporter):
                           stream, debug, error_handler=error_handler)
 
 
+class NullReporter(Reporter):
+    """A dummy reporter; write nothing."""
+
+    def __init__(self):
+        # type: () -> None
+        Reporter.__init__(self, '', 999, 4)
+
+
 def is_html5_writer_available():
     # type: () -> bool
     return __version_info__ > (0, 13, 0)

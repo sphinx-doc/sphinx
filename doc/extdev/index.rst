@@ -94,3 +94,129 @@ APIs used for writing extensions
    nodes
    logging
    i18n
+
+Deprecated APIs
+---------------
+
+On developing Sphinx, we are always careful to the compatibility of our APIs.
+But, sometimes, the change of interface are needed for some reasons.  In such
+cases, we've marked thme as deprecated. And they are kept during the two
+major versions (for more details, please see :ref:`deprecation-policy`).
+
+The following is a list of deprecated interface.
+
+.. list-table:: deprecated APIs
+   :header-rows: 1
+
+   * - Target
+     - Deprecated
+     - (will be) Removed
+     - Alternatives
+
+   * - ``sphinx.build_main()``
+     - 1.7
+     - 2.0
+     - ``sphinx.cmd.build.build_main()``
+
+   * - ``sphinx.ext.intersphinx.debug()``
+     - 1.7
+     - 2.0
+     - ``sphinx.ext.intersphinx.inspect_main()``
+
+   * - ``sphinx.ext.autodoc.format_annotation()``
+     - 1.7
+     - 2.0
+     - ``sphinx.util.inspect.Signature``
+
+   * - ``sphinx.ext.autodoc.formatargspec()``
+     - 1.7
+     - 2.0
+     - ``sphinx.util.inspect.Signature``
+
+   * - ``sphinx.ext.autodoc.AutodocReporter``
+     - 1.7
+     - 2.0
+     - ``sphinx.util.docutils.switch_source_input()``
+
+   * - ``sphinx.ext.autodoc.add_documenter()``
+     - 1.7
+     - 2.0
+     - :meth:`~sphinx.application.Sphinx.add_autodocumenter()`
+
+   * - ``sphinx.ext.autodoc.AutoDirective._register``
+     - 1.7
+     - 2.0
+     - :meth:`~sphinx.application.Sphinx.add_autodocumenter()`
+
+   * - ``AutoDirective._special_attrgetters``
+     - 1.7
+     - 2.0
+     - :meth:`~sphinx.application.Sphinx.add_autodoc_attrgetter()`
+
+   * - ``Sphinx.warn()``, ``Sphinx.info()``
+     - 1.6
+     - 2.0
+     - :ref:`logging-api`
+
+   * - ``BuildEnvironment.set_warnfunc()``
+     - 1.6
+     - 2.0
+     - :ref:`logging-api`
+
+   * - ``BuildEnvironment.note_toctree()``
+     - 1.6
+     - 2.0
+     - ``Toctree.note()`` (in ``sphinx.environment.adapters.toctree``)
+
+   * - ``BuildEnvironment.get_toc_for()``
+     - 1.6
+     - 2.0
+     - ``Toctree.get_toc_for()`` (in ``sphinx.environment.adapters.toctree``)
+
+   * - ``BuildEnvironment.get_toctree_for()``
+     - 1.6
+     - 2.0
+     - ``Toctree.get_toctree_for()`` (in ``sphinx.environment.adapters.toctree``)
+
+   * - ``BuildEnvironment.create_index()``
+     - 1.6
+     - 2.0
+     - ``IndexEntries.create_index()`` (in ``sphinx.environment.adapters.indexentries``)
+
+   * - ``sphinx.websupport``
+     - 1.6
+     - 2.0
+     - `sphinxcontrib-websupport <https://pypi.python.org/pypi/sphinxcontrib-websupport>`_
+
+   * - ``StandaloneHTMLBuilder.css_files``
+     - 1.6
+     - 2.0
+     - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+
+   * - ``Sphinx.status_iterator()``
+     - 1.6
+     - 1.7
+     - ``sphinx.util.status_iterator()``
+
+   * - ``Sphinx.old_status_iterator()``
+     - 1.6
+     - 1.7
+     - ``sphinx.util.old_status_iterator()``
+
+   * - ``Sphinx._directive_helper()``
+     - 1.6
+     - 1.7
+     - ``sphinx.util.docutils.directive_helper()``
+
+   * - ``sphinx.util.compat.Directive``
+     - 1.6
+     - 1.7
+     - ``docutils.parsers.rst.Directive``
+
+   * - ``sphinx.util.compat.docutils_version``
+     - 1.6
+     - 1.7
+     - ``sphinx.util.docutils.__version_info__``
+
+.. note:: On deprecating on public APIs (internal functions and classes),
+          we also follow the policy as much as possible.

@@ -78,7 +78,7 @@ from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import NullReporter, new_document
 
 if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
@@ -477,6 +477,7 @@ def extract_summary(doc, document):
         while sentences:
             summary += sentences.pop(0) + '.'
             node = new_document('', document.settings)
+            node.reporter = NullReporter()
             state_machine.run([summary], node)
             if not node.traverse(nodes.system_message):
                 # considered as that splitting by period does not break inline markups
