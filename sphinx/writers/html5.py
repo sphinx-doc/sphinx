@@ -19,7 +19,7 @@ from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 from six import string_types
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
 
@@ -303,7 +303,7 @@ class HTML5Translator(BaseTranslator):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
-                    msg = 'numfig_format is not defined for %s' % figtype
+                    msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
@@ -313,7 +313,7 @@ class HTML5Translator(BaseTranslator):
         figtype = self.builder.env.domains['std'].get_figtype(node)  # type: ignore
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assigned for %s node' % node.tagname
+                msg = __('Any IDs not assigned for %s node') % node.tagname
                 logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
@@ -571,7 +571,7 @@ class HTML5Translator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
                                    location=node)
                 else:
                     if 'width' not in node:
@@ -825,9 +825,9 @@ class HTML5Translator(BaseTranslator):
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html',
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html'),
                        location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 

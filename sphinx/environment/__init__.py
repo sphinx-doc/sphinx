@@ -31,6 +31,7 @@ from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.io import read_doc
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
 from sphinx.util import logging, rst
@@ -277,9 +278,9 @@ class BuildEnvironment(object):
             raise ValueError('invalid versioning method: %r' % method)
         condition = versioning_conditions[method]
         if self.versioning_condition not in (None, condition):
-            raise SphinxError('This environment is incompatible with the '
-                              'selected builder, please choose another '
-                              'doctree directory.')
+            raise SphinxError(__('This environment is incompatible with the '
+                                 'selected builder, please choose another '
+                                 'doctree directory.'))
         self.versioning_condition = condition
         self.versioning_compare = compare
 
@@ -305,9 +306,9 @@ class BuildEnvironment(object):
         If needed, this method returns the reason for refresh.
         """
         if self.version != app.registry.get_envversion(app):
-            return True, 'build environment version not current'
+            return True, __('build environment version not current')
         elif self.srcdir != app.srcdir:
-            return True, 'source directory has changed'
+            return True, __('source directory has changed')
         else:
             return False, None
 
@@ -426,7 +427,7 @@ class BuildEnvironment(object):
             if os.access(self.doc2path(docname), os.R_OK):
                 self.found_docs.add(docname)
             else:
-                logger.warning("document not readable. Ignored.", location=docname)
+                logger.warning(__("document not readable. Ignored."), location=docname)
 
         # Current implementation is applying translated messages in the reading
         # phase.Therefore, in order to apply the updated message catalog, it is
@@ -511,19 +512,19 @@ class BuildEnvironment(object):
         """Update configurations by new one."""
         changed_reason = ''
         if self.config is None:
-            changed_reason = 'new config'
+            changed_reason = __('new config')
         else:
             # check if a config value was changed that affects how
             # doctrees are read
             for confval in config.filter('env'):
                 if self.config[confval.name] != confval.value:
-                    changed_reason = 'config changed'
+                    changed_reason = __('config changed')
                     break
 
             # this value is not covered by the above loop because it is handled
             # specially by the config class
             if self.config.extensions != config.extensions:
-                changed_reason = 'extensions changed'
+                changed_reason = __('extensions changed')
 
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
@@ -686,7 +687,7 @@ class BuildEnvironment(object):
         try:
             return self.domains[domainname]
         except KeyError:
-            raise ExtensionError('Domain %r is not registered' % domainname)
+            raise ExtensionError(__('Domain %r is not registered') % domainname)
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
@@ -796,7 +797,7 @@ class BuildEnvironment(object):
         def traverse_toctree(parent, docname):
             # type: (unicode, unicode) -> Iterator[Tuple[unicode, unicode]]
             if parent == docname:
-                logger.warning('self referenced toctree found. Ignored.', location=docname)
+                logger.warning(__('self referenced toctree found. Ignored.'), location=docname)
                 return
 
             # traverse toctree by pre-order
@@ -836,7 +837,7 @@ class BuildEnvironment(object):
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                logger.warning('document isn\'t included in any toctree',
+                logger.warning(__('document isn\'t included in any toctree'),
                                location=docname)
 
         # call check-consistency for all extensions

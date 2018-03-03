@@ -20,7 +20,7 @@ from sphinx import addnodes, locale
 from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType, Index
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
@@ -859,7 +859,7 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            logger.warning('more than one target found for cross-reference %r: %s',
+            logger.warning(__('more than one target found for cross-reference %r: %s'),
                            target, ', '.join(match[0] for match in matches),
                            type='ref', subtype='python', location=node)
         name, obj = matches[0]

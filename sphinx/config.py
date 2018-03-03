@@ -34,18 +34,18 @@ logger = logging.getLogger(__name__)
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
+CONFIG_SYNTAX_ERROR = __("There is a syntax error in your configuration file: %s")
 if PY3:
-    CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
-CONFIG_ERROR = "There is a programable error in your configuration file:\n\n%s"
-CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
-                    "called sys.exit()"
-CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
-                      "but `{current}` is given."
-CONFIG_PERMITTED_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
-                                "expected to {permitted}."
-CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
-                      "defaults to `{default.__name__}'."
+    CONFIG_SYNTAX_ERROR += __("\nDid you change the syntax from 2.x to 3.x?")
+CONFIG_ERROR = __("There is a programable error in your configuration file:\n\n%s")
+CONFIG_EXIT_ERROR = __("The configuration file (or one of the modules it imports) "
+                       "called sys.exit()")
+CONFIG_ENUM_WARNING = __("The config value `{name}` has to be a one of {candidates}, "
+                         "but `{current}` is given.")
+CONFIG_PERMITTED_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
+                                   "expected to {permitted}.")
+CONFIG_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
+                         "defaults to `{default.__name__}'.")
 
 if PY3:
     unicode = str  # special alias for static typing...
@@ -251,9 +251,9 @@ class Config(object):
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
             if isinstance(value, binary_type) and nonascii_re.search(value):
-                logger.warning('the config value %r is set to a string with non-ASCII '
-                               'characters; this can lead to Unicode errors occurring. '
-                               'Please use Unicode strings, e.g. %r.', name, u'Content')
+                logger.warning(__('the config value %r is set to a string with non-ASCII '
+                                  'characters; this can lead to Unicode errors occurring. '
+                                  'Please use Unicode strings, e.g. %r.'), name, u'Content')
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any

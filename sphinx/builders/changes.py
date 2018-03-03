@@ -17,7 +17,7 @@ from six import iteritems
 
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
@@ -38,7 +38,7 @@ class ChangesBuilder(Builder):
     Write a summary with all versionadded/changed directives.
     """
     name = 'changes'
-    epilog = 'The overview file is in %(outdir)s.'
+    epilog = __('The overview file is in %(outdir)s.')
 
     def init(self):
         # type: () -> None
@@ -64,7 +64,7 @@ class ChangesBuilder(Builder):
         apichanges = []     # type: List[Tuple[unicode, unicode, int]]
         otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
         if version not in self.env.versionchanges:
-            logger.info(bold('no changes in version %s.' % version))
+            logger.info(bold(__('no changes in version %s.') % version))
             return
         logger.info(bold('writing summary file...'))
         for type, docname, lineno, module, descname, content in \
@@ -129,14 +129,14 @@ class ChangesBuilder(Builder):
                     break
             return line
 
-        logger.info(bold('copying source files...'))
+        logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
             with codecs.open(self.env.doc2path(docname), 'r',  # type: ignore
                              self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
                 except UnicodeDecodeError:
-                    logger.warning('could not read %r for changelog creation', docname)
+                    logger.warning(__('could not read %r for changelog creation'), docname)
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))

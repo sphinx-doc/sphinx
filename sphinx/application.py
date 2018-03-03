@@ -145,16 +145,16 @@ class Sphinx(object):
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)
             if not path.isfile(path.join(self.confdir, 'conf.py')):
-                raise ApplicationError("config directory doesn't contain a "
-                                       "conf.py file (%s)" % confdir)
+                raise ApplicationError(__("config directory doesn't contain a "
+                                          "conf.py file (%s)") % confdir)
 
         if not path.isdir(self.srcdir):
-            raise ApplicationError('Cannot find source directory (%s)' %
+            raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
         if self.srcdir == self.outdir:
-            raise ApplicationError('Source directory and destination '
-                                   'directory cannot be identical')
+            raise ApplicationError(__('Source directory and destination '
+                                      'directory cannot be identical'))
 
         self.parallel = parallel
 
@@ -180,7 +180,7 @@ class Sphinx(object):
         self.messagelog = deque(maxlen=10)  # type: deque
 
         # say hello to the world
-        logger.info(bold('Running Sphinx v%s' % sphinx.__display_version__))
+        logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
 
         # status code for command-line application
         self.statuscode = 0
@@ -222,7 +222,7 @@ class Sphinx(object):
         self.preload_builder(buildername)
 
         if not path.isdir(outdir):
-            logger.info('making output directory...')
+            logger.info(__('making output directory...'))
             ensuredir(outdir)
 
         # the config file itself can be an extension
@@ -261,7 +261,7 @@ class Sphinx(object):
         the configuration.
         """
         if self.config.language is not None:
-            logger.info(bold('loading translations [%s]... ' % self.config.language),
+            logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)
             user_locale_dirs = [
                 path.join(self.srcdir, x) for x in self.config.locale_dirs]
@@ -279,7 +279,7 @@ class Sphinx(object):
                 # "en" never needs to be translated
                 logger.info(__('done'))
             else:
-                logger.info('not available for built-in messages')
+                logger.info(__('not available for built-in messages'))
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
@@ -343,7 +343,7 @@ class Sphinx(object):
                       __('succeeded') or __('finished with problems'))
             if self._warncount:
                 logger.info(bold(__('build %s, %s warning.',
-                            'build %s, %s warnings.', self._warncount) %
+                                    'build %s, %s warnings.', self._warncount) %
                                  (status, self._warncount)))
             else:
                 logger.info(bold(__('build %s.') % status))
@@ -1152,7 +1152,7 @@ class Sphinx(object):
             allowed = getattr(ext, attrname, None)
             if allowed is None:
                 logger.warning(message, ext.name)
-                logger.warning('doing serial %s', typ)
+                logger.warning(__('doing serial %s'), typ)
                 return False
             elif not allowed:
                 return False

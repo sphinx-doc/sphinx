@@ -12,6 +12,7 @@
 from typing import TYPE_CHECKING
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Set  # NOQA
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 class DummyBuilder(Builder):
     name = 'dummy'
-    epilog = 'The dummy builder generates no files.'
+    epilog = __('The dummy builder generates no files.')
 
     allow_parallel = True
 
