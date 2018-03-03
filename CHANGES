@@ -54,6 +54,11 @@ Bugs fixed
 Testing
 --------
 
+Features removed
+----------------
+
+* ``sphinx.ext.pngmath`` extension
+
 Release 1.7.2 (in development)
 ==============================
 
