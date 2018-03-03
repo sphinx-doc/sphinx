@@ -19,6 +19,7 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
+from sphinx.locale import __
 from sphinx.util import i18n, import_object, logging, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
@@ -214,7 +215,7 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    logger.warning('no matching candidate for image URI %r',
+                    logger.warning(__('no matching candidate for image URI %r'),
                                    images.get_original_image_uri(node['uri']),
                                    location=node)
                     continue
@@ -237,8 +238,8 @@ class Builder(object):
             # type: (CatalogInfo) -> unicode
             return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
-        logger.info(bold('building [mo]: ') + message)
-        for catalog in status_iterator(catalogs, 'writing output... ', "darkgreen",
+        logger.info(bold(__('building [mo]: ')) + message)
+        for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
                                        len(catalogs), self.app.verbosity,
                                        stringify_func=cat2relpath):
             catalog.write_mo(self.config.language)
@@ -251,7 +252,7 @@ class Builder(object):
             charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact,
             force_all=True)
-        message = 'all of %d po files' % len(catalogs)
+        message = __('all of %d po files') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     def compile_specific_catalogs(self, specified_files):
@@ -272,7 +273,7 @@ class Builder(object):
             domains=list(specified_domains),
             charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
-        message = 'targets for %d po files that are specified' % len(catalogs)
+        message = __('targets for %d po files that are specified') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     def compile_update_catalogs(self):
@@ -282,7 +283,7 @@ class Builder(object):
             self.config.language,
             charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
-        message = 'targets for %d po files that are out of date' % len(catalogs)
+        message = __('targets for %d po files that are out of date') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     # build methods
@@ -290,7 +291,7 @@ class Builder(object):
     def build_all(self):
         # type: () -> None
         """Build all source files."""
-        self.build(None, summary='all source files', method='all')
+        self.build(None, summary=__('all source files'), method='all')
 
     def build_specific(self, filenames):
         # type: (List[unicode]) -> None
@@ -304,13 +305,13 @@ class Builder(object):
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
             if not filename.startswith(self.srcdir):
-                logger.warning('file %r given on command line is not under the '
-                               'source directory, ignoring', filename)
+                logger.warning(__('file %r given on command line is not under the '
+                                  'source directory, ignoring'), filename)
                 continue
             if not (path.isfile(filename) or
                     any(path.isfile(filename + suffix) for suffix in suffixes)):
-                logger.warning('file %r given on command line does not exist, '
-                               'ignoring', filename)
+                logger.warning(__('file %r given on command line does not exist, '
+                                  'ignoring'), filename)
                 continue
             filename = filename[dirlen:]
             for suffix in suffixes:
@@ -320,8 +321,7 @@ class Builder(object):
             filename = filename.replace(path.sep, SEP)
             to_write.append(filename)
         self.build(to_write, method='specific',
-                   summary='%d source files given on command '
-                   'line' % len(to_write))
+                   summary=__('%d source files given on command line') % len(to_write))
 
     def build_update(self):
         # type: () -> None
@@ -332,8 +332,8 @@ class Builder(object):
         else:
             to_build = list(to_build)
             self.build(to_build,
-                       summary='targets for %d source files that are '
-                       'out of date' % len(to_build))
+                       summary=__('targets for %d source files that are out of date') %
+                       len(to_build))
 
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[unicode], unicode, unicode) -> None
@@ -342,37 +342,37 @@ class Builder(object):
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            logger.info(bold('building [%s]' % self.name) + ': ' + summary)
+            logger.info(bold(__('building [%s]') % self.name) + ': ' + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
-        logger.info(bold('looking for now-outdated files... '), nonl=1)
+        logger.info(bold(__('looking for now-outdated files... ')), nonl=1)
         for docname in self.env.check_dependents(self.app, updated_docnames):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:
-            logger.info('%d found', outdated)
+            logger.info(__('%d found'), outdated)
         else:
-            logger.info('none found')
+            logger.info(__('none found'))
 
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            logger.info(bold('pickling environment... '), nonl=True)
+            logger.info(bold(__('pickling environment... ')), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-            logger.info('done')
+            logger.info(__('done'))
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
-            logger.info(bold('checking consistency... '), nonl=True)
+            logger.info(bold(__('checking consistency... ')), nonl=True)
             self.env.check_consistency()
-            logger.info('done')
+            logger.info(__('done'))
         else:
             if method == 'update' and not docnames:
-                logger.info(bold('no targets are out of date.'))
+                logger.info(bold(__('no targets are out of date.')))
                 return
 
         self.app.phase = BuildPhase.RESOLVING
@@ -515,7 +515,7 @@ class Builder(object):
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        logger.debug('docnames to write: %s', ', '.join(sorted(docnames)))
+        logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
@@ -524,9 +524,9 @@ class Builder(object):
                     docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        logger.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold(__('preparing documents... ')), nonl=True)
         self.prepare_writing(docnames)
-        logger.info('done')
+        logger.info(__('done'))
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
@@ -539,7 +539,7 @@ class Builder(object):
     def _write_serial(self, docnames):
         # type: (Sequence[unicode]) -> None
         with logging.pending_warnings():
-            for docname in status_iterator(docnames, 'writing output... ', "darkgreen",
+            for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
                 self.app.phase = BuildPhase.RESOLVING
                 doctree = self.env.get_and_resolve_doctree(docname, self)
@@ -567,7 +567,7 @@ class Builder(object):
         chunks = make_chunks(docnames, nproc)
 
         self.app.phase = BuildPhase.RESOLVING
-        for chunk in status_iterator(chunks, 'writing output... ', "darkgreen",
+        for chunk in status_iterator(chunks, __('writing output... '), "darkgreen",
                                      len(chunks), self.app.verbosity):
             arg = []
             for i, docname in enumerate(chunk):
@@ -577,7 +577,7 @@ class Builder(object):
             tasks.add_task(write_process, arg)
 
         # make sure all threads have finished
-        logger.info(bold('waiting for workers...'))
+        logger.info(bold(__('waiting for workers...')))
         tasks.join()
 
     def prepare_writing(self, docnames):

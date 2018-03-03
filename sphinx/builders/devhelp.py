@@ -22,6 +22,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 
@@ -43,10 +44,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs GNOME Devhelp file.
     """
     name = 'devhelp'
-    epilog = ('To view the help file:\n'
-              '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
-              '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
-              '$ devhelp')
+    epilog = __('To view the help file:\n'
+                '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
+                '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
+                '$ devhelp')
 
     # don't copy the reST source
     copysource = False
@@ -69,7 +70,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
     def build_devhelp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        logger.info('dumping devhelp index...')
+        logger.info(__('dumping devhelp index...'))
 
         # Basic info
         root = etree.Element('book',

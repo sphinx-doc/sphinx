@@ -32,6 +32,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
@@ -91,8 +92,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
-    epilog = ('Look for any errors in the above output or in '
-              '%(outdir)s/output.txt')
+    epilog = __('Look for any errors in the above output or in '
+                '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None
@@ -152,7 +153,7 @@ class CheckExternalLinksBuilder(Builder):
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
-                        raise Exception("Anchor '%s' not found" % anchor)
+                        raise Exception(__("Anchor '%s' not found") % anchor)
                 else:
                     try:
                         # try a HEAD request first, which should be easier on
@@ -250,7 +251,7 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
-                logger.warning('broken link: %s (%s)', uri, info,
+                logger.warning(__('broken link: %s (%s)'), uri, info,
                                location=(self.env.doc2path(docname), lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))

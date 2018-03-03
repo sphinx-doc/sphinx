@@ -17,6 +17,7 @@ from docutils import nodes
 from six import text_type
 
 from sphinx import addnodes
+from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
@@ -296,7 +297,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
                                                   colorfunc, traversed)
                     docnameset.add(includefile)
                 except Exception:
-                    logger.warning('toctree contains ref to nonexisting file %r',
+                    logger.warning(__('toctree contains ref to nonexisting file %r'),
                                    includefile, location=docname)
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
@@ -369,7 +370,7 @@ def process_only_nodes(document, tags):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:
-            logger.warning('exception while evaluating only directive expression: %s', err,
+            logger.warning(__('exception while evaluating only directive expression: %s'), err,
                            location=node)
             node.replace_self(node.children or nodes.comment())
         else:

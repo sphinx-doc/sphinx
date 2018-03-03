@@ -20,7 +20,7 @@ from docutils.writers.manpage import (
 
 import sphinx.util.docutils
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 
@@ -514,9 +514,9 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html'))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

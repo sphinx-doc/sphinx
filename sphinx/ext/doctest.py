@@ -27,7 +27,7 @@ from six import itervalues, StringIO, binary_type, text_type, PY2
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.locale import _
+from sphinx.locale import __
 from sphinx.util import force_decode, logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.nodes import set_source_info
@@ -129,12 +129,12 @@ class TestDirective(Directive):
                 prefix, option_name = option[0], option[1:]
                 if prefix not in '+-':
                     self.state.document.reporter.warning(
-                        _("missing '+' or '-' in '%s' option.") % option,
+                        __("missing '+' or '-' in '%s' option.") % option,
                         line=self.lineno)
                     continue
                 if option_name not in doctest.OPTIONFLAGS_BY_NAME:
                     self.state.document.reporter.warning(
-                        _("'%s' is not a valid option.") % option_name,
+                        __("'%s' is not a valid option.") % option_name,
                         line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
@@ -148,7 +148,7 @@ class TestDirective(Directive):
                     node['options'][flag] = True  # Skip the test
             except InvalidSpecifier:
                 self.state.document.reporter.warning(
-                    _("'%s' is not a valid pyversion option") % spec,
+                    __("'%s' is not a valid pyversion option") % spec,
                     line=self.lineno)
         return [node]
 
@@ -214,7 +214,7 @@ class TestGroup(object):
             if self.tests and len(self.tests[-1]) == 2:
                 self.tests[-1][1] = code
         else:
-            raise RuntimeError('invalid TestCode type')
+            raise RuntimeError(__('invalid TestCode type'))
 
     def __repr__(self):  # type: ignore
         # type: () -> unicode
@@ -275,8 +275,8 @@ class DocTestBuilder(Builder):
     Runs test snippets in the documentation.
     """
     name = 'doctest'
-    epilog = ('Testing of doctests in the sources finished, look at the '
-              'results in %(outdir)s/output.txt.')
+    epilog = __('Testing of doctests in the sources finished, look at the '
+                'results in %(outdir)s/output.txt.')
 
     def init(self):
         # type: () -> None
@@ -427,7 +427,7 @@ Doctest summary
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)
             if not source:
-                logger.warning('no code/output in %s block at %s:%s',
+                logger.warning(__('no code/output in %s block at %s:%s'),
                                node.get('testnodetype', 'doctest'),
                                filename, line_number)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
@@ -518,7 +518,7 @@ Doctest summary
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
                         group.name, code[0].filename, code[0].lineno)
                 except Exception:
-                    logger.warning('ignoring invalid doctest code: %r', code[0].code,
+                    logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
                                    location=(code[0].filename, code[0].lineno))
                     continue
                 if not test.examples:

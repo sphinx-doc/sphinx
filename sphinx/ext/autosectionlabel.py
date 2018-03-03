@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
@@ -44,8 +45,8 @@ def register_sections_as_label(app, document):
         sectname = clean_astext(node[0])
 
         if name in labels:
-            logger.warning('duplicate label %s, ' % name + 'other instance '
-                           'in ' + app.env.doc2path(labels[name][0]),
+            logger.warning(__('duplicate label %s, other instance in %s'),
+                           name, app.env.doc2path(labels[name][0]),
                            location=node)
 
         anonlabels[name] = docname, labelid

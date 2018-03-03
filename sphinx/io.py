@@ -20,6 +20,7 @@ from docutils.writers import UnfilteredWriter
 from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
+from sphinx.locale import __
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
@@ -199,7 +200,7 @@ class SphinxBaseFileInput(FileInput):
         if lineend == -1:
             lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning('undecodable source characters, replacing with "?": %r',
+        logger.warning(__('undecodable source characters, replacing with "?": %r'),
                        (error.object[linestart + 1:error.start] + b'>>>' +
                         error.object[error.start:error.end] + b'<<<' +
                         error.object[error.end:lineend]),
