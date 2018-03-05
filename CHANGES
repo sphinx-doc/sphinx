@@ -19,19 +19,21 @@ Incompatible changes
 Deprecated
 ----------
 
-* :confval:`source_parsers` is deprecated. Please use ``add_source_parser()``
+* :confval:`source_parsers` is deprecated
   instead.
-* ``Application.import_object()`` is deprecated.  Please use
-  ``sphinx.util.import_object()`` instead.
+* ``Application.import_object()`` is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
 * ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
-  been deprecated.  Please use ``Sphinx.add_source_suffix()`` instead.
-* ``sphinx.util.docutils.directive_helper()`` is deprecated.
-* ``sphinx.cmdline`` is deprecated.  Please use ``sphinx.cmd.build`` instead.
+  been deprecated
+* ``sphinx.util.docutils.directive_helper()`` is deprecated
+* ``sphinx.cmdline`` is deprecated
 * All ``env.update()``, ``env._read_serial()`` and ``env._read_parallel()`` are
-  deprecated.  Please use ``builder.read()`` instead.
-* ``sphinx.locale.l_()`` is deprecated.  Please use ``_()`` instead
+  deprecated
+* ``sphinx.locale.l_()`` is deprecated
+
+For more details, see `deprecation APIs list
+<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
 
 Features added
 --------------
