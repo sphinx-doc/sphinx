@@ -178,7 +178,7 @@ def collect_pages(app):
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
                 lines[start])
-            lines[min(end - 1, maxindex)] += '</div>'
+            lines[min(end, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []
         parent = modname

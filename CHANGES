@@ -20,6 +20,7 @@ Bugs fixed
 * #4685: autosummary emits meaningless warnings
 * autodoc: crashed when invalid options given
 * pydomain: always strip parenthesis if empty (refs: #1042)
+* #4701: viewcode: Misplaced ``<div>`` in viewcode html output
 
 Testing
 --------
