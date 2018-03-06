@@ -279,6 +279,10 @@ General configuration
 
    Now, this option should be considered *experimental*.
 
+   Note that ``failed to import module`` warnings indicate a real problem with
+   your documentation, and rather than suppressing these warnings, either fix
+   the import or try using the setting ``autodoc_mock_imports``.
+
    .. versionadded:: 1.4
 
    .. versionchanged:: 1.5
