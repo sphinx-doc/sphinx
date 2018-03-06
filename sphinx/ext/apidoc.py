@@ -284,7 +284,7 @@ def is_excluded(root, excludes):
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
-          e.g. an exlude "foo" also accidentally excluding "foobar".
+          e.g. an exclude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
         if fnmatch(root, exclude):
