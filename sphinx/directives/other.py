@@ -7,6 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
+
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -25,6 +27,9 @@ if False:
     # For type annotation
     from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+glob_re = re.compile('.*[*?\[].*')
 
 
 def int_or_nothing(argument):
@@ -57,30 +62,50 @@ class TocTree(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        suffixes = env.config.source_suffix
-        glob = 'glob' in self.options
+        subnode = addnodes.toctree()
+        subnode['parent'] = self.state.document.settings.env.docname
 
-        ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
         # and title may be None if the document's title is to be used
-        entries = []        # type: List[Tuple[unicode, unicode]]
-        includefiles = []
+        subnode['entries'] = []
+        subnode['includefiles'] = []
+        subnode['maxdepth'] = self.options.get('maxdepth', -1)
+        subnode['caption'] = self.options.get('caption')
+        subnode['glob'] = 'glob' in self.options
+        subnode['hidden'] = 'hidden' in self.options
+        subnode['includehidden'] = 'includehidden' in self.options
+        subnode['numbered'] = self.options.get('numbered', 0)
+        subnode['titlesonly'] = 'titlesonly' in self.options
+        set_source_info(self, subnode)
+        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode.append(subnode)
+        self.add_name(wrappernode)
+
+        ret = self.parse_content(subnode)
+        ret.append(wrappernode)
+        return ret
+
+    def parse_content(self, toctree):
+        env = self.state.document.settings.env
+        suffixes = env.config.source_suffix
+
+        # glob target documents
         all_docnames = env.found_docs.copy()
-        # don't add the currently visited file in catch-all patterns
-        all_docnames.remove(env.docname)
+        all_docnames.remove(env.docname)  # remove current document
+
+        ret = []
         for entry in self.content:
             if not entry:
                 continue
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
-            if glob and ('*' in entry or '?' in entry or '[' in entry) and not explicit:
+            if toctree['glob'] and glob_re.match(entry) and not explicit:
                 patname = docname_join(env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
                     all_docnames.remove(docname)  # don't include it again
-                    entries.append((None, docname))
-                    includefiles.append(docname)
+                    toctree['entries'].append((None, docname))
+                    toctree['includefiles'].append(docname)
                 if not docnames:
                     ret.append(self.state.document.reporter.warning(
                         'toctree glob pattern %r didn\'t match any documents'
@@ -101,7 +126,7 @@ class TocTree(Directive):
                 # absolutize filenames
                 docname = docname_join(env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
-                    entries.append((title, ref))
+                    toctree['entries'].append((title, ref))
                 elif docname not in env.found_docs:
                     ret.append(self.state.document.reporter.warning(
                         'toctree contains reference to nonexisting '
@@ -109,28 +134,13 @@ class TocTree(Directive):
                     env.note_reread()
                 else:
                     all_docnames.discard(docname)
-                    entries.append((title, docname))
-                    includefiles.append(docname)
-        subnode = addnodes.toctree()
-        subnode['parent'] = env.docname
+                    toctree['entries'].append((title, docname))
+                    toctree['includefiles'].append(docname)
+
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
-            entries.reverse()
-        subnode['entries'] = entries
-        # includefiles only entries that are documents
-        subnode['includefiles'] = includefiles
-        subnode['maxdepth'] = self.options.get('maxdepth', -1)
-        subnode['caption'] = self.options.get('caption')
-        subnode['glob'] = glob
-        subnode['hidden'] = 'hidden' in self.options
-        subnode['includehidden'] = 'includehidden' in self.options
-        subnode['numbered'] = self.options.get('numbered', 0)
-        subnode['titlesonly'] = 'titlesonly' in self.options
-        set_source_info(self, subnode)
-        wrappernode = nodes.compound(classes=['toctree-wrapper'])
-        wrappernode.append(subnode)
-        self.add_name(wrappernode)
-        ret.append(wrappernode)
+            toctree['entries'] = toctree['entries'].reverse()
+
         return ret
 
 
