@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import
 
+import os
 import warnings
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
@@ -135,6 +136,9 @@ def get(url, **kwargs):
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
+    if os.environ.get('SPHINX_NO_NETWORK', ''):
+        raise RuntimeError('Network use disabled via SPHINX_NO_NETWORK')
+
     kwargs.setdefault('headers', dict(useragent_header))
     config = kwargs.pop('config', None)
     if config:
@@ -149,6 +153,9 @@ def head(url, **kwargs):
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""
+    if os.environ.get('SPHINX_NO_NETWORK', ''):
+        raise RuntimeError('Network use disabled via SPHINX_NO_NETWORK')
+
     kwargs.setdefault('headers', dict(useragent_header))
     config = kwargs.pop('config', None)
     if config:
