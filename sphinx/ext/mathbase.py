@@ -5,22 +5,24 @@
 
     Set up math support in source files and LaTeX/text output.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes, utils
+from docutils.nodes import make_id
 from docutils.parsers.rst import Directive, directives
 
 from sphinx.config import string_classes
-from sphinx.roles import XRefRole
-from sphinx.locale import __
 from sphinx.domains import Domain
+from sphinx.locale import __
+from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode, set_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -63,15 +65,15 @@ class MathDomain(Domain):
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
-        for labelid, (doc, eqno) in list(self.data['objects'].items()):
+        for equation_id, (doc, eqno) in list(self.data['objects'].items()):
             if doc == docname:
-                del self.data['objects'][labelid]
+                del self.data['objects'][equation_id]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
-                self.data['objects'][labelid] = doc
+                self.data['objects'][labelid] = (doc, eqno)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
@@ -84,6 +86,13 @@ class MathDomain(Domain):
                 newnode['target'] = target
                 return newnode
             else:
+                node_id = make_id('equation-%s' % target)
+                if env.config.math_numfig and env.config.numfig:
+                    if docname in env.toc_fignumbers:
+                        number = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
+                        number = '.'.join(map(str, number))
+                    else:
+                        number = ''
                 try:
                     eqref_format = env.config.math_eqref_format or "({number})"
                     title = nodes.Text(eqref_format.format(number=number))
@@ -91,8 +100,8 @@ class MathDomain(Domain):
                     logger.warning('Invalid math_eqref_format: %r', exc,
                                    location=node)
                     title = nodes.Text("(%d)" % number)
-                return make_refnode(builder, fromdocname, docname,
-                                    "equation-" + target, title)
+                    title = nodes.Text("(%d)" % number)
+                return make_refnode(builder, fromdocname, docname, node_id, title)
         else:
             return None
 
@@ -124,6 +133,23 @@ class MathDomain(Domain):
         # type: (unicode) -> int
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
+
+
+def get_node_equation_number(writer, node):
+    if writer.builder.config.math_numfig and writer.builder.config.numfig:
+        figtype = 'displaymath'
+        if writer.builder.name == 'singlehtml':
+            key = u"%s/%s" % (writer.docnames[-1], figtype)
+        else:
+            key = figtype
+
+        id = node['ids'][0]
+        number = writer.builder.fignumbers.get(key, {}).get(id, ())
+        number = '.'.join(map(str, number))
+    else:
+        number = node['number']
+
+    return number
 
 
 def wrap_displaymath(math, label, numbering):
@@ -236,7 +262,8 @@ class MathDirective(Directive):
             node['number'] = eqno
 
             # add target node
-            target = nodes.target('', '', ids=['equation-' + node['label']])
+            node_id = make_id('equation-%s' % node['label'])
+            target = nodes.target('', '', ids=[node_id])
             self.state.document.note_explicit_target(target)
             ret.insert(0, target)
         except UserWarning as exc:
@@ -341,6 +368,7 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_number_all', False, 'env')
     app.add_config_value('math_eqref_format', None, 'env', string_classes)
+    app.add_config_value('math_numfig', True, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
@@ -348,12 +376,12 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  man=(man_visit_math, None),
                  texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
-    app.add_node(displaymath,
-                 latex=(latex_visit_displaymath, None),
-                 text=(text_visit_displaymath, None),
-                 man=(man_visit_displaymath, man_depart_displaymath),
-                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
-                 html=htmldisplayvisitors)
+    app.add_enumerable_node(displaymath, 'displaymath',
+                            latex=(latex_visit_displaymath, None),
+                            text=(text_visit_displaymath, None),
+                            man=(man_visit_displaymath, man_depart_displaymath),
+                            texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+                            html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('math', math_role)
     app.add_role('eq', EqXRefRole(warn_dangling=True))

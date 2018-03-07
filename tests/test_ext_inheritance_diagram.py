@@ -5,7 +5,7 @@
 
     Test sphinx.ext.inheritance_diagram extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,7 +40,7 @@ def test_inheritance_diagram_latex(app, status, warning):
     content = (app.outdir / 'Python.tex').text()
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
-               '\\\\includegraphics{inheritance-\\w+.pdf}\n'
+               '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'
                '\\\\caption{Test Foo!}\\\\label{\\\\detokenize{index:id1}}\\\\end{figure}')
     assert re.search(pattern, content, re.M)
 
@@ -82,6 +82,15 @@ def test_import_classes(rootdir):
             import_classes('unknown', None)
         with pytest.raises(InheritanceException):
             import_classes('unknown.Unknown', None)
+
+        # got exception InheritanceException for wrong class or module
+        # not AttributeError (refs: #4019)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown', '.')
+        with pytest.raises(InheritanceException):
+            import_classes('unknown.Unknown', '.')
+        with pytest.raises(InheritanceException):
+            import_classes('.', None)
 
         # a module having no classes
         classes = import_classes('sphinx', None)

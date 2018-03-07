@@ -5,12 +5,13 @@
 
     Builder for the web support package.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-if False:
-    # For type annotation
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

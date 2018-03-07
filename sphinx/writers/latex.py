@@ -8,31 +8,32 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import sys
-from os import path
 from collections import defaultdict
+from os import path
+from typing import TYPE_CHECKING
 
-from six import itervalues, text_type
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
+from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
+from sphinx.transforms import SphinxTransform
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 
@@ -47,7 +48,8 @@ BEGIN_DOC = r'''
 
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
-SECNUMDEPTH = 3
+LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
+                     "subsubsection", "paragraph", "subparagraph"]
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -222,12 +224,11 @@ class ExtBabel(Babel):
             return language
 
 
-class ShowUrlsTransform(object):
-    expanded = False
-
-    def __init__(self, document):
-        # type: (nodes.Node) -> None
-        self.document = document
+class ShowUrlsTransform(SphinxTransform, object):
+    def __init__(self, document, startnode=None):
+        # type: (nodes.document, nodes.Node) -> None
+        super(ShowUrlsTransform, self).__init__(document, startnode)
+        self.expanded = False
 
     def apply(self):
         # type: () -> None
@@ -501,9 +502,9 @@ def rstdim_to_latexdim(width_str):
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
-    sectionnames = ["part", "chapter", "section", "subsection",
-                    "subsubsection", "paragraph", "subparagraph"]
 
+    secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
+    # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
     # sphinx specific document classes
@@ -532,16 +533,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.compact_list = 0
         self.first_param = 0
 
-        # determine top section level
-        if builder.config.latex_toplevel_sectioning:
-            self.top_sectionlevel = \
-                self.sectionnames.index(builder.config.latex_toplevel_sectioning)
-        else:
-            if document.settings.docclass == 'howto':
-                self.top_sectionlevel = 2
-            else:
-                self.top_sectionlevel = 1
-
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
@@ -558,20 +549,64 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
         })
-        if not self.elements['releasename']:
+        if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
                 'releasename':  _('Release'),
             })
+
+        # we assume LaTeX class provides \chapter command except in case
+        # of non-Japanese 'howto' case
+        self.sectionnames = LATEXSECTIONNAMES[:]
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
+            if docclass[0] == 'j':  # Japanese class...
+                pass
+            else:
+                self.sectionnames.remove('chapter')
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
+
+        # determine top section level
+        self.top_sectionlevel = 1
+        if builder.config.latex_toplevel_sectioning:
+            try:
+                self.top_sectionlevel = \
+                    self.sectionnames.index(builder.config.latex_toplevel_sectioning)
+            except ValueError:
+                logger.warning('unknown %r toplevel_sectioning for class %r' %
+                               (builder.config.latex_toplevel_sectioning, docclass))
+
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
                                                 language=builder.config.language)
+
+        if builder.config.numfig:
+            self.numfig_secnum_depth = builder.config.numfig_secnum_depth
+            if self.numfig_secnum_depth > 0:  # default is 1
+                # numfig_secnum_depth as passed to sphinx.sty indices same names as in
+                # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
+                if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+                   self.top_sectionlevel > 0:
+                    self.numfig_secnum_depth += self.top_sectionlevel
+                else:
+                    self.numfig_secnum_depth += self.top_sectionlevel - 1
+                # this (minus one) will serve as minimum to LaTeX's secnumdepth
+                self.numfig_secnum_depth = min(self.numfig_secnum_depth,
+                                               len(LATEXSECTIONNAMES) - 1)
+                # if passed key value is < 1 LaTeX will act as if 0; see sphinx.sty
+                self.elements['sphinxpkgoptions'] += \
+                    (',numfigreset=%s' % self.numfig_secnum_depth)
+            else:
+                self.elements['sphinxpkgoptions'] += ',nonumfigreset'
+            try:
+                if builder.config.math_numfig:
+                    self.elements['sphinxpkgoptions'] += ',mathnumfig'
+            except AttributeError:
+                pass
+
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
@@ -628,23 +663,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
+
+        minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if document.get('tocdepth'):
-            # redece tocdepth if `part` or `chapter` is used for top_sectionlevel
+            # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
             #   tocdepth =  0: show parts and chapters
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
-            maxdepth = len(self.sectionnames) - self.top_sectionlevel
-            if tocdepth > maxdepth:
+            if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
+               self.top_sectionlevel > 0:
+                tocdepth += 1  # because top_sectionlevel is shifted by -1
+            if tocdepth > len(LATEXSECTIONNAMES) - 2:  # default is 5 <-> subparagraph
                 logger.warning('too large :maxdepth:, ignored.')
-                tocdepth = maxdepth
+                tocdepth = len(LATEXSECTIONNAMES) - 2
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
-            if tocdepth >= SECNUMDEPTH:
-                # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
-                self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
+            minsecnumdepth = max(minsecnumdepth, tocdepth)
+
+        if builder.config.numfig and (builder.config.numfig_secnum_depth > 0):
+            minsecnumdepth = max(minsecnumdepth, self.numfig_secnum_depth - 1)
+
+        if minsecnumdepth > self.secnumdepth:
+            self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
+                                           minsecnumdepth
 
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
@@ -1172,12 +1216,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_addname(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxcode{')
+        self.body.append(r'\sphinxcode{\sphinxupquote{')
         self.literal_whitespace += 1
 
     def depart_desc_addname(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.literal_whitespace -= 1
 
     def visit_desc_type(self, node):
@@ -1198,13 +1242,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_name(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxbfcode{')
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
         self.no_contractions += 1
         self.literal_whitespace += 1
 
     def depart_desc_name(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.literal_whitespace -= 1
         self.no_contractions -= 1
 
@@ -1243,11 +1287,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxbfcode{')
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
 
     def depart_desc_annotation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
 
     def visit_desc_content(self, node):
         # type: (nodes.Node) -> None
@@ -1332,6 +1376,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table = Table(node)
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
+            if 'colwidths-given' in node.get('classes', []):
+                logger.info('both tabularcolumns and :widths: option are given. '
+                            ':widths: is ignored.', location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node):
@@ -1465,8 +1512,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             context = ('\\par\n\\vskip-\\baselineskip'
                        '\\vbox{\\hbox{\\strut}}\\end{varwidth}%\n') + context
             self.needs_linetrimming = 1
-        if len(node) > 2 and len(node.astext().split('\n')) > 2:
-            self.needs_linetrimming = 1
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
@@ -1536,9 +1581,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         # type: (nodes.Node) -> None
+        def get_nested_level(node):
+            # type: (nodes.Node) -> int
+            if node is None:
+                return 0
+            elif isinstance(node, nodes.enumerated_list):
+                return get_nested_level(node.parent) + 1
+            else:
+                return get_nested_level(node.parent)
+
         self.body.append('\\begin{enumerate}\n')
         if 'start' in node:
-            self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
+            nested = get_nested_level(node)
+            self.body.append('\\setcounter{enum%s}{%d}\n' % ('i' * nested, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 
@@ -1809,28 +1864,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
-            if ('align' not in node.attributes or
-                    node.attributes['align'] == 'center'):
-                self.body.append('\n\\begin{center}')
-                self.context.append('\\end{center}\n')
-            else:
-                self.body.append('\n\\begin{flush%s}' % node.attributes['align'])
-                self.context.append('\\end{flush%s}\n' % node.attributes['align'])
+            self.body.append('\n\\begin{center}')
+            self.context.append('\\end{center}\n')
         else:
-            if ('align' not in node.attributes or
-                    node.attributes['align'] == 'center'):
-                # centering does not add vertical space like center.
-                align = '\n\\centering'
-                align_end = ''
-            else:
-                # TODO non vertical space for other alignments.
-                align = '\\begin{flush%s}' % node.attributes['align']
-                align_end = '\\end{flush%s}' % node.attributes['align']
-            self.body.append('\n\\begin{figure}[%s]%s\n' % (
-                self.elements['figure_align'], align))
+            self.body.append('\n\\begin{figure}[%s]\n\\centering\n' %
+                             self.elements['figure_align'])
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
-            self.context.append(ids + align_end + '\\end{figure}\n')
+            self.context.append(ids + '\\end{figure}\n')
 
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
@@ -1917,6 +1958,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # will be generated differently
             if id.startswith('index-'):
                 return
+
+            # insert blank line, if the target follows a paragraph node
+            index = node.parent.index(node)
+            if index > 0 and isinstance(node.parent[index - 1], nodes.paragraph):
+                self.body.append('\n')
+
             # do not generate \phantomsection in \section{}
             anchor = not self.in_title
             self.body.append(self.hypertarget(id, anchor=anchor))
@@ -2127,12 +2174,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstyleliteralemphasis{')
+        self.body.append(r'\sphinxstyleliteralemphasis{\sphinxupquote{')
         self.no_contractions += 1
 
     def depart_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.no_contractions -= 1
 
     def visit_strong(self, node):
@@ -2145,12 +2192,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_literal_strong(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\sphinxstyleliteralstrong{')
+        self.body.append(r'\sphinxstyleliteralstrong{\sphinxupquote{')
         self.no_contractions += 1
 
     def depart_literal_strong(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}')
+        self.body.append('}}')
         self.no_contractions -= 1
 
     def visit_abbreviation(self, node):
@@ -2209,14 +2256,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.no_contractions += 1
         if self.in_title:
-            self.body.append(r'\sphinxstyleliteralintitle{')
+            self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
         else:
-            self.body.append(r'\sphinxcode{')
+            self.body.append(r'\sphinxcode{\sphinxupquote{')
 
     def depart_literal(self, node):
         # type: (nodes.Node) -> None
         self.no_contractions -= 1
-        self.body.append('}')
+        self.body.append('}}')
 
     def visit_footnote_reference(self, node):
         # type: (nodes.Node) -> None
@@ -2262,6 +2309,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
             highlight_args = node.get('highlight_args', {})
+            hllines = '\\fvset{hllines={, %s,}}%%' %\
+                      str(highlight_args.get('hl_lines', []))[1:-1]
             if 'language' in node:
                 # code-block directives
                 lang = node['language']
@@ -2300,7 +2349,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
-            self.body.append('\n' + hlcode + '\n')
+            self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):

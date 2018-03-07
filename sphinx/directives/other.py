@@ -3,27 +3,27 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six.moves import range
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from six.moves import range
 
 from sphinx import addnodes
 from sphinx.locale import versionlabels, _
 from sphinx.util import url_re, docname_join
+from sphinx.util.matching import patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
-from sphinx.util.matching import patfilter
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -73,7 +73,9 @@ class TocTree(Directive):
         for entry in self.content:
             if not entry:
                 continue
-            if glob and ('*' in entry or '?' in entry or '[' in entry):
+            # look for explicit titles ("Some Title <document>")
+            explicit = explicit_title_re.match(entry)
+            if glob and ('*' in entry or '?' in entry or '[' in entry) and not explicit:
                 patname = docname_join(env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
@@ -85,11 +87,9 @@ class TocTree(Directive):
                         'toctree glob pattern %r didn\'t match any documents'
                         % entry, line=self.lineno))
             else:
-                # look for explicit titles ("Some Title <document>")
-                m = explicit_title_re.match(entry)
-                if m:
-                    ref = m.group(2)
-                    title = m.group(1)
+                if explicit:
+                    ref = explicit.group(2)
+                    title = explicit.group(1)
                     docname = ref
                 else:
                     ref = docname = entry

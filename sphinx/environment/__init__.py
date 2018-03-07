@@ -5,56 +5,46 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import os
+import re
 import sys
 import time
 import types
-import codecs
-import fnmatch
 import warnings
-from os import path
-from copy import copy
 from collections import defaultdict
+from copy import copy
+from os import path
+from typing import TYPE_CHECKING
 
+from docutils.frontend import OptionParser
+from docutils.utils import Reporter, get_source_line
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils.io import NullOutput
-from docutils.core import Publisher
-from docutils.utils import Reporter, get_source_line, normalize_language_tag
-from docutils.utils.smartquotes import smartchars
-from docutils.parsers.rst import roles
-from docutils.parsers.rst.languages import en as english
-from docutils.frontend import OptionParser
-
-from sphinx import addnodes
-from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import logging
-from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir
-from sphinx.util.i18n import find_catalog_files
-from sphinx.util.console import bold  # type: ignore
-from sphinx.util.docutils import sphinx_domains, WarningStream
-from sphinx.util.matching import compile_matchers
-from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
-from sphinx.util.websupport import is_commentable
-from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import __
-from sphinx.transforms import SphinxTransformer
-from sphinx.versioning import add_uids, merge_doctrees
+from sphinx import addnodes, versioning
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.errors import SphinxError, ExtensionError
+from sphinx.io import read_doc
+from sphinx.transforms import SphinxTransformer
+from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
+from sphinx.util import logging, rst
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util.i18n import find_catalog_files
+from sphinx.util.matching import compile_matchers
+from sphinx.util.nodes import is_translatable
+from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
+from sphinx.util.websupport import is_commentable
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+if TYPE_CHECKING:
+    from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -67,12 +57,15 @@ default_settings = {
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
     'pep_base_url': 'https://www.python.org/dev/peps/',
+    'pep_references': None,
     'rfc_base_url': 'https://tools.ietf.org/html/',
+    'rfc_references': None,
     'input_encoding': 'utf-8-sig',
     'doctitle_xform': False,
     'sectsubtitle_xform': False,
     'halt_level': 5,
     'file_insertion_enabled': True,
+    'smartquotes_locales': [],
 }
 
 # This is increased every time an environment attribute is added
@@ -81,8 +74,6 @@ default_settings = {
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
 ENV_VERSION = 52 + (sys.version_info[0] - 2)
 
-
-dummy_reporter = Reporter('', 4, 4)
 
 versioning_conditions = {
     'none': False,
@@ -110,7 +101,12 @@ class BuildEnvironment(object):
     @staticmethod
     def load(f, app=None):
         # type: (IO, Sphinx) -> BuildEnvironment
-        env = pickle.load(f)
+        try:
+            env = pickle.load(f)
+        except Exception as exc:
+            # This can happen for example when the pickle is from a
+            # different version of Sphinx.
+            raise IOError(exc)
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
         if app:
@@ -173,8 +169,8 @@ class BuildEnvironment(object):
         # type: (Sphinx) -> None
         self.app = app
         self.doctreedir = app.doctreedir
-        self.srcdir = app.srcdir
-        self.config = app.config
+        self.srcdir = app.srcdir  # type: unicode
+        self.config = app.config  # type: Config
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -191,7 +187,7 @@ class BuildEnvironment(object):
         self._warnfunc = None  # type: Callable
 
         # this is to invalidate old pickles
-        self.version = ENV_VERSION
+        self.version = ENV_VERSION  # type: int
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -256,8 +252,8 @@ class BuildEnvironment(object):
                                     # lineno, module, descname, content)
 
         # these map absolute path -> (docnames, unique filename)
-        self.images = FilenameUniqDict()
-        self.dlfiles = FilenameUniqDict()
+        self.images = FilenameUniqDict()    # type: FilenameUniqDict
+        self.dlfiles = FilenameUniqDict()   # type: FilenameUniqDict
 
         # the original URI for images
         self.original_image_uri = {}  # type: Dict[unicode, unicode]
@@ -344,17 +340,16 @@ class BuildEnvironment(object):
         app.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename):
-        # type: (unicode) -> unicode
+        # type: (unicode) -> Optional[unicode]
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
         """
         if filename.startswith(self.srcdir):
-            filename = filename[len(self.srcdir) + 1:]
+            filename = os.path.relpath(filename, self.srcdir)
         for suffix in self.config.source_suffix:
-            if fnmatch.fnmatch(filename, '*' + suffix):
+            if filename.endswith(suffix):
                 return filename[:-len(suffix)]
-        # the file does not have docname
         return None
 
     def doc2path(self, docname, base=True, suffix=None):
@@ -368,15 +363,13 @@ class BuildEnvironment(object):
         """
         docname = docname.replace(SEP, path.sep)
         if suffix is None:
-            candidate_suffix = None  # type: unicode
+            # Use first candidate if there is not a file for any suffix
+            suffix = next(iter(self.config.source_suffix))
             for candidate_suffix in self.config.source_suffix:
                 if path.isfile(path.join(self.srcdir, docname) +
                                candidate_suffix):
                     suffix = candidate_suffix
                     break
-            else:
-                # document does not exist
-                suffix = self.config.source_suffix[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:
@@ -561,21 +554,10 @@ class BuildEnvironment(object):
         self.app.emit('env-before-read-docs', self, docnames)
 
         # check if we should do parallel or serial read
-        par_ok = False
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            for ext in itervalues(self.app.extensions):
-                if ext.parallel_read_safe is None:
-                    logger.warning(__('the %s extension does not declare if it is safe '
-                                      'for parallel reading, assuming it isn\'t - please '
-                                      'ask the extension author to check and make it '
-                                      'explicit'), ext.name)
-                    logger.warning('doing serial read')
-                    break
-                elif ext.parallel_read_safe is False:
-                    break
-            else:
-                # all extensions support parallel-read
-                par_ok = True
+            par_ok = self.app.is_parallel_allowed('read')
+        else:
+            par_ok = False
 
         if par_ok:
             self._read_parallel(docnames, self.app, nproc=self.app.parallel)
@@ -643,25 +625,9 @@ class BuildEnvironment(object):
 
     # --------- SINGLE FILE READING --------------------------------------------
 
-    def warn_and_replace(self, error):
-        # type: (Any) -> Tuple
-        """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning('undecodable source characters, replacing with "?": %r',
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
-        return (u'?', error.end)
-
-    def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
-        """Parse a file and add/update inventory entries for the doctree."""
-
+    def prepare_settings(self, docname):
+        # type: (unicode) -> None
+        """Prepare to set up environment for reading."""
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role
@@ -673,15 +639,15 @@ class BuildEnvironment(object):
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        language = self.config.language or 'en'
-        self.settings['language_code'] = language
-        if 'smart_quotes' not in self.settings:
-            self.settings['smart_quotes'] = True
-            for tag in normalize_language_tag(language):
-                if tag in smartchars.quotes:
-                    break
-            else:
-                self.settings['smart_quotes'] = False
+        self.settings['language_code'] = self.config.language or 'en'
+
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
+
+    def read_doc(self, docname, app=None):
+        # type: (unicode, Sphinx) -> None
+        """Parse a file and add/update inventory entries for the doctree."""
+        self.prepare_settings(docname)
 
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
@@ -689,34 +655,8 @@ class BuildEnvironment(object):
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 
-        with sphinx_domains(self):
-            if self.config.default_role:
-                role_fn, messages = roles.role(self.config.default_role, english,
-                                               0, dummy_reporter)
-                if role_fn:
-                    roles._roles[''] = role_fn
-                else:
-                    logger.warning('default role %s not found', self.config.default_role,
-                                   location=docname)
-
-            codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
-
-            # publish manually
-            reader = SphinxStandaloneReader(self.app,
-                                            parsers=self.app.registry.get_source_parsers())
-            pub = Publisher(reader=reader,
-                            writer=SphinxDummyWriter(),
-                            destination_class=NullOutput)
-            pub.set_components(None, 'restructuredtext', None)
-            pub.process_programmatic_settings(None, self.settings, None)
-            src_path = self.doc2path(docname)
-            source = SphinxFileInput(app, self, source=None, source_path=src_path,
-                                     encoding=self.config.source_encoding)
-            pub.source = source
-            pub.settings._source = src_path
-            pub.set_destination(None, None)
-            pub.publish()
-            doctree = pub.document
+        with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
+            doctree = read_doc(self.app, self, self.doc2path(docname))
 
         # post-processing
         for domain in itervalues(self.domains):
@@ -734,41 +674,14 @@ class BuildEnvironment(object):
             time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
-            old_doctree = None
-            if self.versioning_compare:
-                # get old doctree
-                try:
-                    with open(self.doc2path(docname,
-                                            self.doctreedir, '.doctree'), 'rb') as f:
-                        old_doctree = pickle.load(f)
-                except EnvironmentError:
-                    pass
-
             # add uids for versioning
-            if not self.versioning_compare or old_doctree is None:
-                list(add_uids(doctree, self.versioning_condition))
-            else:
-                list(merge_doctrees(
-                    old_doctree, doctree, self.versioning_condition))
-
-        # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
+            versioning.prepare(doctree)
 
         # cleanup
         self.temp_data.clear()
         self.ref_context.clear()
-        roles._roles.pop('', None)  # if a document has set a local default role
 
-        # save the parsed doctree
-        doctree_filename = self.doc2path(docname, self.doctreedir,
-                                         '.doctree')
-        ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        self.write_doctree(docname, doctree)
 
     # utilities to use while reading a document
 
@@ -872,6 +785,21 @@ class BuildEnvironment(object):
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
 
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        """Write the doctree to a file."""
+        # make it picklable
+        doctree.reporter = None
+        doctree.transformer = None
+        doctree.settings.warning_stream = None
+        doctree.settings.env = None
+        doctree.settings.record_dependencies = None
+
+        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
+        ensuredir(path.dirname(doctree_filename))
+        with open(doctree_filename, 'wb') as f:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
         # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.Node
@@ -928,7 +856,7 @@ class BuildEnvironment(object):
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
-            transformer.add_transforms(self.app.post_transforms)
+            transformer.add_transforms(self.app.registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
             self.temp_data = backup

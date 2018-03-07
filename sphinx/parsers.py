@@ -5,19 +5,21 @@
 
     A Base class for additional parsers.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 import docutils.parsers
 import docutils.parsers.rst
+from docutils.parsers.rst import states
+from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.transforms import SphinxSmartQuotes
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Type  # NOQA
+    from docutils import nodes  # NOQA
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -56,15 +58,36 @@ class Parser(docutils.parsers.Parser):
 
 
 class RSTParser(docutils.parsers.rst.Parser):
-    """A reST parser customized for Sphinx."""
+    """A reST parser for Sphinx."""
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
-        """Sphinx's reST parser replaces a transform class for smart-quotes by own's"""
+        """Sphinx's reST parser replaces a transform class for smart-quotes by own's
+
+        refs: sphinx.io.SphinxStandaloneReader"""
         transforms = docutils.parsers.rst.Parser.get_transforms(self)
         transforms.remove(SmartQuotes)
-        transforms.append(SphinxSmartQuotes)
         return transforms
+
+    def parse(self, inputstring, document):
+        # type: (Any, nodes.document) -> None
+        """Parse text and generate a document tree.
+
+        This accepts StringList as an inputstring parameter.
+        It enables to handle mixed contents (cf. :confval:`rst_prolog`) correctly.
+        """
+        if isinstance(inputstring, StringList):
+            self.setup_parse(inputstring, document)
+            self.statemachine = states.RSTStateMachine(
+                state_classes=self.state_classes,
+                initial_state=self.initial_state,
+                debug=document.reporter.debug_flag)
+            # Give inputstring directly to statemachine.
+            self.statemachine.run(inputstring, document, inliner=self.inliner)
+            self.finish_parse()
+        else:
+            # otherwise, inputstring might be a string. It will be handled by superclass.
+            docutils.parsers.rst.Parser.parse(self, inputstring, document)
 
 
 def setup(app):

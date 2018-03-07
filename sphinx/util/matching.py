@@ -5,14 +5,15 @@
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import re
+from typing import TYPE_CHECKING
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Callable, Dict, List, Match, Pattern  # NOQA
 
 

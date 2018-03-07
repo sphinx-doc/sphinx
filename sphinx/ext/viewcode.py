@@ -5,15 +5,15 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import traceback
-
-from six import iteritems, text_type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from six import iteritems, text_type
 
 import sphinx
 from sphinx import addnodes
@@ -22,8 +22,7 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -71,12 +70,12 @@ def doctree_read(app, doctree):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code
-        if entry is None or entry[0] != code:
+        if entry is False:
+            return
+        elif entry is None or entry[0] != code:
             analyzer.find_tags()
             entry = code, analyzer.tags, {}, refname
             env._viewcode_modules[modname] = entry  # type: ignore
-        elif entry is False:
-            return
         _, tags, used, _ = entry
         if fullname in tags:
             used[fullname] = docname
@@ -179,7 +178,7 @@ def collect_pages(app):
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
                 lines[start])
-            lines[min(end - 1, maxindex)] += '</div>'
+            lines[min(end, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []
         parent = modname

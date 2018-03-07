@@ -5,10 +5,12 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
+
+from typing import TYPE_CHECKING
 
 from six import iteritems, BytesIO, StringIO
 
@@ -16,8 +18,7 @@ from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
 from sphinx.util import get_module_source, detect_encoding
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 
@@ -36,11 +37,11 @@ class ModuleAnalyzer(object):
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
-            fileobj = open(filename, 'rb')
+            with open(filename, 'rb') as f:
+                obj = cls(f, modname, filename)
+                cls.cache['file', filename] = obj
         except Exception as err:
             raise PycodeError('error opening %r' % filename, err)
-        obj = cls(fileobj, modname, filename)
-        cls.cache['file', filename] = obj
         return obj
 
     @classmethod
@@ -100,7 +101,7 @@ class ModuleAnalyzer(object):
             self.tags = parser.definitions
             self.tagorder = parser.deforders
         except Exception as exc:
-            raise PycodeError('parsing failed: %r' % exc)
+            raise PycodeError('parsing %r failed: %r' % (self.srcname, exc))
 
     def find_attr_docs(self):
         # type: () -> Dict[Tuple[unicode, unicode], List[unicode]]

@@ -8,17 +8,18 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import sys
 import os
-
-from six import StringIO, string_types
+import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
+from typing import TYPE_CHECKING
+
+from six import StringIO, string_types
 
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception
@@ -26,8 +27,7 @@ from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, List, Tuple  # NOQA
 
 
@@ -136,8 +136,8 @@ class BuildDoc(Command):
         # type: () -> None
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
-            self.announce('Using source directory %s' % self.source_dir)  # type: ignore
-        self.ensure_dirname('source_dir')  # type: ignore
+            self.announce('Using source directory %s' % self.source_dir)
+        self.ensure_dirname('source_dir')
         if self.source_dir is None:
             self.source_dir = os.curdir
         self.source_dir = abspath(self.source_dir)
@@ -145,10 +145,10 @@ class BuildDoc(Command):
             self.config_dir = self.source_dir
         self.config_dir = abspath(self.config_dir)
 
-        self.ensure_string_list('builder')  # type: ignore
+        self.ensure_string_list('builder')
         if self.build_dir is None:
-            build = self.get_finalized_command('build')  # type: ignore
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
+            build = self.get_finalized_command('build')
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
             self.mkpath(self.build_dir)  # type: ignore
         self.build_dir = abspath(self.build_dir)
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')

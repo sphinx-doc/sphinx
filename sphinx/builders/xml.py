@@ -5,12 +5,13 @@
 
     Docutils-native XML and pseudo-XML builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import codecs
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.io import StringOutput
@@ -21,8 +22,7 @@ from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterator, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -35,6 +35,8 @@ class XMLBuilder(Builder):
     """
     name = 'xml'
     format = 'xml'
+    epilog = 'The XML files are in %(outdir)s.'
+
     out_suffix = '.xml'
     allow_parallel = True
 
@@ -108,6 +110,8 @@ class PseudoXMLBuilder(XMLBuilder):
     """
     name = 'pseudoxml'
     format = 'pseudoxml'
+    epilog = 'The pseudo-XML files are in %(outdir)s.'
+
     out_suffix = '.pseudoxml'
 
     _writer_class = PseudoXMLWriter

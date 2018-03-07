@@ -5,18 +5,25 @@
 
     Importer utilities for autodoc
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import contextlib
 import sys
+import traceback
+import warnings
+from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
+from typing import TYPE_CHECKING
+
+from six import PY2
 
 from sphinx.util import logging
+from sphinx.util.inspect import isenumclass, safe_getattr
 
-if False:
-    # For type annotation
-    from typing import Any, List, Set  # NOQA
+if TYPE_CHECKING:
+    from typing import Any, Callable, Dict, Generator, List, Optional  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -75,19 +82,12 @@ class _MockModule(ModuleType):
 
 
 class _MockImporter(object):
-
     def __init__(self, names):
         # type: (List[str]) -> None
-        self.base_packages = set()  # type: Set[str]
-        for n in names:
-            # Convert module names:
-            #     ['a.b.c', 'd.e']
-            # to a set of base packages:
-            #     set(['a', 'd'])
-            self.base_packages.add(n.split('.')[0])
+        self.names = names
         self.mocked_modules = []  # type: List[str]
         # enable hook by adding itself to meta_path
-        sys.meta_path = sys.meta_path + [self]
+        sys.meta_path.insert(0, self)
 
     def disable(self):
         # remove `self` from `sys.meta_path` to disable import hook
@@ -100,9 +100,10 @@ class _MockImporter(object):
 
     def find_module(self, name, path=None):
         # type: (str, str) -> Any
-        base_package = name.split('.')[0]
-        if base_package in self.base_packages:
-            return self
+        # check if name is (or is a descendant of) one of our base_packages
+        for n in self.names:
+            if n == name or name.startswith(n + '.'):
+                return self
         return None
 
     def load_module(self, name):
@@ -116,3 +117,112 @@ class _MockImporter(object):
             sys.modules[name] = module
             self.mocked_modules.append(name)
             return module
+
+
+@contextlib.contextmanager
+def mock(names):
+    # type: (List[str]) -> Generator
+    try:
+        importer = _MockImporter(names)
+        yield
+    finally:
+        importer.disable()
+
+
+def import_module(modname, warningiserror=False):
+    """
+    Call __import__(modname), convert exceptions to ImportError
+    """
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ImportWarning)
+            with logging.skip_warningiserror(not warningiserror):
+                __import__(modname)
+                return sys.modules[modname]
+    except BaseException as exc:
+        # Importing modules may cause any side effects, including
+        # SystemExit, so we need to catch all errors.
+        raise ImportError(exc, traceback.format_exc())
+
+
+def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
+    # type: (str, List[unicode], str, Callable[[Any, unicode], Any], bool) -> Any
+    if objpath:
+        logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
+    else:
+        logger.debug('[autodoc] import %s', modname)
+
+    try:
+        module = import_module(modname, warningiserror=warningiserror)
+        logger.debug('[autodoc] => %r', module)
+        obj = module
+        parent = None
+        object_name = None
+        for attrname in objpath:
+            parent = obj
+            logger.debug('[autodoc] getattr(_, %r)', attrname)
+            obj = attrgetter(obj, attrname)
+            logger.debug('[autodoc] => %r', obj)
+            object_name = attrname
+        return [module, parent, object_name, obj]
+    except (AttributeError, ImportError) as exc:
+        if objpath:
+            errmsg = ('autodoc: failed to import %s %r from module %r' %
+                      (objtype, '.'.join(objpath), modname))
+        else:
+            errmsg = 'autodoc: failed to import %s %r' % (objtype, modname)
+
+        if isinstance(exc, ImportError):
+            # import_module() raises ImportError having real exception obj and
+            # traceback
+            real_exc, traceback_msg = exc.args
+            if isinstance(real_exc, SystemExit):
+                errmsg += ('; the module executes module level statement '
+                           'and it might call sys.exit().')
+            elif isinstance(real_exc, ImportError) and real_exc.args:
+                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+            else:
+                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+        else:
+            errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
+
+        if PY2:
+            errmsg = errmsg.decode('utf-8')  # type: ignore
+        logger.debug(errmsg)
+        raise ImportError(errmsg)
+
+
+Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
+
+
+def get_object_members(subject, objpath, attrgetter, analyzer=None):
+    # type: (Any, List[unicode], Callable, Any) -> Dict[str, Attribute]  # NOQA
+    """Get members and attributes of target object."""
+    # the members directly defined in the class
+    obj_dict = attrgetter(subject, '__dict__', {})
+
+    # Py34 doesn't have enum members in __dict__.
+    if sys.version_info[:2] == (3, 4) and isenumclass(subject):
+        obj_dict = dict(obj_dict)
+        for name, value in subject.__members__.items():
+            obj_dict[name] = value
+
+    members = {}
+    for name in dir(subject):
+        try:
+            value = attrgetter(subject, name)
+            directly_defined = name in obj_dict
+            members[name] = Attribute(name, directly_defined, value)
+        except AttributeError:
+            continue
+
+    if analyzer:
+        # append instance attributes (cf. self.attr1) if analyzer knows
+        from sphinx.ext.autodoc import INSTANCEATTR
+
+        namespace = '.'.join(objpath)
+        for (ns, name) in analyzer.find_attr_docs():
+            if namespace == ns and name not in members:
+                members[name] = Attribute(name, True, INSTANCEATTR)
+
+    return members

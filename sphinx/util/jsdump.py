@@ -6,18 +6,19 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import re
+from typing import TYPE_CHECKING
 
 from six import iteritems, integer_types, string_types
 
 from sphinx.util.pycompat import u
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')

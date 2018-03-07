@@ -5,22 +5,22 @@
 
     Toctree collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.util import url_re, logging
-from sphinx.transforms import SphinxContentsFilter
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.transforms import SphinxContentsFilter
+from sphinx.util import url_re, logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -262,7 +262,7 @@ class TocTreeCollector(EnvironmentCollector):
 
                     continue
 
-                figtype = env.get_domain('std').get_figtype(subnode)  # type: ignore
+                figtype = env.get_domain('std').get_figtype(subnode)
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 

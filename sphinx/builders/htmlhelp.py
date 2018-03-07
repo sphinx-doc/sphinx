@@ -6,14 +6,15 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import os
 import codecs
+import os
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -24,8 +25,7 @@ from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -174,6 +174,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
+    epilog = ('You can now run HTML Help Workshop with the .htp file in '
+              '%(outdir)s.')
 
     # don't copy the reST source
     copysource = False

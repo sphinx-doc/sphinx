@@ -5,18 +5,18 @@
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-from os import path
 from glob import glob
-
-from six import iteritems, itervalues
+from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import iteritems, itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -24,8 +24,7 @@ from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

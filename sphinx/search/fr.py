@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
@@ -207,4 +209,4 @@ class SearchFrench(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('french')
 
     def stem(self, word):
-        return self.stemmer.stemWord(word)
+        return self.stemmer.stemWord(word.lower())

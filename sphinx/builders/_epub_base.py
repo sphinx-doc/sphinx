@@ -5,16 +5,27 @@
 
     Base class of epub2/epub3 builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
-from os import path
-from sphinx.util.i18n import format_date
-from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from collections import namedtuple
+from os import path
+from typing import TYPE_CHECKING
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
+
+from docutils import nodes
+from docutils.utils import smartquotes
+
+from sphinx import addnodes
+from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
+from sphinx.util import logging
+from sphinx.util import status_iterator
+from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.i18n import format_date
+from sphinx.util.osutil import ensuredir, copyfile
 
 try:
     from PIL import Image
@@ -24,18 +35,7 @@ except ImportError:
     except ImportError:
         Image = None
 
-from docutils import nodes
-from docutils.utils import smartquotes
-
-from sphinx import addnodes
-from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util import logging
-from sphinx.util import status_iterator
-from sphinx.util.osutil import ensuredir, copyfile
-from sphinx.util.fileutil import copy_asset_file
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -158,6 +158,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.tocid = 0
         self.id_cache = {}  # type: Dict[unicode, unicode]
         self.use_index = self.get_builder_config('use_index', 'epub')
+
+    def create_build_info(self):
+        # type: () -> BuildInfo
+        return BuildInfo(self.config, self.tags, ['html', 'epub'])
 
     def get_theme_config(self):
         # type: () -> Tuple[unicode, Dict]

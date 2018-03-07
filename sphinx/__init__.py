@@ -5,7 +5,7 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,10 +15,10 @@
 from __future__ import absolute_import
 
 import os
+import sys
 import warnings
 from os import path
 
-from .cmd import build
 from .deprecation import RemovedInNextVersionWarning
 from .deprecation import RemovedInSphinx20Warning
 
@@ -31,13 +31,13 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '1.7+'
-__released__ = '1.7'  # used when Sphinx builds its own docs
+__version__ = '1.7.2+'
+__released__ = '1.7.2'  # used when Sphinx builds its own docs
 
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 7, 0, 'beta', 0)
+version_info = (1, 7, 2, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -61,15 +61,40 @@ if __version__.endswith('+'):
 
 
 def main(*args, **kwargs):
+    from .cmd import build
     warnings.warn(
         '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    build.main(*args, **kwargs)
+    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
+    return build.main(*args, **kwargs)
+
+
+def build_main(argv=sys.argv):
+    """Sphinx build "main" command-line entry."""
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.build_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
+
+
+def make_main(argv=sys.argv):
+    """Sphinx build "make mode" entry."""
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.make_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
 if __name__ == '__main__':
+    from .cmd import build
     warnings.warn(
         '`sphinx` has moved to `sphinx.build`.',
         RemovedInSphinx20Warning,

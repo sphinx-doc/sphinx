@@ -7,20 +7,21 @@
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
 
 import sphinx
-from sphinx.locale import _
 from sphinx.errors import ExtensionError
+from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup
+from sphinx.locale import _
 
 
 def html_visit_math(self, node):
-    self.body.append(self.starttag(node, 'span', '', CLASS='math'))
+    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node['latex']) +
                      self.builder.config.mathjax_inline[1] + '</span>')
@@ -28,7 +29,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    self.body.append(self.starttag(node, 'div', CLASS='math'))
+    self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
     if node['nowrap']:
         self.body.append(self.encode(node['latex']))
         self.body.append('</div>')
@@ -36,7 +37,8 @@ def html_visit_displaymath(self, node):
 
     # necessary to e.g. set the id property correctly
     if node['number']:
-        self.body.append('<span class="eqno">(%s)' % node['number'])
+        number = get_node_equation_number(self, node)
+        self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])

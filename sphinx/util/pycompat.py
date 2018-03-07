@@ -5,17 +5,18 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
-import sys
 import codecs
+import sys
+from typing import TYPE_CHECKING
 
 from six import PY3, text_type, exec_
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Generator  # NOQA
 
 

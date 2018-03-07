@@ -5,25 +5,24 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import pickle
+import re
 
+import pytest
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
-import pytest
-
-from sphinx.testing.util import assert_node
 
 
 @pytest.fixture
@@ -133,26 +132,27 @@ def get_verifier(verify, verify_re):
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # correct interpretation of code with whitespace
         'verify_re',
         ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # interpolation of braces in samp and file roles (HTML only)
         'verify',
         ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal"><span class="pre">a</span>'
+        ('<p><code class="samp docutils literal notranslate">'
+         '<span class="pre">a</span>'
          '<em><span class="pre">b</span></em>'
          '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{a\\sphinxstyleemphasis{b}c}',
+        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
     ),
     (
         # interpolation of arrows in menuselection
@@ -173,9 +173,9 @@ def get_verifier(verify, verify_re):
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
-        ('<p><code( class="xref std std-option docutils literal")?>'
+        ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{-{-}with-option}$',
+        r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
     ),
     (
         # verify smarty-pants quotes
@@ -188,16 +188,16 @@ def get_verifier(verify, verify_re):
         # ... but not in literal text
         'verify',
         '``"John"``',
-        ('<p><code class="docutils literal"><span class="pre">'
+        ('<p><code class="docutils literal notranslate"><span class="pre">'
          '&quot;John&quot;</span></code></p>'),
-        '\\sphinxcode{"John"}',
+        '\\sphinxcode{\\sphinxupquote{"John"}}',
     ),
     (
         # verify classes for inline roles
         'verify',
         ':manpage:`mp(1)`',
         '<p><em class="manpage">mp(1)</em></p>',
-        '\\sphinxstyleliteralemphasis{mp(1)}',
+        '\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
     ),
     (
         # correct escaping in normal mode
@@ -211,7 +211,8 @@ def get_verifier(verify, verify_re):
         'verify',
         u'::\n\n @Γ\\∞${}',
         None,
-        (u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+        (u'\\fvset{hllines={, ,}}%\n'
+         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
          u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          u'\\end{sphinxVerbatim}'),
     ),

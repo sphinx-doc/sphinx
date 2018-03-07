@@ -6,33 +6,33 @@
     Render math in HTML via dvipng. This extension has been deprecated; please
     use sphinx.ext.imgmath instead.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import codecs
+import posixpath
+import re
 import shutil
 import tempfile
-import posixpath
+from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from hashlib import sha1
-
-from six import text_type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.util import logging
-from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.osutil import ensuredir, ENOENT, cd
-from sphinx.util.pycompat import sys_encoding
+from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.util import logging
+from sphinx.util.osutil import ensuredir, ENOENT, cd
+from sphinx.util.png import read_png_depth, write_png_depth
+from sphinx.util.pycompat import sys_encoding
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
@@ -242,7 +242,8 @@ def html_visit_displaymath(self, node):
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
-        self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+        number = get_node_equation_number(self, node)
+        self.body.append('<span class="eqno">(%s)</span>' % number)
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %

@@ -5,32 +5,33 @@
 
     Texinfo builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import os
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.io import FileOutput
-from docutils.utils import new_document
 from docutils.frontend import OptionParser
+from docutils.io import FileOutput
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util import status_iterator
+from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from sphinx.application import Sphinx  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
 
@@ -97,6 +98,12 @@ class TexinfoBuilder(Builder):
     """
     name = 'texinfo'
     format = 'texinfo'
+    epilog = 'The Texinfo files are in %(outdir)s.'
+    if os.name == 'posix':
+        epilog += ("\nRun 'make' in that directory to run these through "
+                   "makeinfo\n"
+                   "(use 'make info' here to do that automatically).")
+
     supported_image_types = ['image/png', 'image/jpeg',
                              'image/gif']
     default_translator_class = TexinfoTranslator

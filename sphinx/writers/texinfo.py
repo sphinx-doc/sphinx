@@ -5,18 +5,18 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import textwrap
 from os import path
-
-from six import itervalues
-from six.moves import range
+from typing import TYPE_CHECKING
 
 from docutils import nodes, writers
+from six import itervalues
+from six.moves import range
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
@@ -25,8 +25,7 @@ from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
 

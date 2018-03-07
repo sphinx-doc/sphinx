@@ -5,23 +5,22 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
 import re
-
-from six import text_type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Iterable, List, Set, Tuple, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
@@ -354,10 +353,33 @@ def is_smartquotable(node):
     """Check the node is smart-quotable or not."""
     if isinstance(node.parent, NON_SMARTQUOTABLE_PARENT_NODES):
         return False
+    elif node.parent.get('support_smartquotes', None) is False:
+        return False
     elif getattr(node, 'support_smartquotes', None) is False:
         return False
     else:
         return True
+
+
+def process_only_nodes(document, tags):
+    # type: (nodes.Node, Tags) -> None
+    """Filter ``only`` nodes which does not match *tags*."""
+    for node in document.traverse(addnodes.only):
+        try:
+            ret = tags.eval_condition(node['expr'])
+        except Exception as err:
+            logger.warning('exception while evaluating only directive expression: %s', err,
+                           location=node)
+            node.replace_self(node.children or nodes.comment())
+        else:
+            if ret:
+                node.replace_self(node.children or nodes.comment())
+            else:
+                # A comment on the comment() nodes being inserted: replacing by [] would
+                # result in a "Losing ids" exception if there is a target node before
+                # the only node, so we make sure docutils can transfer the id to
+                # something, even if it's just a comment and will lose the id anyway...
+                node.replace_self(nodes.comment())
 
 
 # monkey-patch Element.copy to copy the rawsource and line

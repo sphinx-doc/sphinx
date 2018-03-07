@@ -7,30 +7,30 @@
 
     .. _Devhelp: http://live.gnome.org/devhelp
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
-import re
 import gzip
+import re
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util import logging
-from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.util import logging
+from sphinx.util.osutil import make_filename
 
 try:
     import xml.etree.ElementTree as etree
 except ImportError:
     import lxml.etree as etree  # type: ignore
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -43,6 +43,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs GNOME Devhelp file.
     """
     name = 'devhelp'
+    epilog = ('To view the help file:\n'
+              '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
+              '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
+              '$ devhelp')
 
     # don't copy the reST source
     copysource = False

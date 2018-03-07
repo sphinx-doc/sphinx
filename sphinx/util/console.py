@@ -5,13 +5,15 @@
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import os
-import sys
 import re
+import sys
+from typing import TYPE_CHECKING
 
 try:
     # check if colorama is installed to support color on Windows
@@ -19,8 +21,7 @@ try:
 except ImportError:
     colorama = None
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict  # NOQA
 
 

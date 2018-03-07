@@ -20,12 +20,12 @@
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
 from docutils import nodes, utils
+from six import iteritems
 
 import sphinx
 from sphinx.util.nodes import split_explicit_title

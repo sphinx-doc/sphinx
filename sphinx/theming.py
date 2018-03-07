@@ -5,7 +5,7 @@
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,6 +14,7 @@ import shutil
 import tempfile
 import warnings
 from os import path
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import pkg_resources
@@ -29,8 +30,7 @@ from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -157,7 +157,7 @@ def is_archived_theme(filename):
     try:
         with ZipFile(filename) as f:  # type: ignore
             return THEMECONF in f.namelist()
-    except:
+    except Exception:
         return False
 
 

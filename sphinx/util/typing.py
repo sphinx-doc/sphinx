@@ -5,15 +5,15 @@
 
     The composit types for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
 from typing import Callable, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+from six import PY3
 
 
 if PY3:

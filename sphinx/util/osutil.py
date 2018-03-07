@@ -5,26 +5,28 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 from __future__ import print_function
 
+import contextlib
+import errno
+import filecmp
+import locale
 import os
 import re
+import shutil
 import sys
 import time
-import errno
-import locale
-import shutil
-import filecmp
-from os import path
-import contextlib
 from io import BytesIO, StringIO
+from os import path
+from typing import TYPE_CHECKING
+
 from six import PY2, PY3, text_type
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Iterator, List, Tuple, Union  # NOQA
 
 # Errnos that we need.

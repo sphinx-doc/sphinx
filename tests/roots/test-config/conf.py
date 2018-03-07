@@ -8,12 +8,18 @@ value5 = 3  # parent type
 value6 = ()  # other sequence type, also raises
 value7 = ['foo']  # explicitly permitted
 
+
 class A(object):
     pass
+
+
 class B(A):
     pass
+
+
 class C(A):
     pass
+
 
 value8 = C()  # sibling type
 

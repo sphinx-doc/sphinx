@@ -5,25 +5,25 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-from math import ceil
 from hashlib import sha1
+from math import ceil
+from typing import TYPE_CHECKING
 
-from six import text_type
 from docutils import nodes
+from six import text_type
 
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

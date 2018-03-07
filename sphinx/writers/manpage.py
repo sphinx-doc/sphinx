@@ -5,9 +5,11 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.writers.manpage import (
@@ -16,14 +18,13 @@ from docutils.writers.manpage import (
     Translator as BaseTranslator
 )
 
+import sphinx.util.docutils
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
-import sphinx.util.docutils
 from sphinx.util.i18n import format_date
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any  # NOQA
     from sphinx.builders import Builder  # NOQA
 

@@ -5,17 +5,18 @@
 
     JSON serializer implementation wrapper.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import json
+from typing import TYPE_CHECKING
 
 from six import text_type
 from six.moves import UserString
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, IO  # NOQA
 
 

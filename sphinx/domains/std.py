@@ -5,29 +5,28 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import unicodedata
-
-from six import iteritems
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -607,8 +606,9 @@ class StandardDomain(Domain):
             if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
                 node = document.ids.get(node['refid'])
                 labelid = node['names'][0]
-            if name.isdigit() or 'refuri' in node or \
-               node.tagname.startswith('desc_'):
+            if (node.tagname == 'footnote' or
+                    'refuri' in node or
+                    node.tagname.startswith('desc_')):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
@@ -959,12 +959,18 @@ class StandardDomain(Domain):
 
     def get_full_qualified_name(self, node):
         # type: (nodes.Node) -> unicode
-        progname = node.get('std:program')
-        target = node.get('reftarget')
-        if progname is None or target is None:
-            return None
+        if node.get('reftype') == 'option':
+            progname = node.get('std:program')
+            command = ws_re.split(node.get('reftarget'))
+            if progname:
+                command.insert(0, progname)
+            option = command.pop()
+            if command:
+                return '.'.join(['-'.join(command), option])
+            else:
+                return None
         else:
-            return '.'.join([progname, target])
+            return None
 
 
 def setup(app):

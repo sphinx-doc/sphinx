@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="{{ lang }}"
+<package xmlns="http://www.idpf.org/2007/opf" version="{{ epub_version }}" xml:lang="{{ lang }}"
  unique-identifier="{{ uid }}"
  prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
@@ -11,7 +11,11 @@
     <dc:contributor>{{ contributor }}</dc:contributor>
     <dc:publisher>{{ publisher }}</dc:publisher>
     <dc:rights>{{ copyright }}</dc:rights>
+    {%- if epub_version == 3.1 %}
+    <dc:identifier id="{{ uid }}" opf:scheme="{{ scheme }}">{{ id }}</dc:identifier>
+    {%- else %}
     <dc:identifier id="{{ uid }}">{{ id }}</dc:identifier>
+    {%- endif %}
     <dc:date>{{ date }}</dc:date>
     <meta property="dcterms:modified">{{ date }}</meta>
     <meta property="ibooks:version">{{ version }}</meta>

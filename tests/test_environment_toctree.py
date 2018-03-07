@@ -5,18 +5,18 @@
 
     Test the sphinx.environment.managers.toctree.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import pytest
 from docutils import nodes
 from docutils.nodes import bullet_list, list_item, caption, comment, reference
+
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import TocTree
-import pytest
-
 from sphinx.testing.util import assert_node
 
 
@@ -113,7 +113,7 @@ def test_glob(app):
                 maxdepth=-1, numbered=0, includefiles=includefiles,
                 entries=[(None, 'foo'), (None, 'bar/index'), (None, 'bar/bar_1'),
                          (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'baz'),
-                         (None, 'qux/index')])
+                         (None, 'qux/index'), ('hyperref', 'https://sphinx-doc.org/?q=sphinx')])
     assert_node(toctree[0][1][1],
                 [list_item, ([compact_paragraph, reference, "reversed order"],
                              [bullet_list, addnodes.toctree])])  # [0][1][1][1][0]

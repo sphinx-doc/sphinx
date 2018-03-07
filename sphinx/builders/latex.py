@@ -5,36 +5,35 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 from os import path
-
-from six import text_type
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.io import FileOutput
-from docutils.utils import new_document
 from docutils.frontend import OptionParser
+from docutils.io import FileOutput
+from six import text_type
 
 from sphinx import package_dir, addnodes, highlighting
-from sphinx.config import string_classes, ENUM
-from sphinx.errors import SphinxError, ConfigError
-from sphinx.locale import _
 from sphinx.builders import Builder
+from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import SphinxError, ConfigError
+from sphinx.locale import _
 from sphinx.util import texescape, logging, status_iterator
-from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import new_document
+from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import SEP, make_filename
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -49,6 +48,12 @@ class LaTeXBuilder(Builder):
     """
     name = 'latex'
     format = 'latex'
+    epilog = 'The LaTeX files are in %(outdir)s.'
+    if os.name == 'posix':
+        epilog += ("\nRun 'make' in that directory to run these through "
+                   "(pdf)latex\n"
+                   "(use `make latexpdf' here to do that automatically).")
+
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
     default_translator_class = LaTeXTranslator

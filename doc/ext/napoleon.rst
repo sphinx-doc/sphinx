@@ -68,8 +68,8 @@ Getting Started
 
        # conf.py
 
-       # Add autodoc and napoleon to the extensions list
-       extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+       # Add napoleon to the extensions list
+       extensions = ['sphinx.ext.napoleon']
 
 2. Use `sphinx-apidoc` to build your API documentation::
 
@@ -246,13 +246,12 @@ Configuration
 
 Listed below are all the settings used by napoleon and their default
 values. These settings can be changed in the Sphinx `conf.py` file. Make
-sure that both "sphinx.ext.autodoc" and "sphinx.ext.napoleon" are
-enabled in `conf.py`::
+sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
     # conf.py
 
     # Add any Sphinx extension module names here, as strings
-    extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+    extensions = ['sphinx.ext.napoleon']
 
     # Napoleon settings
     napoleon_google_docstring = True

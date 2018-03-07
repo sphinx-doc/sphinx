@@ -5,7 +5,7 @@
 
     This file has moved to :py:mod:`sphinx.ext.apidoc`.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,6 +21,7 @@ def main(*args, **kwargs):
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
+    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
     _main(*args, **kwargs)
 
 

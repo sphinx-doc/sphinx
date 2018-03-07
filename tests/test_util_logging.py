@@ -5,24 +5,23 @@
 
     Test logging util.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
 import codecs
+import os
+
+import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
+from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.parallel import ParallelTasks
-
-import pytest
-from sphinx.testing.util import strip_escseq
-
-import os
 
 
 def test_info_and_warning(app, status, warning):
@@ -183,7 +182,7 @@ def test_warning_location(app, status, warning):
     assert 'index.txt:10: WARNING: message2' in warning.getvalue()
 
     logger.warning('message3', location=None)
-    assert colorize('darkred', 'WARNING: message3') in warning.getvalue()
+    assert colorize('red', 'WARNING: message3') in warning.getvalue()
 
     node = nodes.Node()
     node.source, node.line = ('index.txt', 10)
@@ -200,7 +199,7 @@ def test_warning_location(app, status, warning):
 
     node.source, node.line = (None, None)
     logger.warning('message7', location=node)
-    assert colorize('darkred', 'WARNING: message7') in warning.getvalue()
+    assert colorize('red', 'WARNING: message7') in warning.getvalue()
 
 
 def test_pending_warnings(app, status, warning):
@@ -236,7 +235,7 @@ def test_colored_logs(app, status, warning):
     assert colorize('darkgray', 'message1') in status.getvalue()
     assert 'message2\n' in status.getvalue()  # not colored
     assert 'message3\n' in status.getvalue()  # not colored
-    assert colorize('darkred', 'WARNING: message4') in warning.getvalue()
+    assert colorize('red', 'WARNING: message4') in warning.getvalue()
     assert 'WARNING: message5\n' in warning.getvalue()  # not colored
     assert colorize('darkred', 'WARNING: message6') in warning.getvalue()
 

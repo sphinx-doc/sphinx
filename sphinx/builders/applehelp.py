@@ -5,32 +5,30 @@
 
     Build Apple help books.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
 import codecs
 import pipes
-
-from os import path, environ
+import plistlib
 import shlex
+import subprocess
+from os import path, environ
+from typing import TYPE_CHECKING
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
+from sphinx.errors import SphinxError
 from sphinx.util import logging
-from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
-from sphinx.util.pycompat import htmlescape
 from sphinx.util.matching import Matcher
-from sphinx.errors import SphinxError
+from sphinx.util.osutil import copyfile, ensuredir, make_filename
+from sphinx.util.pycompat import htmlescape
 
-import plistlib
-import subprocess
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -75,6 +73,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     on the ``hiutil`` command line tool.
     """
     name = 'applehelp'
+    epilog = ('The help book is in %(outdir)s.\n'
+              'Note that won\'t be able to view it unless you put it in '
+              '~/Library/Documentation/Help or install it in your application '
+              'bundle.')
 
     # don't copy the reST source
     copysource = False

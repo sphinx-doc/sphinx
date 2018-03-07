@@ -29,6 +29,7 @@ The *latex* target does not benefit from pre-prepared themes like the
          cautionBgColor={named}{LightCyan}}
    \relax
 
+.. _latex-basic:
 
 Basic customization
 -------------------
@@ -61,17 +62,17 @@ It is achieved via usage of the
 .. highlight:: latex
 
 If the size of the ``'preamble'`` contents becomes inconvenient, one may move
-all needed macros into some file :file:`mystyle.tex` of the project source
+all needed macros into some file :file:`mystyle.tex.txt` of the project source
 repertory, and get LaTeX to import it at run time::
 
-   'preamble': r'\input{mystyle.tex}',
+   'preamble': r'\input{mystyle.tex.txt}',
    # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
    'preamble': r'\usepackage{mystyle}',
 
 It is needed to set appropriately :confval:`latex_additional_files`, for
 example::
 
-   latex_additional_files = ["mystyle.tex"]
+   latex_additional_files = ["mystyle.sty"]
 
 .. _latexsphinxsetup:
 
@@ -266,6 +267,16 @@ The available styling options
 ``VerbatimBorderColor``
     default ``{rgb}{0,0,0}``. The frame color, defaults to black.
 
+``VerbatimHighlightColor``
+    default ``{rgb}{0.878,1,1}``. The color for highlighted lines.
+
+    .. versionadded:: 1.6.6
+
+.. note::
+
+   Starting with this colour key, and for all others coming next, the actual
+   names declared to "color" or "xcolor" are prefixed with "sphinx".
+
 ``verbatimsep``
     default ``\fboxsep``. The separation between code lines and the frame.
 
@@ -286,11 +297,6 @@ The available styling options
 |notebdcolors|
     default ``{rgb}{0,0,0}`` (black). The colour for the two horizontal rules
     used by Sphinx in LaTeX for styling a :dudir:`note` type admonition.
-
-.. note::
-
-   The actual colour names declared to "color" or "xcolor" are prefixed with
-   "sphinx".
 
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     default ``0.5pt``. The width of the two horizontal rules.
@@ -440,6 +446,11 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
+  .. versionadded:: 1.6.6
+     support for ``:emphasize-lines:`` option
+  .. versionadded:: 1.6.6
+     easier customizability of the formatting via exposed to user LaTeX macros
+     such as ``\sphinxVerbatimHighlightLine``.
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``

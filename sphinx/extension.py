@@ -5,9 +5,11 @@
 
     Utilities for Sphinx extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import TYPE_CHECKING
 
 from six import iteritems
 
@@ -15,8 +17,7 @@ from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -38,7 +39,7 @@ class Extension(object):
         # The extension supports parallel write or not.  The default value
         # is ``True``.  Sphinx writes parallelly documents even if
         # the extension does not tell its status.
-        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
+        self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
 def verify_required_extensions(app, requirements):
@@ -50,7 +51,7 @@ def verify_required_extensions(app, requirements):
     for extname, reqversion in iteritems(requirements):
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(__('The %s extension is required by needs_extensions settings,'
+            logger.warning(__('The %s extension is required by needs_extensions settings, '
                               'but it is not loaded.'), extname)
             continue
 

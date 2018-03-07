@@ -5,28 +5,27 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-
-from six import iteritems
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType, Index
+from sphinx.locale import l_, _
+from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.nodes import make_refnode
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -39,7 +38,7 @@ logger = logging.getLogger(__name__)
 py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional: arguments
+          (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
@@ -348,6 +347,10 @@ class PyObject(ObjectDescription):
             if self.allow_nesting:
                 classes = self.env.ref_context.setdefault('py:classes', [])
                 classes.append(prefix)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            modules.append(self.env.ref_context.get('py:module'))
+            self.env.ref_context['py:module'] = self.options['module']
 
     def after_content(self):
         # type: () -> None
@@ -368,6 +371,12 @@ class PyObject(ObjectDescription):
                 pass
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            if modules:
+                self.env.ref_context['py:module'] = modules.pop()
+            else:
+                self.env.ref_context.pop('py:module')
 
 
 class PyModulelevel(PyObject):

@@ -5,28 +5,27 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import TYPE_CHECKING
 
-from six import string_types
-
-from docutils.io import FileOutput
 from docutils.frontend import OptionParser
+from docutils.io import FileOutput
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util import logging
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -40,6 +39,8 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
+    epilog = 'The manual pages are in %(outdir)s.'
+
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
 

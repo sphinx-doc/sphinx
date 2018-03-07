@@ -5,7 +5,7 @@
 
     Simple requests package loader
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,12 +13,13 @@ from __future__ import absolute_import
 
 import warnings
 from contextlib import contextmanager
+from typing import TYPE_CHECKING
 
-import requests
 import pkg_resources
-
+import requests
 from six import string_types
 from six.moves.urllib.parse import urlsplit
+
 try:
     from requests.packages.urllib3.exceptions import SSLError
 except ImportError:
@@ -75,8 +76,7 @@ else:
             'install requests-2.4.1+.'
         )
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Generator, Union  # NOQA
     from sphinx.config import Config  # NOQA
 
@@ -109,7 +109,7 @@ def ignore_insecure_warning(**kwargs):
 
 def _get_tls_cacert(url, config):
     # type: (unicode, Config) -> Union[str, bool]
-    """Get addiotinal CA cert for a specific URL.
+    """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
     And returns ``True`` if additional CA cert not found.

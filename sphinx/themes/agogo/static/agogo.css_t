@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- agogo theme.
  *
- * :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -269,7 +269,7 @@ div.document ol {
 /* Sidebar */
 
 div.sidebar {
-  width: {{ theme_sidebarwidth }};
+  width: {{ theme_sidebarwidth|todim }};
   float: right;
   font-size: .9em;
 }

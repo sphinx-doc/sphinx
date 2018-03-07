@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}{%- if html5_doctype %}
@@ -87,16 +87,7 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '{{ url_root }}',
-        VERSION:     '{{ release|e }}',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
-        HAS_SOURCE:  {{ has_source|lower }},
-        SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}'
-      };
-    </script>
+    <script type="text/javascript" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for scriptfile in script_files %}
     <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
     {%- endfor %}
@@ -120,8 +111,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
 {%- endif %}
   <head>
-    {%- if not html5_doctype %}
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    {%- if not html5_doctype and not skip_ua_compatible %}
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     {%- endif %}
     {%- if use_meta_charset or html5_doctype %}
     <meta charset="{{ encoding }}" />
@@ -132,7 +123,7 @@
     {%- block htmltitle %}
     <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
     {%- endblock %}
-    {%- block csss %}
+    {%- block css %}
     {{- css() }}
     {%- endblock %}
     {%- if not embedded %}
@@ -170,7 +161,7 @@
 {%- endblock %}
 {%- block extrahead %} {% endblock %}
   </head>
-  <body>
+  {%- block body_tag %}<body>{% endblock %}
 {%- block header %}{% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}

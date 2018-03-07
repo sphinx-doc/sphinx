@@ -63,7 +63,7 @@ Cross-referencing anything
      by :rst:role:`doc`, :rst:role:`ref` or :rst:role:`option`.
 
      Custom objects added to the standard domain by extensions (see
-     :meth:`.add_object_type`) are also searched.
+     :meth:`Sphinx.add_object_type`) are also searched.
 
    * Then, it looks for objects (targets) in all loaded domains.  It is up to
      the domains how specific a match must be.  For example, in the Python
@@ -227,15 +227,15 @@ Cross-referencing figures by figure number
    reST labels are used.  When you use this role, it will insert a reference to
    the figure with link text by its figure number like "Fig. 1.1".
 
-   If an explicit link text is given (like usual: ``:numref:`Image of Sphinx (Fig.
-   %s) <my-figure>```), the link caption will be the title of the reference.
-   As a special character, `%s` and `{number}` will be replaced to figure
-   number.  `{name}` will be replaced to figure caption.
-   If no explicit link text is given, the value of :confval:`numfig_format` is
-   used to default value of link text.
+   If an explicit link text is given (as usual: ``:numref:`Image of Sphinx (Fig.
+   %s) <my-figure>```), the link caption will serve as title of the reference.
+   As placeholders, `%s` and `{number}` get replaced by the figure
+   number and  `{name}` by the figure caption.
+   If no explicit link text is given, the :confval:`numfig_format` setting is
+   used as fall-back default.
 
-   If :confval:`numfig` is ``False``, figures are not numbered.
-   so this role inserts not a reference but labels or link text.
+   If :confval:`numfig` is ``False``, figures are not numbered,
+   so this role inserts not a reference but the label or the link text.
 
 Cross-referencing other items of interest
 -----------------------------------------
@@ -355,7 +355,8 @@ in a different style:
 .. rst:role:: manpage
 
    A reference to a Unix manual page including the section,
-   e.g. ``:manpage:`ls(1)```.
+   e.g. ``:manpage:`ls(1)```. Creates a hyperlink to an external site
+   rendering the manpage if :confval:`manpages_url` is defined.
 
 .. rst:role:: menuselection
 

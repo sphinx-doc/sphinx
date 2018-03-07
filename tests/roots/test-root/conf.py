@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
+import os
+import sys
+
+from docutils import nodes
+from docutils.parsers.rst import Directive
+
+from sphinx import addnodes
+
 
 sys.path.append(os.path.abspath('.'))
 
@@ -29,15 +36,11 @@ numfig = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 
-html_theme = 'testtheme'
-html_theme_path = ['.']
-html_theme_options = {'testopt': 'testoverride'}
-html_sidebars = {'**': 'customsb.html',
+html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
+                        'customsb.html', 'searchbox.html'],
                  'contents': ['contentssb.html', 'localtoc.html',
                               'globaltoc.html']}
 html_style = 'default.css'
-html_static_path = ['_static', 'templated.css_t']
-html_extra_path = ['robots.txt']
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
@@ -73,21 +76,17 @@ extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
 
 autodoc_mock_imports = [
     'missing_module',
-    'missing_package1.missing_module1',
-    'missing_package2.missing_module2',
-    'missing_package3.missing_module3',
+    'missing_package1',
+    'missing_package2',
+    'missing_package3',
+    'sphinx.missing_module4',
 ]
 
 # modify tags from conf.py
-tags.add('confpytag')
+tags.add('confpytag')  # NOQA
+
 
 # -- extension API
-
-from docutils import nodes
-from docutils.parsers.rst import Directive
-from sphinx import addnodes
-
-
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
     signode += addnodes.desc_name(x, x)

@@ -5,12 +5,13 @@
 
     Chinese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
@@ -21,8 +22,7 @@ try:
 except ImportError:
     JIEBA = False
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, List  # NOQA
 
 english_stopwords = set(u"""
@@ -240,7 +240,7 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
-                jieba.set_dictionary(dict_path)
+                jieba.load_userdict(dict_path)
 
         self.stemmer = get_stemmer()
 

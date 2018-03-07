@@ -5,11 +5,12 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
 from os import path
+from typing import TYPE_CHECKING
 
 from six import iteritems, itervalues, text_type, string_types
 from six.moves import cPickle as pickle
@@ -21,8 +22,7 @@ from sphinx.util import jsdump, rpartition
 from sphinx.util.pycompat import htmlescape
 from sphinx.search.jssplitter import splitter_code
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -265,6 +265,11 @@ class IndexBuilder(object):
                                     # objtype index -> (domain, type, objname (localized))
         lang_class = languages.get(lang)    # type: Type[SearchLanguage]
                                             # add language-specific SearchLanguage instance
+
+        # fallback; try again with language-code
+        if lang_class is None and '_' in lang:
+            lang_class = languages.get(lang.split('_')[0])
+
         if lang_class is None:
             self.lang = SearchEnglish(options)  # type: SearchLanguage
         elif isinstance(lang_class, str):

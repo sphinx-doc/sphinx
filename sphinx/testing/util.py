@@ -5,28 +5,27 @@
 
     Sphinx test suite utilities
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import sys
 import warnings
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
-
-from six import string_types
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+from six import string_types
 
 from sphinx import application
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
-
 from sphinx.testing.path import path
 
-if False:
+if TYPE_CHECKING:
     from typing import List  # NOQA
 
 
@@ -132,7 +131,7 @@ class SphinxTestApp(application.Sphinx):
             application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                         buildername, confoverrides, status, warning,
                                         freshenv, warningiserror, tags)
-        except:
+        except Exception:
             self.cleanup()
             raise
 

@@ -5,24 +5,24 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import TYPE_CHECKING
 
-from six import iteritems
 from docutils import nodes, utils
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA

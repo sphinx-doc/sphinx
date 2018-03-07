@@ -5,19 +5,20 @@
 
     Add external links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

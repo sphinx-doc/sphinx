@@ -6,12 +6,12 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY3, iteritems
-import pytest
 import mock
+import pytest
+from six import PY3, iteritems
 
 import sphinx
 from sphinx.config import Config
@@ -240,3 +240,15 @@ def test_check_enum(app, status, warning):
 def test_check_enum_failed(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            "but `invalid` is given." in warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two']})
+def test_check_enum_for_list(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           not in warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two', 'invalid']})
+def test_check_enum_for_list_failed(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           "but `['one', 'two', 'invalid']` is given." in warning.getvalue()

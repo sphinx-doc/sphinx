@@ -3,9 +3,11 @@
     sphinx.directives.patches
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -14,8 +16,7 @@ from docutils.parsers.rst.directives import images, html, tables
 from sphinx import addnodes
 from sphinx.util.nodes import set_source_info
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

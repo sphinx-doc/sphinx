@@ -1,4 +1,4 @@
-from os import *
+from os import *  # NOQA
 
 
 class Foo:
@@ -6,4 +6,8 @@ class Foo:
         pass
 
     def bar(self):
+        pass
+
+    @property
+    def baz(self):
         pass

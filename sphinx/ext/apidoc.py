@@ -11,26 +11,28 @@
     Copyright 2008 Société des arts technologiques (SAT),
     http://www.sat.qc.ca/
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from __future__ import print_function
 
+import argparse
+import glob
 import os
 import sys
-import optparse
-from os import path
-from six import binary_type
 from fnmatch import fnmatch
+from os import path
+from typing import TYPE_CHECKING
+
+from six import binary_type
 
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.util import rst
-from sphinx.util.osutil import FileAvoidWrite, walk
+from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, List, Tuple  # NOQA
 
 # automodule options
@@ -106,8 +108,8 @@ def create_module_file(package, module, opts):
     write_file(makename(package, module), text, opts)
 
 
-def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace):
-    # type: (unicode, unicode, unicode, List[unicode], Any, List[unicode], bool) -> None
+def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace, excludes=[]):  # NOQA
+    # type: (unicode, unicode, unicode, List[unicode], Any, List[unicode], bool, List[unicode]) -> None  # NOQA
     """Build the text of the file and write the file."""
     text = format_heading(1, ('%s package' if not is_namespace else "%s namespace")
                           % makename(master_package, subroot))
@@ -117,7 +119,11 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         text += '\n'
 
     # build a list of directories that are szvpackages (contain an INITPY file)
-    subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
+    # and also checks the INITPY file is not empty, or there are other python
+    # source files in that folder.
+    # (depending on settings - but shall_skip() takes care of that)
+    subs = [sub for sub in subs if not
+            shall_skip(path.join(root, sub, INITPY), opts, excludes)]
     # if there are some package directories, add a TOC for theses subpackages
     if subs:
         text += format_heading(2, 'Subpackages')
@@ -127,7 +133,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
         text += '\n'
 
     submods = [path.splitext(sub)[0] for sub in py_files
-               if not shall_skip(path.join(root, sub), opts) and
+               if not shall_skip(path.join(root, sub), opts, excludes) and
                sub != INITPY]
     if submods:
         text += format_heading(2, 'Submodules')
@@ -181,8 +187,8 @@ def create_modules_toc_file(modules, opts, name='modules'):
     write_file(name, text, opts)
 
 
-def shall_skip(module, opts):
-    # type: (unicode, Any) -> bool
+def shall_skip(module, opts, excludes=[]):
+    # type: (unicode, Any, List[unicode]) -> bool
     """Check if we want to skip this module."""
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
@@ -190,7 +196,15 @@ def shall_skip(module, opts):
 
     # skip it if there is nothing (or just \n or \r\n) in the file
     if path.exists(module) and path.getsize(module) <= 2:
-        return True
+        if os.path.basename(module) == '__init__.py':
+            # We only want to skip packages if they do not contain any
+            # .py files other than __init__.py.
+            basemodule = path.dirname(module)
+            for module in glob.glob(path.join(basemodule, '*.py')):
+                if not is_excluded(path.join(basemodule, module), excludes):
+                    return True
+        else:
+            return True
 
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
@@ -251,7 +265,7 @@ def recurse_tree(rootpath, excludes, opts):
                 # a namespace and there is something there to document
                 if not is_namespace or len(py_files) > 0:
                     create_package_file(root, root_package, subpackage,
-                                        py_files, opts, subs, is_namespace)
+                                        py_files, opts, subs, is_namespace, excludes)
                     toplevels.append(makename(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
@@ -263,12 +277,6 @@ def recurse_tree(rootpath, excludes, opts):
                     toplevels.append(module)
 
     return toplevels
-
-
-def normalize_excludes(rootpath, excludes):
-    # type: (unicode, List[unicode]) -> List[unicode]
-    """Normalize the excluded directory list."""
-    return [path.abspath(exclude) for exclude in excludes]
 
 
 def is_excluded(root, excludes):
@@ -284,106 +292,116 @@ def is_excluded(root, excludes):
     return False
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    """Parse and check the command line arguments."""
-    parser = optparse.OptionParser(
-        usage="""\
-usage: %prog [options] -o <output_path> <module_path> [exclude_pattern, ...]
+def get_parser():
+    # type: () -> argparse.ArgumentParser
+    parser = argparse.ArgumentParser(
+        usage='usage: %(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
+              '[EXCLUDE_PATTERN, ...]',
+        epilog='For more information, visit <http://sphinx-doc.org/>.',
+        description="""
+Look recursively in <MODULE_PATH> for Python modules and packages and create
+one reST file with automodule directives per package in the <OUTPUT_PATH>.
 
-Look recursively in <module_path> for Python modules and packages and create
-one reST file with automodule directives per package in the <output_path>.
-
-The <exclude_pattern>s can be file and/or directory patterns that will be
+The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be
 excluded from generation.
 
 Note: By default this script will not overwrite already created files.""")
 
-    parser.add_option('-o', '--output-dir', action='store', dest='destdir',
-                      help='Directory to place all output', default='')
-    parser.add_option('-d', '--maxdepth', action='store', dest='maxdepth',
-                      help='Maximum depth of submodules to show in the TOC '
-                      '(default: 4)', type='int', default=4)
-    parser.add_option('-f', '--force', action='store_true', dest='force',
-                      help='Overwrite existing files')
-    parser.add_option('-l', '--follow-links', action='store_true',
-                      dest='followlinks', default=False,
-                      help='Follow symbolic links. Powerful when combined '
-                      'with collective.recipe.omelette.')
-    parser.add_option('-n', '--dry-run', action='store_true', dest='dryrun',
-                      help='Run the script without creating files')
-    parser.add_option('-e', '--separate', action='store_true',
-                      dest='separatemodules',
-                      help='Put documentation for each module on its own page')
-    parser.add_option('-P', '--private', action='store_true',
-                      dest='includeprivate',
-                      help='Include "_private" modules')
-    parser.add_option('-T', '--no-toc', action='store_true', dest='notoc',
-                      help='Don\'t create a table of contents file')
-    parser.add_option('-E', '--no-headings', action='store_true',
-                      dest='noheadings',
-                      help='Don\'t create headings for the module/package '
-                           'packages (e.g. when the docstrings already contain '
-                           'them)')
-    parser.add_option('-M', '--module-first', action='store_true',
-                      dest='modulefirst',
-                      help='Put module documentation before submodule '
-                      'documentation')
-    parser.add_option('--implicit-namespaces', action='store_true',
-                      dest='implicit_namespaces',
-                      help='Interpret module paths according to PEP-0420 '
-                           'implicit namespaces specification')
-    parser.add_option('-s', '--suffix', action='store', dest='suffix',
-                      help='file suffix (default: rst)', default='rst')
-    parser.add_option('-F', '--full', action='store_true', dest='full',
-                      help='Generate a full project with sphinx-quickstart')
-    parser.add_option('-a', '--append-syspath', action='store_true',
-                      dest='append_syspath',
-                      help='Append module_path to sys.path, used when --full is given')
-    parser.add_option('-H', '--doc-project', action='store', dest='header',
-                      help='Project name (default: root module name)')
-    parser.add_option('-A', '--doc-author', action='store', dest='author',
-                      type='str',
-                      help='Project author(s), used when --full is given')
-    parser.add_option('-V', '--doc-version', action='store', dest='version',
-                      help='Project version, used when --full is given')
-    parser.add_option('-R', '--doc-release', action='store', dest='release',
-                      help='Project release, used when --full is given, '
-                      'defaults to --doc-version')
-    parser.add_option('--version', action='store_true', dest='show_version',
-                      help='Show version information and exit')
-    group = parser.add_option_group('Extension options')
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
+
+    parser.add_argument('module_path',
+                        help='path to module to document')
+    parser.add_argument('exclude_pattern', nargs='*',
+                        help='fnmatch-style file and/or directory patterns '
+                        'to exclude from generation')
+
+    parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
+                        required=True,
+                        help='directory to place all output')
+    parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
+                        type=int, default=4,
+                        help='maximum depth of submodules to show in the TOC '
+                             '(default: 4)')
+    parser.add_argument('-f', '--force', action='store_true', dest='force',
+                        help='overwrite existing files')
+    parser.add_argument('-l', '--follow-links', action='store_true',
+                        dest='followlinks', default=False,
+                        help='follow symbolic links. Powerful when combined '
+                              'with collective.recipe.omelette.')
+    parser.add_argument('-n', '--dry-run', action='store_true', dest='dryrun',
+                        help='run the script without creating files')
+    parser.add_argument('-e', '--separate', action='store_true',
+                        dest='separatemodules',
+                        help='put documentation for each module on its own page')
+    parser.add_argument('-P', '--private', action='store_true',
+                        dest='includeprivate',
+                        help='include "_private" modules')
+    parser.add_argument('-T', '--no-toc', action='store_true', dest='notoc',
+                        help="don't create a table of contents file")
+    parser.add_argument('-E', '--no-headings', action='store_true',
+                        dest='noheadings',
+                        help="don't create headings for the module/package "
+                             "packages (e.g. when the docstrings already "
+                             "contain them)")
+    parser.add_argument('-M', '--module-first', action='store_true',
+                        dest='modulefirst',
+                        help='put module documentation before submodule '
+                             'documentation')
+    parser.add_argument('--implicit-namespaces', action='store_true',
+                        dest='implicit_namespaces',
+                        help='interpret module paths according to PEP-0420 '
+                             'implicit namespaces specification')
+    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
+                        default='rst',
+                        help='file suffix (default: rst)')
+    parser.add_argument('-F', '--full', action='store_true', dest='full',
+                        help='generate a full project with sphinx-quickstart')
+    parser.add_argument('-a', '--append-syspath', action='store_true',
+                        dest='append_syspath',
+                        help='append module_path to sys.path, used when --full is given')
+    parser.add_argument('-H', '--doc-project', action='store', dest='header',
+                        help='project name (default: root module name)')
+    parser.add_argument('-A', '--doc-author', action='store', dest='author',
+                        help='project author(s), used when --full is given')
+    parser.add_argument('-V', '--doc-version', action='store', dest='version',
+                        help='project version, used when --full is given')
+    parser.add_argument('-R', '--doc-release', action='store', dest='release',
+                        help='project release, used when --full is given, '
+                             'defaults to --doc-version')
+
+    group = parser.add_argument_group('extension options')
     for ext in EXTENSIONS:
-        group.add_option('--ext-' + ext, action='store_true',
-                         dest='ext_' + ext, default=False,
-                         help='enable %s extension' % ext)
+        group.add_argument('--ext-%s' % ext, action='append_const',
+                           const='sphinx.ext.%s' % ext, dest='extensions',
+                           help='enable %s extension' % ext)
 
-    (opts, args) = parser.parse_args(argv)
+    return parser
 
-    if opts.show_version:
-        print('Sphinx (sphinx-apidoc) %s' % __display_version__)
-        return 0
 
-    if not args:
-        parser.error('A package path is required.')
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
+    """Parse and check the command line arguments."""
+    parser = get_parser()
+    args = parser.parse_args(argv)
 
-    rootpath, excludes = args[0], args[1:]
-    if not opts.destdir:
-        parser.error('An output directory is required.')
-    if opts.header is None:
-        opts.header = path.abspath(rootpath).split(path.sep)[-1]
-    if opts.suffix.startswith('.'):
-        opts.suffix = opts.suffix[1:]
+    rootpath = path.abspath(args.module_path)
+
+    # normalize opts
+
+    if args.header is None:
+        args.header = rootpath.split(path.sep)[-1]
+    if args.suffix.startswith('.'):
+        args.suffix = args.suffix[1:]
     if not path.isdir(rootpath):
         print('%s is not a directory.' % rootpath, file=sys.stderr)
         sys.exit(1)
-    if not path.isdir(opts.destdir):
-        if not opts.dryrun:
-            os.makedirs(opts.destdir)
-    rootpath = path.abspath(rootpath)
-    excludes = normalize_excludes(rootpath, excludes)
-    modules = recurse_tree(rootpath, excludes, opts)
-    if opts.full:
+    if not args.dryrun:
+        ensuredir(args.destdir)
+    excludes = [path.abspath(exclude) for exclude in args.exclude_pattern]
+    modules = recurse_tree(rootpath, excludes, args)
+
+    if args.full:
         from sphinx.cmd import quickstart as qs
         modules.sort()
         prev_module = ''  # type: unicode
@@ -394,44 +412,44 @@ Note: By default this script will not overwrite already created files.""")
             prev_module = module
             text += '   %s\n' % module
         d = dict(
-            path = opts.destdir,
+            path = args.destdir,
             sep = False,
             dot = '_',
-            project = opts.header,
-            author = opts.author or 'Author',
-            version = opts.version or '',
-            release = opts.release or opts.version or '',
-            suffix = '.' + opts.suffix,
+            project = args.header,
+            author = args.author or 'Author',
+            version = args.version or '',
+            release = args.release or args.version or '',
+            suffix = '.' + args.suffix,
             master = 'index',
             epub = True,
-            ext_autodoc = True,
-            ext_viewcode = True,
-            ext_todo = True,
+            extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
+                          'sphinx.ext.todo'],
             makefile = True,
             batchfile = True,
-            mastertocmaxdepth = opts.maxdepth,
+            make_mode = True,
+            mastertocmaxdepth = args.maxdepth,
             mastertoctree = text,
             language = 'en',
             module_path = rootpath,
-            append_syspath = opts.append_syspath,
+            append_syspath = args.append_syspath,
         )
-        enabled_exts = {'ext_' + ext: getattr(opts, 'ext_' + ext)
-                        for ext in EXTENSIONS if getattr(opts, 'ext_' + ext)}
-        d.update(enabled_exts)
+        if args.extensions:
+            d['extensions'].extend(args.extensions)
 
-        if isinstance(opts.header, binary_type):
+        if isinstance(args.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
-        if isinstance(opts.author, binary_type):
+        if isinstance(args.author, binary_type):
             d['author'] = d['author'].decode('utf-8')
-        if isinstance(opts.version, binary_type):
+        if isinstance(args.version, binary_type):
             d['version'] = d['version'].decode('utf-8')
-        if isinstance(opts.release, binary_type):
+        if isinstance(args.release, binary_type):
             d['release'] = d['release'].decode('utf-8')
 
-        if not opts.dryrun:
-            qs.generate(d, silent=True, overwrite=opts.force)
-    elif not opts.notoc:
-        create_modules_toc_file(modules, opts)
+        if not args.dryrun:
+            qs.generate(d, silent=True, overwrite=args.force)
+    elif not args.notoc:
+        create_modules_toc_file(modules, args)
+
     return 0
 
 

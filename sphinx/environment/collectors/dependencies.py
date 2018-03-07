@@ -5,19 +5,19 @@
 
     The dependencies collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
+from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
 
-from sphinx.util.osutil import getcwd, fs_encoding
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.util.osutil import getcwd, fs_encoding
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

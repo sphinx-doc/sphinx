@@ -28,10 +28,13 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
+from typing import TYPE_CHECKING
+
 from docutils.utils import smartquotes
+
 from sphinx.util.docutils import __version_info__ as docutils_version
 
-if False:  # For type annotation
+if TYPE_CHECKING:
     from typing import Iterable, Iterator, Tuple  # NOQA
 
 
@@ -139,7 +142,7 @@ def educateQuotes(text, language='en'):
     smart = smartquotes.smartchars(language)
     try:
         apostrophe = smart.apostrophe
-    except:
+    except Exception:
         apostrophe = u'’'
 
     # oldtext = text

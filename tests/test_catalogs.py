@@ -5,7 +5,7 @@
 
     Test the base build process.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import shutil
@@ -65,7 +65,7 @@ def test_compile_specific_catalogs(app, status, warning):
         return set(find_files(catalog_dir, '.mo'))
 
     actual_on_boot = get_actual()  # sphinx.mo might be included
-    app.builder.compile_specific_catalogs(['admonitions'])
+    app.builder.compile_specific_catalogs([app.srcdir / 'admonitions.txt'])
     actual = get_actual() - actual_on_boot
     assert actual == set(['admonitions.mo'])
 

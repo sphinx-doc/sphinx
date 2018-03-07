@@ -5,7 +5,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -13,19 +13,18 @@ from __future__ import print_function
 import os
 import re
 from itertools import product
-from subprocess import Popen, PIPE
 from shutil import copyfile
+from subprocess import Popen, PIPE
 
-from six import PY3
 import pytest
+from six import PY3
+from test_build_html import ENV_WARNINGS
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import cd, ensuredir
-from sphinx.util import docutils
-from sphinx.writers.latex import LaTeXTranslator
-
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-from test_build_html import ENV_WARNINGS
+from sphinx.util import docutils
+from sphinx.util.osutil import cd, ensuredir
+from sphinx.writers.latex import LaTeXTranslator
 
 
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
@@ -130,24 +129,24 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{sphinxfigure-in-table}\n\\centering\n\\capstart\n'
             '\\noindent\\sphinxincludegraphics{{img}.png}\n'
-            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id7}}'
+            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id8}}'
             '\\end{sphinxfigure-in-table}\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{\\detokenize{markup:id8}}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
-            '\\label{\\detokenize{markup:id9}}'
+            '\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
-            '\\label{\\detokenize{markup:id10}}'
+            '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}' in result)
 
 
@@ -165,13 +164,15 @@ def test_latex_warnings(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='basic')
-def test_latex_title(app, status, warning):
+def test_latex_basic(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\title{The basic Sphinx documentation for testing}' in result
+    assert r'\title{The basic Sphinx documentation for testing}' in result
+    assert r'\release{}' in result
+    assert r'\renewcommand{\releasename}{}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
@@ -182,6 +183,18 @@ def test_latex_title_after_admonitions(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\title{test-latex-title}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'release': '1.0'})
+def test_latex_release(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert r'\release{1.0}' in result
+    assert r'\renewcommand{\releasename}{Release}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='numfig',
@@ -333,6 +346,56 @@ def test_numref_with_language_ja(app, status, warning):
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
             '\\nameref{\\detokenize{foo:foo}}}') in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-numfig')
+def test_latex_obey_numfig_is_false(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 0})
+def test_latex_obey_numfig_secnum_depth_is_zero(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+def test_latex_obey_numfig_secnum_depth_is_two(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=2,mathnumfig]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=3,mathnumfig]{sphinx}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-numfig',
+    confoverrides={'numfig': True, 'math_numfig': False})
+def test_latex_obey_numfig_but_math_numfig_false(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'SphinxManual.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=1]{sphinx}' in result
+
+    result = (app.outdir / 'SphinxHowTo.tex').text(encoding='utf8')
+    assert '\\usepackage[,numfigreset=2]{sphinx}' in result
 
 
 @pytest.mark.sphinx('latex')
@@ -703,7 +766,8 @@ def test_image_in_section(app, status, warning):
     assert ('\\chapter{Another section}' in result)
 
 
-@pytest.mark.sphinx('latex', confoverrides={'latex_logo': 'notfound.jpg'})
+@pytest.mark.sphinx('latex', testroot='basic',
+                    confoverrides={'latex_logo': 'notfound.jpg'})
 def test_latex_logo_if_not_found(app, status, warning):
     try:
         app.builder.build_all()
@@ -712,19 +776,16 @@ def test_latex_logo_if_not_found(app, status, warning):
         assert isinstance(exc, SphinxError)
 
 
-@pytest.mark.sphinx('latex', testroot='toctree-maxdepth',
-                    confoverrides={'latex_documents': [
-                        ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-                         'Georg Brandl', 'manual'),
-                    ]})
+@pytest.mark.sphinx('latex', testroot='toctree-maxdepth')
 def test_toctree_maxdepth_manual(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}{1}' in result
     assert '\\setcounter{secnumdepth}' not in result
+    assert '\\chapter{Foo}' in result
 
 
 @pytest.mark.sphinx(
@@ -741,6 +802,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}{2}' in result
     assert '\\setcounter{secnumdepth}' not in result
+    assert '\\section{Foo}' in result
 
 
 @pytest.mark.sphinx(
@@ -754,6 +816,7 @@ def test_toctree_not_found(app, status, warning):
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}' not in result
     assert '\\setcounter{secnumdepth}' not in result
+    assert '\\chapter{Foo A}' in result
 
 
 @pytest.mark.sphinx(
@@ -804,6 +867,26 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\part{Foo}' in result
+    assert '\\chapter{Foo A}' in result
+    assert '\\chapter{Foo B}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'part',
+                   'latex_documents': [
+                       ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                        'Georg Brandl', 'howto')
+                   ]})
+def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\part{Foo}' in result
+    assert '\\section{Foo A}' in result
+    assert '\\section{Foo B}' in result
 
 
 @pytest.mark.sphinx(
@@ -816,6 +899,22 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\chapter{Foo}' in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'chapter',
+                   'latex_documents': [
+                       ('index', 'Python.tex', 'Sphinx Tests Documentation',
+                        'Georg Brandl', 'howto')
+                   ]})
+def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\section{Foo}' in result
 
 
 @pytest.mark.sphinx(
@@ -844,7 +943,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -881,6 +980,11 @@ def test_latex_table_tabulars(app, status, warning):
     expected = get_expected('tabularcolumn')
     assert actual == expected
 
+    # table with cell in first column having three paragraphs
+    actual = tables['table with cell in first column having three paragraphs']
+    expected = get_expected('table_having_threeparagraphs_cell_in_first_col')
+    assert actual == expected
+
     # table having caption
     actual = tables['table having caption']
     expected = get_expected('table_having_caption')
@@ -910,7 +1014,7 @@ def test_latex_table_tabulars(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -971,7 +1075,7 @@ def test_latex_table_longtable(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-@pytest.mark.test_params(shared_result='test_latex_table')
+@pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -1035,6 +1139,17 @@ def test_latex_image_in_parsed_literal(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
-    assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\height}'
+    assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
             '{\\scalebox{2.000000}{\\sphinxincludegraphics[height=1cm]{{pic}.png}}}'
             '}AFTER') in result
+
+
+@pytest.mark.sphinx('latex', testroot='nested-enumerated-list')
+def test_latex_nested_enumerated_list(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert r'\setcounter{enumi}{4}' in result
+    assert r'\setcounter{enumii}{3}' in result
+    assert r'\setcounter{enumiii}{9}' in result
+    assert r'\setcounter{enumii}{2}' in result

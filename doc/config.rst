@@ -9,8 +9,17 @@ The build configuration file
    :synopsis: Build configuration file.
 
 The :term:`configuration directory` must contain a file named :file:`conf.py`.
-This file (containing Python code) is called the "build configuration file" and
-contains all configuration needed to customize Sphinx input and output behavior.
+This file (containing Python code) is called the "build configuration file"
+and contains (almost) all configuration needed to customize Sphinx input
+and output behavior.
+
+  An optional file `docutils.conf`_ can be added to the configuration
+  directory to adjust `Docutils`_ configuration if not otherwise overriden or
+  set by Sphinx.
+
+  .. _`docutils`: http://docutils.sourceforge.net/
+
+  .. _`docutils.conf`: http://docutils.sourceforge.net/docs/user/config.html
 
 The configuration file is executed as Python code at build time (using
 :func:`execfile`, and with the current directory set to its containing
@@ -129,12 +138,10 @@ General configuration
 
    - ``'library/xml.rst'`` -- ignores the ``library/xml.rst`` file (replaces
      entry in :confval:`unused_docs`)
-   - ``'library/xml'`` -- ignores the ``library/xml`` directory (replaces entry
-     in :confval:`exclude_trees`)
+   - ``'library/xml'`` -- ignores the ``library/xml`` directory
    - ``'library/xml*'`` -- ignores all files and directories starting with
      ``library/xml``
-   - ``'**/.svn'`` -- ignores all ``.svn`` directories (replaces entry in
-     :confval:`exclude_dirnames`)
+   - ``'**/.svn'`` -- ignores all ``.svn`` directories
 
    :confval:`exclude_patterns` is also consulted when looking for static files
    in :confval:`html_static_path` and :confval:`html_extra_path`.
@@ -286,6 +293,24 @@ General configuration
 
    .. versionadded:: 1.3
 
+.. confval:: manpages_url
+
+   A URL to cross-reference :rst:role:`manpage` directives. If this is
+   defined to ``https://manpages.debian.org/{path}``, the
+   :literal:`:manpage:`man(1)`` role will like to
+   <https://manpages.debian.org/man(1)>. The patterns available are:
+
+     * ``page`` - the manual page (``man``)
+     * ``section`` - the manual section (``1``)
+     * ``path`` - the original manual page and section specified (``man(1)``)
+
+   This also supports manpages specified as ``man.1``.
+
+   .. note:: This currently affects only HTML writers but could be
+             expanded in the future.
+
+   .. versionadded:: 1.7
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be
@@ -306,8 +331,8 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   have a caption.  At same time, the `numref` role is enabled.  For now, it
-   works only with the HTML builder and LaTeX builder. Default is ``False``.
+   have a caption.  The :rst:role:`numref` role is enabled.
+   Obeyed so far only by HTML and LaTeX builders. Default is ``False``.
 
    .. note::
 
@@ -330,12 +355,79 @@ General configuration
 
 .. confval:: numfig_secnum_depth
 
-   The scope of figure numbers, that is, the numfig feature numbers figures
-   in which scope. ``0`` means "whole document". ``1`` means "in a section".
-   Sphinx numbers like x.1, x.2, x.3... ``2`` means "in a subsection". Sphinx
-   numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
+   - if set to ``0``, figures, tables and code-blocks are continuously numbered
+     starting at ``1``.
+   - if ``1`` (default) numbers will be ``x.1``, ``x.2``, ... with ``x``
+     the section number (top level sectioning; no ``x.`` if no section).
+     This naturally applies only if section numbering has been activated via
+     the ``:numbered:`` option of the :rst:dir:`toctree` directive.
+   - ``2`` means that numbers will be ``x.y.1``, ``x.y.2``, ... if located in
+     a sub-section (but still ``x.1``, ``x.2``, ... if located directly under a
+     section and ``1``, ``2``, ... if not in any top level section.)
+   - etc...
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 1.7
+      The LaTeX builder obeys this setting (if :confval:`numfig` is set to
+      ``True``).
+
+.. confval:: smartquotes
+
+   If true, the `Docutils Smart Quotes transform`__, originally based on
+   `SmartyPants`__ (limited to English) and currently applying to many
+   languages, will be used to convert quotes and dashes to typographically
+   correct entities.  Default: ``True``.
+
+   __ http://docutils.sourceforge.net/docs/user/smartquotes.html
+   __ https://daringfireball.net/projects/smartypants/
+
+   .. versionadded:: 1.6.6
+      It replaces deprecated :confval:`html_use_smartypants`.
+      It applies by default to all builders except ``man`` and ``text``
+      (see :confval:`smartquotes_excludes`.)
+
+   A `docutils.conf`__ file located in the configuration directory (or a
+   global :file:`~/.docutils` file) is obeyed unconditionally if it
+   *deactivates* smart quotes via the corresponding `Docutils option`__.  But
+   if it *activates* them, then :confval:`smartquotes` does prevail.
+
+   __ http://docutils.sourceforge.net/docs/user/config.html
+   __ http://docutils.sourceforge.net/docs/user/config.html#smart-quotes
+
+.. confval:: smartquotes_action
+
+   This string, for use with Docutils ``0.14`` or later, customizes the Smart
+   Quotes transform.  See the file :file:`smartquotes.py` at the `Docutils
+   repository`__ for details.  The default ``'qDe'`` educates normal **q**\
+   uote characters ``"``, ``'``, em- and en-**D**\ ashes ``---``, ``--``, and
+   **e**\ llipses ``...``.
+
+   .. versionadded:: 1.6.6
+
+   __ https://sourceforge.net/p/docutils/code/HEAD/tree/trunk/docutils/
+
+.. confval:: smartquotes_excludes
+
+   This is a ``dict`` whose default is::
+
+     {'languages': ['ja'], 'builders': ['man', 'text']}
+
+   Each entry gives a sufficient condition to ignore the
+   :confval:`smartquotes` setting and deactivate the Smart Quotes transform.
+   Accepted keys are as above ``'builders'`` or ``'languages'``.
+   The values are lists.
+
+   .. note:: Currently, in case of invocation of :program:`make` with multiple
+      targets, the first target name is the only one which is tested against
+      the ``'builders'`` entry and it decides for all.  Also, a ``make text``
+      following ``make html`` needs to be issued in the form ``make text
+      O="-E"`` to force re-parsing of source files, as the cached ones are
+      already transformed.  On the other hand the issue does not arise with
+      direct usage of :program:`sphinx-build` as it caches
+      (in its default usage) the parsed source files in per builder locations.
+
+   .. versionadded:: 1.6.6
 
 .. confval:: tls_verify
 
@@ -766,6 +858,14 @@ that use Sphinx's HTMLWriter class.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
+.. confval:: html_use_smartypants
+
+   If true, quotes and dashes are converted to typographically correct
+   entities.  Default: ``True``.
+
+   .. deprecated:: 1.6
+      To disable smart quotes, use rather :confval:`smartquotes`.
+
 .. confval:: html_add_permalinks
 
    Sphinx will add "permalinks" for each heading and description environment as
@@ -796,13 +896,18 @@ that use Sphinx's HTMLWriter class.
      to include.  If all or some of the default sidebars are to be included,
      they must be put into this list as well.
 
-     The default sidebars (for documents that don't match any pattern) are:
-     ``['localtoc.html', 'relations.html', 'sourcelink.html',
+     The default sidebars (for documents that don't match any pattern) are
+     defined by theme itself.  Builtin themes are using these templates by
+     default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
      'searchbox.html']``.
 
    * If a value is a single string, it specifies a custom sidebar to be added
      between the ``'sourcelink.html'`` and ``'searchbox.html'`` entries.  This
      is for compatibility with Sphinx versions before 1.0.
+
+   .. deprecated:: 1.7
+
+      a single string value for ``html_sidebars`` will be removed in 2.0
 
    Builtin sidebar templates that can be rendered are:
 
@@ -1424,10 +1529,6 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of different
    depth in one list.  The default value is ``True``.
 
-   .. note::
-
-      ``epub3`` builder ignores ``epub_tocdup`` option(always ``False``)
-
 .. confval:: epub_tocscope
 
    This setting control the scope of the epub table of contents.  The setting
@@ -1522,6 +1623,25 @@ These options influence LaTeX output. See further :doc:`latex`.
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
 
+   PDFLaTeX's support for Unicode characters covers those from the document
+   language (the LaTeX ``babel`` and ``inputenc`` packages map them to glyph
+   slots in the document font, at various encodings allowing each only 256
+   characters; Sphinx uses by default (except for Cyrillic languages) the
+   ``times`` package), but stray characters from other scripts or special
+   symbols may require adding extra LaTeX packages or macros to the LaTeX
+   preamble.
+
+   If your project uses such extra Unicode characters, switching the engine to
+   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
+   encoded sources and can (in fact, should) use OpenType fonts, either from
+   the system or the TeX install tree. Recent LaTeX releases will default with
+   these engines to the Latin Modern OpenType font, which has good coverage of
+   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
+   and Sphinx does not modify this default. Refer to the documentation of the
+   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
+   other OpenType font if Unicode coverage proves insufficient (or use
+   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.
@@ -1570,9 +1690,14 @@ These options influence LaTeX output. See further :doc:`latex`.
 .. confval:: latex_toplevel_sectioning
 
    This value determines the topmost sectioning unit. It should be chosen from
-   ``part``, ``chapter`` or ``section``. The default is ``None``; the topmost
-   sectioning unit is switched by documentclass. ``section`` is used if
+   ``'part'``, ``'chapter'`` or ``'section'``. The default is ``None``;
+   the topmost
+   sectioning unit is switched by documentclass: ``section`` is used if
    documentclass will be ``howto``, otherwise ``chapter`` will be used.
+
+   Note that if LaTeX uses ``\part`` command, then the numbering of sectioning
+   units one level deep gets off-sync with HTML numbering, because LaTeX
+   numbers continuously ``\chapter`` (or ``\section`` for ``howto``.)
 
    .. versionadded:: 1.4
 
@@ -1913,6 +2038,20 @@ These options influence text output.
    The default is ``'*=-~"+`'``.
 
    .. versionadded:: 1.1
+
+.. confval:: text_add_secnumbers
+
+   A boolean that decides whether section numbers are included in text output.
+   Default is ``True``.
+
+   .. versionadded:: 1.7
+
+.. confval:: text_secnumber_suffix
+
+   Suffix for section numbers in text output.  Default: ``". "``. Set to ``" "``
+   to suppress the final dot on section numbers.
+
+   .. versionadded:: 1.7
 
 
 .. _man-options:

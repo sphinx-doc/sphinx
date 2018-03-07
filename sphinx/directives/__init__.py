@@ -5,11 +5,12 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
@@ -29,8 +30,7 @@ from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

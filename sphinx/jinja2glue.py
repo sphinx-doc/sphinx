@@ -5,25 +5,24 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 from pprint import pformat
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Tuple  # NOQA
 
-from six import string_types
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
-from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
-from typing import Any, Callable, Iterator, Tuple  # NOQA
+from jinja2.utils import open_if_exists
+from six import string_types
 
 from sphinx.application import TemplateBridge
 from sphinx.util.osutil import mtimes_of_files
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -43,6 +42,25 @@ def _toint(val):
         return int(val)
     except ValueError:
         return 0
+
+
+def _todim(val):
+    # type (int or unicode) -> unicode
+    """
+    Make val a css dimension. In particular the following transformations
+    are performed:
+
+    - None -> 'initial' (default CSS value)
+    - 0 -> '0'
+    - ints and string representations of ints are interpreted as pixels.
+
+    Everything else is returned unchanged.
+    """
+    if val is None:
+        return 'initial'
+    elif str(val).isdigit():
+        return '0' if int(val) == 0 else '%spx' % val
+    return val
 
 
 def _slice_index(values, slices):
@@ -164,6 +182,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)

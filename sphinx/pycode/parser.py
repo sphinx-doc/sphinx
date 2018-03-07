@@ -5,21 +5,21 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import ast
 import inspect
-import tokenize
 import itertools
+import re
+import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
+from typing import TYPE_CHECKING
 
 from six import PY2, text_type
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
@@ -51,9 +51,14 @@ def get_lvar_names(node, self=None):
             return [node.id]  # type: ignore
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
-    elif node_name == 'Tuple':
-        members = [get_lvar_names(elt) for elt in node.elts]  # type: ignore
-        return sum(members, [])
+    elif node_name in ('Tuple', 'List'):
+        members = []
+        for elt in node.elts:  # type: ignore
+            try:
+                members.extend(get_lvar_names(elt, self))
+            except TypeError:
+                pass
+        return members
     elif node_name == 'Attribute':
         if node.value.__class__.__name__ == 'Name' and self and node.value.id == self_id:  # type: ignore  # NOQA
             # instance variable
@@ -62,8 +67,10 @@ def get_lvar_names(node, self=None):
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
         return [node]  # type: ignore
+    elif node_name == 'Starred':
+        return get_lvar_names(node.value, self)  # type: ignore
     else:
-        raise NotImplementedError
+        raise NotImplementedError('Unexpected node name %r' % node_name)
 
 
 def dedent_docstring(s):
@@ -277,7 +284,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         # type: (ast.Assign) -> None
         """Handles Assign node and pick up a variable comment."""
         try:
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in node.targets], [])  # type: ignore  # NOQA
+            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in node.targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -336,6 +343,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.current_classes.append(node.name)
         self.add_entry(node.name)
         self.context.append(node.name)
+        self.previous = node
         for child in node.body:
             self.visit(child)
         self.context.pop()

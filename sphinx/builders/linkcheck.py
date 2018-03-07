@@ -5,20 +5,21 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import codecs
 import re
 import socket
-import codecs
 import threading
 from os import path
+from typing import TYPE_CHECKING
 
+from docutils import nodes
 from requests.exceptions import HTTPError
 from six.moves import queue, html_parser
 from six.moves.urllib.parse import unquote
-from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
 # removed in Python 3.5, however for backward compatibility reasons, we're not
@@ -37,8 +38,7 @@ from sphinx.util.console import (  # type: ignore
 )
 from sphinx.util.requests import is_ssl_error
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA
@@ -90,6 +90,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
+    epilog = ('Look for any errors in the above output or in '
+              '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None

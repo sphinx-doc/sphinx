@@ -20,32 +20,33 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from __future__ import print_function
 
-import sys
-import time
 import functools
 import posixpath
+import sys
+import time
+import warnings
 from os import path
-
-from six import PY3, iteritems, string_types
-from six.moves.urllib.parse import urlsplit, urlunsplit
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import PY3, iteritems, string_types
+from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
-from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.locale import _
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -179,9 +180,9 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
-                       inv, err.__class__, err)
-        return
+        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
+                    inv, err.__class__, err)
+        raise
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
@@ -197,8 +198,9 @@ def fetch_inventory(app, uri, inv):
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
-        logger.warning('intersphinx inventory %r not readable due to %s: %s',
-                       inv, err.__class__.__name__, err)
+        err.args = ('intersphinx inventory %r not readable due to %s: %s',
+                    inv, err.__class__.__name__, err)
+        raise
     else:
         return invdata
 
@@ -217,7 +219,7 @@ def load_mappings(app):
 
         if isinstance(value, (list, tuple)):
             # new format
-            name, (uri, inv) = key, value  # type: ignore
+            name, (uri, inv) = key, value
             if not isinstance(name, string_types):
                 logger.warning('intersphinx identifier %r is not string. Ignored', name)
                 continue
@@ -232,6 +234,7 @@ def load_mappings(app):
         else:
             invs = inv  # type: ignore
 
+        failures = []
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
@@ -241,11 +244,29 @@ def load_mappings(app):
                     or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
                 logger.info('loading intersphinx inventory from %s...', safe_inv_url)
-                invdata = fetch_inventory(app, uri, inv)
+                try:
+                    invdata = fetch_inventory(app, uri, inv)
+                except Exception as err:
+                    failures.append(err.args)
+                    continue
+
                 if invdata:
                     inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
+
+        if failures == []:
+            pass
+        elif len(failures) < len(invs):
+            logger.info("encountered some issues with some of the inventories,"
+                        " but they had working alternatives:")
+            for fail in failures:
+                logger.info(*fail)
+        else:
+            logger.warning("failed to reach any of the inventories "
+                           "with the following issues:")
+            for fail in failures:
+                logger.warning(*fail)
 
     if update:
         inventories.clear()
@@ -304,6 +325,7 @@ def missing_reference(app, env, node, contnode):
             in_set = setname
             to_try.append((inventories.named_inventory[setname], newtarget))
             if domain:
+                node['reftarget'] = newtarget
                 full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
                 if full_qualified_name:
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
@@ -315,8 +337,11 @@ def missing_reference(app, env, node, contnode):
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
-            newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle=_('(in %s v%s)') % (proj, version))
+            if version:
+                reftitle = _('(in %s v%s)') % (proj, version)
+            else:
+                reftitle = _('(in %s)') % (proj,)
+            newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
@@ -352,7 +377,16 @@ def setup(app):
 def debug(argv):
     # type: (List[unicode]) -> None
     """Debug functionality to print out an inventory"""
-    if len(argv) < 2:
+    warnings.warn('sphinx.ext.intersphinx.debug() is deprecated. '
+                  'Please use inspect_main() instead',
+                  RemovedInSphinx20Warning)
+    inspect_main(argv[1:])
+
+
+def inspect_main(argv):
+    # type: (List[unicode]) -> None
+    """Debug functionality to print out an inventory"""
+    if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
@@ -369,7 +403,7 @@ def debug(argv):
         def warn(self, msg):
             print(msg, file=sys.stderr)
 
-    filename = argv[1]
+    filename = argv[0]
     invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
     for key in sorted(invdata or {}):
         print(key)
@@ -383,4 +417,4 @@ if __name__ == '__main__':
     import logging  # type: ignore
     logging.basicConfig()
 
-    debug(argv=sys.argv[1:])  # type: ignore
+    inspect_main(argv=sys.argv[1:])  # type: ignore

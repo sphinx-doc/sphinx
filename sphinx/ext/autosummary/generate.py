@@ -14,44 +14,32 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
+import argparse
+import codecs
 import os
+import pydoc
 import re
 import sys
-import pydoc
-import optparse
-import codecs
+from typing import TYPE_CHECKING
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
+from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util.osutil import ensuredir
+from sphinx.registry import SphinxComponentRegistry
 from sphinx.util.inspect import safe_getattr
+from sphinx.util.osutil import ensuredir
 from sphinx.util.rst import escape as rst_escape
 
-# Add documenters to AutoDirective registry
-from sphinx.ext.autodoc import add_documenter, \
-    ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter, \
-    FunctionDocumenter, MethodDocumenter, AttributeDocumenter, \
-    InstanceAttributeDocumenter
-add_documenter(ModuleDocumenter)
-add_documenter(ClassDocumenter)
-add_documenter(ExceptionDocumenter)
-add_documenter(DataDocumenter)
-add_documenter(FunctionDocumenter)
-add_documenter(MethodDocumenter)
-add_documenter(AttributeDocumenter)
-add_documenter(InstanceAttributeDocumenter)
-
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, Tuple, List  # NOQA
     from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA
@@ -59,31 +47,28 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> None
-    usage = """%prog [OPTIONS] SOURCEFILE ..."""
-    p = optparse.OptionParser(usage.strip())
-    p.add_option("-o", "--output-dir", action="store", type="string",
-                 dest="output_dir", default=None,
-                 help="Directory to place all output in")
-    p.add_option("-s", "--suffix", action="store", type="string",
-                 dest="suffix", default="rst",
-                 help="Default suffix for files (default: %default)")
-    p.add_option("-t", "--templates", action="store", type="string",
-                 dest="templates", default=None,
-                 help="Custom template directory (default: %default)")
-    p.add_option("-i", "--imported-members", action="store_true",
-                 dest="imported_members", default=False,
-                 help="Document imported members (default: %default)")
-    options, args = p.parse_args(argv)
+class DummyApplication(object):
+    """Dummy Application class for sphinx-autogen command."""
 
-    if len(args) < 1:
-        p.error('no input files given')
+    def __init__(self):
+        # type: () -> None
+        self.registry = SphinxComponentRegistry()
 
-    generate_autosummary_docs(args, options.output_dir,
-                              "." + options.suffix,
-                              template_dir=options.templates,
-                              imported_members=options.imported_members)
+
+def setup_documenters(app):
+    # type: (Any) -> None
+    from sphinx.ext.autodoc import (
+        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
+        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
+        InstanceAttributeDocumenter
+    )
+    documenters = [
+        ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
+        FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
+        InstanceAttributeDocumenter
+    ]
+    for documenter in documenters:
+        app.registry.add_documenter(documenter.objtype, documenter)
 
 
 def _simple_info(msg):
@@ -107,8 +92,8 @@ def _underline(title, line='='):
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None,
-                              imported_members=False):
-    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool) -> None  # NOQA
+                              imported_members=False, app=None):
+    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool, Any) -> None  # NOQA
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
@@ -174,7 +159,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         new_files.append(fn)
 
         with open(fn, 'w') as f:
-            doc = get_documenter(obj, parent)
+            doc = get_documenter(app, obj, parent)
 
             if template_name is not None:
                 template = template_env.get_template(template_name)
@@ -185,7 +170,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 except TemplateNotFound:
                     template = template_env.get_template('autosummary/base.rst')
 
-            def get_members(obj, typ, include_public=[], imported=False):
+            def get_members(obj, typ, include_public=[], imported=True):
                 # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]  # NOQA
                 items = []  # type: List[unicode]
                 for name in dir(obj):
@@ -193,11 +178,9 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                         value = safe_getattr(obj, name)
                     except AttributeError:
                         continue
-                    documenter = get_documenter(value, obj)
+                    documenter = get_documenter(app, value, obj)
                     if documenter.objtype == typ:
-                        if typ == 'method':
-                            items.append(name)
-                        elif imported or getattr(value, '__module__', None) == obj.__name__:
+                        if imported or getattr(value, '__module__', None) == obj.__name__:
                             # skip imported members if expected
                             items.append(name)
                 public = [x for x in items
@@ -217,9 +200,9 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['methods'], ns['all_methods'] = \
-                    get_members(obj, 'method', ['__init__'], imported=imported_members)
+                    get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
-                    get_members(obj, 'attribute', imported=imported_members)
+                    get_members(obj, 'attribute')
 
             parts = name.split('.')
             if doc.objtype in ('method', 'attribute'):
@@ -246,7 +229,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir)
+                                  template_dir=template_dir, app=app)
 
 
 # -- Finding documented entries in files ---------------------------------------
@@ -371,6 +354,61 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
             continue
 
     return documented
+
+
+def get_parser():
+    # type: () -> argparse.ArgumentParser
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
+        epilog='For more information, visit <http://sphinx-doc.org/>.',
+        description="""
+Generate ReStructuredText using autosummary directives.
+
+sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
+the reStructuredText files from the autosummary directives contained in the
+given input files.
+
+The format of the autosummary directive is documented in the
+``sphinx.ext.autosummary`` Python module and can be read using::
+
+  pydoc sphinx.ext.autosummary
+""")
+
+    parser.add_argument('--version', action='version', dest='show_version',
+                        version='%%(prog)s %s' % __display_version__)
+
+    parser.add_argument('source_file', nargs='+',
+                        help='source files to generate rST files for')
+
+    parser.add_argument('-o', '--output-dir', action='store',
+                        dest='output_dir',
+                        help='directory to place all output in')
+    parser.add_argument('-s', '--suffix', action='store', dest='suffix',
+                        default='rst',
+                        help='default suffix for files (default: '
+                              '%(default)s)')
+    parser.add_argument('-t', '--templates', action='store', dest='templates',
+                        default=None,
+                        help='custom template directory (default: '
+                              '%(default)s)')
+    parser.add_argument('-i', '--imported-members', action='store_true',
+                        dest='imported_members', default=False,
+                        help='document imported members (default: '
+                              '%(default)s)')
+
+    return parser
+
+
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> None
+    app = DummyApplication()
+    setup_documenters(app)
+    args = get_parser().parse_args(argv)
+    generate_autosummary_docs(args.source_file, args.output_dir,
+                              '.' + args.suffix,
+                              template_dir=args.templates,
+                              imported_members=args.imported_members,
+                              app=app)
 
 
 if __name__ == '__main__':

@@ -99,17 +99,16 @@ Options
    :ref:`builders <builders>`, the following build pipelines are available:
 
    **latexpdf**
-     Build LaTeX files and run them through :program:`pdflatex`.
-
-   **latexpdfja**
-     Build LaTeX files and run them through :program:`platex/dvipdfmx`.
-     We recommend using ``latexpdf`` instead.
+     Build LaTeX files and run them through :program:`pdflatex`, or as per
+     :confval:`latex_engine` setting.
+     If :confval:`language` is set to ``'ja'``, will use automatically
+     the :program:`platex/dvipdfmx` latex to PDF pipeline.
 
    **info**
      Build Texinfo files and run them through :program:`makeinfo`.
 
    .. important::
-     Sphinx only recognizes the ``-M`` option if it is placed first.
+      Sphinx only recognizes the ``-M`` option if it is placed first.
 
    .. versionadded:: 1.2.1
 
@@ -144,10 +143,14 @@ Options
 
    Distribute the build over *N* processes in parallel, to make building on
    multiprocessor machines more effective.  Note that not all parts and not all
-   builders of Sphinx can be parallelized.
+   builders of Sphinx can be parallelized.  If ``auto`` argument is given,
+   Sphinx uses the number of CPUs as *N*.
 
    .. versionadded:: 1.2
       This option should be considered *experimental*.
+
+   .. versionchanged:: 1.7
+      Support ``auto`` argument.
 
 .. option:: -c path
 

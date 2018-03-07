@@ -11,23 +11,23 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
 import os
-import sys
 import subprocess
+import sys
 from os import path
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx import cmdline
 from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import List  # NOQA
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')
@@ -97,101 +97,6 @@ class Make(object):
             if not osname or os.name == osname:
                 print('  %s  %s' % (blue(bname.ljust(10)), description))
 
-    def build_html(self):
-        # type: () -> int
-        if self.run_generic_build('html') > 0:
-            return 1
-        print()
-        print('Build finished. The HTML pages are in %s.' % self.builddir_join('html'))
-        return 0
-
-    def build_dirhtml(self):
-        # type: () -> int
-        if self.run_generic_build('dirhtml') > 0:
-            return 1
-        print()
-        print('Build finished. The HTML pages are in %s.' %
-              self.builddir_join('dirhtml'))
-        return 0
-
-    def build_singlehtml(self):
-        # type: () -> int
-        if self.run_generic_build('singlehtml') > 0:
-            return 1
-        print()
-        print('Build finished. The HTML page is in %s.' %
-              self.builddir_join('singlehtml'))
-        return 0
-
-    def build_pickle(self):
-        # type: () -> int
-        if self.run_generic_build('pickle') > 0:
-            return 1
-        print()
-        print('Build finished; now you can process the pickle files.')
-        return 0
-
-    def build_json(self):
-        # type: () -> int
-        if self.run_generic_build('json') > 0:
-            return 1
-        print()
-        print('Build finished; now you can process the JSON files.')
-        return 0
-
-    def build_htmlhelp(self):
-        # type: () -> int
-        if self.run_generic_build('htmlhelp') > 0:
-            return 1
-        print()
-        print('Build finished; now you can run HTML Help Workshop with the '
-              '.hhp project file in %s.' % self.builddir_join('htmlhelp'))
-        return 0
-
-    def build_qthelp(self):
-        # type: () -> int
-        if self.run_generic_build('qthelp') > 0:
-            return 1
-        print()
-        print('Build finished; now you can run "qcollectiongenerator" with the '
-              '.qhcp project file in %s, like this:' % self.builddir_join('qthelp'))
-        print('$ qcollectiongenerator %s.qhcp' % self.builddir_join('qthelp', proj_name))
-        print('To view the help file:')
-        print('$ assistant -collectionFile %s.qhc' %
-              self.builddir_join('qthelp', proj_name))
-        return 0
-
-    def build_devhelp(self):
-        # type: () -> int
-        if self.run_generic_build('devhelp') > 0:
-            return 1
-        print()
-        print("Build finished.")
-        print("To view the help file:")
-        print("$ mkdir -p $HOME/.local/share/devhelp/" + proj_name)
-        print("$ ln -s %s $HOME/.local/share/devhelp/%s" %
-              (self.builddir_join('devhelp'), proj_name))
-        print("$ devhelp")
-        return 0
-
-    def build_epub(self):
-        # type: () -> int
-        if self.run_generic_build('epub') > 0:
-            return 1
-        print()
-        print('Build finished. The ePub file is in %s.' % self.builddir_join('epub'))
-        return 0
-
-    def build_latex(self):
-        # type: () -> int
-        if self.run_generic_build('latex') > 0:
-            return 1
-        print("Build finished; the LaTeX files are in %s." % self.builddir_join('latex'))
-        if os.name == 'posix':
-            print("Run `make' in that directory to run these through (pdf)latex")
-            print("(use `make latexpdf' here to do that automatically).")
-        return 0
-
     def build_latexpdf(self):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
@@ -206,25 +111,6 @@ class Make(object):
         with cd(self.builddir_join('latex')):
             return subprocess.call([self.makecmd, 'all-pdf-ja'])
 
-    def build_text(self):
-        # type: () -> int
-        if self.run_generic_build('text') > 0:
-            return 1
-        print()
-        print('Build finished. The text files are in %s.' % self.builddir_join('text'))
-        return 0
-
-    def build_texinfo(self):
-        # type: () -> int
-        if self.run_generic_build('texinfo') > 0:
-            return 1
-        print("Build finished; the Texinfo files are in %s." %
-              self.builddir_join('texinfo'))
-        if os.name == 'posix':
-            print("Run `make' in that directory to run these through makeinfo")
-            print("(use `make info' here to do that automatically).")
-        return 0
-
     def build_info(self):
         # type: () -> int
         if self.run_generic_build('texinfo') > 0:
@@ -237,60 +123,6 @@ class Make(object):
         dtdir = self.builddir_join('gettext', '.doctrees')
         if self.run_generic_build('gettext', doctreedir=dtdir) > 0:
             return 1
-        print()
-        print('Build finished. The message catalogs are in %s.' %
-              self.builddir_join('gettext'))
-        return 0
-
-    def build_changes(self):
-        # type: () -> int
-        if self.run_generic_build('changes') > 0:
-            return 1
-        print()
-        print('Build finished. The overview file is in %s.' %
-              self.builddir_join('changes'))
-        return 0
-
-    def build_linkcheck(self):
-        # type: () -> int
-        res = self.run_generic_build('linkcheck')
-        print()
-        print('Link check complete; look for any errors in the above output '
-              'or in %s.' % self.builddir_join('linkcheck', 'output.txt'))
-        return res
-
-    def build_doctest(self):
-        # type: () -> int
-        res = self.run_generic_build('doctest')
-        print("Testing of doctests in the sources finished, look at the "
-              "results in %s." % self.builddir_join('doctest', 'output.txt'))
-        return res
-
-    def build_coverage(self):
-        # type: () -> int
-        if self.run_generic_build('coverage') > 0:
-            print("Has the coverage extension been enabled?")
-            return 1
-        print()
-        print("Testing of coverage in the sources finished, look at the "
-              "results in %s." % self.builddir_join('coverage'))
-        return 0
-
-    def build_xml(self):
-        # type: () -> int
-        if self.run_generic_build('xml') > 0:
-            return 1
-        print()
-        print('Build finished. The XML files are in %s.' % self.builddir_join('xml'))
-        return 0
-
-    def build_pseudoxml(self):
-        # type: () -> int
-        if self.run_generic_build('pseudoxml') > 0:
-            return 1
-        print()
-        print('Build finished. The pseudo-XML files are in %s.' %
-              self.builddir_join('pseudoxml'))
         return 0
 
     def run_generic_build(self, builder, doctreedir=None):

@@ -3,12 +3,12 @@
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
-import sys
 import shutil
+import sys
 from io import open
 
 from six import PY2, text_type

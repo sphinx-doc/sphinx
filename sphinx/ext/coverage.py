@@ -6,14 +6,15 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import glob
 import inspect
+import re
 from os import path
+from typing import TYPE_CHECKING
 
 from six import iteritems
 from six.moves import cPickle as pickle
@@ -23,8 +24,7 @@ from sphinx.builders import Builder
 from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Callable, Dict, IO, List, Pattern, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -50,8 +50,12 @@ def compile_regex_list(name, exps):
 
 
 class CoverageBuilder(Builder):
-
+    """
+    Evaluates coverage of code in the documentation.
+    """
     name = 'coverage'
+    epilog = ('Testing of coverage in the sources finished, look at the '
+              'results in %(outdir)s/python.txt.')
 
     def init(self):
         # type: () -> None

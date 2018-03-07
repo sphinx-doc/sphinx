@@ -5,12 +5,12 @@
 
     Tests the std domain
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes
 import mock
+from docutils import nodes
 
 from sphinx.domains.std import StandardDomain
 

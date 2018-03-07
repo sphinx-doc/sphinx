@@ -5,21 +5,21 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import bisect
+import re
 import unicodedata
 from itertools import groupby
+from typing import TYPE_CHECKING
 
 from six import text_type, iteritems
 
 from sphinx.locale import _
 from sphinx.util import split_into, logging
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, Pattern, List, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

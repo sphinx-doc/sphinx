@@ -5,19 +5,21 @@
 
     File utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
-import os
 import codecs
+import os
 import posixpath
+from typing import TYPE_CHECKING
+
 from docutils.utils import relative_path
+
 from sphinx.util.osutil import copyfile, ensuredir, walk
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Callable, Dict, Union  # NOQA
     from sphinx.util.matching import Matcher  # NOQA
     from sphinx.util.template import BaseRenderer  # NOQA

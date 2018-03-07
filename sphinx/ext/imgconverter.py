@@ -5,10 +5,11 @@
 
     Image converter extension for Sphinx
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import subprocess
+from typing import TYPE_CHECKING
 
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
@@ -16,8 +17,7 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 from sphinx.util.osutil import ENOENT, EPIPE, EINVAL
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

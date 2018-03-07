@@ -5,14 +5,14 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
+import gettext
 import os
 import re
-import gettext
 from subprocess import Popen, PIPE
 
 import pytest
@@ -165,3 +165,18 @@ def test_gettext_template(app):
     result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
     assert "Welcome" in result
     assert "Sphinx %(version)s" in result
+
+
+@pytest.mark.sphinx('gettext', testroot='gettext-template')
+def test_gettext_template_msgid_order_in_sphinxpot(app):
+    app.builder.build_all()
+    assert (app.outdir / 'sphinx.pot').isfile()
+
+    result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
+    assert re.search(
+        ('msgid "Template 1".*'
+         'msgid "This is Template 1\.".*'
+         'msgid "Template 2".*'
+         'msgid "This is Template 2\.".*'),
+        result,
+        flags=re.S)

@@ -5,14 +5,15 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from docutils import nodes
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import List, Sequence  # NOQA
 
 

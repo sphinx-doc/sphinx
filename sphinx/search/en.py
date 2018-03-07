@@ -5,15 +5,16 @@
 
     English search language: includes the JS porter stemmer.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import TYPE_CHECKING
 
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict  # NOQA
 
 english_stopwords = set(u"""

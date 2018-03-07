@@ -5,11 +5,12 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import warnings
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import get_source_line
@@ -20,9 +21,9 @@ from sphinx.environment import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
+from sphinx.util.nodes import process_only_nodes
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.domains import Domain  # NOQA
@@ -134,10 +135,12 @@ class ReferencesResolver(SphinxTransform):
         if not results:
             return None
         if len(results) > 1:
-            nice_results = ' or '.join(':%s:`%s`' % (name, role["reftitle"])
-                                       for name, role in results)
+            def stringify(name, node):
+                reftitle = node.get('reftitle', node.astext())
+                return ':%s:`%s`' % (name, reftitle)
+            candidates = ' or '.join(stringify(name, role) for name, role in results)
             logger.warning(__('more than one target found for \'any\' cross-'
-                              'reference %r: could be %s'), target, nice_results,
+                              'reference %r: could be %s'), target, candidates,
                            location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
@@ -183,18 +186,7 @@ class OnlyNodeTransform(SphinxTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        for node in self.document.traverse(addnodes.only):
-            try:
-                ret = self.app.builder.tags.eval_condition(node['expr'])
-            except Exception as err:
-                logger.warning('exception while evaluating only directive expression: %s', err,
-                               location=node)
-                node.replace_self(node.children or nodes.comment())
-            else:
-                if ret:
-                    node.replace_self(node.children or nodes.comment())
-                else:
-                    node.replace_self(nodes.comment())
+        process_only_nodes(self.document, self.app.builder.tags)
 
 
 def setup(app):

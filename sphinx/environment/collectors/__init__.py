@@ -5,14 +5,15 @@
 
     The data collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from typing import TYPE_CHECKING
+
 from six import itervalues
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
     from typing import Dict, List, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

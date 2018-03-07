@@ -5,7 +5,7 @@
 
     Test the build process with Texinfo builder with the test root.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -14,13 +14,12 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from six import PY3
 import pytest
-
-from sphinx.writers.texinfo import TexinfoTranslator
+from six import PY3
+from test_build_html import ENV_WARNINGS
 
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-from test_build_html import ENV_WARNINGS
+from sphinx.writers.texinfo import TexinfoTranslator
 
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
