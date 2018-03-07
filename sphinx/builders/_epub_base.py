@@ -195,7 +195,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
-        if isinstance(doctree, nodes.reference) and 'refuri' in doctree:
+        if isinstance(doctree, nodes.reference) and doctree.get('refuri'):
             refuri = doctree['refuri']
             if refuri.startswith('http://') or refuri.startswith('https://') \
                or refuri.startswith('irc:') or refuri.startswith('mailto:'):
