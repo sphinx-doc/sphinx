@@ -22,6 +22,7 @@ Bugs fixed
 * pydomain: always strip parenthesis if empty (refs: #1042)
 * #4689: autosummary: unexpectedly strips docstrings containing "i.e."
 * #4701: viewcode: Misplaced ``<div>`` in viewcode html output
+* #4716: Generation PDF file with TexLive on Windows, file not found error
 
 Testing
 --------
