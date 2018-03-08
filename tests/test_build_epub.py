@@ -267,7 +267,7 @@ def test_run_epubcheck(app):
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
     if runnable('java') and os.path.exists(epubcheck):
-        p = Popen(['java', '-jar', epubcheck, app.outdir / 'Sphinx.epub'],
+        p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                   stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
