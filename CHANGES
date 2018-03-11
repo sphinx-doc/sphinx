@@ -23,6 +23,7 @@ Bugs fixed
 * #4689: autosummary: unexpectedly strips docstrings containing "i.e."
 * #4701: viewcode: Misplaced ``<div>`` in viewcode html output
 * #4444: Don't require numfig to use :numref: on sections
+* #4727: Option clash for package textcomp
 
 Testing
 --------
