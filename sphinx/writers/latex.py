@@ -1959,6 +1959,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if id.startswith('index-'):
                 return
 
+            # equations also need no extra blank line nor hypertarget
+            if id.startswith('equation-'):
+                return
+
             # insert blank line, if the target follows a paragraph node
             index = node.parent.index(node)
             if index > 0 and isinstance(node.parent[index - 1], nodes.paragraph):

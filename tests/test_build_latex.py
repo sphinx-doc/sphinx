@@ -1134,6 +1134,16 @@ def test_latex_index(app, status, warning):
     assert '\n\\index{Einstein}\\index{relativity}\\ignorespaces \nand' in result
 
 
+@pytest.mark.sphinx('latex', testroot='latex-equations')
+def test_latex_equations(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    expected = (app.srcdir / 'expects' / 'latex-equations.tex').text().strip()
+
+    assert expected in result
+
+
 @pytest.mark.sphinx('latex', testroot='image-in-parsed-literal')
 def test_latex_image_in_parsed_literal(app, status, warning):
     app.builder.build_all()
