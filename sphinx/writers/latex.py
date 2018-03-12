@@ -1960,6 +1960,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
 
             # equations also need no extra blank line nor hypertarget
+            # TODO: fix this dependency on mathbase extension internals
             if id.startswith('equation-'):
                 return
 
