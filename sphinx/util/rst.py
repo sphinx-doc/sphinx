@@ -23,7 +23,7 @@ from sphinx.util import logging
 if TYPE_CHECKING:
     from typing import Generator  # NOQA
 
-symbols_re = re.compile(r'([!--/:-@\[-`{-~])')  # symbols without dot(0x2e)
+symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 logger = logging.getLogger(__name__)
 
 
