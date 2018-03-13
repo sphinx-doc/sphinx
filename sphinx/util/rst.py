@@ -23,7 +23,7 @@ if False:
     # For type annotation
     from typing import Generator  # NOQA
 
-symbols_re = re.compile(r'([!--/:-@\[-`{-~])')  # symbols without dot(0x2e)
+symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 logger = logging.getLogger(__name__)
 
 
