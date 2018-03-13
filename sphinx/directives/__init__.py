@@ -10,7 +10,6 @@
 """
 
 import re
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives, roles
@@ -30,7 +29,8 @@ from sphinx.directives.patches import (  # noqa
     Figure, Meta
 )
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

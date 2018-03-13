@@ -15,7 +15,6 @@ import inspect
 import re
 import sys
 import warnings
-from typing import TYPE_CHECKING
 
 from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
@@ -35,7 +34,8 @@ from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
     isenumattribute, isclassmethod, isstaticmethod, getdoc
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA

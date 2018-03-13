@@ -13,13 +13,13 @@ from __future__ import absolute_import
 import codecs
 import os
 import posixpath
-from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir, walk
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Callable, Dict, Union  # NOQA
     from sphinx.util.matching import Matcher  # NOQA
     from sphinx.util.template import BaseRenderer  # NOQA

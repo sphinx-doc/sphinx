@@ -14,7 +14,6 @@ import shutil
 import tempfile
 import warnings
 from os import path
-from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import pkg_resources
@@ -30,7 +29,8 @@ from sphinx.util.osutil import ensuredir
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

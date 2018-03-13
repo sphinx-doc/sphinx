@@ -20,14 +20,14 @@ import os
 import subprocess
 import sys
 from os import path
-from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx import cmdline
 from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import List  # NOQA
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')

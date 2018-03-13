@@ -8,12 +8,11 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import sys
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import List  # NOQA
 
 
