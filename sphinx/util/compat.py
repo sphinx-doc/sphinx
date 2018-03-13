@@ -11,10 +11,10 @@
 from __future__ import absolute_import
 
 import sys
-from typing import TYPE_CHECKING
 
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
