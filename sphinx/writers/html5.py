@@ -310,7 +310,7 @@ class HTML5Translator(BaseTranslator):
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_figtype(node)  # type: ignore
+        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname

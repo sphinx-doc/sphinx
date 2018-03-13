@@ -47,6 +47,8 @@ Features added
 * ``sphinx-build`` command supports i18n console output
 * Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
   support translation for 3rd party extensions
+* Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
+  (experimental)
 
 Bugs fixed
 ----------

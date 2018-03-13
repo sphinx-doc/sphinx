@@ -224,6 +224,15 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_fignumbers = {}
         fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int, ...], int]]
 
+        def get_figtype(node):
+            # type: (nodes.Node) -> unicode
+            for domain in env.domains.values():
+                figtype = domain.get_enumerable_node_type(node)
+                if figtype:
+                    return figtype
+
+            return None
+
         def get_section_number(docname, section):
             # type: (unicode, nodes.Node) -> Tuple[int, ...]
             anchorname = '#' + section['ids'][0]
@@ -271,7 +280,7 @@ class TocTreeCollector(EnvironmentCollector):
 
                     continue
 
-                figtype = env.get_domain('std').get_figtype(subnode)
+                figtype = get_figtype(subnode)
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 
