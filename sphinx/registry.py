@@ -33,7 +33,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
-    from docutils.transform import Transform  # NOQA
+    from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA

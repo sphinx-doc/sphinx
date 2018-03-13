@@ -47,7 +47,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers import Parser  # NOQA
-    from docutils.transform import Transform  # NOQA
+    from docutils.transforms import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
