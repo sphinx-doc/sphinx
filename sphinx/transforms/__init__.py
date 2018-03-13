@@ -10,7 +10,6 @@
 """
 
 import re
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -26,7 +25,8 @@ from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA

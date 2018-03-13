@@ -12,7 +12,6 @@
 import os
 from hashlib import sha1
 from math import ceil
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from six import text_type
@@ -23,7 +22,8 @@ from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

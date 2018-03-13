@@ -15,7 +15,6 @@ import multiprocessing
 import sys
 import traceback
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils.utils import SystemMessage
 from six import text_type, binary_type
@@ -29,7 +28,8 @@ from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, IO, List, Union  # NOQA
 
 

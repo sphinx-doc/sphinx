@@ -15,11 +15,11 @@ import re
 import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import TYPE_CHECKING
 
 from six import PY2, text_type
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')

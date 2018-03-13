@@ -11,7 +11,6 @@
 
 import re
 import string
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -23,7 +22,8 @@ from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

@@ -11,14 +11,14 @@
 """
 
 import copy
-from typing import TYPE_CHECKING
 
 from six import iteritems
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA

@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer

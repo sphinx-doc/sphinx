@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 
 from sphinx.util import logging
@@ -18,7 +16,7 @@ from sphinx.util.nodes import clean_astext
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
+if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
