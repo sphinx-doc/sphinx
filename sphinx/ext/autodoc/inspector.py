@@ -11,14 +11,14 @@
 
 import typing
 import warnings
-from typing import TYPE_CHECKING
 
 from six import StringIO, string_types
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.util.inspect import object_description
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Tuple  # NOQA
 
 

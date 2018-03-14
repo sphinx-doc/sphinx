@@ -12,7 +12,6 @@
 import re
 import textwrap
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes, writers
 from six import itervalues
@@ -25,7 +24,8 @@ from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
 

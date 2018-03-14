@@ -17,7 +17,6 @@ import os
 import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
-from typing import TYPE_CHECKING
 
 from six import StringIO, string_types
 
@@ -27,7 +26,8 @@ from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, List, Tuple  # NOQA
 
 

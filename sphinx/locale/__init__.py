@@ -10,12 +10,12 @@
 """
 
 import gettext
-from typing import TYPE_CHECKING
 
 from six import PY3, text_type
 from six.moves import UserString
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
 
 

@@ -18,7 +18,6 @@ import sys
 import warnings
 from collections import deque
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -44,7 +43,8 @@ from sphinx.util.i18n import find_catalog_source_files
 from sphinx.util.osutil import ENOENT, ensuredir
 from sphinx.util.tags import Tags
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA

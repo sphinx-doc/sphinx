@@ -9,11 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from six import itervalues
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, List, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

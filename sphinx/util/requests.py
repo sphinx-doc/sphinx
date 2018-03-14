@@ -13,7 +13,6 @@ from __future__ import absolute_import
 
 import warnings
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
 
 import pkg_resources
 import requests
@@ -76,7 +75,8 @@ else:
             'install requests-2.4.1+.'
         )
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Generator, Union  # NOQA
     from sphinx.config import Config  # NOQA
 

@@ -20,15 +20,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
 import sphinx
 from sphinx.util.nodes import set_source_info
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

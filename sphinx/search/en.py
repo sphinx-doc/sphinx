@@ -9,12 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict  # NOQA
 
 english_stopwords = set(u"""

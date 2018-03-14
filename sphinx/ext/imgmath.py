@@ -17,7 +17,6 @@ import tempfile
 from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from six import text_type
@@ -32,7 +31,8 @@ from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

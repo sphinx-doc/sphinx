@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 import subprocess
-from typing import TYPE_CHECKING
 
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
@@ -17,7 +16,8 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 from sphinx.util.osutil import ENOENT, EPIPE, EINVAL
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

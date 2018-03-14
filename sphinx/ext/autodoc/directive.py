@@ -7,8 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
@@ -19,7 +17,8 @@ from sphinx.util import logging
 from sphinx.util.docutils import switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Set, Type  # NOQA
     from docutils.statemachine import State, StateMachine, StringList  # NOQA
     from docutils.utils import Reporter  # NOQA

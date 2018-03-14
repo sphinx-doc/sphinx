@@ -15,14 +15,14 @@ import re
 import sys
 import typing
 from collections import OrderedDict
-from typing import TYPE_CHECKING
 
 from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)

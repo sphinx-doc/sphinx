@@ -9,9 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
