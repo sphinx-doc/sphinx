@@ -300,9 +300,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         if id:
             item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
-                name, id, ref[1])
+                name, id, htmlescape(ref[1]))
         else:
-            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
+            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, htmlescape(ref[1]))
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 
