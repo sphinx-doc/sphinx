@@ -91,6 +91,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+periods_re = re.compile('\.(?:\s+)')
+
+
 # -- autosummary_toc node ------------------------------------------------------
 
 class autosummary_toc(nodes.comment):
@@ -469,7 +472,7 @@ def extract_summary(doc, document):
             break
 
     # Try to find the "first sentence", which may span multiple lines
-    sentences = " ".join(doc).split('.')
+    sentences = periods_re.split(" ".join(doc))  # type: ignore
     if len(sentences) == 1:
         summary = sentences[0].strip()
     else:

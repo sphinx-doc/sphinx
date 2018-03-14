@@ -506,7 +506,6 @@ def test_numfig_disabled_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' not in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
@@ -524,10 +523,10 @@ def test_numfig_disabled_warn(app, warning):
         (".//li/code/span", '^Table:%s$', True),
         (".//li/code/span", '^CODE_1$', True),
         (".//li/code/span", '^Code-%s$', True),
-        (".//li/code/span", '^foo$', True),
-        (".//li/code/span", '^bar_a$', True),
+        (".//li/a/span", '^Section 1$', True),
+        (".//li/a/span", '^Section 2.1$', True),
         (".//li/code/span", '^Fig.{number}$', True),
-        (".//li/code/span", '^Sect.{number}$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
         (".//div[@class='figure']/p[@class='caption']/"

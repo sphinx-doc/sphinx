@@ -222,6 +222,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,

@@ -1331,7 +1331,7 @@ msgstr "Release"
 
 #: sphinx/writers/latex.py:714
 msgid "continues on next page"
-msgstr ""
+msgstr "Fortsetzung auf der nächsten Seite"
 
 #: sphinx/writers/latex.py:718
 msgid "page"
