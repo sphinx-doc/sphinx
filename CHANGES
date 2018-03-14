@@ -25,6 +25,7 @@ Bugs fixed
 * #4444: Don't require numfig to use :numref: on sections
 * #4727: Option clash for package textcomp
 * #4725: Sphinx does not work with python 3.5.0 and 3.5.1
+* #4716: Generation PDF file with TexLive on Windows, file not found error
 
 Testing
 --------
