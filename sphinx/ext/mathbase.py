@@ -85,6 +85,7 @@ class MathDomain(Domain):
                 newnode['target'] = target
                 return newnode
             else:
+                # TODO: perhaps use rather a sphinx-core provided prefix here?
                 node_id = make_id('equation-%s' % target)
                 if env.config.math_numfig and env.config.numfig:
                     if docname in env.toc_fignumbers:
