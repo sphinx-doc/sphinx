@@ -113,6 +113,67 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :confval:`source_parsers`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_parser()`
+
+   * - ``Sphinx.import_object()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.import_object()``
+
+   * - ``suffix`` argument of
+       :meth:`~sphinx.application.Sphinx.add_source_parser()`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
+
+   * - ``sphinx.util.docutils.directive_helper()``
+     - 1.8
+     - 3.0
+     - ``Directive`` class of docutils
+
+   * - ``sphinx.cmdline``
+     - 1.8
+     - 3.0
+     - ``sphinx.cmd.build``
+
+   * - ``BuildEnvironment.update()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``BuildEnvironment._read_serial()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``BuildEnvironment._read_parallel()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``sphinx.locale.l_()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.locale.lazy_gettext()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.locale.mygettext()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.util.copy_static_entry()``
+     - 1.5
+     - 3.0
+     - ``sphinx.util.fileutil.copy_asset()``
+
    * - ``sphinx.build_main()``
      - 1.7
      - 2.0
