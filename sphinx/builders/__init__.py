@@ -211,9 +211,14 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    logger.warning('no matching candidate for image URI %r',
-                                   images.get_original_image_uri(node['uri']),
-                                   location=node)
+                    mimetypes = sorted(node['candidates'])
+                    image_uri = images.get_original_image_uri(node['uri'])
+                    if mimetypes:
+                        logger.warning('a suitable image for %s builder not found: %s (%s)',
+                                       self.name, mimetypes, image_uri, location=node)
+                    else:
+                        logger.warning('a suitable image for %s builder not found: %s',
+                                       self.name, image_uri, location=node)
                     continue
                 node['uri'] = candidate
             else:

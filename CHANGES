@@ -27,6 +27,7 @@ Bugs fixed
 * #4725: Sphinx does not work with python 3.5.0 and 3.5.1
 * #4716: Generation PDF file with TexLive on Windows, file not found error
 * #4574: vertical space before equation in latex
+* #4720: message when an image is mismatched for builder is not clear
 
 Testing
 --------
