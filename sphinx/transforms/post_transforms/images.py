@@ -66,16 +66,17 @@ class ImageDownloader(BaseImageConverter):
 
     def handle(self, node):
         # type: (nodes.Node) -> None
-        basename = os.path.basename(node['uri'])
-        if '?' in basename:
-            basename = basename.split('?')[0]
-        if basename == '':
-            basename = sha1(node['uri'].encode("utf-8")).hexdigest()
-        dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
-                                                             ord("&"): u"/"})
-        ensuredir(os.path.join(self.imagedir, dirname))
-        path = os.path.join(self.imagedir, dirname, basename)
         try:
+            basename = os.path.basename(node['uri'])
+            if '?' in basename:
+                basename = basename.split('?')[0]
+            if basename == '':
+                basename = sha1(node['uri'].encode("utf-8")).hexdigest()
+            dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
+                                                                 ord("&"): u"/"})
+            ensuredir(os.path.join(self.imagedir, dirname))
+            path = os.path.join(self.imagedir, dirname, basename)
+
             headers = {}
             if os.path.exists(path):
                 timestamp = ceil(os.stat(path).st_mtime)
