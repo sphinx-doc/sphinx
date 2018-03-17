@@ -55,10 +55,12 @@ a speech recognition toolkit (*CMU Sphinx*) and a full-text search database
 macOS
 -----
 
-Sphinx can be installed using `Homebrew`__ or `MacPorts`__.
+Sphinx can be installed using `Homebrew`__, `MacPorts`__, or as part of
+a Python distribution such as `Anaconda`__.
 
 __ https://brew.sh/
 __ https://www.macports.org/
+__ https://www.anaconda.com/download/#macos
 
 Homebrew
 ~~~~~~~~
@@ -92,6 +94,12 @@ For more information, refer to the `package overview`__.
 
 __ https://www.macports.org/ports.php?by=library&substr=py36-sphinx
 
+Anaconda
+~~~~~~~~
+
+.. code-block:: console
+
+   $ conda install sphinx
 
 Windows
 -------
