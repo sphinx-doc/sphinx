@@ -11,7 +11,6 @@
 from __future__ import absolute_import
 
 import re
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from six import text_type
@@ -20,7 +19,8 @@ from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Iterable, List, Set, Tuple, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA

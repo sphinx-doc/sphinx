@@ -12,7 +12,6 @@
 import os
 from glob import glob
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
@@ -25,7 +24,8 @@ from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

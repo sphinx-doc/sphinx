@@ -60,7 +60,6 @@ import re
 import sys
 import warnings
 from types import ModuleType
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -81,7 +80,8 @@ from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
 from sphinx.util.docutils import NullReporter, new_document
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils.utils import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA

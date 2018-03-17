@@ -14,7 +14,7 @@ import base64
 import imghdr
 from collections import OrderedDict
 from os import path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import NamedTuple
 
 import imagesize
 from six import PY3, BytesIO, iteritems
@@ -27,7 +27,8 @@ except ImportError:
     except ImportError:
         Image = None
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, IO, List, Tuple  # NOQA
 
 if PY3:

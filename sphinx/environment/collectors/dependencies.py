@@ -10,14 +10,14 @@
 """
 
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
 
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util.osutil import getcwd, fs_encoding
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA

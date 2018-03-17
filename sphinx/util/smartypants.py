@@ -28,13 +28,12 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
-from typing import TYPE_CHECKING
 
 from docutils.utils import smartquotes
 
 from sphinx.util.docutils import __version_info__ as docutils_version
 
-if TYPE_CHECKING:
+if False:  # For type annotation
     from typing import Iterable, Iterator, Tuple  # NOQA
 
 

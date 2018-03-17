@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes, utils
 from docutils.nodes import make_id
 from docutils.parsers.rst import Directive, directives
@@ -22,7 +20,8 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode, set_source_info
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
@@ -87,6 +86,7 @@ class MathDomain(Domain):
                 newnode['target'] = target
                 return newnode
             else:
+                # TODO: perhaps use rather a sphinx-core provided prefix here?
                 node_id = make_id('equation-%s' % target)
                 if env.config.math_numfig and env.config.numfig:
                     if docname in env.toc_fignumbers:

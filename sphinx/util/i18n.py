@@ -8,8 +8,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
-
 import gettext
 import io
 import os
@@ -17,7 +15,6 @@ import re
 from collections import namedtuple
 from datetime import datetime
 from os import path
-from typing import TYPE_CHECKING
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -30,7 +27,8 @@ from sphinx.util.osutil import SEP, walk
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Callable, List, Set  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

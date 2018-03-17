@@ -13,7 +13,7 @@ import re
 import traceback
 from collections import OrderedDict
 from os import path, getenv
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import Any, NamedTuple, Union
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
@@ -24,7 +24,8 @@ from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
 from sphinx.util.pycompat import execfile_, NoneType
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA

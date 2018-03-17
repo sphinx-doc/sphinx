@@ -12,7 +12,6 @@ import os
 import re
 import textwrap
 from itertools import groupby
-from typing import TYPE_CHECKING
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -22,7 +21,8 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
 

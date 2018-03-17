@@ -12,7 +12,6 @@
 
 from collections import namedtuple
 from os import path
-from typing import TYPE_CHECKING
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
@@ -23,7 +22,8 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, Iterable, List  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA

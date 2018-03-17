@@ -7,8 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -24,7 +22,8 @@ from sphinx.util.matching import patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -14,14 +14,14 @@ import locale
 import warnings
 from collections import defaultdict
 from gettext import NullTranslations
-from typing import TYPE_CHECKING
 
 from six import text_type
 from six.moves import UserString
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
 
 

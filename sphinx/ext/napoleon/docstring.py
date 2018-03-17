@@ -15,7 +15,6 @@ import collections
 import inspect
 import re
 from functools import partial
-from typing import TYPE_CHECKING
 
 from six import string_types, u
 from six.moves import range
@@ -23,7 +22,8 @@ from six.moves import range
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.util.pycompat import UnicodeMixin
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA

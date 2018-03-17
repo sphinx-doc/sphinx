@@ -10,7 +10,6 @@
 """
 
 import re
-from typing import TYPE_CHECKING
 
 from six import iteritems
 
@@ -21,7 +20,8 @@ from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA

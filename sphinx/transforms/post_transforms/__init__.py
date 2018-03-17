@@ -10,7 +10,6 @@
 """
 
 import warnings
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import get_source_line
@@ -23,7 +22,8 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 from sphinx.util.nodes import process_only_nodes
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.domains import Domain  # NOQA

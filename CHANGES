@@ -87,6 +87,9 @@ Bugs fixed
 * #4701: viewcode: Misplaced ``<div>`` in viewcode html output
 * #4444: Don't require numfig to use :numref: on sections
 * #4727: Option clash for package textcomp
+* #4725: Sphinx does not work with python 3.5.0 and 3.5.1
+* #4716: Generation PDF file with TexLive on Windows, file not found error
+* #4574: vertical space before equation in latex
 
 Testing
 --------

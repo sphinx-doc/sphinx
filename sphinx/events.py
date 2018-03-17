@@ -13,14 +13,14 @@
 from __future__ import print_function
 
 from collections import OrderedDict, defaultdict
-from typing import TYPE_CHECKING
 
 from six import itervalues
 
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List  # NOQA
 
 

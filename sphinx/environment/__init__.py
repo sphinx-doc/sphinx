@@ -18,7 +18,6 @@ import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
@@ -42,7 +41,8 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.websupport import is_commentable
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, IO, Iterator, List, Optional, Pattern, Set, Tuple, Type, Union, Generator  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA

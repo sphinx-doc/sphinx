@@ -8,10 +8,8 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import os
-from typing import TYPE_CHECKING
 
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -19,7 +17,8 @@ from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict  # NOQA
     from jinja2.loaders import BaseLoader  # NOQA
 

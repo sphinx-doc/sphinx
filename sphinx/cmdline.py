@@ -13,12 +13,12 @@ from __future__ import print_function
 
 import sys
 import warnings
-from typing import TYPE_CHECKING
 
 from sphinx.cmd import build
 from sphinx.deprecation import RemovedInSphinx30Warning
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     import argparse  # NOQA
     from typing import Any, IO, List, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA

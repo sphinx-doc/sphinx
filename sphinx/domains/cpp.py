@@ -11,7 +11,6 @@
 
 import re
 from copy import deepcopy
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -29,7 +28,8 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
 
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

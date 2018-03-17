@@ -11,13 +11,12 @@
 """
 from __future__ import absolute_import
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 
 from sphinx import addnodes
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

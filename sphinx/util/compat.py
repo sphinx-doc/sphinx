@@ -13,14 +13,14 @@ from __future__ import absolute_import
 
 import sys
 import warnings
-from typing import TYPE_CHECKING
 
 from six import string_types, iteritems
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import import_object
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
