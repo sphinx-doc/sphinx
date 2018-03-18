@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``warn()`` (template helper function)
+     - 1.8
+     - 3.0
+     - ``warning()``
+
    * - :confval:`source_parsers`
      - 1.8
      - 3.0
