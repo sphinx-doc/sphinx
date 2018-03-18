@@ -1295,7 +1295,7 @@ msgstr "目录"
 #: sphinx/transforms/post_transforms/__init__.py:139
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "'any' 交叉引用的目标不唯一：可能是 %s"
+msgstr ""
 
 #: sphinx/transforms/post_transforms/__init__.py:169
 #, python-format
