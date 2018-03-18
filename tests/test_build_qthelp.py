@@ -71,4 +71,4 @@ def test_qthelp_title(app, status, warning):
     assert '<section title="Sphinx &lt;b&gt;"full"&lt;/b&gt; title" ref="index.html">' in qhp
 
     qhcp = (app.outdir / 'Python.qhcp').text()
-    assert '<title>Sphinx &lt;b&gt;"short"&lt;/b&gt; title</title>' in qhcp
+    assert '<title>Sphinx &lt;b&gt;&#34;short&#34;&lt;/b&gt; title</title>' in qhcp

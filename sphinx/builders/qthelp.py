@@ -19,12 +19,14 @@ from docutils import nodes
 from six import text_type
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
+from sphinx.util.template import SphinxRenderer
 
 if False:
     # For type annotation
@@ -37,34 +39,6 @@ logger = logging.getLogger(__name__)
 
 _idpattern = re.compile(
     r'(?P<title>.+) (\((class in )?(?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
-
-
-# Qt Help Collection Project (.qhcp).
-# Is the input file for the help collection generator.
-# It contains references to compressed help files which should be
-# included in the collection.
-# It may contain various other information for customizing Qt Assistant.
-collection_template = u'''\
-<?xml version="1.0" encoding="utf-8" ?>
-<QHelpCollectionProject version="1.0">
-    <assistant>
-        <title>%(title)s</title>
-        <homePage>%(homepage)s</homePage>
-        <startPage>%(startpage)s</startPage>
-    </assistant>
-    <docFiles>
-        <generate>
-            <file>
-                <input>%(outname)s.qhp</input>
-                <output>%(outname)s.qch</output>
-            </file>
-        </generate>
-        <register>
-            <file>%(outname)s.qch</file>
-        </register>
-    </docFiles>
-</QHelpCollectionProject>
-'''
 
 # Qt Help Project (.qhp)
 # This is the input file for the help generator.
@@ -100,6 +74,12 @@ project_template = u'''\
 
 section_template = '<section title="%(title)s" ref="%(ref)s"/>'
 file_template = ' ' * 12 + '<file>%(filename)s</file>'
+
+
+def render_file(filename, **kwargs):
+    # type: (unicode, Any) -> unicode
+    pathname = os.path.join(package_dir, 'templates', 'qthelp', filename)
+    return SphinxRenderer.render_from_file(pathname, kwargs)
 
 
 class QtHelpBuilder(StandaloneHTMLBuilder):
@@ -232,11 +212,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info('writing collection project file...')
         with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            f.write(collection_template % {
-                'outname': htmlescape(outname),
-                'title': htmlescape(self.config.html_short_title),
-                'homepage': htmlescape(homepage),
-                'startpage': htmlescape(startpage)})
+            content = render_file('project.qhcp', outname=outname,
+                                  title=self.config.html_short_title,
+                                  homepage=homepage, startpage=startpage)
+            f.write(content)
 
     def isdocnode(self, node):
         # type: (nodes.Node) -> bool
