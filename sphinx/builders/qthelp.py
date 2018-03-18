@@ -224,11 +224,12 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         else:
             id = None
 
+        nameattr = htmlescape(name, quote=True)
+        refattr = htmlescape(ref[1], quote=True)
         if id:
-            item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
-                name, id, htmlescape(ref[1]))
+            item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (nameattr, id, refattr)
         else:
-            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, htmlescape(ref[1]))
+            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (nameattr, refattr)
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 
@@ -236,7 +237,6 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # type: (unicode, List[Any], Any) -> List[unicode]
         keywords = []  # type: List[unicode]
 
-        title = htmlescape(title, quote=True)
         # if len(refs) == 0: # XXX
         #     write_param('See Also', title)
         if len(refs) == 1:
