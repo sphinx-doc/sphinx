@@ -40,37 +40,6 @@ logger = logging.getLogger(__name__)
 _idpattern = re.compile(
     r'(?P<title>.+) (\((class in )?(?P<id>[\w\.]+)( (?P<descr>\w+))?\))$')
 
-# Qt Help Project (.qhp)
-# This is the input file for the help generator.
-# It contains the table of contents, indices and references to the
-# actual documentation files (*.html).
-# In addition it defines a unique namespace for the documentation.
-project_template = u'''\
-<?xml version="1.0" encoding="utf-8" ?>
-<QtHelpProject version="1.0">
-    <namespace>%(namespace)s</namespace>
-    <virtualFolder>doc</virtualFolder>
-    <customFilter name="%(project)s %(version)s">
-        <filterAttribute>%(outname)s</filterAttribute>
-        <filterAttribute>%(version)s</filterAttribute>
-    </customFilter>
-    <filterSection>
-        <filterAttribute>%(outname)s</filterAttribute>
-        <filterAttribute>%(version)s</filterAttribute>
-        <toc>
-            <section title="%(title)s" ref="%(masterdoc)s.html">
-%(sections)s
-            </section>
-        </toc>
-        <keywords>
-%(keywords)s
-        </keywords>
-        <files>
-%(files)s
-        </files>
-    </filterSection>
-</QtHelpProject>
-'''
 
 section_template = '<section title="%(title)s" ref="%(ref)s"/>'
 file_template = ' ' * 12 + '<file>%(filename)s</file>'
@@ -195,16 +164,12 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         # write the project file
         with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            f.write(project_template % {
-                'outname': htmlescape(outname),
-                'title': htmlescape(self.config.html_title),
-                'version': htmlescape(self.config.version),
-                'project': htmlescape(self.config.project),
-                'namespace': htmlescape(nspace),
-                'masterdoc': htmlescape(self.config.master_doc),
-                'sections': sections,
-                'keywords': keywords,
-                'files': projectfiles})
+            content = render_file('project.qhp', outname=outname,
+                                  title=self.config.html_title, version=self.config.version,
+                                  project=self.config.project, namespace=nspace,
+                                  master_doc=self.config.master_doc,
+                                  sections=sections, keywords=keywords, files=projectfiles)
+            f.write(content)
 
         homepage = 'qthelp://' + posixpath.join(
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
@@ -279,9 +244,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         if id:
             item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
-                name, id, ref[1])
+                name, id, htmlescape(ref[1]))
         else:
-            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
+            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, htmlescape(ref[1]))
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 
@@ -289,7 +254,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # type: (unicode, List[Any], Any) -> List[unicode]
         keywords = []  # type: List[unicode]
 
-        title = htmlescape(title)
+        title = htmlescape(title, quote=True)
         # if len(refs) == 0: # XXX
         #     write_param('See Also', title)
         if len(refs) == 1:

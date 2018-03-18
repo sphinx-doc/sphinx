@@ -39,25 +39,36 @@ def test_qthelp_basic(app, status, warning):
     assert '<file>Python.qch</file>' in qhcp
 
 
-@pytest.mark.sphinx('qthelp', testroot='toctree')
-def test_qthelp_toctree(app, status, warning):
+@pytest.mark.sphinx('qthelp', testroot='need-escaped')
+def test_qthelp_escaped(app, status, warning):
     app.builder.build_all()
 
-    et = etree_parse(app.outdir / 'Python.qhp')
+    et = etree_parse(app.outdir / 'needbescapedbproject.qhp')
+    customFilter = et.find('.//customFilter')
+    assert len(customFilter) == 2
+    assert customFilter.attrib == {'name': 'need <b>"escaped"</b> project '}
+    assert customFilter[0].text == 'needbescapedbproject'
+    assert customFilter[1].text is None
+
     toc = et.find('.//toc')
     assert len(toc) == 1
-    assert toc[0].attrib == {'title': 'Python  documentation',
+    assert toc[0].attrib == {'title': 'need <b>"escaped"</b> project  documentation',
                              'ref': 'index.html'}
     assert len(toc[0]) == 4
-    assert toc[0][0].attrib == {'title': 'foo', 'ref': 'foo.html'}
-    assert toc[0][1].attrib == {'title': 'bar', 'ref': 'bar.html'}
+    assert toc[0][0].attrib == {'title': '<foo>', 'ref': 'foo.html'}
     assert toc[0][0][0].attrib == {'title': 'quux', 'ref': 'quux.html'}
-    assert toc[0][0][1].attrib == {'title': 'foo.1', 'ref': 'foo.html#foo-1'}
+    assert toc[0][0][1].attrib == {'title': 'foo "1"', 'ref': 'foo.html#foo-1'}
     assert toc[0][0][1][0].attrib == {'title': 'foo.1-1', 'ref': 'foo.html#foo-1-1'}
     assert toc[0][0][2].attrib == {'title': 'foo.2', 'ref': 'foo.html#foo-2'}
+    assert toc[0][1].attrib == {'title': 'bar', 'ref': 'bar.html'}
     assert toc[0][2].attrib == {'title': 'http://sphinx-doc.org/',
                                 'ref': 'http://sphinx-doc.org/'}
     assert toc[0][3].attrib == {'title': 'baz', 'ref': 'baz.html'}
+
+    keywords = et.find('.//keywords')
+    assert len(keywords) == 2
+    assert keywords[0].attrib == {'name': '<subsection>', 'ref': 'index.html#index-0'}
+    assert keywords[1].attrib == {'name': '"subsection"', 'ref': 'index.html#index-0'}
 
 
 @pytest.mark.sphinx('qthelp', testroot='basic')
@@ -101,7 +112,8 @@ def test_qthelp_title(app, status, warning):
     app.builder.build_all()
 
     qhp = (app.outdir / 'Python.qhp').text()
-    assert '<section title="Sphinx &lt;b&gt;"full"&lt;/b&gt; title" ref="index.html">' in qhp
+    assert ('<section title="Sphinx &lt;b&gt;&#34;full&#34;&lt;/b&gt; title" ref="index.html">'
+            in qhp)
 
     qhcp = (app.outdir / 'Python.qhcp').text()
     assert '<title>Sphinx &lt;b&gt;&#34;short&#34;&lt;/b&gt; title</title>' in qhcp
