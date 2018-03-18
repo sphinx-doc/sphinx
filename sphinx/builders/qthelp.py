@@ -145,13 +145,13 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         # write the project file
         with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            content = render_file('project.qhp', outname=outname,
-                                  title=self.config.html_title, version=self.config.version,
-                                  project=self.config.project, namespace=nspace,
-                                  master_doc=self.config.master_doc,
-                                  sections=sections, keywords=keywords,
-                                  files=self.get_project_files(outdir))
-            f.write(content)
+            body = render_file('project.qhp', outname=outname,
+                               title=self.config.html_title, version=self.config.version,
+                               project=self.config.project, namespace=nspace,
+                               master_doc=self.config.master_doc,
+                               sections=sections, keywords=keywords,
+                               files=self.get_project_files(outdir))
+            f.write(body)
 
         homepage = 'qthelp://' + posixpath.join(
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
@@ -159,10 +159,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info('writing collection project file...')
         with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
-            content = render_file('project.qhcp', outname=outname,
-                                  title=self.config.html_short_title,
-                                  homepage=homepage, startpage=startpage)
-            f.write(content)
+            body = render_file('project.qhcp', outname=outname,
+                               title=self.config.html_short_title,
+                               homepage=homepage, startpage=startpage)
+            f.write(body)
 
     def isdocnode(self, node):
         # type: (nodes.Node) -> bool
