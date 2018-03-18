@@ -42,7 +42,6 @@ _idpattern = re.compile(
 
 
 section_template = '<section title="%(title)s" ref="%(ref)s"/>'
-file_template = ' ' * 12 + '<file>%(filename)s</file>'
 
 
 def render_file(filename, **kwargs):
@@ -132,24 +131,6 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 keywords.extend(self.build_keywords(title, refs, subitems))
         keywords = u'\n'.join(keywords)  # type: ignore
 
-        # files
-        if not outdir.endswith(os.sep):
-            outdir += os.sep
-        olen = len(outdir)
-        projectfiles = []
-        staticdir = path.join(outdir, '_static')
-        imagesdir = path.join(outdir, self.imagedir)
-        for root, dirs, files in os.walk(outdir):
-            resourcedir = root.startswith(staticdir) or \
-                root.startswith(imagesdir)
-            for fn in sorted(files):
-                if (resourcedir and not fn.endswith('.js')) or \
-                   fn.endswith('.html'):
-                    filename = path.join(root, fn)[olen:]
-                    projectfiles.append(file_template %
-                                        {'filename': htmlescape(filename)})
-        projectfiles = '\n'.join(projectfiles)  # type: ignore
-
         # it seems that the "namespace" may not contain non-alphanumeric
         # characters, and more than one successive dot, or leading/trailing
         # dots, are also forbidden
@@ -168,7 +149,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                                   title=self.config.html_title, version=self.config.version,
                                   project=self.config.project, namespace=nspace,
                                   master_doc=self.config.master_doc,
-                                  sections=sections, keywords=keywords, files=projectfiles)
+                                  sections=sections, keywords=keywords,
+                                  files=self.get_project_files(outdir))
             f.write(content)
 
         homepage = 'qthelp://' + posixpath.join(
@@ -273,6 +255,23 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 keywords.extend(self.build_keywords(subitem[0], subitem[1], []))
 
         return keywords
+
+    def get_project_files(self, outdir):
+        # type: (unicode) -> List[unicode]
+        if not outdir.endswith(os.sep):
+            outdir += os.sep
+        olen = len(outdir)
+        project_files = []
+        staticdir = path.join(outdir, '_static')
+        imagesdir = path.join(outdir, self.imagedir)
+        for root, dirs, files in os.walk(outdir):
+            resourcedir = root.startswith((staticdir, imagesdir))
+            for fn in sorted(files):
+                if (resourcedir and not fn.endswith('.js')) or fn.endswith('.html'):
+                    filename = path.join(root, fn)[olen:]
+                    project_files.append(filename)
+
+        return project_files
 
 
 def setup(app):

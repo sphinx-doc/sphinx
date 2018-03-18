@@ -18,7 +18,9 @@
 {{ keywords }}
         </keywords>
         <files>
-{{ files }}
+            {%- for filename in files %}
+            <file>{{ filename|e }}</file>
+            {%- endfor %}
         </files>
     </filterSection>
 </QtHelpProject>
