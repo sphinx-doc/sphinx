@@ -13,10 +13,22 @@
 
 import pytest
 
+from sphinx.testing.util import etree_parse
+
 
 @pytest.mark.sphinx('qthelp', testroot='basic')
 def test_qthelp_basic(app, status, warning):
     app.builder.build_all()
+
+    qhp = (app.outdir / 'Python.qhp').text()
+    assert '<customFilter name="Python ">' in qhp
+    assert '<filterAttribute>Python</filterAttribute>' in qhp
+    assert '<filterAttribute></filterAttribute>' in qhp
+    assert '<section title="Python  documentation" ref="index.html">' in qhp
+    assert '<file>genindex.html</file>' in qhp
+    assert '<file>index.html</file>' in qhp
+    assert '<file>_static/basic.css</file>' in qhp
+    assert '<file>_static/down.png</file>' in qhp
 
     qhcp = (app.outdir / 'Python.qhcp').text()
     assert '<title>Python  documentation</title>' in qhcp
@@ -25,6 +37,27 @@ def test_qthelp_basic(app, status, warning):
     assert '<input>Python.qhp</input>' in qhcp
     assert '<output>Python.qch</output>' in qhcp
     assert '<file>Python.qch</file>' in qhcp
+
+
+@pytest.mark.sphinx('qthelp', testroot='toctree')
+def test_qthelp_toctree(app, status, warning):
+    app.builder.build_all()
+
+    et = etree_parse(app.outdir / 'Python.qhp')
+    toc = et.find('.//toc')
+    assert len(toc) == 1
+    assert toc[0].attrib == {'title': 'Python  documentation',
+                             'ref': 'index.html'}
+    assert len(toc[0]) == 4
+    assert toc[0][0].attrib == {'title': 'foo', 'ref': 'foo.html'}
+    assert toc[0][1].attrib == {'title': 'bar', 'ref': 'bar.html'}
+    assert toc[0][0][0].attrib == {'title': 'quux', 'ref': 'quux.html'}
+    assert toc[0][0][1].attrib == {'title': 'foo.1', 'ref': 'foo.html#foo-1'}
+    assert toc[0][0][1][0].attrib == {'title': 'foo.1-1', 'ref': 'foo.html#foo-1-1'}
+    assert toc[0][0][2].attrib == {'title': 'foo.2', 'ref': 'foo.html#foo-2'}
+    assert toc[0][2].attrib == {'title': 'http://sphinx-doc.org/',
+                                'ref': 'http://sphinx-doc.org/'}
+    assert toc[0][3].attrib == {'title': 'baz', 'ref': 'baz.html'}
 
 
 @pytest.mark.sphinx('qthelp', testroot='basic')
