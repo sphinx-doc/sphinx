@@ -218,10 +218,11 @@ class Builder(object):
                     mimetypes = sorted(node['candidates'])
                     image_uri = images.get_original_image_uri(node['uri'])
                     if mimetypes:
-                        logger.warning('a suitable image for %s builder not found: %s (%s)',
+                        logger.warning(__('a suitable image for %s builder not found: '
+                                          '%s (%s)'),
                                        self.name, mimetypes, image_uri, location=node)
                     else:
-                        logger.warning('a suitable image for %s builder not found: %s',
+                        logger.warning(__('a suitable image for %s builder not found: %s'),
                                        self.name, image_uri, location=node)
                     continue
                 node['uri'] = candidate
