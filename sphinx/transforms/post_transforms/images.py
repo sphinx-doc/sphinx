@@ -30,6 +30,8 @@ if False:
 
 logger = logging.getLogger(__name__)
 
+MAX_FILENAME_LEN = 32
+
 
 class BaseImageConverter(SphinxTransform):
     def apply(self):
@@ -66,16 +68,21 @@ class ImageDownloader(BaseImageConverter):
 
     def handle(self, node):
         # type: (nodes.Node) -> None
-        basename = os.path.basename(node['uri'])
-        if '?' in basename:
-            basename = basename.split('?')[0]
-        if basename == '':
-            basename = sha1(node['uri'].encode("utf-8")).hexdigest()
-        dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
-                                                             ord("&"): u"/"})
-        ensuredir(os.path.join(self.imagedir, dirname))
-        path = os.path.join(self.imagedir, dirname, basename)
         try:
+            basename = os.path.basename(node['uri'])
+            if '?' in basename:
+                basename = basename.split('?')[0]
+            if basename == '' or len(basename) > MAX_FILENAME_LEN:
+                filename, ext = os.path.splitext(node['uri'])
+                basename = sha1(filename.encode("utf-8")).hexdigest() + ext
+
+            dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
+                                                                 ord("&"): u"/"})
+            if len(dirname) > MAX_FILENAME_LEN:
+                dirname = sha1(dirname.encode('utf-8')).hexdigest()
+            ensuredir(os.path.join(self.imagedir, dirname))
+            path = os.path.join(self.imagedir, dirname, basename)
+
             headers = {}
             if os.path.exists(path):
                 timestamp = ceil(os.stat(path).st_mtime)
