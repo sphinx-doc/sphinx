@@ -31,6 +31,7 @@ Bugs fixed
 * #4655, #4684: Incomplete localization strings in Polish and Chinese
 * #2286: Sphinx crashes when error is happens in rendering HTML pages
 * #4688: Error to download remote images having long URL
+* #4754: sphinx/pycode/__init__.py raises AttributeError
 
 Testing
 --------
