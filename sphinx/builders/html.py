@@ -35,8 +35,9 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.errors import ThemeError
 from sphinx.highlighting import PygmentsBridge
-from sphinx.locale import _, l_
+from sphinx.locale import _, __, l_
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import jsonimpl, logging, status_iterator
@@ -1016,6 +1017,9 @@ class StandaloneHTMLBuilder(Builder):
                            "Please make sure all config values that contain "
                            "non-ASCII content are Unicode strings.", pagename)
             return
+        except Exception as exc:
+            raise ThemeError(__("An error happened in rendering the page %s.\nReason: %r") %
+                             (pagename, exc))
 
         if not outfilename:
             outfilename = self.get_outfilename(pagename)
