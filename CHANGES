@@ -30,6 +30,7 @@ Bugs fixed
 * #4720: message when an image is mismatched for builder is not clear
 * #4655, #4684: Incomplete localization strings in Polish and Chinese
 * #2286: Sphinx crashes when error is happens in rendering HTML pages
+* #4688: Error to download remote images having long URL
 
 Testing
 --------
