@@ -25,8 +25,9 @@ from sphinx.writers.texinfo import TexinfoTranslator
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'svgimg.\\*'
+%(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: foo.\\*
+%(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
+\\['application/pdf', 'image/svg\\+xml'\\] \\(svgimg.\\*\\)
 """
 
 if PY3:

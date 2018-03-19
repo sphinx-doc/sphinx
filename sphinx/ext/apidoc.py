@@ -298,7 +298,7 @@ def is_excluded(root, excludes):
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
-        usage='usage: %(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
+        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
         description=__("""
