@@ -228,6 +228,9 @@ them to generate links or output multiply used elements.
 
    Return the rendered relation bar.
 
+.. function:: warning(message)
+
+   Emit a warning message.
 
 Global Variables
 ~~~~~~~~~~~~~~~~

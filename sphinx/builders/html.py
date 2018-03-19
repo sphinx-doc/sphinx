@@ -31,7 +31,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -1001,6 +1001,9 @@ class StandaloneHTMLBuilder(Builder):
         def warn(*args, **kwargs):
             # type: (Any, Any) -> unicode
             """Simple warn() wrapper for themes."""
+            warnings.warn('The template function warn() was deprecated. '
+                          'Use warning() instead.',
+                          RemovedInSphinx30Warning)
             self.warn(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn
