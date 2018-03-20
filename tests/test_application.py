@@ -58,28 +58,6 @@ def test_extension_in_blacklist(app, status, warning):
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
-def test_domain_override(app, status, warning):
-    class A(Domain):
-        name = 'foo'
-
-    class B(A):
-        name = 'foo'
-
-    class C(Domain):
-        name = 'foo'
-
-    # No domain know named foo.
-    with pytest.raises(ExtensionError) as excinfo:
-        app.override_domain(A)
-    assert 'domain foo not yet registered' in str(excinfo.value)
-
-    assert app.add_domain(A) is None
-    assert app.override_domain(B) is None
-    with pytest.raises(ExtensionError) as excinfo:
-        app.override_domain(C)
-    assert 'new domain not a subclass of registered foo domain' in str(excinfo.value)
-
-
 @pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
