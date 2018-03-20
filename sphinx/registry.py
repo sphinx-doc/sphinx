@@ -28,7 +28,6 @@ from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
 if False:
@@ -334,7 +333,7 @@ class SphinxComponentRegistry(object):
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(__('Change of translator for the %s builder.') % name))
+        logger.debug('[app] Change of translator for the %s builder.' % name)
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
