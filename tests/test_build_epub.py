@@ -19,13 +19,13 @@ import pytest
 # check given command is runnable
 def runnable(command):
     try:
-        p = Popen(command, stdout=PIPE)
+        p = Popen(command, stdout=PIPE, stderr=PIPE)
     except OSError:
         # command not found
         return False
     else:
         p.communicate()
-        return p.returncode
+        return p.returncode == 0
 
 
 class EPUBElementTree(object):
@@ -322,7 +322,7 @@ def test_run_epubcheck(app):
     app.build()
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if runnable('java') and os.path.exists(epubcheck):
+    if runnable(['java', '-version']) and os.path.exists(epubcheck):
         p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                   stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
