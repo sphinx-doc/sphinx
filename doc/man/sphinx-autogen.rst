@@ -73,7 +73,7 @@ If you run the following:
 
 .. code-block:: bash
 
-    $ sphinx-autodoc doc/index.rst
+    $ PYTHONPATH=. sphinx-autodoc doc/index.rst
 
 then the following stub files will be created in ``docs``::
 
