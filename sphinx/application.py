@@ -187,7 +187,7 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config(confdir, CONFIG_FILENAME,
+        self.config = Config(self.confdir, CONFIG_FILENAME,
                              confoverrides or {}, self.tags)
         self.config.check_unicode()
         # defer checking types until i18n has been initialized
