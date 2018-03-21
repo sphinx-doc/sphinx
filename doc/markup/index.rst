@@ -7,7 +7,6 @@ facilities.
 
 .. toctree::
 
-   code
    misc
 
 More markup is added by :ref:`domains`.
