@@ -32,7 +32,7 @@ Glossary
 
             Content of the directive.
 
-      See :ref:`directives` for more information.
+      See :ref:`rst-directives` for more information.
 
    document name
       Since reST source files can have different extensions (some people like

@@ -17,4 +17,5 @@ __ http://docutils.sourceforge.net/rst.html
 
    basics
    roles
+   directives
    field-lists

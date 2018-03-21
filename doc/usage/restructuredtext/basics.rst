@@ -303,7 +303,7 @@ normal paragraphs.  This may all sound a bit complicated, but it is intuitive
 enough when you write it.)
 
 
-.. _directives:
+.. _rst-directives:
 
 Directives
 ----------
@@ -371,7 +371,7 @@ Docutils supports the following directives:
    Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
    :dudir:`footer`.
 
-Directives added by Sphinx are described in :ref:`sphinxmarkup`.
+Directives added by Sphinx are described in :doc:`directives`.
 
 Basically, a directive consists of a name, arguments, options and content.
 (Keep this terminology in mind, it is used in the next chapter describing

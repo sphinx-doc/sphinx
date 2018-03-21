@@ -1,5 +1,3 @@
-.. _sphinxmarkup:
-
 Sphinx Markup Constructs
 ========================
 
@@ -9,7 +7,6 @@ facilities.
 
 .. toctree::
 
-   toctree
    para
    code
    misc

@@ -1,4 +1,20 @@
 .. highlight:: rst
+
+==========
+Directives
+==========
+
+:ref:`As previously discussed <rst-directives>`, a directive is a generic block
+of explicit markup. While Docutils provides a number of directives, Sphinx
+provides many more and uses directives as one of the primary extension
+mechanisms.
+
+.. seealso::
+
+   Refer to the :ref:`reStructuredText Primer <rst-directives>` for an overview
+   of the directives provided by Docutils.
+
+
 .. _toctree-directive:
 
 Table of contents
@@ -236,6 +252,7 @@ The special document names (and pages generated for them) are:
 
    * Do not use the plus ``+`` for the ePub format.  Some resources may not be
      found.
+
 
 .. rubric:: Footnotes
 
