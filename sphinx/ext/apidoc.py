@@ -197,6 +197,7 @@ def shall_skip(module, opts, excludes=[]):
     # Are we a package (here defined as __init__.py, not the folder in itself)
     if os.path.basename(module) == INITPY:
         # Yes, check if we have any non-excluded modules at all here
+        all_skipped = True
         basemodule = path.dirname(module)
         for module in glob.glob(path.join(basemodule, '*.py')):
             if not is_excluded(path.join(basemodule, module), excludes):
