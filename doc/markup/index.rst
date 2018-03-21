@@ -7,7 +7,6 @@ facilities.
 
 .. toctree::
 
-   para
    code
    misc
 
