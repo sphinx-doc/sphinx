@@ -1995,7 +1995,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
             else:
                 domain = self.builder.env.get_domain('std')
-                figtype = domain.get_figtype(next)
+                figtype = domain.get_enumerable_node_type(next)
                 if figtype and domain.get_numfig_title(next):
                     ids = set()
                     # labels for figures go in the figure body, not before

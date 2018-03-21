@@ -49,6 +49,8 @@ Features added
 * Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
   support translation for 3rd party extensions
 * helper function ``warning()`` for HTML themes is added
+* Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
+  (experimental)
 
 Bugs fixed
 ----------
