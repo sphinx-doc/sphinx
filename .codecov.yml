@@ -2,9 +2,7 @@ coverage:
   status:
     project:
       default:
-        # allowed to drop X% and still result in a "success" commit status
-        threshold: 0.05
+        enabled: no
     patch:
       default:
-        # allowed to drop X% and still result in a "success" commit status
-        threshold: 0.05
+        enabled: no
