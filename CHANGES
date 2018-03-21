@@ -1,19 +1,10 @@
-Release 1.7.2 (in development)
-==============================
-
-Dependencies
-------------
+Release 1.7.2 (released Mar 21, 2018)
+=====================================
 
 Incompatible changes
 --------------------
 * #4520: apidoc: folders with an empty __init__.py are no longer excluded from
   TOC
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -37,9 +28,6 @@ Bugs fixed
 * #1435: qthelp builder should htmlescape keywords
 * epub: Fix docTitle elements of toc.ncx is not escaped
 * #4520: apidoc: Subpackage not in toc (introduced in 1.6.6) now fixed
-
-Testing
---------
 
 Release 1.7.1 (released Feb 23, 2018)
 =====================================
