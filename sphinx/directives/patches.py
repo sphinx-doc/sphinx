@@ -7,8 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
@@ -16,7 +14,8 @@ from docutils.parsers.rst.directives import images, html, tables
 from sphinx import addnodes
 from sphinx.util.nodes import set_source_info
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

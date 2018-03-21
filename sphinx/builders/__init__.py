@@ -11,7 +11,6 @@
 
 import warnings
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -37,7 +36,8 @@ try:
 except ImportError:
     multiprocessing = None
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -215,9 +215,15 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    logger.warning(__('no matching candidate for image URI %r'),
-                                   images.get_original_image_uri(node['uri']),
-                                   location=node)
+                    mimetypes = sorted(node['candidates'])
+                    image_uri = images.get_original_image_uri(node['uri'])
+                    if mimetypes:
+                        logger.warning(__('a suitable image for %s builder not found: '
+                                          '%s (%s)'),
+                                       self.name, mimetypes, image_uri, location=node)
+                    else:
+                        logger.warning(__('a suitable image for %s builder not found: %s'),
+                                       self.name, image_uri, location=node)
                     continue
                 node['uri'] = candidate
             else:

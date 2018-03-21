@@ -10,7 +10,6 @@
 """
 
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
@@ -26,7 +25,8 @@ from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Set, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

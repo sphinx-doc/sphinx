@@ -8,15 +8,14 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import codecs
 import sys
-from typing import TYPE_CHECKING
 
 from six import PY3, text_type, exec_
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Generator  # NOQA
 
 

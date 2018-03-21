@@ -16,7 +16,6 @@ import multiprocessing
 import os
 import sys
 import traceback
-from typing import TYPE_CHECKING
 
 from docutils.utils import SystemMessage
 from six import text_type, binary_type
@@ -31,7 +30,8 @@ from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.pycompat import terminal_safe
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, IO, List, Union  # NOQA
 
 
@@ -106,7 +106,7 @@ def jobs_argument(value):
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
-        usage='usage: %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.

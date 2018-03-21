@@ -24,7 +24,6 @@ import os
 import sys
 from fnmatch import fnmatch
 from os import path
-from typing import TYPE_CHECKING
 
 from six import binary_type
 
@@ -35,7 +34,8 @@ from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, List, Tuple  # NOQA
 
 # automodule options
@@ -298,7 +298,7 @@ def is_excluded(root, excludes):
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
-        usage='usage: %(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
+        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
         epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
         description=__("""

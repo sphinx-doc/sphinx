@@ -19,7 +19,6 @@ import warnings
 from collections import deque
 from inspect import isclass
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils.parsers.rst import Directive, directives, roles
 from six import itervalues
@@ -47,11 +46,12 @@ from sphinx.util.i18n import find_catalog_source_files
 from sphinx.util.osutil import abspath, ensuredir
 from sphinx.util.tags import Tags
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers import Parser  # NOQA
-    from docutils.transform import Transform  # NOQA
+    from docutils.transforms import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
@@ -187,7 +187,7 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config(confdir, CONFIG_FILENAME,
+        self.config = Config(self.confdir, CONFIG_FILENAME,
                              confoverrides or {}, self.tags)
         self.config.check_unicode()
         # defer checking types until i18n has been initialized

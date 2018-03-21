@@ -16,7 +16,6 @@ from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
 from os import path, walk, getenv
 from time import time
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from six import iteritems, StringIO
@@ -31,7 +30,8 @@ from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA

@@ -11,7 +11,6 @@
 """
 from itertools import product
 from operator import itemgetter
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from six import iteritems
@@ -20,7 +19,8 @@ from six.moves import range, zip_longest
 
 from sphinx.transforms import SphinxTransform
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Iterator  # NOQA
     from docutils import nodes  # NOQA
 

@@ -11,7 +11,6 @@
 
 import codecs
 from os import path
-from typing import TYPE_CHECKING
 
 from six import iteritems
 
@@ -25,7 +24,8 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.pycompat import htmlescape
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

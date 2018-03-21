@@ -20,14 +20,14 @@ import os
 import subprocess
 import sys
 from os import path
-from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
 from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import List  # NOQA
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')
@@ -101,22 +101,34 @@ class Make(object):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
-        with cd(self.builddir_join('latex')):
-            return subprocess.call([self.makecmd, 'all-pdf'])
+        try:
+            with cd(self.builddir_join('latex')):
+                return subprocess.call([self.makecmd, 'all-pdf'])
+        except OSError:
+            print('Error: Failed to run: %s' % self.makecmd)
+            return 1
 
     def build_latexpdfja(self):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
-        with cd(self.builddir_join('latex')):
-            return subprocess.call([self.makecmd, 'all-pdf-ja'])
+        try:
+            with cd(self.builddir_join('latex')):
+                return subprocess.call([self.makecmd, 'all-pdf-ja'])
+        except OSError:
+            print('Error: Failed to run: %s' % self.makecmd)
+            return 1
 
     def build_info(self):
         # type: () -> int
         if self.run_generic_build('texinfo') > 0:
             return 1
-        with cd(self.builddir_join('texinfo')):
-            return subprocess.call([self.makecmd, 'info'])
+        try:
+            with cd(self.builddir_join('texinfo')):
+                return subprocess.call([self.makecmd, 'info'])
+        except OSError:
+            print('Error: Failed to run: %s' % self.makecmd)
+            return 1
 
     def build_gettext(self):
         # type: () -> int

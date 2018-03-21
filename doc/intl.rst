@@ -113,11 +113,26 @@ This section describe an easy way to translate with sphinx-intl.
 #. make translated document.
 
    You need a :confval:`language` parameter in ``conf.py`` or you may also
-   specify the parameter on the command line:
+   specify the parameter on the command line (for BSD/GNU make):
 
    .. code-block:: console
 
       $ make -e SPHINXOPTS="-D language='de'" html
+
+   command line (for Windows cmd.exe):
+
+   .. code-block:: console
+
+      > set SPHINXOPTS=-D language='de'
+      > .\make.bat html
+
+   command line (for PowerShell):
+
+   .. code-block:: console
+
+      > Set-Item env:SPHINXOPTS "-D language='de'"
+      > .\make.bat html
+
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.
@@ -263,7 +278,7 @@ easy to fetch and push translations.
       ...
       Done.
 
-   Invoke make html:
+   Invoke make html (for BSD/GNU make):
 
    .. code-block:: console
 

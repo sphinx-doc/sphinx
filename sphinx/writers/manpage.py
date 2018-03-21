@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 from docutils.writers.manpage import (
     MACRO_DEF,
@@ -24,7 +22,8 @@ from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any  # NOQA
     from sphinx.builders import Builder  # NOQA
 

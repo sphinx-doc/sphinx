@@ -8,13 +8,11 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import os
 import time
 import traceback
 from math import sqrt
-from typing import TYPE_CHECKING
 
 from six import iteritems
 
@@ -26,7 +24,8 @@ except ImportError:
 from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List, Sequence  # NOQA
 
 logger = logging.getLogger(__name__)

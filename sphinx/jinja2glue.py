@@ -11,7 +11,7 @@
 
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Tuple  # NOQA
+from typing import Any, Callable, Iterator, Tuple  # NOQA
 
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
@@ -20,9 +20,11 @@ from jinja2.utils import open_if_exists
 from six import string_types
 
 from sphinx.application import TemplateBridge
+from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -112,6 +114,17 @@ class idgen(object):
     next = __next__  # Python 2/Jinja compatibility
 
 
+@contextfunction
+def warning(context, message, *args, **kwargs):
+    # type: (Dict, unicode, Any, Any) -> unicode
+    if 'pagename' in context:
+        filename = context.get('pagename') + context.get('file_suffix', '')
+        message = 'in rendering %s: %s' % (filename, message)
+    logger = logging.getLogger('sphinx.themes')
+    logger.warning(message, *args, **kwargs)
+    return ''  # return empty string not to output any values
+
+
 class SphinxFileSystemLoader(FileSystemLoader):
     """
     FileSystemLoader subclass that is not so strict about '..'  entries in
@@ -185,6 +198,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
+        self.environment.globals['warning'] = warning
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:

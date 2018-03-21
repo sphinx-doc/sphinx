@@ -15,7 +15,6 @@ from __future__ import absolute_import
 import gzip
 import re
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -31,7 +30,8 @@ try:
 except ImportError:
     import lxml.etree as etree  # type: ignore
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -31,6 +31,7 @@ Deprecated
 * All ``env.update()``, ``env._read_serial()`` and ``env._read_parallel()`` are
   deprecated
 * ``sphinx.locale.l_()`` is deprecated
+* #2157: helper function ``warn()`` for HTML themes is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -47,6 +48,7 @@ Features added
 * ``sphinx-build`` command supports i18n console output
 * Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
   support translation for 3rd party extensions
+* helper function ``warning()`` for HTML themes is added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
 
@@ -89,6 +91,12 @@ Bugs fixed
 * #4701: viewcode: Misplaced ``<div>`` in viewcode html output
 * #4444: Don't require numfig to use :numref: on sections
 * #4727: Option clash for package textcomp
+* #4725: Sphinx does not work with python 3.5.0 and 3.5.1
+* #4716: Generation PDF file with TexLive on Windows, file not found error
+* #4574: vertical space before equation in latex
+* #4720: message when an image is mismatched for builder is not clear
+* #4655, #4684: Incomplete localization strings in Polish and Chinese
+* #2286: Sphinx crashes when error is happens in rendering HTML pages
 
 Testing
 --------

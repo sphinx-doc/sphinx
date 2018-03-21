@@ -15,14 +15,14 @@ import traceback
 import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
-from typing import TYPE_CHECKING
 
 from six import PY2
 
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Generator, List, Optional  # NOQA
 
 logger = logging.getLogger(__name__)

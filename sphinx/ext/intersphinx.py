@@ -32,7 +32,6 @@ import sys
 import time
 import warnings
 from os import path
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import relative_path
@@ -46,7 +45,8 @@ from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA

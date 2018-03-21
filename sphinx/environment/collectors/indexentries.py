@@ -9,15 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from six import text_type
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util import split_index_msg, logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.applicatin import Sphinx  # NOQA

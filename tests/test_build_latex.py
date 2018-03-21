@@ -36,7 +36,7 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
 LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
@@ -1132,6 +1132,16 @@ def test_latex_index(app, status, warning):
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     assert 'A \\index{famous}famous \\index{equation}equation:\n' in result
     assert '\n\\index{Einstein}\\index{relativity}\\ignorespaces \nand' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-equations')
+def test_latex_equations(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    expected = (app.srcdir / 'expects' / 'latex-equations.tex').text().strip()
+
+    assert expected in result
 
 
 @pytest.mark.sphinx('latex', testroot='image-in-parsed-literal')

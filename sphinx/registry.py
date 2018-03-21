@@ -14,7 +14,6 @@ import traceback
 import warnings
 from inspect import isclass
 from types import MethodType
-from typing import TYPE_CHECKING
 
 from docutils.parsers.rst import Directive
 from pkg_resources import iter_entry_points
@@ -29,15 +28,15 @@ from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
-    from docutils.transform import Transform  # NOQA
+    from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
@@ -334,7 +333,7 @@ class SphinxComponentRegistry(object):
 
     def add_translator(self, name, translator):
         # type: (unicode, Type[nodes.NodeVisitor]) -> None
-        logger.info(bold(__('Change of translator for the %s builder.') % name))
+        logger.debug('[app] Change of translator for the %s builder.' % name)
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):

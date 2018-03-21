@@ -10,7 +10,6 @@
 """
 
 import re
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -26,7 +25,8 @@ from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Generator, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -376,7 +376,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             return False
 
         # confirm selected language supports smart_quotes or not
-        language = self.env.settings['language_code']  # type: ignore
+        language = self.env.settings['language_code']
         for tag in normalize_language_tag(language):
             if tag in smartchars.quotes:
                 return True

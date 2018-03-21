@@ -16,7 +16,6 @@ import sys
 import warnings
 from hashlib import md5
 from os import path
-from typing import TYPE_CHECKING
 
 import docutils
 from docutils import nodes
@@ -32,10 +31,11 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.errors import ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
@@ -52,7 +52,8 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -1001,6 +1002,9 @@ class StandaloneHTMLBuilder(Builder):
         def warn(*args, **kwargs):
             # type: (Any, Any) -> unicode
             """Simple warn() wrapper for themes."""
+            warnings.warn('The template function warn() was deprecated. '
+                          'Use warning() instead.',
+                          RemovedInSphinx30Warning)
             self.warn(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn
@@ -1022,6 +1026,9 @@ class StandaloneHTMLBuilder(Builder):
                               "Please make sure all config values that contain "
                               "non-ASCII content are Unicode strings."), pagename)
             return
+        except Exception as exc:
+            raise ThemeError(__("An error happened in rendering the page %s.\nReason: %r") %
+                             (pagename, exc))
 
         if not outfilename:
             outfilename = self.get_outfilename(pagename)

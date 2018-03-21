@@ -9,14 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.transforms import SphinxTransform
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import List  # NOQA
 
 

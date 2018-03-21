@@ -16,7 +16,6 @@ import plistlib
 import shlex
 import subprocess
 from os import path, environ
-from typing import TYPE_CHECKING
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
@@ -29,7 +28,8 @@ from sphinx.util.matching import Matcher
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.pycompat import htmlescape
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

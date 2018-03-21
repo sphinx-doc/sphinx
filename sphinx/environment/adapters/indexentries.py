@@ -12,14 +12,14 @@ import bisect
 import re
 import unicodedata
 from itertools import groupby
-from typing import TYPE_CHECKING
 
 from six import text_type, iteritems
 
 from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict, Pattern, List, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
