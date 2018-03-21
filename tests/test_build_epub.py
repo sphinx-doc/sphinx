@@ -19,17 +19,17 @@ import pytest
 # check given command is runnable
 def runnable(command):
     try:
-        p = Popen(command, stdout=PIPE)
+        p = Popen(command, stdout=PIPE, stderr=PIPE)
     except OSError:
         # command not found
         return False
     else:
         p.communicate()
-        return p.returncode
+        return p.returncode == 0
 
 
 class EPUBElementTree(object):
-    """Test helper for content.opf and tox.ncx"""
+    """Test helper for content.opf and toc.ncx"""
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',
         'dc': 'http://purl.org/dc/elements/1.1/',
@@ -226,6 +226,62 @@ def test_nested_toc(app):
     assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
 
 
+@pytest.mark.sphinx('epub', testroot='need-escaped')
+def test_escaped_toc(app):
+    app.build()
+
+    # toc.ncx
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
+    assert toc.find("./ncx:docTitle/ncx:text").text == ('need <b>"escaped"</b> '
+                                                        'project  documentation')
+
+    # toc.ncx / navPoint
+    def navinfo(elem):
+        label = elem.find("./ncx:navLabel/ncx:text")
+        content = elem.find("./ncx:content")
+        return (elem.get('id'), elem.get('playOrder'),
+                content.get('src'), label.text)
+
+    navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
+    assert len(navpoints) == 4
+    assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
+                                     u"Welcome to Sphinx Tests's documentation!")
+    assert navpoints[0].findall("./ncx:navPoint") == []
+
+    # toc.ncx / nested navPoints
+    assert navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', '<foo>')
+    navchildren = navpoints[1].findall("./ncx:navPoint")
+    assert len(navchildren) == 4
+    assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
+    assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
+    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
+
+    # nav.xhtml / nav
+    def navinfo(elem):
+        anchor = elem.find("./xhtml:a")
+        return (anchor.get('href'), anchor.text)
+
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').bytes())
+    toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
+    assert len(toc) == 4
+    assert navinfo(toc[0]) == ('index.xhtml',
+                               "Welcome to Sphinx Tests's documentation!")
+    assert toc[0].findall("./xhtml:ol") == []
+
+    # nav.xhtml / nested toc
+    assert navinfo(toc[1]) == ('foo.xhtml', '<foo>')
+    tocchildren = toc[1].findall("./xhtml:ol/xhtml:li")
+    assert len(tocchildren) == 3
+    assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
+    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
+
+    grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
+    assert len(grandchild) == 1
+    assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
+
+
 @pytest.mark.sphinx('epub', testroot='basic')
 def test_epub_writing_mode(app):
     # horizontal (default)
@@ -266,7 +322,7 @@ def test_run_epubcheck(app):
     app.build()
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if runnable('java') and os.path.exists(epubcheck):
+    if runnable(['java', '-version']) and os.path.exists(epubcheck):
         p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
                   stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()

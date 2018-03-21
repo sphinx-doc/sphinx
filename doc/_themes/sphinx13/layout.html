@@ -13,6 +13,11 @@
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
 
+{% block linktags %}
+{{ super() }}
+    <link rel="canonical" href="http://www.sphinx-doc.org/en/master/{{ pagename }}{{ file_suffix }}" />
+{% endblock %}
+
 {% block extrahead %}
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700'
           rel='stylesheet' type='text/css' />
