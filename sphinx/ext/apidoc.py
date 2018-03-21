@@ -194,16 +194,16 @@ def shall_skip(module, opts, excludes=[]):
     if not opts.implicit_namespaces and not path.exists(module):
         return True
 
-    # skip it if there is nothing (or just \n or \r\n) in the file
-    if path.exists(module) and path.getsize(module) <= 2:
-        if os.path.basename(module) == '__init__.py':
-            # We only want to skip packages if they do not contain any
-            # .py files other than __init__.py.
-            basemodule = path.dirname(module)
-            for module in glob.glob(path.join(basemodule, '*.py')):
-                if not is_excluded(path.join(basemodule, module), excludes):
-                    return True
-        else:
+    # Are we a package (here defined as __init__.py, not the folder in itself)
+    if os.path.basename(module) == INITPY:
+        # Yes, check if we have any non-excluded modules at all here
+        all_skipped = True
+        basemodule = path.dirname(module)
+        for module in glob.glob(path.join(basemodule, '*.py')):
+            if not is_excluded(path.join(basemodule, module), excludes):
+                # There's a non-excluded module here, we won't skip
+                all_skipped = False
+        if all_skipped:
             return True
 
     # skip if it has a "private" name and this is selected
