@@ -13,7 +13,6 @@ Sphinx documentation contents
 
    intro
    man/index
-   markup/index
    domains
    builders
    config
