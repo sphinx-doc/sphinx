@@ -185,15 +185,6 @@ class Config(object):
                 config['extensions'] = overrides.pop('extensions')
         self.extensions = config.get('extensions', [])  # type: List[unicode]
 
-        # correct values of copyright year that are not coherent with
-        # the SOURCE_DATE_EPOCH environment variable (if set)
-        # See https://reproducible-builds.org/specs/source-date-epoch/
-        if getenv('SOURCE_DATE_EPOCH') is not None:
-            for k in ('copyright', 'epub_copyright'):
-                if k in config:
-                    config[k] = copyright_year_re.sub(r'\g<1>%s' % format_date('%Y'),
-                                                      config[k])
-
     @classmethod
     def read(cls, confdir, filename, overrides=None, tags=None):
         # type: (unicode, unicode, Dict, Tags) -> Config
@@ -422,9 +413,24 @@ def convert_source_suffix(app, config):
                           "But `%r' is given." % source_suffix))
 
 
+def correct_copyright_year(app, config):
+    # type: (Sphinx, Config) -> None
+    """correct values of copyright year that are not coherent with
+    the SOURCE_DATE_EPOCH environment variable (if set)
+
+    See https://reproducible-builds.org/specs/source-date-epoch/
+    """
+    if getenv('SOURCE_DATE_EPOCH') is not None:
+        for k in ('copyright', 'epub_copyright'):
+            if k in config:
+                replace = r'\g<1>%s' % format_date('%Y')
+                config[k] = copyright_year_re.sub(replace, config[k])  # type: ignore
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
+    app.connect('config-inited', correct_copyright_year)
 
     return {
         'version': 'builtin',
