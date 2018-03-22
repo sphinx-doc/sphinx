@@ -11,12 +11,14 @@
 
 import re
 import traceback
+import warnings
 from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ConfigError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -35,12 +37,6 @@ logger = logging.getLogger(__name__)
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-CONFIG_SYNTAX_ERROR = __("There is a syntax error in your configuration file: %s")
-if PY3:
-    CONFIG_SYNTAX_ERROR += __("\nDid you change the syntax from 2.x to 3.x?")
-CONFIG_ERROR = __("There is a programable error in your configuration file:\n\n%s")
-CONFIG_EXIT_ERROR = __("The configuration file (or one of the modules it imports) "
-                       "called sys.exit()")
 CONFIG_ENUM_WARNING = __("The config value `{name}` has to be a one of {candidates}, "
                          "but `{current}` is given.")
 CONFIG_PERMITTED_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
@@ -159,30 +155,27 @@ class Config(object):
                                 'env'),
     )  # type: Dict[unicode, Tuple]
 
-    def __init__(self, dirname, filename, overrides, tags):
-        # type: (unicode, unicode, Dict, Tags) -> None
+    def __init__(self, *args):
+        # type: (Any) -> None
+        if len(args) == 4:
+            # old style arguments: (dirname, filename, overrides, tags)
+            warnings.warn('The argument of Config() class has been changed. '
+                          'Use Config.read() to read configuration from conf.py.',
+                          RemovedInSphinx30Warning)
+            dirname, filename, overrides, tags = args
+            config = eval_config_file(dirname, filename, tags)
+        else:
+            # new style arguments: (config={}, overrides={})
+            if len(args) == 0:
+                config, overrides = {}, {}
+            elif len(args) == 1:
+                config, overrides = args[0], {}
+            else:
+                config, overrides = args[:2]
+
         self.overrides = overrides
         self.values = Config.config_values.copy()
-        config = {}  # type: Dict[unicode, Any]
-        if dirname is not None:
-            config_file = path.join(dirname, filename)
-            config['__file__'] = config_file
-            config['tags'] = tags
-            with cd(dirname):
-                # we promise to have the config dir as current dir while the
-                # config file is executed
-                try:
-                    execfile_(filename, config)
-                except SyntaxError as err:
-                    raise ConfigError(CONFIG_SYNTAX_ERROR % err)
-                except SystemExit:
-                    raise ConfigError(CONFIG_EXIT_ERROR)
-                except Exception:
-                    raise ConfigError(CONFIG_ERROR % traceback.format_exc())
-
         self._raw_config = config
-        # these two must be preinitialized because extensions can add their
-        # own config values
         self.setup = config.get('setup', None)  # type: Callable
 
         if 'extensions' in overrides:
@@ -200,6 +193,13 @@ class Config(object):
                 if k in config:
                     config[k] = copyright_year_re.sub(r'\g<1>%s' % format_date('%Y'),
                                                       config[k])
+
+    @classmethod
+    def read(cls, confdir, filename, overrides=None, tags=None):
+        # type: (unicode, unicode, Dict, Tags) -> Config
+        """Create a Config object from configuration file."""
+        namespace = eval_config_file(confdir, filename, tags)
+        return Config(namespace, overrides or {})
 
     def check_types(self):
         # type: () -> None
@@ -363,6 +363,37 @@ class Config(object):
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)  # type: ignore
+
+
+def eval_config_file(confdir, filename, tags):
+    # type: (unicode, unicode, Tags) -> Dict[unicode, Any]
+    """Evaluate a config file."""
+    if confdir is None:
+        return {}
+
+    config_path = path.join(confdir, filename)
+    namespace = {}  # type: Dict[unicode, Any]
+    namespace['__file__'] = config_path
+    namespace['tags'] = tags
+
+    with cd(confdir):
+        # during executing config file, current dir is changed to ``confdir``.
+        try:
+            execfile_(filename, namespace)
+        except SyntaxError as err:
+            msg = __("There is a syntax error in your configuration file: %s")
+            if PY3:
+                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            raise ConfigError(msg % err)
+        except SystemExit:
+            msg = __("The configuration file (or one of the modules it imports) "
+                     "called sys.exit()")
+            raise ConfigError(msg)
+        except Exception:
+            msg = __("There is a programable error in your configuration file:\n\n%s")
+            raise ConfigError(msg % traceback.format_exc())
+
+    return namespace
 
 
 def convert_source_suffix(app, config):

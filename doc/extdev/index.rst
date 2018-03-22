@@ -113,6 +113,12 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``dirname``, ``filename`` and ``tags`` arguments of
+       ``Config.__init__()``
+     - 1.8
+     - 3.0
+     - ``Config.read()``
+
    * - ``warn()`` (template helper function)
      - 1.8
      - 3.0

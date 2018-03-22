@@ -32,6 +32,8 @@ Deprecated
   deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
+* ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
+  argument has been deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -51,6 +53,8 @@ Features added
 * helper function ``warning()`` for HTML themes is added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
+* Add ``Config.read()`` classmethod to create a new config object from
+  configuration file
 
 Bugs fixed
 ----------
