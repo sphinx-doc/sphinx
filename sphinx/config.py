@@ -37,13 +37,6 @@ logger = logging.getLogger(__name__)
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-CONFIG_ENUM_WARNING = __("The config value `{name}` has to be a one of {candidates}, "
-                         "but `{current}` is given.")
-CONFIG_PERMITTED_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
-                                   "expected to {permitted}.")
-CONFIG_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
-                         "defaults to `{default.__name__}'.")
-
 if PY3:
     unicode = str  # special alias for static typing...
 
@@ -194,48 +187,9 @@ class Config(object):
 
     def check_types(self):
         # type: () -> None
-        # check all values for deviation from the default value's type, since
-        # that can result in TypeErrors all over the place
-        # NB. since config values might use _() we have to wait with calling
-        # this method until i18n is initialized
-        for name in self._raw_config:
-            if name not in self.values:
-                continue  # we don't know a default value
-            settings = self.values[name]
-            default, dummy_rebuild = settings[:2]
-            permitted = settings[2] if len(settings) == 3 else ()
-
-            if hasattr(default, '__call__'):
-                default = default(self)  # could invoke _()
-            if default is None and not permitted:
-                continue  # neither inferrable nor expliclitly permitted types
-            current = self[name]
-            if permitted is Any:
-                # any type of value is accepted
-                pass
-            elif isinstance(permitted, ENUM):
-                if not permitted.match(current):
-                    logger.warning(CONFIG_ENUM_WARNING.format(
-                        name=name, current=current, candidates=permitted.candidates))
-            else:
-                if type(current) is type(default):
-                    continue
-                if type(current) in permitted:
-                    continue
-
-                common_bases = (set(type(current).__bases__ + (type(current),)) &
-                                set(type(default).__bases__))
-                common_bases.discard(object)
-                if common_bases:
-                    continue  # at least we share a non-trivial base class
-
-                if permitted:
-                    logger.warning(CONFIG_PERMITTED_TYPE_WARNING.format(
-                        name=name, current=type(current),
-                        permitted=str([cls.__name__ for cls in permitted])))
-                else:
-                    logger.warning(CONFIG_TYPE_WARNING.format(
-                        name=name, current=type(current), default=type(default)))
+        warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
+                      RemovedInSphinx30Warning)
+        check_confval_types(None, self)
 
     def check_unicode(self):
         # type: () -> None
@@ -430,10 +384,62 @@ def correct_copyright_year(app, config):
                 config[k] = copyright_year_re.sub(replace, config[k])  # type: ignore
 
 
+def check_confval_types(app, config):
+    # type: (Sphinx, Config) -> None
+    """check all values for deviation from the default value's type, since
+    that can result in TypeErrors all over the place NB.
+    """
+    for confval in config:
+        settings = config.values[confval.name]
+        default = settings[0]
+        annotations = settings[2] if len(settings) == 3 else ()
+
+        if hasattr(default, '__call__'):
+            default = default(config)  # evaluate default value
+        if default is None and not annotations:
+            continue  # neither inferrable nor expliclitly annotated types
+
+        if annotations is Any:
+            # any type of value is accepted
+            pass
+        elif isinstance(annotations, ENUM):
+            if not annotations.match(confval.value):
+                msg = __("The config value `{name}` has to be a one of {candidates}, "
+                         "but `{current}` is given.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=confval.value,
+                                          candidates=annotations.candidates))
+        else:
+            if type(confval.value) is type(default):
+                continue
+            if type(confval.value) in annotations:
+                continue
+
+            common_bases = (set(type(confval.value).__bases__ + (type(confval.value),)) &
+                            set(type(default).__bases__))
+            common_bases.discard(object)
+            if common_bases:
+                continue  # at least we share a non-trivial base class
+
+            if annotations:
+                msg = __("The config value `{name}' has type `{current.__name__}', "
+                         "expected to {permitted}.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=type(confval.value),
+                                          permitted=str([c.__name__ for c in annotations])))
+            else:
+                msg = __("The config value `{name}' has type `{current.__name__}', "
+                         "defaults to `{default.__name__}'.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=type(confval.value),
+                                          default=type(default)))
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', correct_copyright_year)
+    app.connect('config-inited', check_confval_types)
 
     return {
         'version': 'builtin',

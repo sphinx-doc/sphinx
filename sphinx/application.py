@@ -246,8 +246,6 @@ class Sphinx(object):
 
         # create the builder
         self.builder = self.create_builder(buildername)
-        # check all configuration values for permissible types
-        self.config.check_types()
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder

@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``Config.check_types()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_confval_types()``
+
    * - ``dirname``, ``filename`` and ``tags`` arguments of
        ``Config.__init__()``
      - 1.8

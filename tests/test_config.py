@@ -14,7 +14,7 @@ import pytest
 from six import PY3
 
 import sphinx
-from sphinx.config import Config, ENUM, string_classes
+from sphinx.config import Config, ENUM, string_classes, check_confval_types
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 from sphinx.testing.path import path
 
@@ -263,7 +263,7 @@ def test_check_types(logger, name, default, annotation, actual, warned):
     config = Config({name: actual})
     config.add(name, default, 'env', annotation or ())
     config.init_values()
-    config.check_types()
+    check_confval_types(None, config)
     assert logger.warning.called == warned
 
 
@@ -272,7 +272,7 @@ def test_check_enum(logger):
     config = Config()
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
-    config.check_types()
+    check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
 
@@ -281,7 +281,7 @@ def test_check_enum_failed(logger):
     config = Config({'value': 'invalid'})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
-    config.check_types()
+    check_confval_types(None, config)
     logger.warning.assert_called()
 
 
@@ -290,7 +290,7 @@ def test_check_enum_for_list(logger):
     config = Config({'value': ['one', 'two']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
-    config.check_types()
+    check_confval_types(None, config)
     logger.warning.assert_not_called()  # not warned
 
 
@@ -299,5 +299,5 @@ def test_check_enum_for_list_failed(logger):
     config = Config({'value': ['one', 'two', 'invalid']})
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     config.init_values()
-    config.check_types()
+    check_confval_types(None, config)
     logger.warning.assert_called()
