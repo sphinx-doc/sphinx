@@ -11,15 +11,15 @@
 """
 import mock
 import pytest
-from six import PY3, iteritems
+from six import PY3
 
 import sphinx
-from sphinx.config import Config
+from sphinx.config import Config, ENUM, string_classes
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 from sphinx.testing.path import path
 
 
-@pytest.mark.sphinx(confoverrides={
+@pytest.mark.sphinx(testroot='config', confoverrides={
     'master_doc': 'master',
     'nonexisting_value': 'True',
     'latex_elements.docclass': 'scrartcl',
@@ -89,6 +89,30 @@ def test_extension_values(app, status, warning):
     with pytest.raises(ExtensionError) as excinfo:
         app.add_config_value('value_from_ext', 'x', True)
     assert 'already present' in str(excinfo.value)
+
+
+def test_overrides():
+    config = Config({'value1': '1', 'value2': 2, 'value6': {'default': 6}},
+                    {'value2': 999, 'value3': '999', 'value5.attr1': 999, 'value6.attr1': 999,
+                     'value7': 'abc,def,ghi', 'value8': 'abc,def,ghi'})
+    config.add('value1', None, 'env', ())
+    config.add('value2', None, 'env', ())
+    config.add('value3', 0, 'env', ())
+    config.add('value4', 0, 'env', ())
+    config.add('value5', {'default': 0}, 'env', ())
+    config.add('value6', {'default': 0}, 'env', ())
+    config.add('value7', None, 'env', ())
+    config.add('value8', [], 'env', ())
+    config.init_values()
+
+    assert config.value1 == '1'
+    assert config.value2 == 999
+    assert config.value3 == 999
+    assert config.value4 == 0
+    assert config.value5 == {'attr1': 999}
+    assert config.value6 == {'default': 6, 'attr1': 999}
+    assert config.value7 == 'abc,def,ghi'
+    assert config.value8 == ['abc', 'def', 'ghi']
 
 
 @mock.patch("sphinx.config.logger")
@@ -195,60 +219,81 @@ def test_builtin_conf(app, status, warning):
         'warning')
 
 
-# See roots/test-config/conf.py.
-TYPECHECK_WARNINGS = {
-    'value1': True,
-    'value2': True,
-    'value3': False,
-    'value4': True,
-    'value5': False,
-    'value6': True,
-    'value7': False,
-    'value8': False,
-    'value9': False,
-    'value10': False,
-    'value11': False if PY3 else True,
-    'value12': False,
-    'value13': False,
-    'value14': False,
-    'value15': False,
-    'value16': False,
-}
+# example classes for type checking
+class A(object):
+    pass
 
 
-@pytest.mark.parametrize("key,should", iteritems(TYPECHECK_WARNINGS))
-@pytest.mark.sphinx(testroot='config')
-def test_check_types(warning, key, should):
-    warn = warning.getvalue()
-    if should:
-        assert key in warn, (
-            'override on "%s" should raise a type warning' % key
-        )
-    else:
-        assert key not in warn, (
-            'override on "%s" should NOT raise a type warning' % key
-        )
+class B(A):
+    pass
 
 
-@pytest.mark.sphinx(testroot='config')
-def test_check_enum(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           not in warning.getvalue()
+class C(A):
+    pass
 
 
-@pytest.mark.sphinx(testroot='config', confoverrides={'value17': 'invalid'})
-def test_check_enum_failed(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           "but `invalid` is given." in warning.getvalue()
+# name, default, annotation, actual, warned
+TYPECHECK_WARNINGS = [
+    ('value1', 'string', None, 123, True),                      # wrong type
+    ('value2', lambda _: [], None, 123, True),                  # lambda with wrong type
+    ('value3', lambda _: [], None, [], False),                  # lambda with correct type
+    ('value4', 100, None, True, True),                          # child type
+    ('value5', False, None, True, False),                       # parent type
+    ('value6', [], None, (), True),                             # other sequence type
+    ('value7', 'string', [list], ['foo'], False),               # explicit type annotation
+    ('value8', B(), None, C(), False),                          # sibling type
+    ('value9', None, None, 'foo', False),                       # no default or no annotations
+    ('value10', None, None, 123, False),                        # no default or no annotations
+    ('value11', None, [str], u'bar', False if PY3 else True),   # str vs unicode
+    ('value12', 'string', None, u'bar', False),                 # str vs unicode
+    ('value13', None, string_classes, 'bar', False),            # string_classes
+    ('value14', None, string_classes, u'bar', False),           # string_classes
+    ('value15', u'unicode', None, 'bar', False),                # str vs unicode
+    ('value16', u'unicode', None, u'bar', False),               # str vs unicode
+]
 
 
-@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two']})
-def test_check_enum_for_list(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           not in warning.getvalue()
+@mock.patch("sphinx.config.logger")
+@pytest.mark.parametrize("name,default,annotation,actual,warned", TYPECHECK_WARNINGS)
+def test_check_types(logger, name, default, annotation, actual, warned):
+    config = Config({name: actual})
+    config.add(name, default, 'env', annotation or ())
+    config.init_values()
+    config.check_types()
+    assert logger.warning.called == warned
 
 
-@pytest.mark.sphinx(testroot='config', confoverrides={'value17': ['one', 'two', 'invalid']})
-def test_check_enum_for_list_failed(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           "but `['one', 'two', 'invalid']` is given." in warning.getvalue()
+@mock.patch("sphinx.config.logger")
+def test_check_enum(logger):
+    config = Config()
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    config.check_types()
+    logger.warning.assert_not_called()  # not warned
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_failed(logger):
+    config = Config({'value': 'invalid'})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    config.check_types()
+    logger.warning.assert_called()
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_for_list(logger):
+    config = Config({'value': ['one', 'two']})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    config.check_types()
+    logger.warning.assert_not_called()  # not warned
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_for_list_failed(logger):
+    config = Config({'value': ['one', 'two', 'invalid']})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    config.check_types()
+    logger.warning.assert_called()
