@@ -28,7 +28,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
@@ -295,7 +295,7 @@ class Config(object):
         return name in self.values
 
     def __iter__(self):
-        # type: () -> Iterable[ConfigValue]
+        # type: () -> Generator[ConfigValue, None, None]
         for name, value in iteritems(self.values):
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
@@ -310,7 +310,7 @@ class Config(object):
         # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
-        return (value for value in self if value.rebuild in rebuild)  # type: ignore
+        return (value for value in self if value.rebuild in rebuild)
 
 
 def eval_config_file(confdir, filename, tags):
