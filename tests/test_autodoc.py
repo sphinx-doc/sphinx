@@ -804,7 +804,7 @@ def test_generate():
                   '   .. py:attribute:: Class._private_inst_attr',
                   '   .. py:classmethod:: Class.inheritedclassmeth()',
                   '   .. py:method:: Class.inheritedmeth()',
-                  '   .. py:staticmethod:: Class.inheritedstaticmeth()',
+                  '   .. py:staticmethod:: Class.inheritedstaticmeth(cls)',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
     del directive.env.ref_context['py:module']
