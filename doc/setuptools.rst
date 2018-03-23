@@ -62,7 +62,7 @@ Options for setuptools integration
    A boolean that determines whether the saved environment should be discarded
    on build. Default is false.
 
-   This can also be set by passing the `-E` flag to ``setup.py``.
+   This can also be set by passing the `-E` flag to ``setup.py``:
 
    .. code-block:: bash
 
