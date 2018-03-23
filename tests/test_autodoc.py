@@ -11,13 +11,15 @@
 """
 
 import sys
+from warnings import catch_warnings
 
 import pytest
 from docutils.statemachine import ViewList
 from six import PY3
 
-from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.ext.autodoc import (
+    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+)
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 
@@ -550,7 +552,7 @@ def test_new_documenter():
         def document_members(self, all_members=False):
             return
 
-    add_documenter(MyDocumenter)
+    app.add_autodocumenter(MyDocumenter)
 
     def assert_result_contains(item, objtype, name, **kw):
         app._warning.truncate(0)
@@ -591,12 +593,13 @@ def test_attrgetter_using():
             assert fullname not in documented_members, \
                 '%r was not hooked by special_attrgetter function' % fullname
 
-    options.members = ALL
-    options.inherited_members = False
-    assert_getter_works('class', 'target.Class', Class, ['meth'])
+    with catch_warnings(record=True):
+        options.members = ALL
+        options.inherited_members = False
+        assert_getter_works('class', 'target.Class', Class, ['meth'])
 
-    options.inherited_members = True
-    assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
+        options.inherited_members = True
+        assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
 
 
 @pytest.mark.usefixtures('setup_test')

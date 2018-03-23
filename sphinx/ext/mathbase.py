@@ -62,6 +62,9 @@ class MathDomain(Domain):
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
+    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+        displaymath: ('displaymath', None),
+    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
@@ -378,12 +381,12 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  man=(man_visit_math, None),
                  texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
-    app.add_enumerable_node(displaymath, 'displaymath',
-                            latex=(latex_visit_displaymath, None),
-                            text=(text_visit_displaymath, None),
-                            man=(man_visit_displaymath, man_depart_displaymath),
-                            texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
-                            html=htmldisplayvisitors)
+    app.add_node(displaymath,
+                 latex=(latex_visit_displaymath, None),
+                 text=(text_visit_displaymath, None),
+                 man=(man_visit_displaymath, man_depart_displaymath),
+                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+                 html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('math', math_role)
     app.add_role('eq', EqXRefRole(warn_dangling=True))
