@@ -74,20 +74,24 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-def test_extension_values(app, status, warning):
-    cfg = app.config
+def test_extension_values():
+    config = Config()
 
-    # default value
-    assert cfg.value_from_ext == []
-    # non-default value
-    assert cfg.value_from_conf_py == 84
+    # check standard settings
+    assert config.master_doc == 'contents'
 
-    # no duplicate values allowed
+    # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        app.add_config_value('html_title', 'x', True)
+        config.add('master_doc', 'index', 'env', None)
     assert 'already present' in str(excinfo.value)
+
+    # add a new config value
+    config.add('value_from_ext', [], 'env', None)
+    assert config.value_from_ext == []
+
+    # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        app.add_config_value('value_from_ext', 'x', True)
+        config.add('value_from_ext', [], 'env', None)
     assert 'already present' in str(excinfo.value)
 
 

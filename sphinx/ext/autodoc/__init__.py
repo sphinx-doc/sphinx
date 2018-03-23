@@ -20,8 +20,8 @@ from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
 
 import sphinx
-from sphinx.application import ExtensionError
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.errors import ExtensionError
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA

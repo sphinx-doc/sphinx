@@ -29,9 +29,7 @@ from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import (
-    ApplicationError, ConfigError, ExtensionError, VersionRequirementError
-)
+from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
@@ -556,8 +554,6 @@ class Sphinx(object):
         """
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
-        if name in self.config:
-            raise ExtensionError(__('Config value %r already present') % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
         self.config.add(name, default, rebuild, types)

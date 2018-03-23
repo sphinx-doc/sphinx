@@ -19,7 +19,7 @@ from typing import Any, NamedTuple, Union
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.errors import ConfigError
+from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
@@ -347,7 +347,10 @@ class Config(object):
 
     def add(self, name, default, rebuild, types):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
-        self.values[name] = (default, rebuild, types)
+        if name in self.values:
+            raise ExtensionError(__('Config value %r already present') % name)
+        else:
+            self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
         # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
