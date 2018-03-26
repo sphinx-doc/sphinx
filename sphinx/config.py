@@ -156,7 +156,10 @@ class Config(object):
                           'Use Config.read() to read configuration from conf.py.',
                           RemovedInSphinx30Warning)
             dirname, filename, overrides, tags = args
-            config = eval_config_file(dirname, filename, tags)
+            if dirname is None:
+                config = {}
+            else:
+                config = eval_config_file(dirname, filename, tags)
         else:
             # new style arguments: (config={}, overrides={})
             if len(args) == 0:
@@ -316,9 +319,6 @@ class Config(object):
 def eval_config_file(confdir, filename, tags):
     # type: (unicode, unicode, Tags) -> Dict[unicode, Any]
     """Evaluate a config file."""
-    if confdir is None:
-        return {}
-
     config_path = path.join(confdir, filename)
     namespace = {}  # type: Dict[unicode, Any]
     namespace['__file__'] = config_path
