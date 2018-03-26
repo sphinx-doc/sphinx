@@ -183,7 +183,7 @@ class Config(object):
         # type: (unicode, unicode, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         namespace = eval_config_file(confdir, filename, tags)
-        return Config(namespace, overrides or {})
+        return cls(namespace, overrides or {})
 
     def check_types(self):
         # type: () -> None
