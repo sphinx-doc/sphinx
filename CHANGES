@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4769: autodoc loses the first staticmethod parameter
+
 Testing
 --------
 
