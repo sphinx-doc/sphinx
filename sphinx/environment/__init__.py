@@ -532,9 +532,6 @@ class BuildEnvironment(object):
         self.config = config
         self._update_settings(config)
 
-        # this cache also needs to be updated every time
-        self._nitpick_ignore = set(self.config.nitpick_ignore)
-
         # return tuple of (changed, reason)
         return bool(changed_reason), changed_reason
 
@@ -864,3 +861,11 @@ class BuildEnvironment(object):
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning)
         return self.app.builder._read_parallel(docnames, nproc)
+
+    @property
+    def _nitpick_ignore(self):
+        # type: () -> List[unicode]
+        warnings.warn('env._nitpick_ignore is deprecated. '
+                      'Please use config.nitpick_ignore instead.',
+                      RemovedInSphinx30Warning)
+        return self.config.nitpick_ignore
