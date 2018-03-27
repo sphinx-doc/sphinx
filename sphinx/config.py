@@ -159,7 +159,7 @@ class Config(object):
             if dirname is None:
                 config = {}  # type: Dict[unicode, Any]
             else:
-                config = eval_config_file(dirname, filename, tags)
+                config = eval_config_file(path.join(dirname, filename), tags)
         else:
             # new style arguments: (config={}, overrides={})
             if len(args) == 0:
@@ -182,10 +182,10 @@ class Config(object):
         self.extensions = config.get('extensions', [])  # type: List[unicode]
 
     @classmethod
-    def read(cls, confdir, filename, overrides=None, tags=None):
-        # type: (unicode, unicode, Dict, Tags) -> Config
+    def read(cls, filename, overrides=None, tags=None):
+        # type: (unicode, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
-        namespace = eval_config_file(confdir, filename, tags)
+        namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
 
     def check_types(self):
@@ -316,15 +316,14 @@ class Config(object):
         return (value for value in self if value.rebuild in rebuild)
 
 
-def eval_config_file(confdir, filename, tags):
-    # type: (unicode, unicode, Tags) -> Dict[unicode, Any]
+def eval_config_file(filename, tags):
+    # type: (unicode, Tags) -> Dict[unicode, Any]
     """Evaluate a config file."""
-    config_path = path.join(confdir, filename)
     namespace = {}  # type: Dict[unicode, Any]
-    namespace['__file__'] = config_path
+    namespace['__file__'] = filename
     namespace['tags'] = tags
 
-    with cd(confdir):
+    with cd(path.dirname(filename)):
         # during executing config file, current dir is changed to ``confdir``.
         try:
             execfile_(filename, namespace)

@@ -124,14 +124,14 @@ def test_errors_warnings(logger, tempdir):
     # test the error for syntax errors in the config file
     (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config.read(tempdir, 'conf.py', {}, None)
+        Config.read(tempdir / 'conf.py', {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
     (tempdir / 'conf.py').write_text(
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
-    cfg = Config.read(tempdir, 'conf.py', {}, None)
+    cfg = Config.read(tempdir / 'conf.py', {}, None)
     cfg.init_values()
     assert cfg.project == u'Jägermeister'
     assert logger.called is False
@@ -143,7 +143,7 @@ def test_errors_warnings(logger, tempdir):
         return
     (tempdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config.read(tempdir, 'conf.py', {}, None)
+    cfg = Config.read(tempdir / 'conf.py', {}, None)
 
     assert logger.warning.called is False
     cfg.check_unicode()
@@ -202,7 +202,7 @@ def test_config_eol(logger, tempdir):
     configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config.read(tempdir, 'conf.py', {}, None)
+        cfg = Config.read(tempdir / 'conf.py', {}, None)
         cfg.init_values()
         assert cfg.project == u'spam'
         assert logger.called is False
