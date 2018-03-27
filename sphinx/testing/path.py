@@ -10,11 +10,11 @@ import os
 import shutil
 import sys
 from io import open
-from typing import TYPE_CHECKING
 
 from six import PY2, text_type
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, IO, List  # NOQA
 
 

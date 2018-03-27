@@ -253,7 +253,13 @@ def init_console(locale_dir, catalog):
 
     .. versionadded:: 1.8
     """
-    language, _ = locale.getlocale(locale.LC_MESSAGES)  # encoding is ignored
+    try:
+        # encoding is ignored
+        language, _ = locale.getlocale(locale.LC_MESSAGES)
+    except AttributeError:
+        # LC_MESSAGES is not always defined. Fallback to the default language
+        # in case it is not.
+        language = None
     return init([locale_dir], language, catalog, 'console')
 
 

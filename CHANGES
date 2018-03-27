@@ -32,6 +32,7 @@ Deprecated
   deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
+* ``env._nitpick_ignore`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
 * ``Config.check_types()`` is deprecated

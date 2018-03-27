@@ -124,6 +124,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Config.read()``
 
+   * - ``BuildEnvironment._nitpick_ignore``
+     - 1.8
+     - 3.0
+     - :confval:`nitpick_ignore`
+
    * - ``warn()`` (template helper function)
      - 1.8
      - 3.0
