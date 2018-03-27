@@ -185,10 +185,13 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config.read(path.join(self.confdir, CONFIG_FILENAME),
-                                  confoverrides or {}, self.tags)
-        self.config.check_unicode()
-        # defer checking types until i18n has been initialized
+        if self.confdir is None:
+            self.config = Config()
+        else:
+            self.config = Config.read(path.join(self.confdir, CONFIG_FILENAME),
+                                      confoverrides or {}, self.tags)
+            self.config.check_unicode()
+            # defer checking types until i18n has been initialized
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions
