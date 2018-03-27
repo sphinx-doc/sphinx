@@ -10,11 +10,11 @@
 """
 
 import os
-from typing import TYPE_CHECKING
 
 import sphinx
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
