@@ -157,7 +157,7 @@ class Config(object):
                           RemovedInSphinx30Warning)
             dirname, filename, overrides, tags = args
             if dirname is None:
-                config = {}
+                config = {}  # type: Dict[unicode, Any]
             else:
                 config = eval_config_file(dirname, filename, tags)
         else:
