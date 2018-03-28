@@ -301,10 +301,12 @@ def switch_source_input(state, content):
 
 
 class SphinxDirective(Directive):
-    """A base class for Directives.
+    """A base class for Sphinx directives.
 
-    Compared with ``docutils.parsers.rst.Directive``, this class improves
-    accessibility to Sphinx APIs.
+    This class provides helper methods for Sphinx directives.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
     """
 
     @property
