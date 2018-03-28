@@ -1998,7 +1998,16 @@ These options influence LaTeX output. See further :doc:`latex`.
         differently or append some content after the index. For example
         ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
         index is full of long entries.
+     ``'fvset'``
+        Customization of ``fancyvrb`` LaTeX package. Defaults to
+        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
+        code-blocks is wider and taller than default text font (Times).
 
+        For ``'xelatex'`` and ``'lualatex'``, defaults to
+        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
+        one unified typeface family (Latin Modern OpenType).
+
+        .. versionadded:: 1.7.3
    * Keys that are set by other options and therefore should not be overridden
      are:
 
