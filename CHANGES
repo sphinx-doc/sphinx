@@ -54,6 +54,9 @@ Features added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
 * Add a new keyword argument ``override`` to Application APIs
+* LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
+  XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
+  fontsize in code-blocks (refs: #4793)
 
 Bugs fixed
 ----------
