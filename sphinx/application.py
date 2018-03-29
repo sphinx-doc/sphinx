@@ -671,7 +671,7 @@ class Sphinx(object):
           function and determine whether the directive has content, arguments
           and options, respectively.  **This style is deprecated.**
 
-        - In the docutils 0.5 style, *directiveclass* is the directive class.
+        - In the docutils 0.5 style, *obj* is the directive class.
           It must already have attributes named *has_content*,
           *required_arguments*, *optional_arguments*,
           *final_argument_whitespace* and *option_spec* that correspond to the
@@ -687,12 +687,22 @@ class Sphinx(object):
 
         .. code-block:: python
 
-           from docutils.parsers.rst import directives
-           add_directive('literalinclude', literalinclude_directive,
-                         content = 0, arguments = (1, 0, 0),
-                         linenos = directives.flag,
-                         language = directives.unchanged,
-                         encoding = directives.encoding)
+           from docutils.parsers.rst import Directive, directives
+
+           class LiteralIncludeDirective(Directive):
+               has_content = True
+               required_arguments = 1
+               optional_arguments = 0
+               final_argument_whitespace = True
+               option_spec = {
+                   'class': directives.class_option,
+                   'name': directives.unchanged,
+               }
+
+               def run(self):
+                   ...
+
+           add_directive('literalinclude', LiteralIncludeDirective)
 
         .. versionchanged:: 0.6
            Docutils 0.5-style directive classes are now supported.
