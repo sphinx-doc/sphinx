@@ -26,7 +26,7 @@ from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import Config
+from sphinx.config import Config, check_unicode
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -190,8 +190,7 @@ class Sphinx(object):
         else:
             self.config = Config.read(path.join(self.confdir, CONFIG_FILENAME),
                                       confoverrides or {}, self.tags)
-            self.config.check_unicode()
-            # defer checking types until i18n has been initialized
+            check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions

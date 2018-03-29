@@ -36,6 +36,7 @@ Deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
 * ``Config.check_types()`` is deprecated
+* ``Config.check_unicode()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_

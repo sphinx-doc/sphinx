@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``Config.check_unicode()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_unicode()``
+
    * - ``Config.check_types()``
      - 1.8
      - 3.0

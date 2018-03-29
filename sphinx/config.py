@@ -34,7 +34,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 if PY3:
@@ -196,13 +195,9 @@ class Config(object):
 
     def check_unicode(self):
         # type: () -> None
-        # check all string values for non-ASCII characters in bytestrings,
-        # since that can result in UnicodeErrors all over the place
-        for name, value in iteritems(self._raw_config):
-            if isinstance(value, binary_type) and nonascii_re.search(value):
-                logger.warning(__('the config value %r is set to a string with non-ASCII '
-                                  'characters; this can lead to Unicode errors occurring. '
-                                  'Please use Unicode strings, e.g. %r.'), name, u'Content')
+        warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
+                      RemovedInSphinx30Warning)
+        check_unicode(self)
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any
@@ -432,6 +427,20 @@ def check_confval_types(app, config):
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
                                           default=type(default)))
+
+
+def check_unicode(config):
+    # type: (Config) -> None
+    """check all string values for non-ASCII characters in bytestrings,
+    since that can result in UnicodeErrors all over the place
+    """
+    nonascii_re = re.compile(br'[\x80-\xff]')
+
+    for name, value in iteritems(config._raw_config):
+        if isinstance(value, binary_type) and nonascii_re.search(value):
+            logger.warning(__('the config value %r is set to a string with non-ASCII '
+                              'characters; this can lead to Unicode errors occurring. '
+                              'Please use Unicode strings, e.g. %r.'), name, u'Content')
 
 
 def setup(app):
