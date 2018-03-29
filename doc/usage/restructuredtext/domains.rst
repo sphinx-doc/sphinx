@@ -1,14 +1,10 @@
 .. highlight:: rst
 
-.. _domains:
-
-Sphinx Domains
-==============
+=======
+Domains
+=======
 
 .. versionadded:: 1.0
-
-What is a Domain?
------------------
 
 Originally, Sphinx was conceived for a single project, the documentation of the
 Python language.  Shortly afterwards, it was made available for everyone as a
@@ -19,20 +15,20 @@ developed in using it for many different purposes: C/C++ projects, JavaScript,
 or even reStructuredText markup (like in this documentation).
 
 While this was always possible, it is now much easier to easily support
-documentation of projects using different programming languages or even ones not
-supported by the main Sphinx distribution, by providing a **domain** for every
-such purpose.
+documentation of projects using different programming languages or even ones
+not supported by the main Sphinx distribution, by providing a **domain** for
+every such purpose.
 
 A domain is a collection of markup (reStructuredText :term:`directive`\ s and
 :term:`role`\ s) to describe and link to :term:`object`\ s belonging together,
 e.g. elements of a programming language.  Directive and role names in a domain
-have names like ``domain:name``, e.g. ``py:function``.  Domains can also provide
-custom indices (like the Python Module Index).
+have names like ``domain:name``, e.g. ``py:function``.  Domains can also
+provide custom indices (like the Python Module Index).
 
 Having domains means that there are no naming problems when one set of
-documentation wants to refer to e.g. C++ and Python classes.  It also means that
-extensions that support the documentation of whole new languages are much easier
-to write.
+documentation wants to refer to e.g. C++ and Python classes.  It also means
+that extensions that support the documentation of whole new languages are much
+easier to write.
 
 This section describes what the domains that are included with Sphinx provide.
 The domain API is documented as well, in the section :ref:`domain-api`.
@@ -65,9 +61,9 @@ that are continued in the next line.  Example::
 
 (This example also shows how to use the ``:noindex:`` flag.)
 
-The domains also provide roles that link back to these object descriptions.  For
-example, to link to one of the functions described in the example above, you
-could say ::
+The domains also provide roles that link back to these object descriptions.
+For example, to link to one of the functions described in the example above,
+you could say ::
 
    The function :py:func:`spam` does a similar thing.
 
@@ -86,9 +82,9 @@ value :confval:`primary_domain` or via this directive:
    Select a new default domain.  While the :confval:`primary_domain` selects a
    global default, this only has an effect within the same file.
 
-If no other default is selected, the Python domain (named ``py``) is the default
-one, mostly for compatibility with documentation written for older versions of
-Sphinx.
+If no other default is selected, the Python domain (named ``py``) is the
+default one, mostly for compatibility with documentation written for older
+versions of Sphinx.
 
 Directives and roles that belong to the default domain can be mentioned without
 giving the domain name, i.e. ::
@@ -98,7 +94,6 @@ giving the domain name, i.e. ::
       Describes a Python function.
 
    Reference to :func:`pyfunc`.
-
 
 Cross-referencing syntax
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +140,6 @@ declarations:
    The ``deprecated`` option can be given (with no value) to mark a module as
    deprecated; it will be designated as such in various locations then.
 
-
 .. rst:directive:: .. py:currentmodule:: name
 
    This directive tells Sphinx that the classes, functions etc. documented from
@@ -155,7 +149,6 @@ declarations:
    for things in a module is spread over multiple files or sections -- one
    location has the :rst:dir:`py:module` directive, the others only
    :rst:dir:`py:currentmodule`.
-
 
 The following directives are provided for module and class contents:
 
@@ -275,7 +268,6 @@ The following directives are provided for module and class contents:
 
    Refer to a decorator method using the :rst:role:`py:meth` role.
 
-
 .. _signatures:
 
 Python Signatures
@@ -290,14 +282,13 @@ can also be given as well as return type annotations::
 
    .. py:function:: compile(source : string, filename, symbol='file') -> ast object
 
-For functions with optional parameters that don't have default values (typically
-functions implemented in C extension modules without keyword argument support),
-you can use brackets to specify the optional parts:
+For functions with optional parameters that don't have default values
+(typically functions implemented in C extension modules without keyword
+argument support), you can use brackets to specify the optional parts:
 
    .. py:function:: compile(source[, filename[, symbol]])
 
 It is customary to put the opening bracket before the comma.
-
 
 .. _info-field-lists:
 
@@ -321,8 +312,8 @@ are recognized and formatted nicely:
 
 .. note::
 
-   In current release, all ``var``, ``ivar`` and ``cvar`` are represented as "Variable".
-   There is no difference at all.
+   In current release, all ``var``, ``ivar`` and ``cvar`` are represented as
+   "Variable".  There is no difference at all.
 
 The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
@@ -364,7 +355,6 @@ single word, like this::
 
    :param int priority: The priority of the message, can be a number 1-5
 
-
 .. versionadded:: 1.5
 
 Container types such as lists and dictionaries can be linked automatically
@@ -377,8 +367,8 @@ using the following syntax::
    :type point: tuple(float, float)
    :type point: tuple[float, float]
 
-Multiple types in a type field will be linked automatically if separated by
-the word "or"::
+Multiple types in a type field will be linked automatically if separated by the
+word "or"::
 
    :type an_arg: int or None
    :vartype a_var: str or int
@@ -419,9 +409,9 @@ a matching identifier is found:
 
 .. rst:role:: py:meth
 
-   Reference a method of an object.  The role text can include the type name and
-   the method name; if it occurs within the description of a type, the type name
-   can be omitted.  A dotted name may be used.
+   Reference a method of an object.  The role text can include the type name
+   and the method name; if it occurs within the description of a type, the type
+   name can be omitted.  A dotted name may be used.
 
 .. rst:role:: py:attr
 
@@ -439,24 +429,24 @@ a matching identifier is found:
    .. versionadded:: 0.4
 
 The name enclosed in this markup can include a module name and/or a class name.
-For example, ``:py:func:`filter``` could refer to a function named ``filter`` in
-the current module, or the built-in function of that name.  In contrast,
+For example, ``:py:func:`filter``` could refer to a function named ``filter``
+in the current module, or the built-in function of that name.  In contrast,
 ``:py:func:`foo.filter``` clearly refers to the ``filter`` function in the
 ``foo`` module.
 
 Normally, names in these roles are searched first without any further
 qualification, then with the current module name prepended, then with the
-current module and class name (if any) prepended.  If you prefix the name with a
-dot, this order is reversed.  For example, in the documentation of Python's
+current module and class name (if any) prepended.  If you prefix the name with
+a dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
-A similar heuristic is used to determine whether the name is an attribute of the
-currently documented class.
+A similar heuristic is used to determine whether the name is an attribute of
+the currently documented class.
 
 Also, if the name is prefixed with a dot, and no exact match is found, the
-target is taken as a suffix and all object names with that suffix are
-searched.  For example, ``:py:meth:`.TarFile.close``` references the
+target is taken as a suffix and all object names with that suffix are searched.
+For example, ``:py:meth:`.TarFile.close``` references the
 ``tarfile.TarFile.close()`` function, even if the current module is not
 ``tarfile``.  Since this can get ambiguous, if there is more than one possible
 match, you will get a warning from Sphinx.
@@ -515,14 +505,13 @@ The C domain (name **c**) is suited for documentation of C API.
 
       .. c:var:: PyObject* PyClass_Type
 
-
 .. _c-roles:
 
 Cross-referencing C constructs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following roles create cross-references to C-language constructs if they are
-defined in the documentation:
+The following roles create cross-references to C-language constructs if they
+are defined in the documentation:
 
 .. rst:role:: c:func
 
@@ -544,6 +533,7 @@ defined in the documentation:
 
    Reference a C-language variable.
 
+
 .. _cpp-domain:
 
 The C++ Domain
@@ -551,12 +541,11 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
-
 Directives
 ~~~~~~~~~~
 
-The following directives are available. All declarations can start with
-a visibility statement (``public``, ``private`` or ``protected``).
+The following directives are available. All declarations can start with a
+visibility statement (``public``, ``private`` or ``protected``).
 
 .. rst:directive:: .. cpp:class:: class specifier
 
@@ -584,7 +573,6 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T> \
                       std::array<T, 42>
-
 
 .. rst:directive:: .. cpp:function:: (member) function prototype
 
@@ -624,7 +612,6 @@ a visibility statement (``public``, ``private`` or ``protected``).
       .. cpp:function:: template<> \
                         void print(int i)
 
-
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
 
@@ -641,13 +628,12 @@ a visibility statement (``public``, ``private`` or ``protected``).
       .. cpp:member:: template<class T> \
                       constexpr T pi = T(3.1415926535897932385)
 
-
 .. rst:directive:: .. cpp:type:: typedef declaration
                    .. cpp:type:: name
                    .. cpp:type:: type alias declaration
 
-   Describe a type as in a typedef declaration, a type alias declaration,
-   or simply the name of a type with unspecified type, e.g.,::
+   Describe a type as in a typedef declaration, a type alias declaration, or
+   simply the name of a type with unspecified type, e.g.,::
 
       .. cpp:type:: std::vector<int> MyList
 
@@ -683,15 +669,13 @@ a visibility statement (``public``, ``private`` or ``protected``).
    .. cpp:type:: template<typename T> \
                  MyContainer = std::vector<T>
 
-
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
                    .. cpp:enum-class:: scoped enum declaration
 
-   Describe a (scoped) enum, possibly with the underlying type specified.
-   Any enumerators declared inside an unscoped enum will be declared both in the enum scope
-   and in the parent scope.
-   Examples::
+   Describe a (scoped) enum, possibly with the underlying type specified.  Any
+   enumerators declared inside an unscoped enum will be declared both in the
+   enum scope and in the parent scope.  Examples::
 
       .. cpp:enum:: MyEnum
 
@@ -718,15 +702,14 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:enumerator:: MyEnum::myOtherEnumerator = 42
 
-
 .. rst:directive:: .. cpp:concept:: template-parameter-list name
 
    .. warning:: The support for concepts is experimental. It is based on the
       current draft standard and the Concepts Technical Specification.
       The features may change as they evolve.
 
-   Describe a concept. It must have exactly 1 template parameter list. The name may be a
-   nested name. Example::
+   Describe a concept. It must have exactly 1 template parameter list. The name
+   may be a nested name. Example::
 
       .. cpp:concept:: template<typename It> std::Iterator
 
@@ -760,17 +743,17 @@ a visibility statement (``public``, ``private`` or ``protected``).
       **Valid Expressions**
 
       - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
-      - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
+      - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r`
+        is incrementable.
 
 Options
-.......
+^^^^^^^
 
 Some directives support options:
 
 - ``:noindex:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
-
 
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~
@@ -782,10 +765,11 @@ Constrained Templates
 .. note:: Sphinx does not currently support ``requires`` clauses.
 
 Placeholders
-............
+^^^^^^^^^^^^
 
 Declarations may use the name of a concept to introduce constrained template
-parameters, or the keyword ``auto`` to introduce unconstrained template parameters::
+parameters, or the keyword ``auto`` to introduce unconstrained template
+parameters::
 
    .. cpp:function:: void f(auto &&arg)
 
@@ -797,18 +781,20 @@ parameters, or the keyword ``auto`` to introduce unconstrained template paramete
       Iterator concept.
 
 Template Introductions
-......................
+^^^^^^^^^^^^^^^^^^^^^^
 
-Simple constrained function or class templates can be declared with a
-`template introduction` instead of a template parameter list::
+Simple constrained function or class templates can be declared with a `template
+introduction` instead of a template parameter list::
 
    .. cpp:function:: std::Iterator{It} void advance(It &it)
 
-       A function template with a template parameter constrained to be an Iterator.
+       A function template with a template parameter constrained to be an
+       Iterator.
 
    .. cpp:class:: std::LessThanComparable{T} MySortedContainer
 
-       A class template with a template parameter constrained to be LessThanComparable.
+       A class template with a template parameter constrained to be
+       LessThanComparable.
 
 They are rendered as follows.
 
@@ -818,20 +804,19 @@ They are rendered as follows.
 
 .. cpp:class:: std::LessThanComparable{T} MySortedContainer
 
-   A class template with a template parameter constrained to be LessThanComparable.
+   A class template with a template parameter constrained to be
+   LessThanComparable.
 
 Note however that no checking is performed with respect to parameter
 compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
-
 
 Inline Expressions and Tpes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
 
-   A role for inserting a C++ expression or type as inline text.
-   For example::
+   A role for inserting a C++ expression or type as inline text.  For example::
 
       .. cpp:var:: int a = 42
 
@@ -846,34 +831,37 @@ Inline Expressions and Tpes
 
   .. cpp:function:: int f(int i)
 
-  An expression: :cpp:expr:`a * f(a)`.
-  A type: :cpp:expr:`const MySortedContainer<int>&`.
+  An expression: :cpp:expr:`a * f(a)`.  A type: :cpp:expr:`const
+  MySortedContainer<int>&`.
 
 Namespacing
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
 
-Declarations in the C++ domain are as default placed in global scope.
-The current scope can be changed using three namespace directives.
-They manage a stack declarations where ``cpp:namespace`` resets the stack and
-changes a given scope.
+Declarations in the C++ domain are as default placed in global scope.  The
+current scope can be changed using three namespace directives.  They manage a
+stack declarations where ``cpp:namespace`` resets the stack and changes a given
+scope.
+
 The ``cpp:namespace-push`` directive changes the scope to a given inner scope
 of the current one.
-The ``cpp:namespace-pop`` directive undos the most recent ``cpp:namespace-push``
-directive.
+
+The ``cpp:namespace-pop`` directive undoes the most recent
+``cpp:namespace-push`` directive.
 
 .. rst:directive:: .. cpp:namespace:: scope specification
 
-   Changes the current scope for the subsequent objects to the given scope,
-   and resets the namespace directive stack.
-   Note that the namespace does not need to correspond to C++ namespaces,
-   but can end in names of classes, e.g.,::
+   Changes the current scope for the subsequent objects to the given scope, and
+   resets the namespace directive stack.  Note that the namespace does not need
+   to correspond to C++ namespaces, but can end in names of classes, e.g.,::
 
       .. cpp:namespace:: Namespace1::Namespace2::SomeClass::AnInnerClass
 
-   All subsequent objects will be defined as if their name were declared with the scope
-   prepended. The subsequent cross-references will be searched for starting in the current scope.
+   All subsequent objects will be defined as if their name were declared with
+   the scope prepended. The subsequent cross-references will be searched for
+   starting in the current scope.
 
-   Using ``NULL``, ``0``, or ``nullptr`` as the scope will change to global scope.
+   Using ``NULL``, ``0``, or ``nullptr`` as the scope will change to global
+   scope.
 
    A namespace declaration can also be templated, e.g.,::
 
@@ -884,8 +872,8 @@ directive.
 
       .. cpp:function:: std::size_t size() const
 
-   declares ``size`` as a member function of the class template ``std::vector``.
-   Equivalently this could have been declared using::
+   declares ``size`` as a member function of the class template
+   ``std::vector``.  Equivalently this could have been declared using::
 
       .. cpp:class:: template<typename T> \
                      std::vector
@@ -896,7 +884,6 @@ directive.
 
       .. cpp:class:: template<typename T> \
                      std::vector
-
 
 .. rst:directive:: .. cpp:namespace-push:: scope specification
 
@@ -921,25 +908,24 @@ directive.
 
    the current scope will be ``A::B`` (*not* ``A::B::C``).
 
-   If no previous ``cpp:namespace-push`` directive has been used, but only a ``cpp:namespace``
-   directive, then the current scope will be reset to global scope.
-   That is, ``.. cpp:namespace:: A::B`` is equivalent to::
+   If no previous ``cpp:namespace-push`` directive has been used, but only a
+   ``cpp:namespace`` directive, then the current scope will be reset to global
+   scope.  That is, ``.. cpp:namespace:: A::B`` is equivalent to::
 
       .. cpp:namespace:: nullptr
 
       .. cpp:namespace-push:: A::B
 
-
 Info field lists
 ~~~~~~~~~~~~~~~~~
 
-The C++ directives support the following info fields (see also :ref:`info-field-lists`):
+The C++ directives support the following info fields (see also
+:ref:`info-field-lists`):
 
 * `param`, `parameter`, `arg`, `argument`: Description of a parameter.
 * `tparam`: Description of a template parameter.
 * `returns`, `return`: Description of a return value.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
-
 
 .. _cpp-roles:
 
@@ -958,35 +944,34 @@ These roles link to the given declaration types:
               cpp:enum
               cpp:enumerator
 
-   Reference a C++ declaration by name (see below for details).
-   The name must be properly qualified relative to the position of the link.
+   Reference a C++ declaration by name (see below for details).  The name must
+   be properly qualified relative to the position of the link.
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
-   Sphinx's syntax to give references a custom title can interfere with
-   linking to class templates, if nothing follows the closing angle
-   bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<int>```.
-   This is interpreted as a link to ``int`` with a title of ``MyClass``.
-   In this case, please escape the opening angle bracket with a backslash,
-   like this: ``:cpp:class:`MyClass\<int>```.
+   Sphinx's syntax to give references a custom title can interfere with linking
+   to class templates, if nothing follows the closing angle bracket, i.e. if
+   the link looks like this: ``:cpp:class:`MyClass<int>```.  This is
+   interpreted as a link to ``int`` with a title of ``MyClass``.  In this case,
+   please escape the opening angle bracket with a backslash, like this:
+   ``:cpp:class:`MyClass\<int>```.
 
 .. admonition:: Note on References to Overloaded Functions
 
-   It is currently impossible to link to a specific version of an
-   overloaded method.  Currently the C++ domain is the first domain
-   that has basic support for overloaded methods and until there is more
-   data for comparison we don't want to select a bad syntax to reference a
-   specific overload.  Currently Sphinx will link to the first overloaded
-   version of the method / function.
+   It is currently impossible to link to a specific version of an overloaded
+   method.  Currently the C++ domain is the first domain that has basic support
+   for overloaded methods and until there is more data for comparison we don't
+   want to select a bad syntax to reference a specific overload.  Currently
+   Sphinx will link to the first overloaded version of the method / function.
 
 Declarations without template parameters and template arguments
-.................................................................
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For linking to non-templated declarations the name must be a nested name,
-e.g., ``f`` or ``MyClass::f``.
+For linking to non-templated declarations the name must be a nested name, e.g.,
+``f`` or ``MyClass::f``.
 
 Templated declarations
-......................
+^^^^^^^^^^^^^^^^^^^^^^
 
 Assume the following declarations.
 
@@ -998,23 +983,25 @@ Assume the following declarations.
       .. cpp:class:: template<typename TInner> \
                      Inner
 
-In general the reference must include the template paraemter declarations, e.g.,
-``template\<typename TOuter> Wrapper::Outer`` (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).
-Currently the lookup only succeed if the template parameter identifiers are equal strings. That is,
+In general the reference must include the template paraemter declarations,
+e.g., ``template\<typename TOuter> Wrapper::Outer``
+(:cpp:class:`template\<typename TOuter> Wrapper::Outer`).  Currently the lookup
+only succeed if the template parameter identifiers are equal strings. That is,
 ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
-The inner class template can not be directly referenced, unless the current namespace
-is changed or the following shorthand is used.
-If a template parameter list is omitted, then the lookup will assume either a template or a non-template,
-but not a partial template specialisation.
-This means the following references work.
+The inner class template can not be directly referenced, unless the current
+namespace is changed or the following shorthand is used.  If a template
+parameter list is omitted, then the lookup will assume either a template or a
+non-template, but not a partial template specialisation.  This means the
+following references work.
 
 - ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
 - ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
-- ``template\<typename TInner> Wrapper::Outer::Inner`` (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
+- ``template\<typename TInner> Wrapper::Outer::Inner``
+  (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
 
 (Full) Template Specialisations
-................................
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Assume the following declarations.
 
@@ -1033,25 +1020,27 @@ Assume the following declarations.
   .. cpp:class:: template<> \
                  Inner<bool>
 
-In general the reference must include a template parameter list for each template argument list.
-The full specialisation above can therefore be referenced with ``template\<> Outer\<int>`` (:cpp:class:`template\<> Outer\<int>`)
-and ``template\<> template\<> Outer\<int>::Inner\<bool>`` (:cpp:class:`template\<> template\<> Outer\<int>::Inner\<bool>`).
-As a shorthand the empty template parameter list can be omitted, e.g., ``Outer\<int>`` (:cpp:class:`Outer\<int>`)
-and ``Outer\<int>::Inner\<bool>`` (:cpp:class:`Outer\<int>::Inner\<bool>`).
-
+In general the reference must include a template parameter list for each
+template argument list.  The full specialisation above can therefore be
+referenced with ``template\<> Outer\<int>`` (:cpp:class:`template\<>
+Outer\<int>`) and ``template\<> template\<> Outer\<int>::Inner\<bool>``
+(:cpp:class:`template\<> template\<> Outer\<int>::Inner\<bool>`).  As a
+shorthand the empty template parameter list can be omitted, e.g.,
+``Outer\<int>`` (:cpp:class:`Outer\<int>`) and ``Outer\<int>::Inner\<bool>``
+(:cpp:class:`Outer\<int>::Inner\<bool>`).
 
 Partial Template Specialisations
-.................................
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Assume the following declaration.
 
 .. cpp:class:: template<typename T> \
                Outer<T*>
 
-References to partial specialisations must always include the template parameter lists, e.g.,
-``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
-Currently the lookup only succeed if the template parameter identifiers are equal strings.
-
+References to partial specialisations must always include the template
+parameter lists, e.g., ``template\<typename T> Outer\<T*>``
+(:cpp:class:`template\<typename T> Outer\<T*>`).  Currently the lookup only
+succeed if the template parameter identifiers are equal strings.
 
 Configuration Variables
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -1073,8 +1062,8 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. option:: name args, name args, ...
 
-   Describes a command line argument or switch.  Option argument names should be
-   enclosed in angle brackets.  Examples::
+   Describes a command line argument or switch.  Option argument names should
+   be enclosed in angle brackets.  Examples::
 
       .. option:: dest_dir
 
@@ -1092,8 +1081,8 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. envvar:: name
 
-   Describes an environment variable that the documented code or program uses or
-   defines.  Referencable by :rst:role:`envvar`.
+   Describes an environment variable that the documented code or program uses
+   or defines.  Referencable by :rst:role:`envvar`.
 
 .. rst:directive:: .. program:: name
 
@@ -1120,11 +1109,10 @@ There is a set of directives allowing documenting command-line programs:
    then ``:option:`rm -r``` would refer to the first option, while
    ``:option:`svn -r``` would refer to the second one.
 
-   The program name may contain spaces (in case you want to document subcommands
-   like ``svn add`` and ``svn commit`` separately).
+   The program name may contain spaces (in case you want to document
+   subcommands like ``svn add`` and ``svn commit`` separately).
 
    .. versionadded:: 0.5
-
 
 There is also a very generic object description directive, which is not tied to
 any domain:
@@ -1154,9 +1142,9 @@ The JavaScript domain (name **js**) provides the following directives:
    :rst:dir:`py:class` would, for example.
 
    By default, this directive will create a linkable entity and will cause an
-   entry in the global module index, unless the ``noindex`` option is specified.
-   If this option is specified, the directive will only update the current
-   module name.
+   entry in the global module index, unless the ``noindex`` option is
+   specified.  If this option is specified, the directive will only update the
+   current module name.
 
    To clear the current module, set the module name to ``null`` or ``None``
 
@@ -1165,8 +1153,8 @@ The JavaScript domain (name **js**) provides the following directives:
 .. rst:directive:: .. js:function:: name(signature)
 
    Describes a JavaScript function or method.  If you want to describe
-   arguments as optional use square brackets as :ref:`documented
-   <signatures>` for Python signatures.
+   arguments as optional use square brackets as :ref:`documented <signatures>`
+   for Python signatures.
 
    You can use fields to give more details about arguments and their expected
    types, errors which may be thrown by the function, and the value being
@@ -1196,15 +1184,15 @@ The JavaScript domain (name **js**) provides the following directives:
 
 .. rst:directive:: .. js:method:: name(signature)
 
-   This directive is an alias for :rst:dir:`js:function`, however it describes a
-   function that is implemented as a method on a class object.
+   This directive is an alias for :rst:dir:`js:function`, however it describes
+   a function that is implemented as a method on a class object.
 
    .. versionadded:: 1.6
 
 .. rst:directive:: .. js:class:: name
 
-   Describes a constructor that creates an object.  This is basically like
-   a function but will show up with a `class` prefix::
+   Describes a constructor that creates an object.  This is basically like a
+   function but will show up with a `class` prefix::
 
       .. js:class:: MyAnimal(name[, age])
 
@@ -1296,7 +1284,6 @@ The sphinx-contrib_ repository contains more domains available as extensions;
 currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
 domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
 Jinja_, Operation_, and Scala_.
-
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
