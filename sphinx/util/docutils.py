@@ -35,7 +35,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, Iterator, List, Set, Tuple  # NOQA
+    from typing import Any, Callable, Generator, List, Set, Tuple  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
@@ -47,7 +47,7 @@ additional_nodes = set()  # type: Set[nodes.Node]
 
 @contextmanager
 def docutils_namespace():
-    # type: () -> Iterator[None]
+    # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)
@@ -96,7 +96,7 @@ def unregister_node(node):
 
 @contextmanager
 def patched_get_language():
-    # type: (unicode) -> Iterator[None]
+    # type: () -> Generator[None, None, None]
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
@@ -118,7 +118,7 @@ def patched_get_language():
 
 @contextmanager
 def using_user_docutils_conf(srcdir):
-    # type: (unicode) -> Iterator[None]
+    # type: (unicode) -> Generator[None, None, None]
     """Make docutils read ``docutils.conf`` on srcdir instead of current directory."""
     try:
         _standard_config_files = OptionParser.standard_config_files
@@ -135,7 +135,7 @@ def using_user_docutils_conf(srcdir):
 
 @contextmanager
 def patch_docutils(srcdir=None):
-    # type: (unicode) -> Iterator[None]
+    # type: (unicode) -> Generator[None, None, None]
     """Patch to docutils temporarily."""
     with patched_get_language(), using_user_docutils_conf(srcdir):
         yield
@@ -281,7 +281,7 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
 
 @contextmanager
 def switch_source_input(state, content):
-    # type: (State, ViewList) -> Generator
+    # type: (State, ViewList) -> Generator[None, None, None]
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
