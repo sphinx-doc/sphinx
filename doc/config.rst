@@ -2007,7 +2007,7 @@ These options influence LaTeX output. See further :doc:`latex`.
         ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
         one unified typeface family (Latin Modern OpenType).
 
-        .. versionadded:: 1.7.3
+        .. versionadded:: 1.8
    * Keys that are set by other options and therefore should not be overridden
      are:
 
