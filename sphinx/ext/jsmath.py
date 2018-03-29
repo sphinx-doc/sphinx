@@ -10,8 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import TYPE_CHECKING
-
 from docutils import nodes
 
 import sphinx
@@ -20,8 +18,8 @@ from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 from sphinx.locale import _
 
-
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

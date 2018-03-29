@@ -118,6 +118,11 @@ The following is a list of deprecated interface.
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_domain()`
 
+   * - ``BuildEnvironment._nitpick_ignore``
+     - 1.8
+     - 3.0
+     - :confval:`nitpick_ignore`
+
    * - ``warn()`` (template helper function)
      - 1.8
      - 3.0
