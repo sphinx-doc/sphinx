@@ -1,5 +1,7 @@
 .. highlightlang:: rst
 
+-.. _rst-primer:
+
 =======================
 reStructuredText Primer
 =======================
