@@ -186,7 +186,7 @@ class Sphinx(object):
         # read config
         self.tags = Tags(tags)
         if self.confdir is None:
-            self.config = Config()
+            self.config = Config({}, confoverrides or {})
         else:
             self.config = Config.read(path.join(self.confdir, CONFIG_FILENAME),
                                       confoverrides or {}, self.tags)
