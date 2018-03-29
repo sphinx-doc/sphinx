@@ -179,7 +179,7 @@ class BuildDoc(Command):
             app = None
 
             try:
-                with patch_docutils(), docutils_namespace():
+                with patch_docutils(self.source_dir), docutils_namespace():
                     app = Sphinx(self.source_dir, self.config_dir,
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,

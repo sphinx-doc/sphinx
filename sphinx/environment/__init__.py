@@ -19,7 +19,6 @@ from collections import defaultdict
 from copy import copy
 from os import path
 
-from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
 from six import BytesIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
@@ -562,9 +561,8 @@ class BuildEnvironment(object):
         """Parse a file and add/update inventory entries for the doctree."""
         self.prepare_settings(docname)
 
+        # Add srccdir/docutils.conf to dependencies list if exists
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
-        # read docutils.conf from source dir, not from current dir
-        OptionParser.standard_config_files[1] = docutilsconf
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 

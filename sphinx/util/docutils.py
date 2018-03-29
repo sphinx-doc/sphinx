@@ -16,10 +16,11 @@ import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
+from os import path
 
 import docutils
 from docutils import nodes
-from docutils.languages import get_language
+from docutils.frontend import OptionParser
 from docutils.parsers.rst import directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
@@ -93,27 +94,51 @@ def unregister_node(node):
         delattr(nodes.SparseNodeVisitor, 'depart_' + node.__name__)
 
 
-def patched_get_language(language_code, reporter=None):
-    # type: (unicode, Reporter) -> Any
-    """A wrapper for docutils.languages.get_language().
+@contextmanager
+def patched_get_language():
+    # type: (unicode) -> Iterator[None]
+    """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
     refs: https://github.com/sphinx-doc/sphinx/issues/3788
     """
-    return get_language(language_code)
+    from docutils.languages import get_language
 
+    def patched_get_language(language_code, reporter=None):
+        # type: (unicode, Reporter) -> Any
+        return get_language(language_code)
 
-@contextmanager
-def patch_docutils():
-    # type: () -> Iterator[None]
-    """Patch to docutils temporarily."""
     try:
         docutils.languages.get_language = patched_get_language
-
         yield
     finally:
         # restore original implementations
         docutils.languages.get_language = get_language
+
+
+@contextmanager
+def using_user_docutils_conf(srcdir):
+    # type: (unicode) -> Iterator[None]
+    """Make docutils read ``docutils.conf`` on srcdir instead of current directory."""
+    try:
+        _standard_config_files = OptionParser.standard_config_files
+
+        # Update search path of ``docutils.conf`` to refer srcdir
+        if srcdir:
+            OptionParser.standard_config_files[1] = path.join(path.abspath(srcdir),
+                                                              'docutils.conf')
+
+        yield
+    finally:
+        OptionParser.standard_config_files = _standard_config_files
+
+
+@contextmanager
+def patch_docutils(srcdir=None):
+    # type: (unicode) -> Iterator[None]
+    """Patch to docutils temporarily."""
+    with patched_get_language(), using_user_docutils_conf(srcdir):
+        yield
 
 
 class ElementLookupError(Exception):
