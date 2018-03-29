@@ -25,6 +25,7 @@
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
+<%= fvset %>
 <%= geometry %>
 <%= usepackages %>
 <%= hyperref %>
