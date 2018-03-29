@@ -37,16 +37,27 @@ class ImagemagickConverter(ImageConverter):
         try:
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
-            ret = subprocess.call(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            if ret == 0:
-                return True
-            else:
-                return False
+            p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         except (OSError, IOError):
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
                            self.config.image_converter)
             return False
+
+        try:
+            stdout, stderr = p.communicate()
+        except (OSError, IOError) as err:
+            if err.errno not in (EPIPE, EINVAL):
+                raise
+            stdout, stderr = p.stdout.read(), p.stderr.read()
+            p.wait()
+        if p.returncode != 0:
+            logger.warning(__('convert exited with error:\n'
+                              '[stderr]\n%s\n[stdout]\n%s'),
+                             (stderr, stdout))
+            return False
+
+        return True
 
     def convert(self, _from, _to):
         # type: (unicode, unicode) -> bool
