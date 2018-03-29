@@ -787,6 +787,9 @@ class Sphinx(object):
         .. deprecated:: 1.8
            Integrated to :meth:`add_domain`.
         """
+        warnings.warn('app.override_domain() is deprecated. '
+                      'Use app.add_domain() with override option instead.',
+                      RemovedInSphinx30Warning)
         self.registry.add_domain(domain, override=True)
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
