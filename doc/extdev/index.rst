@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.application.Sphinx.override_domain()``
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_domain()`
+
    * - ``BuildEnvironment._nitpick_ignore``
      - 1.8
      - 3.0

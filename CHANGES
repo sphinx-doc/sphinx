@@ -33,6 +33,7 @@ Deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
 * ``env._nitpick_ignore`` is deprecated
+* ``app.override_domain()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -52,6 +53,7 @@ Features added
 * helper function ``warning()`` for HTML themes is added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
+* Add a new keyword argument ``override`` to Application APIs
 
 Bugs fixed
 ----------
