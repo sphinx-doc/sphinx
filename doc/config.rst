@@ -1842,12 +1842,10 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. hint::
 
            Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate. Since ``1.5`` this is not
-           hard-coded anymore, and can be modified via inclusion in
-           ``'preamble'`` key of ``\\fvset{fontsize=auto}``. This is
-           recommended if the fonts match better than Times and Courier. At
-           ``1.8`` a separate ``'fvset'`` key will permit such customization
-           without usage of ``'preamble'`` key.
+           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
+           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
+           preamble to not change font size in code-blocks.  Since ``1.8`` a
+           separate ``'fvset'`` key is provided for this.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -1856,6 +1854,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            Defaults to ``''`` also with ``'lualatex'``.
+        .. versionchanged:: 1.8
+           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
