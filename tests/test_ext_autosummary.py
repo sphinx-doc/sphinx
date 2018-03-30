@@ -188,6 +188,16 @@ def test_autosummary_generate(app, status, warning):
             '   \n' in Foo)
 
 
+@pytest.mark.sphinx('latex', **default_kw)
+def test_autosummary_latex_table_colspec(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
+    assert r'p{0.5\linewidth}' not in result
+
+
 def test_import_by_name():
     import sphinx
     import sphinx.ext.autosummary

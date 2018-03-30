@@ -1098,6 +1098,30 @@ def test_latex_table_complex_tables(app, status, warning):
     assert actual == expected
 
 
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'templates_path': ['_mytemplates/latex']})
+def test_latex_table_custom_template_caseA(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'templates_path': ['_mytemplates']})
+def test_latex_table_custom_template_caseB(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' not in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='latex-table')
+def test_latex_table_custom_template_caseC(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' not in result
+
+
 @pytest.mark.sphinx('latex', testroot='directives-raw')
 def test_latex_raw_directive(app, status, warning):
     app.builder.build_all()

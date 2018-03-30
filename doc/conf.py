@@ -56,9 +56,14 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
-    'fontpkg': '\\usepackage{palatino}',
+    'fontpkg': r'''
+\usepackage[sc]{mathpazo}
+\usepackage[scaled]{helvet}
+\usepackage{courier}
+''',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
     'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
+    'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}

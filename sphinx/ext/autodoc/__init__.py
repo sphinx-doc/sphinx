@@ -1301,7 +1301,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
-        args = Signature(self.object, bound_method=True).format_args()
+        if isstaticmethod(self.object, cls=self.parent, name=self.object_name):
+            args = Signature(self.object, bound_method=False).format_args()
+        else:
+            args = Signature(self.object, bound_method=True).format_args()
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args

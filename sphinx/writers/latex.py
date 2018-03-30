@@ -930,8 +930,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def render(self, template_name, variables):
         # type: (unicode, Dict) -> unicode
-        for template_path in self.builder.config.templates_path:
-            template = path.join(template_path, template_name)
+        for template_dir in self.builder.config.templates_path:
+            template = path.join(self.builder.confdir, template_dir,
+                                 template_name)
             if path.exists(template):
                 return LaTeXRenderer().render(template, variables)
 
