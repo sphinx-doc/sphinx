@@ -1804,8 +1804,17 @@ These options influence LaTeX output. See further :doc:`latex`.
            ``'lualatex'`` uses same default setting as ``'xelatex'``
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
-        Times and Helvetica).  You can set this to ``''`` to use the Computer
-        Modern fonts.
+        Times for text, Helvetica for sans serif and Courier for code-blocks).
+
+        .. hint::
+
+           Courier is much wider than Times, and Sphinx emits LaTeX command
+           ``\small`` in code-blocks to compensate. Since ``1.5`` this is not
+           hard-coded anymore, and can be modified via inclusion in
+           ``'preamble'`` key of ``\\fvset{fontsize=auto}``. This is
+           recommended if the fonts match better than Times and Courier. At
+           ``1.8`` a separate ``'fvset'`` key will permit such customization
+           without usage of ``'preamble'`` key.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
