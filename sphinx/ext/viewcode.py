@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import imp
+import os
 import traceback
 
 from docutils import nodes
@@ -49,6 +51,23 @@ def _get_full_modname(app, modname, attribute):
         return None
 
 
+def _find_module_source(modname, current_paths=None):
+    current_paths = current_paths or None
+
+    try:
+        module_parts = modname.split('.')
+        for module_part in module_parts:
+            module_spec = imp.find_module(module_part, current_paths)
+            current_paths = [module_spec[1]]
+    except ImportError:
+        current_paths = None
+    else:
+        if current_paths and not current_paths[0].endswith('.py'):
+            current_paths[0] = os.path.join(current_paths[0], '__init__.py')
+
+    return current_paths[0] if current_paths else None
+
+
 def doctree_read(app, doctree):
     # type: (Sphinx, nodes.Node) -> None
     env = app.builder.env
@@ -60,16 +79,29 @@ def doctree_read(app, doctree):
         return
 
     def has_tag(modname, fullname, docname, refname):
-        entry = env._viewcode_modules.get(modname, None)  # type: ignore
-        try:
-            analyzer = ModuleAnalyzer.for_module(modname)
-        except Exception:
+        analyzer = None
+        if app.config.viewcode_import:
+            try:
+                analyzer = ModuleAnalyzer.for_module(modname)
+            except Exception:
+                pass
+        if not analyzer:
+            module_file = _find_module_source(modname, app.config.viewcode_source_dirs)
+            if module_file:
+                try:
+                    analyzer = ModuleAnalyzer.for_file(module_file, modname)
+                except Exception:
+                    pass
+        if not analyzer:
             env._viewcode_modules[modname] = False  # type: ignore
             return
+
         if not isinstance(analyzer.code, text_type):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code
+
+        entry = env._viewcode_modules.get(modname, None)  # type: ignore
         if entry is False:
             return
         elif entry is None or entry[0] != code:
@@ -234,6 +266,7 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('viewcode_import', True, False)
     app.add_config_value('viewcode_enable_epub', False, False)
+    app.add_config_value('viewcode_source_dirs', [], False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)

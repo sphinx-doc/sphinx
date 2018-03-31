@@ -62,3 +62,14 @@ There is an additional config value:
       Some reader's rendering result are corrupted and
       `epubcheck <https://github.com/IDPF/epubcheck>`_'s score
       becomes worse even if the reader supports.
+
+.. confval:: viewcode_source_dirs
+
+   If the source code of the modules cannot be found by importing them,
+   or if :confval:`viewcode_import` is ``False``,
+   the directories in this list will be searched for the source code.
+
+   The default is an empty list,
+   so the directories on :attr:`sys.path` will be searched instead.
+
+   .. versionadded:: 1.8
