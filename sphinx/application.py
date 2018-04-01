@@ -188,8 +188,8 @@ class Sphinx(object):
         if self.confdir is None:
             self.config = Config({}, confoverrides or {})
         else:
-            self.config = Config.read(path.join(self.confdir, CONFIG_FILENAME),
-                                      confoverrides or {}, self.tags)
+            self.config = Config.from_conf_py(path.join(self.confdir, CONFIG_FILENAME),
+                                              confoverrides or {}, self.tags)
             check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading

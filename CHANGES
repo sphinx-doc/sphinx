@@ -56,7 +56,7 @@ Features added
 * helper function ``warning()`` for HTML themes is added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
-* Add ``Config.read()`` classmethod to create a new config object from
+* Add ``Config.from_conf_py()`` classmethod to create a new config object from
   configuration file
 
 Bugs fixed

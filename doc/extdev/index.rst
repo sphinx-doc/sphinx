@@ -127,7 +127,7 @@ The following is a list of deprecated interface.
        ``Config.__init__()``
      - 1.8
      - 3.0
-     - ``Config.read()``
+     - ``Config.from_conf_py()``
 
    * - ``BuildEnvironment._nitpick_ignore``
      - 1.8

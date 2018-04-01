@@ -152,7 +152,7 @@ class Config(object):
         if len(args) == 4:
             # old style arguments: (dirname, filename, overrides, tags)
             warnings.warn('The argument of Config() class has been changed. '
-                          'Use Config.read() to read configuration from conf.py.',
+                          'Use Config.from_conf_py() to read configuration from conf.py.',
                           RemovedInSphinx30Warning)
             dirname, filename, overrides, tags = args
             if dirname is None:
@@ -181,7 +181,7 @@ class Config(object):
         self.extensions = config.get('extensions', [])  # type: List[unicode]
 
     @classmethod
-    def read(cls, filename, overrides=None, tags=None):
+    def from_conf_py(cls, filename, overrides=None, tags=None):
         # type: (unicode, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         namespace = eval_config_file(filename, tags)
