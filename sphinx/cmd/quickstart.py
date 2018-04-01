@@ -547,20 +547,7 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: List[str] = sys.argv[1:]) -> int:
-    sphinx.locale.setlocale(locale.LC_ALL, '')
-    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
-
-    if not color_terminal():
-        nocolor()
-
-    # parse options
-    parser = get_parser()
-    try:
-        args = parser.parse_args(argv)
-    except SystemExit as err:
-        return err.code
-
+def run(args: argparse.Namespace):
     d = vars(args)
     # delete None or False value
     d = {k: v for k, v in d.items() if v is not None}
@@ -610,6 +597,23 @@ def main(argv: List[str] = sys.argv[1:]) -> int:
 
     generate(d, overwrite=False, templatedir=args.templatedir)
     return 0
+
+
+def main(argv: List[str] = sys.argv[1:]) -> int:
+    sphinx.locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
+    if not color_terminal():
+        nocolor()
+
+    # parse options
+    parser = get_parser()
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as err:
+        return err.code
+
+    return run(args)
 
 
 if __name__ == '__main__':
