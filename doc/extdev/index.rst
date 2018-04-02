@@ -126,6 +126,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``viewcode_import`` (config value)
+     - 1.8
+     - 3.0
+     - :confval:`viewcode_follow_imported_members`
+
    * - ``sphinx.writers.latex.Table.caption_footnotetexts``
      - 1.8
      - 3.0

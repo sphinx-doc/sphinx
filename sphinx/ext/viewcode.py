@@ -10,12 +10,14 @@
 """
 
 import traceback
+import warnings
 
 from docutils import nodes
 from six import iteritems, text_type
 
 import sphinx
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
@@ -25,6 +27,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -100,7 +103,7 @@ def doctree_read(app, doctree):
             modname = signode.get('module')
             fullname = signode.get('fullname')
             refname = modname
-            if env.config.viewcode_import:
+            if env.config.viewcode_follow_imported_members:
                 modname = _get_full_modname(app, modname, fullname)
             if not modname:
                 continue
@@ -239,10 +242,19 @@ def collect_pages(app):
     yield ('_modules/index', context, 'page.html')
 
 
+def migrate_viewcode_import(app, config):
+    # type: (Sphinx, Config) -> None
+    if config.viewcode_import is not None:
+        warnings.warn('viewcode_import was renamed to viewcode_follow_imported_members. '
+                      'Please update your configuration.',
+                      RemovedInSphinx30Warning)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.add_config_value('viewcode_import', True, False)
+    app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
+    app.add_config_value('viewcode_follow_imported_members', True, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)
