@@ -129,6 +129,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Config.from_conf_py()``
 
+   * - ``sphinx.application.Sphinx.override_domain()``
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_domain()`
+
    * - ``BuildEnvironment._nitpick_ignore``
      - 1.8
      - 3.0

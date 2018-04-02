@@ -58,6 +58,7 @@ latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
+    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}

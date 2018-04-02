@@ -216,12 +216,12 @@ General configuration
    .. index:: default; domain
               primary; domain
 
-   The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
-   disable a default domain.  The default is ``'py'``.  Those objects in other
-   domains (whether the domain name is given explicitly, or selected by a
-   :rst:dir:`default-domain` directive) will have the domain name explicitly
-   prepended when named (e.g., when the default domain is C, Python functions
-   will be named "Python function", not just "function").
+   The name of the default :doc:`domain </usage/restructuredtext/domains>`.
+   Can also be ``None`` to disable a default domain.  The default is ``'py'``.
+   Those objects in other domains (whether the domain name is given explicitly,
+   or selected by a :rst:dir:`default-domain` directive) will have the domain
+   name explicitly prepended when named (e.g., when the default domain is C,
+   Python functions will be named "Python function", not just "function").
 
    .. versionadded:: 1.0
 
@@ -1998,7 +1998,16 @@ These options influence LaTeX output. See further :doc:`latex`.
         differently or append some content after the index. For example
         ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
         index is full of long entries.
+     ``'fvset'``
+        Customization of ``fancyvrb`` LaTeX package. Defaults to
+        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
+        code-blocks is wider and taller than default text font (Times).
 
+        For ``'xelatex'`` and ``'lualatex'``, defaults to
+        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
+        one unified typeface family (Latin Modern OpenType).
+
+        .. versionadded:: 1.8
    * Keys that are set by other options and therefore should not be overridden
      are:
 

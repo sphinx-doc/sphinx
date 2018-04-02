@@ -113,12 +113,12 @@ class SphinxComponentRegistry(object):
         #: additional transforms; list of transforms
         self.transforms = []            # type: List[Type[Transform]]
 
-    def add_builder(self, builder):
-        # type: (Type[Builder]) -> None
+    def add_builder(self, builder, override=False):
+        # type: (Type[Builder], bool) -> None
         logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
             raise ExtensionError(__('Builder class %s has no "name" attribute') % builder)
-        if builder.name in self.builders:
+        if builder.name in self.builders and not override:
             raise ExtensionError(__('Builder %r already exists (in module %s)') %
                                  (builder.name, self.builders[builder.name].__module__))
         self.builders[builder.name] = builder
@@ -145,10 +145,10 @@ class SphinxComponentRegistry(object):
 
         return self.builders[name](app)
 
-    def add_domain(self, domain):
-        # type: (Type[Domain]) -> None
+    def add_domain(self, domain, override=False):
+        # type: (Type[Domain], bool) -> None
         logger.debug('[app] adding domain: %r', domain)
-        if domain.name in self.domains:
+        if domain.name in self.domains and not override:
             raise ExtensionError(__('domain %s already registered') % domain.name)
         self.domains[domain.name] = domain
 
@@ -172,48 +172,54 @@ class SphinxComponentRegistry(object):
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
-        logger.debug('[app] overriding domain: %r', domain)
-        if domain.name not in self.domains:
-            raise ExtensionError(__('domain %s not yet registered') % domain.name)
-        if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError(__('new domain not a subclass of registered %s '
-                                    'domain') % domain.name)
-        self.domains[domain.name] = domain
+        warnings.warn('registry.override_domain() is deprecated. '
+                      'Use app.add_domain(domain, override=True) instead.',
+                      RemovedInSphinx30Warning)
+        self.add_domain(domain, override=True)
 
-    def add_directive_to_domain(self, domain, name, obj,
-                                has_content=None, argument_spec=None, **option_spec):
-        # type: (unicode, unicode, Any, bool, Any, Any) -> None
+    def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
+                                override=False, **option_spec):
+        # type: (unicode, unicode, Any, bool, Any, bool, Any) -> None
         logger.debug('[app] adding directive to domain: %r',
                      (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
 
         directives = self.domain_directives.setdefault(domain, {})
+        if name in directives and not override:
+            raise ExtensionError(__('The %r directive is already registered to %d domain') %
+                                 (name, domain))
         if not isclass(obj) or not issubclass(obj, Directive):
             directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
         else:
             directives[name] = obj
 
-    def add_role_to_domain(self, domain, name, role):
-        # type: (unicode, unicode, Union[RoleFunction, XRefRole]) -> None
+    def add_role_to_domain(self, domain, name, role, override=False):
+        # type: (unicode, unicode, Union[RoleFunction, XRefRole], bool) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
         roles = self.domain_roles.setdefault(domain, {})
+        if name in roles and not override:
+            raise ExtensionError(__('The %r role is already registered to %d domain') %
+                                 (name, domain))
         roles[name] = role
 
-    def add_index_to_domain(self, domain, index):
-        # type: (unicode, Type[Index]) -> None
+    def add_index_to_domain(self, domain, index, override=False):
+        # type: (unicode, Type[Index], bool) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError(__('domain %s not yet registered') % domain)
         indices = self.domain_indices.setdefault(domain, [])
+        if index in indices and not override:
+            raise ExtensionError(__('The %r index is already registered to %d domain') %
+                                 (index.name, domain))
         indices.append(index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
-                        doc_field_types=[]):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
+                        doc_field_types=[], override=False):
+        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List, bool) -> None
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
@@ -229,11 +235,14 @@ class SphinxComponentRegistry(object):
         self.add_role_to_domain('std', rolename, XRefRole(innernodeclass=ref_nodeclass))
 
         object_types = self.domain_object_types.setdefault('std', {})
+        if directivename in object_types and not override:
+            raise ExtensionError(__('The %r object_type is already registered') %
+                                 directivename)
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
-                          ref_nodeclass=None, objname=''):
-        # type: (unicode, unicode, unicode, nodes.Node, unicode) -> None
+                          ref_nodeclass=None, objname='', override=False):
+        # type: (unicode, unicode, unicode, nodes.Node, unicode, bool) -> None
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -246,18 +255,21 @@ class SphinxComponentRegistry(object):
         self.add_role_to_domain('std', rolename, XRefRole(innernodeclass=ref_nodeclass))
 
         object_types = self.domain_object_types.setdefault('std', {})
+        if directivename in object_types and not override:
+            raise ExtensionError(__('The %r crossref_type is already registered') %
+                                 directivename)
         object_types[directivename] = ObjType(objname or directivename, rolename)
 
-    def add_source_suffix(self, suffix, filetype):
-        # type: (unicode, unicode) -> None
+    def add_source_suffix(self, suffix, filetype, override=False):
+        # type: (unicode, unicode, bool) -> None
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
-        if suffix in self.source_suffix:
+        if suffix in self.source_suffix and not override:
             raise ExtensionError(__('source_parser for %r is already registered') % suffix)
         else:
             self.source_suffix[suffix] = filetype
 
-    def add_source_parser(self, *args):
-        # type: (Any) -> None
+    def add_source_parser(self, *args, **kwargs):
+        # type: (Any, bool) -> None
         logger.debug('[app] adding search source_parser: %r', args)
         if len(args) == 1:
             # new sytle arguments: (source_parser)
@@ -281,7 +293,7 @@ class SphinxComponentRegistry(object):
 
         # create a map from filetype to parser
         for filetype in parser.supported:
-            if filetype in self.source_parsers:
+            if filetype in self.source_parsers and not kwargs.get('override'):
                 raise ExtensionError(__('source_parser for %r is already registered') %
                                      filetype)
             else:
@@ -312,10 +324,10 @@ class SphinxComponentRegistry(object):
             parser.set_application(app)
         return parser
 
-    def add_source_input(self, input_class):
-        # type: (Type[Input]) -> None
+    def add_source_input(self, input_class, override=False):
+        # type: (Type[Input], bool) -> None
         for filetype in input_class.supported:
-            if filetype in self.source_inputs:
+            if filetype in self.source_inputs and not override:
                 raise ExtensionError(__('source_input for %r is already registered') %
                                      filetype)
             self.source_inputs[filetype] = input_class
@@ -331,9 +343,11 @@ class SphinxComponentRegistry(object):
             except KeyError:
                 raise SphinxError(__('source_input for %s not registered') % filetype)
 
-    def add_translator(self, name, translator):
-        # type: (unicode, Type[nodes.NodeVisitor]) -> None
+    def add_translator(self, name, translator, override=False):
+        # type: (unicode, Type[nodes.NodeVisitor], bool) -> None
         logger.debug('[app] Change of translator for the %s builder.' % name)
+        if name in self.translators and not override:
+            raise ExtensionError(__('Translatoro for %r already exists') % name)
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
@@ -403,9 +417,11 @@ class SphinxComponentRegistry(object):
         logger.debug('[app] adding latex package: %r', name)
         self.latex_packages.append((name, options))
 
-    def add_enumerable_node(self, node, figtype, title_getter=None):
-        # type: (nodes.Node, unicode, TitleGetter) -> None
+    def add_enumerable_node(self, node, figtype, title_getter=None, override=False):
+        # type: (nodes.Node, unicode, TitleGetter, bool) -> None
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
+        if node in self.enumerable_nodes and not override:
+            raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
     def load_extension(self, app, extname):

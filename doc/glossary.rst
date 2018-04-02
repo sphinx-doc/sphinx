@@ -32,7 +32,7 @@ Glossary
 
             Content of the directive.
 
-      See :ref:`directives` for more information.
+      See :ref:`rst-directives` for more information.
 
    document name
       Since reST source files can have different extensions (some people like
@@ -56,8 +56,9 @@ Glossary
       Having domains means that there are no naming problems when one set of
       documentation wants to refer to e.g. C++ and Python classes.  It also
       means that extensions that support the documentation of whole new
-      languages are much easier to write.  For more information about domains,
-      see the chapter :ref:`domains`.
+      languages are much easier to write.
+
+      For more information, refer to :doc:`/usage/restructuredtext/domains`.
 
    environment
       A structure where information about all documents under the root is saved,
@@ -81,7 +82,7 @@ Glossary
    role
       A reStructuredText markup element that allows marking a piece of text.
       Like directives, roles are extensible.  The basic syntax looks like this:
-      ``:rolename:`content```.  See :ref:`inlinemarkup` for details.
+      ``:rolename:`content```.  See :ref:`rst-inline-markup` for details.
 
    source directory
       The directory which, including its subdirectories, contains all source

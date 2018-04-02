@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/03/11 v1.7.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2018/03/28 v1.8 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -164,7 +164,6 @@
 }
 % For highlighted code.
 \RequirePackage{fancyvrb}
-\fvset{fontsize=\small}
 \define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.

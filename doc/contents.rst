@@ -9,12 +9,10 @@ Sphinx documentation contents
 
    usage/installation
    usage/quickstart
+   usage/restructuredtext/index
 
    intro
    man/index
-   rest
-   markup/index
-   domains
    builders
    config
    intl

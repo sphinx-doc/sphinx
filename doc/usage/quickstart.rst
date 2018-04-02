@@ -108,9 +108,8 @@ for this document -- use the "Show Source" link in the sidebar.
 
 .. todo:: Update the below link when we add new guides on these.
 
-|more| See :ref:`rst-primer` for a more in-depth introduction to
-reStructuredText and :ref:`sphinxmarkup` for a full list of markup added by
-Sphinx.
+|more| See :doc:`/usage/restructuredtext/index` for a more in-depth
+introduction to reStructuredText, including markup added by Sphinx.
 
 
 Running the build
@@ -211,8 +210,8 @@ Each domain will have special rules for how the signatures can look like, and
 make the formatted output look pretty, or add specific features like links to
 parameter types, e.g. in the C/C++ domains.
 
-|more| See :ref:`domains` for all the available domains and their
-directives/roles.
+|more| See :doc:`/usage/restructuredtext/domains` for all the available domains
+and their directives/roles.
 
 
 Basic configuration
@@ -308,8 +307,8 @@ cross-reference that has no matching target in the current documentation set,
 will be looked up in the documentation sets configured in
 :confval:`intersphinx_mapping` (this needs access to the URL in order to
 download the list of valid targets).  Intersphinx also works for some other
-:ref:`domains' <domains>` roles including ``:ref:``, however it doesn't work
-for ``:doc:`` as that is non-domain role.
+:term:`domain`\'s roles including ``:ref:``, however it doesn't work for
+``:doc:`` as that is non-domain role.
 
 |more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
 features of intersphinx.

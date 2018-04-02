@@ -33,6 +33,7 @@ Deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
 * ``env._nitpick_ignore`` is deprecated
+* ``app.override_domain()`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
 * ``Config.check_types()`` is deprecated
@@ -56,6 +57,10 @@ Features added
 * helper function ``warning()`` for HTML themes is added
 * Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
   (experimental)
+* Add a new keyword argument ``override`` to Application APIs
+* LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
+  XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
+  fontsize in code-blocks (refs: #4793)
 * Add ``Config.from_conf_py()`` classmethod to create a new config object from
   configuration file
 
