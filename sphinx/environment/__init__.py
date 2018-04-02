@@ -540,7 +540,6 @@ class BuildEnvironment(object):
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['gettext_compact'] = config.gettext_compact
         self.settings['language_code'] = config.language or 'en'
 
         # Allow to disable by 3rd party extension (workaround)

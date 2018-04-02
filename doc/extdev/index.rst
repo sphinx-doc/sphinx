@@ -269,6 +269,11 @@ The following is a list of deprecated interface.
      - 2.0
      - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
 
+   * - ``document.settings.gettext_compact``
+     - 1.8
+     - 1.8
+     - :confval:`gettext_compact`
+
    * - ``Sphinx.status_iterator()``
      - 1.6
      - 1.7
