@@ -155,36 +155,30 @@ The builder's "name" must be given to the **-b** command-line option of
    configuration values that customize the output of this builder, see the
    chapter :ref:`latex-options` for details.
 
+   The produced LaTeX file uses several LaTeX packages that may not be present
+   in a "minimal" TeX distribution installation.  For example, on Ubuntu, the
+   following packages need to be installed for successful PDF builds:
+
+   * texlive-latex-recommended
+   * texlive-fonts-recommended
+   * texlive-latex-extra
+   * latexmk (for ``make latexpdf`` on GNU/Linux and MacOS X)
+   * latex-xcolor (old Ubuntu)
+   * texlive-luatex, texlive-xetex (see :confval:`latex_engine`)
+
+   The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
+   mentioned packages, which are from a TeXLive 2013 snapshot dated
+   February 2014.
+
+   .. versionchanged:: 1.6
+      Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
+
    .. note::
 
-      The produced LaTeX file uses several LaTeX packages that may not be
-      present in a "minimal" TeX distribution installation. For example, on
-      Ubuntu, the following packages need to be installed for successful PDF
-      builds:
-
-      * texlive-latex-recommended
-      * texlive-fonts-recommended
-      * texlive-latex-extra
-      * latexmk (for ``make latexpdf``)
-
-      Sphinx will use ``xcolor.sty`` if present: recent Ubuntu distributions
-      have ``xcolor.sty`` included in latex-recommended, earlier ones have it
-      in latex-xcolor. Unicode engines will need texlive-luatex or
-      texlive-xetex.
-
-      The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
-      mentioned packages, which are from a TeXLive 2013 snapshot dated
-      February 2014.
-
-      .. versionchanged:: 1.6
-         Formerly, testing had been done for some years on Ubuntu precise
-         (based on TeXLive 2009).
-      .. versionchanged:: 1.6
-         Use of ``latexmk`` for ``make latexpdf`` on GNU/Linux and Mac OS X
-
-      Since 1.6, ``make latexpdf`` (or
-      ``make -C "<builddir>/latex"`` after a ``sphinx-build`` run) uses
-      ``latexmk`` (not on Windows).
+      Since 1.6, ``make latexpdf`` uses ``latexmk`` (not on Windows).  This
+      makes sure the needed number of runs is automatically executed to get
+      the cross-references, bookmarks, indices, and tables of contents right.
+  
       One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
       Makefile variable. For example:
 
@@ -192,13 +186,22 @@ The builder's "name" must be given to the **-b** command-line option of
 
          make latexpdf LATEXMKOPTS="-silent"
 
-      reduces console output to a minimum. Also, if ``latexmk`` version is
-      4.52b or higher (Jan 17) and ``xelatex`` is the :confval:`latex_engine`,
-      then ``LATEXMKOPTS="-xelatex"`` will speed up PDF builds.
+      reduces console output to a minimum.
 
-      To pass options directly to the
-      ``(pdf|xe|lua)latex`` executable, use variable ``LATEXOPTS`` (for example
-      ``LATEXOPTS="--interaction=nonstopmode"``).
+      Also, if ``latexmk`` version is 4.52b or higher (Jan 17)
+      ``LATEXMKOPTS="-xelatex"`` will speed up PDF builds via XeLateX in case
+      of numerous graphics inclusions.
+
+      .. code-block:: console
+
+         make latexpdf LATEXMKOPTS="-xelatex"
+
+      To pass options directly to the ``(pdf|xe|lua)latex`` executable, use
+      variable ``LATEXOPTS``.
+
+      .. code-block:: console
+
+         make latexpdf LATEXOPTS="--interaction=nonstopmode"
 
    .. autoattribute:: name
 
