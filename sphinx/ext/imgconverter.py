@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import locale
 import subprocess
 
 from sphinx.errors import ExtensionError
@@ -37,7 +38,7 @@ class ImagemagickConverter(ImageConverter):
         try:
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
-            p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except (OSError, IOError):
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
@@ -52,9 +53,10 @@ class ImagemagickConverter(ImageConverter):
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:
+            encoding = locale.getpreferredencoding()
             logger.warning(__('convert exited with error:\n'
                               '[stderr]\n%s\n[stdout]\n%s'),
-                             (stderr, stdout))
+                           stderr.decode(encoding), stdout.decode(encoding))
             return False
 
         return True
@@ -67,7 +69,7 @@ class ImagemagickConverter(ImageConverter):
                     self.config.image_converter_args +
                     [_from, _to])
             logger.debug('Invoking %r ...', args)
-            p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError as err:
             if err.errno != ENOENT:  # No such file or directory
                 raise
