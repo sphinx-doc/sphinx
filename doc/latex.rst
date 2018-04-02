@@ -8,8 +8,8 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
-The *latex* target does not benefit from pre-prepared themes like the
-*html* target does (see :doc:`theming`).
+For details of the LaTeX/PDF builder command line invocation, refer to
+:py:class:`~sphinx.builders.latex.LaTeXBuilder`.
 
 .. raw:: latex
 
@@ -34,8 +34,10 @@ The *latex* target does not benefit from pre-prepared themes like the
 Basic customization
 -------------------
 
-It is achieved via usage of the
-:ref:`latex-options` as described in :doc:`config`. For example::
+The *latex* target does not benefit from prepared themes.
+
+Basic customization is obtained via usage of the :ref:`latex-options`. For
+example::
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -69,7 +71,7 @@ repertory, and get LaTeX to import it at run time::
    # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
    'preamble': r'\usepackage{mystyle}',
 
-It is needed to set appropriately :confval:`latex_additional_files`, for
+It is then needed to set appropriately :confval:`latex_additional_files`, for
 example::
 
    latex_additional_files = ["mystyle.sty"]
@@ -79,11 +81,14 @@ example::
 The LaTeX style file options
 ----------------------------
 
+Additional customization is possible via LaTeX options of the Sphinx style
+file.
+
 The sphinxsetup interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``'sphinxsetup'`` key of :confval:`latex_elements` provides a convenient
-interface to the package options of the Sphinx style file::
+interface::
 
    latex_elements = {
        'sphinxsetup': 'key1=value1, key2=value2, ...',
@@ -103,40 +108,39 @@ inside the document preamble, like this::
 
 .. versionadded:: 1.5
 
-It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
-directly into the body of the document, via the help of the :rst:dir:`raw`
-directive. This is what is done for this documentation, for local styling
-of this chapter in the PDF output::
+.. hint::
 
-   .. raw:: latex
+   It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
+   directly into the body of the document, via the help of the :rst:dir:`raw`
+   directive.  Here is how this present chapter in PDF is styled::
 
-      \begingroup
-      \sphinxsetup{%
-            verbatimwithframe=false,
-            VerbatimColor={named}{OldLace},
-            TitleColor={named}{DarkGoldenrod},
-            hintBorderColor={named}{LightCoral},
-            attentionborder=3pt,
-            attentionBorderColor={named}{Crimson},
-            attentionBgColor={named}{FloralWhite},
-            noteborder=2pt,
-            noteBorderColor={named}{Olive},
-            cautionborder=3pt,
-            cautionBorderColor={named}{Cyan},
-            cautionBgColor={named}{LightCyan}}
+     .. raw:: latex
 
-at the start of the chapter and::
+        \begingroup
+        \sphinxsetup{%
+              verbatimwithframe=false,
+              VerbatimColor={named}{OldLace},
+              TitleColor={named}{DarkGoldenrod},
+              hintBorderColor={named}{LightCoral},
+              attentionborder=3pt,
+              attentionBorderColor={named}{Crimson},
+              attentionBgColor={named}{FloralWhite},
+              noteborder=2pt,
+              noteBorderColor={named}{Olive},
+              cautionborder=3pt,
+              cautionBorderColor={named}{Cyan},
+              cautionBgColor={named}{LightCyan}}
 
-    .. raw:: latex
+   at the start of the chapter and::
 
-       \endgroup
+     .. raw:: latex
 
-at its end.
+        \endgroup
 
-.. note::
+   at its end.
 
-   The colors above are made available via the ``svgnames`` option of
-   the "xcolor" package::
+   The colors used in the above are provided by the ``svgnames`` option of the
+   "xcolor" package::
 
       latex_elements = {
           'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
@@ -472,7 +476,6 @@ Miscellany
   .. versionchanged:: 1.5
      formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
-- check file :file:`sphinx.sty` for more...
 
 .. hint::
 
