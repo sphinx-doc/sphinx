@@ -50,6 +50,7 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
+from sphinx.util.pycompat import htmlescape
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
@@ -101,7 +102,7 @@ class CSSContainer(list):
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).append(obj)
         else:
-            super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
+            super(CSSContainer, self).append(Stylesheet(obj))
 
     def insert(self, index, obj):
         # type: (int, Union[unicode, Stylesheet]) -> None
@@ -111,7 +112,7 @@ class CSSContainer(list):
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).insert(index, obj)
         else:
-            super(CSSContainer, self).insert(index, Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
+            super(CSSContainer, self).insert(index, Stylesheet(obj))
 
     def extend(self, other):  # type: ignore
         # type: (List[Union[unicode, Stylesheet]]) -> None
@@ -144,12 +145,18 @@ class Stylesheet(text_type):
     its filename (str).
     """
 
-    def __new__(cls, filename, title, rel):
+    attributes = None   # type: Dict[unicode, unicode]
+    filename = None     # type: unicode
+
+    def __new__(cls, filename, *args, **attributes):
         # type: (unicode, unicode, unicode) -> None
         self = text_type.__new__(cls, filename)  # type: ignore
         self.filename = filename
-        self.title = title
-        self.rel = rel
+        self.attributes = attributes
+        self.attributes.setdefault('rel', 'stylesheet')
+        if args:  # old style arguments (rel, title)
+            self.attributes['rel'] = args[0]
+            self.attributes['title'] = args[1]
 
         return self
 
@@ -987,6 +994,15 @@ class StandaloneHTMLBuilder(Builder):
                 uri = baseuri
             return uri
         ctx['pathto'] = pathto
+
+        def css_tag(css):
+            # type: (Stylesheet) -> unicode
+            attrs = ['%s="%s"' % (key, htmlescape(value, True))
+                     for key, value in css.attributes.items()
+                     if value is not None]
+            attrs.append('href="%s"' % pathto(css.filename, resource=True))
+            return '<link %s />' % ' '.join(attrs)
+        ctx['css_tag'] = css_tag
 
         def hasdoc(name):
             # type: (unicode) -> bool

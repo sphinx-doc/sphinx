@@ -58,6 +58,7 @@ Features added
 * LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
   XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
   fontsize in code-blocks (refs: #4793)
+* ``app.add_stylesheet()`` allows additional attributes
 
 Bugs fixed
 ----------
