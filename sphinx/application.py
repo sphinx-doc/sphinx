@@ -1036,7 +1036,6 @@ class Sphinx(object):
            Allows keyword arguments as attributes of link tag.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
         if kwargs.pop('alternate', None):
@@ -1044,8 +1043,7 @@ class Sphinx(object):
                           'Please use rel="alternate stylesheet" option instead.',
                           RemovedInSphinx30Warning)
             kwargs['rel'] = 'alternate stylesheet'
-        css = Stylesheet(filename, **kwargs)
-        StandaloneHTMLBuilder.css_files.append(css)
+        self.registry.add_css_files(filename, **kwargs)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None

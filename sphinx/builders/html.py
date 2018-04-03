@@ -248,14 +248,19 @@ class StandaloneHTMLBuilder(Builder):
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
-    # Ditto for this one (Sphinx.add_stylesheet).
-    css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
     # cached publisher object for snippets
     _publisher = None
+
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        super(StandaloneHTMLBuilder, self).__init__(app)
+
+        # CSS files
+        self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     def init(self):
         # type: () -> None
@@ -269,6 +274,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.init_templates()
         self.init_highlighter()
+        self.init_css_files()
         if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
@@ -330,6 +336,11 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style,
                                           self.config.trim_doctest_flags)
+
+    def init_css_files(self):
+        # type: () -> None
+        for filename, attrs in self.app.registry.css_files:
+            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
 
     @property
     def default_translator_class(self):
@@ -1332,6 +1343,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.templates = None   # no template bridge necessary
         self.init_templates()
         self.init_highlighter()
+        self.init_css_files()
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
