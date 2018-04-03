@@ -27,7 +27,9 @@ from six.moves import cStringIO
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
+from sphinx.deprecation import (
+    RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+)
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import (
     ApplicationError, ConfigError, ExtensionError, VersionRequirementError
@@ -1001,7 +1003,7 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename, **kwargs):
+    def add_css_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
         """Register a stylesheet to include in the HTML output.
 
@@ -1012,14 +1014,14 @@ class Sphinx(object):
 
         Example::
 
-            app.add_stylesheet('custom.css')
+            app.add_css_file('custom.css')
             # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
-            app.add_stylesheet('print.css', media='print')
+            app.add_css_file('print.css', media='print')
             # => <link rel="stylesheet" href="_static/print.css"
             #          type="text/css" media="print" />
 
-            app.add_stylesheet('fancy.css', rel='alternate stylesheet', title='fancy')
+            app.add_css_file('fancy.css', rel='alternate stylesheet', title='fancy')
             # => <link rel="alternate stylesheet" href="_static/fancy.css"
             #          type="text/css" title="fancy" />
 
@@ -1033,17 +1035,31 @@ class Sphinx(object):
            <https://mdn.io/Web/CSS/Alternative_style_sheets>`__.
 
         .. versionchanged:: 1.8
-           Allows keyword arguments as attributes of link tag.
+           Renamed from ``app.add_stylesheet()``.
+           And it allows keyword arguments as attributes of link tag.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
-        if kwargs.pop('alternate', None):
-            warnings.warn('The alternate option for app.add_stylesheet() is deprecated. '
-                          'Please use rel="alternate stylesheet" option instead.',
-                          RemovedInSphinx30Warning)
-            kwargs['rel'] = 'alternate stylesheet'
         self.registry.add_css_files(filename, **kwargs)
+
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
+        """An alias of :meth:`add_css_file`."""
+        warnings.warn('The app.add_stylesheet() is deprecated. '
+                      'Please use app.add_css_file() instead.',
+                      RemovedInSphinx40Warning)
+
+        attributes = {}  # type: Dict[unicode, unicode]
+        if alternate:
+            attributes['rel'] = 'alternate stylesheet'
+        else:
+            attributes['rel'] = 'stylesheet'
+
+        if title:
+            attributes['title'] = title
+
+        self.add_css_file(filename, **attributes)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None

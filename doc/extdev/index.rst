@@ -113,6 +113,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - 1.8
+     - 4.0
+     - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
    * - ``sphinx.application.Sphinx.override_domain()``
      - 1.8
      - 3.0
