@@ -74,6 +74,7 @@ Features added
 * Improve warning messages during including (refs: #4818)
 * LaTeX: separate customizability of :rst:role:`guilabel` and
   :rst:role:`menuselection` (refs: #4830)
+* Add :event:`viewcode-find-source` event to viewcode extension.
 
 Bugs fixed
 ----------

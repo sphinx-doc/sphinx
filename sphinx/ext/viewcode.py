@@ -61,20 +61,29 @@ def doctree_read(app, doctree):
 
     def has_tag(modname, fullname, docname, refname):
         entry = env._viewcode_modules.get(modname, None)  # type: ignore
-        try:
-            analyzer = ModuleAnalyzer.for_module(modname)
-        except Exception:
-            env._viewcode_modules[modname] = False  # type: ignore
-            return
-        if not isinstance(analyzer.code, text_type):
-            code = analyzer.code.decode(analyzer.encoding)
-        else:
-            code = analyzer.code
         if entry is False:
             return
-        elif entry is None or entry[0] != code:
+
+        code_tags = app.emit_firstresult('viewcode-find-source', modname)
+        if code_tags is None:
+            try:
+                analyzer = ModuleAnalyzer.for_module(modname)
+            except Exception:
+                env._viewcode_modules[modname] = False  # type: ignore
+                return
+
+            if not isinstance(analyzer.code, text_type):
+                code = analyzer.code.decode(analyzer.encoding)
+            else:
+                code = analyzer.code
+
             analyzer.find_tags()
-            entry = code, analyzer.tags, {}, refname
+            tags = analyzer.tags
+        else:
+            code, tags = code_tags
+
+        if entry is None or entry[0] != code:
+            entry = code, tags, {}, refname
             env._viewcode_modules[modname] = entry  # type: ignore
         _, tags, used, _ = entry
         if fullname in tags:
@@ -240,6 +249,7 @@ def setup(app):
     app.connect('missing-reference', missing_reference)
     # app.add_config_value('viewcode_include_modules', [], 'env')
     # app.add_config_value('viewcode_exclude_modules', [], 'env')
+    app.add_event('viewcode-find-source')
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
