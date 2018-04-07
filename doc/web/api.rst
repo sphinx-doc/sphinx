@@ -40,9 +40,17 @@ The WebSupport Class
        comment that was added.
 
    staticdir
-       If static files are served from a location besides ``'/static'``, this
-       should be a string with the name of that location
-       (e.g. ``'/static_files'``).
+       If the static files should be created in a different location
+       **and not in** ``'/static'``, this should be a string with the name of
+       that location (e.g. ``builddir + '/static_files'``).
+
+   staticroot
+       If the static files are not served from ``'/static'``, this should be a
+       string with the name of that location (e.g. ``'/static_files'``).
+
+   .. note::
+       If you specify ``staticdir``, you will typically want to adjust
+       ``staticroot`` accordingly.
 
    docroot
        If the documentation is not served from the base path of a URL, this
