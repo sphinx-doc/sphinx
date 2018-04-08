@@ -71,6 +71,7 @@ Features added
 * #4834: Ensure set object descriptions are reproducible.
 * #4828: Allow to override :confval:`numfig_format` partially.  Full definition
   is not needed.
+* Improve warning messages during including (refs: #4818)
 
 Bugs fixed
 ----------
