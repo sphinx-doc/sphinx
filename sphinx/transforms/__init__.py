@@ -44,35 +44,28 @@ default_substitutions = set([
 
 
 class SphinxTransform(Transform):
-    """
-    A base class of Transforms.
+    """A base class of Transforms.
 
     Compared with ``docutils.transforms.Transform``, this class improves accessibility to
     Sphinx APIs.
-
-    The subclasses can access following objects and functions:
-
-    self.app
-        The application object (:class:`sphinx.application.Sphinx`)
-    self.config
-        The config object (:class:`sphinx.config.Config`)
-    self.env
-        The environment object (:class:`sphinx.environment.BuildEnvironment`)
     """
 
     @property
     def app(self):
         # type: () -> Sphinx
+        """Reference to the :class:`.Sphinx` object."""
         return self.document.settings.env.app
 
     @property
     def env(self):
         # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
     @property
     def config(self):
         # type: () -> Config
+        """Reference to the :class:`.Config` object."""
         return self.document.settings.env.config
 
 

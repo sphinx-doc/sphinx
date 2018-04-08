@@ -94,6 +94,7 @@ APIs used for writing extensions
    nodes
    logging
    i18n
+   utils
 
 Deprecated APIs
 ---------------

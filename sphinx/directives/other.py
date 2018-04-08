@@ -8,7 +8,7 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
@@ -18,6 +18,7 @@ from sphinx import addnodes, locale
 from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.matching import patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
@@ -49,7 +50,7 @@ def int_or_nothing(argument):
     return int(argument)
 
 
-class TocTree(Directive):
+class TocTree(SphinxDirective):
     """
     Directive to notify Sphinx about the hierarchical structure of the docs,
     and to include a table-of-contents like tree in the current document.
@@ -72,8 +73,7 @@ class TocTree(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        suffixes = env.config.source_suffix
+        suffixes = self.config.source_suffix
         glob = 'glob' in self.options
 
         ret = []
@@ -81,17 +81,17 @@ class TocTree(Directive):
         # and title may be None if the document's title is to be used
         entries = []        # type: List[Tuple[unicode, unicode]]
         includefiles = []
-        all_docnames = env.found_docs.copy()
+        all_docnames = self.env.found_docs.copy()
         # don't add the currently visited file in catch-all patterns
-        all_docnames.remove(env.docname)
+        all_docnames.remove(self.env.docname)
         for entry in self.content:
             if not entry:
                 continue
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
             if glob and ('*' in entry or '?' in entry or '[' in entry) and not explicit:
-                patname = docname_join(env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
+                patname = docname_join(self.env.docname, entry)
+                docnames = sorted(patfilter(all_docnames, patname))  # type: ignore
                 for docname in docnames:
                     all_docnames.remove(docname)  # don't include it again
                     entries.append((None, docname))
@@ -114,20 +114,20 @@ class TocTree(Directive):
                         docname = docname[:-len(suffix)]
                         break
                 # absolutize filenames
-                docname = docname_join(env.docname, docname)
+                docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
                     entries.append((title, ref))
-                elif docname not in env.found_docs:
+                elif docname not in self.env.found_docs:
                     ret.append(self.state.document.reporter.warning(
                         'toctree contains reference to nonexisting '
                         'document %r' % docname, line=self.lineno))
-                    env.note_reread()
+                    self.env.note_reread()
                 else:
                     all_docnames.discard(docname)
                     entries.append((title, docname))
                     includefiles.append(docname)
         subnode = addnodes.toctree()
-        subnode['parent'] = env.docname
+        subnode['parent'] = self.env.docname
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
             entries.reverse()
@@ -149,7 +149,7 @@ class TocTree(Directive):
         return ret
 
 
-class Author(Directive):
+class Author(SphinxDirective):
     """
     Directive to give the name of the author of the current document
     or section. Shown in the output only if the show_authors option is on.
@@ -162,8 +162,7 @@ class Author(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        if not env.config.show_authors:
+        if not self.config.show_authors:
             return []
         para = nodes.paragraph(translatable=False)
         emph = nodes.emphasis()
@@ -183,7 +182,7 @@ class Author(Directive):
         return [para] + messages
 
 
-class Index(Directive):
+class Index(SphinxDirective):
     """
     Directive to add entries to the index.
     """
@@ -196,8 +195,7 @@ class Index(Directive):
     def run(self):
         # type: () -> List[nodes.Node]
         arguments = self.arguments[0].split('\n')
-        env = self.state.document.settings.env
-        targetid = 'index-%s' % env.new_serialno('index')
+        targetid = 'index-%s' % self.env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
@@ -209,7 +207,7 @@ class Index(Directive):
         return [indexnode, targetnode]
 
 
-class VersionChange(Directive):
+class VersionChange(SphinxDirective):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
@@ -252,9 +250,8 @@ class VersionChange(Directive):
                                                 classes=['versionmodified']),
                                    translatable=False)
             node.append(para)
-        env = self.state.document.settings.env
         # XXX should record node.source as well
-        env.note_versionchange(node['type'], node['version'], node, node.line)
+        self.env.note_versionchange(node['type'], node['version'], node, node.line)
         return [node] + messages
 
 
@@ -265,7 +262,7 @@ class SeeAlso(BaseAdmonition):
     node_class = addnodes.seealso
 
 
-class TabularColumns(Directive):
+class TabularColumns(SphinxDirective):
     """
     Directive to give an explicit tabulary column definition to LaTeX.
     """
@@ -283,7 +280,7 @@ class TabularColumns(Directive):
         return [node]
 
 
-class Centered(Directive):
+class Centered(SphinxDirective):
     """
     Directive to create a centered line of bold text.
     """
@@ -304,7 +301,7 @@ class Centered(Directive):
         return [subnode] + messages
 
 
-class Acks(Directive):
+class Acks(SphinxDirective):
     """
     Directive for a list of names.
     """
@@ -326,7 +323,7 @@ class Acks(Directive):
         return [node]
 
 
-class HList(Directive):
+class HList(SphinxDirective):
     """
     Directive for a list that gets compacted horizontally.
     """
@@ -363,7 +360,7 @@ class HList(Directive):
         return [newnode]
 
 
-class Only(Directive):
+class Only(SphinxDirective):
     """
     Directive to only include text if the given tag(s) are enabled.
     """
@@ -421,7 +418,7 @@ class Only(Directive):
             self.state.memo.section_level = surrounding_section_level
 
 
-class Include(BaseInclude):
+class Include(BaseInclude, SphinxDirective):
     """
     Like the standard "Include" directive, but interprets absolute paths
     "correctly", i.e. relative to source directory.
@@ -429,14 +426,13 @@ class Include(BaseInclude):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
             return BaseInclude.run(self)
-        rel_filename, filename = env.relfn2path(self.arguments[0])
+        rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
-        env.note_included(filename)
+        self.env.note_included(filename)
         return BaseInclude.run(self)
 
 
