@@ -2630,7 +2630,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         logger.warning('using "math" markup without a Sphinx math extension '
                        'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html',
+                       'described at http://sphinx-doc.org/en/master/ext/math.html',
                        location=(self.curfilestack[-1], node.line))
         raise nodes.SkipNode
 
