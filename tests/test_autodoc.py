@@ -952,7 +952,10 @@ def test_partialmethod():
         '      Update state of cell to *state*.',
         '      ',
     ]
-    if sys.version_info < (3, 5, 4):
+    if (sys.version_info < (3, 5, 4) or
+            (3, 6, 5) <= sys.version_info < (3, 7) or
+            (3, 7, 0, 'beta', 3) <= sys.version_info):
+        # TODO: this condition should be updated after 3.7-final release.
         expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
     assert call_autodoc('class', 'target.partialmethod.Cell') == expected
