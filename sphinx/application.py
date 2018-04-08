@@ -43,7 +43,7 @@ from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 from sphinx.util.i18n import find_catalog_source_files
-from sphinx.util.osutil import abspath, ensuredir
+from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if False:
@@ -351,7 +351,7 @@ class Sphinx(object):
             if self.statuscode == 0 and self.builder.epilog:
                 logger.info('')
                 logger.info(self.builder.epilog % {
-                    'outdir': path.relpath(self.outdir),
+                    'outdir': relpath(self.outdir),
                     'project': self.config.project
                 })
         except Exception as err:

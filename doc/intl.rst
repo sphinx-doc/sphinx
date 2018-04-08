@@ -207,7 +207,7 @@ easy to fetch and push translations.
 
       $ pip install transifex-client
 
-   .. seealso:: `Transifex Client v0.8 &mdash; Transifex documentation`_
+   .. seealso:: `Transifex Client documentation`_
 
 
 #. Create your transifex_ account and create new project for your document
@@ -305,7 +305,7 @@ Contributing to Sphinx reference translation
 The recommended way for new contributors to translate Sphinx reference
 is to join the translation team on Transifex.
 
-There is `sphinx translation page`_ for Sphinx-1.3 documentation.
+There is `sphinx translation page`_ for Sphinx (master) documentation.
 
 1. Login to transifex_ service.
 2. Go to `sphinx translation page`_.
@@ -325,5 +325,5 @@ There is `sphinx translation page`_ for Sphinx-1.3 documentation.
 .. _`transifex-client`: https://pypi.python.org/pypi/transifex-client
 .. _`sphinx-intl`: https://pypi.python.org/pypi/sphinx-intl
 .. _Transifex: https://www.transifex.com/
-.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc-1_3/
-.. _`Transifex Client v0.8 &mdash; Transifex documentation`: https://docs.transifex.com/client/introduction/
+.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
+.. _`Transifex Client documentation`: http://docs.transifex.com/developer/client/

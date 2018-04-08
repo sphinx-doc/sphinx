@@ -38,7 +38,7 @@ from sphinx.util.docutils import sphinx_domains, WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.osutil import SEP, ensuredir, relpath
 from sphinx.util.websupport import is_commentable
 
 if False:
@@ -354,7 +354,7 @@ class BuildEnvironment(object):
         *filename* should be absolute or relative to the source directory.
         """
         if filename.startswith(self.srcdir):
-            filename = os.path.relpath(filename, self.srcdir)
+            filename = relpath(filename, self.srcdir)
         for suffix in self.config.source_suffix:
             if filename.endswith(suffix):
                 return filename[:-len(suffix)]

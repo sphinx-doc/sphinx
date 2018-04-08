@@ -27,7 +27,7 @@ from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
+from sphinx.util.osutil import relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
 
 if False:
@@ -286,8 +286,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 if self.config.gettext_location:
                     # generate "#: file1:line1\n#: file2:line2 ..."
                     output.write("#: %s\n" % "\n#: ".join(  # type: ignore
-                        "%s:%s" % (canon_path(
-                            safe_relpath(source, self.outdir)), line)
+                        "%s:%s" % (canon_path(relpath(source, self.outdir)), line)
                         for source, line, _ in positions))
                 if self.config.gettext_uuid:
                     # generate "# uuid1\n# uuid2\n ..."

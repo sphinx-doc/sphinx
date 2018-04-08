@@ -23,7 +23,7 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, walk
+from sphinx.util.osutil import SEP, relpath, walk
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
     domain = find_catalog(docname, compaction)
     files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
              for dir_ in locale_dirs]
-    files = [path.relpath(f, srcdir) for f in files if f]  # type: ignore
+    files = [relpath(f, srcdir) for f in files if f]  # type: ignore
     return files  # type: ignore
 
 
@@ -138,7 +138,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
             filenames = [f for f in filenames if f.endswith('.po')]
             for filename in filenames:
                 base = path.splitext(filename)[0]
-                domain = path.relpath(path.join(dirpath, base), base_dir)
+                domain = relpath(path.join(dirpath, base), base_dir)
                 if gettext_compact and path.sep in domain:
                     domain = path.split(domain)[0]
                 domain = domain.replace(path.sep, SEP)

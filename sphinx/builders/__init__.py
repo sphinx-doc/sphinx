@@ -23,7 +23,7 @@ from sphinx.util import i18n, import_object, logging, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
-from sphinx.util.osutil import SEP, ensuredir, relative_uri
+from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
@@ -242,7 +242,7 @@ class Builder(object):
 
         def cat2relpath(cat):
             # type: (CatalogInfo) -> unicode
-            return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
+            return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
         for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
