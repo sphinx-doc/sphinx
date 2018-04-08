@@ -90,7 +90,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-periods_re = re.compile('\.(?:\s+)')
+periods_re = re.compile(r'\.(?:\s+)')
 
 
 # -- autosummary_toc node ------------------------------------------------------

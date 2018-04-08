@@ -20,6 +20,9 @@ Bugs fixed
 * #4790: autosummary: too wide two column tables in PDF builds
 * #4795: Latex customization via ``_templates/longtable.tex_t`` is broken
 * #4789: imgconverter: confused by convert.exe of Windows
+* #4783: On windows, Sphinx crashed when drives of srcdir and outdir are
+  different
+* #4812: autodoc ignores type annotated variables
 * #4817: wrong URLs on warning messages
 
 Testing

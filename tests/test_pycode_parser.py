@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
 from six import PY2
 
@@ -92,6 +94,18 @@ def test_comment_picker_location():
     assert parser.comments == {('Foo', 'attr1'): 'comment before assignment',
                                ('Foo', 'attr2'): 'comment after assignment',
                                ('Foo', 'attr3'): 'comment for attr3(3)'}
+
+
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='tests for py36+ syntax')
+def test_annotated_assignment_py36():
+    source = ('a: str = "Sphinx"  #: comment\n'
+              'b: int = 1\n'
+              '"""string on next line"""')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'comment',
+                               ('', 'b'): 'string on next line'}
+    assert parser.definitions == {}
 
 
 def test_complex_assignment():
