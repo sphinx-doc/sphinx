@@ -156,6 +156,17 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
 
     try:
         module = import_module(modname, warningiserror=warningiserror)
+        import os
+        if hasattr(module, '__file__') and os.path.isfile('{}i'.format(module.__file__)):
+            try:
+                from importlib._bootstrap import spec_from_loader
+                from importlib._bootstrap_external import SourceFileLoader
+                from importlib._bootstrap import module_from_spec
+                spec = spec_from_loader(modname, SourceFileLoader(modname, '{}i'.format(module.__file__)))
+                module = module_from_spec(spec)
+                spec.loader.exec_module(module)
+            except BaseException as e:
+                raise e
         logger.debug('[autodoc] => %r', module)
         obj = module
         parent = None
