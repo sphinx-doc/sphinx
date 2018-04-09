@@ -23,6 +23,7 @@ Bugs fixed
 * #4783: On windows, Sphinx crashed when drives of srcdir and outdir are
   different
 * #4812: autodoc ignores type annotated variables
+* #4817: wrong URLs on warning messages
 
 Testing
 --------
