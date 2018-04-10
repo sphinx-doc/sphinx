@@ -750,6 +750,15 @@ def test_latex_show_urls_is_no(app, status, warning):
             '{sphinx-dev@googlegroups.com}\n') in result
 
 
+@pytest.mark.sphinx(
+    'latex', testroot='footnotes',
+    confoverrides={'latex_show_urls': 'footnote',
+                   'rst_prolog': '.. |URL| replace:: `text <http://www.example.com/>`__'})
+def test_latex_show_urls_footnote_and_substitutions(app, status, warning):
+    # hyperlinks in substitutions should not effect to make footnotes (refs: #4784)
+    test_latex_show_urls_is_footnote(app, status, warning)
+
+
 @pytest.mark.sphinx('latex', testroot='image-in-section')
 def test_image_in_section(app, status, warning):
     app.builder.build_all()
