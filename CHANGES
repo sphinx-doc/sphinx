@@ -61,6 +61,8 @@ Features added
   fontsize in code-blocks (refs: #4793)
 * Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
   files from configuration
+* C++, add a ``cpp:refs`` role as a sibling to ``cpp:expr`` for references
+  inside normal text
 
 Bugs fixed
 ----------

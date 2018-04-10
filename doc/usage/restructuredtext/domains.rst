@@ -724,8 +724,8 @@ visibility statement (``public``, ``private`` or ``protected``).
 
          **Valid Expressions**
 
-         - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
-         - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r` is incrementable.
+         - :cpp:expr:`*r`, when :cpp:any:`r` is dereferenceable.
+         - :cpp:expr:`++r`, with return type :cpp:refs:`It&`, when :cpp:any:`r` is incrementable.
 
    This will render as follows:
 
@@ -742,9 +742,8 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       **Valid Expressions**
 
-      - :cpp:expr:`*r`, when :cpp:expr:`r` is dereferenceable.
-      - :cpp:expr:`++r`, with return type :cpp:expr:`It&`, when :cpp:expr:`r`
-        is incrementable.
+      - :cpp:expr:`*r`, when :cpp:any:`r` is dereferenceable.
+      - :cpp:expr:`++r`, with return type :cpp:refs:`It&`, when :cpp:any:`r` is incrementable.
 
 Options
 ^^^^^^^
@@ -810,29 +809,6 @@ They are rendered as follows.
 Note however that no checking is performed with respect to parameter
 compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
-
-Inline Expressions and Tpes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. rst:role:: cpp:expr
-
-   A role for inserting a C++ expression or type as inline text.  For example::
-
-      .. cpp:var:: int a = 42
-
-      .. cpp:function:: int f(int i)
-
-      An expression: :cpp:expr:`a * f(a)`.
-      A type: :cpp:expr:`const MySortedContainer<int>&`.
-
-   will be rendered as follows:
-
-  .. cpp:var:: int a = 42
-
-  .. cpp:function:: int f(int i)
-
-  An expression: :cpp:expr:`a * f(a)`.  A type: :cpp:expr:`const
-  MySortedContainer<int>&`.
 
 Namespacing
 ~~~~~~~~~~~
@@ -945,24 +921,77 @@ These roles link to the given declaration types:
               cpp:enumerator
 
    Reference a C++ declaration by name (see below for details).  The name must
-   be properly qualified relative to the position of the link.
+   be properly qualified relative to the position of the link.  Note that these
+   roles follow the Sphinx :ref:`xref-syntax` rules.  This means care must be
+   taken when referencing a template specialization, e.g. if the link looks like
+   this: ``:cpp:class:`MyClass<int>```.  This is interpreted as a link to
+   ``int`` with a title of ``MyClass``.  In this case, escape the opening angle
+   bracket with a backslash, like this: ``:cpp:class:`MyClass\<int>```.
 
-.. admonition:: Note on References with Templates Parameters/Arguments
+There are alternative roles for cross-referencing which do not support custom
+titles, but instead treat angle brackets as template parameter lists:
 
-   Sphinx's syntax to give references a custom title can interfere with linking
-   to class templates, if nothing follows the closing angle bracket, i.e. if
-   the link looks like this: ``:cpp:class:`MyClass<int>```.  This is
-   interpreted as a link to ``int`` with a title of ``MyClass``.  In this case,
-   please escape the opening angle bracket with a backslash, like this:
-   ``:cpp:class:`MyClass\<int>```.
+.. rst:role:: cpp:refs
+              cpp:expr
+
+   Create references to the individual parts of a C++ expression or type. For
+   example::
+
+      .. cpp:var:: int a = 42
+
+      .. cpp:function:: int f(int i)
+
+      Break down this expression: :cpp:expr:`a * f(a)`.
+
+      Break down this type: :cpp:refs:`const MySortedContainer<MyType>&`.
+
+   will be rendered as follows:
+
+   .. cpp:var:: int a = 42
+
+   .. cpp:function:: int f(int i)
+
+   Break down this expression: :cpp:expr:`a * f(a)`.
+
+   Break down this type: :cpp:refs:`const MySortedContainer<MyType>&`.
+
+   Both :rst:role:`cpp:refs` and :rst:role:`cpp:expr` can indifferently accept
+   an expression or a type. The difference between the two roles is stylistic
+   and semantic: the former indicates one or more cross-references inside normal
+   text, whereas the latter indicates references in inline code. This makes them
+   the respective C++-aware counterparts to :rst:role:`cpp:any` and
+   :rst:role:`code` (or ````inline code```` syntax):
+
+   .. |cpp-code-role| replace:: :code:`const MySortedContainer<MyType>&`
+   .. |cpp-refs-role| replace:: :cpp:refs:`const MySortedContainer<MyType>&`
+   .. |cpp-expr-role| replace:: :cpp:expr:`const MySortedContainer<MyType>&`
+
+   .. table::
+      :widths: auto
+
+      +-----------------------------------+-----------------------------------+
+      | uses :ref:`Sphinx syntax          | uses C++ syntax                   |
+      | <xref-syntax>`                    |                                   |
+      +--------------+--------------------+--------------+--------------------+
+      | Role         | Styling            | Role         | Styling            |
+      +==============+====================+==============+====================+
+      | :rst:role:`\ | :cpp:any:`MySorted\| :rst:role:`\ | |cpp-refs-role|    |
+      | cpp:any`,    | Container\<MyType>`| cpp:refs`    |                    |
+      | etc.         |                    |              |                    |
+      |              |                    |              |                    |
+      +--------------+--------------------+--------------+--------------------+
+      | ````code```` | |cpp-code-role|    | :rst:role:`\ | |cpp-expr-role|    |
+      |              |                    | cpp:expr`    |                    |
+      |              |                    |              |                    |
+      +--------------+--------------------+--------------+--------------------+
 
 .. admonition:: Note on References to Overloaded Functions
 
    It is currently impossible to link to a specific version of an overloaded
-   method.  Currently the C++ domain is the first domain that has basic support
-   for overloaded methods and until there is more data for comparison we don't
-   want to select a bad syntax to reference a specific overload.  Currently
-   Sphinx will link to the first overloaded version of the method / function.
+   function.  Currently the C++ domain is the first domain that has basic
+   support for overloaded functions and until there is more data for comparison
+   we don't want to select a bad syntax to reference a specific overload.
+   Currently Sphinx will link to the first overloaded version of the function.
 
 Declarations without template parameters and template arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -983,13 +1012,13 @@ Assume the following declarations.
       .. cpp:class:: template<typename TInner> \
                      Inner
 
-In general the reference must include the template paraemter declarations,
+In general the reference must include the template parameter declarations,
 e.g., ``template\<typename TOuter> Wrapper::Outer``
 (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).  Currently the lookup
 only succeed if the template parameter identifiers are equal strings. That is,
 ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
-The inner class template can not be directly referenced, unless the current
+The inner class template cannot be directly referenced, unless the current
 namespace is changed or the following shorthand is used.  If a template
 parameter list is omitted, then the lookup will assume either a template or a
 non-template, but not a partial template specialisation.  This means the
