@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _sphinx.ext.imgconverter:
+
 :mod:`sphinx.ext.imgconverter` -- Convert images to appropriate format for builders
 ===================================================================================
 
