@@ -27,7 +27,9 @@ from six.moves import cStringIO
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
+from sphinx.deprecation import (
+    RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+)
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import (
     ApplicationError, ConfigError, ExtensionError, VersionRequirementError
@@ -1001,13 +1003,27 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename, alternate=False, title=None):
-        # type: (unicode, bool, unicode) -> None
+    def add_css_file(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
-        will include.  Like for :meth:`add_javascript`, the filename must be
-        relative to the HTML static path, or a full URI with scheme.
+        will include.  The filename must be relative to the HTML static path,
+        or a full URI with scheme.  The keyword arguments are also accepted for
+        attributes of ``<link>`` tag.
+
+        Example::
+
+            app.add_css_file('custom.css')
+            # => <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+            app.add_css_file('print.css', media='print')
+            # => <link rel="stylesheet" href="_static/print.css"
+            #          type="text/css" media="print" />
+
+            app.add_css_file('fancy.css', rel='alternate stylesheet', title='fancy')
+            # => <link rel="alternate stylesheet" href="_static/fancy.css"
+            #          type="text/css" title="fancy" />
 
         .. versionadded:: 1.0
 
@@ -1017,17 +1033,33 @@ class Sphinx(object):
            arguments. The default is no title and *alternate* = ``False``. For
            more information, refer to the `documentation
            <https://mdn.io/Web/CSS/Alternative_style_sheets>`__.
+
+        .. versionchanged:: 1.8
+           Renamed from ``app.add_stylesheet()``.
+           And it allows keyword arguments as attributes of link tag.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder, Stylesheet
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
+        self.registry.add_css_files(filename, **kwargs)
+
+    def add_stylesheet(self, filename, alternate=False, title=None):
+        # type: (unicode, bool, unicode) -> None
+        """An alias of :meth:`add_css_file`."""
+        warnings.warn('The app.add_stylesheet() is deprecated. '
+                      'Please use app.add_css_file() instead.',
+                      RemovedInSphinx40Warning)
+
+        attributes = {}  # type: Dict[unicode, unicode]
         if alternate:
-            rel = u'alternate stylesheet'
+            attributes['rel'] = 'alternate stylesheet'
         else:
-            rel = u'stylesheet'
-        css = Stylesheet(filename, title, rel)  # type: ignore
-        StandaloneHTMLBuilder.css_files.append(css)
+            attributes['rel'] = 'stylesheet'
+
+        if title:
+            attributes['title'] = title
+
+        self.add_css_file(filename, **attributes)
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None

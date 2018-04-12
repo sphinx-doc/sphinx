@@ -59,9 +59,6 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
-.. seealso:: Additional configurations, such as adding stylesheets,
-   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
-
 
 General configuration
 ---------------------
@@ -846,6 +843,22 @@ that use Sphinx's HTMLWriter class.
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+.. confval:: html_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  The
+   *filename* must be relative to the :confval:`html_static_path`, or a full URI
+   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   for attributes of ``<link>`` tag.  It defaults to an empty list.
+
+   Example::
+
+       html_css_files = ['custom.css'
+                         'https://example.com/css/custom.css',
+                         ('print.css', {'media': 'print'})]
+
+   .. versionadded:: 1.8
+
 .. confval:: html_static_path
 
    A list of paths that contain custom static files (such as style
@@ -1510,6 +1523,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    The default value is ``()``.
 
    .. versionadded:: 1.1
+
+.. confval:: epub_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  For more
+   information, see :confval:`html_css_files`.
+
+   .. versionadded:: 1.8
 
 .. confval:: epub_guide
 

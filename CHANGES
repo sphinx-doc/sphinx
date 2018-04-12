@@ -35,6 +35,7 @@ Deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
 * ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
+* ``app.add_stylesheet()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -58,6 +59,8 @@ Features added
 * LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
   XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
   fontsize in code-blocks (refs: #4793)
+* Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
+  files from configuration
 
 Bugs fixed
 ----------
