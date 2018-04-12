@@ -2,8 +2,8 @@
 
 .. _sphinx.ext.imgconverter:
 
-:mod:`sphinx.ext.imgconverter` -- Convert images to appropriate format for builders
-===================================================================================
+:mod:`sphinx.ext.imgconverter` -- A reference implementation for image converter using Imagemagick
+==================================================================================================
 
 .. module:: sphinx.ext.imgconverter
    :synopsis: Convert images to appropriate format for builders
@@ -17,6 +17,12 @@ As a result, you don't mind what image format the builder supports.
 Internally, this extension uses Imagemagick_ to convert images.
 
 .. _Imagemagick: https://www.imagemagick.org/script/index.php
+
+.. note:: Imagemagick rasterizes a SVG image on conversion.  As a result, the image
+          becomes not scalable.  To avoid that, please use other image converters
+          like sphinxcontrib-svg2pdfconverter_ (which uses Inkscape or rsvg-convert).
+
+.. _sphinxcontrib-svg2pdfconverter: https://github.com/missinglinkelectronics/sphinxcontrib-svg2pdfconverter
 
 Configuration
 -------------
