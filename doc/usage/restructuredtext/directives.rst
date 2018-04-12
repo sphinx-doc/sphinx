@@ -596,7 +596,8 @@ __ http://pygments.org/docs/lexers/
    ``start-after`` is given as a string option, only lines that follow the
    first line containing that string are included.  If ``end-before`` is given
    as a string option, only lines that precede the first lines containing that
-   string are included.
+   string are included. The ``start-at`` and ``end-at`` options behave in a
+   similar way, but the lines containing the matched string are included.
 
    With lines selected using ``start-after`` it is still possible to use
    ``lines``, the first allowed line having by convention the line number
@@ -637,6 +638,9 @@ __ http://pygments.org/docs/lexers/
    .. versionchanged:: 1.3
       Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
       ``dedent`` options.
+
+   .. versionchanged:: 1.5
+      Added the ``start-at``, and ``end-at`` options.
 
    .. versionchanged:: 1.6
       With both ``start-after`` and ``lines`` in use, the first line as per
