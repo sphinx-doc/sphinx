@@ -124,6 +124,21 @@ def test_toctree_glob(app):
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
+def test_toctree_glob_and_url(app):
+    text = (".. toctree::\n"
+            "   :glob:\n"
+            "\n"
+            "   https://example.com/?q=sphinx\n")
+
+    app.env.find_files(app.config, app.builder)
+    doctree = parse(app, 'index', text)
+    assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
+    assert_node(doctree[0][0],
+                entries=[(None, 'https://example.com/?q=sphinx')],
+                includefiles=[])
+
+
+@pytest.mark.sphinx(testroot='toctree-glob')
 def test_toctree_twice(app):
     text = (".. toctree::\n"
             "\n"

@@ -99,7 +99,8 @@ class TocTree(Directive):
                 continue
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
-            if toctree['glob'] and glob_re.match(entry) and not explicit:
+            if (toctree['glob'] and glob_re.match(entry) and
+                    not explicit and not url_re.match(entry)):
                 patname = docname_join(env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
@@ -139,7 +140,7 @@ class TocTree(Directive):
 
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
-            toctree['entries'] = toctree['entries'].reverse()
+            toctree['entries'] = list(reversed(toctree['entries']))
 
         return ret
 
