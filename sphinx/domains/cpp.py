@@ -5966,18 +5966,50 @@ class CPPExprRole(object):
 
         env = inliner.document.settings.env
         parser = DefinitionParser(text, Warner(), env.config)
+        # attempt to mimic XRefRole classes, except that...
+        classes = ['xref', 'cpp', 'cpp-expr']
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             Warner().warn('Unparseable C++ expression: %r\n%s'
                           % (text, text_type(ex.description)))
-            return [nodes.literal(text)], []
+            # see below
+            return [nodes.literal(text, text, classes=classes)], []
         parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = env.domaindata['cpp']['root_symbol']
-        p = nodes.literal()
-        ast.describe_signature(p, 'markType', env, parentSymbol)
-        return [p], []
+        # ...most if not all of these classes should really apply to the individual references,
+        # not the container node
+        signode = nodes.literal(classes=classes)
+        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        return [signode], []
+
+
+class CPPRefsRole(object):
+    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+        class Warner(object):
+            def warn(self, msg):
+                inliner.reporter.warning(msg, line=lineno)
+
+        env = inliner.document.settings.env
+        parser = DefinitionParser(text, Warner(), env.config)
+        # attempt to mimic XRefRole classes, except that...
+        classes = ['xref', 'cpp', 'cpp-refs']
+        try:
+            ast = parser.parse_expression()
+        except DefinitionError as ex:
+            Warner().warn('Unparseable C++ reference: %r\n%s'
+                          % (text, text_type(ex.description)))
+            # see below
+            return [nodes.inline(text, text, classes=classes)], []
+        parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
+        if parentSymbol is None:
+            parentSymbol = env.domaindata['cpp']['root_symbol']
+        # ...most if not all of these classes should really apply to the individual references,
+        # not the container node
+        signode = nodes.inline(classes=classes)
+        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        return [signode], []
 
 
 class CPPDomain(Domain):
@@ -6019,7 +6051,8 @@ class CPPDomain(Domain):
         'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole(),
-        'expr': CPPExprRole()
+        'expr': CPPExprRole(),
+        'refs': CPPRefsRole()
     }
     initial_data = {
         'root_symbol': Symbol(None, None, None, None, None, None),
