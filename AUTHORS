@@ -40,6 +40,7 @@ Other contributors, listed alphabetically, are:
 * Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
+* Chris Lamb -- reproducibility fixes
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
 * Ian Lee -- quickstart improvements

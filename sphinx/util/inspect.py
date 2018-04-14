@@ -244,8 +244,19 @@ def object_description(object):
         except TypeError:
             pass  # Cannot sort dict keys, fall back to generic repr
         else:
-            items = ("%r: %r" % (key, object[key]) for key in sorted_keys)
+            items = ("%s: %s" %
+                     (object_description(key), object_description(object[key]))
+                     for key in sorted_keys)
             return "{%s}" % ", ".join(items)
+    if isinstance(object, set):
+        try:
+            sorted_values = sorted(object)
+        except TypeError:
+            pass  # Cannot sort set values, fall back to generic repr
+        else:
+            template = "{%s}" if PY3 else "set([%s])"
+            return template % ", ".join(object_description(x)
+                                        for x in sorted_values)
     try:
         s = repr(object)
     except Exception:
