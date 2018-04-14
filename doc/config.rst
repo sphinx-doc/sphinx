@@ -1,4 +1,4 @@
-.. highlightlang:: python
+.. highlight:: python
 
 .. _build-config:
 

@@ -1,4 +1,4 @@
-.. highlightlang:: rst
+.. highlight:: rst
 
 .. _rst-primer:
 

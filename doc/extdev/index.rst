@@ -114,6 +114,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :rst:dir:`highlightlang`
+     - 1.8
+     - 4.0
+     - :rst:dir:`highlight`
+
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
      - 4.0
