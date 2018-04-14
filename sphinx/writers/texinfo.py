@@ -1385,18 +1385,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_system_message(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\n@verbatim\n'

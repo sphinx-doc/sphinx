@@ -2502,14 +2502,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('}}$')
 
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_inline(self, node):
         # type: (nodes.Node) -> None
         classes = node.get('classes', [])
