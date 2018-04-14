@@ -343,6 +343,8 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     refs: sphinx.parsers.RSTParser
     """
+    default_priority = 750
+
     def apply(self):
         # type: () -> None
         if not self.is_available():

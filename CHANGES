@@ -17,6 +17,8 @@ Incompatible changes
   a ``conf.py`` file sphinx-build generates.
 * The ``gettext_compact`` attribute is removed from ``document.settings``
   object.  Please use ``config.gettext_compact`` instead.
+* The order of smart_quotes is changed.  For more detail, please read a
+  description of :py:meth:`.Sphinx.add_transform()`
 
 Deprecated
 ----------
