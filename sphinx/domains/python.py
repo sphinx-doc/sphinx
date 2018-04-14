@@ -189,6 +189,7 @@ class PyObject(ObjectDescription):
         'noindex': directives.flag,
         'module': directives.unchanged,
         'annotation': directives.unchanged,
+        'async': directives.flag,
     }
 
     doc_field_types = [
@@ -272,6 +273,8 @@ class PyObject(ObjectDescription):
         signode['fullname'] = fullname
 
         sig_prefix = self.get_signature_prefix(sig)
+        if 'async' in self.options:
+            sig_prefix = 'async ' + sig_prefix
         if sig_prefix:
             signode += addnodes.desc_annotation(sig_prefix, sig_prefix)
 

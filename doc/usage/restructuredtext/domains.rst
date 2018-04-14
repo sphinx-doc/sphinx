@@ -290,6 +290,16 @@ argument support), you can use brackets to specify the optional parts:
 
 It is customary to put the opening bracket before the comma.
 
+.. _coroutines:
+
+Coroutines
+~~~~~~~~~~
+
+If a function or method is a coroutine, you can add the ``:async:`` option::
+
+   .. py:function:: compile(source : string, filename, symbol='file') -> ast object
+      :async:
+
 .. _info-field-lists:
 
 Info field lists
