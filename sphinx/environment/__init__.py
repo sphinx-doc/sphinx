@@ -21,7 +21,7 @@ from os import path
 
 from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
-from six import BytesIO, itervalues, class_types, next
+from six import BytesIO, class_types, next
 from six.moves import cPickle as pickle
 
 from sphinx import addnodes, versioning
@@ -569,10 +569,6 @@ class BuildEnvironment(object):
 
         with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
             doctree = read_doc(self.app, self, self.doc2path(docname))
-
-        # post-processing
-        for domain in itervalues(self.domains):
-            domain.process_doc(self, docname, doctree)
 
         # allow extension-specific post-processing
         if app:
