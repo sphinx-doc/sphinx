@@ -313,7 +313,10 @@ class Signature(object):
             try:
                 self.signature = inspect.signature(subject)
             except IndexError:
-                if hasattr(subject, '_partialmethod'):  # partialmethod with no argument
+                # Until python 3.6.4, cpython has been crashed on inspection for
+                # partialmethods not having any arguments.
+                # https://bugs.python.org/issue33009
+                if hasattr(subject, '_partialmethod'):
                     self.signature = None
                     self.partialmethod_with_noargs = True
                 else:

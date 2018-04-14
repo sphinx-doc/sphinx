@@ -1745,7 +1745,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         logger.warning(__('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html'))
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'))
         raise nodes.SkipNode
 
     visit_math_block = visit_math
