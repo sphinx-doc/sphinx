@@ -10,20 +10,25 @@
 """
 
 from docutils import nodes
-from six import iteritems
 
-from sphinx import addnodes
 from sphinx.transforms import SphinxTransform
-from sphinx.util.nodes import traverse_parent
+
+if False:
+    # For type annotation
+    from typing import Dict, List, Set, Union # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
 
-class ShowUrlsTransform(SphinxTransform, object):
-    def __init__(self, document, startnode=None):
-        # type: (nodes.document, nodes.Node) -> None
-        super(ShowUrlsTransform, self).__init__(document, startnode)
-        self.expanded = False
+class ShowUrlsTransform(SphinxTransform):
+    """Expand references to inline text or footnotes.
+
+    For more information, see :confval:`latex_show_urls`.
+    """
+    default_priority = 400
+
+    # references are expanded to footnotes (or not)
+    expanded = False
 
     def apply(self):
         # type: () -> None
@@ -80,46 +85,77 @@ class ShowUrlsTransform(SphinxTransform, object):
 
     def renumber_footnotes(self):
         # type: () -> None
-        def is_used_number(number):
-            # type: (unicode) -> bool
-            for node in self.document.traverse(nodes.footnote):
-                if not node.get('auto') and number in node['names']:
-                    return True
+        collector = FootnoteCollector(self.document)
+        self.document.walkabout(collector)
 
-            return False
-
-        def is_auto_footnote(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, nodes.footnote) and node.get('auto')
-
-        def footnote_ref_by(node):
-            # type: (nodes.Node) -> Callable[[nodes.Node], bool]
-            ids = node['ids']
-            parent = list(traverse_parent(node, (nodes.document, addnodes.start_of_file)))[0]
-
-            def is_footnote_ref(node):
-                # type: (nodes.Node) -> bool
-                return (isinstance(node, nodes.footnote_reference) and
-                        ids[0] == node['refid'] and
-                        parent in list(traverse_parent(node)))
-
-            return is_footnote_ref
-
-        startnum = 1
-        for footnote in self.document.traverse(is_auto_footnote):
+        num = 0
+        for document, footnote in collector.auto_footnotes:
+            # search unused footnote number
             while True:
-                label = str(startnum)
-                startnum += 1
-                if not is_used_number(label):
+                num += 1
+                if str(num) not in collector.used_footnote_numbers:
                     break
 
+            # assign new footnote number
             old_label = footnote[0].astext()
-            footnote.remove(footnote[0])
-            footnote.insert(0, nodes.label('', label))
+            footnote[0].replace_self(nodes.label('', str(num)))
             if old_label in footnote['names']:
                 footnote['names'].remove(old_label)
-            footnote['names'].append(label)
+            footnote['names'].append(str(num))
 
-            for footnote_ref in self.document.traverse(footnote_ref_by(footnote)):
-                footnote_ref.remove(footnote_ref[0])
-                footnote_ref += nodes.Text(label)
+            # update footnote_references by new footnote number
+            for ref in collector.footnote_refs.get(document, []):
+                if footnote['ids'][0] == ref['refid']:
+                    ref.remove(ref[0])
+                    ref += nodes.Text(str(num))
+
+
+class FootnoteCollector(nodes.NodeVisitor):
+    """Collect footnotes and footnote references on the document"""
+
+    def __init__(self, document):
+        # type: (nodes.document) -> None
+        self.auto_footnotes = []            # type: List[nodes.footnote]
+        self.used_footnote_numbers = set()  # type: Set[unicode]
+        self.footnote_refs = {}             # type: Dict[nodes.Node, List[nodes.footnote_reference]]  # NOQA
+        self.current_document = []          # type: List[nodes.Node]
+        nodes.NodeVisitor.__init__(self, document)
+
+    def visit_document(self, node):
+        # type: (nodes.Node) -> None
+        self.current_document.append(node)
+
+    def depart_document(self, node):
+        # type: (nodes.Node) -> None
+        self.current_document.pop()
+
+    def visit_start_of_file(self, node):
+        # type: (nodes.Node) -> None
+        self.current_document.append(node)
+
+    def depart_start_of_file(self, node):
+        # type: (nodes.Node) -> None
+        self.current_document.pop()
+
+    def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_footnote(self, node):
+        # type: (nodes.footnote) -> None
+        document = self.current_document[-1]
+        if node.get('auto'):
+            self.auto_footnotes.append((document, node))
+        else:
+            for name in node['names']:
+                self.used_footnote_numbers.add(name)
+
+    def visit_footnote_reference(self, node):
+        # type: (nodes.footnote_reference) -> None
+        document = self.current_document[-1]
+        footnote_refs = self.footnote_refs.setdefault(document, [])
+        footnote_refs.append(node)
+
+    def unknown_departure(self, node):
+        # type: (nodes.Node) -> None
+        pass
