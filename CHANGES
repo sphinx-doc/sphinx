@@ -101,6 +101,8 @@ Bugs fixed
   different
 * #4812: autodoc ignores type annotated variables
 * #4817: wrong URLs on warning messages
+* #4784: latex: :confval:`latex_show_urls` assigns incorrect footnote numbers if
+  hyperlinks exists inside substitutions
 
 Testing
 --------
