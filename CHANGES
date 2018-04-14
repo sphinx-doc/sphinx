@@ -61,6 +61,7 @@ Features added
   fontsize in code-blocks (refs: #4793)
 * Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
   files from configuration
+* #4834: Ensure set object descriptions are reproducible.
 
 Bugs fixed
 ----------
