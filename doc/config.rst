@@ -192,8 +192,9 @@ General configuration
    .. index:: pair: global; substitutions
 
    A string of reStructuredText that will be included at the end of every source
-   file that is read.  This is the right place to add substitutions that should
-   be available in every file.  An example::
+   file that is read.  This is a possible place to add substitutions that should
+   be available in every file (another being :confval:`rst_prolog`).  An
+   example::
 
       rst_epilog = """
       .. |psf| replace:: Python Software Foundation
@@ -203,8 +204,16 @@ General configuration
 
 .. confval:: rst_prolog
 
+   .. index:: pair: global; substitutions
+
    A string of reStructuredText that will be included at the beginning of every
-   source file that is read.
+   source file that is read.  This is a possible place to add substitutions that
+   should be available in every file (another being :confval:`rst_epilog`).  An
+   example::
+
+      rst_prolog = """
+      .. |psf| replace:: Python Software Foundation
+      """
 
    .. versionadded:: 1.0
 
