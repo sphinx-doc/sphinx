@@ -244,7 +244,9 @@ def object_description(object):
         except TypeError:
             pass  # Cannot sort dict keys, fall back to generic repr
         else:
-            items = ("%r: %r" % (key, object[key]) for key in sorted_keys)
+            items = ("%s: %s" %
+                     (object_description(key), object_description(object[key]))
+                     for key in sorted_keys)
             return "{%s}" % ", ".join(items)
     try:
         s = repr(object)
