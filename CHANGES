@@ -26,7 +26,7 @@ Bugs fixed
 * #4817: wrong URLs on warning messages
 * #4784: latex: :confval:`latex_show_urls` assigns incorrect footnote numbers if
   hyperlinks exists inside substitutions
-* #4837: latex: Class memoir Error Font command ``\sf`` is not supported
+* #4837: latex with class memoir Error: Font command ``\sf`` is not supported
 
 Testing
 --------
