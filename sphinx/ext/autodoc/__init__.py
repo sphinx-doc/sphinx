@@ -32,7 +32,7 @@ from sphinx.util import rpartition, force_decode
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, isclassmethod, isstaticmethod, getdoc
+    isenumattribute, isclassmethod, isstaticmethod, isasync, getdoc
 
 if False:
     # For type annotation
@@ -469,6 +469,8 @@ class Documenter(object):
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
             self.add_line(u'   :module: %s' % self.modname, sourcename)
+        if isasync(self.object):
+            self.add_line(u'   :async:', sourcename)
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]

@@ -197,6 +197,24 @@ def isdescriptor(x):
     return False
 
 
+try:
+    import asyncio
+except ImportError:
+    asyncio = None
+
+
+def isasync(x):
+    """Check if the object is asynchronous."""
+    if asyncio is None:
+        return False
+    try:
+        return asyncio.iscoroutinefunction(x)
+    except AttributeError:
+        # calling iscoroutinefunction() on functools.partial
+        # wrappers may cause AttributeError.
+        return False
+
+
 def safe_getattr(obj, name, *defargs):
     # type: (Any, unicode, unicode) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""
