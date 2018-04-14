@@ -43,7 +43,7 @@ def extract_zip(filename, targetdir):
     """Extract zip file to target directory."""
     ensuredir(targetdir)
 
-    with ZipFile(filename) as archive:  # type: ignore
+    with ZipFile(filename) as archive:
         for name in archive.namelist():
             if name.endswith('/'):
                 continue
@@ -155,7 +155,7 @@ def is_archived_theme(filename):
     # type: (unicode) -> bool
     """Check the specified file is an archived theme file or not."""
     try:
-        with ZipFile(filename) as f:  # type: ignore
+        with ZipFile(filename) as f:
             return THEMECONF in f.namelist()
     except Exception:
         return False
