@@ -17,6 +17,8 @@ Incompatible changes
   a ``conf.py`` file sphinx-build generates.
 * The ``gettext_compact`` attribute is removed from ``document.settings``
   object.  Please use ``config.gettext_compact`` instead.
+* #4827: All ``substitution_definition`` nodes are removed from doctree on
+  reading phase
 
 Deprecated
 ----------

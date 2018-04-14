@@ -25,7 +25,6 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError, ConfigError
 from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
-from sphinx.transforms.references import SubstitutionDefinitionsRemover
 from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
@@ -217,7 +216,6 @@ class LaTeXBuilder(Builder):
         # type: (nodes.document) -> None
         transformer = SphinxTransformer(doctree)
         transformer.set_environment(self.env)
-        transformer.add_transforms([SubstitutionDefinitionsRemover])
         transformer.apply_transforms()
 
     def finish(self):
