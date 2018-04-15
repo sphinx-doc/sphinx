@@ -399,6 +399,15 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             yield (texttype[notsmartquotable], txtnode.astext())
 
 
+class DoctreeReadEvent(SphinxTransform):
+    """Emit :event:`doctree-read` event."""
+    default_priority = 880
+
+    def apply(self):
+        # type: () -> None
+        self.app.emit('doctree-read', self.document)
+
+
 class ManpageLink(SphinxTransform):
     """Find manpage section numbers and names"""
     default_priority = 999

@@ -17,7 +17,8 @@ Incompatible changes
   a ``conf.py`` file sphinx-build generates.
 * The ``gettext_compact`` attribute is removed from ``document.settings``
   object.  Please use ``config.gettext_compact`` instead.
-* The processing order of smart_quotes and sphinx domains are changed.  For more
+* The processing order on reading phase is changed.  smart_quotes, sphinx
+  domains and :event:`doctree-read` event are invoked earlier.  For more
   details, please read a description of :py:meth:`.Sphinx.add_transform()`
 
 Deprecated

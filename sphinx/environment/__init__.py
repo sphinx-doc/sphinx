@@ -570,10 +570,6 @@ class BuildEnvironment(object):
         with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
             doctree = read_doc(self.app, self, self.doc2path(docname))
 
-        # allow extension-specific post-processing
-        if app:
-            app.emit('doctree-read', doctree)
-
         # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;
         # therefore time.time() can be older than filesystem's timestamp.

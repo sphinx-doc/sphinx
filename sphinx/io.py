@@ -24,7 +24,7 @@ from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
-    UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink
+    UnreferencedFootnotesDetector, SphinxSmartQuotes, DoctreeReadEvent, ManpageLink
 )
 from sphinx.transforms import SphinxTransformer
 from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
@@ -95,7 +95,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SphinxDomains,
+                  SphinxDomains, DoctreeReadEvent,
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
