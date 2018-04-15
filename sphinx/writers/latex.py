@@ -508,7 +508,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.language \
            and 'fncychap' not in builder.config.latex_elements:
             # use Sonny style if any language specified
-            self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
+            self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
+                                         '\\ChNameVar{\\Large\\normalfont'
+                                         '\\sffamily}\n\\ChTitleVar{\\Large'
+                                         '\\normalfont\\sffamily}')
 
         self.babel = ExtBabel(builder.config.language)
         if builder.config.language and not self.babel.is_supported_language():

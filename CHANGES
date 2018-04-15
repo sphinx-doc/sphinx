@@ -26,6 +26,7 @@ Bugs fixed
 * #4817: wrong URLs on warning messages
 * #4784: latex: :confval:`latex_show_urls` assigns incorrect footnote numbers if
   hyperlinks exists inside substitutions
+* #4837: latex with class memoir Error: Font command ``\sf`` is not supported
 * #4803: latex: too slow in proportion to number of auto numbered footnotes
 
 Testing
@@ -61,6 +62,7 @@ Bugs fixed
 * #1435: qthelp builder should htmlescape keywords
 * epub: Fix docTitle elements of toc.ncx is not escaped
 * #4520: apidoc: Subpackage not in toc (introduced in 1.6.6) now fixed
+* #4767: html: search highlighting breaks mathjax equations
 
 Release 1.7.1 (released Feb 23, 2018)
 =====================================
