@@ -28,6 +28,7 @@ Bugs fixed
   hyperlinks exists inside substitutions
 * #4837: latex with class memoir Error: Font command ``\sf`` is not supported
 * #4803: latex: too slow in proportion to number of auto numbered footnotes
+* #4838: htmlhelp: The entries in .hhp file is not ordered
 
 Testing
 --------
