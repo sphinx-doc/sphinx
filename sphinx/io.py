@@ -34,6 +34,7 @@ from sphinx.transforms.i18n import (
 from sphinx.transforms.references import SphinxDomains
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
+from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
@@ -95,7 +96,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SphinxDomains, DoctreeReadEvent,
+                  SphinxDomains, DoctreeReadEvent, UIDTransform,
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):

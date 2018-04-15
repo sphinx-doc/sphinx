@@ -24,7 +24,7 @@ from docutils.utils import Reporter, get_source_line
 from six import BytesIO, class_types, next
 from six.moves import cPickle as pickle
 
-from sphinx import addnodes, versioning
+from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -576,10 +576,6 @@ class BuildEnvironment(object):
         # For example, FAT32 has 2sec timestamp resolution.)
         self.all_docs[docname] = max(
             time.time(), path.getmtime(self.doc2path(docname)))
-
-        if self.versioning_condition:
-            # add uids for versioning
-            versioning.prepare(doctree)
 
         # cleanup
         self.temp_data.clear()
