@@ -139,6 +139,8 @@ Incompatible changes
   (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
   options ``body_min_width`` and ``body_max_width``.
+* #4771: apidoc: The ``exclude_patterns`` arguments are ignored if they are
+  placed just after command line options
 
 1.7.0b2
 
