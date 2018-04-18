@@ -248,6 +248,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 outdir += os.sep
             olen = len(outdir)
             for root, dirs, files in os.walk(outdir):
+                dirs.sort()
+                files.sort()
                 staticdir = root.startswith(path.join(outdir, '_static'))
                 for fn in sorted(files):
                     if (staticdir and not fn.endswith('.js')) or \
