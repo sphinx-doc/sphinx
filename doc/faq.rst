@@ -72,7 +72,7 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   <https://pypi.org/project/Sphinx-PyPI-upload/>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
    https://pythonhosted.org/.
 

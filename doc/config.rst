@@ -1147,8 +1147,8 @@ that use Sphinx's HTMLWriter class.
       Sphinx uses a Python implementation by default.  You can use a C
       implementation to accelerate building the index file.
 
-      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (``en``)
-      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
+      * `PorterStemmer <https://pypi.org/project/PorterStemmer/>`_ (``en``)
+      * `PyStemmer <https://pypi.org/project/PyStemmer/>`_ (all languages)
 
    .. versionadded:: 1.1
       With support for ``en`` and ``ja``.
@@ -1180,7 +1180,7 @@ that use Sphinx's HTMLWriter class.
          library ('libmecab.so' for linux, 'libmecab.dll' for windows) is required.
       :'sphinx.search.ja.JanomeSplitter':
          Janome binding. To use this splitter,
-         `Janome <https://pypi.python.org/pypi/Janome>`_ is required.
+         `Janome <https://pypi.org/project/Janome/>`_ is required.
 
       To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are also
       acceptable. However it will be deprecated in Sphinx-1.6.

@@ -288,7 +288,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
             globalcontext_filename = 'globalcontext.phpdump'
             searchindex_filename = 'searchindex.phpdump'
 
-   .. _PHP serialization: https://pypi.python.org/pypi/phpserialize
+   .. _PHP serialization: https://pypi.org/project/phpserialize/
 
    .. attribute:: implementation
 
