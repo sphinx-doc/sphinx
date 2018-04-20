@@ -11,6 +11,7 @@
 
 from docutils import nodes
 
+from sphinx import addnodes
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -18,6 +19,16 @@ if False:
     from typing import Dict, List, Set, Tuple, Union  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
+
+
+class FootnoteDocnameUpdater(SphinxTransform):
+    """Add docname to footnote and footnote_reference nodes."""
+    default_priority = 200
+    TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
+
+    def apply(self):
+        for node in self.document.traverse(lambda n: isinstance(n, self.TARGET_NODES)):
+            node['docname'] = self.env.docname
 
 
 class ShowUrlsTransform(SphinxTransform):
@@ -57,8 +68,9 @@ class ShowUrlsTransform(SphinxTransform):
                     uri = uri[7:]
                 if node.astext() != uri:
                     index = node.parent.index(node)
+                    docname = self.get_docname_for_node(node)
                     if show_urls == 'footnote':
-                        fn, fnref = self.create_footnote(uri)
+                        fn, fnref = self.create_footnote(uri, docname)
                         node.parent.insert(index + 1, fn)
                         node.parent.insert(index + 2, fnref)
 
@@ -67,18 +79,30 @@ class ShowUrlsTransform(SphinxTransform):
                         textnode = nodes.Text(" (%s)" % uri)
                         node.parent.insert(index + 1, textnode)
 
-    def create_footnote(self, uri):
-        # type: (unicode) -> Tuple[nodes.footnote, nodes.footnote_ref]
+    def get_docname_for_node(self, node):
+        # type: (nodes.Node) -> unicode
+        while node:
+            if isinstance(node, nodes.document):
+                return self.env.path2doc(node['source'])
+            elif isinstance(node, addnodes.start_of_file):
+                return node['docname']
+            else:
+                node = node.parent
+
+        return None  # never reached here. only for type hinting
+
+    def create_footnote(self, uri, docname):
+        # type: (unicode, unicode) -> Tuple[nodes.footnote, nodes.footnote_ref]
         label = nodes.label('', '#')
         para = nodes.paragraph()
         para.append(nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True))
-        footnote = nodes.footnote(uri, label, para, auto=1)
+        footnote = nodes.footnote(uri, label, para, auto=1, docname=docname)
         footnote['names'].append('#')
         self.document.note_autofootnote(footnote)
 
         label = nodes.Text('#')
         footnote_ref = nodes.footnote_reference('[#]_', label, auto=1,
-                                                refid=footnote['ids'][0])
+                                                refid=footnote['ids'][0], docname=docname)
         self.document.note_autofootnote_ref(footnote_ref)
         footnote.add_backref(footnote_ref['ids'][0])
 
@@ -90,7 +114,7 @@ class ShowUrlsTransform(SphinxTransform):
         self.document.walkabout(collector)
 
         num = 0
-        for document, footnote in collector.auto_footnotes:
+        for footnote in collector.auto_footnotes:
             # search unused footnote number
             while True:
                 num += 1
@@ -105,8 +129,9 @@ class ShowUrlsTransform(SphinxTransform):
             footnote['names'].append(str(num))
 
             # update footnote_references by new footnote number
-            for ref in collector.footnote_refs.get(document, []):
-                if footnote['ids'][0] == ref['refid']:
+            docname = footnote['docname']
+            for ref in collector.footnote_refs:
+                if docname == ref['docname'] and footnote['ids'][0] == ref['refid']:
                     ref.remove(ref[0])
                     ref += nodes.Text(str(num))
 
@@ -118,8 +143,7 @@ class FootnoteCollector(nodes.NodeVisitor):
         # type: (nodes.document) -> None
         self.auto_footnotes = []            # type: List[nodes.footnote]
         self.used_footnote_numbers = set()  # type: Set[unicode]
-        self.footnote_refs = {}             # type: Dict[nodes.Node, List[nodes.footnote_reference]]  # NOQA
-        self.current_document = []          # type: List[nodes.Node]
+        self.footnote_refs = []             # type: List[nodes.footnote_reference]
         nodes.NodeVisitor.__init__(self, document)
 
     def unknown_visit(self, node):
@@ -130,33 +154,14 @@ class FootnoteCollector(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_document(self, node):
-        # type: (nodes.Node) -> None
-        self.current_document.append(node)
-
-    def depart_document(self, node):
-        # type: (nodes.Node) -> None
-        self.current_document.pop()
-
-    def visit_start_of_file(self, node):
-        # type: (nodes.Node) -> None
-        self.current_document.append(node)
-
-    def depart_start_of_file(self, node):
-        # type: (nodes.Node) -> None
-        self.current_document.pop()
-
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
-        document = self.current_document[-1]
         if node.get('auto'):
-            self.auto_footnotes.append((document, node))
+            self.auto_footnotes.append(node)
         else:
             for name in node['names']:
                 self.used_footnote_numbers.add(name)
 
     def visit_footnote_reference(self, node):
         # type: (nodes.footnote_reference) -> None
-        document = self.current_document[-1]
-        footnote_refs = self.footnote_refs.setdefault(document, [])
-        footnote_refs.append(node)
+        self.footnote_refs.append(node)
