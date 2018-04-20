@@ -12,6 +12,7 @@
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.builders.latex.nodes import footnotemark, footnotetext
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -35,6 +36,8 @@ class ShowUrlsTransform(SphinxTransform):
     """Expand references to inline text or footnotes.
 
     For more information, see :confval:`latex_show_urls`.
+
+    .. note:: This transform is used for integrated doctree
     """
     default_priority = 400
 
@@ -165,3 +168,302 @@ class FootnoteCollector(nodes.NodeVisitor):
     def visit_footnote_reference(self, node):
         # type: (nodes.footnote_reference) -> None
         self.footnote_refs.append(node)
+
+
+class LaTeXFootnoteTransform(SphinxTransform):
+    """Convert footnote definitions and references to appropriate form to LaTeX.
+
+    * Replace footnotes on restricted zone (e.g. headings) by footnotemark node.
+      In addition, append a footnotetext node after the zone.
+
+      Before::
+
+          <section>
+              <title>
+                  headings having footnotes
+                  <footnote_reference>
+                      1
+              <footnote ids="1">
+                  <label>
+                      1
+                  <paragraph>
+                      footnote body
+
+      After::
+
+          <section>
+              <title>
+                  headings having footnotes
+                  <footnotemark>
+                      1
+              <footnotetext>
+                  footnote body
+              <footnotetext>
+                  <label>
+                      1
+                  <paragraph>
+                      footnote body
+
+    * Integrate footnote definitions and footnote references to single footnote node
+
+      Before::
+
+          blah blah blah
+          <footnote_reference refid="id1">
+              1
+          blah blah blah ...
+
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  footnote body
+
+      After::
+
+          blah blah blah
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  footnote body
+          blah blah blah ...
+
+    * Replace second and subsequent footnote references which refers same footnote definition
+      by footnotemark node.
+
+      Before::
+
+          blah blah blah
+          <footnote_reference refid="id1">
+              1
+          blah blah blah
+          <footnote_reference refid="id1">
+              1
+          blah blah blah ...
+
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  footnote body
+
+      After::
+
+          blah blah blah
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  footnote body
+          blah blah blah
+          <footnotemark>
+              1
+          blah blah blah ...
+
+    * Remove unreferenced footnotes
+
+      Before::
+
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  Unreferenced footnote!
+
+      After::
+
+          <!-- nothing! -->
+
+    * Move footnotes in a title of table or thead to head of tbody
+
+      Before::
+
+          <table>
+              <title>
+                  title having footnote_reference
+                  <footnote_reference refid="1">
+                      1
+              <tgroup>
+                  <thead>
+                      <row>
+                          <entry>
+                              header having footnote_reference
+                              <footnote_reference refid="2">
+                                  2
+                  <tbody>
+                      <row>
+                      ...
+
+          <footnote ids="1">
+              <label>
+                  1
+              <paragraph>
+                  footnote body
+
+          <footnote ids="2">
+              <label>
+                  2
+              <paragraph>
+                  footnote body
+
+      After::
+
+          <table>
+              <title>
+                  title having footnote_reference
+                  <footnotemark>
+                      1
+              <tgroup>
+                  <thead>
+                      <row>
+                          <entry>
+                              header having footnote_reference
+                              <footnotemark>
+                                  2
+                  <tbody>
+                      <footnotetext>
+                          <label>
+                              1
+                          <paragraph>
+                              footnote body
+
+                      <footnotetext>
+                          <label>
+                              2
+                          <paragraph>
+                              footnote body
+                      <row>
+                      ...
+    """
+
+    default_priority = 600
+
+    def apply(self):
+        footnotes = list(self.document.traverse(nodes.footnote))
+        for node in footnotes:
+            node.parent.remove(node)
+
+        visitor = LaTeXFootnoteVisitor(self.document, footnotes)
+        self.document.walkabout(visitor)
+
+
+class LaTeXFootnoteVisitor(nodes.NodeVisitor):
+    def __init__(self, document, footnotes):
+        # type: (nodes.document, List[nodes.footnote]) -> None
+        self.appeared = set()       # type: Set[Tuple[unicode, nodes.footnote]]
+        self.footnotes = footnotes  # type: List[nodes.footnote]
+        self.pendings = []          # type: List[nodes.Node]
+        self.table_footnotes = []   # type: List[nodes.Node]
+        self.restricted = None      # type: nodes.Node
+        nodes.NodeVisitor.__init__(self, document)
+
+    def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def unknown_departure(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def restrict(self, node):
+        # type: (nodes.Node) -> None
+        if self.restricted is None:
+            self.restricted = node
+
+    def unrestrict(self, node):
+        # type: (nodes.Node) -> None
+        if self.restricted == node:
+            self.restricted = None
+            pos = node.parent.index(node)
+            for i, footnote, in enumerate(self.pendings):
+                fntext = footnotetext('', *footnote.children)
+                node.parent.insert(pos + i + 1, fntext)
+            self.pendings = []
+
+    def visit_figure(self, node):
+        # type: (nodes.Node) -> None
+        self.restrict(node)
+
+    def depart_figure(self, node):
+        # type: (nodes.Node) -> None
+        self.unrestrict(node)
+
+    def visit_term(self, node):
+        # type: (nodes.Node) -> None
+        self.restrict(node)
+
+    def depart_term(self, node):
+        # type: (nodes.Node) -> None
+        self.unrestrict(node)
+
+    def visit_caption(self, node):
+        # type: (nodes.Node) -> None
+        self.restrict(node)
+
+    def depart_caption(self, node):
+        # type: (nodes.Node) -> None
+        self.unrestrict(node)
+
+    def visit_title(self, node):
+        # type: (nodes.Node) -> None
+        if isinstance(node.parent, (nodes.section, nodes.table)):
+            self.restrict(node)
+
+    def depart_title(self, node):
+        # type: (nodes.Node) -> None
+        if isinstance(node.parent, nodes.section):
+            self.unrestrict(node)
+        elif isinstance(node.parent, nodes.table):
+            self.table_footnotes += self.pendings
+            self.pendings = []
+            self.unrestrict(node)
+
+    def visit_thead(self, node):
+        # type: (nodes.Node) -> None
+        self.restrict(node)
+
+    def depart_thead(self, node):
+        # type: (nodes.Node) -> None
+        self.table_footnotes += self.pendings
+        self.pendings = []
+        self.unrestrict(node)
+
+    def depart_table(self, node):
+        # type: (nodes.Node) -> None
+        tbody = list(node.traverse(nodes.tbody))[0]
+        for footnote in reversed(self.table_footnotes):
+            fntext = footnotetext('', *footnote.children)
+            tbody.insert(0, fntext)
+
+        self.table_footnotes = []
+
+    def visit_footnote_reference(self, node):
+        # type: (nodes.Node) -> None
+        number = node.astext().strip()
+        docname = node['docname']
+        if self.restricted:
+            mark = footnotemark('', number)
+            node.replace_self(mark)
+            if (docname, number) not in self.appeared:
+                footnote = self.get_footnote_by_reference(node)
+                self.pendings.append(footnote)
+        elif (docname, number) in self.appeared:
+            mark = footnotemark('', number)
+            node.replace_self(mark)
+        else:
+            footnote = self.get_footnote_by_reference(node)
+            self.footnotes.remove(footnote)
+            node.replace_self(footnote)
+
+        self.appeared.add((docname, number))
+        raise nodes.SkipNode
+
+    def get_footnote_by_reference(self, node):
+        # type: (nodes.Node) -> nodes.Node
+        docname = node['docname']
+        for footnote in self.footnotes:
+            if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
+                return footnote
+
+        return None

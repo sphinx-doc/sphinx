@@ -19,7 +19,9 @@ from six import text_type
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
-from sphinx.builders.latex.transforms import FootnoteDocnameUpdater, ShowUrlsTransform
+from sphinx.builders.latex.transforms import (
+    FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
+)
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -219,7 +221,8 @@ class LaTeXBuilder(Builder):
         transformer = SphinxTransformer(doctree)
         transformer.set_environment(self.env)
         transformer.add_transforms([SubstitutionDefinitionsRemover,
-                                    ShowUrlsTransform])
+                                    ShowUrlsTransform,
+                                    LaTeXFootnoteTransform])
         transformer.apply_transforms()
 
     def finish(self):
