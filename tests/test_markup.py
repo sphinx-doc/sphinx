@@ -162,12 +162,20 @@ def get_verifier(verify, verify_re):
         '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
-        # interpolation of ampersands in guilabel/menuselection
+        # interpolation of ampersands in menuselection
+        'verify',
+        ':menuselection:`&Foo -&&- &Bar`',
+        (u'<p><span class="menuselection"><span class="accelerator">F</span>oo '
+         '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
+        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+    ),
+    (
+        # interpolation of ampersands in guilabel
         'verify',
         ':guilabel:`&Foo -&&- &Bar`',
         (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
     (
         # non-interpolation of dashes in option role
