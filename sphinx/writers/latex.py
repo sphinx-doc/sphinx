@@ -179,8 +179,6 @@ class LaTeXWriter(writers.Writer):
 
     def translate(self):
         # type: () -> None
-        transform = ShowUrlsTransform(self.document)
-        transform.apply()
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
