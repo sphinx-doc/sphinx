@@ -15,7 +15,7 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import Dict, List, Set, Union # NOQA
+    from typing import Dict, List, Set, Tuple, Union  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -32,16 +32,17 @@ class ShowUrlsTransform(SphinxTransform):
 
     def apply(self):
         # type: () -> None
-        # replace id_prefix temporarily
-        id_prefix = self.document.settings.id_prefix
-        self.document.settings.id_prefix = 'show_urls'
+        try:
+            # replace id_prefix temporarily
+            id_prefix = self.document.settings.id_prefix
+            self.document.settings.id_prefix = 'show_urls'
 
-        self.expand_show_urls()
-        if self.expanded:
-            self.renumber_footnotes()
-
-        # restore id_prefix
-        self.document.settings.id_prefix = id_prefix
+            self.expand_show_urls()
+            if self.expanded:
+                self.renumber_footnotes()
+        finally:
+            # restore id_prefix
+            self.document.settings.id_prefix = id_prefix
 
     def expand_show_urls(self):
         # type: () -> None
@@ -57,9 +58,9 @@ class ShowUrlsTransform(SphinxTransform):
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     if show_urls == 'footnote':
-                        footnote_nodes = self.create_footnote(uri)
-                        for i, fn in enumerate(footnote_nodes):
-                            node.parent.insert(index + i + 1, fn)
+                        fn, fnref = self.create_footnote(uri)
+                        node.parent.insert(index + 1, fn)
+                        node.parent.insert(index + 2, fnref)
 
                         self.expanded = True
                     else:  # all other true values (b/w compat)
@@ -67,7 +68,7 @@ class ShowUrlsTransform(SphinxTransform):
                         node.parent.insert(index + 1, textnode)
 
     def create_footnote(self, uri):
-        # type: (unicode) -> List[Union[nodes.footnote, nodes.footnote_ref]]
+        # type: (unicode) -> Tuple[nodes.footnote, nodes.footnote_ref]
         label = nodes.label('', '#')
         para = nodes.paragraph()
         para.append(nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True))
@@ -81,7 +82,7 @@ class ShowUrlsTransform(SphinxTransform):
         self.document.note_autofootnote_ref(footnote_ref)
         footnote.add_backref(footnote_ref['ids'][0])
 
-        return [footnote, footnote_ref]
+        return footnote, footnote_ref
 
     def renumber_footnotes(self):
         # type: () -> None
@@ -121,6 +122,14 @@ class FootnoteCollector(nodes.NodeVisitor):
         self.current_document = []          # type: List[nodes.Node]
         nodes.NodeVisitor.__init__(self, document)
 
+    def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def unknown_departure(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
     def visit_document(self, node):
         # type: (nodes.Node) -> None
         self.current_document.append(node)
@@ -137,10 +146,6 @@ class FootnoteCollector(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.current_document.pop()
 
-    def unknown_visit(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
         document = self.current_document[-1]
@@ -155,7 +160,3 @@ class FootnoteCollector(nodes.NodeVisitor):
         document = self.current_document[-1]
         footnote_refs = self.footnote_refs.setdefault(document, [])
         footnote_refs.append(node)
-
-    def unknown_departure(self, node):
-        # type: (nodes.Node) -> None
-        pass
