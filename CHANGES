@@ -67,6 +67,7 @@ Bugs fixed
 ----------
 
 * i18n: message catalogs were reset on each initialization
+* #4850: latex: footnote inside footnote was not rendered
 
 Testing
 --------

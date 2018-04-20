@@ -438,6 +438,14 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
 
         self.table_footnotes = []
 
+    def visit_footnote(self, node):
+        # type: (nodes.Node) -> None
+        self.restrict(node)
+
+    def depart_footnote(self, node):
+        # type: (nodes.Node) -> None
+        self.unrestrict(node)
+
     def visit_footnote_reference(self, node):
         # type: (nodes.Node) -> None
         number = node.astext().strip()
@@ -455,6 +463,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             footnote = self.get_footnote_by_reference(node)
             self.footnotes.remove(footnote)
             node.replace_self(footnote)
+            footnote.walkabout(self)
 
         self.appeared.add((docname, number))
         raise nodes.SkipNode

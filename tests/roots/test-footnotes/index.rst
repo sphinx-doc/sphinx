@@ -39,7 +39,8 @@ The section with a reference to [AuthorYear]_
 
 .. [AuthorYear] Author, Title, Year
 .. [1] Second
-.. [#] Third
+.. [#] Third [#]_
+.. [#] Footnote inside footnote
 
 The section with a reference to [#]_
 =====================================
