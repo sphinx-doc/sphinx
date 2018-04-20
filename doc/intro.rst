@@ -29,7 +29,7 @@ This section is intended to collect helpful hints for those wanting to migrate
 to reStructuredText/Sphinx from other documentation systems.
 
 * Gerard Flanagan has written a script to convert pure HTML to reST; it can be
-  found at the `Python Package Index <https://pypi.python.org/pypi/html2rest>`_.
+  found at the `Python Package Index <https://pypi.org/project/html2rest/>`_.
 
 * For converting the old Python docs to Sphinx, a converter was written which
   can be found at `the Python SVN repository
@@ -40,7 +40,7 @@ to reStructuredText/Sphinx from other documentation systems.
   markup; it is at `GitHub <https://github.com/wojdyr/db2rst>`_.
 
 * Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
-  to Sphinx: `odt2sphinx <https://pypi.python.org/pypi/odt2sphinx/>`_.
+  to Sphinx: `odt2sphinx <https://pypi.org/project/odt2sphinx/>`_.
 
 * To convert different markups, `Pandoc <https://pandoc.org/>`_ is
   a very helpful tool.

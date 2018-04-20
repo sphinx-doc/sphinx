@@ -4,7 +4,7 @@ References
 Translation Tips
 -----------------
 
-.. _download Sphinx: https://pypi.python.org/pypi/sphinx
+.. _download Sphinx: https://pypi.org/project/Sphinx/
 .. _Docutils site: http://docutils.sourceforge.net/
 .. _Sphinx site: http://sphinx-doc.org/
 
