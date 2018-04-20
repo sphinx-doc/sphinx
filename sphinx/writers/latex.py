@@ -14,6 +14,7 @@
 
 import re
 import sys
+import warnings
 from collections import defaultdict
 from os import path
 
@@ -25,6 +26,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.builders.latex.nodes import footnotetext
 from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA  # for compatibility
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
@@ -240,8 +242,6 @@ class Table(object):
         self.has_oldproblematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[unicode]
-        self.caption_footnotetexts = []         # type: List[unicode]
-        self.header_footnotetexts = []          # type: List[unicode]
         self.stubs = []                         # type: List[int]
 
         # current position
@@ -254,6 +254,20 @@ class Table(object):
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
+
+    @property
+    def caption_footnotetexts(self):
+        # type: () -> List[unicode]
+        warnings.warn('table.caption_footnotetexts is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
+
+    @property
+    def header_footnotetexts(self):
+        # type: () -> List[unicode]
+        warnings.warn('table.header_footnotetexts is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     def is_longtable(self):
         # type: () -> bool
@@ -631,7 +645,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.hlsettingstack = 2 * [[builder.config.highlight_language,
                                     sys.maxsize]]
         self.bodystack = []             # type: List[List[unicode]]
-        self.footnotestack = []         # type: List[Dict[unicode, List[Union[collected_footnote, bool]]]]  # NOQA
         self.footnote_restricted = False
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
         self.curfilestack = []          # type: List[unicode]
@@ -668,18 +681,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
+        warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
+                      RemovedInSphinx30Warning)
+
         if self.footnote_restricted is False:
             self.footnote_restricted = node
             self.pending_footnotes = []
 
     def unrestrict_footnote(self, node):
         # type: (nodes.Node) -> None
+        warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
+                      RemovedInSphinx30Warning)
+
         if self.footnote_restricted == node:
             self.footnote_restricted = False
             for footnode in self.pending_footnotes:
                 footnode['footnotetext'] = True
                 footnode.walkabout(self)
             self.pending_footnotes = []
+
+    @property
+    def footnotestack(self):
+        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
+        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     def format_docclass(self, docclass):
         # type: (unicode) -> unicode
