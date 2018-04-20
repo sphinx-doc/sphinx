@@ -1,3 +1,81 @@
+Release 1.8.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* #4460: extensions which stores any data to environment should return the
+  version of its env data structure as metadata.  In detail, please see
+  :ref:`ext-metadata`.
+* Sphinx expects source parser modules to have supported file formats as
+  ``Parser.supported`` attribute
+* The default value of :confval:`epub_author` and :confval:`epub_publisher` are
+  changed from ``'unknown'`` to the value of :confval:`author`.  This is same as
+  a ``conf.py`` file sphinx-build generates.
+* The ``gettext_compact`` attribute is removed from ``document.settings``
+  object.  Please use ``config.gettext_compact`` instead.
+
+Deprecated
+----------
+
+* :confval:`source_parsers` is deprecated
+* ``Application.import_object()`` is deprecated
+* Drop function based directive support.  For now, Sphinx only supports class
+  based directives.
+* ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
+  been deprecated
+* ``sphinx.util.docutils.directive_helper()`` is deprecated
+* ``sphinx.cmdline`` is deprecated
+* All ``env.update()``, ``env._read_serial()`` and ``env._read_parallel()`` are
+  deprecated
+* ``sphinx.locale.l_()`` is deprecated
+* #2157: helper function ``warn()`` for HTML themes is deprecated
+* ``env._nitpick_ignore`` is deprecated
+* ``app.override_domain()`` is deprecated
+* ``app.add_stylesheet()`` is deprecated
+
+For more details, see `deprecation APIs list
+<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
+
+Features added
+--------------
+
+* Add :event:`config-inited` event
+* Add ``sphinx.config.Any`` to represent the config value accepts any type of
+  value
+* :confval:`source_suffix` allows a mapping fileext to file types
+* Add :confval:`author` as a configuration value
+* #2852: imgconverter: Support to convert GIF to PNG
+* ``sphinx-build`` command supports i18n console output
+* Add ``app.add_message_catalog()`` and ``sphinx.locale.get_translations()`` to
+  support translation for 3rd party extensions
+* helper function ``warning()`` for HTML themes is added
+* Add ``Domain.enumerable_nodes`` to manage own enumerable nodes for domains
+  (experimental)
+* Add a new keyword argument ``override`` to Application APIs
+* LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
+  XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
+  fontsize in code-blocks (refs: #4793)
+* Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
+  files from configuration
+* #4834: Ensure set object descriptions are reproducible.
+
+Bugs fixed
+----------
+
+* i18n: message catalogs were reset on each initialization
+
+Testing
+--------
+
+Features removed
+----------------
+
+* ``sphinx.ext.pngmath`` extension
+
 Release 1.7.3 (in development)
 ==============================
 
@@ -217,6 +295,8 @@ Features added
 
 * #4271: sphinx-build supports an option called ``-j auto`` to adjust numbers of
   processes automatically.
+* Napoleon: added option to specify custom section tags.
+
 
 Features removed
 ----------------

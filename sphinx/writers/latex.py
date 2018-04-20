@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA  # for compatibility
 from sphinx.errors import SphinxError
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
@@ -60,6 +60,7 @@ DEFAULT_SETTINGS = {
     'maxlistdepth':    '',
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
+    'fvset':           '\\fvset{fontsize=\\small}',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
@@ -131,6 +132,7 @@ ADDITIONAL_SETTINGS = {
         'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
+        'fvset':        '\\fvset{fontsize=auto}',
     },
     'lualatex': {
         'latex_engine': 'lualatex',
@@ -140,6 +142,7 @@ ADDITIONAL_SETTINGS = {
         'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
+        'fvset':        '\\fvset{fontsize=auto}',
     },
     'platex': {
         'latex_engine': 'platex',
@@ -467,13 +470,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.top_sectionlevel = \
                     self.sectionnames.index(builder.config.latex_toplevel_sectioning)
             except ValueError:
-                logger.warning('unknown %r toplevel_sectioning for class %r' %
+                logger.warning(__('unknown %r toplevel_sectioning for class %r') %
                                (builder.config.latex_toplevel_sectioning, docclass))
 
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
 
         if builder.config.numfig:
@@ -517,7 +520,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
-            logger.warning('no Babel option known for language %r',
+            logger.warning(__('no Babel option known for language %r'),
                            builder.config.language)
 
         # simply use babel.get_language() always, as get_language() returns
@@ -573,7 +576,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
             if tocdepth > len(LATEXSECTIONNAMES) - 2:  # default is 5 <-> subparagraph
-                logger.warning('too large :maxdepth:, ignored.')
+                logger.warning(__('too large :maxdepth:, ignored.'))
                 tocdepth = len(LATEXSECTIONNAMES) - 2
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
@@ -661,7 +664,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: () -> None
         for key in self.builder.config.latex_elements:
             if key not in self.elements:
-                msg = _("Unknown configure key: latex_elements[%r] is ignored.")
+                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
                 logger.warning(msg % key)
 
     def restrict_footnote(self, node):
@@ -988,7 +991,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
-                    logger.warning('document title is not a single Text node',
+                    logger.warning(__('document title is not a single Text node'),
                                    location=(self.curfilestack[-1], node.line))
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
@@ -1028,8 +1031,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.pushbody([])
             self.restrict_footnote(node)
         else:
-            logger.warning('encountered title node not in section, topic, table, '
-                           'admonition or sidebar',
+            logger.warning(__('encountered title node not in section, topic, table, '
+                              'admonition or sidebar'),
                            location=(self.curfilestack[-1], node.line or ''))
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
@@ -1638,7 +1641,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:
-            logger.warning('dimension unit %s is invalid. Ignored.', width_str)
+            logger.warning(__('dimension unit %s is invalid. Ignored.'), width_str)
             return None
 
     def is_inline(self, node):
@@ -1682,7 +1685,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
-                # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
+                # https://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
                 (0, 'left'): ('{', '\\hspace*{\\fill}}'),
                 (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }
@@ -1795,9 +1798,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('\n\\begin{sphinxlegend}')
 
     def depart_legend(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('\\end{sphinxlegend}\n')
 
     def visit_admonition(self, node):
@@ -1890,7 +1895,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
             else:
                 domain = self.builder.env.get_domain('std')
-                figtype = domain.get_figtype(next)
+                figtype = domain.get_enumerable_node_type(next)
                 if figtype and domain.get_numfig_title(next):
                     ids = set()
                     # labels for figures go in the figure body, not before
@@ -1952,7 +1957,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     p1, p2 = [self.encode(x) for x in split_into(2, 'seealso', string)]
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
-                    logger.warning('unknown index entry type %s found', type)
+                    logger.warning(__('unknown index entry type %s found'), type)
             except ValueError as err:
                 logger.warning(str(err))
         if not node.get('inline', True):
@@ -2524,9 +2529,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/en/master/ext/math.html',
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
                        location=(self.curfilestack[-1], node.line))
         raise nodes.SkipNode
 

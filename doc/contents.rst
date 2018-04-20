@@ -7,12 +7,12 @@ Sphinx documentation contents
 .. toctree::
    :maxdepth: 2
 
+   usage/installation
+   usage/quickstart
+   usage/restructuredtext/index
+
    intro
-   tutorial
    man/index
-   rest
-   markup/index
-   domains
    builders
    config
    intl
@@ -31,6 +31,7 @@ Sphinx documentation contents
    changes
    examples
    authors
+
 
 
 Indices and tables

@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import argparse
 import codecs
+import locale
 import os
 import pydoc
 import re
@@ -29,10 +30,12 @@ import sys
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
 
+import sphinx.locale
 from sphinx import __display_version__
 from sphinx import package_dir
 from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util.inspect import safe_getattr
 from sphinx.util.osutil import ensuredir
@@ -82,6 +85,7 @@ def _simple_warn(msg):
 
 
 def _underline(title, line='='):
+    # type: (unicode, unicode) -> unicode
     if '\n' in title:
         raise ValueError('Can only underline single lines')
     return title + '\n' + line * len(title)
@@ -98,11 +102,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    info('[autosummary] generating autosummary for: %s' %
+    info(__('[autosummary] generating autosummary for: %s') %
          ', '.join(showed_sources))
 
     if output_dir:
-        info('[autosummary] writing to %s' % output_dir)
+        info(__('[autosummary] writing to %s') % output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -360,8 +364,8 @@ def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] <SOURCE_FILE>...',
-        epilog='For more information, visit <http://sphinx-doc.org/>.',
-        description="""
+        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        description=__("""
 Generate ReStructuredText using autosummary directives.
 
 sphinx-autogen is a frontend to sphinx.ext.autosummary.generate. It generates
@@ -372,35 +376,38 @@ The format of the autosummary directive is documented in the
 ``sphinx.ext.autosummary`` Python module and can be read using::
 
   pydoc sphinx.ext.autosummary
-""")
+"""))
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('source_file', nargs='+',
-                        help='source files to generate rST files for')
+                        help=__('source files to generate rST files for'))
 
     parser.add_argument('-o', '--output-dir', action='store',
                         dest='output_dir',
-                        help='directory to place all output in')
+                        help=__('directory to place all output in'))
     parser.add_argument('-s', '--suffix', action='store', dest='suffix',
                         default='rst',
-                        help='default suffix for files (default: '
-                              '%(default)s)')
+                        help=__('default suffix for files (default: '
+                                '%(default)s)'))
     parser.add_argument('-t', '--templates', action='store', dest='templates',
                         default=None,
-                        help='custom template directory (default: '
-                              '%(default)s)')
+                        help=__('custom template directory (default: '
+                                '%(default)s)'))
     parser.add_argument('-i', '--imported-members', action='store_true',
                         dest='imported_members', default=False,
-                        help='document imported members (default: '
-                              '%(default)s)')
+                        help=__('document imported members (default: '
+                                '%(default)s)'))
 
     return parser
 
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     app = DummyApplication()
     setup_documenters(app)
     args = get_parser().parse_args(argv)

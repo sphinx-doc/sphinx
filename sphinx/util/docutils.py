@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 import re
 import types
+import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
@@ -19,10 +20,11 @@ from distutils.version import LooseVersion
 import docutils
 from docutils import nodes
 from docutils.languages import get_language
-from docutils.parsers.rst import directives, roles, convert_directive_function
+from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -32,13 +34,15 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Generator, Iterator, List, Set, Tuple  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
+additional_nodes = set()  # type: Set[nodes.Node]
 
 
 @contextmanager
@@ -53,6 +57,41 @@ def docutils_namespace():
     finally:
         directives._directives = _directives
         roles._roles = _roles
+
+        for node in list(additional_nodes):
+            unregister_node(node)
+            additional_nodes.discard(node)
+
+
+def is_node_registered(node):
+    # type: (nodes.Node) -> bool
+    """Check the *node* is already registered."""
+    return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
+
+
+def register_node(node):
+    # type: (nodes.Node) -> None
+    """Register a node to docutils.
+
+    This modifies global state of some visitors.  So it is better to use this
+    inside ``docutils_namespace()`` to prevent side-effects.
+    """
+    if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        nodes._add_node_class_names([node.__name__])
+        additional_nodes.add(node)
+
+
+def unregister_node(node):
+    # type: (nodes.Node) -> None
+    """Unregister a node from docutils.
+
+    This is inverse of ``nodes._add_nodes_class_names()``.
+    """
+    if hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        delattr(nodes.GenericNodeVisitor, "visit_" + node.__name__)
+        delattr(nodes.GenericNodeVisitor, "depart_" + node.__name__)
+        delattr(nodes.SparseNodeVisitor, 'visit_' + node.__name__)
+        delattr(nodes.SparseNodeVisitor, 'depart_' + node.__name__)
 
 
 def patched_get_language(language_code, reporter=None):
@@ -200,6 +239,10 @@ def is_html5_writer_available():
 
 def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
     # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+    warnings.warn('function based directive support is now deprecated. '
+                  'Use class based directive instead.',
+                  RemovedInSphinx30Warning)
+
     if isinstance(obj, (types.FunctionType, types.MethodType)):
         obj.content = has_content                       # type: ignore
         obj.arguments = argument_spec or (0, 0, False)  # type: ignore
@@ -229,6 +272,26 @@ def switch_source_input(state, content):
     finally:
         # restore the method
         state.memo.reporter.get_source_and_line = get_source_and_line
+
+
+class SphinxDirective(Directive):
+    """A base class for Directives.
+
+    Compared with ``docutils.parsers.rst.Directive``, this class improves
+    accessibility to Sphinx APIs.
+    """
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
+        return self.state.document.settings.env
+
+    @property
+    def config(self):
+        # type: () -> Config
+        """Reference to the :class:`.Config` object."""
+        return self.env.config
 
 
 # cache a vanilla instance of nodes.document

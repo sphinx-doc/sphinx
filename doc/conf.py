@@ -39,7 +39,7 @@ epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.xhtml', 'Welcome')]
-epub_post_files = [('install.xhtml', 'Installing Sphinx'),
+epub_post_files = [('usage/installation.xhtml', 'Installing Sphinx'),
                    ('develop.xhtml', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
                       '_static/jquery.js', '_static/searchtools.js',
@@ -62,7 +62,8 @@ latex_elements = {
 \usepackage{courier}
 ''',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
-    'preamble': '\\fvset{fontsize=auto}',
+    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
+    'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}

@@ -20,6 +20,7 @@ from os import path, environ
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
 from sphinx.errors import SphinxError
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
@@ -60,11 +61,11 @@ access_page_template = '''\
 
 
 class AppleHelpIndexerFailed(SphinxError):
-    category = 'Help indexer failed'
+    category = __('Help indexer failed')
 
 
 class AppleHelpCodeSigningFailed(SphinxError):
-    category = 'Code signing failed'
+    category = __('Code signing failed')
 
 
 class AppleHelpBuilder(StandaloneHTMLBuilder):
@@ -73,10 +74,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     on the ``hiutil`` command line tool.
     """
     name = 'applehelp'
-    epilog = ('The help book is in %(outdir)s.\n'
-              'Note that won\'t be able to view it unless you put it in '
-              '~/Library/Documentation/Help or install it in your application '
-              'bundle.')
+    epilog = __('The help book is in %(outdir)s.\n'
+                'Note that won\'t be able to view it unless you put it in '
+                '~/Library/Documentation/Help or install it in your application '
+                'bundle.')
 
     # don't copy the reST source
     copysource = False
@@ -100,8 +101,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.html'
 
         if self.config.applehelp_bundle_id is None:
-            raise SphinxError('You must set applehelp_bundle_id before '
-                              'building Apple Help output')
+            raise SphinxError(__('You must set applehelp_bundle_id before '
+                                 'building Apple Help output'))
 
         self.bundle_path = path.join(self.outdir,
                                      self.config.applehelp_bundle_name +
@@ -124,13 +125,13 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         target_dir = self.outdir
 
         if path.isdir(source_dir):
-            logger.info(bold('copying localized files... '), nonl=True)
+            logger.info(bold(__('copying localized files... ')), nonl=True)
 
             excluded = Matcher(self.config.exclude_patterns + ['**/.*'])
             copy_asset(source_dir, target_dir, excluded,
                        context=self.globalcontext, renderer=self.templates)
 
-            logger.info('done')
+            logger.info(__('done'))
 
     def build_helpbook(self):
         # type: () -> None
@@ -171,36 +172,36 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         if self.config.applehelp_remote_url is not None:
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
-        logger.info(bold('writing Info.plist... '), nonl=True)
+        logger.info(bold(__('writing Info.plist... ')), nonl=True)
         with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
             write_plist(info_plist, f)
-        logger.info('done')
+        logger.info(__('done'))
 
         # Copy the icon, if one is supplied
         if self.config.applehelp_icon:
-            logger.info(bold('copying icon... '), nonl=True)
+            logger.info(bold(__('copying icon... ')), nonl=True)
 
             try:
                 copyfile(path.join(self.srcdir, self.config.applehelp_icon),
                          path.join(resources_dir, info_plist['HPDBookIconPath']))
 
-                logger.info('done')
+                logger.info(__('done'))
             except Exception as err:
-                logger.warning('cannot copy icon file %r: %s',
+                logger.warning(__('cannot copy icon file %r: %s'),
                                path.join(self.srcdir, self.config.applehelp_icon), err)
                 del info_plist['HPDBookIconPath']
 
         # Build the access page
-        logger.info(bold('building access page...'), nonl=True)
+        logger.info(bold(__('building access page...')), nonl=True)
         with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:  # type: ignore
             f.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)
             })
-        logger.info('done')
+        logger.info(__('done'))
 
         # Generate the help index
-        logger.info(bold('generating help index... '), nonl=True)
+        logger.info(bold(__('generating help index... ')), nonl=True)
 
         args = [
             self.config.applehelp_indexer_path,
@@ -222,9 +223,9 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             args += ['-l', self.config.applehelp_locale]
 
         if self.config.applehelp_disable_external_tools:
-            logger.info('skipping')
+            logger.info(__('skipping'))
 
-            logger.warning('you will need to index this help book with:\n  %s',
+            logger.warning(__('you will need to index this help book with:\n  %s'),
                            ' '.join([pipes.quote(arg) for arg in args]))
         else:
             try:
@@ -237,13 +238,13 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                 if p.returncode != 0:
                     raise AppleHelpIndexerFailed(output)
                 else:
-                    logger.info('done')
+                    logger.info(__('done'))
             except OSError:
-                raise AppleHelpIndexerFailed('Command not found: %s' % args[0])
+                raise AppleHelpIndexerFailed(__('Command not found: %s') % args[0])
 
         # If we've been asked to, sign the bundle
         if self.config.applehelp_codesign_identity:
-            logger.info(bold('signing help book... '), nonl=True)
+            logger.info(bold(__('signing help book... ')), nonl=True)
 
             args = [
                 self.config.applehelp_codesign_path,
@@ -256,8 +257,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             args.append(self.bundle_path)
 
             if self.config.applehelp_disable_external_tools:
-                logger.info('skipping')
-                logger.warning('you will need to sign this help book with:\n  %s',
+                logger.info(__('skipping'))
+                logger.warning(__('you will need to sign this help book with:\n  %s'),
                                ' '.join([pipes.quote(arg) for arg in args]))
             else:
                 try:
@@ -270,9 +271,9 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                     if p.returncode != 0:
                         raise AppleHelpCodeSigningFailed(output)
                     else:
-                        logger.info('done')
+                        logger.info(__('done'))
                 except OSError:
-                    raise AppleHelpCodeSigningFailed('Command not found: %s' % args[0])
+                    raise AppleHelpCodeSigningFailed(__('Command not found: %s') % args[0])
 
 
 def setup(app):

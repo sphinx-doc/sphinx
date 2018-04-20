@@ -20,7 +20,7 @@ from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import NoUri
-from sphinx.locale import l_, _
+from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
           It is not the actual old code, but a replication of the behaviour.
     - v2: 1.3 <= version < now
           Standardised mangling scheme from
-          http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
+          https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
@@ -615,6 +615,7 @@ class ASTBase(UnicodeMixin):
         raise NotImplementedError(repr(self))
 
     def __repr__(self):
+        # type: () -> str
         return '<%s %s>' % (self.__class__.__name__, self)
 
 
@@ -3655,8 +3656,8 @@ class Symbol(object):
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
                     name = text_type(ourChild.declaration)
-                    msg = "Duplicate declaration, also defined in '%s'.\n"
-                    msg += "Declaration is '%s'."
+                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                             "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
                     logger.warning(msg, location=otherChild.docname)
                 else:
@@ -5562,16 +5563,16 @@ class CPPObject(ObjectDescription):
     """Description of a C++ language object."""
 
     doc_field_types = [
-        GroupedField('parameter', label=l_('Parameters'),
+        GroupedField('parameter', label=_('Parameters'),
                      names=('param', 'parameter', 'arg', 'argument'),
                      can_collapse=True),
-        GroupedField('template parameter', label=l_('Template Parameters'),
+        GroupedField('template parameter', label=_('Template Parameters'),
                      names=('tparam', 'template parameter'),
                      can_collapse=True),
-        GroupedField('exceptions', label=l_('Throws'), rolename='cpp:class',
+        GroupedField('exceptions', label=_('Throws'), rolename='cpp:class',
                      names=('throws', 'throw', 'exception'),
                      can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
+        Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
 
@@ -5984,13 +5985,13 @@ class CPPDomain(Domain):
     name = 'cpp'
     label = 'C++'
     object_types = {
-        'class':      ObjType(l_('class'),      'class',             'type', 'identifier'),
-        'function':   ObjType(l_('function'),   'function',  'func', 'type', 'identifier'),
-        'member':     ObjType(l_('member'),     'member',    'var'),
-        'type':       ObjType(l_('type'),                            'type', 'identifier'),
-        'concept':    ObjType(l_('concept'),    'concept',                   'identifier'),
-        'enum':       ObjType(l_('enum'),       'enum',              'type', 'identifier'),
-        'enumerator': ObjType(l_('enumerator'), 'enumerator')
+        'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
+        'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
+        'member':     ObjType(_('member'),     'member',    'var'),
+        'type':       ObjType(_('type'),                            'type', 'identifier'),
+        'concept':    ObjType(_('concept'),    'concept',                   'identifier'),
+        'enum':       ObjType(_('enum'),       'enum',              'type', 'identifier'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator')
     }
 
     directives = {
@@ -6052,8 +6053,8 @@ class CPPDomain(Domain):
         for name, docname in otherdata['names'].items():
             if docname in docnames:
                 if name in ourNames:
-                    msg = "Duplicate declaration, also defined in '%s'.\n"
-                    msg += "Name of declaration is '%s'."
+                    msg = __("Duplicate declaration, also defined in '%s'.\n"
+                             "Name of declaration is '%s'.")
                     msg = msg % (ourNames[name], name)
                     logger.warning(msg, docname)
                 else:
@@ -6223,6 +6224,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

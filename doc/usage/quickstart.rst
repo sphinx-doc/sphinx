@@ -1,39 +1,33 @@
-.. highlight:: rst
+===============
+Getting Started
+===============
 
-First Steps with Sphinx
-=======================
-
-This document is meant to give a tutorial-like overview of all common tasks
-while using Sphinx.
-
-The green arrows designate "more info" links leading to advanced sections about
-the described task.
-
-
-Install Sphinx
---------------
-
-Install Sphinx, either from a distribution package or from
-`PyPI <https://pypi.python.org/pypi/Sphinx>`_ with ::
-
-   $ pip install Sphinx
+Once Sphinx is :doc:`installed </usage/installation>`, you can proceed with
+setting up your first Sphinx project. To ease the process of getting started,
+Sphinx provides a tool, :program:`sphinx-quickstart`, which will generate a
+documentation source directory and populate it with some defaults. We're going
+to use the :program:`sphinx-quickstart` tool here, though it's use by no means
+necessary.
 
 
 Setting up the documentation sources
 ------------------------------------
 
-The root directory of a Sphinx collection of reStructuredText document sources
-is called the :term:`source directory`.  This directory also contains the Sphinx
-configuration file :file:`conf.py`, where you can configure all aspects of how
-Sphinx reads your sources and builds your documentation.  [#]_
+The root directory of a Sphinx collection of :term:`reStructuredText` document
+sources is called the :term:`source directory`.  This directory also contains
+the Sphinx configuration file :file:`conf.py`, where you can configure all
+aspects of how Sphinx reads your sources and builds your documentation.  [#]_
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
 source directory and creates a default :file:`conf.py` with the most useful
-configuration values from a few questions it asks you.  Just run ::
+configuration values from a few questions it asks you. To use this, run:
+
+.. code-block:: shell
 
    $ sphinx-quickstart
 
-and answer its questions.  (Be sure to say yes to the "autodoc" extension.)
+Answer each question asked. Be sure to say yes to the ``autodoc`` extension, as
+we will use this later.
 
 There is also an automatic "API documentation" generator called
 :program:`sphinx-apidoc`; see :doc:`/man/sphinx-apidoc` for details.
@@ -45,15 +39,15 @@ Defining document structure
 Let's assume you've run :program:`sphinx-quickstart`.  It created a source
 directory with :file:`conf.py` and a master document, :file:`index.rst` (if you
 accepted the defaults).  The main function of the :term:`master document` is to
-serve as a welcome page, and to contain the root of the "table of contents tree"
-(or *toctree*).  This is one of the main things that Sphinx adds to
+serve as a welcome page, and to contain the root of the "table of contents
+tree" (or *toctree*).  This is one of the main things that Sphinx adds to
 reStructuredText, a way to connect multiple files to a single hierarchy of
 documents.
 
 .. sidebar:: reStructuredText directives
 
-   ``toctree`` is a reStructuredText :dfn:`directive`, a very versatile piece of
-   markup.  Directives can have arguments, options and content.
+   ``toctree`` is a reStructuredText :dfn:`directive`, a very versatile piece
+   of markup.  Directives can have arguments, options and content.
 
    *Arguments* are given directly after the double colon following the
    directive's name.  Each directive decides whether it can have arguments, and
@@ -68,56 +62,63 @@ documents.
    A common gotcha with directives is that **the first line of the content must
    be indented to the same level as the options are**.
 
+The ``toctree`` directive initially is empty, and looks like so:
 
-The toctree directive initially is empty, and looks like this::
-
-   .. toctree::
-      :maxdepth: 2
-
-You add documents listing them in the *content* of the directive::
+.. code-block:: rest
 
    .. toctree::
       :maxdepth: 2
 
-      intro
-      tutorial
+You add documents listing them in the *content* of the directive:
+
+.. code-block:: rest
+
+   .. toctree::
+      :maxdepth: 2
+
+      usage/installation
+      usage/quickstart
       ...
 
-This is exactly how the toctree for this documentation looks.  The documents to
-include are given as :term:`document name`\ s, which in short means that you
-leave off the file name extension and use slashes as directory separators.
+This is exactly how the ``toctree`` for this documentation looks.  The
+documents to include are given as :term:`document name`\ s, which in short
+means that you leave off the file name extension and use forward slashes
+(``/``) as directory separators.
 
 |more| Read more about :ref:`the toctree directive <toctree-directive>`.
 
-You can now create the files you listed in the toctree and add content, and
-their section titles will be inserted (up to the "maxdepth" level) at the place
-where the toctree directive is placed.  Also, Sphinx now knows about the order
-and hierarchy of your documents.  (They may contain ``toctree`` directives
-themselves, which means you can create deeply nested hierarchies if necessary.)
+You can now create the files you listed in the ``toctree`` and add content, and
+their section titles will be inserted (up to the ``maxdepth`` level) at the
+place where the ``toctree`` directive is placed.  Also, Sphinx now knows about
+the order and hierarchy of your documents.  (They may contain ``toctree``
+directives themselves, which means you can create deeply nested hierarchies if
+necessary.)
 
 
 Adding content
 --------------
 
-In Sphinx source files, you can use most features of standard reStructuredText.
-There are also several features added by Sphinx.  For example, you can add
-cross-file references in a portable way (which works for all output types) using
-the :rst:role:`ref` role.
+In Sphinx source files, you can use most features of standard
+:term:`reStructuredText`.  There are also several features added by Sphinx.
+For example, you can add cross-file references in a portable way (which works
+for all output types) using the :rst:role:`ref` role.
 
 For an example, if you are viewing the HTML version you can look at the source
 for this document -- use the "Show Source" link in the sidebar.
 
-|more| See :ref:`rst-primer` for a more in-depth introduction to
-reStructuredText and :ref:`sphinxmarkup` for a full list of markup added by
-Sphinx.
+.. todo:: Update the below link when we add new guides on these.
+
+|more| See :doc:`/usage/restructuredtext/index` for a more in-depth
+introduction to reStructuredText, including markup added by Sphinx.
 
 
 Running the build
 -----------------
 
 Now that you have added some files and content, let's make a first build of the
-docs.  A build is started with the :program:`sphinx-build` program, called like
-this::
+docs.  A build is started with the :program:`sphinx-build` program:
+
+.. code-block:: shell
 
    $ sphinx-build -b html sourcedir builddir
 
@@ -130,13 +131,15 @@ Sphinx will build HTML files.
 options that :program:`sphinx-build` supports.
 
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
-:file:`make.bat` which make life even easier for you:  with them you only need
-to run ::
+:file:`make.bat` which make life even easier for you. These can be executed by
+running :command:`make` with the name of the builder. For example.
+
+.. code-block:: shell
 
    $ make html
 
-to build HTML docs in the build directory you chose.  Execute ``make`` without
-an argument to see which targets are available.
+This will build HTML docs in the build directory you chose. Execute
+:command:`make` without an argument to see which targets are available.
 
 .. admonition:: How do I generate PDF documents?
 
@@ -144,6 +147,8 @@ an argument to see which targets are available.
    <sphinx.builders.latex.LaTeXBuilder>` and readily invokes the pdfTeX
    toolchain for you.
 
+
+.. todo:: Move this whole section into a guide on rST or directives
 
 Documenting objects
 -------------------
@@ -155,7 +160,9 @@ descriptions of these objects.
 
 The most prominent domain is the Python domain. For example, to document
 Python's built-in function ``enumerate()``, you would add this to one of your
-source files::
+source files.
+
+.. code-block:: restructuredtext
 
    .. py:function:: enumerate(sequence[, start=0])
 
@@ -174,7 +181,9 @@ describe, the content is the documentation for it.  Multiple signatures can be
 given, each in its own line.
 
 The Python domain also happens to be the default domain, so you don't need to
-prefix the markup with the domain name::
+prefix the markup with the domain name.
+
+.. code-block:: restructuredtext
 
    .. function:: enumerate(sequence[, start=0])
 
@@ -182,50 +191,55 @@ prefix the markup with the domain name::
 
 does the same job if you keep the default setting for the default domain.
 
-There are several more directives for documenting other types of Python objects,
-for example :rst:dir:`py:class` or :rst:dir:`py:method`.  There is also a
-cross-referencing :dfn:`role` for each of these object types.  This markup will
-create a link to the documentation of ``enumerate()``::
+There are several more directives for documenting other types of Python
+objects, for example :rst:dir:`py:class` or :rst:dir:`py:method`.  There is
+also a cross-referencing :dfn:`role` for each of these object types.  This
+markup will create a link to the documentation of ``enumerate()``.
+
+::
 
    The :py:func:`enumerate` function can be used for ...
 
 And here is the proof: A link to :func:`enumerate`.
 
 Again, the ``py:`` can be left out if the Python domain is the default one.  It
-doesn't matter which file contains the actual documentation for ``enumerate()``;
-Sphinx will find it and create a link to it.
+doesn't matter which file contains the actual documentation for
+``enumerate()``; Sphinx will find it and create a link to it.
 
 Each domain will have special rules for how the signatures can look like, and
 make the formatted output look pretty, or add specific features like links to
 parameter types, e.g. in the C/C++ domains.
 
-|more| See :ref:`domains` for all the available domains and their
-directives/roles.
+|more| See :doc:`/usage/restructuredtext/domains` for all the available domains
+and their directives/roles.
 
 
 Basic configuration
 -------------------
 
-Earlier we mentioned that the :file:`conf.py` file controls how Sphinx processes
-your documents.  In that file, which is executed as a Python source file, you
-assign configuration values.  For advanced users: since it is executed by
-Sphinx, you can do non-trivial tasks in it, like extending :data:`sys.path` or
-importing a module to find out the version you are documenting.
+Earlier we mentioned that the :file:`conf.py` file controls how Sphinx
+processes your documents.  In that file, which is executed as a Python source
+file, you assign configuration values.  For advanced users: since it is
+executed by Sphinx, you can do non-trivial tasks in it, like extending
+:data:`sys.path` or importing a module to find out the version you are
+documenting.
 
 The config values that you probably want to change are already put into the
 :file:`conf.py` by :program:`sphinx-quickstart` and initially commented out
-(with standard Python syntax: a ``#`` comments the rest of the line).  To change
-the default value, remove the hash sign and modify the value.  To customize a
-config value that is not automatically added by :program:`sphinx-quickstart`,
-just add an additional assignment.
+(with standard Python syntax: a ``#`` comments the rest of the line).  To
+change the default value, remove the hash sign and modify the value.  To
+customize a config value that is not automatically added by
+:program:`sphinx-quickstart`, just add an additional assignment.
 
-Keep in mind that the file uses Python syntax for strings, numbers, lists and so
-on.  The file is saved in UTF-8 by default, as indicated by the encoding
+Keep in mind that the file uses Python syntax for strings, numbers, lists and
+so on.  The file is saved in UTF-8 by default, as indicated by the encoding
 declaration in the first line.  If you use non-ASCII characters in any string
 value, you need to use Python Unicode strings (like ``project = u'Exposé'``).
 
 |more| See :ref:`build-config` for documentation of all available config values.
 
+
+.. todo:: Move this entire doc to a different section
 
 Autodoc
 -------
@@ -233,15 +247,15 @@ Autodoc
 When documenting Python code, it is common to put a lot of documentation in the
 source files, in documentation strings.  Sphinx supports the inclusion of
 docstrings from your modules with an :dfn:`extension` (an extension is a Python
-module that provides additional features for Sphinx projects) called "autodoc".
+module that provides additional features for Sphinx projects) called *autodoc*.
 
-In order to use autodoc, you need to activate it in :file:`conf.py` by putting
-the string ``'sphinx.ext.autodoc'`` into the list assigned to the
+In order to use *autodoc*, you need to activate it in :file:`conf.py` by
+putting the string ``'sphinx.ext.autodoc'`` into the list assigned to the
 :confval:`extensions` config value.  Then, you have a few additional directives
 at your disposal.
 
-For example, to document the function ``io.open()``, reading its
-signature and docstring from the source file, you'd write this::
+For example, to document the function ``io.open()``, reading its signature and
+docstring from the source file, you'd write this::
 
    .. autofunction:: io.open
 
@@ -251,7 +265,7 @@ options for the auto directives, like ::
    .. automodule:: io
       :members:
 
-autodoc needs to import your modules in order to extract the docstrings.
+*autodoc* needs to import your modules in order to extract the docstrings.
 Therefore, you must add the appropriate path to :py:data:`sys.path` in your
 :file:`conf.py`.
 
@@ -261,17 +275,20 @@ Therefore, you must add the appropriate path to :py:data:`sys.path` in your
    modules have side effects on import, these will be executed by ``autodoc``
    when ``sphinx-build`` is run.
 
-   If you document scripts (as opposed to library modules), make sure their main
-   routine is protected by a ``if __name__ == '__main__'`` condition.
+   If you document scripts (as opposed to library modules), make sure their
+   main routine is protected by a ``if __name__ == '__main__'`` condition.
 
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
 
+
+.. todo:: Move this doc to another section
+
 Intersphinx
 -----------
 
-Many Sphinx documents including the `Python documentation`_ are published on the
-internet.  When you want to make links to such documents from your
+Many Sphinx documents including the `Python documentation`_ are published on
+the internet.  When you want to make links to such documents from your
 documentation, you can do it with :mod:`sphinx.ext.intersphinx`.
 
 .. _Python documentation: https://docs.python.org/3
@@ -290,7 +307,7 @@ cross-reference that has no matching target in the current documentation set,
 will be looked up in the documentation sets configured in
 :confval:`intersphinx_mapping` (this needs access to the URL in order to
 download the list of valid targets).  Intersphinx also works for some other
-:ref:`domains' <domains>` roles including ``:ref:``, however it doesn't work for
+:term:`domain`\'s roles including ``:ref:``, however it doesn't work for
 ``:doc:`` as that is non-domain role.
 
 |more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
@@ -300,15 +317,15 @@ features of intersphinx.
 More topics to be covered
 -------------------------
 
-- :doc:`Other extensions <extensions>`:
+- :doc:`Other extensions </extensions>`:
 
-  * :doc:`ext/math`,
-  * :doc:`ext/viewcode`,
-  * :doc:`ext/doctest`,
+  * :doc:`/ext/math`,
+  * :doc:`/ext/viewcode`,
+  * :doc:`/ext/doctest`,
   * ...
 - Static files
-- :doc:`Selecting a theme <theming>`
-- :doc:`setuptools`
+- :doc:`Selecting a theme </theming>`
+- :doc:`/setuptools`
 - :ref:`Templating <templating>`
 - Using extensions
 - :ref:`Writing extensions <dev-extensions>`
@@ -320,6 +337,6 @@ More topics to be covered
        another directory, the :term:`configuration directory`.  Refer to the
        :program:`sphinx-build man page <sphinx-build>` for more information.
 
-.. |more| image:: more.png
+.. |more| image:: /_static/more.png
           :align: middle
           :alt: more info

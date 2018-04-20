@@ -41,7 +41,7 @@ from six.moves.urllib.parse import urlsplit, urlunsplit
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
@@ -64,31 +64,33 @@ class InventoryAdapter(object):
     """Inventory adapter for environment"""
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            self.env.intersphinx_cache = {}
-            self.env.intersphinx_inventory = {}
-            self.env.intersphinx_named_inventory = {}
+            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore
+            self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
     def cache(self):
         # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
-        return self.env.intersphinx_cache
+        return self.env.intersphinx_cache  # type: ignore
 
     @property
     def main_inventory(self):
         # type: () -> Inventory
-        return self.env.intersphinx_inventory
+        return self.env.intersphinx_inventory  # type: ignore
 
     @property
     def named_inventory(self):
         # type: () -> Dict[unicode, Inventory]
-        return self.env.intersphinx_named_inventory
+        return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self):
-        self.env.intersphinx_inventory.clear()
-        self.env.intersphinx_named_inventory.clear()
+        # type: () -> None
+        self.env.intersphinx_inventory.clear()  # type: ignore
+        self.env.intersphinx_named_inventory.clear()  # type: ignore
 
 
 def _strip_basic_auth(url):
@@ -221,7 +223,7 @@ def load_mappings(app):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
-                logger.warning('intersphinx identifier %r is not string. Ignored', name)
+                logger.warning(__('intersphinx identifier %r is not string. Ignored'), name)
                 continue
         else:
             # old format, no name
@@ -263,8 +265,8 @@ def load_mappings(app):
             for fail in failures:
                 logger.info(*fail)
         else:
-            logger.warning("failed to reach any of the inventories "
-                           "with the following issues:")
+            logger.warning(__("failed to reach any of the inventories "
+                              "with the following issues:"))
             for fail in failures:
                 logger.warning(*fail)
 
@@ -371,7 +373,11 @@ def setup(app):
     app.add_config_value('intersphinx_timeout', None, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }
 
 
 def debug(argv):
@@ -401,6 +407,7 @@ def inspect_main(argv):
         config = MockConfig()
 
         def warn(self, msg):
+            # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
     filename = argv[0]

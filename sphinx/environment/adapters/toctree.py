@@ -13,6 +13,7 @@ from docutils import nodes
 from six import iteritems
 
 from sphinx import addnodes
+from sphinx.locale import __
 from sphinx.util import url_re, logging
 from sphinx.util.nodes import clean_astext, process_only_nodes
 
@@ -147,8 +148,8 @@ class TocTree(object):
                         toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
-                            logger.warning('circular toctree references '
-                                           'detected, ignoring: %s <- %s',
+                            logger.warning(__('circular toctree references '
+                                              'detected, ignoring: %s <- %s'),
                                            ref, ' <- '.join(parents),
                                            location=ref)
                             continue
@@ -166,12 +167,12 @@ class TocTree(object):
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
-                        logger.warning('toctree contains reference to document %r that '
-                                       'doesn\'t have a title: no link will be generated',
+                        logger.warning(__('toctree contains reference to document %r that '
+                                          'doesn\'t have a title: no link will be generated'),
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    logger.warning('toctree contains reference to nonexisting document %r',
+                    logger.warning(__('toctree contains reference to nonexisting document %r'),
                                    ref, location=toctreenode)
                 else:
                     # if titles_only is given, only keep the main title and

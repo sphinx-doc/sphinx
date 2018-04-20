@@ -13,6 +13,11 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+
+
 spanish_stopwords = parse_stop_word(u'''
 |source: http://snowball.tartarus.org/algorithms/spanish/stop.txt
 de             |  from, of
@@ -368,7 +373,9 @@ class SearchSpanish(SearchLanguage):
     stopwords = spanish_stopwords
 
     def init(self, options):
+        # type: (Any) -> None
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word):
+        # type: (unicode) -> unicode
         return self.stemmer.stemWord(word)

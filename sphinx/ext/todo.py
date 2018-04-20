@@ -19,7 +19,7 @@ from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 import sphinx
 from sphinx.environment import NoUri
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.texescape import tex_escape_map
@@ -103,7 +103,7 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            logger.warning("TODO entry found: %s", node[1].astext(),
+            logger.warning(__("TODO entry found: %s"), node[1].astext(),
                            location=node)
 
 
@@ -258,4 +258,8 @@ def setup(app):
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
     app.connect('env-merge-info', merge_info)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }

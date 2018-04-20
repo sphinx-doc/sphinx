@@ -59,9 +59,6 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
-.. seealso:: Additional configurations, such as adding stylesheets,
-   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
-
 
 General configuration
 ---------------------
@@ -90,11 +87,31 @@ General configuration
 
 .. confval:: source_suffix
 
-   The file name extension, or list of extensions, of source files.  Only files
-   with this suffix will be read as sources.  Default is ``'.rst'``.
+   The file extensions of source files.  Sphinx considers the files with this
+   suffix as sources.  This value can be a dictionary mapping file extensions
+   to file types.  For example::
+
+      source_suffix = {
+          '.rst': 'restructuredtext',
+          '.txt': 'restructuredtext',
+          '.md': 'markdown',
+      }
+
+   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   add a new file type using source parser extensions.  Please read a document
+   of the extension to know what file type the extension supports.
+
+   This also allows a list of file extensions.  In that case, Sphinx conciders
+   that all they are ``'restructuredtext'``.  Default is
+   ``{'.rst': 'restructuredtext'}``.
+
+   .. note:: file extensions have to start with dot (like ``.rst``).
 
    .. versionchanged:: 1.3
       Can now be a list of extensions.
+
+   .. versionchanged:: 1.8
+      Support file type mapping
 
 .. confval:: source_encoding
 
@@ -122,6 +139,10 @@ General configuration
       Read more about how to use Markdown with Sphinx at :ref:`markdown`.
 
    .. versionadded:: 1.3
+
+   .. deprecated:: 1.8
+      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      a source parser.  Please use it instead.
 
 .. confval:: master_doc
 
@@ -171,8 +192,9 @@ General configuration
    .. index:: pair: global; substitutions
 
    A string of reStructuredText that will be included at the end of every source
-   file that is read.  This is the right place to add substitutions that should
-   be available in every file.  An example::
+   file that is read.  This is a possible place to add substitutions that should
+   be available in every file (another being :confval:`rst_prolog`).  An
+   example::
 
       rst_epilog = """
       .. |psf| replace:: Python Software Foundation
@@ -182,8 +204,16 @@ General configuration
 
 .. confval:: rst_prolog
 
+   .. index:: pair: global; substitutions
+
    A string of reStructuredText that will be included at the beginning of every
-   source file that is read.
+   source file that is read.  This is a possible place to add substitutions that
+   should be available in every file (another being :confval:`rst_epilog`).  An
+   example::
+
+      rst_prolog = """
+      .. |psf| replace:: Python Software Foundation
+      """
 
    .. versionadded:: 1.0
 
@@ -192,12 +222,12 @@ General configuration
    .. index:: default; domain
               primary; domain
 
-   The name of the default :ref:`domain <domains>`.  Can also be ``None`` to
-   disable a default domain.  The default is ``'py'``.  Those objects in other
-   domains (whether the domain name is given explicitly, or selected by a
-   :rst:dir:`default-domain` directive) will have the domain name explicitly
-   prepended when named (e.g., when the default domain is C, Python functions
-   will be named "Python function", not just "function").
+   The name of the default :doc:`domain </usage/restructuredtext/domains>`.
+   Can also be ``None`` to disable a default domain.  The default is ``'py'``.
+   Those objects in other domains (whether the domain name is given explicitly,
+   or selected by a :rst:dir:`default-domain` directive) will have the domain
+   name explicitly prepended when named (e.g., when the default domain is C,
+   Python functions will be named "Python function", not just "function").
 
    .. versionadded:: 1.0
 
@@ -450,6 +480,10 @@ Project information
 .. confval:: project
 
    The documented project's name.
+
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
 
 .. confval:: copyright
 
@@ -817,6 +851,22 @@ that use Sphinx's HTMLWriter class.
    .. versionadded:: 0.4
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
+
+.. confval:: html_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  The
+   *filename* must be relative to the :confval:`html_static_path`, or a full URI
+   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   for attributes of ``<link>`` tag.  It defaults to an empty list.
+
+   Example::
+
+       html_css_files = ['custom.css'
+                         'https://example.com/css/custom.css',
+                         ('print.css', {'media': 'print'})]
+
+   .. versionadded:: 1.8
 
 .. confval:: html_static_path
 
@@ -1191,15 +1241,20 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
-.. confval:: htmlhelp_basename
-
-   Output file base name for HTML help builder.  Default is ``'pydoc'``.
-
 .. confval:: html_experimental_html5_writer
 
    Output is processed with HTML5 writer.  This feature needs docutils 0.13 or newer.  Default is ``False``.
 
    .. versionadded:: 1.6
+
+.. _htmlhelp-options:
+
+Options for HTML help output
+-----------------------------
+
+.. confval:: htmlhelp_basename
+
+   Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
 .. _applehelp-options:
 
@@ -1410,8 +1465,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_author
 
-   The author of the document.  This is put in the Dublin Core metadata.  The
-   default value is ``'unknown'``.
+   The author of the document.  This is put in the Dublin Core metadata.  It
+   defaults to the :confval:`author` option.
 
 .. confval:: epub_contributor
 
@@ -1432,8 +1487,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_publisher
 
    The publisher of the document.  This is put in the Dublin Core metadata.  You
-   may use any sensible string, e.g. the project homepage.  The default value is
-   ``'unknown'``.
+   may use any sensible string, e.g. the project homepage.  The defaults to the
+   :confval:`author` option.
 
 .. confval:: epub_copyright
 
@@ -1477,6 +1532,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    The default value is ``()``.
 
    .. versionadded:: 1.1
+
+.. confval:: epub_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  For more
+   information, see :confval:`html_css_files`.
+
+   .. versionadded:: 1.8
 
 .. confval:: epub_guide
 
@@ -1809,12 +1872,10 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. hint::
 
            Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate. Since ``1.5`` this is not
-           hard-coded anymore, and can be modified via inclusion in
-           ``'preamble'`` key of ``\\fvset{fontsize=auto}``. This is
-           recommended if the fonts match better than Times and Courier. At
-           ``1.8`` a separate ``'fvset'`` key will permit such customization
-           without usage of ``'preamble'`` key.
+           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
+           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
+           preamble to not change font size in code-blocks.  Since ``1.8`` a
+           separate ``'fvset'`` key is provided for this.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -1823,6 +1884,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            Defaults to ``''`` also with ``'lualatex'``.
+        .. versionchanged:: 1.8
+           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -1974,7 +2037,16 @@ These options influence LaTeX output. See further :doc:`latex`.
         differently or append some content after the index. For example
         ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
         index is full of long entries.
+     ``'fvset'``
+        Customization of ``fancyvrb`` LaTeX package. Defaults to
+        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
+        code-blocks is wider and taller than default text font (Times).
 
+        For ``'xelatex'`` and ``'lualatex'``, defaults to
+        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
+        one unified typeface family (Latin Modern OpenType).
+
+        .. versionadded:: 1.8
    * Keys that are set by other options and therefore should not be overridden
      are:
 

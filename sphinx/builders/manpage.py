@@ -18,6 +18,7 @@ from six import string_types
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
@@ -39,7 +40,7 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
-    epilog = 'The manual pages are in %(outdir)s.'
+    epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
@@ -47,8 +48,8 @@ class ManualPageBuilder(Builder):
     def init(self):
         # type: () -> None
         if not self.config.man_pages:
-            logger.warning('no "man_pages" config value found; no manual pages '
-                           'will be written')
+            logger.warning(__('no "man_pages" config value found; no manual pages '
+                              'will be written'))
 
     def get_outdated_docs(self):
         # type: () -> Union[unicode, List[unicode]]
@@ -68,7 +69,7 @@ class ManualPageBuilder(Builder):
             components=(docwriter,),
             read_config_files=True).get_default_values()
 
-        logger.info(bold('writing... '), nonl=True)
+        logger.info(bold(__('writing... ')), nonl=True)
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info

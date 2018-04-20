@@ -47,9 +47,10 @@ class Config(object):
         napoleon_use_param = True
         napoleon_use_rtype = True
         napoleon_use_keyword = True
+        napoleon_custom_sections = None
 
     .. _Google style:
-       http://google.github.io/styleguide/pyguide.html
+       https://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
        https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
@@ -241,6 +242,19 @@ class Config(object):
 
             :returns: *bool* -- True if successful, False otherwise
 
+    napoleon_custom_sections : :obj:`list` (Defaults to None)
+        Add a list of custom sections to include, expanding the list of parsed sections.
+
+        The entries can either be strings or tuples, depending on the intention:
+          * To create a custom "generic" section, just pass a string.
+          * To create an alias for an existing section, pass a tuple containing the
+            alias name and the original, in that order.
+
+        If an entry is just a string, it is interpreted as a header for a generic
+        section. If the entry is a tuple/list/indexed container, the first entry
+        is the name of the section, the second is the section key to emulate.
+
+
     """
     _config_values = {
         'napoleon_google_docstring': (True, 'env'),
@@ -254,7 +268,8 @@ class Config(object):
         'napoleon_use_ivar': (False, 'env'),
         'napoleon_use_param': (True, 'env'),
         'napoleon_use_rtype': (True, 'env'),
-        'napoleon_use_keyword': (True, 'env')
+        'napoleon_use_keyword': (True, 'env'),
+        'napoleon_custom_sections': (None, 'env')
     }
 
     def __init__(self, **settings):
@@ -310,14 +325,13 @@ def _patch_python_domain():
         pass
     else:
         import sphinx.domains.python
-        import sphinx.locale
-        l_ = sphinx.locale.lazy_gettext
+        from sphinx.locale import _
         for doc_field in sphinx.domains.python.PyObject.doc_field_types:
             if doc_field.name == 'parameter':
                 doc_field.names = ('param', 'parameter', 'arg', 'argument')
                 break
         sphinx.domains.python.PyObject.doc_field_types.append(
-            PyTypedField('keyword', label=l_('Keyword Arguments'),
+            PyTypedField('keyword', label=_('Keyword Arguments'),
                          names=('keyword', 'kwarg', 'kwparam'),
                          typerolename='obj', typenames=('paramtype', 'kwtype'),
                          can_collapse=True))

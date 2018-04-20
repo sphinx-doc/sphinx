@@ -20,6 +20,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
@@ -174,8 +175,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
-    epilog = ('You can now run HTML Help Workshop with the .htp file in '
-              '%(outdir)s.')
+    epilog = __('You can now run HTML Help Workshop with the .htp file in '
+                '%(outdir)s.')
 
     # don't copy the reST source
     copysource = False
@@ -228,12 +229,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def build_hhx(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        logger.info('dumping stopword list...')
+        logger.info(__('dumping stopword list...'))
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
-        logger.info('writing project file...')
+        logger.info(__('writing project file...'))
         with self.open_file(outdir, outname + '.hhp') as f:
             f.write(project_template % {
                 'outname': outname,
@@ -256,7 +257,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
 
-        logger.info('writing TOC file...')
+        logger.info(__('writing TOC file...'))
         with self.open_file(outdir, outname + '.hhc') as f:
             f.write(contents_header)
             # special books
@@ -298,7 +299,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 write_toc(node)
             f.write(contents_footer)
 
-        logger.info('writing index file...')
+        logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
         with self.open_file(outdir, outname + '.hhk') as f:
             f.write('<UL>\n')

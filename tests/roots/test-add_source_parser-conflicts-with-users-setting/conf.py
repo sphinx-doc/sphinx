@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 
 class DummyTestParser(Parser):
-    pass
+    supported = ('dummy',)
 
 
 extensions = ['source_parser']

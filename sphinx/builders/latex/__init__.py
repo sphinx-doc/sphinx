@@ -23,7 +23,7 @@ from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError, ConfigError
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
 from sphinx.transforms.references import SubstitutionDefinitionsRemover
 from sphinx.util import texescape, logging, status_iterator
@@ -50,11 +50,11 @@ class LaTeXBuilder(Builder):
     """
     name = 'latex'
     format = 'latex'
-    epilog = 'The LaTeX files are in %(outdir)s.'
+    epilog = __('The LaTeX files are in %(outdir)s.')
     if os.name == 'posix':
-        epilog += ("\nRun 'make' in that directory to run these through "
-                   "(pdf)latex\n"
-                   "(use `make latexpdf' here to do that automatically).")
+        epilog += __("\nRun 'make' in that directory to run these through "
+                     "(pdf)latex\n"
+                     "(use `make latexpdf' here to do that automatically).")
 
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
@@ -64,7 +64,7 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         self.docnames = []          # type: Iterable[unicode]
         self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
-        self.usepackages = []       # type: List[unicode]
+        self.usepackages = self.app.registry.latex_packages
         texescape.init()
 
     def get_outdated_docs(self):
@@ -87,16 +87,16 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         preliminary_document_data = [list(x) for x in self.config.latex_documents]
         if not preliminary_document_data:
-            logger.warning('no "latex_documents" config value found; no documents '
-                           'will be written')
+            logger.warning(__('no "latex_documents" config value found; no documents '
+                              'will be written'))
             return
         # assign subdirs to titles
         self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
-                logger.warning('"latex_documents" config value references unknown '
-                               'document %s', docname)
+                logger.warning(__('"latex_documents" config value references unknown '
+                                  'document %s'), docname)
                 continue
             self.document_data.append(entry)  # type: ignore
             if docname.endswith(SEP + 'index'):
@@ -133,7 +133,7 @@ class LaTeXBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            logger.info("processing %s...", targetname, nonl=1)
+            logger.info(__("processing %s..."), targetname, nonl=1)
             toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
             if toctrees:
                 if toctrees[0].get('maxdepth') > 0:
@@ -148,7 +148,7 @@ class LaTeXBuilder(Builder):
             doctree['tocdepth'] = tocdepth
             self.apply_transforms(doctree)
             self.post_process_images(doctree)
-            logger.info("writing... ", nonl=1)
+            logger.info(__("writing... "), nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
             doctree.settings.title = title
@@ -194,7 +194,7 @@ class LaTeXBuilder(Builder):
             appendix['docname'] = docname
             largetree.append(appendix)
         logger.info('')
-        logger.info("resolving references...")
+        logger.info(__("resolving references..."))
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
@@ -226,7 +226,7 @@ class LaTeXBuilder(Builder):
 
         # copy TeX support files from texinputs
         context = {'latex_engine': self.config.latex_engine}
-        logger.info(bold('copying TeX support files...'))
+        logger.info(bold(__('copying TeX support files...')))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
@@ -241,7 +241,7 @@ class LaTeXBuilder(Builder):
 
         # copy additional files
         if self.config.latex_additional_files:
-            logger.info(bold('copying additional files...'), nonl=1)
+            logger.info(bold(__('copying additional files...')), nonl=1)
             for filename in self.config.latex_additional_files:
                 logger.info(' ' + filename, nonl=1)
                 copy_asset_file(path.join(self.confdir, filename), self.outdir)
@@ -250,16 +250,16 @@ class LaTeXBuilder(Builder):
         # the logo is handled differently
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
-                raise SphinxError('logo file %r does not exist' % self.config.latex_logo)
+                raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
             else:
                 copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
-        logger.info('done')
+        logger.info(__('done'))
 
     def copy_image_files(self):
         # type: () -> None
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            for src in status_iterator(self.images, 'copying images... ', "brown",
+            for src in status_iterator(self.images, __('copying images... '), "brown",
                                        len(self.images), self.app.verbosity,
                                        stringify_func=stringify_func):
                 dest = self.images[src]
@@ -267,27 +267,27 @@ class LaTeXBuilder(Builder):
                     copy_asset_file(path.join(self.srcdir, src),
                                     path.join(self.outdir, dest))
                 except Exception as err:
-                    logger.warning('cannot copy image file %r: %s',
+                    logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
 
-def validate_config_values(app):
-    # type: (Sphinx) -> None
-    for document in app.config.latex_documents:
+def validate_config_values(app, config):
+    # type: (Sphinx, Config) -> None
+    for document in config.latex_documents:
         try:
             text_type(document[2])
         except UnicodeDecodeError:
             raise ConfigError(
-                'Invalid latex_documents.title found (might contain non-ASCII chars. '
-                'Please use u"..." notation instead): %r' % (document,)
+                __('Invalid latex_documents.title found (might contain non-ASCII chars. '
+                   'Please use u"..." notation instead): %r') % (document,)
             )
 
         try:
             text_type(document[3])
         except UnicodeDecodeError:
             raise ConfigError(
-                'Invalid latex_documents.author found (might contain non-ASCII chars. '
-                'Please use u"..." notation instead): %r' % (document,)
+                __('Invalid latex_documents.author found (might contain non-ASCII chars. '
+                   'Please use u"..." notation instead): %r') % (document,)
             )
 
 
@@ -313,7 +313,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
-    app.connect('builder-inited', validate_config_values)
+    app.connect('config-inited', validate_config_values)
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))

@@ -389,13 +389,6 @@ Macros
      multiple paragraphs in header cells of tables.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
-- by default the Sphinx style file ``sphinx.sty`` executes the command
-  ``\fvset{fontsize=\small}`` as part of its configuration of
-  ``fancyvrb.sty``. This may be overriden for example via
-  ``\fvset{fontsize=auto}`` which will let code listings use the ambient font
-  size. Refer to ``fancyvrb.sty``'s documentation for further keys.
-
-  .. versionadded:: 1.5
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
   wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
   :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.

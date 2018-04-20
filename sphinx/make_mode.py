@@ -22,7 +22,7 @@ import sys
 from os import path
 
 import sphinx
-from sphinx import cmdline
+from sphinx.cmd.build import build_main
 from sphinx.util.console import color_terminal, nocolor, bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
@@ -151,7 +151,7 @@ class Make(object):
                 '-d', doctreedir,
                 self.srcdir,
                 self.builddir_join(builder)]
-        return cmdline.main(args + opts)
+        return build_main(args + opts)
 
 
 def run_make_mode(args):

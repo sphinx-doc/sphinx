@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 class ImagemagickConverter(ImageConverter):
     conversion_rules = [
         ('image/svg+xml', 'image/png'),
+        ('image/gif', 'image/png'),
         ('application/pdf', 'image/png'),
     ]
 
@@ -65,6 +66,10 @@ class ImagemagickConverter(ImageConverter):
         # type: (unicode, unicode) -> bool
         """Converts the image to expected one."""
         try:
+            if _from.lower().endswith('.gif'):
+                # when target is GIF format, pick the first frame
+                _from += '[0]'
+
             args = ([self.config.image_converter] +
                     self.config.image_converter_args +
                     [_from, _to])

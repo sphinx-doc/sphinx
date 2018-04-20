@@ -16,9 +16,10 @@ from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type
+from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
+from sphinx.locale import __
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
@@ -149,6 +150,7 @@ class SphinxDummyWriter(UnfilteredWriter):
 
 
 def SphinxDummySourceClass(source, *args, **kwargs):
+    # type: (Any, Any, Any) -> Any
     """Bypass source object as is to cheat Publisher."""
     return source
 
@@ -157,7 +159,7 @@ class SphinxBaseFileInput(FileInput):
     """A base class of SphinxFileInput.
 
     It supports to replace unknown Unicode characters to '?'. And it also emits
-    Sphinx events ``source-read`` on reading.
+    Sphinx events :event:`source-read` on reading.
     """
 
     def __init__(self, app, env, *args, **kwds):
@@ -198,7 +200,7 @@ class SphinxBaseFileInput(FileInput):
         if lineend == -1:
             lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning('undecodable source characters, replacing with "?": %r',
+        logger.warning(__('undecodable source characters, replacing with "?": %r'),
                        (error.object[linestart + 1:error.start] + b'>>>' +
                         error.object[error.start:error.end] + b'<<<' +
                         error.object[error.end:lineend]),
@@ -274,14 +276,29 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
             return lineno
 
 
+class FiletypeNotFoundError(Exception):
+    pass
+
+
+def get_filetype(source_suffix, filename):
+    # type: (Dict[unicode, unicode], unicode) -> unicode
+    for suffix, filetype in iteritems(source_suffix):
+        if filename.endswith(suffix):
+            # If default filetype (None), considered as restructuredtext.
+            return filetype or 'restructuredtext'
+    else:
+        raise FiletypeNotFoundError
+
+
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
-    input_class = app.registry.get_source_input(filename)
+    filetype = get_filetype(app.config.source_suffix, filename)
+    input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
     source = input_class(app, env, source=None, source_path=filename,
                          encoding=env.config.source_encoding)
-    parser = app.registry.create_source_parser(app, filename)
+    parser = app.registry.create_source_parser(app, filetype)
 
     pub = Publisher(reader=reader,
                     parser=parser,

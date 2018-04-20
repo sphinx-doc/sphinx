@@ -75,6 +75,7 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
 from sphinx.ext.autodoc.importer import import_module
+from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
 from sphinx.util.docutils import NullReporter, new_document
@@ -108,6 +109,7 @@ def process_autosummary_toc(app, doctree):
     crawled = {}
 
     def crawl_toc(node, depth=1):
+        # type: (nodes.Node, int) -> None
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
@@ -166,6 +168,7 @@ _app = None  # type: Sphinx
 
 class FakeDirective(DocumenterBridge):
     def __init__(self):
+        # type: () -> None
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
@@ -655,14 +658,14 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix
+    ext = list(app.config.source_suffix)
     genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        logger.warning('autosummary generats .rst files internally. '
-                       'But your source_suffix does not contain .rst. Skipped.')
+        logger.warning(__('autosummary generats .rst files internally. '
+                          'But your source_suffix does not contain .rst. Skipped.'))
         return
 
     generate_autosummary_docs(genfiles, builder=app.builder,

@@ -52,6 +52,8 @@ Note that it is still necessary to register the builder using
 
 .. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
+.. _ext-metadata:
+
 Extension metadata
 ------------------
 
@@ -63,6 +65,11 @@ as metadata of the extension.  Metadata keys currently recognized are:
 * ``'version'``: a string that identifies the extension version.  It is used for
   extension version requirement checking (see :confval:`needs_extensions`) and
   informational purposes.  If not given, ``"unknown version"`` is substituted.
+* ``'env_version'``: an integer that identifies the version of env data
+  structure if the extension stores any data to environment.  It is used to
+  detect the data structure has been changed from last build.  The extensions
+  have to increment the version when data structure has changed.  If not given,
+  Sphinx considers the extension does not stores any data to environment.
 * ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
   source files can be used when the extension is loaded.  It defaults to
   ``False``, i.e. you have to explicitly specify your extension to be
@@ -86,6 +93,8 @@ APIs used for writing extensions
    parserapi
    nodes
    logging
+   i18n
+   utils
 
 Deprecated APIs
 ---------------
@@ -104,6 +113,87 @@ The following is a list of deprecated interface.
      - Deprecated
      - (will be) Removed
      - Alternatives
+
+   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - 1.8
+     - 4.0
+     - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
+   * - ``sphinx.application.Sphinx.override_domain()``
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_domain()`
+
+   * - ``BuildEnvironment._nitpick_ignore``
+     - 1.8
+     - 3.0
+     - :confval:`nitpick_ignore`
+
+   * - ``warn()`` (template helper function)
+     - 1.8
+     - 3.0
+     - ``warning()``
+
+   * - :confval:`source_parsers`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_parser()`
+
+   * - ``Sphinx.import_object()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.import_object()``
+
+   * - ``suffix`` argument of
+       :meth:`~sphinx.application.Sphinx.add_source_parser()`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
+
+   * - ``sphinx.util.docutils.directive_helper()``
+     - 1.8
+     - 3.0
+     - ``Directive`` class of docutils
+
+   * - ``sphinx.cmdline``
+     - 1.8
+     - 3.0
+     - ``sphinx.cmd.build``
+
+   * - ``BuildEnvironment.update()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``BuildEnvironment._read_serial()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``BuildEnvironment._read_parallel()``
+     - 1.8
+     - 3.0
+     - ``Builder.read()``
+
+   * - ``sphinx.locale.l_()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.locale.lazy_gettext()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.locale.mygettext()``
+     - 1.8
+     - 3.0
+     - :func:`sphinx.locale._()`
+
+   * - ``sphinx.util.copy_static_entry()``
+     - 1.5
+     - 3.0
+     - ``sphinx.util.fileutil.copy_asset()``
 
    * - ``sphinx.build_main()``
      - 1.7
@@ -184,6 +274,11 @@ The following is a list of deprecated interface.
      - 1.6
      - 2.0
      - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+
+   * - ``document.settings.gettext_compact``
+     - 1.8
+     - 1.8
+     - :confval:`gettext_compact`
 
    * - ``Sphinx.status_iterator()``
      - 1.6

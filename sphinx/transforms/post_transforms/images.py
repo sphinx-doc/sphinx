@@ -16,6 +16,7 @@ from math import ceil
 from docutils import nodes
 from six import text_type
 
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util import logging, requests
@@ -85,12 +86,12 @@ class ImageDownloader(BaseImageConverter):
 
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)
+                timestamp = ceil(os.stat(path).st_mtime)  # type: float
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)
             if r.status_code >= 400:
-                logger.warning('Could not fetch remote image: %s [%d]' %
+                logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))
             else:
                 self.app.env.original_image_uri[path] = node['uri']
@@ -118,7 +119,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning('Could not fetch remote image: %s [%s]' %
+            logger.warning(__('Could not fetch remote image: %s [%s]') %
                            (node['uri'], text_type(exc)))
 
 
@@ -139,7 +140,7 @@ class DataURIExtractor(BaseImageConverter):
         image = parse_data_uri(node['uri'])
         ext = get_image_extension(image.mimetype)
         if ext is None:
-            logger.warning('Unknown image format: %s...', node['uri'][:32],
+            logger.warning(__('Unknown image format: %s...'), node['uri'][:32],
                            location=node)
             return
 

@@ -17,6 +17,7 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.utils import Reporter
 
+from sphinx.locale import __
 from sphinx.util import logging
 
 if False:
@@ -43,7 +44,7 @@ def default_role(docname, name):
         if role_fn:
             roles._roles[''] = role_fn
         else:
-            logger.warning('default role %s not found', name, location=docname)
+            logger.warning(__('default role %s not found'), name, location=docname)
 
     yield
 

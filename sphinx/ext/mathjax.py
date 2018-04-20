@@ -3,7 +3,7 @@
     sphinx.ext.mathjax
     ~~~~~~~~~~~~~~~~~~
 
-    Allow `MathJax <http://mathjax.org/>`_ to be used to display math in
+    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
@@ -19,8 +19,14 @@ from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 from sphinx.locale import _
 
+if False:
+    # For type annotation
+    from typing import Any, Dict  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 def html_visit_math(self, node):
+    # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node['latex']) +
@@ -29,6 +35,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
         self.body.append(self.encode(node['latex']))
@@ -61,6 +68,7 @@ def html_visit_displaymath(self, node):
 
 
 def builder_inited(app):
+    # type: (Sphinx) -> None
     if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
@@ -68,13 +76,14 @@ def builder_inited(app):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     except ExtensionError:
         raise ExtensionError('sphinx.ext.mathjax: other math package is already loaded')
 
     # more information for mathjax secure url is here:
-    # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+    # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
                          'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)

@@ -11,13 +11,14 @@
 
 import re
 import traceback
+from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.errors import ConfigError
-from sphinx.locale import l_, __
+from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
@@ -26,6 +27,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -33,18 +35,18 @@ logger = logging.getLogger(__name__)
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
+CONFIG_SYNTAX_ERROR = __("There is a syntax error in your configuration file: %s")
 if PY3:
-    CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
-CONFIG_ERROR = "There is a programable error in your configuration file:\n\n%s"
-CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
-                    "called sys.exit()"
-CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
-                      "but `{current}` is given."
-CONFIG_PERMITTED_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
-                                "expected to {permitted}."
-CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
-                      "defaults to `{default.__name__}'."
+    CONFIG_SYNTAX_ERROR += __("\nDid you change the syntax from 2.x to 3.x?")
+CONFIG_ERROR = __("There is a programable error in your configuration file:\n\n%s")
+CONFIG_EXIT_ERROR = __("The configuration file (or one of the modules it imports) "
+                       "called sys.exit()")
+CONFIG_ENUM_WARNING = __("The config value `{name}` has to be a one of {candidates}, "
+                         "but `{current}` is given.")
+CONFIG_PERMITTED_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
+                                   "expected to {permitted}.")
+CONFIG_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
+                         "defaults to `{default.__name__}'.")
 
 if PY3:
     unicode = str  # special alias for static typing...
@@ -52,6 +54,10 @@ if PY3:
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
                                          ('rebuild', Union[bool, unicode])])
+
+
+#: represents the config value accepts any type of value.
+Any = object()
 
 
 class ENUM(object):
@@ -78,8 +84,15 @@ if PY2:
 
 
 class Config(object):
-    """
-    Configuration file abstraction.
+    """Configuration file abstraction.
+
+    The config object makes the values of all config values available as
+    attributes.
+
+    It is exposed via the :py:attr:`sphinx.application.Application.config` and
+    :py:attr:`sphinx.environment.Environment.config` attributes. For example,
+    to get the value of :confval:`language`, use either ``app.config.language``
+    or ``env.config.language``.
     """
 
     # the values are: (default, what needs to be rebuilt if changed)
@@ -90,6 +103,7 @@ class Config(object):
     config_values = dict(
         # general options
         project = ('Python', 'env'),
+        author = ('unknown', 'env'),
         copyright = ('', 'html'),
         version = ('', 'env'),
         release = ('', 'env'),
@@ -102,7 +116,7 @@ class Config(object):
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
-        source_suffix = (['.rst'], 'env'),
+        source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
@@ -130,10 +144,10 @@ class Config(object):
         nitpick_ignore = ([], None),
         numfig = (False, 'env'),
         numfig_secnum_depth = (1, 'env'),
-        numfig_format = ({'section': l_('Section %s'),
-                          'figure': l_('Fig. %s'),
-                          'table': l_('Table %s'),
-                          'code-block': l_('Listing %s')},
+        numfig_format = ({'section': _('Section %s'),
+                          'figure': _('Fig. %s'),
+                          'table': _('Table %s'),
+                          'code-block': _('Listing %s')},
                          'env'),
 
         tls_verify = (True, 'env'),
@@ -191,7 +205,7 @@ class Config(object):
         # type: () -> None
         # check all values for deviation from the default value's type, since
         # that can result in TypeErrors all over the place
-        # NB. since config values might use l_() we have to wait with calling
+        # NB. since config values might use _() we have to wait with calling
         # this method until i18n is initialized
         for name in self._raw_config:
             if name not in self.values:
@@ -201,11 +215,14 @@ class Config(object):
             permitted = settings[2] if len(settings) == 3 else ()
 
             if hasattr(default, '__call__'):
-                default = default(self)  # could invoke l_()
+                default = default(self)  # could invoke _()
             if default is None and not permitted:
                 continue  # neither inferrable nor expliclitly permitted types
             current = self[name]
-            if isinstance(permitted, ENUM):
+            if permitted is Any:
+                # any type of value is accepted
+                pass
+            elif isinstance(permitted, ENUM):
                 if not permitted.match(current):
                     logger.warning(CONFIG_ENUM_WARNING.format(
                         name=name, current=current, candidates=permitted.candidates))
@@ -235,9 +252,9 @@ class Config(object):
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
             if isinstance(value, binary_type) and nonascii_re.search(value):
-                logger.warning('the config value %r is set to a string with non-ASCII '
-                               'characters; this can lead to Unicode errors occurring. '
-                               'Please use Unicode strings, e.g. %r.', name, u'Content')
+                logger.warning(__('the config value %r is set to a string with non-ASCII '
+                                  'characters; this can lead to Unicode errors occurring. '
+                                  'Please use Unicode strings, e.g. %r.'), name, u'Content')
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any
@@ -245,7 +262,9 @@ class Config(object):
             return value
         else:
             defvalue = self.values[name][0]
-            if isinstance(defvalue, dict):
+            if self.values[name][-1] == Any:
+                return value
+            elif isinstance(defvalue, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
                                     'ignoring (use %r to set individual elements)') %
                                  (name, name + '.key=value'))
@@ -302,8 +321,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]  # type: ignore
-        if isinstance(self.source_suffix, string_types):  # type: ignore
-            self.source_suffix = [self.source_suffix]  # type: ignore
 
     def __getattr__(self, name):
         # type: (unicode) -> Any
@@ -346,3 +363,40 @@ class Config(object):
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)  # type: ignore
+
+
+def convert_source_suffix(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts old styled source_suffix to new styled one.
+
+    * old style: str or list
+    * new style: a dict which maps from fileext to filetype
+    """
+    source_suffix = config.source_suffix
+    if isinstance(source_suffix, string_types):
+        # if str, considers as default filetype (None)
+        #
+        # The default filetype is determined on later step.
+        # By default, it is considered as restructuredtext.
+        config.source_suffix = OrderedDict({source_suffix: None})  # type: ignore
+    elif isinstance(source_suffix, (list, tuple)):
+        # if list, considers as all of them are default filetype
+        config.source_suffix = OrderedDict([(s, None) for s in source_suffix])  # type: ignore  # NOQA
+    elif isinstance(source_suffix, dict):
+        # if dict, convert it to OrderedDict
+        config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
+    else:
+        logger.warning(__("The config value `source_suffix' expected to "
+                          "a string, list of strings or dictionary. "
+                          "But `%r' is given." % source_suffix))
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.connect('config-inited', convert_source_suffix)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

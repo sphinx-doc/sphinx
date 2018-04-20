@@ -24,6 +24,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
+    from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -61,6 +62,9 @@ class MathDomain(Domain):
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
+    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+        displaymath: ('displaymath', None),
+    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
@@ -97,7 +101,7 @@ class MathDomain(Domain):
                     eqref_format = env.config.math_eqref_format or "({number})"
                     title = nodes.Text(eqref_format.format(number=number))
                 except KeyError as exc:
-                    logger.warning('Invalid math_eqref_format: %r', exc,
+                    logger.warning(__('Invalid math_eqref_format: %r'), exc,
                                    location=node)
                     title = nodes.Text("(%d)" % number)
                     title = nodes.Text("(%d)" % number)
@@ -136,6 +140,7 @@ class MathDomain(Domain):
 
 
 def get_node_equation_number(writer, node):
+    # type: (Writer, nodes.Node) -> unicode
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
@@ -307,7 +312,7 @@ def latex_visit_eqref(self, node):
             ref = '\\ref{%s}' % label
             self.body.append(eqref_format.format(number=ref))
         except KeyError as exc:
-            logger.warning('Invalid math_eqref_format: %r', exc,
+            logger.warning(__('Invalid math_eqref_format: %r'), exc,
                            location=node)
             self.body.append('\\eqref{%s}' % label)
     else:
@@ -376,12 +381,12 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  man=(man_visit_math, None),
                  texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
-    app.add_enumerable_node(displaymath, 'displaymath',
-                            latex=(latex_visit_displaymath, None),
-                            text=(text_visit_displaymath, None),
-                            man=(man_visit_displaymath, man_depart_displaymath),
-                            texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
-                            html=htmldisplayvisitors)
+    app.add_node(displaymath,
+                 latex=(latex_visit_displaymath, None),
+                 text=(text_visit_displaymath, None),
+                 man=(man_visit_displaymath, man_depart_displaymath),
+                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+                 html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('math', math_role)
     app.add_role('eq', EqXRefRole(warn_dangling=True))

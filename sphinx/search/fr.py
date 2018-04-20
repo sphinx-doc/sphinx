@@ -13,6 +13,11 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+
+
 french_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/french/stop.txt
 au             |  a + le
@@ -204,7 +209,9 @@ class SearchFrench(SearchLanguage):
     stopwords = french_stopwords
 
     def init(self, options):
+        # type: (Any) -> None
         self.stemmer = snowballstemmer.stemmer('french')
 
     def stem(self, word):
+        # type: (unicode) -> unicode
         return self.stemmer.stemWord(word.lower())

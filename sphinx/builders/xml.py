@@ -17,6 +17,7 @@ from docutils.io import StringOutput
 from docutils.writers.docutils_xml import XMLTranslator
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
@@ -35,7 +36,7 @@ class XMLBuilder(Builder):
     """
     name = 'xml'
     format = 'xml'
-    epilog = 'The XML files are in %(outdir)s.'
+    epilog = __('The XML files are in %(outdir)s.')
 
     out_suffix = '.xml'
     allow_parallel = True
@@ -97,7 +98,7 @@ class XMLBuilder(Builder):
             with codecs.open(outfilename, 'w', 'utf-8') as f:  # type: ignore
                 f.write(self.writer.output)
         except (IOError, OSError) as err:
-            logger.warning("error writing file %s: %s", outfilename, err)
+            logger.warning(__("error writing file %s: %s"), outfilename, err)
 
     def finish(self):
         # type: () -> None
@@ -110,7 +111,7 @@ class PseudoXMLBuilder(XMLBuilder):
     """
     name = 'pseudoxml'
     format = 'pseudoxml'
-    epilog = 'The pseudo-XML files are in %(outdir)s.'
+    epilog = __('The pseudo-XML files are in %(outdir)s.')
 
     out_suffix = '.pseudoxml'
 

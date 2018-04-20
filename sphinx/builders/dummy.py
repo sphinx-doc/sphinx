@@ -11,6 +11,7 @@
 
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 
 if False:
     # For type annotation
@@ -21,7 +22,7 @@ if False:
 
 class DummyBuilder(Builder):
     name = 'dummy'
-    epilog = 'The dummy builder generates no files.'
+    epilog = __('The dummy builder generates no files.')
 
     allow_parallel = True
 

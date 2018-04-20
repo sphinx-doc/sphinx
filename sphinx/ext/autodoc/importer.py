@@ -90,6 +90,7 @@ class _MockImporter(object):
         sys.meta_path.insert(0, self)
 
     def disable(self):
+        # type: () -> None
         # remove `self` from `sys.meta_path` to disable import hook
         sys.meta_path = [i for i in sys.meta_path if i is not self]
         # remove mocked modules from sys.modules to avoid side effects after
@@ -130,6 +131,7 @@ def mock(names):
 
 
 def import_module(modname, warningiserror=False):
+    # type: (str, bool) -> Any
     """
     Call __import__(modname), convert exceptions to ImportError
     """

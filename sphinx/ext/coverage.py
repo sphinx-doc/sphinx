@@ -20,6 +20,7 @@ from six.moves import cPickle as pickle
 
 import sphinx
 from sphinx.builders import Builder
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
@@ -45,7 +46,7 @@ def compile_regex_list(name, exps):
         try:
             lst.append(re.compile(exp))
         except Exception:
-            logger.warning('invalid regex %r in %s', exp, name)
+            logger.warning(__('invalid regex %r in %s'), exp, name)
     return lst
 
 
@@ -54,8 +55,8 @@ class CoverageBuilder(Builder):
     Evaluates coverage of code in the documentation.
     """
     name = 'coverage'
-    epilog = ('Testing of coverage in the sources finished, look at the '
-              'results in %(outdir)s/python.txt.')
+    epilog = __('Testing of coverage in the sources finished, look at the '
+                'results in %(outdir)s/python.txt.')
 
     def init(self):
         # type: () -> None
@@ -69,7 +70,7 @@ class CoverageBuilder(Builder):
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
-                logger.warning('invalid regex %r in coverage_c_regexes', exp)
+                logger.warning(__('invalid regex %r in coverage_c_regexes'), exp)
 
         self.c_ignorexps = {}  # type: Dict[unicode, List[Pattern]]
         for (name, exps) in iteritems(self.config.coverage_ignore_c_items):
@@ -151,7 +152,7 @@ class CoverageBuilder(Builder):
             try:
                 mod = __import__(mod_name, fromlist=['foo'])
             except ImportError as err:
-                logger.warning('module %s could not be imported: %s', mod_name, err)
+                logger.warning(__('module %s could not be imported: %s'), mod_name, err)
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 

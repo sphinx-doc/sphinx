@@ -14,8 +14,13 @@ import warnings
 from sphinx.cmd.quickstart import main as _main
 from sphinx.deprecation import RemovedInSphinx20Warning
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+
 
 def main(*args, **kwargs):
+    # type: (Any, Any) -> None
     warnings.warn(
         '`sphinx.quickstart.main()` has moved to `sphinx.cmd.quickstart.'
         'main()`.',

@@ -40,6 +40,7 @@ Other contributors, listed alphabetically, are:
 * Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
+* Chris Lamb -- reproducibility fixes
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
 * Ian Lee -- quickstart improvements
@@ -49,6 +50,7 @@ Other contributors, listed alphabetically, are:
 * Will Maier -- directory HTML builder
 * Jacob Mason -- websupport library (GSOC project)
 * Glenn Matthews -- python domain signature improvements
+* Kurt McKee -- documentation updates
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Bruce Mitchener -- Minor epub improvement

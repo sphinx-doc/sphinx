@@ -9,7 +9,7 @@
 
     This is derived from the "sphinx-autopackage" script, which is:
     Copyright 2008 Société des arts technologiques (SAT),
-    http://www.sat.qc.ca/
+    https://sat.qc.ca/
 
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import argparse
 import glob
+import locale
 import os
 import sys
 from fnmatch import fnmatch
@@ -26,8 +27,10 @@ from os import path
 
 from six import binary_type
 
-from sphinx import __display_version__
+import sphinx.locale
+from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
+from sphinx.locale import __
 from sphinx.util import rst
 from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
 
@@ -68,12 +71,12 @@ def write_file(name, text, opts):
     """Write the output file for module/package <name>."""
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
-        print('Would create file %s.' % fname)
+        print(__('Would create file %s.') % fname)
         return
     if not opts.force and path.isfile(fname):
-        print('File %s already exists, skipping.' % fname)
+        print(__('File %s already exists, skipping.') % fname)
     else:
-        print('Creating file %s.' % fname)
+        print(__('Creating file %s.') % fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
 
@@ -284,7 +287,7 @@ def is_excluded(root, excludes):
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
-          e.g. an exlude "foo" also accidentally excluding "foobar".
+          e.g. an exclude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
         if fnmatch(root, exclude):
@@ -297,84 +300,84 @@ def get_parser():
     parser = argparse.ArgumentParser(
         usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> '
               '[EXCLUDE_PATTERN, ...]',
-        epilog='For more information, visit <http://sphinx-doc.org/>.',
-        description="""
+        epilog=__('For more information, visit <http://sphinx-doc.org/>.'),
+        description=__("""
 Look recursively in <MODULE_PATH> for Python modules and packages and create
 one reST file with automodule directives per package in the <OUTPUT_PATH>.
 
 The <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be
 excluded from generation.
 
-Note: By default this script will not overwrite already created files.""")
+Note: By default this script will not overwrite already created files."""))
 
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
 
     parser.add_argument('module_path',
-                        help='path to module to document')
+                        help=__('path to module to document'))
     parser.add_argument('exclude_pattern', nargs='*',
-                        help='fnmatch-style file and/or directory patterns '
-                        'to exclude from generation')
+                        help=__('fnmatch-style file and/or directory patterns '
+                                'to exclude from generation'))
 
     parser.add_argument('-o', '--output-dir', action='store', dest='destdir',
                         required=True,
-                        help='directory to place all output')
+                        help=__('directory to place all output'))
     parser.add_argument('-d', '--maxdepth', action='store', dest='maxdepth',
                         type=int, default=4,
-                        help='maximum depth of submodules to show in the TOC '
-                             '(default: 4)')
+                        help=__('maximum depth of submodules to show in the TOC '
+                                '(default: 4)'))
     parser.add_argument('-f', '--force', action='store_true', dest='force',
-                        help='overwrite existing files')
+                        help=__('overwrite existing files'))
     parser.add_argument('-l', '--follow-links', action='store_true',
                         dest='followlinks', default=False,
-                        help='follow symbolic links. Powerful when combined '
-                              'with collective.recipe.omelette.')
+                        help=__('follow symbolic links. Powerful when combined '
+                                'with collective.recipe.omelette.'))
     parser.add_argument('-n', '--dry-run', action='store_true', dest='dryrun',
-                        help='run the script without creating files')
+                        help=__('run the script without creating files'))
     parser.add_argument('-e', '--separate', action='store_true',
                         dest='separatemodules',
-                        help='put documentation for each module on its own page')
+                        help=__('put documentation for each module on its own page'))
     parser.add_argument('-P', '--private', action='store_true',
                         dest='includeprivate',
-                        help='include "_private" modules')
+                        help=__('include "_private" modules'))
     parser.add_argument('-T', '--no-toc', action='store_true', dest='notoc',
-                        help="don't create a table of contents file")
+                        help=__("don't create a table of contents file"))
     parser.add_argument('-E', '--no-headings', action='store_true',
                         dest='noheadings',
-                        help="don't create headings for the module/package "
-                             "packages (e.g. when the docstrings already "
-                             "contain them)")
+                        help=__("don't create headings for the module/package "
+                                "packages (e.g. when the docstrings already "
+                                "contain them)"))
     parser.add_argument('-M', '--module-first', action='store_true',
                         dest='modulefirst',
-                        help='put module documentation before submodule '
-                             'documentation')
+                        help=__('put module documentation before submodule '
+                                'documentation'))
     parser.add_argument('--implicit-namespaces', action='store_true',
                         dest='implicit_namespaces',
-                        help='interpret module paths according to PEP-0420 '
-                             'implicit namespaces specification')
+                        help=__('interpret module paths according to PEP-0420 '
+                                'implicit namespaces specification'))
     parser.add_argument('-s', '--suffix', action='store', dest='suffix',
                         default='rst',
-                        help='file suffix (default: rst)')
+                        help=__('file suffix (default: rst)'))
     parser.add_argument('-F', '--full', action='store_true', dest='full',
-                        help='generate a full project with sphinx-quickstart')
+                        help=__('generate a full project with sphinx-quickstart'))
     parser.add_argument('-a', '--append-syspath', action='store_true',
                         dest='append_syspath',
-                        help='append module_path to sys.path, used when --full is given')
+                        help=__('append module_path to sys.path, used when --full is given'))
     parser.add_argument('-H', '--doc-project', action='store', dest='header',
-                        help='project name (default: root module name)')
+                        help=__('project name (default: root module name)'))
     parser.add_argument('-A', '--doc-author', action='store', dest='author',
-                        help='project author(s), used when --full is given')
+                        help=__('project author(s), used when --full is given'))
     parser.add_argument('-V', '--doc-version', action='store', dest='version',
-                        help='project version, used when --full is given')
+                        help=__('project version, used when --full is given'))
     parser.add_argument('-R', '--doc-release', action='store', dest='release',
-                        help='project release, used when --full is given, '
-                             'defaults to --doc-version')
+                        help=__('project release, used when --full is given, '
+                                'defaults to --doc-version'))
 
-    group = parser.add_argument_group('extension options')
+    group = parser.add_argument_group(__('extension options'))
     for ext in EXTENSIONS:
         group.add_argument('--ext-%s' % ext, action='append_const',
                            const='sphinx.ext.%s' % ext, dest='extensions',
-                           help='enable %s extension' % ext)
+                           help=__('enable %s extension') % ext)
 
     return parser
 
@@ -382,6 +385,9 @@ Note: By default this script will not overwrite already created files.""")
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Parse and check the command line arguments."""
+    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
+
     parser = get_parser()
     args = parser.parse_args(argv)
 
@@ -394,7 +400,7 @@ def main(argv=sys.argv[1:]):
     if args.suffix.startswith('.'):
         args.suffix = args.suffix[1:]
     if not path.isdir(rootpath):
-        print('%s is not a directory.' % rootpath, file=sys.stderr)
+        print(__('%s is not a directory.') % rootpath, file=sys.stderr)
         sys.exit(1)
     if not args.dryrun:
         ensuredir(args.destdir)

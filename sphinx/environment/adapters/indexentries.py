@@ -15,7 +15,7 @@ from itertools import groupby
 
 from six import text_type, iteritems
 
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
 if False:
@@ -89,7 +89,7 @@ class IndexEntries(object):
                         add_entry(first, _('see also %s') % second, None,
                                   link=False, key=index_key)
                     else:
-                        logger.warning('unknown index entry type %r', type, location=fn)
+                        logger.warning(__('unknown index entry type %r'), type, location=fn)
                 except ValueError as err:
                     logger.warning(str(err), location=fn)
 

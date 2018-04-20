@@ -150,6 +150,8 @@ class Domain(object):
     indices = []            # type: List[Type[Index]]
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[unicode, unicode]
+    #: node_class -> (enum_node_type, title_getter)
+    enumerable_nodes = {}   # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -281,11 +283,11 @@ class Domain(object):
         cross-reference.
 
         If no resolution can be found, None can be returned; the xref node will
-        then given to the 'missing-reference' event, and if that yields no
+        then given to the :event:`missing-reference` event, and if that yields no
         resolution, replaced by *contnode*.
 
         The method can also raise :exc:`sphinx.environment.NoUri` to suppress
-        the 'missing-reference' event being emitted.
+        the :event:`missing-reference` event being emitted.
         """
         pass
 
@@ -332,6 +334,12 @@ class Domain(object):
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
+
+    def get_enumerable_node_type(self, node):
+        # type: (nodes.Node) -> unicode
+        """Get type of enumerable nodes (experimental)."""
+        enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
+        return enum_node_type
 
     def get_full_qualified_name(self, node):
         # type: (nodes.Node) -> unicode

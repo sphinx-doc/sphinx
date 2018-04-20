@@ -1,12 +1,14 @@
-.. highlightlang:: rest
+.. highlightlang:: rst
 
 .. _rst-primer:
 
+=======================
 reStructuredText Primer
 =======================
 
-This section is a brief introduction to reStructuredText (reST) concepts and
-syntax, intended to provide authors with enough information to author documents
+reStructuredText is the default plaintext markup language used by Sphinx.  This
+section is a brief introduction to reStructuredText (reST) concepts and syntax,
+intended to provide authors with enough information to author documents
 productively.  Since reST was designed to be a simple, unobtrusive markup
 language, this will not take too long.
 
@@ -27,7 +29,7 @@ lines.  As in Python, indentation is significant in reST, so all lines of the
 same paragraph must be left-aligned to the same level of indentation.
 
 
-.. _inlinemarkup:
+.. _rst-inline-markup:
 
 Inline markup
 -------------
@@ -50,30 +52,16 @@ Be aware of some restrictions of this markup:
 
 These restrictions may be lifted in future versions of the docutils.
 
-reST also allows for custom "interpreted text roles", which signify that the
-enclosed text should be interpreted in a specific way.  Sphinx uses this to
-provide semantic markup and cross-referencing of identifiers, as described in
-the appropriate section.  The general syntax is ``:rolename:`content```.
-
-Standard reST provides the following roles:
-
-* :durole:`emphasis` -- alternate spelling for ``*emphasis*``
-* :durole:`strong` -- alternate spelling for ``**strong**``
-* :durole:`literal` -- alternate spelling for ````literal````
-* :durole:`subscript` -- subscript text
-* :durole:`superscript` -- superscript text
-* :durole:`title-reference` -- for titles of books, periodicals, and other
-  materials
-
-See :ref:`inline-markup` for roles added by Sphinx.
+It is also possible to replace or expand upon some of this inline markup with
+roles. Refer to :ref:`rst-roles-alt` for more information.
 
 
 Lists and Quote-like blocks
 ---------------------------
 
 List markup (:duref:`ref <bullet-lists>`) is natural: just place an asterisk at
-the start of a paragraph and indent properly.  The same goes for numbered lists;
-they can also be autonumbered using a ``#`` sign::
+the start of a paragraph and indent properly.  The same goes for numbered
+lists; they can also be autonumbered using a ``#`` sign::
 
    * This is a bulleted list.
    * It has two items, the second
@@ -84,7 +72,6 @@ they can also be autonumbered using a ``#`` sign::
 
    #. This is a numbered list.
    #. It has two items too.
-
 
 Nested lists are possible, but be aware that they must be separated from the
 parent list items by blank lines::
@@ -120,18 +107,22 @@ Line blocks (:duref:`ref <line-blocks>`) are a way of preserving line breaks::
 
 There are also several more special blocks available:
 
-* field lists (:duref:`ref <field-lists>`)
+* field lists (:duref:`ref <field-lists>`, with caveats noted in
+  :ref:`rst-field-lists`)
 * option lists (:duref:`ref <option-lists>`)
 * quoted literal blocks (:duref:`ref <quoted-literal-blocks>`)
 * doctest blocks (:duref:`ref <doctest-blocks>`)
 
 
-Source Code
------------
+.. _rst-literal-blocks:
+
+Literal blocks
+--------------
 
 Literal code blocks (:duref:`ref <literal-blocks>`) are introduced by ending a
 paragraph with the special marker ``::``.  The literal block must be indented
-(and, like all paragraphs, separated from the surrounding ones by blank lines)::
+(and, like all paragraphs, separated from the surrounding ones by blank
+lines)::
 
    This is a normal text paragraph. The next paragraph is a code sample::
 
@@ -144,8 +135,8 @@ paragraph with the special marker ``::``.  The literal block must be indented
 
 The handling of the ``::`` marker is smart:
 
-* If it occurs as a paragraph of its own, that paragraph is completely left
-  out of the document.
+* If it occurs as a paragraph of its own, that paragraph is completely left out
+  of the document.
 * If it is preceded by whitespace, the marker is removed.
 * If it is preceded by non-whitespace, the marker is replaced by a single
   colon.
@@ -153,15 +144,33 @@ The handling of the ``::`` marker is smart:
 That way, the second sentence in the above example's first paragraph would be
 rendered as "The next paragraph is a code sample:".
 
+Code highlighting can be enabled for these literal blocks on a document-wide
+basis using the :rst:dir:`highlight` directive and on a project-wide basis
+using the :confval:`highlight_language` configuration option. The
+:rst:dir:`code-block` directive can be used to set highlighting on a
+block-by-block basis. These directives are discussed later.
+
+
+.. _rst-doctest-blocks:
+
+Doctest blocks
+--------------
+
+Doctest blocks (:duref:`ref <doctest-blocks>`) are interactive Python sessions
+cut-and-pasted into docstrings. They do not require the
+:ref:`literal blocks <rst-literal-blocks>` syntax. The doctest block must end
+with a blank line and should *not* end with with an unused prompt::
+
+    >>> 1 + 1
+    2
 
 .. _rst-tables:
 
 Tables
 ------
 
-For *grid tables* (:duref:`ref
-<grid-tables>`), you have to "paint" the cell grid yourself.  They look like
-this::
+For *grid tables* (:duref:`ref <grid-tables>`), you have to "paint" the cell
+grid yourself.  They look like this::
 
    +------------------------+------------+----------+----------+
    | Header row, column 1   | Header 2   | Header 3 | Header 4 |
@@ -186,17 +195,18 @@ contain multiple lines.  They look like this::
    =====  =====  =======
 
 Two more syntaxes are supported: *CSV tables* and *List tables*. They use an
-*explicit markup block*, see `Directives`_ section.
+*explicit markup block*. Refer to :ref:`table-directives` for more information.
+
 
 Hyperlinks
 ----------
 
 External links
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
-Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
-text should be the web address, you don't need special markup at all, the parser
-finds links and mail addresses in ordinary text.
+Use ```Link text <https://domain.invalid/>`_`` for inline web links.  If the
+link text should be the web address, you don't need special markup at all, the
+parser finds links and mail addresses in ordinary text.
 
 .. important:: There must be a space between the link text and the opening \< for the URL.
 
@@ -205,11 +215,10 @@ You can also separate the link and the target definition (:duref:`ref
 
    This is a paragraph that contains `a link`_.
 
-   .. _a link: http://example.com/
-
+   .. _a link: https://domain.invalid/
 
 Internal links
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 Internal linking is done via a special reST role provided by Sphinx, see the
 section on specific markup, :ref:`ref-role`.
@@ -244,6 +253,59 @@ documentation), and use a deeper nesting level, but keep in mind that most
 target formats (HTML, LaTeX) have a limited supported nesting depth.
 
 
+.. _rst-field-lists:
+
+Field Lists
+-----------
+
+Field lists (:duref:`ref <field-lists>`) are sequences of fields marked up like
+this::
+
+   :fieldname: Field content
+
+They are commonly used in Python documentation::
+
+    def my_function(my_arg, my_other_arg):
+        """A function just for me.
+
+        :param my_arg: The first of my arguments.
+        :param my_other_arg: The second of my arguments.
+
+        :returns: A message (just for me, of course).
+        """
+
+Sphinx extends standard docutils behavior and intercepts field lists specified
+at the beginning of documents.  Refer to :doc:`field-lists` for more
+information.
+
+
+.. TODO This ref should be 'rst-roles', but that already exists. Rename the
+.. other ones
+
+.. _rst-roles-alt:
+
+Roles
+-----
+
+A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
+piece of explicit markup. It signifies that that the enclosed text should be
+interpreted in a specific way.  Sphinx uses this to provide semantic markup and
+cross-referencing of identifiers, as described in the appropriate section.  The
+general syntax is ``:rolename:`content```.
+
+Docutils supports the following roles:
+
+* :durole:`emphasis` -- equivalent of ``*emphasis*``
+* :durole:`strong` -- equivalent of ``**strong**``
+* :durole:`literal` -- equivalent of ````literal````
+* :durole:`subscript` -- subscript text
+* :durole:`superscript` -- superscript text
+* :durole:`title-reference` -- for titles of books, periodicals, and other
+  materials
+
+Refer to :doc:`roles` for roles added by Sphinx.
+
+
 Explicit Markup
 ---------------
 
@@ -253,19 +315,19 @@ specially-highlighted paragraphs, comments, and generic directives.
 
 An explicit markup block begins with a line starting with ``..`` followed by
 whitespace and is terminated by the next paragraph at the same level of
-indentation.  (There needs to be a blank line between explicit markup and normal
-paragraphs.  This may all sound a bit complicated, but it is intuitive enough
-when you write it.)
+indentation.  (There needs to be a blank line between explicit markup and
+normal paragraphs.  This may all sound a bit complicated, but it is intuitive
+enough when you write it.)
 
 
-.. _directives:
+.. _rst-directives:
 
 Directives
 ----------
 
 A directive (:duref:`ref <directives>`) is a generic block of explicit markup.
-Besides roles, it is one of the extension mechanisms of reST, and Sphinx makes
-heavy use of it.
+Along with roles, it is one of the extension mechanisms of reST, and Sphinx
+makes heavy use of it.
 
 Docutils supports the following directives:
 
@@ -303,9 +365,9 @@ Docutils supports the following directives:
 * Special directives:
 
   - :dudir:`raw <raw-data-pass-through>` (include raw target-format markup)
-  - :dudir:`include` (include reStructuredText from another file)
-    -- in Sphinx, when given an absolute include file path, this directive takes
-    it as relative to the source directory
+  - :dudir:`include` (include reStructuredText from another file) -- in Sphinx,
+    when given an absolute include file path, this directive takes it as
+    relative to the source directory
   - :dudir:`class` (assign a class attribute to the next element) [1]_
 
 * HTML specifics:
@@ -321,14 +383,16 @@ Docutils supports the following directives:
   Since these are only per-file, better use Sphinx's facilities for setting the
   :confval:`default_role`.
 
-Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
-:dudir:`footer`.
+.. warning::
 
-Directives added by Sphinx are described in :ref:`sphinxmarkup`.
+   Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
+   :dudir:`footer`.
 
-Basically, a directive consists of a name, arguments, options and content. (Keep
-this terminology in mind, it is used in the next chapter describing custom
-directives.)  Looking at this example, ::
+Directives added by Sphinx are described in :doc:`directives`.
+
+Basically, a directive consists of a name, arguments, options and content.
+(Keep this terminology in mind, it is used in the next chapter describing
+custom directives.)  Looking at this example, ::
 
    .. function:: foo(x)
                  foo(y, z)
@@ -338,12 +402,12 @@ directives.)  Looking at this example, ::
 
 ``function`` is the directive name.  It is given two arguments here, the
 remainder of the first line and the second line, as well as one option
-``module`` (as you can see, options are given in the lines immediately following
-the arguments and indicated by the colons).  Options must be indented to the
-same level as the directive content.
+``module`` (as you can see, options are given in the lines immediately
+following the arguments and indicated by the colons).  Options must be indented
+to the same level as the directive content.
 
-The directive content follows after a blank line and is indented relative to the
-directive start.
+The directive content follows after a blank line and is indented relative to
+the directive start.
 
 
 Images
@@ -356,8 +420,8 @@ reST supports an image directive (:dudir:`ref <image>`), used like so::
 
 When used within Sphinx, the file name given (here ``gnu.png``) must either be
 relative to the source file, or absolute which means that they are relative to
-the top source directory.  For example, the file ``sketch/spam.rst`` could refer
-to the image ``images/spam.png`` as ``../images/spam.png`` or
+the top source directory.  For example, the file ``sketch/spam.rst`` could
+refer to the image ``images/spam.png`` as ``../images/spam.png`` or
 ``/images/spam.png``.
 
 Sphinx will automatically copy image files over to a subdirectory of the output
@@ -365,21 +429,22 @@ directory on building (e.g. the ``_static`` directory for HTML output.)
 
 Interpretation of image size options (``width`` and ``height``) is as follows:
 if the size has no unit or the unit is pixels, the given size will only be
-respected for output channels that support pixels. Other units (like ``pt``
-for points) will be used for HTML and LaTeX output (the latter replaces ``pt``
-by ``bp`` as this is the TeX unit such that ``72bp=1in``).
+respected for output channels that support pixels. Other units (like ``pt`` for
+points) will be used for HTML and LaTeX output (the latter replaces ``pt`` by
+``bp`` as this is the TeX unit such that ``72bp=1in``).
 
 Sphinx extends the standard docutils behavior by allowing an asterisk for the
 extension::
 
    .. image:: gnu.*
 
-Sphinx then searches for all images matching the provided pattern and determines
-their type.  Each builder then chooses the best image out of these candidates.
-For instance, if the file name ``gnu.*`` was given and two files :file:`gnu.pdf`
-and :file:`gnu.png` existed in the source tree, the LaTeX builder would choose
-the former, while the HTML builder would prefer the latter.
-Supported image types and choosing priority are defined at :ref:`builders`.
+Sphinx then searches for all images matching the provided pattern and
+determines their type.  Each builder then chooses the best image out of these
+candidates.  For instance, if the file name ``gnu.*`` was given and two files
+:file:`gnu.pdf` and :file:`gnu.png` existed in the source tree, the LaTeX
+builder would choose the former, while the HTML builder would prefer the
+latter.  Supported image types and choosing priority are defined at
+:ref:`builders`.
 
 Note that image file names should not contain spaces.
 
@@ -443,11 +508,14 @@ or this::
 See the :duref:`reST reference for substitutions <substitution-definitions>`
 for details.
 
+.. index:: ! pair: global; substitutions
+
 If you want to use some substitutions for all documents, put them into
-:confval:`rst_prolog` or put them into a separate file and include it into all
-documents you want to use them in, using the :rst:dir:`include` directive.  (Be
-sure to give the include file a file name extension differing from that of other
-source files, to avoid Sphinx finding it as a standalone document.)
+:confval:`rst_prolog` or :confval:`rst_epilog` or put them into a separate file
+and include it into all documents you want to use them in, using the
+:rst:dir:`include` directive.  (Be sure to give the include file a file name
+extension differing from that of other source files, to avoid Sphinx finding it
+as a standalone document.)
 
 Sphinx defines some default substitutions, see :ref:`default-substitutions`.
 
@@ -486,8 +554,8 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **Separation of inline markup:** As said above, inline markup spans must be
   separated from the surrounding text by non-word characters, you have to use a
-  backslash-escaped space to get around that.  See
-  :duref:`the reference <substitution-definitions>` for the details.
+  backslash-escaped space to get around that.  See :duref:`the reference
+  <substitution-definitions>` for the details.
 
 * **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
   possible.

@@ -62,7 +62,7 @@ following contents::
 
     {% extends "!layout.html" %}
     {% block rootrellink %}
-        <li><a href="http://project.invalid/">Project Homepage</a> &raquo;</li>
+        <li><a href="https://project.invalid/">Project Homepage</a> &raquo;</li>
         {{ super() }}
     {% endblock %}
 
@@ -70,8 +70,8 @@ By prefixing the name of the overridden template with an exclamation mark,
 Sphinx will load the layout template from the underlying HTML theme.
 
 **Important**: If you override a block, call ``{{ super() }}`` somewhere to
-render the block's content in the extended template -- unless you don't want
-that content to show up.
+render the block's original content in the extended template -- unless you
+don't want that content to show up.
 
 
 Working with the builtin templates
@@ -228,6 +228,9 @@ them to generate links or output multiply used elements.
 
    Return the rendered relation bar.
 
+.. function:: warning(message)
+
+   Emit a warning message.
 
 Global Variables
 ~~~~~~~~~~~~~~~~

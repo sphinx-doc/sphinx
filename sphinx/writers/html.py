@@ -19,7 +19,7 @@ from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 from six import string_types
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
 
@@ -335,17 +335,17 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
-                    msg = 'numfig_format is not defined for %s' % figtype
+                    msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_figtype(node)  # type: ignore
+        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assigned for %s node' % node.tagname
+                msg = __('Any IDs not assigned for %s node') % node.tagname
                 logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
@@ -625,7 +625,7 @@ class HTMLTranslator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
                                    location=node)
                 else:
                     if 'width' not in node:
@@ -689,6 +689,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</td>')
 
     def visit_option_group(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_option_group(self, node)
         self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
@@ -845,6 +846,7 @@ class HTMLTranslator(BaseTranslator):
         node.column = 0
 
     def visit_entry(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_entry(self, node)
         if self.body[-1] == '&nbsp;':
             self.body[-1] = '&#160;'
@@ -864,6 +866,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
     def visit_field_name(self, node):
+        # type: (nodes.Node) -> None
         context_count = len(self.context)
         BaseTranslator.visit_field_name(self, node)
         if context_count != len(self.context):
@@ -871,9 +874,9 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/en/master/ext/math.html',
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
                        location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 

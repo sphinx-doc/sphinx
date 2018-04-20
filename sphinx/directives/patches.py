@@ -12,11 +12,12 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
-    from typing import Dict, List  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -44,16 +45,15 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class Meta(html.Meta):
+class Meta(html.Meta, SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         result = html.Meta.run(self)
         for node in result:
             if (isinstance(node, nodes.pending) and
                isinstance(node.details['nodes'][0], html.MetaBody.meta)):
                 meta = node.details['nodes'][0]
-                meta.source = env.doc2path(env.docname)
+                meta.source = self.env.doc2path(self.env.docname)
                 meta.line = self.lineno
                 meta.rawcontent = meta['content']
 
@@ -69,6 +69,7 @@ class RSTTable(tables.RSTTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
+        # type: () -> Tuple[nodes.Node, unicode]
         title, message = tables.RSTTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -82,6 +83,7 @@ class CSVTable(tables.CSVTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
+        # type: () -> Tuple[nodes.Node, unicode]
         title, message = tables.CSVTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -95,6 +97,7 @@ class ListTable(tables.ListTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
+        # type: () -> Tuple[nodes.Node, unicode]
         title, message = tables.ListTable.make_title(self)
         if title:
             set_source_info(self, title)

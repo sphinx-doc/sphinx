@@ -23,6 +23,7 @@ from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.locale import __
 from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
@@ -55,11 +56,11 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     Builder that also outputs Qt help project, contents and index files.
     """
     name = 'qthelp'
-    epilog = ('You can now run "qcollectiongenerator" with the .qhcp '
-              'project file in %(outdir)s, like this:\n'
-              '$ qcollectiongenerator %(outdir)s/%(project)s.qhcp\n'
-              'To view the help file:\n'
-              '$ assistant -collectionFile %(outdir)s/%(project)s.qhc')
+    epilog = __('You can now run "qcollectiongenerator" with the .qhcp '
+                'project file in %(outdir)s, like this:\n'
+                '$ qcollectiongenerator %(outdir)s/%(project)s.qhcp\n'
+                'To view the help file:\n'
+                '$ assistant -collectionFile %(outdir)s/%(project)s.qhc')
 
     # don't copy the reST source
     copysource = False
@@ -95,7 +96,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def build_qhp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        logger.info('writing project file...')
+        logger.info(__('writing project file...'))
 
         # sections
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
@@ -157,7 +158,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
-        logger.info('writing collection project file...')
+        logger.info(__('writing collection project file...'))
         with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             body = render_file('project.qhcp', outname=outname,
                                title=self.config.html_short_title,

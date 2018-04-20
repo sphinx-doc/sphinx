@@ -51,6 +51,7 @@ for first beta releases
 * Check diff by ``git diff``
 * ``git commit -am 'Bump version'``
 * ``git push origin master``
+* open https://github.com/sphinx-doc/sphinx/settings/branches and make ``X.Y`` branch protected
 * Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
 * Add new version/milestone to tracker categories
 * Write announcement and send to sphinx-dev, sphinx-users and python-announce
@@ -103,6 +104,7 @@ for major releases
 * ``git checkout master``
 * ``git merge X.Y``
 * ``git push origin master``
+* open https://github.com/sphinx-doc/sphinx/settings/branches and make ``A.B`` branch *not* protected
 * ``git checkout A.B`` (checkout old stable)
 * Run ``git tag A.B`` to paste a tag instead branch
 * Run ``git push origin :A.B --tags`` to remove old stable branch

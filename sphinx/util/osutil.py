@@ -19,10 +19,13 @@ import re
 import shutil
 import sys
 import time
+import warnings
 from io import BytesIO, StringIO
 from os import path
 
 from six import PY2, PY3, text_type
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
@@ -181,8 +184,10 @@ def make_filename(string):
 
 def ustrftime(format, *args):
     # type: (unicode, Any) -> unicode
-    # [DEPRECATED] strftime for unicode strings
-    # It will be removed at Sphinx-1.5
+    """[DEPRECATED] strftime for unicode strings."""
+    warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
+                  RemovedInSphinx30Warning)
+
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -197,7 +202,7 @@ def ustrftime(format, *args):
         return time.strftime(text_type(format).encode(enc), *args).decode(enc)
     else:  # Py3
         # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-        # http://bugs.python.org/issue8304
+        # https://bugs.python.org/issue8304
         try:
             return time.strftime(format, *args)
         except UnicodeEncodeError:
@@ -227,7 +232,12 @@ def abspath(pathdir):
     # type: (unicode) -> unicode
     pathdir = path.abspath(pathdir)
     if isinstance(pathdir, bytes):
-        pathdir = pathdir.decode(fs_encoding)
+        try:
+            pathdir = pathdir.decode(fs_encoding)
+        except UnicodeDecodeError:
+            raise UnicodeDecodeError('multibyte filename not supported on '
+                                     'this filesystem encoding '
+                                     '(%r)' % fs_encoding)
     return pathdir
 
 

@@ -13,7 +13,7 @@ in itself.  See the :ref:`intl-options` for details on configuration.
    :width: 100%
 
    Workflow visualization of translations in Sphinx.  (The stick-figure is taken
-   from an `XKCD comic <http://xkcd.com/779/>`_.)
+   from an `XKCD comic <https://xkcd.com/779/>`_.)
 
 .. contents::
    :local:
@@ -317,7 +317,7 @@ There is `sphinx translation page`_ for Sphinx (master) documentation.
 .. rubric:: Footnotes
 
 .. [1] See the `GNU gettext utilities
-       <http://www.gnu.org/software/gettext/manual/gettext.html#Introduction>`_
+       <https://www.gnu.org/software/gettext/manual/gettext.html#Introduction>`_
        for details on that software suite.
 .. [2] Because nobody expects the Spanish Inquisition!
 
