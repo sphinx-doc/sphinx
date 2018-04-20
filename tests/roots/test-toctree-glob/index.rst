@@ -15,7 +15,7 @@ normal order
    hyperref <https://sphinx-doc.org/?q=sphinx>
 
 reversed order
--------------
+--------------
 
 .. toctree::
    :glob:
