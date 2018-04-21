@@ -17,6 +17,10 @@ Incompatible changes
   a ``conf.py`` file sphinx-build generates.
 * The ``gettext_compact`` attribute is removed from ``document.settings``
   object.  Please use ``config.gettext_compact`` instead.
+* The processing order on reading phase is changed.  smart_quotes, sphinx
+  domains, :event:`doctree-read` event and versioning doctrees are invoked
+  earlier than so far.  For more details, please read a description of
+  :py:meth:`.Sphinx.add_transform()`
 
 Deprecated
 ----------
@@ -36,6 +40,7 @@ Deprecated
 * ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
+* ``sphinx.versioning.prepare()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_

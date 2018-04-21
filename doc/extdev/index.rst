@@ -119,6 +119,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``sphinx.versioning.prepare()``
+     - 1.8
+     - 3.0
+     - ``sphinx.versioning.UIDTransform``
+
    * - ``sphinx.application.Sphinx.override_domain()``
      - 1.8
      - 3.0
