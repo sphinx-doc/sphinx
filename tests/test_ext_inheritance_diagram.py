@@ -19,7 +19,7 @@ from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
 
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_html(app, status, warning):
+def test_inheritance_diagram_png_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
@@ -28,6 +28,25 @@ def test_inheritance_diagram_html(app, status, warning):
                '<div class="graphviz">'
                '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance"/></div>\n<p class="caption"><span class="caption-text">'
+               'Test Foo!</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this image">\xb6</a></p>')
+    assert re.search(pattern, content, re.M)
+
+
+@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
+                    confoverrides={'graphviz_output_format': 'svg'})
+@pytest.mark.usefixtures('if_graphviz_found')
+def test_inheritance_diagram_svg_html(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+
+    pattern = ('<div class="figure" id="id1">\n'
+               '<div class="graphviz">'
+               '<object data="_images/inheritance-\\w+.svg" '
+               'type="image/svg\\+xml" class="inheritance">\n'
+               '<p class=\"warning\">Inheritance diagram of test.Foo</p>'
+               '</object></div>\n<p class="caption"><span class="caption-text">'
                'Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Permalink to this image">\xb6</a></p>')
     assert re.search(pattern, content, re.M)

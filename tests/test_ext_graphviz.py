@@ -55,7 +55,7 @@ def test_graphviz_svg_html(app, status, warning):
 
     html = (r'<div class=\"figure\" .*?>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph foo {\n'
+            r'\s*<p class=\"warning\">digraph foo {\n'
             r'bar -&gt; baz\n'
             r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
@@ -63,13 +63,13 @@ def test_graphviz_svg_html(app, status, warning):
     assert re.search(html, content, re.S)
 
     html = (r'Hello <div class="graphviz"><object.*>\n'
-            r'\s+<p class=\"warning\">graph</p></object></div>\n'
+            r'\s*<p class=\"warning\">graph</p></object></div>\n'
             r' graphviz world')
     assert re.search(html, content, re.S)
 
     html = (r'<div class=\"figure align-right\" .*\>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph bar {\n'
+            r'\s*<p class=\"warning\">digraph bar {\n'
             r'foo -&gt; bar\n'
             r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
@@ -79,7 +79,7 @@ def test_graphviz_svg_html(app, status, warning):
 
     html = (r'<div align=\"center\" class=\"align-center\">'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph foo {\n'
+            r'\s*<p class=\"warning\">digraph foo {\n'
             r'centered\n'
             r'}</p></object></div>\n'
             r'</div>')

@@ -290,9 +290,11 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             self.body.append('<div align="%s" class="align-%s">' %
                              (node['align'], node['align']))
         if format == 'svg':
-            svgtag = '''<div class="graphviz"><object data="%s" type="image/svg+xml">
-            <p class="warning">%s</p></object></div>\n''' % (fname, alt)
-            self.body.append(svgtag)
+            self.body.append('<div class="graphviz">')
+            self.body.append('<object data="%s" type="image/svg+xml" %s>\n' %
+                             (fname, imgcss))
+            self.body.append('<p class="warning">%s</p>' % alt)
+            self.body.append('</object></div>\n')
         else:
             with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
