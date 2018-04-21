@@ -343,6 +343,8 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     refs: sphinx.parsers.RSTParser
     """
+    default_priority = 750
+
     def apply(self):
         # type: () -> None
         if not self.is_available():
@@ -395,6 +397,15 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         for txtnode in txtnodes:
             notsmartquotable = not is_smartquotable(txtnode)
             yield (texttype[notsmartquotable], txtnode.astext())
+
+
+class DoctreeReadEvent(SphinxTransform):
+    """Emit :event:`doctree-read` event."""
+    default_priority = 880
+
+    def apply(self):
+        # type: () -> None
+        self.app.emit('doctree-read', self.document)
 
 
 class ManpageLink(SphinxTransform):
