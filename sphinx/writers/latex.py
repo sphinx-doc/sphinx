@@ -186,10 +186,11 @@ class LaTeXWriter(writers.Writer):
 # Helper classes
 
 class ExtBabel(Babel):
-    def __init__(self, language_code):
-        # type: (unicode) -> None
+    def __init__(self, language_code, use_polyglossia=False):
+        # type: (unicode, bool) -> None
         super(ExtBabel, self).__init__(language_code or '')
         self.language_code = language_code
+        self.use_polyglossia = use_polyglossia
 
     def get_shorthandoff(self):
         # type: () -> unicode
@@ -217,10 +218,27 @@ class ExtBabel(Babel):
     def get_language(self):
         # type: () -> unicode
         language = super(ExtBabel, self).get_language()
-        if not language:
+        if language == 'ngerman' and self.use_polyglossia:
+            # polyglossia calls new orthography (Neue Rechtschreibung) as
+            # german (with new spelling option).
+            return 'german'
+        elif not language:
             return 'english'  # fallback to english
         else:
             return language
+
+    def get_mainlanguage_options(self):
+        # type: () -> unicode
+        """Return options for polyglossia's ``\setmainlanguage``."""
+        language = super(ExtBabel, self).get_language()
+        if self.use_polyglossia is False:
+            return None
+        elif language == 'ngerman':
+            return 'spelling=new'
+        elif language == 'german':
+            return 'spelling=old'
+        else:
+            return None
 
 
 class Table(object):
@@ -513,7 +531,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(builder.config.language)
+        self.babel = ExtBabel(builder.config.language,
+                              not self.elements['babel'])
         if builder.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
@@ -547,8 +566,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
         elif self.elements['polyglossia']:
-            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
-                (self.elements['polyglossia'], self.babel.get_language())
+            options = self.babel.get_mainlanguage_options()
+            if options:
+                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
+                                                              self.babel.get_language())
+            else:
+                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
+
+            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
+                                                        mainlanguage)
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
