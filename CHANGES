@@ -30,6 +30,7 @@ Bugs fixed
 * #4803: latex: too slow in proportion to number of auto numbered footnotes
 * #4838: htmlhelp: The entries in .hhp file is not ordered
 * toctree directive tries to glob for URL having query_string
+* #4871: html search: Upper characters problem in German
 
 Testing
 --------
