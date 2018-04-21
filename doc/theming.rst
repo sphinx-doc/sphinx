@@ -134,7 +134,7 @@ These themes are:
   Check out at its `installation page`_ how to set up properly
   :confval:`html_sidebars` for its use.
 
-  .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
+  .. _Alabaster theme: https://pypi.org/project/alabaster/
   .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
@@ -418,7 +418,7 @@ Third Party Themes
   View a working demo over on readthedocs.org. You can get install and options
   information at `Read the Docs Sphinx Theme`_ page.
 
-  .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
+  .. _Read the Docs Sphinx Theme: https://pypi.org/project/sphinx_rtd_theme/
 
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.

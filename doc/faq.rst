@@ -23,7 +23,7 @@ How do I...
    Use themes, see :doc:`theming`.
 
 ... add global substitutions or includes?
-   Add them in the :confval:`rst_epilog` config value.
+   Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
 
 ... display the whole TOC tree in the sidebar?
    Use the :data:`toctree` callable in a custom layout template, probably in the
@@ -72,7 +72,7 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   <https://pypi.org/project/Sphinx-PyPI-upload/>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
    https://pythonhosted.org/.
 

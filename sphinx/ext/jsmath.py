@@ -26,7 +26,7 @@ if False:
 
 def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
-    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate'))
+    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.encode(node['latex']) + '</span>')
     raise nodes.SkipNode
 
@@ -34,7 +34,7 @@ def html_visit_math(self, node):
 def html_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     if node['nowrap']:
-        self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
+        self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
         self.body.append(self.encode(node['latex']))
         self.body.append('</div>')
         raise nodes.SkipNode
@@ -47,7 +47,7 @@ def html_visit_displaymath(self, node):
                 self.body.append('<span class="eqno">(%s)' % number)
                 self.add_permalink_ref(node, _('Permalink to this equation'))
                 self.body.append('</span>')
-            self.body.append(self.starttag(node, 'div', CLASS='math notranslate'))
+            self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
         else:
             # but only once!
             self.body.append('<div class="math">')

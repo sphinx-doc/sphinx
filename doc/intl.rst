@@ -322,8 +322,8 @@ There is `sphinx translation page`_ for Sphinx (master) documentation.
 .. [2] Because nobody expects the Spanish Inquisition!
 
 
-.. _`transifex-client`: https://pypi.python.org/pypi/transifex-client
-.. _`sphinx-intl`: https://pypi.python.org/pypi/sphinx-intl
+.. _`transifex-client`: https://pypi.org/project/transifex-client/
+.. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: http://docs.transifex.com/developer/client/

@@ -132,7 +132,7 @@ Installation from PyPI
 ----------------------
 
 Sphinx packages are published on the `Python Package Index
-<https://pypi.python.org/pypi/Sphinx>`_.  The preferred tool for installing
+<https://pypi.org/project/Sphinx/>`_.  The preferred tool for installing
 packages from *PyPI* is :command:`pip`.  This tool is provided with all modern
 versions of Python.
 
