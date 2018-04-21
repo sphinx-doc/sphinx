@@ -96,7 +96,8 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent, UIDTransform,
+                  SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
+                  UIDTransform,
                   ]  # type: List[Transform]
 
     def __init__(self, app, *args, **kwargs):
