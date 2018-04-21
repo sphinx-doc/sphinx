@@ -17,10 +17,7 @@ from sphinx.transforms import SphinxTransform
 
 
 class SubstitutionDefinitionsRemover(SphinxTransform):
-    """Remove ``substitution_definition node from doctrees.
-
-    .. note:: In Sphinx-1.7, this transform is only used in LaTeX builder.
-    """
+    """Remove ``substitution_definition node from doctrees."""
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1

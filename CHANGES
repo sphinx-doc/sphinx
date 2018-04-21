@@ -21,6 +21,8 @@ Incompatible changes
   domains, :event:`doctree-read` event and versioning doctrees are invoked
   earlier than so far.  For more details, please read a description of
   :py:meth:`.Sphinx.add_transform()`
+* #4827: All ``substitution_definition`` nodes are removed from doctree on
+  reading phase
 
 Deprecated
 ----------
