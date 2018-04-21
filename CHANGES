@@ -62,6 +62,8 @@ Features added
 * Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
   files from configuration
 * #4834: Ensure set object descriptions are reproducible.
+* #4828: Allow to override :confval:`numfig_format` partially.  Full definition
+  is not needed.
 
 Bugs fixed
 ----------
