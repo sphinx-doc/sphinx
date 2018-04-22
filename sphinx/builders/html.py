@@ -139,7 +139,7 @@ class CSSContainer(list):
 
 
 class Stylesheet(text_type):
-    """The metadata of stylesheet.
+    """A metadata of stylesheet.
 
     To keep compatibility with old themes, an instance of stylesheet behaves as
     its filename (str).
@@ -158,6 +158,26 @@ class Stylesheet(text_type):
         if args:  # old style arguments (rel, title)
             self.attributes['rel'] = args[0]
             self.attributes['title'] = args[1]
+
+        return self
+
+
+class JavaScript(text_type):
+    """A metadata of javascript file.
+
+    To keep compatibility with old themes, an instance of javascript behaves as
+    its filename (str).
+    """
+
+    attributes = None   # type: Dict[unicode, unicode]
+    filename = None     # type: unicode
+
+    def __new__(cls, filename, **attributes):
+        # type: (unicode, **unicode) -> None
+        self = text_type.__new__(cls, filename)  # type: ignore
+        self.filename = filename
+        self.attributes = attributes
+        self.attributes.setdefault('type', 'text/javascript')
 
         return self
 
@@ -1479,6 +1499,31 @@ def convert_html_css_files(app, config):
     config.html_css_files = html_css_files  # type: ignore
 
 
+def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
+    # type: (Sphinx, unicode, unicode, Dict, nodes.Node) -> None
+    """Set up js_tag() template helper.
+
+    .. note:: This set up function is added to keep compatibility with webhelper.
+    """
+    pathto = context.get('pathto')
+
+    def js_tag(js):
+        # type: (JavaScript) -> unicode
+        attrs = []
+        if isinstance(js, JavaScript):
+            for key in sorted(js.attributes):
+                value = js.attributes[key]
+                if value is not None:
+                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+            attrs.append('src="%s"' % pathto(js.filename, resource=True))
+        else:
+            # str value (old styled)
+            attrs.append('src="%s"' % pathto(js, resource=True))
+        return '<script %s></script>' % ' '.join(attrs)
+
+    context['js_tag'] = js_tag
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1529,6 +1574,7 @@ def setup(app):
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
+    app.connect('html-page-context', setup_js_tag_helper)
 
     return {
         'version': 'builtin',
