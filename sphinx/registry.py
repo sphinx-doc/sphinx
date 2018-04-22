@@ -340,6 +340,7 @@ class SphinxComponentRegistry(object):
             logger.warning(__('extension %r returned an unsupported object from '
                               'its setup() function; it should return None or a '
                               'metadata dictionary'), extname)
+            metadata = {}
 
         app.extensions[extname] = Extension(extname, mod, **metadata)
         app._setting_up_extension.pop()

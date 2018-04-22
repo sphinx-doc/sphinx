@@ -32,6 +32,7 @@ Bugs fixed
 * toctree directive tries to glob for URL having query_string
 * #4871: html search: Upper characters problem in German
 * #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
+* #4878: Crashed with extension which returns invalid metadata
 
 Testing
 --------
