@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import time
 import warnings
 from os import path
 
@@ -18,10 +19,12 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
+from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import i18n, import_object, logging, status_iterator
+from sphinx.util import i18n, import_object, logging, rst, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import find_catalog
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
@@ -478,7 +481,7 @@ class Builder(object):
             # remove all inventory entries for that file
             self.app.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
-            self.env.read_doc(docname, self.app)
+            self.read_doc(docname)
 
     def _read_parallel(self, docnames, nproc):
         # type: (List[unicode], int) -> None
@@ -491,7 +494,7 @@ class Builder(object):
             # type: (List[unicode]) -> unicode
             self.env.app = self.app
             for docname in docs:
-                self.env.read_doc(docname, self.app)
+                self.read_doc(docname)
             # allow pickling self to send it back
             return BuildEnvironment.dumps(self.env)
 
@@ -510,6 +513,32 @@ class Builder(object):
         # make sure all threads have finished
         logger.info(bold('waiting for workers...'))
         tasks.join()
+
+    def read_doc(self, docname):
+        # type: (unicode) -> None
+        """Parse a file and add/update inventory entries for the doctree."""
+        self.env.prepare_settings(docname)
+
+        # Add confdir/docutils.conf to dependencies list if exists
+        docutilsconf = path.join(self.confdir, 'docutils.conf')
+        if path.isfile(docutilsconf):
+            self.env.note_dependency(docutilsconf)
+
+        with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
+            doctree = read_doc(self.app, self.env, self.env.doc2path(docname))
+
+        # store time of reading, for outdated files detection
+        # (Some filesystems have coarse timestamp resolution;
+        # therefore time.time() can be older than filesystem's timestamp.
+        # For example, FAT32 has 2sec timestamp resolution.)
+        self.env.all_docs[docname] = max(time.time(),
+                                         path.getmtime(self.env.doc2path(docname)))
+
+        # cleanup
+        self.env.temp_data.clear()
+        self.env.ref_context.clear()
+
+        self.env.write_doctree(docname, doctree)
 
     def write(self, build_docnames, updated_docnames, method='update'):
         # type: (Iterable[unicode], Sequence[unicode], unicode) -> None

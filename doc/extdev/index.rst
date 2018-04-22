@@ -203,6 +203,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Builder.read()``
 
+   * - ``BuildEnvironment.read_doc()``
+     - 1.8
+     - 3.0
+     - ``Builder.read_doc()``
+
    * - ``BuildEnvironment._read_serial()``
      - 1.8
      - 3.0

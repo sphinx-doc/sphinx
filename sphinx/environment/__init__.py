@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import time
 import types
 import warnings
 from collections import defaultdict
@@ -28,12 +27,11 @@ from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warnin
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.io import read_doc
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
-from sphinx.util import logging, rst
-from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util import logging
+from sphinx.util.docutils import WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
@@ -555,32 +553,6 @@ class BuildEnvironment(object):
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
 
-    def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
-        """Parse a file and add/update inventory entries for the doctree."""
-        self.prepare_settings(docname)
-
-        # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = path.join(self.app.confdir, 'docutils.conf')
-        if path.isfile(docutilsconf):
-            self.note_dependency(docutilsconf)
-
-        with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
-            doctree = read_doc(self.app, self, self.doc2path(docname))
-
-        # store time of reading, for outdated files detection
-        # (Some filesystems have coarse timestamp resolution;
-        # therefore time.time() can be older than filesystem's timestamp.
-        # For example, FAT32 has 2sec timestamp resolution.)
-        self.all_docs[docname] = max(
-            time.time(), path.getmtime(self.doc2path(docname)))
-
-        # cleanup
-        self.temp_data.clear()
-        self.ref_context.clear()
-
-        self.write_doctree(docname, doctree)
-
     # utilities to use while reading a document
 
     @property
@@ -846,6 +818,12 @@ class BuildEnvironment(object):
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning)
         return self.app.builder._read_parallel(docnames, nproc)
+
+    def read_doc(self, docname, app=None):
+        # type: (unicode, Sphinx) -> None
+        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
+                      RemovedInSphinx30Warning)
+        self.app.builder.read_doc(docname)
 
     @property
     def _nitpick_ignore(self):
