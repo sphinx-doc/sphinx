@@ -99,6 +99,8 @@ The following is a list of deprecated interface.
 
 .. list-table:: deprecated APIs
    :header-rows: 1
+   :class: deprecated
+   :widths: 40, 10, 10, 40
 
    * - Target
      - Deprecated

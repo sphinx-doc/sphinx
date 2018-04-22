@@ -302,6 +302,10 @@ cite, code, tt {
     letter-spacing: -0.02em;
 }
 
+table.deprecated code.literal {
+    word-break: break-all;
+}
+
 tt {
     background-color: #f2f2f2;
     border: 1px solid #ddd;
