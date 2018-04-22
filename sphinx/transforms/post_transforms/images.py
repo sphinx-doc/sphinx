@@ -175,7 +175,7 @@ class ImageConverter(BaseImageConverter):
     PNG and JPEG as image formats.  However it does not support SVG images.
     For such case, to use image converters allows to embed these
     unsupported images into the document.  One of image converters;
-    :ref:`sphinx.ext.  imgconverter <sphinx.ext.imgconverter>` can convert
+    :ref:`sphinx.ext.imgconverter <sphinx.ext.imgconverter>` can convert
     a SVG image to PNG format using Imagemagick internally.
 
     There are three steps to make your custom image converter:
