@@ -218,6 +218,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Builder.read()``
 
+   * - ``BuildEnvironment.write_doctree()``
+     - 1.8
+     - 3.0
+     - ``Builder.write_doctree()``
+
    * - ``sphinx.locale.l_()``
      - 1.8
      - 3.0

@@ -35,7 +35,7 @@ from sphinx.util.docutils import WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir, relpath
+from sphinx.util.osutil import SEP, relpath
 from sphinx.util.websupport import is_commentable
 
 if False:
@@ -655,21 +655,6 @@ class BuildEnvironment(object):
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
 
-    def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Write the doctree to a file."""
-        # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
-
-        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
         # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.Node
@@ -824,6 +809,13 @@ class BuildEnvironment(object):
         warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
                       RemovedInSphinx30Warning)
         self.app.builder.read_doc(docname)
+
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        warnings.warn('env.write_doctree() is deprecated. '
+                      'Please use builder.write_doctree() instead.',
+                      RemovedInSphinx30Warning)
+        self.app.builder.write_doctree(docname, doctree)
 
     @property
     def _nitpick_ignore(self):

@@ -14,6 +14,7 @@ import warnings
 from os import path
 
 from docutils import nodes
+from six.moves import cPickle as pickle
 
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
@@ -538,7 +539,22 @@ class Builder(object):
         self.env.temp_data.clear()
         self.env.ref_context.clear()
 
-        self.env.write_doctree(docname, doctree)
+        self.write_doctree(docname, doctree)
+
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        """Write the doctree to a file."""
+        # make it picklable
+        doctree.reporter = None
+        doctree.transformer = None
+        doctree.settings.warning_stream = None
+        doctree.settings.env = None
+        doctree.settings.record_dependencies = None
+
+        doctree_filename = self.env.doc2path(docname, self.env.doctreedir, '.doctree')
+        ensuredir(path.dirname(doctree_filename))
+        with open(doctree_filename, 'wb') as f:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def write(self, build_docnames, updated_docnames, method='update'):
         # type: (Iterable[unicode], Sequence[unicode], unicode) -> None
