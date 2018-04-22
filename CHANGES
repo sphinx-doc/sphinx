@@ -1,17 +1,5 @@
-Release 1.7.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.7.3 (released Apr 23, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -34,9 +22,6 @@ Bugs fixed
 * #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
 * #4459: duplicated labels detector does not work well in parallel build
 * #4878: Crashed with extension which returns invalid metadata
-
-Testing
---------
 
 Release 1.7.2 (released Mar 21, 2018)
 =====================================
