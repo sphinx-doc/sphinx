@@ -18,6 +18,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if False:
@@ -29,6 +30,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
+logger = logging.getLogger(__name__)
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
@@ -139,9 +141,13 @@ class ReSTDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
-        # XXX check duplicates
         for (typ, name), doc in otherdata['objects'].items():
             if doc in docnames:
+                if (typ, name) in self.data['objects']:
+                    otherdoc = self.data['objects'][typ, name]
+                    logger.warning('duplicate description of %s %s, '
+                                   'other instance in %s' %
+                                   (typ, name, self.env.doc2path(otherdoc)))
                 self.data['objects'][typ, name] = doc
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,

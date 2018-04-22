@@ -86,7 +86,7 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
-Release 1.7.3 (in development)
+Release 1.7.4 (in development)
 ==============================
 
 Dependencies
@@ -100,6 +100,15 @@ Deprecated
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.3 (released Apr 23, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -120,9 +129,8 @@ Bugs fixed
 * toctree directive tries to glob for URL having query_string
 * #4871: html search: Upper characters problem in German
 * #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
-
-Testing
---------
+* #4459: duplicated labels detector does not work well in parallel build
+* #4878: Crashed with extension which returns invalid metadata
 
 Release 1.7.2 (released Mar 21, 2018)
 =====================================
