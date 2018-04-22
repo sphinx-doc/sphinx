@@ -877,6 +877,18 @@ that use Sphinx's HTMLWriter class.
    named :file:`default.css` will overwrite the theme's
    :file:`default.css`.
 
+   .. note::
+
+      For security reason, dotfiles under ``html_static_path`` will
+      not be copied.  If you'd like to copy them intentionally, please
+      add them each filepath to this setting::
+
+          html_static_path = ['_static', '_static/.htaccess']
+
+      Another way to do that, you can also use
+      :confval:`html_extra_path`.  It allows to copy dotfiles under
+      the directories.
+
    .. versionchanged:: 0.4
       The paths in :confval:`html_static_path` can now contain subdirectories.
 
