@@ -72,6 +72,10 @@ class MathDomain(Domain):
         # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
+                if labelid in self.data['objects']:
+                    otherdoc, _ = self.data['objects']
+                    logger.warning('duplicate label of equation %s, other instance in %s' %
+                                   (labelid, self.env.doc2path(otherdoc)))
                 self.data['objects'][labelid] = (doc, eqno)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):

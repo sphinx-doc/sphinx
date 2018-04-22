@@ -19,6 +19,7 @@ from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
+from sphinx.util import logging
 from sphinx.util.docfields import Field, TypedField
 from sphinx.util.nodes import make_refnode
 
@@ -28,6 +29,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # RE to split at word boundaries
@@ -287,9 +290,13 @@ class CDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
-        # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
+                if fullname in self.data['objects']:
+                    other, _ = self.data['objects'][fullname]
+                    logger.warning('duplicate C object description of %s, '
+                                   'other instance in %s' %
+                                   (fullname, self.env.doc2path(other)))
                 self.data['objects'][fullname] = (fn, objtype)
 
     def resolve_xref(self, env, fromdocname, builder,
