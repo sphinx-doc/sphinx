@@ -15,12 +15,19 @@ Incompatible changes
 * The default value of :confval:`epub_author` and :confval:`epub_publisher` are
   changed from ``'unknown'`` to the value of :confval:`author`.  This is same as
   a ``conf.py`` file sphinx-build generates.
+* The ``gettext_compact`` attribute is removed from ``document.settings``
+  object.  Please use ``config.gettext_compact`` instead.
+* The processing order on reading phase is changed.  smart_quotes, sphinx
+  domains, :event:`doctree-read` event and versioning doctrees are invoked
+  earlier than so far.  For more details, please read a description of
+  :py:meth:`.Sphinx.add_transform()`
+* #4827: All ``substitution_definition`` nodes are removed from doctree on
+  reading phase
 
 Deprecated
 ----------
 
 * :confval:`source_parsers` is deprecated
-  instead.
 * ``Application.import_object()`` is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
@@ -34,6 +41,8 @@ Deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
 * ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
+* ``app.add_stylesheet()`` is deprecated
+* ``sphinx.versioning.prepare()`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
 * ``Config.check_types()`` is deprecated
@@ -61,6 +70,11 @@ Features added
 * LaTeX: new key ``'fvset'`` for :confval:`latex_elements`. For
   XeLaTeX/LuaLaTeX its default sets ``fanvyvrb`` to use normal, not small,
   fontsize in code-blocks (refs: #4793)
+* Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
+  files from configuration
+* #4834: Ensure set object descriptions are reproducible.
+* #4828: Allow to override :confval:`numfig_format` partially.  Full definition
+  is not needed.
 * Add ``Config.from_conf_py()`` classmethod to create a new config object from
   configuration file
 
@@ -95,6 +109,23 @@ Features added
 Bugs fixed
 ----------
 
+* #4769: autodoc loses the first staticmethod parameter
+* #4790: autosummary: too wide two column tables in PDF builds
+* #4795: Latex customization via ``_templates/longtable.tex_t`` is broken
+* #4789: imgconverter: confused by convert.exe of Windows
+* #4783: On windows, Sphinx crashed when drives of srcdir and outdir are
+  different
+* #4812: autodoc ignores type annotated variables
+* #4817: wrong URLs on warning messages
+* #4784: latex: :confval:`latex_show_urls` assigns incorrect footnote numbers if
+  hyperlinks exists inside substitutions
+* #4837: latex with class memoir Error: Font command ``\sf`` is not supported
+* #4803: latex: too slow in proportion to number of auto numbered footnotes
+* #4838: htmlhelp: The entries in .hhp file is not ordered
+* toctree directive tries to glob for URL having query_string
+* #4871: html search: Upper characters problem in German
+* #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
+
 Testing
 --------
 
@@ -128,6 +159,7 @@ Bugs fixed
 * #1435: qthelp builder should htmlescape keywords
 * epub: Fix docTitle elements of toc.ncx is not escaped
 * #4520: apidoc: Subpackage not in toc (introduced in 1.6.6) now fixed
+* #4767: html: search highlighting breaks mathjax equations
 
 Release 1.7.1 (released Feb 23, 2018)
 =====================================
@@ -203,6 +235,8 @@ Incompatible changes
   (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
   options ``body_min_width`` and ``body_max_width``.
+* #4771: apidoc: The ``exclude_patterns`` arguments are ignored if they are
+  placed just after command line options
 
 1.7.0b2
 

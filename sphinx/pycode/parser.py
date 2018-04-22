@@ -12,6 +12,7 @@ import ast
 import inspect
 import itertools
 import re
+import sys
 import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
@@ -25,6 +26,21 @@ if False:
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile(u'^\\s*$')
 emptyline_re = re.compile(u'^\\s*(#.*)?$')
+
+
+if sys.version_info >= (3, 6):
+    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
+else:
+    ASSIGN_NODES = (ast.Assign)
+
+
+def get_assign_targets(node):
+    # type: (ast.AST) -> List[ast.expr]
+    """Get list of targets from Assign and AnnAssign node."""
+    if isinstance(node, ast.Assign):
+        return node.targets
+    else:
+        return [node.target]  # type: ignore
 
 
 def get_lvar_names(node, self=None):
@@ -285,7 +301,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         # type: (ast.Assign) -> None
         """Handles Assign node and pick up a variable comment."""
         try:
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in node.targets], [])
+            targets = get_assign_targets(node)
+            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -321,12 +338,18 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
+    def visit_AnnAssign(self, node):
+        # type: (ast.AST) -> None
+        """Handles AnnAssign node and pick up a variable comment."""
+        self.visit_Assign(node)  # type: ignore
+
     def visit_Expr(self, node):
         # type: (ast.Expr) -> None
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ast.Assign) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
             try:
-                varnames = get_lvar_names(self.previous.targets[0], self.get_self())
+                targets = get_assign_targets(self.previous)
+                varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
                     if isinstance(node.value.s, text_type):
                         docstring = node.value.s

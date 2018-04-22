@@ -210,14 +210,21 @@ def ustrftime(format, *args):
             return r.encode().decode('unicode-escape')
 
 
-def safe_relpath(path, start=None):
+def relpath(path, start=os.curdir):
     # type: (unicode, unicode) -> unicode
+    """Return a relative filepath to *path* either from the current directory or
+    from an optional *start* directory.
+
+    This is an alternative of ``os.path.relpath()``.  This returns original path
+    if *path* and *start* are on different drives (for Windows platform).
+    """
     try:
         return os.path.relpath(path, start)
     except ValueError:
         return path
 
 
+safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()  # type: unicode
 
 

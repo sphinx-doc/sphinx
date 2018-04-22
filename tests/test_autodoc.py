@@ -804,7 +804,7 @@ def test_generate():
                   '   .. py:attribute:: Class._private_inst_attr',
                   '   .. py:classmethod:: Class.inheritedclassmeth()',
                   '   .. py:method:: Class.inheritedmeth()',
-                  '   .. py:staticmethod:: Class.inheritedstaticmeth()',
+                  '   .. py:staticmethod:: Class.inheritedstaticmeth(cls)',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
     del directive.env.ref_context['py:module']
@@ -952,7 +952,10 @@ def test_partialmethod():
         '      Update state of cell to *state*.',
         '      ',
     ]
-    if sys.version_info < (3, 5, 4):
+    if (sys.version_info < (3, 5, 4) or
+            (3, 6, 5) <= sys.version_info < (3, 7) or
+            (3, 7, 0, 'beta', 3) <= sys.version_info):
+        # TODO: this condition should be updated after 3.7-final release.
         expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
     assert call_autodoc('class', 'target.partialmethod.Cell') == expected

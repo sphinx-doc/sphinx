@@ -44,35 +44,28 @@ default_substitutions = set([
 
 
 class SphinxTransform(Transform):
-    """
-    A base class of Transforms.
+    """A base class of Transforms.
 
     Compared with ``docutils.transforms.Transform``, this class improves accessibility to
     Sphinx APIs.
-
-    The subclasses can access following objects and functions:
-
-    self.app
-        The application object (:class:`sphinx.application.Sphinx`)
-    self.config
-        The config object (:class:`sphinx.config.Config`)
-    self.env
-        The environment object (:class:`sphinx.environment.BuildEnvironment`)
     """
 
     @property
     def app(self):
         # type: () -> Sphinx
+        """Reference to the :class:`.Sphinx` object."""
         return self.document.settings.env.app
 
     @property
     def env(self):
         # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
         return self.document.settings.env
 
     @property
     def config(self):
         # type: () -> Config
+        """Reference to the :class:`.Config` object."""
         return self.document.settings.env.config
 
 
@@ -350,6 +343,8 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     refs: sphinx.parsers.RSTParser
     """
+    default_priority = 750
+
     def apply(self):
         # type: () -> None
         if not self.is_available():
@@ -402,6 +397,15 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         for txtnode in txtnodes:
             notsmartquotable = not is_smartquotable(txtnode)
             yield (texttype[notsmartquotable], txtnode.astext())
+
+
+class DoctreeReadEvent(SphinxTransform):
+    """Emit :event:`doctree-read` event."""
+    default_priority = 880
+
+    def apply(self):
+        # type: () -> None
+        self.app.emit('doctree-read', self.document)
 
 
 class ManpageLink(SphinxTransform):

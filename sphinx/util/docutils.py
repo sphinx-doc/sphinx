@@ -20,7 +20,7 @@ from distutils.version import LooseVersion
 import docutils
 from docutils import nodes
 from docutils.languages import get_language
-from docutils.parsers.rst import directives, roles, convert_directive_function
+from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
 
@@ -36,6 +36,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Generator, Iterator, List, Set, Tuple  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
 
@@ -271,6 +272,26 @@ def switch_source_input(state, content):
     finally:
         # restore the method
         state.memo.reporter.get_source_and_line = get_source_and_line
+
+
+class SphinxDirective(Directive):
+    """A base class for Directives.
+
+    Compared with ``docutils.parsers.rst.Directive``, this class improves
+    accessibility to Sphinx APIs.
+    """
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
+        return self.state.document.settings.env
+
+    @property
+    def config(self):
+        # type: () -> Config
+        """Reference to the :class:`.Config` object."""
+        return self.env.config
 
 
 # cache a vanilla instance of nodes.document

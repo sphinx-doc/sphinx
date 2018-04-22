@@ -534,6 +534,50 @@ def test_babel_with_unknown_language(app, status, warning):
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
 
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'de', 'latex_engine': 'lualatex'})
+def test_polyglossia_with_language_de(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
+    assert '\\usepackage{polyglossia}' in result
+    assert '\\setmainlanguage[spelling=new]{german}' in result
+    assert '\\usepackage{times}' not in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
+    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
+    assert '\\def\\pageautorefname{Seite}\n' in result
+    assert '\\shorthandoff' not in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'de-1901', 'latex_engine': 'lualatex'})
+def test_polyglossia_with_language_de_1901(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
+    assert '\\usepackage{polyglossia}' in result
+    assert '\\setmainlanguage[spelling=old]{german}' in result
+    assert '\\usepackage{times}' not in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
+    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
+    assert '\\def\\pageautorefname{page}\n' in result
+    assert '\\shorthandoff' not in result
+
+
 @pytest.mark.sphinx('latex')
 def test_footnote(app, status, warning):
     app.builder.build_all()
@@ -748,6 +792,15 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='footnotes',
+    confoverrides={'latex_show_urls': 'footnote',
+                   'rst_prolog': '.. |URL| replace:: `text <http://www.example.com/>`__'})
+def test_latex_show_urls_footnote_and_substitutions(app, status, warning):
+    # hyperlinks in substitutions should not effect to make footnotes (refs: #4784)
+    test_latex_show_urls_is_footnote(app, status, warning)
 
 
 @pytest.mark.sphinx('latex', testroot='image-in-section')
@@ -1096,6 +1149,30 @@ def test_latex_table_complex_tables(app, status, warning):
     actual = tables['complex spanning cell']
     expected = get_expected('complex_spanning_cell')
     assert actual == expected
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'templates_path': ['_mytemplates/latex']})
+def test_latex_table_custom_template_caseA(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table',
+                    confoverrides={'templates_path': ['_mytemplates']})
+def test_latex_table_custom_template_caseB(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' not in result
+
+
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='latex-table')
+def test_latex_table_custom_template_caseC(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert 'SALUT LES COPAINS' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='directives-raw')

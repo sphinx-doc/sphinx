@@ -1094,9 +1094,10 @@ def test_html_assets(app):
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
     assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
-    assert (app.outdir / '_static' / 'css/style.css').exists()
+    assert (app.outdir / '_static' / 'css' / 'style.css').exists()
+    assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
-    assert not (app.outdir / '_static' / '_build/index.html').exists()
+    assert not (app.outdir / '_static' / '_build' / 'index.html').exists()
     assert (app.outdir / '_static' / 'background.png').exists()
     assert not (app.outdir / '_static' / 'subdir' / '.htaccess').exists()
     assert not (app.outdir / '_static' / 'subdir' / '.htpasswd').exists()
@@ -1107,10 +1108,16 @@ def test_html_assets(app):
     assert (app.outdir / 'API.html_t').exists()
     assert (app.outdir / 'css/style.css').exists()
     assert (app.outdir / 'rimg.png').exists()
-    assert not (app.outdir / '_build/index.html').exists()
+    assert not (app.outdir / '_build' / 'index.html').exists()
     assert (app.outdir / 'background.png').exists()
     assert (app.outdir / 'subdir' / '.htaccess').exists()
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
+
+    # html_css_files
+    content = (app.outdir / 'index.html').text()
+    assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
+    assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
+            'href="https://example.com/custom.css" />' in content)
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})

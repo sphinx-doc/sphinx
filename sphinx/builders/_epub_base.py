@@ -708,9 +708,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         logger.info(__('writing %s file...'), outname)
         epub_filename = path.join(outdir, outname)
-        with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:  # type: ignore
-            epub.write(path.join(outdir, 'mimetype'), 'mimetype', ZIP_STORED)  # type: ignore
+        with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
+            epub.write(path.join(outdir, 'mimetype'), 'mimetype', ZIP_STORED)
             for filename in [u'META-INF/container.xml', u'content.opf', u'toc.ncx']:
-                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
+                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
-                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
+                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)

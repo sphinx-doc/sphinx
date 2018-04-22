@@ -12,7 +12,7 @@ import sys
 from difflib import unified_diff
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from six import text_type
 
@@ -20,6 +20,7 @@ from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import parselinenos
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
@@ -31,7 +32,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Highlight(Directive):
+class Highlight(SphinxDirective):
     """
     Directive to set the highlighting language for code blocks, as well
     as the threshold for line numbers.
@@ -77,7 +78,7 @@ def dedent_lines(lines, dedent, location=None):
 
 
 def container_wrapper(directive, literal_node, caption):
-    # type: (Directive, nodes.Node, unicode) -> nodes.container
+    # type: (SphinxDirective, nodes.Node, unicode) -> nodes.container
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
     parsed = nodes.Element()
@@ -95,7 +96,7 @@ def container_wrapper(directive, literal_node, caption):
     return container_node
 
 
-class CodeBlock(Directive):
+class CodeBlock(SphinxDirective):
     """
     Directive for a code block with special highlighting or line numbering
     settings.
@@ -372,7 +373,7 @@ class LiteralIncludeReader(object):
             return lines
 
 
-class LiteralInclude(Directive):
+class LiteralInclude(SphinxDirective):
     """
     Like ``.. include:: :literal:``, but only warns if the include file is
     not found, and does not raise errors.  Also has several options for
@@ -412,19 +413,17 @@ class LiteralInclude(Directive):
         if not document.settings.file_insertion_enabled:
             return [document.reporter.warning('File insertion disabled',
                                               line=self.lineno)]
-        env = document.settings.env
-
         # convert options['diff'] to absolute path
         if 'diff' in self.options:
-            _, path = env.relfn2path(self.options['diff'])
+            _, path = self.env.relfn2path(self.options['diff'])
             self.options['diff'] = path
 
         try:
             location = self.state_machine.get_source_and_line(self.lineno)
-            rel_filename, filename = env.relfn2path(self.arguments[0])
-            env.note_dependency(rel_filename)
+            rel_filename, filename = self.env.relfn2path(self.arguments[0])
+            self.env.note_dependency(rel_filename)
 
-            reader = LiteralIncludeReader(filename, self.options, env.config)
+            reader = LiteralIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
 
             retnode = nodes.literal_block(text, text, source=filename)

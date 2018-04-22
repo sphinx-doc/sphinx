@@ -12,6 +12,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
@@ -44,16 +45,15 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class Meta(html.Meta):
+class Meta(html.Meta, SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         result = html.Meta.run(self)
         for node in result:
             if (isinstance(node, nodes.pending) and
                isinstance(node.details['nodes'][0], html.MetaBody.meta)):
                 meta = node.details['nodes'][0]
-                meta.source = env.doc2path(env.docname)
+                meta.source = self.env.doc2path(self.env.docname)
                 meta.line = self.lineno
                 meta.rawcontent = meta['content']
 

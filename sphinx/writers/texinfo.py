@@ -1385,18 +1385,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_system_message(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\n@verbatim\n'
@@ -1745,7 +1733,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         logger.warning(__('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html'))
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

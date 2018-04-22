@@ -9,6 +9,7 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import warnings
 from itertools import product
 from operator import itemgetter
 from uuid import uuid4
@@ -17,6 +18,7 @@ from six import iteritems
 from six.moves import cPickle as pickle
 from six.moves import range, zip_longest
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -155,12 +157,15 @@ def levenshtein_distance(a, b):
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
-    default_priority = 100
+    default_priority = 880
 
     def apply(self):
         # type: () -> None
         env = self.env
         old_doctree = None
+        if not env.versioning_condition:
+            return
+
         if env.versioning_compare:
             # get old doctree
             try:
@@ -180,5 +185,7 @@ class UIDTransform(SphinxTransform):
 def prepare(document):
     # type: (nodes.Node) -> None
     """Simple wrapper for UIDTransform."""
+    warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
+                  RemovedInSphinx30Warning)
     transform = UIDTransform(document)
     transform.apply()

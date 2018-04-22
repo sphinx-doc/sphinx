@@ -65,6 +65,9 @@ class SphinxComponentRegistry(object):
         #: autodoc documenters; a dict of documenter name -> documenter class
         self.documenters = {}           # type: Dict[unicode, Type[Documenter]]
 
+        #: css_files; a list of tuple of filename and attributes
+        self.css_files = []             # type: List[Tuple[unicode, Dict[unicode, unicode]]]
+
         #: domains; a dict of domain name -> domain class
         self.domains = {}               # type: Dict[unicode, Type[Domain]]
 
@@ -411,6 +414,9 @@ class SphinxComponentRegistry(object):
     def add_autodoc_attrgetter(self, typ, attrgetter):
         # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
         self.autodoc_attrgettrs[typ] = attrgetter
+
+    def add_css_files(self, filename, **attributes):
+        self.css_files.append((filename, attributes))
 
     def add_latex_package(self, name, options):
         # type: (unicode, unicode) -> None

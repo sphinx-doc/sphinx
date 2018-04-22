@@ -21,10 +21,10 @@ from os import path
 
 from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
-from six import BytesIO, itervalues, class_types, next
+from six import BytesIO, class_types, next
 from six.moves import cPickle as pickle
 
-from sphinx import addnodes, versioning
+from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -38,7 +38,7 @@ from sphinx.util.docutils import sphinx_domains, WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.osutil import SEP, ensuredir, relpath
 from sphinx.util.websupport import is_commentable
 
 if False:
@@ -354,7 +354,7 @@ class BuildEnvironment(object):
         *filename* should be absolute or relative to the source directory.
         """
         if filename.startswith(self.srcdir):
-            filename = os.path.relpath(filename, self.srcdir)
+            filename = relpath(filename, self.srcdir)
         for suffix in self.config.source_suffix:
             if filename.endswith(suffix):
                 return filename[:-len(suffix)]
@@ -540,7 +540,6 @@ class BuildEnvironment(object):
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
         self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['gettext_compact'] = config.gettext_compact
         self.settings['language_code'] = config.language or 'en'
 
         # Allow to disable by 3rd party extension (workaround)
@@ -571,24 +570,12 @@ class BuildEnvironment(object):
         with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
             doctree = read_doc(self.app, self, self.doc2path(docname))
 
-        # post-processing
-        for domain in itervalues(self.domains):
-            domain.process_doc(self, docname, doctree)
-
-        # allow extension-specific post-processing
-        if app:
-            app.emit('doctree-read', doctree)
-
         # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;
         # therefore time.time() can be older than filesystem's timestamp.
         # For example, FAT32 has 2sec timestamp resolution.)
         self.all_docs[docname] = max(
             time.time(), path.getmtime(self.doc2path(docname)))
-
-        if self.versioning_condition:
-            # add uids for versioning
-            versioning.prepare(doctree)
 
         # cleanup
         self.temp_data.clear()

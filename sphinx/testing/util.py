@@ -23,6 +23,7 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
+from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
@@ -201,7 +202,7 @@ def find_files(root, suffix=None):
         dirpath = path(dirpath)
         for f in [f for f in files if not suffix or f.endswith(suffix)]:  # type: ignore
             fpath = dirpath / f
-            yield os.path.relpath(fpath, root)
+            yield relpath(fpath, root)
 
 
 def strip_escseq(text):

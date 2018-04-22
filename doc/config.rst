@@ -59,9 +59,6 @@ Important points to note:
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
 
-.. seealso:: Additional configurations, such as adding stylesheets,
-   javascripts, builders, etc. can be made through the :doc:`/extdev/appapi`.
-
 
 General configuration
 ---------------------
@@ -195,8 +192,9 @@ General configuration
    .. index:: pair: global; substitutions
 
    A string of reStructuredText that will be included at the end of every source
-   file that is read.  This is the right place to add substitutions that should
-   be available in every file.  An example::
+   file that is read.  This is a possible place to add substitutions that should
+   be available in every file (another being :confval:`rst_prolog`).  An
+   example::
 
       rst_epilog = """
       .. |psf| replace:: Python Software Foundation
@@ -206,8 +204,16 @@ General configuration
 
 .. confval:: rst_prolog
 
+   .. index:: pair: global; substitutions
+
    A string of reStructuredText that will be included at the beginning of every
-   source file that is read.
+   source file that is read.  This is a possible place to add substitutions that
+   should be available in every file (another being :confval:`rst_epilog`).  An
+   example::
+
+      rst_prolog = """
+      .. |psf| replace:: Python Software Foundation
+      """
 
    .. versionadded:: 1.0
 
@@ -846,6 +852,22 @@ that use Sphinx's HTMLWriter class.
       The image file will be copied to the ``_static`` directory of the output
       HTML, but only if the file does not already exist there.
 
+.. confval:: html_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  The
+   *filename* must be relative to the :confval:`html_static_path`, or a full URI
+   with scheme like ``http://example.org/style.css``.  The *attributes* is used
+   for attributes of ``<link>`` tag.  It defaults to an empty list.
+
+   Example::
+
+       html_css_files = ['custom.css'
+                         'https://example.com/css/custom.css',
+                         ('print.css', {'media': 'print'})]
+
+   .. versionadded:: 1.8
+
 .. confval:: html_static_path
 
    A list of paths that contain custom static files (such as style
@@ -1125,8 +1147,8 @@ that use Sphinx's HTMLWriter class.
       Sphinx uses a Python implementation by default.  You can use a C
       implementation to accelerate building the index file.
 
-      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (``en``)
-      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
+      * `PorterStemmer <https://pypi.org/project/PorterStemmer/>`_ (``en``)
+      * `PyStemmer <https://pypi.org/project/PyStemmer/>`_ (all languages)
 
    .. versionadded:: 1.1
       With support for ``en`` and ``ja``.
@@ -1158,7 +1180,7 @@ that use Sphinx's HTMLWriter class.
          library ('libmecab.so' for linux, 'libmecab.dll' for windows) is required.
       :'sphinx.search.ja.JanomeSplitter':
          Janome binding. To use this splitter,
-         `Janome <https://pypi.python.org/pypi/Janome>`_ is required.
+         `Janome <https://pypi.org/project/Janome/>`_ is required.
 
       To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are also
       acceptable. However it will be deprecated in Sphinx-1.6.
@@ -1511,6 +1533,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.1
 
+.. confval:: epub_css_files
+
+   A list of CSS files.  The entry must be a *filename* string or a tuple
+   containing the *filename* string and the *attributes* dictionary.  For more
+   information, see :confval:`html_css_files`.
+
+   .. versionadded:: 1.8
+
 .. confval:: epub_guide
 
    Meta data for the guide element of :file:`content.opf`. This is a
@@ -1837,8 +1867,15 @@ These options influence LaTeX output. See further :doc:`latex`.
            ``'lualatex'`` uses same default setting as ``'xelatex'``
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
-        Times and Helvetica).  You can set this to ``''`` to use the Computer
-        Modern fonts.
+        Times for text, Helvetica for sans serif and Courier for code-blocks).
+
+        .. hint::
+
+           Courier is much wider than Times, and Sphinx emits LaTeX command
+           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
+           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
+           preamble to not change font size in code-blocks.  Since ``1.8`` a
+           separate ``'fvset'`` key is provided for this.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -1847,6 +1884,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            Defaults to ``''`` also with ``'lualatex'``.
+        .. versionchanged:: 1.8
+           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation

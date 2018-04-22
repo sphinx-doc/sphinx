@@ -50,6 +50,7 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
+from sphinx.util.pycompat import htmlescape
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
@@ -101,7 +102,7 @@ class CSSContainer(list):
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).append(obj)
         else:
-            super(CSSContainer, self).append(Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
+            super(CSSContainer, self).append(Stylesheet(obj))
 
     def insert(self, index, obj):
         # type: (int, Union[unicode, Stylesheet]) -> None
@@ -111,7 +112,7 @@ class CSSContainer(list):
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).insert(index, obj)
         else:
-            super(CSSContainer, self).insert(index, Stylesheet(obj, None, 'stylesheet'))  # type: ignore  # NOQA
+            super(CSSContainer, self).insert(index, Stylesheet(obj))
 
     def extend(self, other):  # type: ignore
         # type: (List[Union[unicode, Stylesheet]]) -> None
@@ -144,12 +145,19 @@ class Stylesheet(text_type):
     its filename (str).
     """
 
-    def __new__(cls, filename, title, rel):
+    attributes = None   # type: Dict[unicode, unicode]
+    filename = None     # type: unicode
+
+    def __new__(cls, filename, *args, **attributes):
         # type: (unicode, unicode, unicode) -> None
         self = text_type.__new__(cls, filename)  # type: ignore
         self.filename = filename
-        self.title = title
-        self.rel = rel
+        self.attributes = attributes
+        self.attributes.setdefault('rel', 'stylesheet')
+        self.attributes.setdefault('type', 'text/css')
+        if args:  # old style arguments (rel, title)
+            self.attributes['rel'] = args[0]
+            self.attributes['title'] = args[1]
 
         return self
 
@@ -241,14 +249,19 @@ class StandaloneHTMLBuilder(Builder):
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
-    # Ditto for this one (Sphinx.add_stylesheet).
-    css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
     # cached publisher object for snippets
     _publisher = None
+
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        super(StandaloneHTMLBuilder, self).__init__(app)
+
+        # CSS files
+        self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
 
     def init(self):
         # type: () -> None
@@ -262,6 +275,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.init_templates()
         self.init_highlighter()
+        self.init_css_files()
         if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
@@ -323,6 +337,27 @@ class StandaloneHTMLBuilder(Builder):
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style,
                                           self.config.trim_doctest_flags)
+
+    def init_css_files(self):
+        # type: () -> None
+        for filename, attrs in self.app.registry.css_files:
+            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
+
+        for entry in self.get_builder_config('css_files', 'html'):
+            if isinstance(entry, string_types):
+                filename = entry
+                attrs = {}
+            else:
+                try:
+                    filename, attrs = entry
+                except (TypeError, ValueError):
+                    logger.warning('invalid css_file: %r', entry)
+                    continue
+
+            if '://' not in filename:
+                filename = path.join('_static', filename)
+
+            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
 
     @property
     def default_translator_class(self):
@@ -988,6 +1023,17 @@ class StandaloneHTMLBuilder(Builder):
             return uri
         ctx['pathto'] = pathto
 
+        def css_tag(css):
+            # type: (Stylesheet) -> unicode
+            attrs = []
+            for key in sorted(css.attributes):
+                value = css.attributes[key]
+                if value is not None:
+                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+            attrs.append('href="%s"' % pathto(css.filename, resource=True))
+            return '<link %s />' % ' '.join(attrs)
+        ctx['css_tag'] = css_tag
+
         def hasdoc(name):
             # type: (unicode) -> bool
             if name in self.env.all_docs:
@@ -1316,6 +1362,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.templates = None   # no template bridge necessary
         self.init_templates()
         self.init_highlighter()
+        self.init_css_files()
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
@@ -1440,6 +1487,7 @@ def setup(app):
     app.add_config_value('html_style', None, 'html', string_classes)
     app.add_config_value('html_logo', None, 'html', string_classes)
     app.add_config_value('html_favicon', None, 'html', string_classes)
+    app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)

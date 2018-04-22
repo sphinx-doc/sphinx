@@ -1,3 +1,5 @@
+.. _rst-index:
+
 ================
 reStructuredText
 ================

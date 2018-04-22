@@ -987,10 +987,6 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_pending_xref(self, node):
         # type: (nodes.Node) -> None
         pass
@@ -1185,7 +1181,7 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         logger.warning(__('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html'),
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
                        location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 

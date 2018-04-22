@@ -24,6 +24,7 @@ from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError, ConfigError
 from sphinx.locale import _, __
+from sphinx.transforms import SphinxTransformer
 from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
@@ -144,6 +145,7 @@ class LaTeXBuilder(Builder):
                 docname, toctree_only,
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
             doctree['tocdepth'] = tocdepth
+            self.apply_transforms(doctree)
             self.post_process_images(doctree)
             logger.info(__("writing... "), nonl=1)
             doctree.settings = docsettings
@@ -209,6 +211,12 @@ class LaTeXBuilder(Builder):
                 pass
             pendingnode.replace_self(newnodes)
         return largetree
+
+    def apply_transforms(self, doctree):
+        # type: (nodes.document) -> None
+        transformer = SphinxTransformer(doctree)
+        transformer.set_environment(self.env)
+        transformer.apply_transforms()
 
     def finish(self):
         # type: () -> None

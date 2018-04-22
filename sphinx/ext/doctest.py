@@ -30,7 +30,7 @@ from sphinx.locale import __
 from sphinx.util import force_decode, logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import fs_encoding
+from sphinx.util.osutil import fs_encoding, relpath
 
 if False:
     # For type annotation
@@ -372,7 +372,7 @@ Doctest summary
         """Try to get the file which actually contains the doctest, not the
         filename of the document it's included in."""
         try:
-            filename = path.relpath(node.source, self.env.srcdir)\
+            filename = relpath(node.source, self.env.srcdir)\
                 .rsplit(':docstring of ', maxsplit=1)[0]
         except Exception:
             filename = self.env.doc2path(docname, base=None)

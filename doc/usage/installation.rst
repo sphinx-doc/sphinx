@@ -7,6 +7,8 @@ Installing Sphinx
    :local:
    :backlinks: none
 
+.. highlight:: console
+
 Overview
 --------
 
@@ -25,7 +27,7 @@ Debian/Ubuntu
 Install either ``python3-sphinx`` (Python 3) or ``python-sphinx`` (Python 2)
 using :command:`apt-get`:
 
-.. code-block:: bash
+::
 
    $ apt-get install python3-sphinx
 
@@ -36,7 +38,7 @@ RHEL, CentOS
 
 Install ``python-sphinx`` using :command:`yum`:
 
-.. code-block:: bash
+::
 
    $ yum install python-sphinx
 
@@ -65,7 +67,7 @@ __ https://www.anaconda.com/download/#macos
 Homebrew
 ~~~~~~~~
 
-.. code-block:: bash
+::
 
    $ brew install sphinx-doc
 
@@ -79,13 +81,13 @@ MacPorts
 Install either ``python36-sphinx`` (Python 3) or ``python27-sphinx`` (Python 2)
 using :command:`port`:
 
-.. code-block:: bash
+::
 
    $ sudo port install py36-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
-.. code-block:: bash
+::
 
    $ sudo port select --set python python36
    $ sudo port select --set sphinx py36-sphinx
@@ -97,7 +99,7 @@ __ https://www.macports.org/ports.php?by=library&substr=py36-sphinx
 Anaconda
 ~~~~~~~~
 
-.. code-block:: console
+::
 
    $ conda install sphinx
 
@@ -130,20 +132,20 @@ Installation from PyPI
 ----------------------
 
 Sphinx packages are published on the `Python Package Index
-<https://pypi.python.org/pypi/Sphinx>`_.  The preferred tool for installing
+<https://pypi.org/project/Sphinx/>`_.  The preferred tool for installing
 packages from *PyPI* is :command:`pip`.  This tool is provided with all modern
 versions of Python.
 
 On Linux or MacOS, you should open your terminal and run the following command.
 
-.. code-block:: shell
+::
 
    $ pip install -U sphinx
 
 On Windows, you should open *Command Prompt* (:kbd:`⊞Win-r` and type
 :command:`cmd`) and run the same command.
 
-.. code-block:: bat
+.. code-block:: doscon
 
    C:\> pip install -U sphinx
 
@@ -156,7 +158,7 @@ release.  You will not generally need (or want) to do this, but it can be
 useful if you see a possible bug in the latest stable release.  To do this, use
 the ``--pre`` flag.
 
-.. code-block:: shell
+::
 
    $ pip install -U --pre sphinx
 
@@ -168,19 +170,21 @@ You can install Sphinx directly from a clone of the `Git repository`__.  This
 can be done either by cloning the repo and installing from the local clone, on
 simply installing directly via :command:`git`.
 
-.. code-block:: shell
+::
 
    $ git clone https://github.com/sphinx-doc/sphinx
    $ cd sphinx
    $ pip install .
 
-.. code-block:: shell
+::
 
    $ pip install git+https://github.com/sphinx-doc/sphinx
 
 You can also download a snapshot of the Git repo in either `tar.gz`__ or
 `zip`__ format.  Once downloaded and extracted, these can be installed with
 :command:`pip` as above.
+
+.. highlight:: default
 
 __ https://github.com/sphinx-doc/sphinx
 __ https://github.com/sphinx-doc/sphinx/archive/master.tar.gz

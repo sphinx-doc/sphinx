@@ -132,11 +132,7 @@ class Config(object):
         nitpick_ignore = ([], None),
         numfig = (False, 'env'),
         numfig_secnum_depth = (1, 'env'),
-        numfig_format = ({'section': _('Section %s'),
-                          'figure': _('Fig. %s'),
-                          'table': _('Table %s'),
-                          'code-block': _('Listing %s')},
-                         'env'),
+        numfig_format = ({}, 'env'),  # will be initialized in init_numfig_format()
 
         tls_verify = (True, 'env'),
         tls_cacerts = (None, 'env'),
@@ -364,6 +360,19 @@ def convert_source_suffix(app, config):
                           "But `%r' is given." % source_suffix))
 
 
+def init_numfig_format(app, config):
+    # type: (Sphinx, Config) -> None
+    """Initialize :confval:`numfig_format`."""
+    numfig_format = {'section': _('Section %s'),
+                     'figure': _('Fig. %s'),
+                     'table': _('Table %s'),
+                     'code-block': _('Listing %s')}
+
+    # override default labels by configuration
+    numfig_format.update(config.numfig_format)
+    config.numfig_format = numfig_format  # type: ignore
+
+
 def correct_copyright_year(app, config):
     # type: (Sphinx, Config) -> None
     """correct values of copyright year that are not coherent with
@@ -446,6 +455,7 @@ def check_unicode(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
+    app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)
     app.connect('config-inited', check_confval_types)
 

@@ -1,5 +1,7 @@
 .. highlightlang:: rst
 
+.. _rst-primer:
+
 =======================
 reStructuredText Primer
 =======================
@@ -506,11 +508,14 @@ or this::
 See the :duref:`reST reference for substitutions <substitution-definitions>`
 for details.
 
+.. index:: ! pair: global; substitutions
+
 If you want to use some substitutions for all documents, put them into
-:confval:`rst_prolog` or put them into a separate file and include it into all
-documents you want to use them in, using the :rst:dir:`include` directive.  (Be
-sure to give the include file a file name extension differing from that of
-other source files, to avoid Sphinx finding it as a standalone document.)
+:confval:`rst_prolog` or :confval:`rst_epilog` or put them into a separate file
+and include it into all documents you want to use them in, using the
+:rst:dir:`include` directive.  (Be sure to give the include file a file name
+extension differing from that of other source files, to avoid Sphinx finding it
+as a standalone document.)
 
 Sphinx defines some default substitutions, see :ref:`default-substitutions`.
 

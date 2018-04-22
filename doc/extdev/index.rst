@@ -94,6 +94,7 @@ APIs used for writing extensions
    nodes
    logging
    i18n
+   utils
 
 Deprecated APIs
 ---------------
@@ -113,6 +114,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - 1.8
+     - 4.0
+     - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
    * - ``Config.check_unicode()``
      - 1.8
      - 3.0
@@ -128,6 +134,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``Config.from_conf_py()``
+
+   * - ``sphinx.versioning.prepare()``
+     - 1.8
+     - 3.0
+     - ``sphinx.versioning.UIDTransform``
 
    * - ``sphinx.application.Sphinx.override_domain()``
      - 1.8
@@ -278,12 +289,17 @@ The following is a list of deprecated interface.
    * - ``sphinx.websupport``
      - 1.6
      - 2.0
-     - `sphinxcontrib-websupport <https://pypi.python.org/pypi/sphinxcontrib-websupport>`_
+     - `sphinxcontrib-websupport <https://pypi.org/project/sphinxcontrib-websupport/>`_
 
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6
      - 2.0
      - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+
+   * - ``document.settings.gettext_compact``
+     - 1.8
+     - 1.8
+     - :confval:`gettext_compact`
 
    * - ``Sphinx.status_iterator()``
      - 1.6
