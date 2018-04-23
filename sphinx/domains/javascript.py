@@ -262,7 +262,7 @@ class JSModule(Directive):
             if mod_name in modules:
                 self.state_machine.reporter.warning(
                     'duplicate module description of %s, ' % mod_name +
-                    'other instance in ' + self.env.doc2path(modules[mod_name]),
+                    'other instance in ' + env.doc2path(modules[mod_name]),
                     line=self.lineno)
             env.domaindata['js']['modules'][mod_name] = env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
