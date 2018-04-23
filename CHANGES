@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #4885, #4887: py domain: Crashed with duplicated objects
+* #4889: latex: sphinx.writers.latex causes recusrive import
 
 Testing
 --------
