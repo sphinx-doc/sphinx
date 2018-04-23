@@ -427,6 +427,6 @@ Third Party Themes
 Besides this, there are a lot of third party themes.  You can find them on
 PyPI__, GitHub__, sphinx-themes.org__ and so on.
 
-.. __: https://pypi.python.org/pypi?:action=browse&c=599
+.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 .. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
 .. __: https://sphinx-themes.org/
