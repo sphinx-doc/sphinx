@@ -565,7 +565,7 @@ class PyModule(Directive):
                 self.state_machine.reporter.warning(
                     'duplicate module description of %s, '
                     'other instance in %s, use :noindex: for one of them' %
-                    (modname, self.env.doc2path(modules[modname])),
+                    (modname, env.doc2path(modules[modname][0])),
                     line=self.lineno)
             modules[modname] = (env.docname,
                                 self.options.get('synopsis', ''),
