@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4885, #4887: py domain: Crashed with duplicated objects
+
 Testing
 --------
 
