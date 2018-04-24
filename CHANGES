@@ -72,6 +72,8 @@ Features added
 * #4828: Allow to override :confval:`numfig_format` partially.  Full definition
   is not needed.
 * Improve warning messages during including (refs: #4818)
+* LaTeX: separate customizability of :rst:role:`guilabel` and
+  :rst:role:`menuselection` (refs: #4830)
 
 Bugs fixed
 ----------
