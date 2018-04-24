@@ -2427,8 +2427,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_inline(self, node):
         # type: (nodes.Node) -> None
         classes = node.get('classes', [])
-        if classes in [['menuselection'], ['guilabel']]:
+        if classes in [['menuselection']]:
             self.body.append(r'\sphinxmenuselection{')
+            self.context.append('}')
+        elif classes in [['guilabel']]:
+            self.body.append(r'\sphinxguilabel{')
             self.context.append('}')
         elif classes in [['accelerator']]:
             self.body.append(r'\sphinxaccelerator{')
