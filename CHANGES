@@ -1,26 +1,11 @@
-Release 1.7.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.7.4 (released Apr 25, 2018)
+=====================================
 
 Bugs fixed
 ----------
 
 * #4885, #4887: domains: Crashed with duplicated objects
 * #4889: latex: sphinx.writers.latex causes recusrive import
-
-Testing
---------
 
 Release 1.7.3 (released Apr 23, 2018)
 =====================================
