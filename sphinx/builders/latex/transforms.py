@@ -519,3 +519,26 @@ class BibliographyTransform(SphinxTransform):
 
         if len(citations) > 0:
             self.document += citations
+
+
+class CitationReferenceTransform(SphinxTransform):
+    """Replace pending_xref nodes for citation by citation_reference.
+
+    To handle citation reference easily on LaTeX writer, this converts
+    pending_xref nodes to citation_reference.
+    """
+    default_priority = 5  # before ReferencesResolver
+
+    def apply(self):
+        # type: () -> None
+        if self.app.builder.name != 'latex':
+            return
+
+        citations = self.env.get_domain('std').data['citations']
+        for node in self.document.traverse(addnodes.pending_xref):
+            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
+                docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
+                if docname:
+                    citation_ref = nodes.citation_reference('', *node.children,
+                                                            docname=docname, refname=labelid)
+                    node.replace_self(citation_ref)

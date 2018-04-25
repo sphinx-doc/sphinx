@@ -20,8 +20,8 @@ from six import text_type
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
-    BibliographyTransform, FootnoteDocnameUpdater, LaTeXFootnoteTransform,
-    ShowUrlsTransform
+    BibliographyTransform, CitationReferenceTransform,
+    FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
 )
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
@@ -318,6 +318,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
+    app.add_post_transform(CitationReferenceTransform)
     app.connect('config-inited', validate_config_values)
     app.add_transform(FootnoteDocnameUpdater)
 

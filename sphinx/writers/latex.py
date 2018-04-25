@@ -2143,9 +2143,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_citation(self, node):
         # type: (nodes.Node) -> None
         label = node[0].astext()
-        target = self.hypertarget(node['docname'] + ':' + node['ids'][0], withdoc=False)
-        self.body.append(u'\\bibitem[%s]{%s}{%s ' %
-                         (self.encode(label), self.idescape(label), target))
+        self.body.append(u'\\bibitem[%s]{%s:%s}{' %
+                         (self.encode(label), node['docname'], node['ids'][0]))
 
     def depart_citation(self, node):
         # type: (nodes.Node) -> None
@@ -2153,10 +2152,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation_reference(self, node):
         # type: (nodes.Node) -> None
-        # This is currently never encountered, since citation_reference nodes
-        # are already replaced by pending_xref nodes in the environment.
-        self.body.append('\\cite{%s}' % self.idescape(node.astext()))
-        raise nodes.SkipNode
+        if self.in_title:
+            pass
+        else:
+            self.body.append('\\cite{%s:%s}' % (node['docname'], node['refname']))
+            raise nodes.SkipNode
+
+    def depart_citation_reference(self, node):
+        # type: (nodes.Node) -> None
+        pass
 
     def visit_literal(self, node):
         # type: (nodes.Node) -> None
