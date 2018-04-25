@@ -18,7 +18,6 @@ from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.locale import l_, _
 from sphinx.roles import XRefRole
-from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.nodes import make_refnode
 
@@ -29,8 +28,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription):
@@ -258,12 +255,6 @@ class JSModule(Directive):
         noindex = 'noindex' in self.options
         ret = []
         if not noindex:
-            modules = env.domaindata['js']['modules']
-            if mod_name in modules:
-                self.state_machine.reporter.warning(
-                    'duplicate module description of %s, ' % mod_name +
-                    'other instance in ' + env.doc2path(modules[mod_name]),
-                    line=self.lineno)
             env.domaindata['js']['modules'][mod_name] = env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
@@ -344,21 +335,12 @@ class JavaScriptDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
+        # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                if fullname in self.data['objects']:
-                    otherdoc, _ = self.data['objects'][fullname]
-                    logger.warning('duplicate object description of %s, '
-                                   'other instance in %s' %
-                                   (fullname, self.env.doc2path(otherdoc)))
                 self.data['objects'][fullname] = (fn, objtype)
         for mod_name, pkg_docname in otherdata['modules'].items():
             if pkg_docname in docnames:
-                if mod_name in self.data['modules']:
-                    otherdoc = self.data['modules'][mod_name]
-                    logger.warning('duplicate module description of %s, '
-                                   'other instance in %s' %
-                                   (mod_name, self.env.doc2path(otherdoc)))
                 self.data['modules'][mod_name] = pkg_docname
 
     def find_obj(self, env, mod_name, prefix, name, typ, searchorder=0):
