@@ -20,7 +20,8 @@ from six import text_type
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
-    FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
+    BibliographyTransform, FootnoteDocnameUpdater, LaTeXFootnoteTransform,
+    ShowUrlsTransform
 )
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
@@ -219,7 +220,8 @@ class LaTeXBuilder(Builder):
         # type: (nodes.document) -> None
         transformer = SphinxTransformer(doctree)
         transformer.set_environment(self.env)
-        transformer.add_transforms([ShowUrlsTransform,
+        transformer.add_transforms([BibliographyTransform,
+                                    ShowUrlsTransform,
                                     LaTeXFootnoteTransform])
         transformer.apply_transforms()
 

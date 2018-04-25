@@ -12,7 +12,7 @@
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.builders.latex.nodes import footnotemark, footnotetext
+from sphinx.builders.latex.nodes import footnotemark, footnotetext, thebibliography
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -476,3 +476,46 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
                 return footnote
 
         return None
+
+
+class BibliographyTransform(SphinxTransform):
+    """Gather bibliography entries to tail of document.
+
+    Before::
+
+        <document>
+            <paragraph>
+                blah blah blah
+            <citation>
+                ...
+            <paragraph>
+                blah blah blah
+            <citation>
+                ...
+            ...
+
+    After::
+
+        <document>
+            <paragraph>
+                blah blah blah
+            <paragraph>
+                blah blah blah
+            ...
+            <thebibliography>
+                <citation>
+                    ...
+                <citation>
+                    ...
+    """
+    default_priority = 750
+
+    def apply(self):
+        # type: () -> None
+        citations = thebibliography()
+        for node in self.document.traverse(nodes.citation):
+            node.parent.remove(node)
+            citations += node
+
+        if len(citations) > 0:
+            self.document += citations
