@@ -1247,3 +1247,20 @@ def test_latex_nested_enumerated_list(app, status, warning):
     assert r'\setcounter{enumii}{3}' in result
     assert r'\setcounter{enumiii}{9}' in result
     assert r'\setcounter{enumii}{2}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='footnotes')
+def test_latex_thebibliography(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    assert ('\\begin{sphinxthebibliography}{AuthorYear}\n'
+            '\\bibitem[AuthorYear]{\\detokenize{AuthorYear}}'
+            '{\\phantomsection\\label{\\detokenize{index:authoryear}} \n'
+            'Author, Title, Year\n'
+            '}\n'
+            '\\end{sphinxthebibliography}\n' in result)
+    assert ('{\\hyperref[\\detokenize{index:authoryear}]'
+            '{\\sphinxcrossref{{[}AuthorYear{]}}}}.}'
+            in result)
