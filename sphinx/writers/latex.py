@@ -23,7 +23,6 @@ from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA  # for compatibility
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
@@ -2561,3 +2560,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+
+# Import old modules here for compatibility
+# They should be imported after `LaTeXTranslator` to avoid recursive import.
+#
+# refs: https://github.com/sphinx-doc/sphinx/issues/4889
+from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
