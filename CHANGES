@@ -26,6 +26,8 @@ Incompatible changes
 * ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
   ``docutils.conf`` on confdir is refered.
 * #789: ``:samp:`` role supports to escape curly braces with backslash
+* #4811: The files under :confval:`html_static_path` are excluded from source
+  files.
 
 Deprecated
 ----------

@@ -883,6 +883,9 @@ that use Sphinx's HTMLWriter class.
    named :file:`default.css` will overwrite the theme's
    :file:`default.css`.
 
+   As these files are not meant to be built, they are automatically excluded
+   from source files.
+
    .. note::
 
       For security reason, dotfiles under ``html_static_path`` will
@@ -901,6 +904,10 @@ that use Sphinx's HTMLWriter class.
    .. versionchanged:: 1.0
       The entries in :confval:`html_static_path` can now be single files.
 
+   .. versionchanged:: 1.8
+      The files under :confval:`html_static_path` are excluded from source
+      files.
+
 .. confval:: html_extra_path
 
    A list of paths that contain extra files not directly related to
@@ -909,8 +916,8 @@ that use Sphinx's HTMLWriter class.
    directory.  They are copied to the output directory.  They will
    overwrite any existing file of the same name.
 
-   As these files are not meant to be built, they are automatically added to
-   :confval:`exclude_patterns`.
+   As these files are not meant to be built, they are automatically excluded
+   from source files.
 
    .. versionadded:: 1.2
 

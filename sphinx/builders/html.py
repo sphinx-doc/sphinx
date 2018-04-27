@@ -411,7 +411,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_asset_paths(self):
         # type: () -> List[unicode]
-        return self.config.html_extra_path
+        return self.config.html_extra_path + self.config.html_static_path
 
     def render_partial(self, node):
         # type: (nodes.Nodes) -> Dict[unicode, unicode]
