@@ -15,8 +15,8 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import iteritems, itervalues, text_type
 from jinja2 import StrictUndefined, UndefinedError, TemplateError
+from six import iteritems, itervalues, text_type
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -129,7 +129,7 @@ class DownloadFileCollector(EnvironmentCollector):
         # type: (Sphinx, nodes.Node) -> None
         """Process downloadable file paths. """
         conf = dict((confval.name, confval.value) for confval in
-                  app.config)  # type: ignore
+                    app.config)
         conf.update(app.config.__dict__.copy())
         b = BaseRenderer()
         # needed to raise UndefinedError if a template variable is missing
