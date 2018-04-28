@@ -47,6 +47,7 @@ Deprecated
   argument has been deprecated
 * ``Config.check_types()`` is deprecated
 * ``Config.check_unicode()`` is deprecated
+* ``sphinx.application.CONFIG_FILENAME`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -75,7 +76,7 @@ Features added
 * #4834: Ensure set object descriptions are reproducible.
 * #4828: Allow to override :confval:`numfig_format` partially.  Full definition
   is not needed.
-* Add ``Config.from_conf_py()`` classmethod to create a new config object from
+* Add ``Config.read()`` classmethod to create a new config object from
   configuration file
 
 Bugs fixed

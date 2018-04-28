@@ -26,6 +26,7 @@ from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
+from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.config import Config, check_unicode
 from sphinx.deprecation import (
     RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -108,7 +109,6 @@ builtin_extensions = (
     'alabaster',
 )  # type: Tuple[unicode, ...]
 
-CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
 logger = logging.getLogger(__name__)
@@ -190,8 +190,7 @@ class Sphinx(object):
         if self.confdir is None:
             self.config = Config({}, confoverrides or {})
         else:
-            self.config = Config.from_conf_py(path.join(self.confdir, CONFIG_FILENAME),
-                                              confoverrides or {}, self.tags)
+            self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
             check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading

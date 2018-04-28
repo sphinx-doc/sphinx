@@ -34,6 +34,7 @@ if False:
 
 logger = logging.getLogger(__name__)
 
+CONFIG_FILENAME = 'conf.py'
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 if PY3:
@@ -148,7 +149,7 @@ class Config(object):
         if len(args) == 4:
             # old style arguments: (dirname, filename, overrides, tags)
             warnings.warn('The argument of Config() class has been changed. '
-                          'Use Config.from_conf_py() to read configuration from conf.py.',
+                          'Use Config.read() to read configuration from conf.py.',
                           RemovedInSphinx30Warning)
             dirname, filename, overrides, tags = args
             if dirname is None:
@@ -177,9 +178,10 @@ class Config(object):
         self.extensions = config.get('extensions', [])  # type: List[unicode]
 
     @classmethod
-    def from_conf_py(cls, filename, overrides=None, tags=None):
+    def read(cls, confdir, overrides=None, tags=None):
         # type: (unicode, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
+        filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
         return cls(namespace, overrides or {})
 
