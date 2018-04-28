@@ -23,6 +23,7 @@ Incompatible changes
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase
+* #789: ``:samp:`` role supports to escape curly braces with backslash
 
 Deprecated
 ----------
