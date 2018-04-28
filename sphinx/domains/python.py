@@ -579,9 +579,10 @@ class PyModule(Directive):
         env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
-            env.domaindata['py']['modules'][modname] = \
-                (env.docname, self.options.get('synopsis', ''),
-                 self.options.get('platform', ''), 'deprecated' in self.options)
+            env.domaindata['py']['modules'][modname] = (env.docname,
+                                                        self.options.get('synopsis', ''),
+                                                        self.options.get('platform', ''),
+                                                        'deprecated' in self.options)
             # make a duplicate entry in 'objects' to facilitate searching for
             # the module in PythonDomain.find_obj()
             env.domaindata['py']['objects'][modname] = (env.docname, 'module')

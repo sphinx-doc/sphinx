@@ -76,6 +76,9 @@ Features added
 * #4834: Ensure set object descriptions are reproducible.
 * #4828: Allow to override :confval:`numfig_format` partially.  Full definition
   is not needed.
+* Improve warning messages during including (refs: #4818)
+* LaTeX: separate customizability of :rst:role:`guilabel` and
+  :rst:role:`menuselection` (refs: #4830)
 * Add ``Config.read()`` classmethod to create a new config object from
   configuration file
 
@@ -92,7 +95,7 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
-Release 1.7.3 (in development)
+Release 1.7.5 (in development)
 ==============================
 
 Dependencies
@@ -106,6 +109,24 @@ Deprecated
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.4 (released Apr 25, 2018)
+=====================================
+
+Bugs fixed
+----------
+
+* #4885, #4887: domains: Crashed with duplicated objects
+* #4889: latex: sphinx.writers.latex causes recusrive import
+
+Release 1.7.3 (released Apr 23, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -126,9 +147,8 @@ Bugs fixed
 * toctree directive tries to glob for URL having query_string
 * #4871: html search: Upper characters problem in German
 * #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
-
-Testing
---------
+* #4459: duplicated labels detector does not work well in parallel build
+* #4878: Crashed with extension which returns invalid metadata
 
 Release 1.7.2 (released Mar 21, 2018)
 =====================================
