@@ -2139,7 +2139,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # adjust max width of citation labels not to break the layout
             longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
 
-        self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' % longest_label)
+        self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' %
+                         self.encode(longest_label))
 
     def depart_thebibliography(self, node):
         # type: (nodes.Node) -> None
