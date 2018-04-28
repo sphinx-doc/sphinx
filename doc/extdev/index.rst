@@ -121,6 +121,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - The value of :confval:`html_search_options`
+     - 1.8
+     - 3.0
+     - see :confval:`html_search_options`
+
    * - ``sphinx.versioning.prepare()``
      - 1.8
      - 3.0

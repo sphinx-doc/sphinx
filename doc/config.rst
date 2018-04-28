@@ -1194,8 +1194,10 @@ that use Sphinx's HTMLWriter class.
          Janome binding. To use this splitter,
          `Janome <https://pypi.org/project/Janome/>`_ is required.
 
-      To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are also
-      acceptable. However it will be deprecated in Sphinx-1.6.
+      .. deprecated:: 1.6
+         ``'mecab'``, ``'janome'`` and ``'default'`` is deprecated.
+         To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are
+         also acceptable.
 
 
    Other option values depend on splitter value which you choose.
