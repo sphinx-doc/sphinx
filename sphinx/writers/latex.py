@@ -2161,7 +2161,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_title:
             pass
         else:
-            self.body.append('\\cite{%s:%s}' % (node['docname'], node['refname']))
+            self.body.append('\\sphinxcite{%s:%s}' % (node['docname'], node['refname']))
             raise nodes.SkipNode
 
     def depart_citation_reference(self, node):

@@ -590,7 +590,7 @@ def test_footnote(app, status, warning):
     assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
-    assert '\\cite{footnote:bar}' in result
+    assert '\\sphinxcite{footnote:bar}' in result
     assert ('\\bibitem[bar]{footnote:bar}\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
@@ -613,7 +613,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert ('\\caption{This is the figure caption with a reference to '
-            '\\cite{index:authoryear}.}' in result)
+            '\\sphinxcite{index:authoryear}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert ('\\sphinxcaption{The table title with a reference'
             ' to {[}AuthorYear{]}}' in result)
@@ -661,7 +661,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
-            '\\cite{index:authoryear}}}}') in result
+            '\\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
@@ -705,7 +705,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\cite{index:authoryear}}}}') in result
+            'to \\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
@@ -759,7 +759,7 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\cite{index:authoryear}}}}') in result
+            'to \\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
@@ -1244,4 +1244,4 @@ def test_latex_thebibliography(app, status, warning):
             '\\bibitem[AuthorYear]{index:authoryear}\n'
             'Author, Title, Year\n'
             '\\end{sphinxthebibliography}\n' in result)
-    assert '\\cite{index:authoryear}' in result
+    assert '\\sphinxcite{index:authoryear}' in result
