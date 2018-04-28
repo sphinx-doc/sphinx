@@ -49,6 +49,7 @@ BEGIN_DOC = r'''
 '''
 
 
+MAX_CITATION_LABEL_LENGTH = 16
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
 
@@ -2134,6 +2135,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_thebibliography(self, node):
         # type: (nodes.Node) -> None
         longest_label = max((subnode[0].astext() for subnode in node), key=len)
+        if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
+            # adjust max width of citation labels not to break the layout
+            longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
+
         self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' % longest_label)
 
     def depart_thebibliography(self, node):
