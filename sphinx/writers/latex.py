@@ -2148,12 +2148,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_citation(self, node):
         # type: (nodes.Node) -> None
         label = node[0].astext()
-        self.body.append(u'\\bibitem[%s]{%s:%s}{' %
+        self.body.append(u'\\bibitem[%s]{%s:%s}' %
                          (self.encode(label), node['docname'], node['ids'][0]))
 
     def depart_citation(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('}\n')
+        pass
 
     def visit_citation_reference(self, node):
         # type: (nodes.Node) -> None

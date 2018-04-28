@@ -591,8 +591,7 @@ def test_footnote(app, status, warning):
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '\\cite{footnote:bar}' in result
-    assert ('\\bibitem[bar]{footnote:bar}'
-            '{\ncite\n}\n') in result
+    assert ('\\bibitem[bar]{footnote:bar}\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
@@ -1242,8 +1241,7 @@ def test_latex_thebibliography(app, status, warning):
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
     assert ('\\begin{sphinxthebibliography}{AuthorYear}\n'
-            '\\bibitem[AuthorYear]{index:authoryear}{\n'
+            '\\bibitem[AuthorYear]{index:authoryear}\n'
             'Author, Title, Year\n'
-            '}\n'
             '\\end{sphinxthebibliography}\n' in result)
     assert '\\cite{index:authoryear}' in result
