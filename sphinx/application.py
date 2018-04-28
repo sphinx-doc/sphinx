@@ -26,8 +26,8 @@ from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.config import Config, check_unicode
+from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
     RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
 )
