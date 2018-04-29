@@ -11,15 +11,13 @@
 
 from docutils import nodes
 from docutils.transforms.references import Substitutions
+from six import itervalues
 
 from sphinx.transforms import SphinxTransform
 
 
 class SubstitutionDefinitionsRemover(SphinxTransform):
-    """Remove ``substitution_definition node from doctrees.
-
-    .. note:: In Sphinx-1.7, this transform is only used in LaTeX builder.
-    """
+    """Remove ``substitution_definition node from doctrees."""
 
     # should be invoked after Substitutions process
     default_priority = Substitutions.default_priority + 1
@@ -28,3 +26,13 @@ class SubstitutionDefinitionsRemover(SphinxTransform):
         # type: () -> None
         for node in self.document.traverse(nodes.substitution_definition):
             node.parent.remove(node)
+
+
+class SphinxDomains(SphinxTransform):
+    """Collect objects to Sphinx domains for cross references."""
+    default_priority = 850
+
+    def apply(self):
+        # type: () -> None
+        for domain in itervalues(self.env.domains):
+            domain.process_doc(self, self.env.docname, self.document)

@@ -17,6 +17,12 @@ Incompatible changes
   a ``conf.py`` file sphinx-build generates.
 * The ``gettext_compact`` attribute is removed from ``document.settings``
   object.  Please use ``config.gettext_compact`` instead.
+* The processing order on reading phase is changed.  smart_quotes, sphinx
+  domains, :event:`doctree-read` event and versioning doctrees are invoked
+  earlier than so far.  For more details, please read a description of
+  :py:meth:`.Sphinx.add_transform()`
+* #4827: All ``substitution_definition`` nodes are removed from doctree on
+  reading phase
 
 Deprecated
 ----------
@@ -36,6 +42,12 @@ Deprecated
 * ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
+* ``sphinx.versioning.prepare()`` is deprecated
+* ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
+  argument has been deprecated
+* ``Config.check_types()`` is deprecated
+* ``Config.check_unicode()`` is deprecated
+* ``sphinx.application.CONFIG_FILENAME`` is deprecated
 * ``highlightlang`` directive is deprecated
 
 For more details, see `deprecation APIs list
@@ -63,6 +75,13 @@ Features added
 * Add :confval:`html_css_files` and :confval:`epub_css_files` for adding CSS
   files from configuration
 * #4834: Ensure set object descriptions are reproducible.
+* #4828: Allow to override :confval:`numfig_format` partially.  Full definition
+  is not needed.
+* Improve warning messages during including (refs: #4818)
+* LaTeX: separate customizability of :rst:role:`guilabel` and
+  :rst:role:`menuselection` (refs: #4830)
+* Add ``Config.read()`` classmethod to create a new config object from
+  configuration file
 
 Bugs fixed
 ----------
@@ -77,7 +96,7 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
-Release 1.7.3 (in development)
+Release 1.7.5 (in development)
 ==============================
 
 Dependencies
@@ -95,6 +114,24 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 1.7.4 (released Apr 25, 2018)
+=====================================
+
+Bugs fixed
+----------
+
+* #4885, #4887: domains: Crashed with duplicated objects
+* #4889: latex: sphinx.writers.latex causes recusrive import
+
+Release 1.7.3 (released Apr 23, 2018)
+=====================================
+
+Bugs fixed
+----------
+
 * #4769: autodoc loses the first staticmethod parameter
 * #4790: autosummary: too wide two column tables in PDF builds
 * #4795: Latex customization via ``_templates/longtable.tex_t`` is broken
@@ -105,9 +142,14 @@ Bugs fixed
 * #4817: wrong URLs on warning messages
 * #4784: latex: :confval:`latex_show_urls` assigns incorrect footnote numbers if
   hyperlinks exists inside substitutions
-
-Testing
---------
+* #4837: latex with class memoir Error: Font command ``\sf`` is not supported
+* #4803: latex: too slow in proportion to number of auto numbered footnotes
+* #4838: htmlhelp: The entries in .hhp file is not ordered
+* toctree directive tries to glob for URL having query_string
+* #4871: html search: Upper characters problem in German
+* #4717: latex: Compilation for German docs failed with LuaLaTeX and XeLaTeX
+* #4459: duplicated labels detector does not work well in parallel build
+* #4878: Crashed with extension which returns invalid metadata
 
 Release 1.7.2 (released Mar 21, 2018)
 =====================================
@@ -139,6 +181,7 @@ Bugs fixed
 * #1435: qthelp builder should htmlescape keywords
 * epub: Fix docTitle elements of toc.ncx is not escaped
 * #4520: apidoc: Subpackage not in toc (introduced in 1.6.6) now fixed
+* #4767: html: search highlighting breaks mathjax equations
 
 Release 1.7.1 (released Feb 23, 2018)
 =====================================
@@ -214,6 +257,8 @@ Incompatible changes
   (refs: #4295)
 * #4246: Limit width of text body for all themes. Conifigurable via theme
   options ``body_min_width`` and ``body_max_width``.
+* #4771: apidoc: The ``exclude_patterns`` arguments are ignored if they are
+  placed just after command line options
 
 1.7.0b2
 

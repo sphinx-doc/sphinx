@@ -425,7 +425,7 @@ msgstr "行规范 %r：未能从包含文件 %r 中拉取行"
 
 #: sphinx/directives/other.py:157
 msgid "Section author: "
-msgstr "节作者："
+msgstr "章节作者："
 
 #: sphinx/directives/other.py:159
 msgid "Module author: "
@@ -878,7 +878,7 @@ msgstr "格式转换程序退出并报错：\n[stderr]\n%s\n[stdout]\n%s"
 
 #: sphinx/ext/imgmath.py:338 sphinx/ext/jsmath.py:41 sphinx/ext/mathjax.py:42
 msgid "Permalink to this equation"
-msgstr "永久链接至公式"
+msgstr "公式的永久链接"
 
 #: sphinx/ext/intersphinx.py:339
 #, python-format
@@ -1047,7 +1047,7 @@ msgstr "搜索"
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:16
 msgid "Go"
-msgstr "转向"
+msgstr "搜"
 
 #: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
@@ -1250,13 +1250,13 @@ msgstr "其他更改"
 #: sphinx/writers/html.py:410 sphinx/writers/html5.py:351
 #: sphinx/writers/html5.py:356
 msgid "Permalink to this headline"
-msgstr "永久链接至标题"
+msgstr "标题的永久链接"
 
 #: sphinx/themes/basic/static/doctools.js_t:199 sphinx/writers/html.py:126
 #: sphinx/writers/html.py:137 sphinx/writers/html5.py:95
 #: sphinx/writers/html5.py:106
 msgid "Permalink to this definition"
-msgstr "永久链接至目标"
+msgstr "定义的永久链接"
 
 #: sphinx/themes/basic/static/doctools.js_t:232
 msgid "Hide Search Matches"
@@ -1313,19 +1313,19 @@ msgstr "当添加指令类时，不应该给定额外参数"
 
 #: sphinx/writers/html.py:414 sphinx/writers/html5.py:360
 msgid "Permalink to this table"
-msgstr "永久链接至表格"
+msgstr "表格的永久链接"
 
 #: sphinx/writers/html.py:466 sphinx/writers/html5.py:412
 msgid "Permalink to this code"
-msgstr "永久链接至代码"
+msgstr "代码的永久链接"
 
 #: sphinx/writers/html.py:470 sphinx/writers/html5.py:416
 msgid "Permalink to this image"
-msgstr "永久链接至图片"
+msgstr "图片的永久链接"
 
 #: sphinx/writers/html.py:472 sphinx/writers/html5.py:418
 msgid "Permalink to this toctree"
-msgstr "永久链接至目录树"
+msgstr "目录的永久链接"
 
 #: sphinx/writers/latex.py:554
 msgid "Release"

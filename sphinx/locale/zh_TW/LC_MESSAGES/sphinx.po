@@ -1046,7 +1046,7 @@ msgstr "搜尋"
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:16
 msgid "Go"
-msgstr "前往"
+msgstr "搜"
 
 #: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"

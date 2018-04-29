@@ -141,5 +141,5 @@ own extensions.
 .. _inlinesyntaxhighlight: https://sphinxcontrib-inlinesyntaxhighlight.readthedocs.io/
 .. _CMake: https://cmake.org
 .. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
-.. _restbuilder: https://pypi.python.org/pypi/sphinxcontrib-restbuilder
+.. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/

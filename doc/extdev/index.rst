@@ -108,6 +108,8 @@ The following is a list of deprecated interface.
 
 .. list-table:: deprecated APIs
    :header-rows: 1
+   :class: deprecated
+   :widths: 40, 10, 10, 40
 
    * - Target
      - Deprecated
@@ -123,6 +125,37 @@ The following is a list of deprecated interface.
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
+   * - ``sphinx.application.CONFIG_FILENAME``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.CONFIG_FILENAME``
+
+   * - ``Config.check_unicode()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_unicode()``
+
+   * - ``Config.check_types()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_confval_types()``
+
+   * - ``dirname``, ``filename`` and ``tags`` arguments of
+       ``Config.__init__()``
+     - 1.8
+     - 3.0
+     - ``Config.read()``
+
+   * - The value of :confval:`html_search_options`
+     - 1.8
+     - 3.0
+     - see :confval:`html_search_options`
+
+   * - ``sphinx.versioning.prepare()``
+     - 1.8
+     - 3.0
+     - ``sphinx.versioning.UIDTransform``
 
    * - ``sphinx.application.Sphinx.override_domain()``
      - 1.8
@@ -273,7 +306,7 @@ The following is a list of deprecated interface.
    * - ``sphinx.websupport``
      - 1.6
      - 2.0
-     - `sphinxcontrib-websupport <https://pypi.python.org/pypi/sphinxcontrib-websupport>`_
+     - `sphinxcontrib-websupport <https://pypi.org/project/sphinxcontrib-websupport/>`_
 
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6

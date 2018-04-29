@@ -317,7 +317,7 @@ Documentation using a custom theme or integrated in a website
 * PSI4: http://www.psicode.org/psi4manual/master/index.html
 * PyMOTW: https://pymotw.com/2/
 * python-aspectlib: https://python-aspectlib.readthedocs.io/
-  (`sphinx_py3doc_enhanced_theme <https://pypi.python.org/pypi/sphinx_py3doc_enhanced_theme>`__)
+  (`sphinx_py3doc_enhanced_theme <https://pypi.org/project/sphinx_py3doc_enhanced_theme/>`__)
 * QGIS: https://qgis.org/en/docs/index.html
 * qooxdoo: http://www.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/

@@ -25,7 +25,6 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError, ConfigError
 from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
-from sphinx.transforms.references import SubstitutionDefinitionsRemover
 from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
@@ -217,7 +216,6 @@ class LaTeXBuilder(Builder):
         # type: (nodes.document) -> None
         transformer = SphinxTransformer(doctree)
         transformer.set_environment(self.env)
-        transformer.add_transforms([SubstitutionDefinitionsRemover])
         transformer.apply_transforms()
 
     def finish(self):
@@ -325,7 +323,7 @@ def setup(app):
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
-                         ENUM('part', 'chapter', 'section'))
+                         ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])
     app.add_config_value('latex_show_urls', 'no', None)
     app.add_config_value('latex_show_pagerefs', False, None)

@@ -7,6 +7,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
+from contextlib import contextmanager
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -42,6 +45,8 @@ locale.versionlabels = DeprecatedDict(
     RemovedInSphinx30Warning
 )
 
+glob_re = re.compile('.*[*?\[].*')
+
 
 def int_or_nothing(argument):
     # type: (unicode) -> int
@@ -73,29 +78,50 @@ class TocTree(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        suffixes = self.config.source_suffix
-        glob = 'glob' in self.options
+        subnode = addnodes.toctree()
+        subnode['parent'] = self.env.docname
 
-        ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
         # and title may be None if the document's title is to be used
-        entries = []        # type: List[Tuple[unicode, unicode]]
-        includefiles = []
+        subnode['entries'] = []
+        subnode['includefiles'] = []
+        subnode['maxdepth'] = self.options.get('maxdepth', -1)
+        subnode['caption'] = self.options.get('caption')
+        subnode['glob'] = 'glob' in self.options
+        subnode['hidden'] = 'hidden' in self.options
+        subnode['includehidden'] = 'includehidden' in self.options
+        subnode['numbered'] = self.options.get('numbered', 0)
+        subnode['titlesonly'] = 'titlesonly' in self.options
+        set_source_info(self, subnode)
+        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode.append(subnode)
+        self.add_name(wrappernode)
+
+        ret = self.parse_content(subnode)
+        ret.append(wrappernode)
+        return ret
+
+    def parse_content(self, toctree):
+        suffixes = self.config.source_suffix
+
+        # glob target documents
         all_docnames = self.env.found_docs.copy()
-        # don't add the currently visited file in catch-all patterns
-        all_docnames.remove(self.env.docname)
+        all_docnames.remove(self.env.docname)  # remove current document
+
+        ret = []
         for entry in self.content:
             if not entry:
                 continue
             # look for explicit titles ("Some Title <document>")
             explicit = explicit_title_re.match(entry)
-            if glob and ('*' in entry or '?' in entry or '[' in entry) and not explicit:
+            if (toctree['glob'] and glob_re.match(entry) and
+                    not explicit and not url_re.match(entry)):
                 patname = docname_join(self.env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))  # type: ignore
+                docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
                     all_docnames.remove(docname)  # don't include it again
-                    entries.append((None, docname))
-                    includefiles.append(docname)
+                    toctree['entries'].append((None, docname))
+                    toctree['includefiles'].append(docname)
                 if not docnames:
                     ret.append(self.state.document.reporter.warning(
                         'toctree glob pattern %r didn\'t match any documents'
@@ -116,7 +142,7 @@ class TocTree(SphinxDirective):
                 # absolutize filenames
                 docname = docname_join(self.env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
-                    entries.append((title, ref))
+                    toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
                     ret.append(self.state.document.reporter.warning(
                         'toctree contains reference to nonexisting '
@@ -124,28 +150,13 @@ class TocTree(SphinxDirective):
                     self.env.note_reread()
                 else:
                     all_docnames.discard(docname)
-                    entries.append((title, docname))
-                    includefiles.append(docname)
-        subnode = addnodes.toctree()
-        subnode['parent'] = self.env.docname
+                    toctree['entries'].append((title, docname))
+                    toctree['includefiles'].append(docname)
+
         # entries contains all entries (self references, external links etc.)
         if 'reversed' in self.options:
-            entries.reverse()
-        subnode['entries'] = entries
-        # includefiles only entries that are documents
-        subnode['includefiles'] = includefiles
-        subnode['maxdepth'] = self.options.get('maxdepth', -1)
-        subnode['caption'] = self.options.get('caption')
-        subnode['glob'] = glob
-        subnode['hidden'] = 'hidden' in self.options
-        subnode['includehidden'] = 'includehidden' in self.options
-        subnode['numbered'] = self.options.get('numbered', 0)
-        subnode['titlesonly'] = 'titlesonly' in self.options
-        set_source_info(self, subnode)
-        wrappernode = nodes.compound(classes=['toctree-wrapper'])
-        wrappernode.append(subnode)
-        self.add_name(wrappernode)
-        ret.append(wrappernode)
+            toctree['entries'] = list(reversed(toctree['entries']))
+
         return ret
 
 
@@ -426,6 +437,7 @@ class Include(BaseInclude, SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
+        current_filename = self.env.doc2path(self.env.docname)
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
@@ -433,7 +445,27 @@ class Include(BaseInclude, SphinxDirective):
         rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
         self.env.note_included(filename)
-        return BaseInclude.run(self)
+        with patched_warnings(self, current_filename):
+            return BaseInclude.run(self)
+
+
+@contextmanager
+def patched_warnings(directive, parent_filename):
+    # type: (BaseInclude, unicode) -> Generator[None, None, None]
+    """Add includee filename to the warnings during inclusion."""
+    try:
+        original = directive.state_machine.insert_input
+
+        def insert_input(input_lines, source):
+            # type: (Any, unicode) -> None
+            source += ' <included from %s>' % parent_filename
+            original(input_lines, source)
+
+        # patch insert_input() temporarily
+        directive.state_machine.insert_input = insert_input
+        yield
+    finally:
+        directive.state_machine.insert_input = original
 
 
 def setup(app):

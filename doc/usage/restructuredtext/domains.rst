@@ -1287,18 +1287,18 @@ Jinja_, Operation_, and Scala_.
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
-.. _Ada: https://pypi.python.org/pypi/sphinxcontrib-adadomain
-.. _Chapel: https://pypi.python.org/pypi/sphinxcontrib-chapeldomain
-.. _CoffeeScript: https://pypi.python.org/pypi/sphinxcontrib-coffee
-.. _Common Lisp: https://pypi.python.org/pypi/sphinxcontrib-cldomain
-.. _dqn: https://pypi.python.org/pypi/sphinxcontrib-dqndomain
-.. _Erlang: https://pypi.python.org/pypi/sphinxcontrib-erlangdomain
-.. _Go: https://pypi.python.org/pypi/sphinxcontrib-golangdomain
-.. _HTTP: https://pypi.python.org/pypi/sphinxcontrib-httpdomain
-.. _Jinja: https://pypi.python.org/pypi/sphinxcontrib-jinjadomain
-.. _Lasso: https://pypi.python.org/pypi/sphinxcontrib-lassodomain
-.. _MATLAB: https://pypi.python.org/pypi/sphinxcontrib-matlabdomain
-.. _Operation: https://pypi.python.org/pypi/sphinxcontrib-operationdomain
-.. _PHP: https://pypi.python.org/pypi/sphinxcontrib-phpdomain
+.. _Ada: https://pypi.org/project/sphinxcontrib-adadomain/
+.. _Chapel: https://pypi.org/project/sphinxcontrib-chapeldomain/
+.. _CoffeeScript: https://pypi.org/project/sphinxcontrib-coffee/
+.. _Common Lisp: https://pypi.org/project/sphinxcontrib-cldomain/
+.. _dqn: https://pypi.org/project/sphinxcontrib-dqndomain/
+.. _Erlang: https://pypi.org/project/sphinxcontrib-erlangdomain/
+.. _Go: https://pypi.org/project/sphinxcontrib-golangdomain/
+.. _HTTP: https://pypi.org/project/sphinxcontrib-httpdomain/
+.. _Jinja: https://pypi.org/project/sphinxcontrib-jinjadomain/
+.. _Lasso: https://pypi.org/project/sphinxcontrib-lassodomain/
+.. _MATLAB: https://pypi.org/project/sphinxcontrib-matlabdomain/
+.. _Operation: https://pypi.org/project/sphinxcontrib-operationdomain/
+.. _PHP: https://pypi.org/project/sphinxcontrib-phpdomain/
 .. _Ruby: https://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
-.. _Scala: https://pypi.python.org/pypi/sphinxcontrib-scaladomain
+.. _Scala: https://pypi.org/project/sphinxcontrib-scaladomain/

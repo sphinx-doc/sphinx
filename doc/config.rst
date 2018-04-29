@@ -192,8 +192,9 @@ General configuration
    .. index:: pair: global; substitutions
 
    A string of reStructuredText that will be included at the end of every source
-   file that is read.  This is the right place to add substitutions that should
-   be available in every file.  An example::
+   file that is read.  This is a possible place to add substitutions that should
+   be available in every file (another being :confval:`rst_prolog`).  An
+   example::
 
       rst_epilog = """
       .. |psf| replace:: Python Software Foundation
@@ -203,8 +204,16 @@ General configuration
 
 .. confval:: rst_prolog
 
+   .. index:: pair: global; substitutions
+
    A string of reStructuredText that will be included at the beginning of every
-   source file that is read.
+   source file that is read.  This is a possible place to add substitutions that
+   should be available in every file (another being :confval:`rst_epilog`).  An
+   example::
+
+      rst_prolog = """
+      .. |psf| replace:: Python Software Foundation
+      """
 
    .. versionadded:: 1.0
 
@@ -868,6 +877,18 @@ that use Sphinx's HTMLWriter class.
    named :file:`default.css` will overwrite the theme's
    :file:`default.css`.
 
+   .. note::
+
+      For security reason, dotfiles under ``html_static_path`` will
+      not be copied.  If you'd like to copy them intentionally, please
+      add them each filepath to this setting::
+
+          html_static_path = ['_static', '_static/.htaccess']
+
+      Another way to do that, you can also use
+      :confval:`html_extra_path`.  It allows to copy dotfiles under
+      the directories.
+
    .. versionchanged:: 0.4
       The paths in :confval:`html_static_path` can now contain subdirectories.
 
@@ -1138,8 +1159,8 @@ that use Sphinx's HTMLWriter class.
       Sphinx uses a Python implementation by default.  You can use a C
       implementation to accelerate building the index file.
 
-      * `PorterStemmer <https://pypi.python.org/pypi/PorterStemmer>`_ (``en``)
-      * `PyStemmer <https://pypi.python.org/pypi/PyStemmer>`_ (all languages)
+      * `PorterStemmer <https://pypi.org/project/PorterStemmer/>`_ (``en``)
+      * `PyStemmer <https://pypi.org/project/PyStemmer/>`_ (all languages)
 
    .. versionadded:: 1.1
       With support for ``en`` and ``ja``.
@@ -1171,10 +1192,12 @@ that use Sphinx's HTMLWriter class.
          library ('libmecab.so' for linux, 'libmecab.dll' for windows) is required.
       :'sphinx.search.ja.JanomeSplitter':
          Janome binding. To use this splitter,
-         `Janome <https://pypi.python.org/pypi/Janome>`_ is required.
+         `Janome <https://pypi.org/project/Janome/>`_ is required.
 
-      To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are also
-      acceptable. However it will be deprecated in Sphinx-1.6.
+      .. deprecated:: 1.6
+         ``'mecab'``, ``'janome'`` and ``'default'`` is deprecated.
+         To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are
+         also acceptable.
 
 
    Other option values depend on splitter value which you choose.
