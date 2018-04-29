@@ -82,6 +82,7 @@ Features added
   :rst:role:`menuselection` (refs: #4830)
 * Add ``Config.read()`` classmethod to create a new config object from
   configuration file
+* #4866: Wrap graphviz diagrams in ``<div>`` tag
 
 Bugs fixed
 ----------
