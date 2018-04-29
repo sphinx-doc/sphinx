@@ -25,7 +25,6 @@ from six import itervalues, text_type
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.builders.latex.nodes import footnotetext
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA  # for compatibility
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -190,10 +189,11 @@ class LaTeXWriter(writers.Writer):
 # Helper classes
 
 class ExtBabel(Babel):
-    def __init__(self, language_code):
-        # type: (unicode) -> None
+    def __init__(self, language_code, use_polyglossia=False):
+        # type: (unicode, bool) -> None
         super(ExtBabel, self).__init__(language_code or '')
         self.language_code = language_code
+        self.use_polyglossia = use_polyglossia
 
     def get_shorthandoff(self):
         # type: () -> unicode
@@ -221,10 +221,27 @@ class ExtBabel(Babel):
     def get_language(self):
         # type: () -> unicode
         language = super(ExtBabel, self).get_language()
-        if not language:
+        if language == 'ngerman' and self.use_polyglossia:
+            # polyglossia calls new orthography (Neue Rechtschreibung) as
+            # german (with new spelling option).
+            return 'german'
+        elif not language:
             return 'english'  # fallback to english
         else:
             return language
+
+    def get_mainlanguage_options(self):
+        # type: () -> unicode
+        """Return options for polyglossia's ``\setmainlanguage``."""
+        language = super(ExtBabel, self).get_language()
+        if self.use_polyglossia is False:
+            return None
+        elif language == 'ngerman':
+            return 'spelling=new'
+        elif language == 'german':
+            return 'spelling=old'
+        else:
+            return None
 
 
 class Table(object):
@@ -529,7 +546,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(builder.config.language)
+        self.babel = ExtBabel(builder.config.language,
+                              not self.elements['babel'])
         if builder.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
@@ -563,8 +581,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
         elif self.elements['polyglossia']:
-            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
-                (self.elements['polyglossia'], self.babel.get_language())
+            options = self.babel.get_mainlanguage_options()
+            if options:
+                mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
+                                                              self.babel.get_language())
+            else:
+                mainlanguage = r'\setmainlanguage{%s}' % self.babel.get_language()
+
+            self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
+                                                        mainlanguage)
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
@@ -2383,19 +2408,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('}}$')
 
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_inline(self, node):
         # type: (nodes.Node) -> None
         classes = node.get('classes', [])
-        if classes in [['menuselection'], ['guilabel']]:
+        if classes in [['menuselection']]:
             self.body.append(r'\sphinxmenuselection{')
+            self.context.append('}')
+        elif classes in [['guilabel']]:
+            self.body.append(r'\sphinxguilabel{')
             self.context.append('}')
         elif classes in [['accelerator']]:
             self.body.append(r'\sphinxaccelerator{')
@@ -2525,3 +2545,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+
+# Import old modules here for compatibility
+# They should be imported after `LaTeXTranslator` to avoid recursive import.
+#
+# refs: https://github.com/sphinx-doc/sphinx/issues/4889
+from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA

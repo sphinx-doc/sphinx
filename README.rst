@@ -3,7 +3,7 @@
 ========
 
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
-   :target: https://pypi.python.org/pypi/Sphinx
+   :target: https://pypi.org/project/Sphinx/
    :alt: Package on PyPi
 
 .. image:: https://readthedocs.org/projects/sphinx/badge/
@@ -71,7 +71,7 @@ We also publish beta releases::
 If you wish to install `Sphinx` for development purposes, refer to `the
 contributors guide`__.
 
-__ https://pypi.python.org/pypi/Sphinx
+__ https://pypi.org/project/Sphinx/
 __ http://www.sphinx-doc.org/en/master/devguide.html
 
 Documentation

@@ -165,19 +165,37 @@ def get_filename_for(filename, mimetype):
 
 
 class ImageConverter(BaseImageConverter):
-    """A base class images converter.
+    """A base class for image converters.
 
-    The concrete image converters should derive this class and
-    overrides the following methods and attributes:
+    An image converter is kind of Docutils transform module.  It is used to
+    convert image files which does not supported by builder to appropriate
+    format for that builder.
 
-    * default_priority (if needed)
-    * conversion_rules
-    * is_available()
-    * convert()
+    For example, :py:class:`LaTeX builder <.LaTeXBuilder>` supports PDF,
+    PNG and JPEG as image formats.  However it does not support SVG images.
+    For such case, to use image converters allows to embed these
+    unsupported images into the document.  One of image converters;
+    :ref:`sphinx.ext.imgconverter <sphinx.ext.imgconverter>` can convert
+    a SVG image to PNG format using Imagemagick internally.
+
+    There are three steps to make your custom image converter:
+
+    1. Make a subclass of ``ImageConverter`` class
+    2. Override ``conversion_rules``, ``is_available()`` and ``convert()``
+    3. Register your image converter to Sphinx using
+       :py:meth:`.Sphinx.add_post_transform`
     """
     default_priority = 200
 
-    #: A conversion rules between two mimetypes which this converters supports
+    #: A conversion rules the image converter supports.
+    #: It is represented as a list of pair of source image format (mimetype) and
+    #: destination one::
+    #:
+    #:     conversion_rules = [
+    #:         ('image/svg+xml', 'image/png'),
+    #:         ('image/gif', 'image/png'),
+    #:         ('application/pdf', 'image/png'),
+    #:     ]
     conversion_rules = []  # type: List[Tuple[unicode, unicode]]
 
     def __init__(self, *args, **kwargs):
@@ -216,7 +234,7 @@ class ImageConverter(BaseImageConverter):
 
     def is_available(self):
         # type: () -> bool
-        """Confirms the converter is available or not."""
+        """Return the image converter is available or not."""
         raise NotImplementedError()
 
     def guess_mimetypes(self, node):
@@ -255,7 +273,11 @@ class ImageConverter(BaseImageConverter):
 
     def convert(self, _from, _to):
         # type: (unicode, unicode) -> bool
-        """Converts the image to expected one."""
+        """Convert a image file to expected format.
+
+        *_from* is a path for source image file, and *_to* is a path for
+        destination file.
+        """
         raise NotImplementedError()
 
 

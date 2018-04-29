@@ -26,14 +26,13 @@ from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import Config
+from sphinx.config import Config, check_unicode
+from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
     RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
 )
 from sphinx.environment import BuildEnvironment
-from sphinx.errors import (
-    ApplicationError, ConfigError, ExtensionError, VersionRequirementError
-)
+from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.registry import SphinxComponentRegistry
@@ -110,7 +109,6 @@ builtin_extensions = (
     'alabaster',
 )  # type: Tuple[unicode, ...]
 
-CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
 logger = logging.getLogger(__name__)
@@ -189,10 +187,11 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config(self.confdir, CONFIG_FILENAME,
-                             confoverrides or {}, self.tags)
-        self.config.check_unicode()
-        # defer checking types until i18n has been initialized
+        if self.confdir is None:
+            self.config = Config({}, confoverrides or {})
+        else:
+            self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
+            check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions
@@ -250,8 +249,6 @@ class Sphinx(object):
 
         # create the builder
         self.builder = self.create_builder(buildername)
-        # check all configuration values for permissible types
-        self.config.check_types()
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
@@ -561,8 +558,6 @@ class Sphinx(object):
         """
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
-        if name in self.config:
-            raise ExtensionError(__('Config value %r already present') % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
         self.config.add(name, default, rebuild, types)
@@ -970,7 +965,30 @@ class Sphinx(object):
         Add the standard docutils :class:`Transform` subclass *transform* to
         the list of transforms that are applied after Sphinx parses a reST
         document.
-        """
+
+        .. list-table:: priority range categories for Sphinx transforms
+
+           * - Priority
+             - Main purpose in Sphinx
+           * - 0-99
+             - Fix invalid nodes by docutils. Translate a doctree.
+           * - 100-299
+             - Preparation
+           * - 300-399
+             - early
+           * - 400-699
+             - main
+           * - 700-799
+             - Post processing. Deadline to modify text and referencing.
+           * - 800-899
+             - Collect referencing and referenced nodes. Domain processing.
+           * - 900-999
+             - Finalize and clean up.
+
+        refs: `Transform Priority Range Categories`__
+
+        __ http://docutils.sourceforge.net/docs/ref/transforms.html#transform-priority-range-categories
+        """  # NOQA
         self.registry.add_transform(transform)
 
     def add_post_transform(self, transform):

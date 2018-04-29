@@ -534,6 +534,50 @@ def test_babel_with_unknown_language(app, status, warning):
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
 
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'de', 'latex_engine': 'lualatex'})
+def test_polyglossia_with_language_de(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
+    assert '\\usepackage{polyglossia}' in result
+    assert '\\setmainlanguage[spelling=new]{german}' in result
+    assert '\\usepackage{times}' not in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
+    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
+    assert '\\def\\pageautorefname{Seite}\n' in result
+    assert '\\shorthandoff' not in result
+
+
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'de-1901', 'latex_engine': 'lualatex'})
+def test_polyglossia_with_language_de_1901(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,german]{sphinxmanual}' in result
+    assert '\\usepackage{polyglossia}' in result
+    assert '\\setmainlanguage[spelling=old]{german}' in result
+    assert '\\usepackage{times}' not in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
+    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
+    assert '\\def\\pageautorefname{page}\n' in result
+    assert '\\shorthandoff' not in result
+
+
 @pytest.mark.sphinx('latex')
 def test_footnote(app, status, warning):
     app.builder.build_all()

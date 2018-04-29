@@ -13,7 +13,7 @@
 from docutils import nodes
 
 import sphinx
-from sphinx.application import ExtensionError
+from sphinx.errors import ExtensionError
 from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 from sphinx.locale import _

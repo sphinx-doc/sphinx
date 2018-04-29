@@ -987,10 +987,6 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_pending_xref(self, node):
         # type: (nodes.Node) -> None
         pass
