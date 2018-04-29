@@ -142,6 +142,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Config.read()``
 
+   * - The value of :confval:`html_search_options`
+     - 1.8
+     - 3.0
+     - see :confval:`html_search_options`
+
    * - ``sphinx.versioning.prepare()``
      - 1.8
      - 3.0
