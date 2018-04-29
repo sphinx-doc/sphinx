@@ -48,6 +48,7 @@ Deprecated
 * ``Config.check_types()`` is deprecated
 * ``Config.check_unicode()`` is deprecated
 * ``sphinx.application.CONFIG_FILENAME`` is deprecated
+* ``highlightlang`` directive is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
