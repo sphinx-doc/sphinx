@@ -290,21 +290,27 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             self.body.append('<div align="%s" class="align-%s">' %
                              (node['align'], node['align']))
         if format == 'svg':
-            svgtag = '''<object data="%s" type="image/svg+xml">
-            <p class="warning">%s</p></object>\n''' % (fname, alt)
-            self.body.append(svgtag)
+            self.body.append('<div class="graphviz">')
+            self.body.append('<object data="%s" type="image/svg+xml" %s>\n' %
+                             (fname, imgcss))
+            self.body.append('<p class="warning">%s</p>' % alt)
+            self.body.append('</object></div>\n')
         else:
             with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
                 imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
                 if imgmap.clickable:
                     # has a map
-                    self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
+                    self.body.append('<div class="graphviz">')
+                    self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>' %
                                      (fname, alt, imgmap.id, imgcss))
+                    self.body.append('</div>\n')
                     self.body.append(imgmap.generate_clickable_map())
                 else:
                     # nothing in image map
-                    self.body.append('<img src="%s" alt="%s" %s/>\n' %
+                    self.body.append('<div class="graphviz">')
+                    self.body.append('<img src="%s" alt="%s" %s/>' %
                                      (fname, alt, imgcss))
+                    self.body.append('</div>\n')
         if 'align' in node:
             self.body.append('</div>\n')
 
