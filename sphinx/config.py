@@ -11,13 +11,15 @@
 
 import re
 import traceback
+import warnings
 from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
-from sphinx.errors import ConfigError
+from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
@@ -26,27 +28,14 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
 
-nonascii_re = re.compile(br'[\x80-\xff]')
+CONFIG_FILENAME = 'conf.py'
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
-
-CONFIG_SYNTAX_ERROR = __("There is a syntax error in your configuration file: %s")
-if PY3:
-    CONFIG_SYNTAX_ERROR += __("\nDid you change the syntax from 2.x to 3.x?")
-CONFIG_ERROR = __("There is a programable error in your configuration file:\n\n%s")
-CONFIG_EXIT_ERROR = __("The configuration file (or one of the modules it imports) "
-                       "called sys.exit()")
-CONFIG_ENUM_WARNING = __("The config value `{name}` has to be a one of {candidates}, "
-                         "but `{current}` is given.")
-CONFIG_PERMITTED_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
-                                   "expected to {permitted}.")
-CONFIG_TYPE_WARNING = __("The config value `{name}' has type `{current.__name__}', "
-                         "defaults to `{default.__name__}'.")
 
 if PY3:
     unicode = str  # special alias for static typing...
@@ -155,30 +144,30 @@ class Config(object):
                                 'env'),
     )  # type: Dict[unicode, Tuple]
 
-    def __init__(self, dirname, filename, overrides, tags):
-        # type: (unicode, unicode, Dict, Tags) -> None
+    def __init__(self, *args):
+        # type: (Any) -> None
+        if len(args) == 4:
+            # old style arguments: (dirname, filename, overrides, tags)
+            warnings.warn('The argument of Config() class has been changed. '
+                          'Use Config.read() to read configuration from conf.py.',
+                          RemovedInSphinx30Warning)
+            dirname, filename, overrides, tags = args
+            if dirname is None:
+                config = {}  # type: Dict[unicode, Any]
+            else:
+                config = eval_config_file(path.join(dirname, filename), tags)
+        else:
+            # new style arguments: (config={}, overrides={})
+            if len(args) == 0:
+                config, overrides = {}, {}
+            elif len(args) == 1:
+                config, overrides = args[0], {}
+            else:
+                config, overrides = args[:2]
+
         self.overrides = overrides
         self.values = Config.config_values.copy()
-        config = {}  # type: Dict[unicode, Any]
-        if dirname is not None:
-            config_file = path.join(dirname, filename)
-            config['__file__'] = config_file
-            config['tags'] = tags
-            with cd(dirname):
-                # we promise to have the config dir as current dir while the
-                # config file is executed
-                try:
-                    execfile_(filename, config)
-                except SyntaxError as err:
-                    raise ConfigError(CONFIG_SYNTAX_ERROR % err)
-                except SystemExit:
-                    raise ConfigError(CONFIG_EXIT_ERROR)
-                except Exception:
-                    raise ConfigError(CONFIG_ERROR % traceback.format_exc())
-
         self._raw_config = config
-        # these two must be preinitialized because extensions can add their
-        # own config values
         self.setup = config.get('setup', None)  # type: Callable
 
         if 'extensions' in overrides:
@@ -188,69 +177,25 @@ class Config(object):
                 config['extensions'] = overrides.pop('extensions')
         self.extensions = config.get('extensions', [])  # type: List[unicode]
 
-        # correct values of copyright year that are not coherent with
-        # the SOURCE_DATE_EPOCH environment variable (if set)
-        # See https://reproducible-builds.org/specs/source-date-epoch/
-        if getenv('SOURCE_DATE_EPOCH') is not None:
-            for k in ('copyright', 'epub_copyright'):
-                if k in config:
-                    config[k] = copyright_year_re.sub(r'\g<1>%s' % format_date('%Y'),
-                                                      config[k])
+    @classmethod
+    def read(cls, confdir, overrides=None, tags=None):
+        # type: (unicode, Dict, Tags) -> Config
+        """Create a Config object from configuration file."""
+        filename = path.join(confdir, CONFIG_FILENAME)
+        namespace = eval_config_file(filename, tags)
+        return cls(namespace, overrides or {})
 
     def check_types(self):
         # type: () -> None
-        # check all values for deviation from the default value's type, since
-        # that can result in TypeErrors all over the place
-        # NB. since config values might use _() we have to wait with calling
-        # this method until i18n is initialized
-        for name in self._raw_config:
-            if name not in self.values:
-                continue  # we don't know a default value
-            settings = self.values[name]
-            default, dummy_rebuild = settings[:2]
-            permitted = settings[2] if len(settings) == 3 else ()
-
-            if hasattr(default, '__call__'):
-                default = default(self)  # could invoke _()
-            if default is None and not permitted:
-                continue  # neither inferrable nor expliclitly permitted types
-            current = self[name]
-            if permitted is Any:
-                # any type of value is accepted
-                pass
-            elif isinstance(permitted, ENUM):
-                if not permitted.match(current):
-                    logger.warning(CONFIG_ENUM_WARNING.format(
-                        name=name, current=current, candidates=permitted.candidates))
-            else:
-                if type(current) is type(default):
-                    continue
-                if type(current) in permitted:
-                    continue
-
-                common_bases = (set(type(current).__bases__ + (type(current),)) &
-                                set(type(default).__bases__))
-                common_bases.discard(object)
-                if common_bases:
-                    continue  # at least we share a non-trivial base class
-
-                if permitted:
-                    logger.warning(CONFIG_PERMITTED_TYPE_WARNING.format(
-                        name=name, current=type(current),
-                        permitted=str([cls.__name__ for cls in permitted])))
-                else:
-                    logger.warning(CONFIG_TYPE_WARNING.format(
-                        name=name, current=type(current), default=type(default)))
+        warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
+                      RemovedInSphinx30Warning)
+        check_confval_types(None, self)
 
     def check_unicode(self):
         # type: () -> None
-        # check all string values for non-ASCII characters in bytestrings,
-        # since that can result in UnicodeErrors all over the place
-        for name, value in iteritems(self._raw_config):
-            if isinstance(value, binary_type) and nonascii_re.search(value):
-                logger.warning(__('the config value %r is set to a string with non-ASCII '
-                                  'characters; this can lead to Unicode errors occurring. '
-                                  'Please use Unicode strings, e.g. %r.'), name, u'Content')
+        warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
+                      RemovedInSphinx30Warning)
+        check_unicode(self)
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any
@@ -346,19 +291,49 @@ class Config(object):
         return name in self.values
 
     def __iter__(self):
-        # type: () -> Iterable[ConfigValue]
+        # type: () -> Generator[ConfigValue, None, None]
         for name, value in iteritems(self.values):
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
     def add(self, name, default, rebuild, types):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
-        self.values[name] = (default, rebuild, types)
+        if name in self.values:
+            raise ExtensionError(__('Config value %r already present') % name)
+        else:
+            self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
         # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
-        return (value for value in self if value.rebuild in rebuild)  # type: ignore
+        return (value for value in self if value.rebuild in rebuild)
+
+
+def eval_config_file(filename, tags):
+    # type: (unicode, Tags) -> Dict[unicode, Any]
+    """Evaluate a config file."""
+    namespace = {}  # type: Dict[unicode, Any]
+    namespace['__file__'] = filename
+    namespace['tags'] = tags
+
+    with cd(path.dirname(filename)):
+        # during executing config file, current dir is changed to ``confdir``.
+        try:
+            execfile_(filename, namespace)
+        except SyntaxError as err:
+            msg = __("There is a syntax error in your configuration file: %s")
+            if PY3:
+                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            raise ConfigError(msg % err)
+        except SystemExit:
+            msg = __("The configuration file (or one of the modules it imports) "
+                     "called sys.exit()")
+            raise ConfigError(msg)
+        except Exception:
+            msg = __("There is a programable error in your configuration file:\n\n%s")
+            raise ConfigError(msg % traceback.format_exc())
+
+    return namespace
 
 
 def convert_source_suffix(app, config):
@@ -400,10 +375,91 @@ def init_numfig_format(app, config):
     config.numfig_format = numfig_format  # type: ignore
 
 
+def correct_copyright_year(app, config):
+    # type: (Sphinx, Config) -> None
+    """correct values of copyright year that are not coherent with
+    the SOURCE_DATE_EPOCH environment variable (if set)
+
+    See https://reproducible-builds.org/specs/source-date-epoch/
+    """
+    if getenv('SOURCE_DATE_EPOCH') is not None:
+        for k in ('copyright', 'epub_copyright'):
+            if k in config:
+                replace = r'\g<1>%s' % format_date('%Y')
+                config[k] = copyright_year_re.sub(replace, config[k])  # type: ignore
+
+
+def check_confval_types(app, config):
+    # type: (Sphinx, Config) -> None
+    """check all values for deviation from the default value's type, since
+    that can result in TypeErrors all over the place NB.
+    """
+    for confval in config:
+        settings = config.values[confval.name]
+        default = settings[0]
+        annotations = settings[2] if len(settings) == 3 else ()
+
+        if hasattr(default, '__call__'):
+            default = default(config)  # evaluate default value
+        if default is None and not annotations:
+            continue  # neither inferrable nor expliclitly annotated types
+
+        if annotations is Any:
+            # any type of value is accepted
+            pass
+        elif isinstance(annotations, ENUM):
+            if not annotations.match(confval.value):
+                msg = __("The config value `{name}` has to be a one of {candidates}, "
+                         "but `{current}` is given.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=confval.value,
+                                          candidates=annotations.candidates))
+        else:
+            if type(confval.value) is type(default):
+                continue
+            if type(confval.value) in annotations:
+                continue
+
+            common_bases = (set(type(confval.value).__bases__ + (type(confval.value),)) &
+                            set(type(default).__bases__))
+            common_bases.discard(object)
+            if common_bases:
+                continue  # at least we share a non-trivial base class
+
+            if annotations:
+                msg = __("The config value `{name}' has type `{current.__name__}', "
+                         "expected to {permitted}.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=type(confval.value),
+                                          permitted=str([c.__name__ for c in annotations])))
+            else:
+                msg = __("The config value `{name}' has type `{current.__name__}', "
+                         "defaults to `{default.__name__}'.")
+                logger.warning(msg.format(name=confval.name,
+                                          current=type(confval.value),
+                                          default=type(default)))
+
+
+def check_unicode(config):
+    # type: (Config) -> None
+    """check all string values for non-ASCII characters in bytestrings,
+    since that can result in UnicodeErrors all over the place
+    """
+    nonascii_re = re.compile(br'[\x80-\xff]')
+
+    for name, value in iteritems(config._raw_config):
+        if isinstance(value, binary_type) and nonascii_re.search(value):
+            logger.warning(__('the config value %r is set to a string with non-ASCII '
+                              'characters; this can lead to Unicode errors occurring. '
+                              'Please use Unicode strings, e.g. %r.'), name, u'Content')
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
+    app.connect('config-inited', correct_copyright_year)
+    app.connect('config-inited', check_confval_types)
 
     return {
         'version': 'builtin',

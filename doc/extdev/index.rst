@@ -121,6 +121,27 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``sphinx.application.CONFIG_FILENAME``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.CONFIG_FILENAME``
+
+   * - ``Config.check_unicode()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_unicode()``
+
+   * - ``Config.check_types()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_confval_types()``
+
+   * - ``dirname``, ``filename`` and ``tags`` arguments of
+       ``Config.__init__()``
+     - 1.8
+     - 3.0
+     - ``Config.read()``
+
    * - The value of :confval:`html_search_options`
      - 1.8
      - 3.0

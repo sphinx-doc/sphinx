@@ -323,7 +323,7 @@ def setup(app):
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
-                         ENUM('part', 'chapter', 'section'))
+                         ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])
     app.add_config_value('latex_show_urls', 'no', None)
     app.add_config_value('latex_show_pagerefs', False, None)
