@@ -2485,5 +2485,5 @@ Options for the C++ domain
 Example of configuration file
 =============================
 
-.. literalinclude:: ../_static/conf.py.txt
+.. literalinclude:: /_static/conf.py.txt
    :language: python
