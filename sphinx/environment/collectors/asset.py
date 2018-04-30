@@ -15,7 +15,8 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import iteritems, itervalues
+from jinja2 import StrictUndefined, UndefinedError, TemplateError
+from six import iteritems, itervalues, text_type
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -23,6 +24,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
+from sphinx.util.template import BaseRenderer
 
 if False:
     # For type annotation
@@ -126,8 +128,33 @@ class DownloadFileCollector(EnvironmentCollector):
     def process_doc(self, app, doctree):
         # type: (Sphinx, nodes.Node) -> None
         """Process downloadable file paths. """
+        conf = dict((confval.name, confval.value) for confval in
+                    app.config)
+        conf.update(app.config.__dict__.copy())
+        b = BaseRenderer()
+        # needed to raise UndefinedError if a template variable is missing
+        b.env.undefined = StrictUndefined
+
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
+            if app.config.download_interpolate:
+                try:
+                    targetname = b.render_string(targetname, conf)
+                except UndefinedError as e:
+                    # Extract variable name from error message for easier i18n
+                    import re
+                    match = re.search(r"'([^']*)'", text_type(e))
+                    varname = match.group() if match is not None else None
+                    logger.warning(__('variable {} is undefined and could not be '
+                                      'replaced in target path').format(varname),
+                                   location=node, type='download',
+                                   subtype='undefined')
+                except TemplateError as e:
+                    # Catch and log general Jinja2 errors
+                    from traceback import format_exception_only
+                    msg = ''.join(format_exception_only(e.__class__, e))
+                    logger.warning(msg, location=node, type='download',
+                                   subtype='jinja2_error')
             rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
             app.env.dependencies[app.env.docname].add(rel_filename)
             if not os.access(filename, os.R_OK):

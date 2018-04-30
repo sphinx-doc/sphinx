@@ -10,3 +10,5 @@ extensions = ['sphinx.ext.autodoc']
 latex_documents = [
     (master_doc, 'test.tex', 'test-warnings', 'Sphinx', 'report')
 ]
+
+download_interpolate = True

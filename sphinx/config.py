@@ -142,6 +142,7 @@ class Config(object):
         smartquotes_excludes = ({'languages': ['ja'],
                                  'builders': ['man', 'text']},
                                 'env'),
+        download_interpolate = (False, 'env'),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, *args):
