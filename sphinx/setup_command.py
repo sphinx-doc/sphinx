@@ -179,7 +179,8 @@ class BuildDoc(Command):
             app = None
 
             try:
-                with patch_docutils(), docutils_namespace():
+                confdir = self.config_dir or self.source_dir
+                with patch_docutils(confdir), docutils_namespace():
                     app = Sphinx(self.source_dir, self.config_dir,
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,

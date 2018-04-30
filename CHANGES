@@ -23,6 +23,8 @@ Incompatible changes
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase
+* ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
+  ``docutils.conf`` on confdir is refered.
 
 Deprecated
 ----------
