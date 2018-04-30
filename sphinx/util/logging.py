@@ -94,6 +94,17 @@ def convert_serializable(records):
             r.location = get_node_location(location)  # type: ignore
 
 
+def get_full_module_name(node):
+    return '{}.{}'.format(node.__module__, node.__class__.__name__)
+
+
+def get_domxml(node, length=80):
+    text = node.asdom().toxml()
+    if len(text) > length:
+        text = text[:length] + '...'
+    return text
+
+
 class SphinxWarningLogRecord(logging.LogRecord):
     """Log record class supporting location"""
     location = None  # type: Any

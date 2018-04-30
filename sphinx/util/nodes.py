@@ -18,10 +18,11 @@ from six import text_type
 from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.logging import get_full_module_name, get_domxml
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Iterable, List, Set, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
 
@@ -41,13 +42,19 @@ def apply_source_workaround(node):
     # * rawsource of term node will have: ``term text : classifier1 : classifier2``
     # * rawsource of classifier node will be None
     if isinstance(node, nodes.classifier) and not node.rawsource:
+        logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
+                     get_full_module_name(node), get_domxml(node))
         definition_list_item = node.parent
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     if isinstance(node, nodes.image) and node.source is None:
+        logger.debug('[i18n] PATCH: %r to have source, line: %s',
+                     get_full_module_name(node), get_domxml(node))
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
+        logger.debug('[i18n] PATCH: %r to have rawsource: %s',
+                     get_full_module_name(node), get_domxml(node))
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
@@ -67,6 +74,8 @@ def apply_source_workaround(node):
             nodes.image,  # #3093 image directive in substitution
             nodes.field_name,  # #3335 field list syntax
     ))):
+        logger.debug('[i18n] PATCH: %r to have source and line: %s',
+                     get_full_module_name(node), get_domxml(node))
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
         return
@@ -74,7 +83,6 @@ def apply_source_workaround(node):
 
 IGNORED_NODES = (
     nodes.Invisible,
-    nodes.Inline,
     nodes.literal_block,
     nodes.doctest_block,
     addnodes.versionmodified,
@@ -96,17 +104,30 @@ def is_translatable(node):
     if isinstance(node, addnodes.translatable):
         return True
 
+    if isinstance(node, nodes.Inline):
+        # inline node must not be translated
+        return False
+
     if isinstance(node, nodes.TextElement):
         if not node.source:
+            logger.debug('[i18n] SKIP %r because no node.source: %s',
+                         get_full_module_name(node), get_domxml(node))
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
+            logger.debug("[i18n] SKIP %r because node is in IGNORED_NODES "
+                         "and no node['translatable']: %s",
+                         get_full_module_name(node), get_domxml(node))
             return False
         if not node.get('translatable', True):
             # not(node['translatable'] == True or node['translatable'] is None)
+            logger.debug("[i18n] SKIP %r because not node['translatable']: %s",
+                         get_full_module_name(node), get_domxml(node))
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
+            logger.debug('[i18n] SKIP %r because orphan node: %s',
+                         get_full_module_name(node), get_domxml(node))
             return False
         return True
 
