@@ -104,8 +104,8 @@ def is_translatable(node):
     if isinstance(node, addnodes.translatable):
         return True
 
-    if isinstance(node, nodes.Inline):
-        # inline node must not be translated
+    if isinstance(node, nodes.Inline) and 'translatable' not in node:
+        # inline node must not be translated if 'translatable' is not set
         return False
 
     if isinstance(node, nodes.TextElement):

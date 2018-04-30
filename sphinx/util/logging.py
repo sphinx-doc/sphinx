@@ -99,7 +99,8 @@ def get_full_module_name(node):
 
 
 def get_domxml(node, length=80):
-    text = node.asdom().toxml()
+    # text = node.asdom().toxml()  # crush if node has secnumber with tuple value
+    text = str(node)
     if len(text) > length:
         text = text[:length] + '...'
     return text
