@@ -24,7 +24,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, Generator, IO, List, Tuple, Union, Optional  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -95,13 +95,31 @@ def convert_serializable(records):
 
 
 def get_full_module_name(node):
+    # type: (nodes.Node) -> str
+    """
+    return full module dotted path like: 'docutils.nodes.paragraph'
+
+    :param nodes.Node node: target node
+    :return: full module dotted path
+    """
     return '{}.{}'.format(node.__module__, node.__class__.__name__)
 
 
-def get_domxml(node, length=80):
-    # text = node.asdom().toxml()  # crush if node has secnumber with tuple value
-    text = str(node)
-    if len(text) > length:
+def repr_domxml(node, length=80):
+    # type: (nodes.Node, Optional[int]) -> str
+    """
+    return DOM XML representation of the specified node like:
+    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
+
+    :param nodes.Node node: target node
+    :param int length:
+       length of return value to be striped. if false-value is specified, repr_domxml
+       returns full of DOM XML representation.
+    :return: DOM XML representation
+    """
+    # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
+    text = str(node) # workaround for #4919
+    if length and len(text) > length:
         text = text[:length] + '...'
     return text
 
