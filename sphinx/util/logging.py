@@ -118,7 +118,7 @@ def repr_domxml(node, length=80):
     :return: DOM XML representation
     """
     # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
-    text = str(node) # workaround for #4919
+    text = str(node)  # workaround for #4919
     if length and len(text) > length:
         text = text[:length] + '...'
     return text
