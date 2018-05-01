@@ -6,7 +6,7 @@
    :target: https://pypi.org/project/Sphinx/
    :alt: Package on PyPi
 
-.. image:: https://readthedocs.org/projects/sphinx/badge/
+.. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
    :target: http://www.sphinx-doc.org/
    :alt: Documentation Status
 
