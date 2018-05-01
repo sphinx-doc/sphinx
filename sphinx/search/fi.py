@@ -121,4 +121,4 @@ class SearchFinnish(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('finnish')
 
     def stem(self, word):
-        return self.stemmer.stemWord(word)
+        return self.stemmer.stemWord(word.lower())

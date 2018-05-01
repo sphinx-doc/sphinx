@@ -148,4 +148,4 @@ class SearchSwedish(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('swedish')
 
     def stem(self, word):
-        return self.stemmer.stemWord(word)
+        return self.stemmer.stemWord(word.lower())
