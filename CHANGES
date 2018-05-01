@@ -51,6 +51,8 @@ Deprecated
 * ``Config.check_unicode()`` is deprecated
 * ``sphinx.application.CONFIG_FILENAME`` is deprecated
 * ``highlightlang`` directive is deprecated
+* ``env.read_doc()`` is deprecated
+* ``env.write_doctree()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
