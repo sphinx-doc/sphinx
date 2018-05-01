@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import os
 import pytest
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
@@ -68,7 +69,7 @@ def test_reporting_with_autodoc(app, status, warning, capfd):
     written = []
     app.builder._warn_out = written.append
     app.builder.build_all()
-    lines = '\n'.join(written).split('\n')
+    lines = '\n'.join(written).replace(os.sep, '/').split('\n')
     failures = [l for l in lines if l.startswith('File')]
     expected = [
         'File "dir/inner.rst", line 1, in default',
