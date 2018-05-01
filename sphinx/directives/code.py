@@ -57,8 +57,9 @@ class Highlight(SphinxDirective):
                 default_linenothreshold = 10
                 location = self.state_machine.get_source_and_line(self.lineno)
                 logger.warning(__('linenothreshold value must be int typed. '
-                                  'Passed %r. Using default value (10).'
-                                  % self.options['linenothreshold']),
+                                  'Passed %r. Using default value (%d).'
+                                  % (self.options['linenothreshold'],
+                                     default_linenothreshold)),
                               location=location)
                 linenothreshold = default_linenothreshold
         else:
