@@ -24,6 +24,12 @@ from sphinx.errors import SphinxError
 from sphinx.util import logging
 from sphinx.util.osutil import SEP, relpath, walk
 
+if False:
+    # For type annotation
+    from typing import Union  # NOQA
+    from sphinx.util.matching import Matcher  # NOQA
+
+
 logger = logging.getLogger(__name__)
 
 if False:
@@ -101,8 +107,9 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
-                              charset='utf-8', force_all=False):
-    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool) -> Set[CatalogInfo]
+                              charset='utf-8', force_all=False,
+                              excluded=lambda path: False):
+    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Union[Callable[[unicode], bool], Matcher]) -> Set[CatalogInfo]  # NOQA
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -136,6 +143,8 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
         for dirpath, dirnames, filenames in walk(base_dir, followlinks=True):
             filenames = [f for f in filenames if f.endswith('.po')]
             for filename in filenames:
+                if excluded(path.join(relpath(dirpath, base_dir), filename)):
+                    continue
                 base = path.splitext(filename)[0]
                 domain = relpath(path.join(dirpath, base), base_dir)
                 if gettext_compact and path.sep in domain:
