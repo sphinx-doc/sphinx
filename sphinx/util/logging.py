@@ -17,7 +17,7 @@ from contextlib import contextmanager
 
 from docutils import nodes
 from docutils.utils import get_source_line
-from six import PY2, StringIO
+from six import PY2, StringIO, text_type
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
@@ -106,7 +106,7 @@ def get_full_module_name(node):
 
 
 def repr_domxml(node, length=80):
-    # type: (nodes.Node, Optional[int]) -> str
+    # type: (nodes.Node, Optional[int]) -> unicode
     """
     return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
@@ -118,7 +118,7 @@ def repr_domxml(node, length=80):
     :return: DOM XML representation
     """
     # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
-    text = str(node)  # workaround for #4919
+    text = text_type(node)  # workaround for #4919
     if length and len(text) > length:
         text = text[:length] + '...'
     return text
