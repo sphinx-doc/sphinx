@@ -12,14 +12,12 @@
 import os
 import re
 import sys
-import time
 import types
 import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
 
-from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
 from six import BytesIO, class_types, next
 from six.moves import cPickle as pickle
@@ -29,16 +27,15 @@ from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warnin
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.io import read_doc
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
-from sphinx.util import logging, rst
-from sphinx.util.docutils import sphinx_domains, WarningStream
+from sphinx.util import logging
+from sphinx.util.docutils import WarningStream
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import SEP, ensuredir, relpath
+from sphinx.util.osutil import SEP, relpath
 from sphinx.util.websupport import is_commentable
 
 if False:
@@ -556,33 +553,6 @@ class BuildEnvironment(object):
         self.temp_data['default_domain'] = \
             self.domains.get(self.config.primary_domain)
 
-    def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
-        """Parse a file and add/update inventory entries for the doctree."""
-        self.prepare_settings(docname)
-
-        docutilsconf = path.join(self.srcdir, 'docutils.conf')
-        # read docutils.conf from source dir, not from current dir
-        OptionParser.standard_config_files[1] = docutilsconf
-        if path.isfile(docutilsconf):
-            self.note_dependency(docutilsconf)
-
-        with sphinx_domains(self), rst.default_role(docname, self.config.default_role):
-            doctree = read_doc(self.app, self, self.doc2path(docname))
-
-        # store time of reading, for outdated files detection
-        # (Some filesystems have coarse timestamp resolution;
-        # therefore time.time() can be older than filesystem's timestamp.
-        # For example, FAT32 has 2sec timestamp resolution.)
-        self.all_docs[docname] = max(
-            time.time(), path.getmtime(self.doc2path(docname)))
-
-        # cleanup
-        self.temp_data.clear()
-        self.ref_context.clear()
-
-        self.write_doctree(docname, doctree)
-
     # utilities to use while reading a document
 
     @property
@@ -684,21 +654,6 @@ class BuildEnvironment(object):
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
-
-    def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Write the doctree to a file."""
-        # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
-
-        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
@@ -848,6 +803,19 @@ class BuildEnvironment(object):
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning)
         return self.app.builder._read_parallel(docnames, nproc)
+
+    def read_doc(self, docname, app=None):
+        # type: (unicode, Sphinx) -> None
+        warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
+                      RemovedInSphinx30Warning)
+        self.app.builder.read_doc(docname)
+
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        warnings.warn('env.write_doctree() is deprecated. '
+                      'Please use builder.write_doctree() instead.',
+                      RemovedInSphinx30Warning)
+        self.app.builder.write_doctree(docname, doctree)
 
     @property
     def _nitpick_ignore(self):

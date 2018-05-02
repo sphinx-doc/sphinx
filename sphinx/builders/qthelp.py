@@ -269,7 +269,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             resourcedir = root.startswith((staticdir, imagesdir))
             for fn in sorted(files):
                 if (resourcedir and not fn.endswith('.js')) or fn.endswith('.html'):
-                    filename = path.join(root, fn)[olen:]
+                    filename = posixpath.join(root, fn)[olen:]
                     project_files.append(filename)
 
         return project_files

@@ -23,6 +23,8 @@ Incompatible changes
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase
+* ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
+  ``docutils.conf`` on confdir is refered.
 * #789: ``:samp:`` role supports to escape curly braces with backslash
 
 Deprecated
@@ -44,6 +46,14 @@ Deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
 * ``sphinx.versioning.prepare()`` is deprecated
+* ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
+  argument has been deprecated
+* ``Config.check_types()`` is deprecated
+* ``Config.check_unicode()`` is deprecated
+* ``sphinx.application.CONFIG_FILENAME`` is deprecated
+* ``highlightlang`` directive is deprecated
+* ``env.read_doc()`` is deprecated
+* ``env.write_doctree()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -75,6 +85,9 @@ Features added
 * Improve warning messages during including (refs: #4818)
 * LaTeX: separate customizability of :rst:role:`guilabel` and
   :rst:role:`menuselection` (refs: #4830)
+* Add ``Config.read()`` classmethod to create a new config object from
+  configuration file
+* #4866: Wrap graphviz diagrams in ``<div>`` tag
 
 Bugs fixed
 ----------
