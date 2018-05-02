@@ -355,7 +355,7 @@ class StandaloneHTMLBuilder(Builder):
                     continue
 
             if '://' not in filename:
-                filename = path.join('_static', filename)
+                filename = posixpath.join('_static', filename)
 
             self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
 
