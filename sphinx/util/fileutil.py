@@ -74,6 +74,10 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
     if not os.path.exists(source):
         return
 
+    if renderer is None:
+        from sphinx.util.template import SphinxRenderer
+        renderer = SphinxRenderer()
+
     ensuredir(destination)
     if os.path.isfile(source):
         copy_asset_file(source, destination, context, renderer)
