@@ -17,14 +17,14 @@ from contextlib import contextmanager
 
 from docutils import nodes
 from docutils.utils import get_source_line
-from six import PY2, StringIO
+from six import PY2, StringIO, text_type
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, Generator, IO, List, Tuple, Union, Optional  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -92,6 +92,36 @@ def convert_serializable(records):
         location = getattr(r, 'location', None)
         if isinstance(location, nodes.Node):
             r.location = get_node_location(location)  # type: ignore
+
+
+def get_full_module_name(node):
+    # type: (nodes.Node) -> str
+    """
+    return full module dotted path like: 'docutils.nodes.paragraph'
+
+    :param nodes.Node node: target node
+    :return: full module dotted path
+    """
+    return '{}.{}'.format(node.__module__, node.__class__.__name__)
+
+
+def repr_domxml(node, length=80):
+    # type: (nodes.Node, Optional[int]) -> unicode
+    """
+    return DOM XML representation of the specified node like:
+    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
+
+    :param nodes.Node node: target node
+    :param int length:
+       length of return value to be striped. if false-value is specified, repr_domxml
+       returns full of DOM XML representation.
+    :return: DOM XML representation
+    """
+    # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
+    text = text_type(node)  # workaround for #4919
+    if length and len(text) > length:
+        text = text[:length] + '...'
+    return text
 
 
 class SphinxWarningLogRecord(logging.LogRecord):
