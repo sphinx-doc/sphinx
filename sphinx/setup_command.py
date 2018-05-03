@@ -16,7 +16,7 @@ from __future__ import print_function
 import os
 import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
+from distutils.errors import DistutilsOptionError, DistutilsExecError
 
 from six import StringIO, string_types
 
