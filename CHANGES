@@ -120,6 +120,8 @@ Features added
 Bugs fixed
 ----------
 
+* #4924: html search: Upper characters problem in any other languages
+
 Testing
 --------
 

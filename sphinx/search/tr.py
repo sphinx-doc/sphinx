@@ -36,4 +36,4 @@ class SearchTurkish(SearchLanguage):
 
     def stem(self, word):
         # type: (unicode) -> unicode
-        return self.stemmer.stemWord(word)
+        return self.stemmer.stemWord(word.lower())

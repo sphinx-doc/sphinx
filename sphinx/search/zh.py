@@ -259,4 +259,4 @@ class SearchChinese(SearchLanguage):
 
     def stem(self, word):
         # type: (unicode) -> unicode
-        return self.stemmer.stem(word)
+        return self.stemmer.stem(word.lower())
