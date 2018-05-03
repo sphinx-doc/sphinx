@@ -25,6 +25,7 @@ Incompatible changes
   reading phase
 * ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
   ``docutils.conf`` on confdir is refered.
+* #789: ``:samp:`` role supports to escape curly braces with backslash
 
 Deprecated
 ----------
