@@ -239,7 +239,7 @@ class InheritanceGraph(object):
     def get_all_class_names(self):
         # type: () -> List[unicode]
         """Get all of the class names involved in the graph."""
-        return [fullname for (_, fullname, _, _) in self.class_info]  # type: ignore
+        return [fullname for (_, fullname, _, _) in self.class_info]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
