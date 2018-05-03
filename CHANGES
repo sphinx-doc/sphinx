@@ -23,6 +23,11 @@ Incompatible changes
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase
+* ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
+  ``docutils.conf`` on confdir is refered.
+* #789: ``:samp:`` role supports to escape curly braces with backslash
+* #4811: The files under :confval:`html_static_path` are excluded from source
+  files.
 
 Deprecated
 ----------
@@ -48,6 +53,8 @@ Deprecated
 * ``Config.check_types()`` is deprecated
 * ``Config.check_unicode()`` is deprecated
 * ``sphinx.application.CONFIG_FILENAME`` is deprecated
+* ``highlightlang`` directive is deprecated
+* ``env.read_doc()`` is deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
@@ -86,6 +93,7 @@ Features added
   :rst:role:`menuselection` (refs: #4830)
 * Add ``Config.read()`` classmethod to create a new config object from
   configuration file
+* #4866: Wrap graphviz diagrams in ``<div>`` tag
 
 Bugs fixed
 ----------
@@ -118,6 +126,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* #4924: html search: Upper characters problem in any other languages
 
 Testing
 --------

@@ -9,6 +9,7 @@
 
 import codecs
 import sys
+import warnings
 from difflib import unified_diff
 
 from docutils import nodes
@@ -17,6 +18,7 @@ from docutils.statemachine import ViewList
 from six import text_type
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import parselinenos
@@ -57,6 +59,17 @@ class Highlight(SphinxDirective):
             linenothreshold = sys.maxsize
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
                                        linenothreshold=linenothreshold)]
+
+
+class HighlightLang(Highlight):
+    """highlightlang directive (deprecated)"""
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('highlightlang directive is deprecated. '
+                      'Please use highlight directive instead.',
+                      RemovedInSphinx40Warning)
+        return Highlight.run(self)
 
 
 def dedent_lines(lines, dedent, location=None):
@@ -462,7 +475,7 @@ class LiteralInclude(SphinxDirective):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     directives.register_directive('highlight', Highlight)
-    directives.register_directive('highlightlang', Highlight)  # old
+    directives.register_directive('highlightlang', HighlightLang)
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)
     directives.register_directive('literalinclude', LiteralInclude)

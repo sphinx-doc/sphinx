@@ -406,6 +406,9 @@ different style:
    If you don't need the "variable part" indication, use the standard
    ````code```` instead.
 
+   .. versionchanged:: 1.8
+      Allowed to escape curly braces with backslash
+
 There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:

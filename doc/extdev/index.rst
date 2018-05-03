@@ -116,6 +116,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :rst:dir:`highlightlang`
+     - 1.8
+     - 4.0
+     - :rst:dir:`highlight`
+
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
      - 4.0
@@ -223,6 +228,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Builder.read()``
 
+   * - ``BuildEnvironment.read_doc()``
+     - 1.8
+     - 3.0
+     - ``Builder.read_doc()``
+
    * - ``BuildEnvironment._read_serial()``
      - 1.8
      - 3.0
@@ -232,6 +242,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``Builder.read()``
+
+   * - ``BuildEnvironment.write_doctree()``
+     - 1.8
+     - 3.0
+     - ``Builder.write_doctree()``
 
    * - ``sphinx.locale.l_()``
      - 1.8

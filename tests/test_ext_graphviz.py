@@ -22,24 +22,26 @@ def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="figure" .*?>\s*<img .*?/>\s*<p class="caption">'
+    html = (r'<div class="figure" .*?>\s*'
+            r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
             r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
-    html = 'Hello <img .*?/>\n graphviz world'
+    html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
     assert re.search(html, content, re.S)
 
     html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" />'
     assert re.search(html, content, re.M)
 
-    html = (r'<div class="figure align-right" .*?>\s*<img .*?/>\s*<p class="caption">'
+    html = (r'<div class="figure align-right" .*?>\s*'
+            r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
             r'<span class="caption-text">on right</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
-            r'<img src=\".*\.png\" alt=\"digraph foo {\n'
+            r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
             r'centered\n'
-            r'}\" />\n</div>')
+            r'}\" /></div>\n</div>')
     assert re.search(html, content, re.S)
 
 
@@ -52,34 +54,34 @@ def test_graphviz_svg_html(app, status, warning):
     content = (app.outdir / 'index.html').text()
 
     html = (r'<div class=\"figure\" .*?>\n'
-            r'<object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph foo {\n'
+            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+            r'\s*<p class=\"warning\">digraph foo {\n'
             r'bar -&gt; baz\n'
-            r'}</p></object>\n'
+            r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
             r'caption of graph</span>.*</p>\n</div>')
     assert re.search(html, content, re.S)
 
-    html = (r'Hello <object.*>\n'
-            r'\s+<p class=\"warning\">graph</p></object>\n'
+    html = (r'Hello <div class="graphviz"><object.*>\n'
+            r'\s*<p class=\"warning\">graph</p></object></div>\n'
             r' graphviz world')
     assert re.search(html, content, re.S)
 
     html = (r'<div class=\"figure align-right\" .*\>\n'
-            r'<object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph bar {\n'
+            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+            r'\s*<p class=\"warning\">digraph bar {\n'
             r'foo -&gt; bar\n'
-            r'}</p></object>\n'
+            r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
             r'on right</span>.*</p>\n'
             r'</div>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
-            r'<object data=\".*\.svg\".*>\n'
-            r'\s+<p class=\"warning\">digraph foo {\n'
+            r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
+            r'\s*<p class=\"warning\">digraph foo {\n'
             r'centered\n'
-            r'}</p></object>\n'
+            r'}</p></object></div>\n'
             r'</div>')
     assert re.search(html, content, re.S)
 
