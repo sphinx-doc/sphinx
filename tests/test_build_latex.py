@@ -1240,7 +1240,7 @@ def test_latex_thebibliography(app, status, warning):
 
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
-    assert ('\\begin{sphinxthebibliography}{AuthorYear}\n'
+    assert ('\\begin{sphinxthebibliography}{AuthorYe}\n'
             '\\bibitem[AuthorYear]{index:authoryear}\n'
             'Author, Title, Year\n'
             '\\end{sphinxthebibliography}\n' in result)

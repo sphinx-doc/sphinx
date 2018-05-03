@@ -49,7 +49,7 @@ BEGIN_DOC = r'''
 '''
 
 
-MAX_CITATION_LABEL_LENGTH = 16
+MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
 
