@@ -21,7 +21,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Set, Tuple  # NOQA
+    from typing import Any, Callable, Iterable, List, Set, Tuple, Optional  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
 
@@ -33,6 +33,36 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
+def get_full_module_name(node):
+    # type: (nodes.Node) -> str
+    """
+    return full module dotted path like: 'docutils.nodes.paragraph'
+
+    :param nodes.Node node: target node
+    :return: full module dotted path
+    """
+    return '{}.{}'.format(node.__module__, node.__class__.__name__)
+
+
+def repr_domxml(node, length=80):
+    # type: (nodes.Node, Optional[int]) -> unicode
+    """
+    return DOM XML representation of the specified node like:
+    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
+
+    :param nodes.Node node: target node
+    :param int length:
+       length of return value to be striped. if false-value is specified, repr_domxml
+       returns full of DOM XML representation.
+    :return: DOM XML representation
+    """
+    # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
+    text = text_type(node)  # workaround for #4919
+    if length and len(text) > length:
+        text = text[:length] + '...'
+    return text
+
+
 def apply_source_workaround(node):
     # type: (nodes.Node) -> None
     # workaround: nodes.term have wrong rawsource if classifier is specified.
@@ -42,18 +72,18 @@ def apply_source_workaround(node):
     # * rawsource of classifier node will be None
     if isinstance(node, nodes.classifier) and not node.rawsource:
         logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
-                     logging.get_full_module_name(node), logging.repr_domxml(node))
+                     get_full_module_name(node), repr_domxml(node))
         definition_list_item = node.parent
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     if isinstance(node, nodes.image) and node.source is None:
         logger.debug('[i18n] PATCH: %r to have source, line: %s',
-                     logging.get_full_module_name(node), logging.repr_domxml(node))
+                     get_full_module_name(node), repr_domxml(node))
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
-                     logging.get_full_module_name(node), logging.repr_domxml(node))
+                     get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
@@ -74,7 +104,7 @@ def apply_source_workaround(node):
             nodes.field_name,  # #3335 field list syntax
     ))):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
-                     logging.get_full_module_name(node), logging.repr_domxml(node))
+                     get_full_module_name(node), repr_domxml(node))
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
         return
@@ -110,23 +140,23 @@ def is_translatable(node):
     if isinstance(node, nodes.TextElement):
         if not node.source:
             logger.debug('[i18n] SKIP %r because no node.source: %s',
-                         logging.get_full_module_name(node), logging.repr_domxml(node))
+                         get_full_module_name(node), repr_domxml(node))
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
             logger.debug("[i18n] SKIP %r because node is in IGNORED_NODES "
                          "and no node['translatable']: %s",
-                         logging.get_full_module_name(node), logging.repr_domxml(node))
+                         get_full_module_name(node), repr_domxml(node))
             return False
         if not node.get('translatable', True):
             # not(node['translatable'] == True or node['translatable'] is None)
             logger.debug("[i18n] SKIP %r because not node['translatable']: %s",
-                         logging.get_full_module_name(node), logging.repr_domxml(node))
+                         get_full_module_name(node), repr_domxml(node))
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
             logger.debug('[i18n] SKIP %r because orphan node: %s',
-                         logging.get_full_module_name(node), logging.repr_domxml(node))
+                         get_full_module_name(node), repr_domxml(node))
             return False
         return True
 
