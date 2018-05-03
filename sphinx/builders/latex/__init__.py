@@ -12,7 +12,6 @@
 import os
 from os import path
 
-from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from six import text_type
@@ -39,6 +38,7 @@ from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 if False:
     # For type annotation
+    from docutils import nodes  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -174,6 +174,7 @@ class LaTeXBuilder(Builder):
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node
+        from docutils import nodes
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
