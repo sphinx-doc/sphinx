@@ -1089,6 +1089,10 @@ def test_enumerable_node(app, cached_etree_parse, fname, expect):
 def test_html_assets(app):
     app.builder.build_all()
 
+    # exclude_path and its family
+    assert not (app.outdir / 'static' / 'index.html').exists()
+    assert not (app.outdir / 'extra' / 'index.html').exists()
+
     # html_static_path
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
