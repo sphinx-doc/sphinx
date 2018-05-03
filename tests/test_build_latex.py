@@ -627,27 +627,27 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('\\sphinxcaption{The table title with a reference'
             ' to {[}AuthorYear{]}}' in result)
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
-    assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[4]}\n'
+    assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[5]}\n'
             '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
-            '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            '%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[6].}\\label{\\detokenize{index:id27}}\\end{figure}\n'
-            '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
+            '\\sphinxfootnotemark[7].}\\label{\\detokenize{index:id29}}\\end{figure}\n'
+            '%\n\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
-    assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[7] in '
-            'caption of normal table}\\label{\\detokenize{index:id28}}') in result
-    assert ('\\caption{footnote \\sphinxfootnotemark[8] '
-            'in caption \\sphinxfootnotemark[9] of longtable\\strut}') in result
-    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
+    assert ('\\sphinxcaption{footnote \\sphinxfootnotemark[8] in '
+            'caption of normal table}\\label{\\detokenize{index:id30}}') in result
+    assert ('\\caption{footnote \\sphinxfootnotemark[9] '
+            'in caption \\sphinxfootnotemark[10] of longtable\\strut}') in result
+    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
-            '\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             'Second footnote in caption of longtable\n') in result
     assert ('This is a reference to the code-block in the footnote:\n'
             '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
     assert ('&\nThis is one more footnote with some code in it %\n'
-            '\\begin{footnote}[10]\\sphinxAtStartFootnote\n'
+            '\\begin{footnote}[11]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result
     assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
@@ -666,14 +666,14 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
             '\\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -682,13 +682,15 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'Second\n%\n\\end{footnote}') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
-            'Third\n%\n\\end{footnote}') in result
+            'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
+            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx-doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
-    assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
+    assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
+            '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
@@ -711,13 +713,13 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
@@ -728,22 +730,25 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
     assert ('Third footnote: %\n\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
-            'Third\n%\n\\end{footnote}') in result
+            'Third \\sphinxfootnotemark[7]\n%\n\\end{footnote}%\n'
+            '\\begin{footnotetext}[7]\\sphinxAtStartFootnote\n'
+            'Footnote inside footnote\n%\n'
+            '\\end{footnotetext}\\ignorespaces') in result
     assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}'
             '%\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}'
-            '{URL in term}\\sphinxfootnotemark[8]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
+            '{URL in term}\\sphinxfootnotemark[9]}] '
+            '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \nDescription') in result
-    assert ('\\item[{Footnote in term \\sphinxfootnotemark[10]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
+    assert ('\\item[{Footnote in term \\sphinxfootnotemark[11]}] '
+            '\\leavevmode%\n\\begin{footnotetext}[11]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
-            '\\sphinxfootnotemark[9]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
+            '\\sphinxfootnotemark[10]}] '
+            '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \nDescription') in result
     assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
@@ -764,13 +769,13 @@ def test_latex_show_urls_is_no(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -779,12 +784,14 @@ def test_latex_show_urls_is_no(app, status, warning):
             'Second\n%\n\\end{footnote}') in result
     assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
-            'Third\n%\n\\end{footnote}') in result
+            'Third \\sphinxfootnotemark[4]\n%\n\\end{footnote}%\n'
+            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            'Footnote inside footnote\n%\n\\end{footnotetext}\\ignorespaces') in result
     assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}] '
             '\\leavevmode\nDescription') in result
-    assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
-            '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
+    assert ('\\item[{Footnote in term \\sphinxfootnotemark[6]}] '
+            '\\leavevmode%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
     assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}] '

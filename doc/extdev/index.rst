@@ -126,6 +126,31 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``sphinx.writers.latex.Table.caption_footnotetexts``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.Table.header_footnotetexts``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.footnotestack``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
+     - 1.8
+     - 3.0
+     - -
+
    * - ``sphinx.application.CONFIG_FILENAME``
      - 1.8
      - 3.0

@@ -14,6 +14,7 @@
 
 import re
 import sys
+import warnings
 from collections import defaultdict
 from os import path
 
@@ -23,6 +24,8 @@ from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
+from sphinx.builders.latex.nodes import footnotetext
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
@@ -178,8 +181,6 @@ class LaTeXWriter(writers.Writer):
 
     def translate(self):
         # type: () -> None
-        transform = ShowUrlsTransform(self.document)
-        transform.apply()
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
@@ -258,8 +259,6 @@ class Table(object):
         self.has_oldproblematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[unicode]
-        self.caption_footnotetexts = []         # type: List[unicode]
-        self.header_footnotetexts = []          # type: List[unicode]
         self.stubs = []                         # type: List[int]
 
         # current position
@@ -272,6 +271,20 @@ class Table(object):
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
         self.cell_id = 0                        # last assigned cell_id
+
+    @property
+    def caption_footnotetexts(self):
+        # type: () -> List[unicode]
+        warnings.warn('table.caption_footnotetexts is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
+
+    @property
+    def header_footnotetexts(self):
+        # type: () -> List[unicode]
+        warnings.warn('table.header_footnotetexts is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     def is_longtable(self):
         # type: () -> bool
@@ -657,7 +670,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.hlsettingstack = 2 * [[builder.config.highlight_language,
                                     sys.maxsize]]
         self.bodystack = []             # type: List[List[unicode]]
-        self.footnotestack = []         # type: List[Dict[unicode, List[Union[collected_footnote, bool]]]]  # NOQA
         self.footnote_restricted = False
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
         self.curfilestack = []          # type: List[unicode]
@@ -694,18 +706,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
+        warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
+                      RemovedInSphinx30Warning)
+
         if self.footnote_restricted is False:
             self.footnote_restricted = node
             self.pending_footnotes = []
 
     def unrestrict_footnote(self, node):
         # type: (nodes.Node) -> None
+        warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
+                      RemovedInSphinx30Warning)
+
         if self.footnote_restricted == node:
             self.footnote_restricted = False
             for footnode in self.pending_footnotes:
                 footnode['footnotetext'] = True
                 footnode.walkabout(self)
             self.pending_footnotes = []
+
+    @property
+    def footnotestack(self):
+        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
+        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     def format_docclass(self, docclass):
         # type: (unicode) -> unicode
@@ -861,7 +886,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_document(self, node):
         # type: (nodes.Node) -> None
-        self.footnotestack.append(self.collect_footnotes(node))
         self.curfilestack.append(node.get('docname', ''))
         if self.first_document == 1:
             # the first document is all the regular content ...
@@ -895,8 +919,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
-        # collect new footnotes
-        self.footnotestack.append(self.collect_footnotes(node))
         # also add a document target
         self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
@@ -925,7 +947,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_start_of_file(self, node):
         # type: (nodes.Node) -> None
-        self.footnotestack.pop()
         self.curfilestack.pop()
         self.hlsettingstack.pop()
 
@@ -1037,7 +1058,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
                 self.context.append('}\n')
 
-                self.restrict_footnote(node)
                 if self.next_section_ids:
                     for id in self.next_section_ids:
                         self.context[-1] += self.hypertarget(id, anchor=False)
@@ -1054,7 +1074,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.table):
             # Redirect body output until title is finished.
             self.pushbody([])
-            self.restrict_footnote(node)
         else:
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
@@ -1068,14 +1087,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_title = 0
         if isinstance(node.parent, nodes.table):
             self.table.caption = self.popbody()
-            # temporary buffer for footnotes from caption
-            self.pushbody([])
-            self.unrestrict_footnote(node)
-            # the footnote texts from caption
-            self.table.caption_footnotetexts = self.popbody()
         else:
             self.body.append(self.context.pop())
-            self.unrestrict_footnote(node)
 
     def visit_subtitle(self, node):
         # type: (nodes.Node) -> None
@@ -1252,31 +1265,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_footnote(self, node):
         # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
-    def visit_collected_footnote(self, node):
-        # type: (nodes.Node) -> None
         self.in_footnote += 1
-        if 'footnotetext' in node:
-            self.body.append('%%\n\\begin{footnotetext}[%s]'
-                             '\\sphinxAtStartFootnote\n' % node['number'])
+        if self.in_parsed_literal:
+            self.body.append('\\begin{footnote}[%s]' % node[0].astext())
         else:
-            if self.in_parsed_literal:
-                self.body.append('\\begin{footnote}[%s]' % node['number'])
-            else:
-                self.body.append('%%\n\\begin{footnote}[%s]' % node['number'])
-            self.body.append('\\sphinxAtStartFootnote\n')
+            self.body.append('%%\n\\begin{footnote}[%s]' % node[0].astext())
+        self.body.append('\\sphinxAtStartFootnote\n')
 
-    def depart_collected_footnote(self, node):
+    def depart_footnote(self, node):
         # type: (nodes.Node) -> None
-        if 'footnotetext' in node:
-            # the \ignorespaces in particular for after table header use
-            self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
+        if self.in_parsed_literal:
+            self.body.append('\\end{footnote}')
         else:
-            if self.in_parsed_literal:
-                self.body.append('\\end{footnote}')
-            else:
-                self.body.append('%\n\\end{footnote}')
+            self.body.append('%\n\\end{footnote}')
         self.in_footnote -= 1
 
     def visit_label(self, node):
@@ -1347,25 +1348,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         # Redirect head output until header is finished.
         self.pushbody(self.table.header)
-        # footnotes in longtable header must be restricted
-        self.restrict_footnote(node)
 
     def depart_thead(self, node):
         # type: (nodes.Node) -> None
         self.popbody()
-        # temporary buffer for footnotes from table header
-        self.pushbody([])
-        self.unrestrict_footnote(node)
-        # the footnote texts from header
-        self.table.header_footnotetexts = self.popbody()
 
     def visit_tbody(self, node):
         # type: (nodes.Node) -> None
         # Redirect body output until table is finished.
         self.pushbody(self.table.body)
-        # insert footnotetexts from header at start of body (due to longtable)
-        # those from caption are handled by templates (to allow caption at foot)
-        self.body.extend(self.table.header_footnotetexts)
 
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None
@@ -1561,13 +1552,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.get('ids'):
             ctx += self.hypertarget(node['ids'][0])
         self.body.append('\\item[{')
-        self.restrict_footnote(node)
         self.context.append(ctx)
 
     def depart_term(self, node):
         # type: (nodes.Node) -> None
         self.body.append(self.context.pop())
-        self.unrestrict_footnote(node)
         self.in_term -= 1
 
     def visit_classifier(self, node):
@@ -1618,8 +1607,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 not isinstance(node.parent[index - 1], nodes.compound)):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append('\\noindent\n')
-        elif index == 0 and isinstance(node.parent, nodes.footnote):
-            # don't insert blank line, if the paragraph is first child of a footnote
+        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
+            # don't insert blank line, if the paragraph is second child of a footnote
+            # (first one is label node)
             pass
         else:
             self.body.append('\n')
@@ -1762,7 +1752,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ids += self.hypertarget(id, anchor=False)
         if node['ids']:
             ids += self.hypertarget(node['ids'][0], anchor=False)
-        self.restrict_footnote(node)
         if (len(node.children) and
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
@@ -1801,12 +1790,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
         self.body.append(self.context.pop())
-        self.unrestrict_footnote(node)
 
     def visit_caption(self, node):
         # type: (nodes.Node) -> None
         self.in_caption += 1
-        self.restrict_footnote(node)
         if self.in_container_literal_block:
             self.body.append('\\sphinxSetupCaptionForVerbatim{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
@@ -1820,7 +1807,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('}')
         self.in_caption -= 1
-        self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
         # type: (nodes.Node) -> None
@@ -2199,27 +2185,26 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_footnote_reference(self, node):
         # type: (nodes.Node) -> None
-        num = node.astext().strip()
-        try:
-            footnode, used = self.footnotestack[-1][num]
-        except (KeyError, IndexError):
-            raise nodes.SkipNode
-        # if a footnote has been inserted once, it shouldn't be repeated
-        # by the next reference
-        if used:
-            self.body.append('\\sphinxfootnotemark[%s]' % num)
-        elif self.footnote_restricted:
-            self.footnotestack[-1][num][1] = True
-            self.body.append('\\sphinxfootnotemark[%s]' % num)
-            self.pending_footnotes.append(footnode)
-        else:
-            self.footnotestack[-1][num][1] = True
-            footnode.walkabout(self)  # type: ignore
-        raise nodes.SkipChildren
+        raise nodes.SkipNode
 
-    def depart_footnote_reference(self, node):
+    def visit_footnotemark(self, node):
         # type: (nodes.Node) -> None
-        pass
+        self.body.append('\\sphinxfootnotemark[')
+
+    def depart_footnotemark(self, node):
+        # type: (nodes.Node) -> None
+        self.body.append(']')
+
+    def visit_footnotetext(self, node):
+        # type: (nodes.Node) -> None
+        number = node[0].astext()
+        self.body.append('%%\n\\begin{footnotetext}[%s]'
+                         '\\sphinxAtStartFootnote\n' % number)
+
+    def depart_footnotetext(self, node):
+        # type: (nodes.Node) -> None
+        # the \ignorespaces in particular for after table header use
+        self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
 
     def visit_literal_block(self, node):
         # type: (nodes.Node) -> None

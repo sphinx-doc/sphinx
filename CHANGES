@@ -55,7 +55,11 @@ Deprecated
 * ``sphinx.application.CONFIG_FILENAME`` is deprecated
 * ``highlightlang`` directive is deprecated
 * ``env.read_doc()`` is deprecated
-* ``env.write_doctree()`` is deprecated
+* ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -95,6 +99,7 @@ Bugs fixed
 ----------
 
 * i18n: message catalogs were reset on each initialization
+* #4850: latex: footnote inside footnote was not rendered
 
 Testing
 --------
