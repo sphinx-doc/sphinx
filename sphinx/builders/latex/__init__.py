@@ -174,7 +174,7 @@ class LaTeXBuilder(Builder):
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node
-        from docutils import nodes
+        from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
