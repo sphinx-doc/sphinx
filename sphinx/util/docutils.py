@@ -10,16 +10,17 @@
 """
 from __future__ import absolute_import
 
+import os
 import re
 import types
 import warnings
 from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
+from os import path
 
 import docutils
 from docutils import nodes
-from docutils.languages import get_language
 from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
@@ -34,7 +35,7 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, Iterator, List, Set, Tuple  # NOQA
+    from typing import Any, Callable, Generator, List, Set, Tuple  # NOQA
     from docutils.statemachine import State, ViewList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -47,7 +48,7 @@ additional_nodes = set()  # type: Set[nodes.Node]
 
 @contextmanager
 def docutils_namespace():
-    # type: () -> Iterator[None]
+    # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)
@@ -94,27 +95,51 @@ def unregister_node(node):
         delattr(nodes.SparseNodeVisitor, 'depart_' + node.__name__)
 
 
-def patched_get_language(language_code, reporter=None):
-    # type: (unicode, Reporter) -> Any
-    """A wrapper for docutils.languages.get_language().
+@contextmanager
+def patched_get_language():
+    # type: () -> Generator[None, None, None]
+    """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
     refs: https://github.com/sphinx-doc/sphinx/issues/3788
     """
-    return get_language(language_code)
+    from docutils.languages import get_language
 
+    def patched_get_language(language_code, reporter=None):
+        # type: (unicode, Reporter) -> Any
+        return get_language(language_code)
 
-@contextmanager
-def patch_docutils():
-    # type: () -> Iterator[None]
-    """Patch to docutils temporarily."""
     try:
         docutils.languages.get_language = patched_get_language
-
         yield
     finally:
         # restore original implementations
         docutils.languages.get_language = get_language
+
+
+@contextmanager
+def using_user_docutils_conf(confdir):
+    # type: (unicode) -> Generator[None, None, None]
+    """Let docutils know the location of ``docutils.conf`` for Sphinx."""
+    try:
+        docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
+        if confdir:
+            os.environ['DOCUTILSCONFIG'] = path.join(path.abspath(confdir), 'docutils.conf')  # type: ignore  # NOQA
+
+        yield
+    finally:
+        if docutilsconfig is None:
+            os.environ.pop('DOCUTILSCONFIG')
+        else:
+            os.environ['DOCUTILSCONFIG'] = docutilsconfig
+
+
+@contextmanager
+def patch_docutils(confdir=None):
+    # type: (unicode) -> Generator[None, None, None]
+    """Patch to docutils temporarily."""
+    with patched_get_language(), using_user_docutils_conf(confdir):
+        yield
 
 
 class ElementLookupError(Exception):
@@ -257,7 +282,7 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
 
 @contextmanager
 def switch_source_input(state, content):
-    # type: (State, ViewList) -> Generator
+    # type: (State, ViewList) -> Generator[None, None, None]
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method

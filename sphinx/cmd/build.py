@@ -293,7 +293,8 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
 
     app = None
     try:
-        with patch_docutils(), docutils_namespace():
+        confdir = args.confdir or args.sourcedir
+        with patch_docutils(confdir), docutils_namespace():
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,

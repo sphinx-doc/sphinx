@@ -579,17 +579,10 @@ class PyModule(Directive):
         env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
-            modules = env.domaindata['py']['modules']
-            if modname in modules:
-                self.state_machine.reporter.warning(
-                    'duplicate module description of %s, '
-                    'other instance in %s, use :noindex: for one of them' %
-                    (modname, env.doc2path(modules[modname][0])),
-                    line=self.lineno)
-            modules[modname] = (env.docname,
-                                self.options.get('synopsis', ''),
-                                self.options.get('platform', ''),
-                                'deprecated' in self.options)
+            env.domaindata['py']['modules'][modname] = (env.docname,
+                                                        self.options.get('synopsis', ''),
+                                                        self.options.get('platform', ''),
+                                                        'deprecated' in self.options)
             # make a duplicate entry in 'objects' to facilitate searching for
             # the module in PythonDomain.find_obj()
             env.domaindata['py']['objects'][modname] = (env.docname, 'module')
@@ -784,21 +777,12 @@ class PythonDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
+        # XXX check duplicates?
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                if fullname in self.data['objects']:
-                    otherdoc, _ = self.data['objects'][fullname]
-                    logger.warning('duplicate object description of %s, '
-                                   'other instance in %s, use :noindex: for one of them' %
-                                   (fullname, self.env.doc2path(otherdoc)))
                 self.data['objects'][fullname] = (fn, objtype)
         for modname, data in otherdata['modules'].items():
             if data[0] in docnames:
-                if modname in self.data['modules']:
-                    otherdoc, _, _, _ = self.data['modules'][modname]
-                    logger.warning('duplicate module description of %s, '
-                                   'other instance in %s, use :noindex: for one of them' %
-                                   (modname, self.env.doc2path(otherdoc)))
                 self.data['modules'][modname] = data
 
     def find_obj(self, env, modname, classname, name, type, searchmode=0):

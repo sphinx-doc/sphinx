@@ -20,6 +20,7 @@
 import os
 import re
 import sys
+import warnings
 
 from six import iteritems, PY3
 
@@ -35,6 +36,7 @@ try:
 except ImportError:
     janome_module = False
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
@@ -556,9 +558,12 @@ class SearchJapanese(SearchLanguage):
 
     def init(self, options):
         # type: (Dict) -> None
-        type = options.get('type', 'default')
+        type = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         if type in self.splitters:
             dotted_path = self.splitters[type]
+            warnings.warn('html_search_options["type"]: %s is deprecated. '
+                          'Please give "%s" instead.' % (type, dotted_path),
+                          RemovedInSphinx30Warning)
         else:
             dotted_path = type
         try:

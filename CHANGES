@@ -23,6 +23,12 @@ Incompatible changes
   :py:meth:`.Sphinx.add_transform()`
 * #4827: All ``substitution_definition`` nodes are removed from doctree on
   reading phase
+* ``docutils.conf`` on ``$HOME`` and ``/etc`` directories are ignored.  Only
+  ``docutils.conf`` on confdir is refered.
+* #789: ``:samp:`` role supports to escape curly braces with backslash
+* #4811: The files under :confval:`html_static_path` are excluded from source
+  files.
+* latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
 
 Deprecated
 ----------
@@ -43,6 +49,19 @@ Deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
 * ``sphinx.versioning.prepare()`` is deprecated
+* ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
+  argument has been deprecated
+* ``Config.check_types()`` is deprecated
+* ``Config.check_unicode()`` is deprecated
+* ``sphinx.application.CONFIG_FILENAME`` is deprecated
+* ``highlightlang`` directive is deprecated
+* ``env.read_doc()`` is deprecated
+* ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
+* ``LaTeXWriter.bibitems`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -74,12 +93,16 @@ Features added
 * Improve warning messages during including (refs: #4818)
 * LaTeX: separate customizability of :rst:role:`guilabel` and
   :rst:role:`menuselection` (refs: #4830)
+* Add ``Config.read()`` classmethod to create a new config object from
+  configuration file
+* #4866: Wrap graphviz diagrams in ``<div>`` tag
 * Add :event:`viewcode-find-source` event to viewcode extension.
 
 Bugs fixed
 ----------
 
 * i18n: message catalogs were reset on each initialization
+* #4850: latex: footnote inside footnote was not rendered
 
 Testing
 --------
@@ -89,7 +112,7 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
-Release 1.7.4 (in development)
+Release 1.7.5 (in development)
 ==============================
 
 Dependencies
@@ -107,8 +130,19 @@ Features added
 Bugs fixed
 ----------
 
+* #4924: html search: Upper characters problem in any other languages
+
 Testing
 --------
+
+Release 1.7.4 (released Apr 25, 2018)
+=====================================
+
+Bugs fixed
+----------
+
+* #4885, #4887: domains: Crashed with duplicated objects
+* #4889: latex: sphinx.writers.latex causes recusrive import
 
 Release 1.7.3 (released Apr 23, 2018)
 =====================================

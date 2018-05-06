@@ -236,7 +236,8 @@ so on.  The file is saved in UTF-8 by default, as indicated by the encoding
 declaration in the first line.  If you use non-ASCII characters in any string
 value, you need to use Python Unicode strings (like ``project = u'Exposé'``).
 
-|more| See :ref:`build-config` for documentation of all available config values.
+|more| See :doc:`/usage/configuration` for documentation of all available
+config values.
 
 
 .. todo:: Move this entire doc to a different section

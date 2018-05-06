@@ -1,4 +1,4 @@
-.. highlightlang:: python
+.. highlight:: python
 
 .. _latex:
 
@@ -397,6 +397,8 @@ Macros
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
 - the ``\maketitle`` command is redefined by the class files
   :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
+- the citation reference is typeset via ``\sphinxcite`` which is a wrapper
+  of standard ``\cite``.
 
 Environments
 ~~~~~~~~~~~~

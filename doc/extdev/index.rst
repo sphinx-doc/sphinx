@@ -116,10 +116,71 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - :rst:dir:`highlightlang`
+     - 1.8
+     - 4.0
+     - :rst:dir:`highlight`
+
    * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
+   * - ``sphinx.writers.latex.Table.caption_footnotetexts``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.Table.header_footnotetexts``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.footnotestack``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
+     - 1.8
+     - 3.0
+     - -
+
+   * - ``sphinx.writers.latex.LaTeXWriter.bibitems``
+     - 1.8
+     - 3.0
+     - Nothing
+
+   * - ``sphinx.application.CONFIG_FILENAME``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.CONFIG_FILENAME``
+
+   * - ``Config.check_unicode()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_unicode()``
+
+   * - ``Config.check_types()``
+     - 1.8
+     - 3.0
+     - ``sphinx.config.check_confval_types()``
+
+   * - ``dirname``, ``filename`` and ``tags`` arguments of
+       ``Config.__init__()``
+     - 1.8
+     - 3.0
+     - ``Config.read()``
+
+   * - The value of :confval:`html_search_options`
+     - 1.8
+     - 3.0
+     - see :confval:`html_search_options`
 
    * - ``sphinx.versioning.prepare()``
      - 1.8
@@ -172,6 +233,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Builder.read()``
 
+   * - ``BuildEnvironment.read_doc()``
+     - 1.8
+     - 3.0
+     - ``Builder.read_doc()``
+
    * - ``BuildEnvironment._read_serial()``
      - 1.8
      - 3.0
@@ -181,6 +247,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``Builder.read()``
+
+   * - ``BuildEnvironment.write_doctree()``
+     - 1.8
+     - 3.0
+     - ``Builder.write_doctree()``
 
    * - ``sphinx.locale.l_()``
      - 1.8

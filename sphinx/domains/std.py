@@ -559,6 +559,7 @@ class StandardDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
+        # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
                 self.data['progoptions'][key] = data
@@ -567,11 +568,6 @@ class StandardDomain(Domain):
                 self.data['objects'][key] = data
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
-                if key in self.data['citations']:
-                    otherdoc, _, _ = self.data['catations']
-                    logger.warning('duplicate citation %s, other instance in %s' %
-                                   (key, self.env.doc2path(otherdoc)),
-                                   type='ref', subtype='citation')
                 self.data['citations'][key] = data
         for key, data in otherdata['citation_refs'].items():
             citation_refs = self.data['citation_refs'].setdefault(key, [])
@@ -580,10 +576,6 @@ class StandardDomain(Domain):
                     citation_refs.append(docname)
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
-                if key in self.data['labels']:
-                    otherdoc, _, _ = self.data['labels']
-                    logger.warning('duplicate label %s, other instance in %s' %
-                                   (key, self.env.doc2path(otherdoc)))
                 self.data['labels'][key] = data
         for key, data in otherdata['anonlabels'].items():
             if data[0] in docnames:
@@ -598,6 +590,7 @@ class StandardDomain(Domain):
     def note_citations(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         for node in document.traverse(nodes.citation):
+            node['docname'] = docname
             label = node[0].astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
