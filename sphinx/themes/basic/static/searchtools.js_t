@@ -458,6 +458,68 @@ var Search = {
     return results;
   },
 
+    /*
+   * helper function to remove some reStructuredText elements
+   * from the text for better readability of the plain text
+   * source. In particular, this:
+   *
+   * - removes link targets
+   * - removes some directives (use only for single-line
+   *   directives as we don't have a full directive block parser)
+   * - removes section markers
+   *
+   * This is just a heuristic filter for removing some text elements
+   * that clutter the search result summary text without providing
+   * helpful information. The motivation is a low-effort way
+   * for improving the search result summary. This is not trying to
+   * be a serious reStructuredText parser in any way.
+   */
+  filterRestructuredText : function(text) {
+    var reLinkTarget = /^\.\.\ _[\w\.]+:$/;
+    var reDirective = /^\.\. ([\w\+-\.]+):/;
+    var ignored_directives = ['currentmodule'];
+
+    var filteredLines = [];
+    var lines = text.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+
+        /* explicit markup blocks */
+        if (line.startsWith('.. ')) {
+
+            /* link target */
+            if (reLinkTarget.test(line)) {
+                continue;
+            }
+            /* directives */
+            var matches = reDirective.exec(line);
+            if (matches !== null) {
+                var directive = matches[1];
+                if (ignored_directives.indexOf(directive) >= 0) {
+                    continue;
+                }
+            }
+        }
+
+        /* sections */
+        if (line.length > 0 && '#*=-^"~'.indexOf(line[0]) > 0) {
+            var isSectionLine = true;
+            var c = line[0];
+            for (var j = 0; j < line.length; j++) {
+                if (line[j] != c) {
+                    isSectionLine = false;
+                    break;
+                }
+            }
+            if (isSectionLine) {
+                continue;
+            }
+        }
+        filteredLines.push(line);
+    }
+    return filteredLines.join('\n');
+  },
+
   /**
    * helper function to return a node containing the
    * search summary for a given text. keywords is a list
@@ -466,6 +528,7 @@ var Search = {
    * latter for highlighting it.
    */
   makeSearchSummary : function(text, keywords, hlwords) {
+    text = this.filterRestructuredText(text);
     var textLower = text.toLowerCase();
     var start = 0;
     $.each(keywords, function() {
