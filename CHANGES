@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #4924: html search: Upper characters problem in any other languages
+* #4932: apidoc: some subpackage is ignored if sibling subpackage contains a
+  module starting with underscore
 
 Testing
 --------
