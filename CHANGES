@@ -96,6 +96,7 @@ Features added
 * Add ``Config.read()`` classmethod to create a new config object from
   configuration file
 * #4866: Wrap graphviz diagrams in ``<div>`` tag
+* Add :event:`viewcode-find-source` event to viewcode extension.
 
 Bugs fixed
 ----------
