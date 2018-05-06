@@ -190,43 +190,51 @@ class LaTeXWriter(writers.Writer):
 # Helper classes
 
 class ExtBabel(Babel):
+    cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
+    shorthands = {
+        'ngerman': '"',
+        'slovene': '"',
+        'portuges': '"',
+        'spanish': '"',
+        'dutch': '"',
+        'polish': '"',
+        'italian': '"',
+    }
+
     def __init__(self, language_code, use_polyglossia=False):
         # type: (unicode, bool) -> None
-        super(ExtBabel, self).__init__(language_code or '')
         self.language_code = language_code
         self.use_polyglossia = use_polyglossia
+        self.supported = True
+        super(ExtBabel, self).__init__(language_code or '')
 
     def get_shorthandoff(self):
         # type: () -> unicode
-        shortlang = self.language.split('_')[0]
-        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
-                         'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
-                         'italian'):
-            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
-        elif shortlang in ('tr', 'turkish'):
+        shorthand = self.shorthands.get(self.language)
+        if shorthand:
+            return r'\ifnum\catcode`\%s=\active\shorthandoff{%s}\fi' % (shorthand, shorthand)
+        elif self.language == 'turkish':
             # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
-            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
+            return r'\ifnum\catcode`\=\string=\active\shorthandoff{=}\fi'
         return ''
 
     def uses_cyrillic(self):
         # type: () -> bool
-        shortlang = self.language.split('_')[0]
-        return shortlang in ('bg', 'bulgarian', 'kk', 'kazakh',
-                             'mn', 'mongolian', 'ru', 'russian',
-                             'uk', 'ukrainian')
+        return self.language in self.cyrillic_languages
 
     def is_supported_language(self):
         # type: () -> bool
-        return bool(super(ExtBabel, self).get_language())
+        return self.supported
 
-    def get_language(self):
-        # type: () -> unicode
-        language = super(ExtBabel, self).get_language()
+    def language_name(self, language_code):
+        # type: (unicode) -> unicode
+        language = super(ExtBabel, self).language_name(language_code)
         if language == 'ngerman' and self.use_polyglossia:
             # polyglossia calls new orthography (Neue Rechtschreibung) as
             # german (with new spelling option).
             return 'german'
         elif not language:
+            self.supported = False
             return 'english'  # fallback to english
         else:
             return language
@@ -234,13 +242,14 @@ class ExtBabel(Babel):
     def get_mainlanguage_options(self):
         # type: () -> unicode
         """Return options for polyglossia's ``\setmainlanguage``."""
-        language = super(ExtBabel, self).get_language()
         if self.use_polyglossia is False:
             return None
-        elif language == 'ngerman':
-            return 'spelling=new'
-        elif language == 'german':
-            return 'spelling=old'
+        elif self.language == 'german':
+            language = super(ExtBabel, self).language_name(self.language_code)
+            if language == 'ngerman':
+                return 'spelling=new'
+            else:
+                return 'spelling=old'
         else:
             return None
 
