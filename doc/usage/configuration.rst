@@ -888,9 +888,9 @@ that use Sphinx's HTMLWriter class.
 
    .. note::
 
-      For security reason, dotfiles under ``html_static_path`` will
-      not be copied.  If you'd like to copy them intentionally, please
-      add them each filepath to this setting::
+      For security reasons, dotfiles under ``html_static_path`` will
+      not be copied.  If you would like to copy them intentionally, please
+      add each filepath to this setting::
 
           html_static_path = ['_static', '_static/.htaccess']
 
