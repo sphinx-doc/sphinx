@@ -47,6 +47,11 @@ def apply_source_workaround(node):
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     if isinstance(node, nodes.image) and node.source is None:
         node.source, node.line = node.parent.source, node.parent.line
+    if isinstance(node, nodes.title) and node.source is None:
+        # Uncomment these lines after merging into master(1.8)
+        # logger.debug('[i18n] PATCH: %r to have source: %s',
+        #              get_full_module_name(node), repr_domxml(node))
+        node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
@@ -131,6 +136,11 @@ IMAGE_TYPE_NODES = (
 )
 META_TYPE_NODES = (
     addnodes.meta,
+)
+ALLOWED_TRANSLATED_NODES = (
+    (nodes.paragraph, nodes.title) +
+    LITERAL_TYPE_NODES +
+    IMAGE_TYPE_NODES
 )
 
 

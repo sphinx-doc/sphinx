@@ -22,7 +22,7 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import (
-    LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
+    LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, ALLOWED_TRANSLATED_NODES,
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
 from sphinx.util.pycompat import indent
@@ -247,13 +247,24 @@ class Locale(SphinxTransform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
+            # Structural Subelements phase1
+            # There is a possibility that only the title node is created.
+            # see: http://docutils.sourceforge.net/docs/ref/doctree.html#structural-subelements
+            if isinstance(node, nodes.title):
+                # This generates: <section ...><title>msgstr</title></section>
+                msgstr = msgstr + '\n' + '-' * len(msgstr) * 2
+
             patch = publish_msgstr(self.app, msgstr, source,
                                    node.line, self.config, settings)
-            # XXX doctest and other block markup
-            if not isinstance(
-                    patch,
-                    (nodes.paragraph,) + LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
-                continue  # skip for now
+
+            # Structural Subelements phase2
+            if isinstance(node, nodes.title):
+                # get <title> node that placed as a first child
+                patch = patch.next_node()
+
+            # ignore block markups
+            if not isinstance(patch, ALLOWED_TRANSLATED_NODES):
+                continue  # skip
 
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
