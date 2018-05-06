@@ -3,7 +3,7 @@
     sphinx.builders.latex.nodes
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    docutils nodes for LaTeX builder.
+    Additional nodes for LaTeX writer.
 
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -20,4 +20,8 @@ class footnotemark(nodes.Inline, nodes.Referential, nodes.TextElement):
 class footnotetext(nodes.General, nodes.BackLinkable, nodes.Element,
                    nodes.Labeled, nodes.Targetable):
     """A node represents ``\footnotetext``."""
+
+
+class thebibliography(nodes.container):
+    """A node for wrapping bibliographies."""
     pass

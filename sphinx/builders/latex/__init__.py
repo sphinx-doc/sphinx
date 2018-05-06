@@ -12,7 +12,6 @@
 import os
 from os import path
 
-from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 from six import text_type
@@ -20,6 +19,7 @@ from six import text_type
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
+    BibliographyTransform, CitationReferenceTransform,
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
 )
 from sphinx.config import string_classes, ENUM
@@ -38,6 +38,7 @@ from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 if False:
     # For type annotation
+    from docutils import nodes  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -173,6 +174,7 @@ class LaTeXBuilder(Builder):
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node
+        from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -219,7 +221,8 @@ class LaTeXBuilder(Builder):
         # type: (nodes.document) -> None
         transformer = SphinxTransformer(doctree)
         transformer.set_environment(self.env)
-        transformer.add_transforms([ShowUrlsTransform,
+        transformer.add_transforms([BibliographyTransform,
+                                    ShowUrlsTransform,
                                     LaTeXFootnoteTransform])
         transformer.apply_transforms()
 
@@ -316,6 +319,7 @@ def default_latex_docclass(config):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
+    app.add_post_transform(CitationReferenceTransform)
     app.connect('config-inited', validate_config_values)
     app.add_transform(FootnoteDocnameUpdater)
 

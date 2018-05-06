@@ -49,6 +49,7 @@ BEGIN_DOC = r'''
 '''
 
 
+MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
 
@@ -660,7 +661,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             builder.config.pygments_style, builder.config.trim_doctest_flags)
         self.context = []               # type: List[Any]
         self.descstack = []             # type: List[unicode]
-        self.bibitems = []              # type: List[List[unicode]]
         self.table = None               # type: Table
         self.next_table_colspec = None  # type: unicode
         # stack of [language, linenothreshold] settings per file
@@ -902,20 +902,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_document(self, node):
         # type: (nodes.Node) -> None
-        if self.bibitems:
-            widest_label = ""  # type: unicode
-            for bi in self.bibitems:
-                if len(widest_label) < len(bi[0]):
-                    widest_label = bi[0]
-            self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' % widest_label)
-            for bi in self.bibitems:
-                target = self.hypertarget(bi[2] + ':' + bi[3],
-                                          withdoc=False)
-                self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
-                                 (self.encode(bi[0]), self.idescape(bi[0]),
-                                  target, bi[1]))
-            self.body.append(u'\\end{sphinxthebibliography}\n')
-            self.bibitems = []
+        pass
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
@@ -1282,10 +1269,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_label(self, node):
         # type: (nodes.Node) -> None
-        if isinstance(node.parent, nodes.citation):
-            self.bibitems[-1][0] = node.astext()
-            self.bibitems[-1][2] = self.curfilestack[-1]
-            self.bibitems[-1][3] = node.parent['ids'][0]
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
@@ -2149,26 +2132,41 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('}')
 
+    def visit_thebibliography(self, node):
+        # type: (nodes.Node) -> None
+        longest_label = max((subnode[0].astext() for subnode in node), key=len)
+        if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
+            # adjust max width of citation labels not to break the layout
+            longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
+
+        self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' %
+                         self.encode(longest_label))
+
+    def depart_thebibliography(self, node):
+        # type: (nodes.Node) -> None
+        self.body.append(u'\\end{sphinxthebibliography}\n')
+
     def visit_citation(self, node):
         # type: (nodes.Node) -> None
-        # TODO maybe use cite bibitems
-        # bibitem: [citelabel, citetext, docname, citeid]
-        self.bibitems.append(['', '', '', ''])
-        self.context.append(len(self.body))
+        label = node[0].astext()
+        self.body.append(u'\\bibitem[%s]{%s:%s}' %
+                         (self.encode(label), node['docname'], node['ids'][0]))
 
     def depart_citation(self, node):
         # type: (nodes.Node) -> None
-        size = self.context.pop()
-        text = ''.join(self.body[size:])
-        del self.body[size:]
-        self.bibitems[-1][1] = text
+        pass
 
     def visit_citation_reference(self, node):
         # type: (nodes.Node) -> None
-        # This is currently never encountered, since citation_reference nodes
-        # are already replaced by pending_xref nodes in the environment.
-        self.body.append('\\cite{%s}' % self.idescape(node.astext()))
-        raise nodes.SkipNode
+        if self.in_title:
+            pass
+        else:
+            self.body.append('\\sphinxcite{%s:%s}' % (node['docname'], node['refname']))
+            raise nodes.SkipNode
+
+    def depart_citation_reference(self, node):
+        # type: (nodes.Node) -> None
+        pass
 
     def visit_literal(self, node):
         # type: (nodes.Node) -> None
@@ -2545,6 +2543,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
+
+    # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    @property
+    def bibitems(self):
+        # type: () -> List[List[unicode]]
+        warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
 
 # Import old modules here for compatibility

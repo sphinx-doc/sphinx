@@ -590,15 +590,8 @@ def test_footnote(app, status, warning):
     assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
-    assert '{\\hyperref[\\detokenize{footnote:bar}]{\\sphinxcrossref{{[}bar{]}}}}' in result
-    assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} ') in result
-    assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
-            '\ncite') in result
-    assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
-            '\ncite\n}') in result
+    assert '\\sphinxcite{footnote:bar}' in result
+    assert ('\\bibitem[bar]{footnote:bar}\ncite\n') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
@@ -620,9 +613,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert ('\\caption{This is the figure caption with a reference to '
-            '\\label{\\detokenize{index:id2}}'
-            '{\\hyperref[\\detokenize{index:authoryear}]'
-            '{\\sphinxcrossref{{[}AuthorYear{]}}}}.}' in result)
+            '\\sphinxcite{index:authoryear}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert ('\\sphinxcaption{The table title with a reference'
             ' to {[}AuthorYear{]}}' in result)
@@ -670,9 +661,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
-            '\\phantomsection\\label{\\detokenize{index:id1}}'
-            '{\\hyperref[\\detokenize{index:authoryear}]'
-            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+            '\\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
@@ -716,9 +705,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{\\detokenize{index:id1}}'
-            '{\\hyperref[\\detokenize{index:authoryear}]'
-            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+            'to \\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
@@ -772,9 +759,7 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('\\phantomsection\\label{\\detokenize{index:id32}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{\\detokenize{index:id1}}'
-            '{\\hyperref[\\detokenize{index:authoryear}]'
-            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+            'to \\sphinxcite{index:authoryear}}}}') in result
     assert ('\\phantomsection\\label{\\detokenize{index:id33}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
@@ -1247,3 +1232,16 @@ def test_latex_nested_enumerated_list(app, status, warning):
     assert r'\setcounter{enumii}{3}' in result
     assert r'\setcounter{enumiii}{9}' in result
     assert r'\setcounter{enumii}{2}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='footnotes')
+def test_latex_thebibliography(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    assert ('\\begin{sphinxthebibliography}{AuthorYe}\n'
+            '\\bibitem[AuthorYear]{index:authoryear}\n'
+            'Author, Title, Year\n'
+            '\\end{sphinxthebibliography}\n' in result)
+    assert '\\sphinxcite{index:authoryear}' in result

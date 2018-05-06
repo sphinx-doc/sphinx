@@ -151,6 +151,11 @@ The following is a list of deprecated interface.
      - 3.0
      - -
 
+   * - ``sphinx.writers.latex.LaTeXWriter.bibitems``
+     - 1.8
+     - 3.0
+     - Nothing
+
    * - ``sphinx.application.CONFIG_FILENAME``
      - 1.8
      - 3.0

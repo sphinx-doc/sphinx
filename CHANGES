@@ -28,6 +28,7 @@ Incompatible changes
 * #789: ``:samp:`` role supports to escape curly braces with backslash
 * #4811: The files under :confval:`html_static_path` are excluded from source
   files.
+* latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
 
 Deprecated
 ----------
@@ -60,6 +61,7 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
+* ``LaTeXWriter.bibitems`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_

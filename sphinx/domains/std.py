@@ -590,6 +590,7 @@ class StandardDomain(Domain):
     def note_citations(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         for node in document.traverse(nodes.citation):
+            node['docname'] = docname
             label = node[0].astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])

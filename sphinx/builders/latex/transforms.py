@@ -12,7 +12,7 @@
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.builders.latex.nodes import footnotemark, footnotetext
+from sphinx.builders.latex.nodes import footnotemark, footnotetext, thebibliography
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -476,3 +476,69 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
                 return footnote
 
         return None
+
+
+class BibliographyTransform(SphinxTransform):
+    """Gather bibliography entries to tail of document.
+
+    Before::
+
+        <document>
+            <paragraph>
+                blah blah blah
+            <citation>
+                ...
+            <paragraph>
+                blah blah blah
+            <citation>
+                ...
+            ...
+
+    After::
+
+        <document>
+            <paragraph>
+                blah blah blah
+            <paragraph>
+                blah blah blah
+            ...
+            <thebibliography>
+                <citation>
+                    ...
+                <citation>
+                    ...
+    """
+    default_priority = 750
+
+    def apply(self):
+        # type: () -> None
+        citations = thebibliography()
+        for node in self.document.traverse(nodes.citation):
+            node.parent.remove(node)
+            citations += node
+
+        if len(citations) > 0:
+            self.document += citations
+
+
+class CitationReferenceTransform(SphinxTransform):
+    """Replace pending_xref nodes for citation by citation_reference.
+
+    To handle citation reference easily on LaTeX writer, this converts
+    pending_xref nodes to citation_reference.
+    """
+    default_priority = 5  # before ReferencesResolver
+
+    def apply(self):
+        # type: () -> None
+        if self.app.builder.name != 'latex':
+            return
+
+        citations = self.env.get_domain('std').data['citations']
+        for node in self.document.traverse(addnodes.pending_xref):
+            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
+                docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
+                if docname:
+                    citation_ref = nodes.citation_reference('', *node.children,
+                                                            docname=docname, refname=labelid)
+                    node.replace_self(citation_ref)
