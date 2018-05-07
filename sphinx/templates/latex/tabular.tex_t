@@ -18,9 +18,6 @@
 \begin{tabular}[t]<%= table.get_colspec() -%>
 \hline
 <%= ''.join(table.header) %>
-<%- if table.caption_footnotetexts -%>
-<%= ''.join(table.caption_footnotetexts) -%>
-<%- endif -%>
 <%=- ''.join(table.body) %>
 \end{tabular}
 \par
