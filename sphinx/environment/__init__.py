@@ -91,51 +91,6 @@ class BuildEnvironment(object):
 
     domains = None  # type: Dict[unicode, Domain]
 
-    # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
-
-    @staticmethod
-    def load(f, app=None):
-        # type: (IO, Sphinx) -> BuildEnvironment
-        try:
-            env = pickle.load(f)
-        except Exception as exc:
-            # This can happen for example when the pickle is from a
-            # different version of Sphinx.
-            raise IOError(exc)
-        if app:
-            env.app = app
-            env.config.values = app.config.values
-        return env
-
-    @classmethod
-    def loads(cls, string, app=None):
-        # type: (unicode, Sphinx) -> BuildEnvironment
-        io = BytesIO(string)
-        return cls.load(io, app)
-
-    @classmethod
-    def frompickle(cls, filename, app):
-        # type: (unicode, Sphinx) -> BuildEnvironment
-        with open(filename, 'rb') as f:
-            return cls.load(f, app)
-
-    @staticmethod
-    def dump(env, f):
-        # type: (BuildEnvironment, IO) -> None
-        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-
-    @classmethod
-    def dumps(cls, env):
-        # type: (BuildEnvironment) -> unicode
-        io = BytesIO()
-        cls.dump(env, io)
-        return io.getvalue()
-
-    def topickle(self, filename):
-        # type: (unicode) -> None
-        with open(filename, 'wb') as f:
-            self.dump(self, f)
-
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app):
@@ -816,3 +771,64 @@ class BuildEnvironment(object):
                       'Please use config.nitpick_ignore instead.',
                       RemovedInSphinx30Warning)
         return self.config.nitpick_ignore
+
+    @staticmethod
+    def load(f, app=None):
+        # type: (IO, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.load() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning)
+        try:
+            env = pickle.load(f)
+        except Exception as exc:
+            # This can happen for example when the pickle is from a
+            # different version of Sphinx.
+            raise IOError(exc)
+        if app:
+            env.app = app
+            env.config.values = app.config.values
+        return env
+
+    @classmethod
+    def loads(cls, string, app=None):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.loads() is deprecated. '
+                      'Please use pickle.loads() instead.',
+                      RemovedInSphinx30Warning)
+        io = BytesIO(string)
+        return cls.load(io, app)
+
+    @classmethod
+    def frompickle(cls, filename, app):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning)
+        with open(filename, 'rb') as f:
+            return cls.load(f, app)
+
+    @staticmethod
+    def dump(env, f):
+        # type: (BuildEnvironment, IO) -> None
+        warnings.warn('BuildEnvironment.dump() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning)
+        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def dumps(cls, env):
+        # type: (BuildEnvironment) -> unicode
+        warnings.warn('BuildEnvironment.dumps() is deprecated. '
+                      'Please use pickle.dumps() instead.',
+                      RemovedInSphinx30Warning)
+        io = BytesIO()
+        cls.dump(env, io)
+        return io.getvalue()
+
+    def topickle(self, filename):
+        # type: (unicode) -> None
+        warnings.warn('env.topickle() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning)
+        with open(filename, 'wb') as f:
+            self.dump(self, f)

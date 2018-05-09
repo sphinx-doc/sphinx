@@ -192,6 +192,36 @@ The following is a list of deprecated interface.
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_domain()`
 
+   * - ``BuildEnvironment.load()``
+     - 1.8
+     - 3.0
+     - ``pickle.load()``
+
+   * - ``BuildEnvironment.loads()``
+     - 1.8
+     - 3.0
+     - ``pickle.loads()``
+
+   * - ``BuildEnvironment.frompickle()``
+     - 1.8
+     - 3.0
+     - ``pickle.load()``
+
+   * - ``BuildEnvironment.dump()``
+     - 1.8
+     - 3.0
+     - ``pickle.dump()``
+
+   * - ``BuildEnvironment.dumps()``
+     - 1.8
+     - 3.0
+     - ``pickle.dumps()``
+
+   * - ``BuildEnvironment.topickle()``
+     - 1.8
+     - 3.0
+     - ``pickle.dump()``
+
    * - ``BuildEnvironment._nitpick_ignore``
      - 1.8
      - 3.0

@@ -62,6 +62,12 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
 * ``LaTeXWriter.bibitems`` is deprecated
+* ``BuildEnvironment.load()`` is deprecated
+* ``BuildEnvironment.loads()`` is deprecated
+* ``BuildEnvironment.frompickle()`` is deprecated
+* ``BuildEnvironment.dump()`` is deprecated
+* ``BuildEnvironment.dumps()`` is deprecated
+* ``BuildEnvironment.topickle()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
