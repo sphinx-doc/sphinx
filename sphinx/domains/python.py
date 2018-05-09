@@ -12,7 +12,7 @@
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from six import iteritems
 
 from sphinx import addnodes, locale
@@ -23,6 +23,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 if False:
@@ -555,7 +556,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
         return PyClassmember.run(self)
 
 
-class PyModule(Directive):
+class PyModule(SphinxDirective):
     """
     Directive to mark description of a new module.
     """
@@ -573,19 +574,18 @@ class PyModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.ref_context['py:module'] = modname
+        self.env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
-            env.domaindata['py']['modules'][modname] = (env.docname,
-                                                        self.options.get('synopsis', ''),
-                                                        self.options.get('platform', ''),
-                                                        'deprecated' in self.options)
+            self.env.domaindata['py']['modules'][modname] = (self.env.docname,
+                                                             self.options.get('synopsis', ''),
+                                                             self.options.get('platform', ''),
+                                                             'deprecated' in self.options)
             # make a duplicate entry in 'objects' to facilitate searching for
             # the module in PythonDomain.find_obj()
-            env.domaindata['py']['objects'][modname] = (env.docname, 'module')
+            self.env.domaindata['py']['objects'][modname] = (self.env.docname, 'module')
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -599,7 +599,7 @@ class PyModule(Directive):
         return ret
 
 
-class PyCurrentModule(Directive):
+class PyCurrentModule(SphinxDirective):
     """
     This directive is just to tell Sphinx that we're documenting
     stuff in module foo, but links to module foo won't lead here.
@@ -613,12 +613,11 @@ class PyCurrentModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.ref_context.pop('py:module', None)
+            self.env.ref_context.pop('py:module', None)
         else:
-            env.ref_context['py:module'] = modname
+            self.env.ref_context['py:module'] = modname
         return []
 
 

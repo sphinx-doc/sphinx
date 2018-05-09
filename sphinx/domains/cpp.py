@@ -13,7 +13,7 @@ import re
 from copy import deepcopy
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from six import iteritems, text_type
 
 from sphinx import addnodes
@@ -24,6 +24,7 @@ from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
 
@@ -5828,7 +5829,7 @@ class CPPEnumeratorObject(CPPObject):
         return parser.parse_declaration("enumerator")
 
 
-class CPPNamespaceObject(Directive):
+class CPPNamespaceObject(SphinxDirective):
     """
     This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
@@ -5846,13 +5847,12 @@ class CPPNamespaceObject(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        rootSymbol = env.domaindata['cpp']['root_symbol']
+        rootSymbol = self.env.domaindata['cpp']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
             stack = []  # type: List[Symbol]
         else:
-            parser = DefinitionParser(self.arguments[0], self, env.config)
+            parser = DefinitionParser(self.arguments[0], self, self.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
@@ -5862,13 +5862,13 @@ class CPPNamespaceObject(Directive):
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
             stack = [symbol]
-        env.temp_data['cpp:parent_symbol'] = symbol
-        env.temp_data['cpp:namespace_stack'] = stack
-        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+        self.env.temp_data['cpp:parent_symbol'] = symbol
+        self.env.temp_data['cpp:namespace_stack'] = stack
+        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 
-class CPPNamespacePushObject(Directive):
+class CPPNamespacePushObject(SphinxDirective):
     has_content = False
     required_arguments = 1
     optional_arguments = 0
@@ -5881,10 +5881,9 @@ class CPPNamespacePushObject(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
-        parser = DefinitionParser(self.arguments[0], self, env.config)
+        parser = DefinitionParser(self.arguments[0], self, self.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
@@ -5892,19 +5891,19 @@ class CPPNamespacePushObject(Directive):
             self.warn(e.description)
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
-        oldParent = env.temp_data.get('cpp:parent_symbol', None)
+        oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
         if not oldParent:
-            oldParent = env.domaindata['cpp']['root_symbol']
+            oldParent = self.env.domaindata['cpp']['root_symbol']
         symbol = oldParent.add_name(ast.nestedName, ast.templatePrefix)
-        stack = env.temp_data.get('cpp:namespace_stack', [])
+        stack = self.env.temp_data.get('cpp:namespace_stack', [])
         stack.append(symbol)
-        env.temp_data['cpp:parent_symbol'] = symbol
-        env.temp_data['cpp:namespace_stack'] = stack
-        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+        self.env.temp_data['cpp:parent_symbol'] = symbol
+        self.env.temp_data['cpp:namespace_stack'] = stack
+        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 
-class CPPNamespacePopObject(Directive):
+class CPPNamespacePopObject(SphinxDirective):
     has_content = False
     required_arguments = 0
     optional_arguments = 0
@@ -5917,8 +5916,7 @@ class CPPNamespacePopObject(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        stack = env.temp_data.get('cpp:namespace_stack', None)
+        stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
             self.warn("C++ namespace pop on empty stack. Defaulting to gobal scope.")
             stack = []
@@ -5927,10 +5925,10 @@ class CPPNamespacePopObject(Directive):
         if len(stack) > 0:
             symbol = stack[-1]
         else:
-            symbol = env.domaindata['cpp']['root_symbol']
-        env.temp_data['cpp:parent_symbol'] = symbol
-        env.temp_data['cpp:namespace_stack'] = stack
-        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
+            symbol = self.env.domaindata['cpp']['root_symbol']
+        self.env.temp_data['cpp:parent_symbol'] = symbol
+        self.env.temp_data['cpp:namespace_stack'] = stack
+        self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 

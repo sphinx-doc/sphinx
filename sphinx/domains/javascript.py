@@ -10,7 +10,7 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
@@ -19,6 +19,7 @@ from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
 
 if False:
@@ -220,7 +221,7 @@ class JSConstructor(JSCallable):
     allow_nesting = True
 
 
-class JSModule(Directive):
+class JSModule(SphinxDirective):
     """
     Directive to mark description of a new JavaScript module.
 
@@ -249,16 +250,15 @@ class JSModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         mod_name = self.arguments[0].strip()
-        env.ref_context['js:module'] = mod_name
+        self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
         ret = []
         if not noindex:
-            env.domaindata['js']['modules'][mod_name] = env.docname
+            self.env.domaindata['js']['modules'][mod_name] = self.env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            env.domaindata['js']['objects'][mod_name] = (env.docname, 'module')
+            self.env.domaindata['js']['objects'][mod_name] = (self.env.docname, 'module')
             targetnode = nodes.target('', '', ids=['module-' + mod_name],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
