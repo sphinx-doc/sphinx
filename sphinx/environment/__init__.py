@@ -122,15 +122,7 @@ class BuildEnvironment(object):
     @staticmethod
     def dump(env, f):
         # type: (BuildEnvironment, IO) -> None
-        # remove unpicklable attributes
-        app = env.app
-        del env.app
-        domains = env.domains
-        del env.domains
         pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-        # reset attributes
-        env.domains = domains
-        env.app = app
 
     @classmethod
     def dumps(cls, env):
@@ -245,6 +237,17 @@ class BuildEnvironment(object):
         # this is similar to temp_data, but will for example be copied to
         # attributes of "any" cross references
         self.ref_context = {}       # type: Dict[unicode, Any]
+
+    def __getstate__(self):
+        # type: () -> Dict
+        """Obtains serializable data for pickling."""
+        __dict__ = self.__dict__.copy()
+        __dict__.update(app=None, domains={})  # clear unpickable attributes
+        return __dict__
+
+    def __setstate__(self, state):
+        # type: (Dict) -> None
+        self.__dict__.update(state)
 
     def set_warnfunc(self, func):
         # type: (Callable) -> None
