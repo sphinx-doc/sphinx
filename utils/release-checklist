@@ -11,7 +11,8 @@ for stable releases
 * Edit CHANGES if empty section exists
 * ``git commit -am 'Bump to X.Y.Z final'``
 * ``make clean``
-* ``python setup.py release bdist_wheel sdist upload --identity=[your key]``
+* ``python setup.py release bdist_wheel sdist``
+* ``twine upload dist/<Sphinx-X.Y.Z files> --sign --identity [your GPG key]``
 * open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
 * ``git tag vX.Y.Z``
 * ``python utils/bump_version.py --in-develop X.Y.Zb0`` (ex. 1.5.3b0)
