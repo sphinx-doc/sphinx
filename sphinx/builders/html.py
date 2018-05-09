@@ -444,9 +444,9 @@ class StandaloneHTMLBuilder(Builder):
         # create the search indexer
         self.indexer = None
         if self.search:
-            from sphinx.search import IndexBuilder, languages
+            from sphinx.search import IndexBuilder
             lang = self.config.html_search_language or self.config.language
-            if not lang or lang not in languages:
+            if not lang:
                 lang = 'en'
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
