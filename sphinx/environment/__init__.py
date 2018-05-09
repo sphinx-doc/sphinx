@@ -12,14 +12,13 @@
 import os
 import re
 import sys
-import types
 import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
 
 from docutils.utils import Reporter, get_source_line
-from six import BytesIO, class_types, next
+from six import BytesIO, next
 from six.moves import cPickle as pickle
 
 from sphinx import addnodes
@@ -126,21 +125,11 @@ class BuildEnvironment(object):
         # remove unpicklable attributes
         app = env.app
         del env.app
-        values = env.config.values
-        del env.config.values
         domains = env.domains
         del env.domains
-        # remove potentially pickling-problematic values from config
-        for key, val in list(vars(env.config).items()):
-            if key.startswith('_') or \
-               isinstance(val, types.ModuleType) or \
-               isinstance(val, types.FunctionType) or \
-               isinstance(val, class_types):
-                del env.config[key]
         pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
         # reset attributes
         env.domains = domains
-        env.config.values = values
         env.app = app
 
     @classmethod

@@ -11,12 +11,15 @@
 
 import re
 import traceback
+import types
 import warnings
 from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
+from six import (
+    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
+)
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -35,6 +38,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
+UNSERIALIZEABLE_TYPES = class_types + (types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 if PY3:
@@ -307,6 +311,34 @@ class Config(object):
         if isinstance(rebuild, string_types):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
+
+    def __getstate__(self):
+        # type: () -> Dict
+        """Obtains serializable data for pickling."""
+        # remove potentially pickling-problematic values from config
+        __dict__ = {}
+        for key, value in iteritems(self.__dict__):
+            if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
+                pass
+            else:
+                __dict__[key] = value
+
+        # create a picklable copy of values list
+        __dict__['values'] = {}
+        for key, value in iteritems(self.values):  # type: ignore
+            real_value = getattr(self, key)
+            if isinstance(real_value, UNSERIALIZEABLE_TYPES):
+                # omit unserializable value
+                real_value = None
+
+            # types column is also omitted
+            __dict__['values'][key] = (real_value, value[1], None)
+
+        return __dict__
+
+    def __setstate__(self, state):
+        # type: (Dict) -> None
+        self.__dict__.update(state)
 
 
 def eval_config_file(filename, tags):
