@@ -137,11 +137,6 @@ IMAGE_TYPE_NODES = (
 META_TYPE_NODES = (
     addnodes.meta,
 )
-ALLOWED_TRANSLATED_NODES = (
-    (nodes.paragraph, nodes.title) +
-    LITERAL_TYPE_NODES +
-    IMAGE_TYPE_NODES
-)
 
 
 def extract_messages(doctree):
