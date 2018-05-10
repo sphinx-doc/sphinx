@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import SphinxError, ExtensionError
+from sphinx.errors import SphinxError, BuildEnvironmentError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
@@ -69,6 +69,18 @@ default_settings = {
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
 ENV_VERSION = 53 + (sys.version_info[0] - 2)
 
+# config status
+CONFIG_OK = 1
+CONFIG_NEW = 2
+CONFIG_CHANGED = 3
+CONFIG_EXTENSIONS_CHANGED = 4
+
+CONFIG_CHANGED_REASON = {
+    CONFIG_NEW: __('new config'),
+    CONFIG_CHANGED: __('config changed'),
+    CONFIG_EXTENSIONS_CHANGED: __('extensions changed'),
+}
+
 
 versioning_conditions = {
     'none': False,
@@ -93,12 +105,14 @@ class BuildEnvironment(object):
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app):
+    def __init__(self, app=None):
         # type: (Sphinx) -> None
-        self.app = app
-        self.doctreedir = app.doctreedir
-        self.srcdir = app.srcdir  # type: unicode
-        self.config = app.config  # type: Config
+        self.app = None             # type: Sphinx
+        self.doctreedir = None      # type: unicode
+        self.srcdir = None          # type: unicode
+        self.config = None          # type: Config
+        self.config_status = None   # type: int
+        self.version = None         # type: Dict[unicode, unicode]
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -113,9 +127,6 @@ class BuildEnvironment(object):
 
         # the function to write warning messages with
         self._warnfunc = None  # type: Callable
-
-        # this is to invalidate old pickles
-        self.version = app.registry.get_envversion(app)     # type: Dict[unicode, unicode]
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -193,6 +204,10 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}       # type: Dict[unicode, Any]
 
+        # set up environment
+        if app:
+            self.setup(app)
+
     def __getstate__(self):
         # type: () -> Dict
         """Obtains serializable data for pickling."""
@@ -203,6 +218,61 @@ class BuildEnvironment(object):
     def __setstate__(self, state):
         # type: (Dict) -> None
         self.__dict__.update(state)
+
+    def setup(self, app):
+        # type: (Sphinx) -> None
+        """Set up BuildEnvironment object."""
+        if self.version and self.version != app.registry.get_envversion(app):
+            raise BuildEnvironmentError(__('build environment version not current'))
+        elif self.srcdir and self.srcdir != app.srcdir:
+            raise BuildEnvironmentError(__('source directory has changed'))
+
+        self.app = app
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
+        self.version = app.registry.get_envversion(app)
+
+        # initialize domains
+        self.domains = {}
+        for domain in app.registry.create_domains(self):
+            self.domains[domain.name] = domain
+
+        # initialize config
+        self._update_config(app.config)
+
+        # initialie settings
+        self._update_settings(app.config)
+
+    def _update_config(self, config):
+        # type: (Config) -> None
+        """Update configurations by new one."""
+        self.config_status = CONFIG_OK
+        if self.config is None:
+            self.config_status = CONFIG_NEW
+        else:
+            # check if a config value was changed that affects how
+            # doctrees are read
+            for item in config.filter('env'):
+                if self.config[item.name] != item.value:
+                    self.config_status = CONFIG_CHANGED
+                    break
+
+            # this value is not covered by the above loop because it is handled
+            # specially by the config class
+            if self.config.extensions != config.extensions:
+                self.config_status = CONFIG_EXTENSIONS_CHANGED
+
+        self.config = config
+
+    def _update_settings(self, config):
+        # type: (Config) -> None
+        """Update settings by new config."""
+        self.settings['input_encoding'] = config.source_encoding
+        self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
+        self.settings['language_code'] = config.language or 'en'
+
+        # Allow to disable by 3rd party extension (workaround)
+        self.settings.setdefault('smart_quotes', True)
 
     def set_warnfunc(self, func):
         # type: (Callable) -> None
@@ -450,44 +520,6 @@ class BuildEnvironment(object):
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
-
-    def update_config(self, config, srcdir, doctreedir):
-        # type: (Config, unicode, unicode) -> Tuple[bool, unicode]
-        """Update configurations by new one."""
-        changed_reason = ''
-        if self.config is None:
-            changed_reason = __('new config')
-        else:
-            # check if a config value was changed that affects how
-            # doctrees are read
-            for confval in config.filter('env'):
-                if self.config[confval.name] != confval.value:
-                    changed_reason = __('config changed')
-                    break
-
-            # this value is not covered by the above loop because it is handled
-            # specially by the config class
-            if self.config.extensions != config.extensions:
-                changed_reason = __('extensions changed')
-
-        # the source and doctree directories may have been relocated
-        self.srcdir = srcdir
-        self.doctreedir = doctreedir
-        self.config = config
-        self._update_settings(config)
-
-        # return tuple of (changed, reason)
-        return bool(changed_reason), changed_reason
-
-    def _update_settings(self, config):
-        # type: (Config) -> None
-        """Update settings by new config."""
-        self.settings['input_encoding'] = config.source_encoding
-        self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
-        self.settings['language_code'] = config.language or 'en'
-
-        # Allow to disable by 3rd party extension (workaround)
-        self.settings.setdefault('smart_quotes', True)
 
     # --------- SINGLE FILE READING --------------------------------------------
 

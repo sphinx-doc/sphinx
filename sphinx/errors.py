@@ -72,6 +72,11 @@ class ExtensionError(SphinxError):
         return parent_str
 
 
+class BuildEnvironmentError(SphinxError):
+    """BuildEnvironment error."""
+    category = 'BuildEnvironment error'
+
+
 class ConfigError(SphinxError):
     """Configuration error."""
     category = 'Configuration error'
