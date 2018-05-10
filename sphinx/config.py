@@ -91,57 +91,57 @@ class Config(object):
 
     config_values = dict(
         # general options
-        project = ('Python', 'env'),
-        author = ('unknown', 'env'),
-        copyright = ('', 'html'),
-        version = ('', 'env'),
-        release = ('', 'env'),
-        today = ('', 'env'),
+        project = ('Python', 'env', []),
+        author = ('unknown', 'env', []),
+        copyright = ('', 'html', []),
+        version = ('', 'env', []),
+        release = ('', 'env', []),
+        today = ('', 'env', []),
         # the real default is locale-dependent
         today_fmt = (None, 'env', string_classes),
 
         language = (None, 'env', string_classes),
-        locale_dirs = (['locales'], 'env'),
+        locale_dirs = (['locales'], 'env', []),
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
-        master_doc = ('contents', 'env'),
+        master_doc = ('contents', 'env', []),
         source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
-        source_encoding = ('utf-8-sig', 'env'),
-        source_parsers = ({}, 'env'),
-        exclude_patterns = ([], 'env'),
+        source_encoding = ('utf-8-sig', 'env', []),
+        source_parsers = ({}, 'env', []),
+        exclude_patterns = ([], 'env', []),
         default_role = (None, 'env', string_classes),
-        add_function_parentheses = (True, 'env'),
-        add_module_names = (True, 'env'),
-        trim_footnote_reference_space = (False, 'env'),
-        show_authors = (False, 'env'),
+        add_function_parentheses = (True, 'env', []),
+        add_module_names = (True, 'env', []),
+        trim_footnote_reference_space = (False, 'env', []),
+        show_authors = (False, 'env', []),
         pygments_style = (None, 'html', string_classes),
-        highlight_language = ('default', 'env'),
-        highlight_options = ({}, 'env'),
-        templates_path = ([], 'html'),
+        highlight_language = ('default', 'env', []),
+        highlight_options = ({}, 'env', []),
+        templates_path = ([], 'html', []),
         template_bridge = (None, 'html', string_classes),
-        keep_warnings = (False, 'env'),
-        suppress_warnings = ([], 'env'),
-        modindex_common_prefix = ([], 'html'),
+        keep_warnings = (False, 'env', []),
+        suppress_warnings = ([], 'env', []),
+        modindex_common_prefix = ([], 'html', []),
         rst_epilog = (None, 'env', string_classes),
         rst_prolog = (None, 'env', string_classes),
-        trim_doctest_flags = (True, 'env'),
+        trim_doctest_flags = (True, 'env', []),
         primary_domain = ('py', 'env', [NoneType]),
         needs_sphinx = (None, None, string_classes),
-        needs_extensions = ({}, None),
-        manpages_url = (None, 'env'),
-        nitpicky = (False, None),
-        nitpick_ignore = ([], None),
-        numfig = (False, 'env'),
-        numfig_secnum_depth = (1, 'env'),
-        numfig_format = ({}, 'env'),  # will be initialized in init_numfig_format()
+        needs_extensions = ({}, None, []),
+        manpages_url = (None, 'env', []),
+        nitpicky = (False, None, []),
+        nitpick_ignore = ([], None, []),
+        numfig = (False, 'env', []),
+        numfig_secnum_depth = (1, 'env', []),
+        numfig_format = ({}, 'env', []),  # will be initialized in init_numfig_format()
 
-        tls_verify = (True, 'env'),
-        tls_cacerts = (None, 'env'),
-        smartquotes = (True, 'env'),
-        smartquotes_action = ('qDe', 'env'),
+        tls_verify = (True, 'env', []),
+        tls_cacerts = (None, 'env', []),
+        smartquotes = (True, 'env', []),
+        smartquotes_action = ('qDe', 'env', []),
         smartquotes_excludes = ({'languages': ['ja'],
                                  'builders': ['man', 'text']},
-                                'env'),
+                                'env', []),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, *args):
@@ -203,7 +203,7 @@ class Config(object):
             return value
         else:
             defvalue = self.values[name][0]
-            if self.values[name][-1] == Any:
+            if self.values[name][2] == Any:
                 return value
             elif isinstance(defvalue, dict):
                 raise ValueError(__('cannot override dictionary config setting %r, '
@@ -395,9 +395,7 @@ def check_confval_types(app, config):
     that can result in TypeErrors all over the place NB.
     """
     for confval in config:
-        settings = config.values[confval.name]
-        default = settings[0]
-        annotations = settings[2] if len(settings) == 3 else ()
+        default, rebuild, annotations = config.values[confval.name]
 
         if hasattr(default, '__call__'):
             default = default(config)  # evaluate default value
