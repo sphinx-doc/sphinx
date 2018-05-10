@@ -1057,8 +1057,6 @@ class Sphinx(object):
            And it allows keyword arguments as attributes of link tag.
         """
         logger.debug('[app] adding stylesheet: %r', filename)
-        if '://' not in filename:
-            filename = posixpath.join('_static', filename)
         self.registry.add_css_files(filename, **kwargs)
 
     def add_stylesheet(self, filename, alternate=False, title=None):

@@ -13,6 +13,8 @@
 from collections import namedtuple
 from os import path
 
+from six import string_types
+
 from sphinx import package_dir
 from sphinx.builders import _epub_base
 from sphinx.config import string_classes, ENUM
@@ -24,9 +26,10 @@ from sphinx.util.osutil import make_filename
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List  # NOQA
+    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -226,6 +229,24 @@ class Epub3Builder(_epub_base.EpubBuilder):
             self.files.append(outname)
 
 
+def convert_epub_css_files(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts string styled epub_css_files to tuple styled one."""
+    epub_css_files = []  # type: List[Tuple[unicode, Dict]]
+    for entry in config.epub_css_files:
+        if isinstance(entry, string_types):
+            epub_css_files.append((entry, {}))
+        else:
+            try:
+                filename, attrs = entry
+                epub_css_files.append((filename, attrs))
+            except Exception:
+                logger.warning(__('invalid css_file: %r, ignored'), entry)
+                continue
+
+    config.epub_css_files = epub_css_files  # type: ignore
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(Epub3Builder)
@@ -260,6 +281,9 @@ def setup(app):
     app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
+
+    # event handlers
+    app.connect('config-inited', convert_epub_css_files)
 
     return {
         'version': 'builtin',

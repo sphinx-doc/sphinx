@@ -341,23 +341,17 @@ class StandaloneHTMLBuilder(Builder):
     def init_css_files(self):
         # type: () -> None
         for filename, attrs in self.app.registry.css_files:
-            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
+            self.add_css_file(filename, **attrs)
 
-        for entry in self.get_builder_config('css_files', 'html'):
-            if isinstance(entry, string_types):
-                filename = entry
-                attrs = {}
-            else:
-                try:
-                    filename, attrs = entry
-                except (TypeError, ValueError):
-                    logger.warning('invalid css_file: %r', entry)
-                    continue
+        for filename, attrs in self.get_builder_config('css_files', 'html'):
+            self.add_css_file(filename, **attrs)
 
-            if '://' not in filename:
-                filename = posixpath.join('_static', filename)
+    def add_css_file(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
+        if '://' not in filename:
+            filename = posixpath.join('_static', filename)
 
-            self.css_files.append(Stylesheet(filename, **attrs))  # type: ignore
+        self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
 
     @property
     def default_translator_class(self):
@@ -1467,6 +1461,24 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
         SerializingHTMLBuilder.init(self)
 
 
+def convert_html_css_files(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts string styled html_css_files to tuple styled one."""
+    html_css_files = []  # type: List[Tuple[unicode, Dict]]
+    for entry in config.html_css_files:
+        if isinstance(entry, string_types):
+            html_css_files.append((entry, {}))
+        else:
+            try:
+                filename, attrs = entry
+                html_css_files.append((filename, attrs))
+            except Exception:
+                logger.warning(__('invalid css_file: %r, ignored'), entry)
+                continue
+
+    config.html_css_files = html_css_files  # type: ignore
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1514,6 +1526,9 @@ def setup(app):
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
+
+    # event handlers
+    app.connect('config-inited', convert_html_css_files)
 
     return {
         'version': 'builtin',
