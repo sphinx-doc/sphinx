@@ -30,8 +30,6 @@ if False:
     # For type annotation
     from typing import List  # NOQA
 
-proj_name = os.getenv('SPHINXPROJ', '<project>')
-
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),
