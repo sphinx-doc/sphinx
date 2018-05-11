@@ -19,6 +19,8 @@ Bugs fixed
 * #4924: html search: Upper characters problem in any other languages
 * #4932: apidoc: some subpackage is ignored if sibling subpackage contains a
   module starting with underscore
+* #4938, #4939: i18n doesn't handle node.title correctly tat used for contents, topic,
+  admonition, table and section.
 
 Testing
 --------
