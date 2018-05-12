@@ -307,6 +307,30 @@ def test_text_glossary_term_inconsistencies(app, warning):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_section(app):
+    app.build()
+    # --- section
+    expect = read_po(app.srcdir / 'section.po')
+    actual = read_po(app.outdir / 'section.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_section(app):
+    app.build()
+    # --- section
+    result = (app.outdir / 'section.txt').text(encoding='utf-8')
+    expect = read_po(app.srcdir / 'section.po')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.string in result
+
+
+@sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_seealso(app):
@@ -428,6 +452,9 @@ def test_text_admonitions(app):
         assert d.upper() + " TITLE" in result
         assert d.upper() + " BODY" in result
 
+    # for #4938 `1. ` prefixed admonition title
+    assert "1. ADMONITION TITLE" in result
+
 
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
@@ -451,6 +478,42 @@ def test_gettext_table(app):
     actual = read_po(app.outdir / 'table.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_table(app):
+    app.build()
+    # --- toctree
+    result = (app.outdir / 'table.txt').text(encoding='utf-8')
+    expect = read_po(app.srcdir / 'table.po')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.string in result
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_topic(app):
+    app.build()
+    # --- topic
+    expect = read_po(app.srcdir / 'topic.po')
+    actual = read_po(app.outdir / 'topic.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_text_topic(app):
+    app.build()
+    # --- topic
+    result = (app.outdir / 'topic.txt').text(encoding='utf-8')
+    expect = read_po(app.srcdir / 'topic.po')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.string in result
 
 
 @sphinx_intl
