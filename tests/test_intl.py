@@ -1063,6 +1063,14 @@ def test_additional_targets_should_not_be_translated(app):
                      """<span class="cpf">&lt;stdio.h&gt;</span>""")
     assert_count(expected_expr, result, 1)
 
+    # literal block in list item should not be translated
+    expected_expr = ("""<span class="n">literal</span>"""
+                     """<span class="o">-</span>"""
+                     """<span class="n">block</span>\n"""
+                     """<span class="k">in</span> """
+                     """<span class="n">list</span>""")
+    assert_count(expected_expr, result, 1)
+
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
@@ -1127,6 +1135,14 @@ def test_additional_targets_should_be_translated(app):
     # C code block with lang should be translated and be *C* highlighted
     expected_expr = ("""<span class="cp">#include</span> """
                      """<span class="cpf">&lt;STDIO.H&gt;</span>""")
+    assert_count(expected_expr, result, 1)
+
+    # literal block in list item should be translated
+    expected_expr = ("""<span class="no">LITERAL</span>"""
+                     """<span class="o">-</span>"""
+                     """<span class="no">BLOCK</span>\n"""
+                     """<span class="no">IN</span> """
+                     """<span class="no">LIST</span>""")
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted

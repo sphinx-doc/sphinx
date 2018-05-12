@@ -58,6 +58,10 @@ def apply_source_workaround(node):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
 
+    # workaround: literal_block under bullet list (#4913)
+    if isinstance(node, nodes.literal_block) and node.source is None:
+        node.source = find_source_node(node)
+
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
         node.rawsource = node.astext()
