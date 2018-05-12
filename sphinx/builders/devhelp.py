@@ -45,8 +45,8 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     """
     name = 'devhelp'
     epilog = __('To view the help file:\n'
-                '$ mkdir -p $HOME/.local/share/devhelp/%(project)s\n'
-                '$ ln -s %(outdir)s $HOME/.local/share/devhelp/%(project)s\n'
+                '$ mkdir -p $HOME/.local/share/devhelp/books\n'
+                '$ ln -s $PWD/%(outdir)s $HOME/.local/share/devhelp/books/%(project)s\n'
                 '$ devhelp')
 
     # don't copy the reST source
