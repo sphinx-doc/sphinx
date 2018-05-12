@@ -21,9 +21,9 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 
 import sphinx
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
@@ -36,7 +36,7 @@ class ifconfig(nodes.Element):
     pass
 
 
-class IfConfig(Directive):
+class IfConfig(SphinxDirective):
 
     has_content = True
     required_arguments = 1

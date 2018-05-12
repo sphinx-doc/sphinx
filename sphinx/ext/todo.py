@@ -13,7 +13,6 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
@@ -21,6 +20,7 @@ import sphinx
 from sphinx.environment import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.texescape import tex_escape_map
 
@@ -41,7 +41,7 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(BaseAdmonition):
+class Todo(BaseAdmonition, SphinxDirective):
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
@@ -67,10 +67,9 @@ class Todo(BaseAdmonition):
         todo.insert(0, nodes.title(text=_('Todo')))
         set_source_info(self, todo)
 
-        env = self.state.document.settings.env
-        targetid = 'index-%s' % env.new_serialno('index')
+        targetid = 'index-%s' % self.env.new_serialno('index')
         # Stash the target to be retrieved later in latex_visit_todo_node.
-        todo['targetref'] = '%s:%s' % (env.docname, targetid)
+        todo['targetref'] = '%s:%s' % (self.env.docname, targetid)
         targetnode = nodes.target('', '', ids=[targetid])
         return [targetnode, todo]
 
@@ -107,7 +106,7 @@ def process_todos(app, doctree):
                            location=node)
 
 
-class TodoList(Directive):
+class TodoList(SphinxDirective):
     """
     A list of all todo entries.
     """

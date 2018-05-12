@@ -15,7 +15,7 @@ import warnings
 from copy import copy
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from six import iteritems
 
@@ -26,11 +26,13 @@ from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_refnode
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from docutils.parsers.rst import Directive  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -107,7 +109,7 @@ class EnvVarXRefRole(XRefRole):
         return [indexnode, targetnode, node], []
 
 
-class Target(Directive):
+class Target(SphinxDirective):
     """
     Generic target for user-defined cross-reference types.
     """
@@ -121,7 +123,6 @@ class Target(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
         targetname = '%s-%s' % (self.name, fullname)
@@ -141,8 +142,8 @@ class Target(Directive):
         name = self.name
         if ':' in self.name:
             _, name = self.name.split(':', 1)
-        env.domaindata['std']['objects'][name, fullname] = \
-            env.docname, targetname
+        self.env.domaindata['std']['objects'][name, fullname] = \
+            self.env.docname, targetname
         return ret
 
 
@@ -204,7 +205,7 @@ class Cmdoption(ObjectDescription):
                      signode['ids'][0], '', None))
 
 
-class Program(Directive):
+class Program(SphinxDirective):
     """
     Directive to name the program for which options are documented.
     """
@@ -217,12 +218,11 @@ class Program(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
-            env.ref_context.pop('std:program', None)
+            self.env.ref_context.pop('std:program', None)
         else:
-            env.ref_context['std:program'] = program
+            self.env.ref_context['std:program'] = program
         return []
 
 
@@ -270,7 +270,7 @@ def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
     return term
 
 
-class Glossary(Directive):
+class Glossary(SphinxDirective):
     """
     Directive to create a glossary with cross-reference targets for :term:
     roles.
@@ -286,7 +286,6 @@ class Glossary(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         node = addnodes.glossary()
         node.document = self.state.document
 
@@ -358,7 +357,7 @@ class Glossary(Directive):
                 textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(env, textnodes, parts[1], source, lineno)
+                term = make_glossary_term(self.env, textnodes, parts[1], source, lineno)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termtexts.append(term.astext())
@@ -403,7 +402,7 @@ def token_xrefs(text):
     return retnodes
 
 
-class ProductionList(Directive):
+class ProductionList(SphinxDirective):
     """
     Directive to list grammar productions.
     """
@@ -416,8 +415,7 @@ class ProductionList(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
-        objects = env.domaindata['std']['objects']
+        objects = self.env.domaindata['std']['objects']
         node = addnodes.productionlist()
         messages = []  # type: List[nodes.Node]
         i = 0
@@ -438,7 +436,7 @@ class ProductionList(Directive):
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
                 self.state.document.note_implicit_target(subnode, subnode)
-                objects['token', subnode['tokenname']] = env.docname, idname
+                objects['token', subnode['tokenname']] = self.env.docname, idname
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
         return [node] + messages

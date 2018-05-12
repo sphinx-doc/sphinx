@@ -8,13 +8,12 @@
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 from docutils.utils import assemble_option_dict
 
 from sphinx.ext.autodoc import Options, get_documenters
 from sphinx.util import logging
-from sphinx.util.docutils import switch_source_input
+from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
@@ -91,7 +90,7 @@ def parse_generated_content(state, content, documenter):
         return node.children
 
 
-class AutodocDirective(Directive):
+class AutodocDirective(SphinxDirective):
     """A directive class for all autodoc directives. It works as a dispatcher of Documenters.
 
     It invokes a Documenter on running. After the processing, it parses and returns
@@ -105,7 +104,6 @@ class AutodocDirective(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         reporter = self.state.document.reporter
 
         try:
@@ -116,11 +114,11 @@ class AutodocDirective(Directive):
 
         # look up target Documenter
         objtype = self.name[4:]  # strip prefix (auto-).
-        doccls = get_documenters(env.app)[objtype]
+        doccls = get_documenters(self.env.app)[objtype]
 
         # process the options with the selected documenter's option_spec
         try:
-            documenter_options = process_documenter_options(doccls, env.config, self.options)
+            documenter_options = process_documenter_options(doccls, self.config, self.options)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
             logger.error('An option to %s is either unknown or has an invalid value: %s' %
@@ -128,7 +126,7 @@ class AutodocDirective(Directive):
             return []
 
         # generate the output
-        params = DocumenterBridge(env, reporter, documenter_options, lineno)
+        params = DocumenterBridge(self.env, reporter, documenter_options, lineno)
         documenter = doccls(params, self.arguments[0])
         documenter.generate(more_content=self.content)
         if not params.result:
