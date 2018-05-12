@@ -12,7 +12,7 @@
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
@@ -217,7 +217,7 @@ class DefaultRole(SphinxDirective):
         return messages
 
 
-class DefaultDomain(Directive):
+class DefaultDomain(SphinxDirective):
     """
     Directive to (re-)set the default domain for this source file.
     """

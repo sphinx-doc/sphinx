@@ -17,15 +17,16 @@ from the source to the description will also be inserted.
 
 .. warning::
 
-   If :confval:`viewcode_import` is True,
-   or if the :event:`viewcode-find-source` event does not find source code
-   for the given module,
-   ``viewcode`` will import the modules being linked to.
-   If any modules have side effects on import, these will be
-   executed by ``viewcode`` when ``sphinx-build`` is run.
+   Basically, ``viewcode`` extension will import the modules being linked to.
+   If any modules have side effects on import, these will be executed when
+   ``sphinx-build`` is run.
 
    If you document scripts (as opposed to library modules), make sure their
    main routine is protected by a ``if __name__ == '__main__'`` condition.
+
+   In addition, if you don't want to import the modules by ``viewcode``,
+   you can tell the location of the location of source code to ``viewcode``
+   using :event:`viewcode-find-source` event.
 
 This extension works only on HTML related builders like ``html``,
 ``applehelp``, ``devhelp``, ``htmlhelp``, ``qthelp`` and so on except
@@ -34,7 +35,7 @@ support this extension (see :confval:`viewcode_enable_epub`).
 
 There is an additional config value:
 
-.. confval:: viewcode_import
+.. confval:: viewcode_follow_imported_members
 
    If this is ``True``, viewcode extension will follow alias objects that
    imported from another module such as functions, classes and attributes.
@@ -42,6 +43,9 @@ There is an additional config value:
    else they produce nothing.  The default is ``True``.
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 1.8
+      Renamed from ``viewcode_import`` to ``viewcode_follow_imported_members``.
 
 .. confval:: viewcode_enable_epub
 

@@ -9,7 +9,6 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR={{ rsrcdir }}
 set BUILDDIR={{ rbuilddir }}
-set SPHINXPROJ={{ project_fn }}
 
 if "%1" == "" goto help
 

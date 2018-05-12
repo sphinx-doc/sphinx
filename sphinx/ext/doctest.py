@@ -19,7 +19,7 @@ import time
 from os import path
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
 from six import itervalues, StringIO, binary_type, text_type, PY2
@@ -29,6 +29,7 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import force_decode, logging
 from sphinx.util.console import bold  # type: ignore
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import fs_encoding, relpath
 
@@ -77,7 +78,7 @@ def is_allowed_version(spec, version):
 
 # set up the necessary directives
 
-class TestDirective(Directive):
+class TestDirective(SphinxDirective):
     """
     Base class for doctest-related directives.
     """

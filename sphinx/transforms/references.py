@@ -35,4 +35,4 @@ class SphinxDomains(SphinxTransform):
     def apply(self):
         # type: () -> None
         for domain in itervalues(self.env.domains):
-            domain.process_doc(self, self.env.docname, self.document)
+            domain.process_doc(self.env, self.env.docname, self.document)

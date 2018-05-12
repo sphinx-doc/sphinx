@@ -17,7 +17,7 @@ from collections import defaultdict
 from copy import copy
 from os import path
 
-from docutils.utils import Reporter, get_source_line
+from docutils.utils import get_source_line
 from six import BytesIO, next
 from six.moves import cPickle as pickle
 
@@ -30,7 +30,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
 from sphinx.util import logging
-from sphinx.util.docutils import WarningStream
+from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.nodes import is_translatable
@@ -599,7 +599,7 @@ class BuildEnvironment(object):
         with open(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
         doctree.settings.env = self
-        doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
+        doctree.reporter = LoggingReporter(self.doc2path(docname))
         return doctree
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,

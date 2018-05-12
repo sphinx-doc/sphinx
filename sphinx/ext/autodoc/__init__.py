@@ -1538,15 +1538,3 @@ def setup(app):
     app.add_event('autodoc-skip-member')
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
-
-
-class testcls:
-    """test doc string"""
-
-    def __getattr__(self, x):
-        # type: (Any) -> Any
-        return x
-
-    def __setattr__(self, x, y):
-        # type: (Any, Any) -> None
-        """Attr setter."""

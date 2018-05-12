@@ -11,13 +11,14 @@
 
 from docutils import nodes, utils
 from docutils.nodes import make_id
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 from sphinx.config import string_classes
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode, set_source_info
 
 if False:
@@ -212,7 +213,7 @@ def is_in_section_title(node):
     return False
 
 
-class MathDirective(Directive):
+class MathDirective(SphinxDirective):
 
     has_content = True
     required_arguments = 0
@@ -238,7 +239,7 @@ class MathDirective(Directive):
         if 'label' in self.options:
             node['label'] = self.options['label']
         node['nowrap'] = 'nowrap' in self.options
-        node['docname'] = self.state.document.settings.env.docname
+        node['docname'] = self.env.docname
         ret = [node]
         set_source_info(self, node)
         if hasattr(self, 'src'):
@@ -249,21 +250,20 @@ class MathDirective(Directive):
     def add_target(self, ret):
         # type: (List[nodes.Node]) -> None
         node = ret[0]
-        env = self.state.document.settings.env
 
         # assign label automatically if math_number_all enabled
-        if node['label'] == '' or (env.config.math_number_all and not node['label']):
-            seq = env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (env.docname, seq)
+        if node['label'] == '' or (self.config.math_number_all and not node['label']):
+            seq = self.env.new_serialno('sphinx.ext.math#equations')
+            node['label'] = "%s:%d" % (self.env.docname, seq)
 
         # no targets and numbers are needed
         if not node['label']:
             return
 
         # register label to domain
-        domain = env.get_domain('math')
+        domain = self.env.get_domain('math')
         try:
-            eqno = domain.add_equation(env, env.docname, node['label'])
+            eqno = domain.add_equation(self.env, self.env.docname, node['label'])  # type: ignore  # NOQA
             node['number'] = eqno
 
             # add target node

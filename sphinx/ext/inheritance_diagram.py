@@ -42,7 +42,7 @@ import sys
 from hashlib import md5
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from six import text_type
 from six.moves import builtins
 
@@ -51,6 +51,7 @@ from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo, figure_wrapper
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import force_decode
+from sphinx.util.docutils import SphinxDirective
 
 if False:
     # For type annotation
@@ -322,7 +323,7 @@ class inheritance_diagram(nodes.General, nodes.Element):
     pass
 
 
-class InheritanceDiagram(Directive):
+class InheritanceDiagram(SphinxDirective):
     """
     Run when the inheritance_diagram directive is first encountered.
     """
@@ -341,9 +342,8 @@ class InheritanceDiagram(Directive):
         # type: () -> List[nodes.Node]
         node = inheritance_diagram()
         node.document = self.state.document
-        env = self.state.document.settings.env
         class_names = self.arguments[0].split()
-        class_role = env.get_domain('py').role('class')
+        class_role = self.env.get_domain('py').role('class')
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)
@@ -356,10 +356,10 @@ class InheritanceDiagram(Directive):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, env.ref_context.get('py:module'),
+                class_names, self.env.ref_context.get('py:module'),
                 parts=node['parts'],
                 private_bases='private-bases' in self.options,
-                aliases=env.config.inheritance_alias,
+                aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])
         except InheritanceException as err:
             return [node.document.reporter.warning(err.args[0],

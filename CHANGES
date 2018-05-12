@@ -29,6 +29,8 @@ Incompatible changes
 * #4811: The files under :confval:`html_static_path` are excluded from source
   files.
 * latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
+* The config value ``viewcode_import`` is renamed to
+  :confval:`viewcode_follow_imported_members` (refs: #4035)
 
 Deprecated
 ----------
@@ -109,6 +111,8 @@ Bugs fixed
 
 * i18n: message catalogs were reset on each initialization
 * #4850: latex: footnote inside footnote was not rendered
+* #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
+  to Shengjing Zhu.
 
 Testing
 --------

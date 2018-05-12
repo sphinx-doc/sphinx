@@ -18,7 +18,7 @@ from os import path
 from subprocess import Popen, PIPE
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from six import text_type
 
@@ -26,11 +26,13 @@ import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
 if False:
     # For type annotation
+    from docutils.parsers.rst import Directive  # NOQA
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -111,7 +113,7 @@ def align_spec(argument):
     return directives.choice(argument, ('left', 'center', 'right'))
 
 
-class Graphviz(Directive):
+class Graphviz(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
@@ -135,12 +137,11 @@ class Graphviz(Directive):
                 return [document.reporter.warning(
                     __('Graphviz directive cannot have both content and '
                        'a filename argument'), line=self.lineno)]
-            env = self.state.document.settings.env
-            argument = search_image_for_language(self.arguments[0], env)
-            rel_filename, filename = env.relfn2path(argument)
-            env.note_dependency(rel_filename)
+            argument = search_image_for_language(self.arguments[0], self.env)
+            rel_filename, filename = self.env.relfn2path(argument)
+            self.env.note_dependency(rel_filename)
             try:
-                with codecs.open(filename, 'r', 'utf-8') as fp:
+                with codecs.open(filename, 'r', 'utf-8') as fp:  # type: ignore
                     dotcode = fp.read()
             except (IOError, OSError):
                 return [document.reporter.warning(
@@ -170,7 +171,7 @@ class Graphviz(Directive):
         return [node]
 
 
-class GraphvizSimple(Directive):
+class GraphvizSimple(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """

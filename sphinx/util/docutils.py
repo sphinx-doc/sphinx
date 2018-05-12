@@ -241,8 +241,9 @@ class LoggingReporter(Reporter):
         return cls(reporter.source, reporter.report_level, reporter.halt_level,
                    reporter.debug_flag, reporter.error_handler)
 
-    def __init__(self, source, report_level, halt_level,
-                 debug=False, error_handler='backslashreplace'):
+    def __init__(self, source, report_level=Reporter.WARNING_LEVEL,
+                 halt_level=Reporter.SEVERE_LEVEL, debug=False,
+                 error_handler='backslashreplace'):
         # type: (unicode, int, int, bool, unicode) -> None
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,

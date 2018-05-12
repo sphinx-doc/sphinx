@@ -62,7 +62,7 @@ import warnings
 from types import ModuleType
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import ViewList
 from six import string_types
@@ -78,7 +78,7 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
-from sphinx.util.docutils import NullReporter, new_document
+from sphinx.util.docutils import NullReporter, SphinxDirective, new_document
 
 if False:
     # For type annotation
@@ -220,7 +220,7 @@ def get_documenter(*args):
 
 # -- .. autosummary:: ----------------------------------------------------------
 
-class Autosummary(Directive):
+class Autosummary(SphinxDirective):
     """
     Pretty table containing short signatures and summaries of functions etc.
 
@@ -244,7 +244,6 @@ class Autosummary(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        self.env = env = self.state.document.settings.env
         self.genopt = Options()
         self.warnings = []  # type: List[nodes.Node]
         self.result = ViewList()
@@ -255,14 +254,14 @@ class Autosummary(Directive):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            dirname = posixpath.dirname(env.docname)
+            dirname = posixpath.dirname(self.env.docname)
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
-                if docname not in env.found_docs:
+                if docname not in self.env.found_docs:
                     self.warn('toctree references unknown document %r'
                               % docname)
                 docnames.append(docname)
@@ -283,9 +282,7 @@ class Autosummary(Directive):
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
-        env = self.state.document.settings.env
-
-        prefixes = get_import_prefixes_from_env(env)
+        prefixes = get_import_prefixes_from_env(self.env)
 
         items = []  # type: List[Tuple[unicode, unicode, unicode, unicode]]
 
