@@ -17,14 +17,16 @@ from the source to the description will also be inserted.
 
 .. warning::
 
-   If :confval:`viewcode_follow_imported_members` is True, or if the
-   :event:`viewcode-find-source` event does not find source code for the given
-   module, ``viewcode`` will import the modules being linked to.  If any modules
-   have side effects on import, these will be executed by ``viewcode`` when
+   Basically, ``viewcode`` extension will import the modules being linked to.
+   If any modules have side effects on import, these will be executed when
    ``sphinx-build`` is run.
 
    If you document scripts (as opposed to library modules), make sure their
    main routine is protected by a ``if __name__ == '__main__'`` condition.
+
+   In addition, if you don't want to import the modules by ``viewcode``,
+   you can tell the location of the location of source code to ``viewcode``
+   using :event:`viewcode-find-source` event.
 
 This extension works only on HTML related builders like ``html``,
 ``applehelp``, ``devhelp``, ``htmlhelp``, ``qthelp`` and so on except
