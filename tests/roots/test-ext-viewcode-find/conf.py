@@ -6,4 +6,4 @@ import sys
 extensions = ['sphinx.ext.viewcode']
 master_doc = 'index'
 exclude_patterns = ['_build']
-viewcode_import = False
+viewcode_follow_imported_members = False

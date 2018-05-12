@@ -29,6 +29,8 @@ Incompatible changes
 * #4811: The files under :confval:`html_static_path` are excluded from source
   files.
 * latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
+* The config value ``viewcode_import`` is renamed to
+  :confval:`viewcode_follow_imported_members` (refs: #4035)
 
 Deprecated
 ----------
