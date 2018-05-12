@@ -12,14 +12,13 @@
 import os
 import re
 import sys
-import types
 import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
 
 from docutils.utils import get_source_line
-from six import BytesIO, class_types, next
+from six import BytesIO, next
 from six.moves import cPickle as pickle
 
 from sphinx import addnodes
@@ -68,7 +67,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 52 + (sys.version_info[0] - 2)
+ENV_VERSION = 53 + (sys.version_info[0] - 2)
 
 
 versioning_conditions = {
@@ -91,69 +90,6 @@ class BuildEnvironment(object):
     """
 
     domains = None  # type: Dict[unicode, Domain]
-
-    # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
-
-    @staticmethod
-    def load(f, app=None):
-        # type: (IO, Sphinx) -> BuildEnvironment
-        try:
-            env = pickle.load(f)
-        except Exception as exc:
-            # This can happen for example when the pickle is from a
-            # different version of Sphinx.
-            raise IOError(exc)
-        if app:
-            env.app = app
-            env.config.values = app.config.values
-        return env
-
-    @classmethod
-    def loads(cls, string, app=None):
-        # type: (unicode, Sphinx) -> BuildEnvironment
-        io = BytesIO(string)
-        return cls.load(io, app)
-
-    @classmethod
-    def frompickle(cls, filename, app):
-        # type: (unicode, Sphinx) -> BuildEnvironment
-        with open(filename, 'rb') as f:
-            return cls.load(f, app)
-
-    @staticmethod
-    def dump(env, f):
-        # type: (BuildEnvironment, IO) -> None
-        # remove unpicklable attributes
-        app = env.app
-        del env.app
-        values = env.config.values
-        del env.config.values
-        domains = env.domains
-        del env.domains
-        # remove potentially pickling-problematic values from config
-        for key, val in list(vars(env.config).items()):
-            if key.startswith('_') or \
-               isinstance(val, types.ModuleType) or \
-               isinstance(val, types.FunctionType) or \
-               isinstance(val, class_types):
-                del env.config[key]
-        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
-        # reset attributes
-        env.domains = domains
-        env.config.values = values
-        env.app = app
-
-    @classmethod
-    def dumps(cls, env):
-        # type: (BuildEnvironment) -> unicode
-        io = BytesIO()
-        cls.dump(env, io)
-        return io.getvalue()
-
-    def topickle(self, filename):
-        # type: (unicode) -> None
-        with open(filename, 'wb') as f:
-            self.dump(self, f)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -256,6 +192,17 @@ class BuildEnvironment(object):
         # this is similar to temp_data, but will for example be copied to
         # attributes of "any" cross references
         self.ref_context = {}       # type: Dict[unicode, Any]
+
+    def __getstate__(self):
+        # type: () -> Dict
+        """Obtains serializable data for pickling."""
+        __dict__ = self.__dict__.copy()
+        __dict__.update(app=None, domains={})  # clear unpickable attributes
+        return __dict__
+
+    def __setstate__(self, state):
+        # type: (Dict) -> None
+        self.__dict__.update(state)
 
     def set_warnfunc(self, func):
         # type: (Callable) -> None
@@ -824,3 +771,64 @@ class BuildEnvironment(object):
                       'Please use config.nitpick_ignore instead.',
                       RemovedInSphinx30Warning)
         return self.config.nitpick_ignore
+
+    @staticmethod
+    def load(f, app=None):
+        # type: (IO, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.load() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning)
+        try:
+            env = pickle.load(f)
+        except Exception as exc:
+            # This can happen for example when the pickle is from a
+            # different version of Sphinx.
+            raise IOError(exc)
+        if app:
+            env.app = app
+            env.config.values = app.config.values
+        return env
+
+    @classmethod
+    def loads(cls, string, app=None):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.loads() is deprecated. '
+                      'Please use pickle.loads() instead.',
+                      RemovedInSphinx30Warning)
+        io = BytesIO(string)
+        return cls.load(io, app)
+
+    @classmethod
+    def frompickle(cls, filename, app):
+        # type: (unicode, Sphinx) -> BuildEnvironment
+        warnings.warn('BuildEnvironment.frompickle() is deprecated. '
+                      'Please use pickle.load() instead.',
+                      RemovedInSphinx30Warning)
+        with open(filename, 'rb') as f:
+            return cls.load(f, app)
+
+    @staticmethod
+    def dump(env, f):
+        # type: (BuildEnvironment, IO) -> None
+        warnings.warn('BuildEnvironment.dump() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning)
+        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def dumps(cls, env):
+        # type: (BuildEnvironment) -> unicode
+        warnings.warn('BuildEnvironment.dumps() is deprecated. '
+                      'Please use pickle.dumps() instead.',
+                      RemovedInSphinx30Warning)
+        io = BytesIO()
+        cls.dump(env, io)
+        return io.getvalue()
+
+    def topickle(self, filename):
+        # type: (unicode) -> None
+        warnings.warn('env.topickle() is deprecated. '
+                      'Please use pickle.dump() instead.',
+                      RemovedInSphinx30Warning)
+        with open(filename, 'wb') as f:
+            self.dump(self, f)

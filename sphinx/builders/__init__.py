@@ -17,7 +17,6 @@ from docutils import nodes
 from six.moves import cPickle as pickle
 
 from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.io import read_doc
@@ -372,7 +371,8 @@ class Builder(object):
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
             logger.info(bold(__('pickling environment... ')), nonl=True)
-            self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+            with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
             logger.info(__('done'))
 
             # global actions
@@ -492,16 +492,16 @@ class Builder(object):
             self.env.clear_doc(docname)
 
         def read_process(docs):
-            # type: (List[unicode]) -> unicode
+            # type: (List[unicode]) -> bytes
             self.env.app = self.app
             for docname in docs:
                 self.read_doc(docname)
             # allow pickling self to send it back
-            return BuildEnvironment.dumps(self.env)
+            return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
         def merge(docs, otherenv):
-            # type: (List[unicode], unicode) -> None
-            env = BuildEnvironment.loads(otherenv)
+            # type: (List[unicode], bytes) -> None
+            env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
         tasks = ParallelTasks(nproc)

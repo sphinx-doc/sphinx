@@ -22,6 +22,7 @@ from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
 from six import itervalues
+from six.moves import cPickle as pickle
 from six.moves import cStringIO
 
 import sphinx
@@ -291,7 +292,10 @@ class Sphinx(object):
         else:
             try:
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
-                self.env = BuildEnvironment.frompickle(filename, self)
+                with open(filename, 'rb') as f:
+                    self.env = pickle.load(f)
+                    self.env.app = self
+                    self.env.config.values = self.config.values
                 needed, reason = self.env.need_refresh(self)
                 if needed:
                     raise IOError(reason)
