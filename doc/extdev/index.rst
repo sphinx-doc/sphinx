@@ -134,32 +134,32 @@ The following is a list of deprecated interface.
    * - ``sphinx.writers.latex.Table.caption_footnotetexts``
      - 1.8
      - 3.0
-     - -
+     - N/A
 
    * - ``sphinx.writers.latex.Table.header_footnotetexts``
      - 1.8
      - 3.0
-     - -
+     - N/A
 
    * - ``sphinx.writers.latex.LaTeXWriter.footnotestack``
      - 1.8
      - 3.0
-     - -
+     - N/A
 
    * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
      - 1.8
      - 3.0
-     - -
+     - N/A
 
    * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
      - 1.8
      - 3.0
-     - -
+     - N/A
 
    * - ``sphinx.writers.latex.LaTeXWriter.bibitems``
      - 1.8
      - 3.0
-     - Nothing
+     - N/A
 
    * - ``sphinx.application.CONFIG_FILENAME``
      - 1.8
