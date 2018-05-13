@@ -329,7 +329,7 @@ General configuration
 
    A URL to cross-reference :rst:role:`manpage` directives. If this is
    defined to ``https://manpages.debian.org/{path}``, the
-   :literal:`:manpage:`man(1)`` role will like to
+   :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>. The patterns available are:
 
      * ``page`` - the manual page (``man``)
