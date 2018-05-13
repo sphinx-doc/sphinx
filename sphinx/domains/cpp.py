@@ -6055,7 +6055,7 @@ class CPPDomain(Domain):
                     msg = "Duplicate declaration, also defined in '%s'.\n"
                     msg += "Name of declaration is '%s'."
                     msg = msg % (ourNames[name], name)
-                    logger.warning(msg, docname)
+                    logger.warning(msg, location=docname)
                 else:
                     ourNames[name] = docname
 
