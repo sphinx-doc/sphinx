@@ -81,6 +81,11 @@ def apply_source_workaround(node):
         logger.debug('[i18n] PATCH: %r to have source, line: %s',
                      get_full_module_name(node), repr_domxml(node))
         node.source, node.line = node.parent.source, node.parent.line
+    if isinstance(node, nodes.title) and node.source is None:
+        # Uncomment these lines after merging into master(1.8)
+        # logger.debug('[i18n] PATCH: %r to have source: %s',
+        #              get_full_module_name(node), repr_domxml(node))
+        node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',
                      get_full_module_name(node), repr_domxml(node))
@@ -88,6 +93,10 @@ def apply_source_workaround(node):
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
             node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
                                     '', node.rawsource)
+
+    # workaround: literal_block under bullet list (#4913)
+    if isinstance(node, nodes.literal_block) and node.source is None:
+        node.source = find_source_node(node)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:

@@ -202,8 +202,8 @@ def shall_skip(module, opts, excludes=[]):
         # Yes, check if we have any non-excluded modules at all here
         all_skipped = True
         basemodule = path.dirname(module)
-        for module in glob.glob(path.join(basemodule, '*.py')):
-            if not is_excluded(path.join(basemodule, module), excludes):
+        for submodule in glob.glob(path.join(basemodule, '*.py')):
+            if not is_excluded(path.join(basemodule, submodule), excludes):
                 # There's a non-excluded module here, we won't skip
                 all_skipped = False
         if all_skipped:

@@ -28,3 +28,5 @@ CONTENTS
    docfields
    raw
    refs
+   section
+   topic

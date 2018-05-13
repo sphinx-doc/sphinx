@@ -72,6 +72,11 @@ msgstr ""
 "    return 0;\n"
 "}"
 
+msgid "literal-block\n"
+"in list"
+msgstr "LITERAL-BLOCK\n"
+"IN LIST"
+
 msgid "doctest blocks"
 msgstr "DOCTEST-BLOCKS"
 
