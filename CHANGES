@@ -31,6 +31,8 @@ Incompatible changes
 * latex: Use ``\sphinxcite`` for citation references instead ``\hyperref``
 * The config value ``viewcode_import`` is renamed to
   :confval:`viewcode_follow_imported_members` (refs: #4035)
+* #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
+  citations
 
 Deprecated
 ----------
