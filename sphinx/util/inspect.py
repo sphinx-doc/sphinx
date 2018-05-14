@@ -298,8 +298,8 @@ class Signature(object):
     its return annotation.
     """
 
-    def __init__(self, subject, bound_method=False):
-        # type: (Callable, bool) -> None
+    def __init__(self, subject, bound_method=False, has_retval=True):
+        # type: (Callable, bool, bool) -> None
         # check subject is not a built-in class (ex. int, str)
         if (isinstance(subject, type) and
                 is_builtin_class_method(subject, "__new__") and
@@ -307,6 +307,7 @@ class Signature(object):
             raise TypeError("can't compute signature for built-in type {}".format(subject))
 
         self.subject = subject
+        self.has_retval = has_retval
         self.partialmethod_with_noargs = False
 
         if PY3:
@@ -375,7 +376,10 @@ class Signature(object):
     def return_annotation(self):
         # type: () -> Any
         if PY3 and self.signature:
-            return self.signature.return_annotation
+            if self.has_retval:
+                return self.signature.return_annotation
+            else:
+                return inspect.Parameter.empty
         else:
             return None
 
