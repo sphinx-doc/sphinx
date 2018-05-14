@@ -59,6 +59,14 @@ HYPERLINK_SUPPORT_NODES = (
     nodes.table,
     nodes.section,
 )
+ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
+                                   {
+                                       'arabic': r'\arabic',
+                                       'loweralpha': r'\alph',
+                                       'upperalpha': r'\Alph',
+                                       'lowerroman': r'\roman',
+                                       'upperroman': r'\Roman',
+                                   })  # type: Dict[unicode, unicode]
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -1498,6 +1506,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         # type: (nodes.Node) -> None
+        def get_enumtype(node):
+            # type: (nodes.Node) -> unicode
+            enumtype = node.get('enumtype', 'arabic')
+            if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
+                # fallback to arabic if alphabet counter overflows
+                enumtype = 'arabic'
+
+            return enumtype
+
         def get_nested_level(node):
             # type: (nodes.Node) -> int
             if node is None:
@@ -1507,10 +1524,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 return get_nested_level(node.parent)
 
+        enum = "enum%s" % toRoman(get_nested_level(node)).lower()
+        style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
+
         self.body.append('\\begin{enumerate}\n')
+        self.body.append('\\renewcommand{\\the%s}{%s{%s}}\n' % (enum, style, enum))
+        self.body.append('\\makeatletter\\renewcommand{\\p@%s}{%s\\the%s%s}\\makeatother\n' %
+                         (enum, node['prefix'], enum, node['suffix']))
         if 'start' in node:
-            enum_depth = "enum%s" % toRoman(get_nested_level(node)).lower()
-            self.body.append('\\setcounter{%s}{%d}\n' % (enum_depth, node['start'] - 1))
+            self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 

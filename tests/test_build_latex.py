@@ -1229,11 +1229,21 @@ def test_latex_nested_enumerated_list(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert r'\setcounter{enumi}{4}' in result
-    assert r'\setcounter{enumii}{3}' in result
-    assert r'\setcounter{enumiii}{9}' in result
-    assert r'\setcounter{enumiv}{23}' in result
-    assert r'\setcounter{enumii}{2}' in result
+    assert ('\\renewcommand{\\theenumi}{\\arabic{enumi}}\n'
+            '\\makeatletter\\renewcommand{\\p@enumi}{\\theenumi.}\\makeatother\n'
+            '\\setcounter{enumi}{4}\n' in result)
+    assert ('\\renewcommand{\\theenumii}{\\alph{enumii}}\n'
+            '\\makeatletter\\renewcommand{\\p@enumii}{\\theenumii.}\\makeatother\n'
+            '\\setcounter{enumii}{3}\n' in result)
+    assert ('\\renewcommand{\\theenumiii}{\\arabic{enumiii}}\n'
+            '\\makeatletter\\renewcommand{\\p@enumiii}{\\theenumiii)}\\makeatother\n'
+            '\\setcounter{enumiii}{9}\n' in result)
+    assert ('\\renewcommand{\\theenumiv}{\\arabic{enumiv}}\n'
+            '\\makeatletter\\renewcommand{\\p@enumiv}{(\\theenumiv)}\\makeatother\n'
+            '\\setcounter{enumiv}{23}\n' in result)
+    assert ('\\renewcommand{\\theenumii}{\\roman{enumii}}\n'
+            '\\makeatletter\\renewcommand{\\p@enumii}{\\theenumii.}\\makeatother\n'
+            '\\setcounter{enumii}{2}\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='footnotes')
