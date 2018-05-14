@@ -9,6 +9,12 @@ nested-enumerated-list
       10) Pyramid
       11) Nile River
 
+          (x) Atbara
+          (y) Blue Nile
+          (#) Sobat
+          (#) Semliki
+          (#) Kagera
+
 6. Markup
 
    iii. reStructuredText

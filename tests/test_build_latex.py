@@ -1239,4 +1239,5 @@ def test_latex_nested_enumerated_list(app, status, warning):
     assert r'\setcounter{enumi}{4}' in result
     assert r'\setcounter{enumii}{3}' in result
     assert r'\setcounter{enumiii}{9}' in result
+    assert r'\setcounter{enumiv}{23}' in result
     assert r'\setcounter{enumii}{2}' in result
