@@ -17,15 +17,7 @@ if False:
     from typing import Any, Dict, Type  # NOQA
 
 
-class RemovedInSphinx18Warning(DeprecationWarning):
-    pass
-
-
-class RemovedInSphinx19Warning(PendingDeprecationWarning):
-    pass
-
-
-class RemovedInSphinx20Warning(PendingDeprecationWarning):
+class RemovedInSphinx20Warning(DeprecationWarning):
     pass
 
 
@@ -37,7 +29,7 @@ class RemovedInSphinx40Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx18Warning
+RemovedInNextVersionWarning = RemovedInSphinx20Warning
 
 
 class DeprecatedDict(dict):
