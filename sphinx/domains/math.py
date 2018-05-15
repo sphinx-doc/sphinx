@@ -12,10 +12,10 @@
 from docutils import nodes
 from docutils.nodes import make_id
 
-from sphinx.addnodes import math_block as displaymath
+from sphinx.addnodes import math_block as displaymath, math_reference
 from sphinx.domains import Domain
-from sphinx.ext.mathbase import eqref
 from sphinx.locale import __
+from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
@@ -27,6 +27,13 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
+
+
+class MathReferenceRole(XRefRole):
+    def result_nodes(self, document, env, node, is_ref):
+        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        node['refdomain'] = 'math'
+        return [node], []
 
 
 class MathDomain(Domain):
@@ -63,7 +70,7 @@ class MathDomain(Domain):
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
             if builder.name == 'latex':
-                newnode = eqref('', **node.attributes)
+                newnode = math_reference('', **node.attributes)
                 newnode['docname'] = docname
                 newnode['target'] = target
                 return newnode
@@ -121,6 +128,7 @@ class MathDomain(Domain):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(MathDomain)
+    app.add_role('eq', MathReferenceRole(warn_dangling=True))
 
     return {
         'version': 'builtin',

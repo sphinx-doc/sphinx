@@ -2568,6 +2568,25 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                               self.builder.config.math_number_all))
         raise nodes.SkipNode
 
+    def visit_math_reference(self, node):
+        # type: (nodes.Node) -> None
+        label = "equation:%s:%s" % (node['docname'], node['target'])
+        eqref_format = self.builder.config.math_eqref_format
+        if eqref_format:
+            try:
+                ref = r'\ref{%s}' % label
+                self.body.append(eqref_format.format(number=ref))
+            except KeyError as exc:
+                logger.warning(__('Invalid math_eqref_format: %r'), exc,
+                               location=node)
+                self.body.append(r'\eqref{%s}' % label)
+        else:
+            self.body.append(r'\eqref{%s}' % label)
+
+    def depart_math_reference(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

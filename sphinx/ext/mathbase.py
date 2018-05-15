@@ -14,31 +14,16 @@ import warnings
 from docutils import nodes
 
 from sphinx.addnodes import math, math_block as displaymath
-from sphinx.config import string_classes
+from sphinx.addnodes import math_reference as eqref  # NOQA  # to keep compatibility
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
-from sphinx.locale import __
-from sphinx.roles import XRefRole
-from sphinx.util import logging
+from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to keep compatibility
 
 if False:
     # For type annotation
     from typing import Any, Callable, List, Tuple  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
-
-logger = logging.getLogger(__name__)
-
-
-class eqref(nodes.Inline, nodes.TextElement):
-    pass
-
-
-class EqXRefRole(XRefRole):
-    def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-        node['refdomain'] = 'math'
-        return [node], []
 
 
 def get_node_equation_number(writer, node):
@@ -111,30 +96,9 @@ def is_in_section_title(node):
     return False
 
 
-def latex_visit_eqref(self, node):
-    # type: (nodes.NodeVisitor, eqref) -> None
-    label = "equation:%s:%s" % (node['docname'], node['target'])
-    eqref_format = self.builder.config.math_eqref_format
-    if eqref_format:
-        try:
-            ref = '\\ref{%s}' % label
-            self.body.append(eqref_format.format(number=ref))
-        except KeyError as exc:
-            logger.warning(__('Invalid math_eqref_format: %r'), exc,
-                           location=node)
-            self.body.append('\\eqref{%s}' % label)
-    else:
-        self.body.append('\\eqref{%s}' % label)
-    raise nodes.SkipNode
-
-
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
-    app.add_config_value('math_eqref_format', None, 'env', string_classes)
-    app.add_config_value('math_numfig', True, 'env')
     app.add_node(math, override=True,
                  html=htmlinlinevisitors)
     app.add_node(displaymath, override=True,
                  html=htmldisplayvisitors)
-    app.add_node(eqref, latex=(latex_visit_eqref, None))
-    app.add_role('eq', EqXRefRole(warn_dangling=True))

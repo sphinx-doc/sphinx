@@ -231,6 +231,11 @@ class displaymath(math_block):
     """
 
 
+class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):
+    """Node for a reference for equation."""
+    pass
+
+
 # other directive-level nodes
 
 class index(nodes.Invisible, nodes.Inline, nodes.TextElement):

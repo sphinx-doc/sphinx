@@ -74,6 +74,7 @@ Deprecated
 * ``BuildEnvironment.topickle()`` is deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
+* ``sphinx.ext.mathbase.eqref`` node is deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
 
