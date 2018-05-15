@@ -9,11 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-from docutils import nodes, utils
+import warnings
+
+from docutils import nodes
 from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 
+from sphinx.addnodes import math
 from sphinx.config import string_classes
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
@@ -31,10 +35,6 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
-
-
-class math(nodes.Inline, nodes.TextElement):
-    pass
 
 
 class displaymath(nodes.Part, nodes.Element):
@@ -195,16 +195,13 @@ def wrap_displaymath(math, label, numbering):
     return '%s\n%s%s' % (begin, ''.join(equations), end)
 
 
-def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    latex = utils.unescape(text, restore_backslashes=True)
-    return [math(latex=latex)], []
-
-
 def is_in_section_title(node):
     # type: (nodes.Node) -> bool
     """Determine whether the node is in a section title"""
     from sphinx.util.nodes import traverse_parent
+
+    warnings.warn('is_in_section_title() is deprecated.',
+                  RemovedInSphinx30Warning)
 
     for ancestor in traverse_parent(node):
         if isinstance(ancestor, nodes.title) and \
@@ -275,17 +272,6 @@ class MathDirective(SphinxDirective):
             self.state_machine.reporter.warning(exc.args[0], line=self.lineno)
 
 
-def latex_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math) -> None
-    if is_in_section_title(node):
-        protect = r'\protect'
-    else:
-        protect = ''
-    equation = protect + r'\(' + node['latex'] + protect + r'\)'
-    self.body.append(equation)
-    raise nodes.SkipNode
-
-
 def latex_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, displaymath) -> None
     if not node['label']:
@@ -320,23 +306,11 @@ def latex_visit_eqref(self, node):
     raise nodes.SkipNode
 
 
-def text_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math) -> None
-    self.add_text(node['latex'])
-    raise nodes.SkipNode
-
-
 def text_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, displaymath) -> None
     self.new_state()
     self.add_text(node['latex'])
     self.end_state()
-    raise nodes.SkipNode
-
-
-def man_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math) -> None
-    self.body.append(node['latex'])
     raise nodes.SkipNode
 
 
@@ -348,12 +322,6 @@ def man_visit_displaymath(self, node):
 def man_depart_displaymath(self, node):
     # type: (nodes.NodeVisitor, displaymath) -> None
     self.depart_centered(node)
-
-
-def texinfo_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math) -> None
-    self.body.append('@math{' + self.escape_arg(node['latex']) + '}')
-    raise nodes.SkipNode
 
 
 def texinfo_visit_displaymath(self, node):
@@ -376,10 +344,6 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_config_value('math_numfig', True, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,
-                 latex=(latex_visit_math, None),
-                 text=(text_visit_math, None),
-                 man=(man_visit_math, None),
-                 texinfo=(texinfo_visit_math, None),
                  html=htmlinlinevisitors)
     app.add_node(displaymath,
                  latex=(latex_visit_displaymath, None),
@@ -388,6 +352,5 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
                  html=htmldisplayvisitors)
     app.add_node(eqref, latex=(latex_visit_eqref, None))
-    app.add_role('math', math_role)
     app.add_role('eq', EqXRefRole(warn_dangling=True))
     app.add_directive('math', MathDirective)

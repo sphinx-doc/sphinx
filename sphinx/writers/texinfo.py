@@ -1731,9 +1731,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
+        self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
+        raise nodes.SkipNode
+
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
         logger.warning(__('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
                           'described at http://sphinx-doc.org/en/master/ext/math.html'))
         raise nodes.SkipNode
-
-    visit_math_block = visit_math

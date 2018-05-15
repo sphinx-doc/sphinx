@@ -12,8 +12,12 @@
 import errno
 import re
 import subprocess
+import warnings
 
 import pytest
+from docutils import nodes
+
+from sphinx.testing.util import assert_node
 
 
 def has_binary(binary):
@@ -208,3 +212,21 @@ def test_imgmath_numfig_html(app, status, warning):
             'href="math.html#equation-foo">(1)</a> and '
             '<a class="reference internal" href="#equation-bar">(3)</a>.</p>')
     assert html in content
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-math-compat')
+def test_math_compat(app, status, warning):
+    with warnings.catch_warnings(record=True):
+        app.builder.build_all()
+        doctree = app.env.get_and_resolve_doctree('index', app.builder)
+
+        assert_node(doctree,
+                    [nodes.document, nodes.section, (nodes.title,
+                                                     [nodes.section, (nodes.title,
+                                                                      nodes.paragraph)],
+                                                     nodes.section)])
+        assert_node(doctree[0][1][1],
+                    ('Inline: ',
+                     [nodes.math, "E=mc^2"],
+                     '\nInline my math: ',
+                     [nodes.math, "E = mc^2"]))

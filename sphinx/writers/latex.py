@@ -2541,13 +2541,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
+        if self.in_title:
+            self.body.append(r'\protect\(%s\protect\)' % node.astext())
+        else:
+            self.body.append(r'\(%s\)' % node.astext())
+        raise nodes.SkipNode
+
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
         logger.warning(__('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
                           'described at http://sphinx-doc.org/en/master/ext/math.html'),
                        location=(self.curfilestack[-1], node.line))
         raise nodes.SkipNode
-
-    visit_math_block = visit_math
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

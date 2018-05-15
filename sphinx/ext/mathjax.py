@@ -29,7 +29,7 @@ def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
-                     self.encode(node['latex']) +
+                     self.encode(node.astext()) +
                      self.builder.config.mathjax_inline[1] + '</span>')
     raise nodes.SkipNode
 

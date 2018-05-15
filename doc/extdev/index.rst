@@ -126,6 +126,16 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``sphinx.ext.mathbase.is_in_section_title()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.mathbase.math`` (node)
+     - 1.8
+     - 3.0
+     - ``docutils.nodes.math``
+
    * - ``viewcode_import`` (config value)
      - 1.8
      - 3.0

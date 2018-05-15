@@ -27,7 +27,7 @@ if False:
 def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
-    self.body.append(self.encode(node['latex']) + '</span>')
+    self.body.append(self.encode(node.astext()) + '</span>')
     raise nodes.SkipNode
 
 

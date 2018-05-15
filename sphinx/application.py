@@ -97,6 +97,7 @@ builtin_extensions = (
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.images',
+    'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
