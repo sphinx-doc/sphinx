@@ -163,7 +163,7 @@ def make_app(test_params, monkeypatch):
     yield make
 
     sys.path[:] = syspath
-    for app_ in apps:
+    for app_ in reversed(apps):  # clean up applications from the new ones
         app_.cleanup()
 
 

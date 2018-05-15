@@ -173,25 +173,19 @@ def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
     app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    app.cleanup()
     app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
-    app.cleanup()
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
     app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    app.cleanup()
     app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
-    app.cleanup()
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
     app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
-    app.cleanup()
     app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
-    app.cleanup()
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
