@@ -83,6 +83,7 @@ builtin_extensions = (
     'sphinx.domains.c',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
+    'sphinx.domains.math',
     'sphinx.domains.python',
     'sphinx.domains.rst',
     'sphinx.domains.std',

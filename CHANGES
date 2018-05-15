@@ -75,6 +75,7 @@ Deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
+* ``sphinx.ext.mathbase.MathDomain`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_

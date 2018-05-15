@@ -12,24 +12,20 @@
 import warnings
 
 from docutils import nodes
-from docutils.nodes import make_id
 
 from sphinx.addnodes import math, math_block as displaymath
 from sphinx.config import string_classes
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.domains import Domain
+from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
 from sphinx.locale import __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
+    from typing import Any, Callable, List, Tuple  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -43,95 +39,6 @@ class EqXRefRole(XRefRole):
         # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         node['refdomain'] = 'math'
         return [node], []
-
-
-class MathDomain(Domain):
-    """Mathematics domain."""
-    name = 'math'
-    label = 'mathematics'
-
-    initial_data = {
-        'objects': {},  # labelid -> (docname, eqno)
-    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
-    dangling_warnings = {
-        'eq': 'equation not found: %(target)s',
-    }
-    enumerable_nodes = {  # node_class -> (figtype, title_getter)
-        displaymath: ('displaymath', None),
-        nodes.math_block: ('displaymath', None),
-    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
-
-    def clear_doc(self, docname):
-        # type: (unicode) -> None
-        for equation_id, (doc, eqno) in list(self.data['objects'].items()):
-            if doc == docname:
-                del self.data['objects'][equation_id]
-
-    def merge_domaindata(self, docnames, otherdata):
-        # type: (Iterable[unicode], Dict) -> None
-        for labelid, (doc, eqno) in otherdata['objects'].items():
-            if doc in docnames:
-                self.data['objects'][labelid] = (doc, eqno)
-
-    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
-        assert typ == 'eq'
-        docname, number = self.data['objects'].get(target, (None, None))
-        if docname:
-            if builder.name == 'latex':
-                newnode = eqref('', **node.attributes)
-                newnode['docname'] = docname
-                newnode['target'] = target
-                return newnode
-            else:
-                # TODO: perhaps use rather a sphinx-core provided prefix here?
-                node_id = make_id('equation-%s' % target)
-                if env.config.math_numfig and env.config.numfig:
-                    if docname in env.toc_fignumbers:
-                        number = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
-                        number = '.'.join(map(str, number))
-                    else:
-                        number = ''
-                try:
-                    eqref_format = env.config.math_eqref_format or "({number})"
-                    title = nodes.Text(eqref_format.format(number=number))
-                except KeyError as exc:
-                    logger.warning(__('Invalid math_eqref_format: %r'), exc,
-                                   location=node)
-                    title = nodes.Text("(%d)" % number)
-                    title = nodes.Text("(%d)" % number)
-                return make_refnode(builder, fromdocname, docname, node_id, title)
-        else:
-            return None
-
-    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
-        refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
-        if refnode is None:
-            return []
-        else:
-            return [refnode]
-
-    def get_objects(self):
-        # type: () -> List
-        return []
-
-    def add_equation(self, env, docname, labelid):
-        # type: (BuildEnvironment, unicode, unicode) -> int
-        equations = self.data['objects']
-        if labelid in equations:
-            path = env.doc2path(equations[labelid][0])
-            msg = __('duplicate label of equation %s, other instance in %s') % (labelid, path)
-            raise UserWarning(msg)
-        else:
-            eqno = self.get_next_equation_number(docname)
-            equations[labelid] = (docname, eqno)
-            return eqno
-
-    def get_next_equation_number(self, docname):
-        # type: (unicode) -> int
-        targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
-        return len(targets) + 1
 
 
 def get_node_equation_number(writer, node):
@@ -225,7 +132,6 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_eqref_format', None, 'env', string_classes)
     app.add_config_value('math_numfig', True, 'env')
-    app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  html=htmlinlinevisitors)
     app.add_node(displaymath, override=True,
