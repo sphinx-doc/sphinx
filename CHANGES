@@ -102,6 +102,7 @@ Deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
+* ``sphinx.ext.mathbase.setup_math()`` is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -163,6 +164,7 @@ Features added
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
 * #2820: autoclass directive supports nested class
+* Add ``app.add_html_math_renderer()`` to register a math renderer for HTML
 
 Bugs fixed
 ----------
