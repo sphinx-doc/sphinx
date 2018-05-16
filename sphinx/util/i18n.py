@@ -22,12 +22,8 @@ from babel.messages.pofile import read_po
 
 from sphinx.errors import SphinxError
 from sphinx.util import logging
+from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, relpath, walk
-
-if False:
-    # For type annotation
-    from typing import Union  # NOQA
-    from sphinx.util.matching import Matcher  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -108,8 +104,8 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
                               charset='utf-8', force_all=False,
-                              excluded=lambda path: False):
-    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Union[Callable[[unicode], bool], Matcher]) -> Set[CatalogInfo]  # NOQA
+                              excluded=Matcher([])):
+    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Matcher) -> Set[CatalogInfo]  # NOQA
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
