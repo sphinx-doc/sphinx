@@ -22,7 +22,9 @@ Bugs fixed
 * #4863, #4938, #4939: i18n doesn't handle node.title correctly tat used for
   contents, topic, admonition, table and section.
 * #4913: i18n: literal blocks in bullet list are not translated
-* #4962: cpp domain: raises TypeError on duplicate declaration
+* #4962: C++, raised TypeError on duplicate declaration.
+* #4825: C++, properly parse expr roles and give better error messages when
+  (escaped) line breaks are present.
 
 Testing
 --------

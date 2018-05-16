@@ -12,7 +12,7 @@
 import re
 from copy import deepcopy
 
-from docutils import nodes
+from docutils import nodes, utils
 from docutils.parsers.rst import Directive, directives
 from six import iteritems, text_type
 
@@ -5962,7 +5962,7 @@ class CPPExprRole(object):
         class Warner(object):
             def warn(self, msg):
                 inliner.reporter.warning(msg, line=lineno)
-
+        text = utils.unescape(text).replace('\n', ' ')
         env = inliner.document.settings.env
         parser = DefinitionParser(text, Warner(), env.config)
         try:
