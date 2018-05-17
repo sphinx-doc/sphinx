@@ -149,7 +149,7 @@ The following is a list of deprecated interface.
    * - ``sphinx.ext.mathbase.eqref`` (node)
      - 1.8
      - 3.0
-     - ``sphinx.addnodes.math_reference``
+     - ``sphinx.builders.latex.nodes.math_reference``
 
    * - ``viewcode_import`` (config value)
      - 1.8

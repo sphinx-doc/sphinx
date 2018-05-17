@@ -12,7 +12,7 @@
 from docutils import nodes
 from docutils.nodes import make_id
 
-from sphinx.addnodes import math_block as displaymath, math_reference
+from sphinx.addnodes import math_block as displaymath
 from sphinx.domains import Domain
 from sphinx.locale import __
 from sphinx.roles import XRefRole
@@ -69,29 +69,23 @@ class MathDomain(Domain):
         assert typ == 'eq'
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
-            if builder.name == 'latex':
-                newnode = math_reference('', **node.attributes)
-                newnode['docname'] = docname
-                newnode['target'] = target
-                return newnode
-            else:
-                # TODO: perhaps use rather a sphinx-core provided prefix here?
-                node_id = make_id('equation-%s' % target)
-                if env.config.math_numfig and env.config.numfig:
-                    if docname in env.toc_fignumbers:
-                        number = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
-                        number = '.'.join(map(str, number))
-                    else:
-                        number = ''
-                try:
-                    eqref_format = env.config.math_eqref_format or "({number})"
-                    title = nodes.Text(eqref_format.format(number=number))
-                except KeyError as exc:
-                    logger.warning(__('Invalid math_eqref_format: %r'), exc,
-                                   location=node)
-                    title = nodes.Text("(%d)" % number)
-                    title = nodes.Text("(%d)" % number)
-                return make_refnode(builder, fromdocname, docname, node_id, title)
+            # TODO: perhaps use rather a sphinx-core provided prefix here?
+            node_id = make_id('equation-%s' % target)
+            if env.config.math_numfig and env.config.numfig:
+                if docname in env.toc_fignumbers:
+                    number = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
+                    number = '.'.join(map(str, number))
+                else:
+                    number = ''
+            try:
+                eqref_format = env.config.math_eqref_format or "({number})"
+                title = nodes.Text(eqref_format.format(number=number))
+            except KeyError as exc:
+                logger.warning(__('Invalid math_eqref_format: %r'), exc,
+                               location=node)
+                title = nodes.Text("(%d)" % number)
+                title = nodes.Text("(%d)" % number)
+            return make_refnode(builder, fromdocname, docname, node_id, title)
         else:
             return None
 
