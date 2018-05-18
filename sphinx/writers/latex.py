@@ -53,6 +53,7 @@ HYPERLINK_SUPPORT_NODES = (
     nodes.figure,
     nodes.literal_block,
     nodes.table,
+    nodes.section,
 )
 
 DEFAULT_SETTINGS = {
@@ -950,8 +951,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.this_is_the_title:
             self.sectionlevel += 1
         self.body.append('\n\n')
-        if node.get('ids'):
-            self.next_section_ids.update(node['ids'])
 
     def depart_section(self, node):
         # type: (nodes.Node) -> None
@@ -1046,9 +1045,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 except IndexError:
                     # just use "subparagraph", it's not numbered anyway
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-                self.context.append('}\n')
-
+                self.context.append('}\n' + self.hypertarget_to(node.parent))
                 self.restrict_footnote(node)
+
                 if self.next_section_ids:
                     for id in self.next_section_ids:
                         self.context[-1] += self.hypertarget(id, anchor=False)
@@ -1917,22 +1916,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         node.parent.parent.index(node.parent)]
                 else:
                     raise
-            if isinstance(next, nodes.section):
+            domain = self.builder.env.get_domain('std')
+            figtype = domain.get_figtype(next)
+            if figtype and domain.get_numfig_title(next):
+                ids = set()
+                # labels for figures go in the figure body, not before
                 if node.get('refid'):
-                    self.next_section_ids.add(node['refid'])
-                self.next_section_ids.update(node['ids'])
+                    ids.add(node['refid'])
+                ids.update(node['ids'])
+                self.push_hyperlink_ids(figtype, ids)
                 return
-            else:
-                domain = self.builder.env.get_domain('std')
-                figtype = domain.get_figtype(next)
-                if figtype and domain.get_numfig_title(next):
-                    ids = set()
-                    # labels for figures go in the figure body, not before
-                    if node.get('refid'):
-                        ids.add(node['refid'])
-                    ids.update(node['ids'])
-                    self.push_hyperlink_ids(figtype, ids)
-                    return
         except IndexError:
             pass
         if 'refuri' in node:

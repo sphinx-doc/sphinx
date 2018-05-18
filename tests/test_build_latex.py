@@ -1296,3 +1296,15 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{index:table1}}' in result)
     assert (r'\sphinxcaption{table caption}'
             r'\label{\detokenize{index:table3}}' in result)
+
+    # sections
+    assert ('\\chapter{subsection}\n'
+            r'\label{\detokenize{index:subsection}}'
+            r'\label{\detokenize{index:section2}}'
+            r'\label{\detokenize{index:section1}}' in result)
+    assert ('\\section{subsubsection}\n'
+            r'\label{\detokenize{index:subsubsection}}'
+            r'\label{\detokenize{index:section3}}' in result)
+    assert ('\\subsection{otherdoc}\n'
+            r'\label{\detokenize{otherdoc:otherdoc}}'
+            r'\label{\detokenize{otherdoc::doc}}' in result)

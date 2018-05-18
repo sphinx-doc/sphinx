@@ -51,3 +51,18 @@ tables
    head head
    cell cell
    ==== ====
+
+.. _section1:
+.. _section2:
+
+subsection
+----------
+
+.. _section3:
+
+subsubsection
+~~~~~~~~~~~~~
+
+.. toctree::
+
+   otherdoc
