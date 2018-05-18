@@ -25,6 +25,7 @@ Bugs fixed
 * #4962: C++, raised TypeError on duplicate declaration.
 * #4825: C++, properly parse expr roles and give better error messages when
   (escaped) line breaks are present.
+* C++, properly use ``desc_addname`` nodes for prefixes of names.
 * #4915, #4916: links on search page are broken when using dirhtml builder
 
 Testing
