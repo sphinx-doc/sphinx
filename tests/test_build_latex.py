@@ -1288,3 +1288,11 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{index:codeblock1}}}' in result)
     assert (r'\def\sphinxLiteralBlockLabel{'
             r'\label{\detokenize{index:codeblock3}}}' in result)
+
+    # tables
+    assert (r'\sphinxcaption{table caption}'
+            r'\label{\detokenize{index:id2}}'
+            r'\label{\detokenize{index:table2}}'
+            r'\label{\detokenize{index:table1}}' in result)
+    assert (r'\sphinxcaption{table caption}'
+            r'\label{\detokenize{index:table3}}' in result)

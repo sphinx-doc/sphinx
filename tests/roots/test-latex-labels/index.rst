@@ -30,3 +30,24 @@ code-blocks
    :name: codeblock3
 
    blah blah blah
+
+tables
+------
+
+.. _table1:
+.. _table2:
+
+.. table:: table caption
+
+   ==== ====
+   head head
+   cell cell
+   ==== ====
+
+.. table:: table caption
+   :name: table3
+
+   ==== ====
+   head head
+   cell cell
+   ==== ====

@@ -52,6 +52,7 @@ LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
 HYPERLINK_SUPPORT_NODES = (
     nodes.figure,
     nodes.literal_block,
+    nodes.table,
 )
 
 DEFAULT_SETTINGS = {
@@ -1318,12 +1319,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_table(self, node):
         # type: (nodes.Node) -> None
-        labels = ''  # type: unicode
-        for labelid in self.pop_hyperlink_ids('table'):
-            labels += self.hypertarget(labelid, anchor=False)
-        if node['ids']:
-            labels += self.hypertarget(node['ids'][0], anchor=False)
-
+        labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
                             dict(table=self.table, labels=labels))
