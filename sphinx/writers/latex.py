@@ -728,6 +728,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return (anchor and '\\phantomsection' or '') + \
             '\\label{%s}' % self.idescape(id)
 
+    def hypertarget_to(self, node, anchor=False):
+        # type: (nodes.Node, bool) -> unicode
+        labels = ''.join(self.hypertarget(node_id, anchor=False) for node_id in node['ids'])
+        if anchor:
+            return r'\phantomsection' + labels
+        else:
+            return labels
+
     def hyperlink(self, id):
         # type: (unicode) -> unicode
         return '{\\hyperref[%s]{' % self.idescape(id)
@@ -1758,16 +1766,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_figure(self, node):
         # type: (nodes.Node) -> None
-        ids = ''  # type: unicode
-        for id in self.pop_hyperlink_ids('figure'):
-            ids += self.hypertarget(id, anchor=False)
-        if node['ids']:
-            ids += self.hypertarget(node['ids'][0], anchor=False)
+        labels = self.hypertarget_to(node)
         self.restrict_footnote(node)
-        if (len(node.children) and
-           isinstance(node.children[0], nodes.image) and
-           node.children[0]['ids']):
-            ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
         if self.table:
             # TODO: support align option
             if 'width' in node:
@@ -1779,7 +1779,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
+            self.context.append(labels + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             length = None
             if 'width' in node:
@@ -1788,7 +1788,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
-            self.context.append(ids + '\\end{wrapfigure}\n')
+            self.context.append(labels + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')
@@ -1797,7 +1797,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              self.elements['figure_align'])
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
-            self.context.append(ids + '\\end{figure}\n')
+            self.context.append(labels + '\\end{figure}\n')
 
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
@@ -1898,6 +1898,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # do not generate \phantomsection in \section{}
             anchor = not self.in_title
             self.body.append(self.hypertarget(id, anchor=anchor))
+
+        # skip if visitor for next node supports hyperlink
+        next_node = node.next_node(ascend=True)
+        if isinstance(next_node, nodes.figure):
+            return
 
         # postpone the labels until after the sectioning command
         parindex = node.parent.index(node)

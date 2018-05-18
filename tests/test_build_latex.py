@@ -1264,3 +1264,18 @@ def test_latex_glossary(app, status, warning):
             r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
     assert (u'\\item[{über\\index{über|textbf}\\phantomsection'
             r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels')
+def test_latex_labels(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert (r'\caption{labeled figure}'
+            r'\label{\detokenize{index:id1}}'
+            r'\label{\detokenize{index:figure2}}'
+            r'\label{\detokenize{index:figure1}}'
+            r'\end{figure}' in result)
+    assert (r'\caption{labeled figure}'
+            r'\label{\detokenize{index:figure3}}'
+            r'\end{figure}' in result)
