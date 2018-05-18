@@ -15,3 +15,18 @@ figures
    :name: figure3
 
    labeled figure
+
+code-blocks
+-----------
+
+.. _codeblock1:
+.. _codeblock2:
+
+.. code-block:: none
+
+   blah blah blah
+
+.. code-block:: none
+   :name: codeblock3
+
+   blah blah blah

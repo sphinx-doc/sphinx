@@ -1271,6 +1271,8 @@ def test_latex_labels(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
+
+    # figures
     assert (r'\caption{labeled figure}'
             r'\label{\detokenize{index:id1}}'
             r'\label{\detokenize{index:figure2}}'
@@ -1279,3 +1281,10 @@ def test_latex_labels(app, status, warning):
     assert (r'\caption{labeled figure}'
             r'\label{\detokenize{index:figure3}}'
             r'\end{figure}' in result)
+
+    # code-blocks
+    assert (r'\def\sphinxLiteralBlockLabel{'
+            r'\label{\detokenize{index:codeblock2}}'
+            r'\label{\detokenize{index:codeblock1}}}' in result)
+    assert (r'\def\sphinxLiteralBlockLabel{'
+            r'\label{\detokenize{index:codeblock3}}}' in result)

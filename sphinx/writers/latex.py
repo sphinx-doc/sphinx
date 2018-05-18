@@ -49,6 +49,10 @@ BEGIN_DOC = r'''
 
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
+HYPERLINK_SUPPORT_NODES = (
+    nodes.figure,
+    nodes.literal_block,
+)
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -1901,7 +1905,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         # skip if visitor for next node supports hyperlink
         next_node = node.next_node(ascend=True)
-        if isinstance(next_node, nodes.figure):
+        if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
 
         # postpone the labels until after the sectioning command
@@ -2237,15 +2241,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.in_parsed_literal += 1
             self.body.append('\\begin{sphinxalltt}\n')
         else:
-            ids = ''  # type: unicode
-            for id in self.pop_hyperlink_ids('code-block'):
-                ids += self.hypertarget(id, anchor=False)
-            if node['ids']:
-                # suppress with anchor=False \phantomsection insertion
-                ids += self.hypertarget(node['ids'][0], anchor=False)
+            labels = self.hypertarget_to(node)
             # LaTeX code will insert \phantomsection prior to \label
-            if ids and not self.in_footnote:
-                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + ids + '}')
+            if labels and not self.in_footnote:
+                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
