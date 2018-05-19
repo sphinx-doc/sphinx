@@ -25,7 +25,11 @@ Bugs fixed
 * #4962: C++, raised TypeError on duplicate declaration.
 * #4825: C++, properly parse expr roles and give better error messages when
   (escaped) line breaks are present.
+* C++, properly use ``desc_addname`` nodes for prefixes of names.
 * #4915, #4916: links on search page are broken when using dirhtml builder
+* #4969: autodoc: constructor method should not have return annotation
+* latex: deeply nested enumerated list which is beginning with non-1 causes
+  LaTeX engine crashed
 * #4978: latex: shorthandoff is not set up for Brazil locale
 
 Testing

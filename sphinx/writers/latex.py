@@ -18,6 +18,7 @@ from collections import defaultdict
 from os import path
 
 from docutils import nodes, writers
+from docutils.utils.roman import toRoman
 from docutils.writers.latex2e import Babel
 from six import itervalues, text_type
 
@@ -1514,8 +1515,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         self.body.append('\\begin{enumerate}\n')
         if 'start' in node:
-            nested = get_nested_level(node)
-            self.body.append('\\setcounter{enum%s}{%d}\n' % ('i' * nested, node['start'] - 1))
+            enum_depth = "enum%s" % toRoman(get_nested_level(node)).lower()
+            self.body.append('\\setcounter{%s}{%d}\n' % (enum_depth, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 

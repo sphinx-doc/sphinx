@@ -1035,9 +1035,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
             try:
-                args = Signature(self.object.__new__, bound_method=True).format_args()
+                sig = Signature(self.object.__new__, bound_method=True, has_retval=False)
+                args = sig.format_args()
             except TypeError:
-                args = Signature(self.object.__init__, bound_method=True).format_args()
+                sig = Signature(self.object.__init__, bound_method=True, has_retval=False)
+                args = sig.format_args()
 
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
@@ -1090,7 +1092,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
-            return Signature(initmeth, bound_method=True).format_args()
+            return Signature(initmeth, bound_method=True, has_retval=False).format_args()
         except TypeError:
             # still not possible: happens e.g. for old-style classes
             # with __init__ in C
