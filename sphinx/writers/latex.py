@@ -197,7 +197,7 @@ class ExtBabel(Babel):
         shortlang = self.language.split('_')[0]
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
                          'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
-                         'italian'):
+                         'italian', 'pt-BR', 'brazil'):
             return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
             # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
