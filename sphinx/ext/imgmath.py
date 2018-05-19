@@ -37,7 +37,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
+    from sphinx.ext.mathbase import displaymath  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -285,27 +285,27 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    # type: (nodes.NodeVisitor, math_node) -> unicode
+    # type: (nodes.NodeVisitor, nodes.math) -> unicode
     if self.builder.config.imgmath_add_tooltips:
-        return ' alt="%s"' % self.encode(node['latex']).strip()
+        return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math_node) -> None
+    # type: (nodes.NodeVisitor, nodes.math) -> None
     try:
-        fname, depth = render_math(self, '$' + node['latex'] + '$')
+        fname, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
-                                  backrefs=[], source=node['latex'])
+                                  backrefs=[], source=node.astext())
         sm.walkabout(self)
-        logger.warning(__('display latex %r: %s'), node['latex'], msg)
+        logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
-                         self.encode(node['latex']).strip())
+                         self.encode(node.astext()).strip())
     else:
         c = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
         if depth is not None:
@@ -317,18 +317,18 @@ def html_visit_math(self, node):
 def html_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, displaymath) -> None
     if node['nowrap']:
-        latex = node['latex']
+        latex = node.astext()
     else:
-        latex = wrap_displaymath(node['latex'], None,
+        latex = wrap_displaymath(node.astext(), None,
                                  self.builder.config.math_number_all)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
-                                  backrefs=[], source=node['latex'])
+                                  backrefs=[], source=node.astext())
         sm.walkabout(self)
-        logger.warning(__('inline latex %r: %s'), node['latex'], msg)
+        logger.warning(__('inline latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
@@ -340,7 +340,7 @@ def html_visit_displaymath(self, node):
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
-                         self.encode(node['latex']).strip())
+                         self.encode(node.astext()).strip())
     else:
         self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
                          '/></p>\n</div>')

@@ -2542,13 +2542,51 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning(__('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
-                       location=(self.curfilestack[-1], node.line))
+        if self.in_title:
+            self.body.append(r'\protect\(%s\protect\)' % node.astext())
+        else:
+            self.body.append(r'\(%s\)' % node.astext())
         raise nodes.SkipNode
 
-    visit_math_block = visit_math
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
+        if node.get('label'):
+            label = "equation:%s:%s" % (node['docname'], node['label'])
+        else:
+            label = None
+
+        if node.get('nowrap'):
+            if label:
+                self.body.append(r'\label{%s}' % label)
+            self.body.append(node.astext())
+        else:
+            def is_equation(part):
+                # type: (unicode) -> unicode
+                return part.strip()
+
+            from sphinx.ext.mathbase import wrap_displaymath
+            self.body.append(wrap_displaymath(node.astext(), label,
+                                              self.builder.config.math_number_all))
+        raise nodes.SkipNode
+
+    def visit_math_reference(self, node):
+        # type: (nodes.Node) -> None
+        label = "equation:%s:%s" % (node['docname'], node['target'])
+        eqref_format = self.builder.config.math_eqref_format
+        if eqref_format:
+            try:
+                ref = r'\ref{%s}' % label
+                self.body.append(eqref_format.format(number=ref))
+            except KeyError as exc:
+                logger.warning(__('Invalid math_eqref_format: %r'), exc,
+                               location=node)
+                self.body.append(r'\eqref{%s}' % label)
+        else:
+            self.body.append(r'\eqref{%s}' % label)
+
+    def depart_math_reference(self, node):
+        # type: (nodes.Node) -> None
+        pass
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

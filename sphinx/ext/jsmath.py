@@ -27,7 +27,7 @@ if False:
 def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
-    self.body.append(self.encode(node['latex']) + '</span>')
+    self.body.append(self.encode(node.astext()) + '</span>')
     raise nodes.SkipNode
 
 
@@ -35,10 +35,10 @@ def html_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, nodes.Node) -> None
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
-        self.body.append(self.encode(node['latex']))
+        self.body.append(self.encode(node.astext()))
         self.body.append('</div>')
         raise nodes.SkipNode
-    for i, part in enumerate(node['latex'].split('\n\n')):
+    for i, part in enumerate(node.astext().split('\n\n')):
         part = self.encode(part)
         if i == 0:
             # necessary to e.g. set the id property correctly

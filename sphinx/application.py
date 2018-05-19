@@ -83,6 +83,7 @@ builtin_extensions = (
     'sphinx.domains.c',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
+    'sphinx.domains.math',
     'sphinx.domains.python',
     'sphinx.domains.rst',
     'sphinx.domains.std',
@@ -97,6 +98,7 @@ builtin_extensions = (
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
     'sphinx.transforms.post_transforms.images',
+    'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',

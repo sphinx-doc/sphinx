@@ -139,6 +139,9 @@ class Config(object):
         numfig_secnum_depth = (1, 'env', []),
         numfig_format = ({}, 'env', []),  # will be initialized in init_numfig_format()
 
+        math_number_all = (False, 'env', []),
+        math_eqref_format = (None, 'env', string_classes),
+        math_numfig = (True, 'env', []),
         tls_verify = (True, 'env', []),
         tls_cacerts = (None, 'env', []),
         smartquotes = (True, 'env', []),

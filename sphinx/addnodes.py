@@ -9,7 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
@@ -181,6 +185,55 @@ class productionlist(nodes.Admonition, nodes.Element):
 
 class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
+
+
+# math nodes
+
+
+class math(nodes.math):
+    """Node for inline equations.
+
+    .. deprecated:: 1.8
+       Use ``docutils.nodes.math`` instead.
+    """
+
+    def __getitem__(self, key):
+        """Special accessor for supporting ``node['latex']``."""
+        if key == 'latex' and 'latex' not in self.attributes:
+            warnings.warn("math node for Sphinx was replaced by docutils'. "
+                          "Therefore please use ``node.astext()`` to get an equation instead.",
+                          RemovedInSphinx30Warning)
+            return self.astext()
+        else:
+            return nodes.math.__getitem__(self, key)
+
+
+class math_block(nodes.math_block):
+    """Node for block level equations.
+
+    .. deprecated:: 1.8
+    """
+
+    def __getitem__(self, key):
+        if key == 'latex' and 'latex' not in self.attributes:
+            warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
+                          "Therefore please use ``node.astext()`` to get an equation instead.",
+                          RemovedInSphinx30Warning)
+            return self.astext()
+        else:
+            return nodes.math_block.__getitem__(self, key)
+
+
+class displaymath(math_block):
+    """Node for block level equations.
+
+    .. deprecated:: 1.8
+    """
+
+
+class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):
+    """Node for a reference for equation."""
+    pass
 
 
 # other directive-level nodes

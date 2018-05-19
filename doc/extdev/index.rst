@@ -126,6 +126,31 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - ``sphinx.ext.mathbase.MathDomain``
+     - 1.8
+     - 3.0
+     - ``sphinx.domains.math.MathDomain``
+
+   * - ``sphinx.ext.mathbase.is_in_section_title()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.mathbase.math`` (node)
+     - 1.8
+     - 3.0
+     - ``docutils.nodes.math``
+
+   * - ``sphinx.ext.mathbase.displaymath`` (node)
+     - 1.8
+     - 3.0
+     - ``docutils.nodes.math_block``
+
+   * - ``sphinx.ext.mathbase.eqref`` (node)
+     - 1.8
+     - 3.0
+     - ``sphinx.addnodes.math_reference``
+
    * - ``viewcode_import`` (config value)
      - 1.8
      - 3.0
