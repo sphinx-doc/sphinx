@@ -30,6 +30,7 @@ Bugs fixed
 * #4969: autodoc: constructor method should not have return annotation
 * latex: deeply nested enumerated list which is beginning with non-1 causes
   LaTeX engine crashed
+* #4979: latex: Incorrect escaping of curly braces in index entries
 
 Testing
 --------

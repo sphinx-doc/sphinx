@@ -1608,6 +1608,10 @@
 % figure legend comes after caption and may contain arbitrary body elements
 \newenvironment{sphinxlegend}{\par\small}{\par}
 
+% For curly braces inside \index macro
+\def\sphinxleftcurlybrace{\{}
+\def\sphinxrightcurlybrace{\}}
+
 % Declare Unicode characters used by linux tree command to pdflatex utf8/utf8x
 \def\spx@bd#1#2{%
   \leavevmode
