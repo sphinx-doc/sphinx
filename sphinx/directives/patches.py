@@ -130,8 +130,6 @@ class MathDirective(SphinxDirective):
                                 nowrap='nowrap' in self.options)
         ret = [node]
         set_source_info(self, node)
-        if hasattr(self, 'src'):
-            node.source = self.src
         self.add_target(ret)
         return ret
 
