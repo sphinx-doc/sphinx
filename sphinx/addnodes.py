@@ -193,6 +193,9 @@ class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class math(nodes.math):
     """Node for inline equations.
 
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
+
     .. deprecated:: 1.8
        Use ``docutils.nodes.math`` instead.
     """
@@ -211,6 +214,9 @@ class math(nodes.math):
 class math_block(nodes.math_block):
     """Node for block level equations.
 
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
+
     .. deprecated:: 1.8
     """
 
@@ -226,6 +232,9 @@ class math_block(nodes.math_block):
 
 class displaymath(math_block):
     """Node for block level equations.
+
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
 
     .. deprecated:: 1.8
     """
