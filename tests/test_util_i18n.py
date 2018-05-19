@@ -157,6 +157,17 @@ def test_get_catalogs_with_compact(tempdir):
     assert domains == set(['test1', 'test2', 'sub'])
 
 
+def test_get_catalogs_excluded(tempdir):
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git').makedirs()
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git' / 'no_no.po').write_text('#')
+
+    catalogs = i18n.find_catalog_source_files(
+        [tempdir / 'loc1'], 'en', force_all=False, excluded=lambda path: '.git' in path)
+    domains = set(c.domain for c in catalogs)
+    assert domains == set(['en_dom'])
+
+
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
