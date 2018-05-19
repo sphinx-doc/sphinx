@@ -592,12 +592,12 @@ def test_footnote(app, status, warning):
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '{\\hyperref[\\detokenize{footnote:bar}]{\\sphinxcrossref{{[}bar{]}}}}' in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} ') in result
+            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} ') in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
+            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} '
             '\ncite') in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
+            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
@@ -666,14 +666,14 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
-            '\\phantomsection\\label{\\detokenize{index:id1}}'
+            '\\phantomsection\\relax\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -711,13 +711,13 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{\\detokenize{index:id1}}'
+            'to \\phantomsection\\relax\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
@@ -764,13 +764,13 @@ def test_latex_show_urls_is_no(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{\\detokenize{index:id1}}'
+            'to \\phantomsection\\relax\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -1242,3 +1242,25 @@ def test_latex_nested_enumerated_list(app, status, warning):
     assert r'\setcounter{enumiii}{9}' in result
     assert r'\setcounter{enumiv}{23}' in result
     assert r'\setcounter{enumii}{2}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='glossary')
+def test_latex_glossary(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert (u'\\item[{änhlich\\index{änhlich|textbf}\\phantomsection\\relax'
+            r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
+    assert (r'\item[{boson\index{boson|textbf}\phantomsection\relax'
+            r'\label{\detokenize{index:term-boson}}}] \leavevmode' in result)
+    assert (r'\item[{\sphinxstyleemphasis{fermion}\index{fermion|textbf}'
+            r'\phantomsection\relax\label{\detokenize{index:term-fermion}}}] '
+            r'\leavevmode' in result)
+    assert (r'\item[{tauon\index{tauon|textbf}\phantomsection\relax'
+            r'\label{\detokenize{index:term-tauon}}}] \leavevmode'
+            r'\item[{myon\index{myon|textbf}\phantomsection\relax'
+            r'\label{\detokenize{index:term-myon}}}] \leavevmode'
+            r'\item[{electron\index{electron|textbf}\phantomsection\relax'
+            r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
+    assert (u'\\item[{über\\index{über|textbf}\\phantomsection\\relax'
+            r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)

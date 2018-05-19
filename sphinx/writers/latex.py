@@ -725,7 +725,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (unicode, bool, bool) -> unicode
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
-        return (anchor and '\\phantomsection' or '') + \
+        return (anchor and r'\phantomsection\relax' or '') + \
             '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
@@ -1555,9 +1555,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_term(self, node):
         # type: (nodes.Node) -> None
         self.in_term += 1
-        ctx = '}] \\leavevmode'  # type: unicode
-        if node.get('ids'):
-            ctx += self.hypertarget(node['ids'][0])
+        ctx = ''.join(self.hypertarget(node_id) for node_id in node['ids'])
+        ctx += '}] \\leavevmode'
         self.body.append('\\item[{')
         self.restrict_footnote(node)
         self.context.append(ctx)
