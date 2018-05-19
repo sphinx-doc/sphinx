@@ -280,6 +280,10 @@ def test_Signature_annotations():
     sig = inspect.Signature(f11).format_args()
     assert sig == '(x: CustomAnnotation, y: 123) -> None'
 
+    # has_retval=False
+    sig = inspect.Signature(f11, has_retval=False).format_args()
+    assert sig == '(x: CustomAnnotation, y: 123)'
+
 
 def test_safe_getattr_with_default():
     class Foo(object):

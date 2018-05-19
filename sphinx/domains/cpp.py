@@ -12,7 +12,7 @@
 import re
 from copy import deepcopy
 
-from docutils import nodes
+from docutils import nodes, utils
 from docutils.parsers.rst import directives
 from six import iteritems, text_type
 
@@ -1967,26 +1967,34 @@ class ASTNestedName(ASTBase):
             prefix = ''  # type: unicode
             first = True
             names = self.names[:-1] if mode == 'lastIsName' else self.names
+            # If lastIsName, then wrap all of the prefix in a desc_addname,
+            # else append directly to signode.
+            # NOTE: Breathe relies on the prefix being in the desc_addname node,
+            #       so it can remove it in inner declarations.
+            dest = signode
+            if mode == 'lastIsName':
+                dest = addnodes.desc_addname()
             for i in range(len(names)):
                 name = names[i]
                 template = self.templates[i]
                 if not first:
-                    signode += nodes.Text('::')
+                    dest += nodes.Text('::')
                     prefix += '::'
                 if template:
-                    signode += nodes.Text("template ")
+                    dest += nodes.Text("template ")
                 first = False
                 if name != '':
                     if (name.templateArgs and  # type: ignore
                             iTemplateParams < len(templateParams)):
                         templateParamsPrefix += text_type(templateParams[iTemplateParams])
                         iTemplateParams += 1
-                    name.describe_signature(signode, 'markType',  # type: ignore
+                    name.describe_signature(dest, 'markType',  # type: ignore
                                             env, templateParamsPrefix + prefix, symbol)
                 prefix += text_type(name)
             if mode == 'lastIsName':
                 if len(self.names) > 1:
-                    signode += addnodes.desc_addname('::', '::')
+                    dest += addnodes.desc_addname('::', '::')
+                    signode += dest
                 if self.templates[-1]:
                     signode += nodes.Text("template ")
                 self.names[-1].describe_signature(signode, mode, env, '', symbol)
@@ -5961,7 +5969,7 @@ class CPPExprRole(object):
         class Warner(object):
             def warn(self, msg):
                 inliner.reporter.warning(msg, line=lineno)
-
+        text = utils.unescape(text).replace('\n', ' ')
         env = inliner.document.settings.env
         parser = DefinitionParser(text, Warner(), env.config)
         try:
