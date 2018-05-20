@@ -25,7 +25,7 @@ from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
 from sphinx.util import rpartition, force_decode
@@ -643,11 +643,17 @@ class Documenter(object):
             # should be skipped
             if self.env.app:
                 # let extensions preprocess docstrings
-                skip_user = self.env.app.emit_firstresult(
-                    'autodoc-skip-member', self.objtype, membername, member,
-                    not keep, self.options)
-                if skip_user is not None:
-                    keep = not skip_user
+                try:
+                    skip_user = self.env.app.emit_firstresult(
+                        'autodoc-skip-member', self.objtype, membername, member,
+                        not keep, self.options)
+                    if skip_user is not None:
+                        keep = not skip_user
+                except Exception as exc:
+                    logger.warning(__('autodoc: failed to determine %r to be documented.'
+                                      'the following exception was raised:\n%s'),
+                                   member, exc)
+                    keep = False
 
             if keep:
                 ret.append((membername, member, isattr))
