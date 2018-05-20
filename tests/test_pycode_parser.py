@@ -100,11 +100,13 @@ def test_comment_picker_location():
 def test_annotated_assignment_py36():
     source = ('a: str = "Sphinx"  #: comment\n'
               'b: int = 1\n'
-              '"""string on next line"""')
+              '"""string on next line"""\n'
+              'c: int  #: comment')
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'a'): 'comment',
-                               ('', 'b'): 'string on next line'}
+                               ('', 'b'): 'string on next line',
+                               ('', 'c'): 'comment'}
     assert parser.definitions == {}
 
 
