@@ -22,6 +22,11 @@ class footnotetext(nodes.General, nodes.BackLinkable, nodes.Element,
     """A node represents ``\footnotetext``."""
 
 
+class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):
+    """A node for a reference for equation."""
+    pass
+
+
 class thebibliography(nodes.container):
     """A node for wrapping bibliographies."""
     pass

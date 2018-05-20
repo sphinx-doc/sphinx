@@ -14,7 +14,7 @@ import warnings
 from docutils import nodes
 
 from sphinx.addnodes import math, math_block as displaymath
-from sphinx.addnodes import math_reference as eqref  # NOQA  # to keep compatibility
+from sphinx.builders.latex.nodes import math_reference as eqref  # NOQA  # to keep compatibility
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
 from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to keep compatibility

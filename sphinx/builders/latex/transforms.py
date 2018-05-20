@@ -12,7 +12,9 @@
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.builders.latex.nodes import footnotemark, footnotetext, thebibliography
+from sphinx.builders.latex.nodes import (
+    footnotemark, footnotetext, math_reference, thebibliography
+)
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -542,3 +544,25 @@ class CitationReferenceTransform(SphinxTransform):
                     citation_ref = nodes.citation_reference('', *node.children,
                                                             docname=docname, refname=labelid)
                     node.replace_self(citation_ref)
+
+
+class MathReferenceTransform(SphinxTransform):
+    """Replace pending_xref nodes for math by math_reference.
+
+    To handle math reference easily on LaTeX writer, this converts pending_xref
+    nodes to math_reference.
+    """
+    default_priority = 5  # before ReferencesResolver
+
+    def apply(self):
+        # type: () -> None
+        if self.app.builder.name != 'latex':
+            return
+
+        equations = self.env.get_domain('math').data['objects']
+        for node in self.document.traverse(addnodes.pending_xref):
+            if node['refdomain'] == 'math' and node['reftype'] == 'eq':
+                docname, _ = equations.get(node['reftarget'], (None, None))
+                if docname:
+                    refnode = math_reference('', docname=docname, target=node['reftarget'])
+                    node.replace_self(refnode)

@@ -19,7 +19,7 @@ from six import text_type
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
-    BibliographyTransform, CitationReferenceTransform,
+    BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
 )
 from sphinx.config import string_classes, ENUM
@@ -320,6 +320,7 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
     app.add_post_transform(CitationReferenceTransform)
+    app.add_post_transform(MathReferenceTransform)
     app.connect('config-inited', validate_config_values)
     app.add_transform(FootnoteDocnameUpdater)
 
