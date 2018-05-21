@@ -161,6 +161,12 @@ Bugs fixed
 * #4969: autodoc: constructor method should not have return annotation
 * latex: deeply nested enumerated list which is beginning with non-1 causes
   LaTeX engine crashed
+* #4978: latex: shorthandoff is not set up for Brazil locale
+* #4928: i18n: Ignore dot-directories like .git/ in LC_MESSAGES/
+* #4946: py domain: type field could not handle "None" as a type
+* #4979: latex: Incorrect escaping of curly braces in index entries
+* #4956: autodoc: Failed to extract document from a subclass of the class on
+  mocked module
 
 Testing
 --------
