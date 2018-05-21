@@ -725,7 +725,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (unicode, bool, bool) -> unicode
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
-        return (anchor and r'\phantomsection\relax' or '') + \
+        return (anchor and '\\phantomsection' or '') + \
             '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):

@@ -592,12 +592,12 @@ def test_footnote(app, status, warning):
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '{\\hyperref[\\detokenize{footnote:bar}]{\\sphinxcrossref{{[}bar{]}}}}' in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} ') in result
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} ') in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} '
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite') in result
     assert ('\\bibitem[bar]{\\detokenize{bar}}'
-            '{\\phantomsection\\relax\\label{\\detokenize{footnote:bar}} '
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
     assert '\\sphinxcaption{Table caption \\sphinxfootnotemark[4]' in result
     assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
@@ -666,14 +666,14 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section'
             '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
-            '\\phantomsection\\relax\\label{\\detokenize{index:id1}}'
+            '\\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -711,13 +711,13 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\relax\\label{\\detokenize{index:id1}}'
+            'to \\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
@@ -764,13 +764,13 @@ def test_latex_show_urls_is_no(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id30}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\relax\\label{\\detokenize{index:id1}}'
+            'to \\phantomsection\\label{\\detokenize{index:id1}}'
             '{\\hyperref[\\detokenize{index:authoryear}]'
             '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\relax\\label{\\detokenize{index:id31}}'
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
