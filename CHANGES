@@ -33,6 +33,7 @@ Bugs fixed
 * #4978: latex: shorthandoff is not set up for Brazil locale
 * #4928: i18n: Ignore dot-directories like .git/ in LC_MESSAGES/
 * #4946: py domain: type field could not handle "None" as a type
+* #4979: latex: Incorrect escaping of curly braces in index entries
 
 Testing
 --------
