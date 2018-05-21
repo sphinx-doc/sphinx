@@ -19,6 +19,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.util import i18n, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.i18n import find_catalog
+from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
@@ -252,7 +253,8 @@ class Builder(object):
             self.config.language,
             charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact,
-            force_all=True)
+            force_all=True,
+            excluded=Matcher(['**/.?**']))
         message = 'all of %d po files' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
@@ -273,7 +275,8 @@ class Builder(object):
             self.config.language,
             domains=list(specified_domains),
             charset=self.config.source_encoding,
-            gettext_compact=self.config.gettext_compact)
+            gettext_compact=self.config.gettext_compact,
+            excluded=Matcher(['**/.?**']))
         message = 'targets for %d po files that are specified' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
@@ -283,7 +286,8 @@ class Builder(object):
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             charset=self.config.source_encoding,
-            gettext_compact=self.config.gettext_compact)
+            gettext_compact=self.config.gettext_compact,
+            excluded=Matcher(['**/.?**']))
         message = 'targets for %d po files that are out of date' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
