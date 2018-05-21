@@ -1555,9 +1555,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_term(self, node):
         # type: (nodes.Node) -> None
         self.in_term += 1
-        ctx = '}] \\leavevmode'  # type: unicode
+        ctx = ''  # type: unicode
         if node.get('ids'):
-            ctx += self.hypertarget(node['ids'][0])
+            ctx = '\\phantomsection'
+            for node_id in node['ids']:
+                ctx += self.hypertarget(node_id, anchor=False)
+        ctx += '}] \\leavevmode'
         self.body.append('\\item[{')
         self.restrict_footnote(node)
         self.context.append(ctx)
