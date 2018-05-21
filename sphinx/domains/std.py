@@ -432,7 +432,7 @@ class ProductionList(SphinxDirective):
             subnode = addnodes.production()
             subnode['tokenname'] = name.strip()
             if subnode['tokenname']:
-                idname = 'grammar-token-%s' % subnode['tokenname']
+                idname = nodes.make_id('grammar-token-%s' % subnode['tokenname'])
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
                 self.state.document.note_implicit_target(subnode, subnode)

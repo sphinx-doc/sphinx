@@ -33,6 +33,7 @@ Incompatible changes
   :confval:`viewcode_follow_imported_members` (refs: #4035)
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
+* #4983: html: The URL for the productionlist has been changed
 
 Deprecated
 ----------
@@ -120,6 +121,7 @@ Bugs fixed
 * #4850: latex: footnote inside footnote was not rendered
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
   to Shengjing Zhu.
+* #4983: productionlist directive generates invalid IDs for the tokens
 
 Testing
 --------
