@@ -287,24 +287,15 @@ class Sphinx(object):
         # type: (bool) -> None
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment(self)
+            self.env = BuildEnvironment()
+            self.env.setup(self)
             self.env.find_files(self.config, self.builder)
-            for domain in self.registry.create_domains(self.env):
-                self.env.domains[domain.name] = domain
         else:
             try:
                 logger.info(bold(__('loading pickled environment... ')), nonl=True)
                 with open(filename, 'rb') as f:
                     self.env = pickle.load(f)
-                    self.env.app = self
-                    self.env.config.values = self.config.values
-                needed, reason = self.env.need_refresh(self)
-                if needed:
-                    raise IOError(reason)
-                self.env.domains = {}
-                for domain in self.registry.create_domains(self.env):
-                    # this can raise if the data version doesn't fit
-                    self.env.domains[domain.name] = domain
+                    self.env.setup(self)
                 logger.info(__('done'))
             except Exception as err:
                 logger.info(__('failed: %s'), err)

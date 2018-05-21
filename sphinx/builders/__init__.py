@@ -17,6 +17,7 @@ from docutils import nodes
 from six.moves import cPickle as pickle
 
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.io import read_doc
@@ -422,11 +423,10 @@ class Builder(object):
         Store all environment docnames in the canonical format (ie using SEP as
         a separator in place of os.path.sep).
         """
-        updated, reason = self.env.update_config(self.config, self.srcdir, self.doctreedir)
-
         logger.info(bold('updating environment: '), nonl=True)
 
         self.env.find_files(self.config, self)
+        updated = (self.env.config_status != CONFIG_OK)
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
@@ -440,6 +440,7 @@ class Builder(object):
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
         if changed:
+            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '')
             logger.info('[%s] ', reason, nonl=True)
         logger.info('%s added, %s changed, %s removed',
                     len(added), len(changed), len(removed))
@@ -472,6 +473,9 @@ class Builder(object):
         for retval in self.app.emit('env-updated', self.env):
             if retval is not None:
                 docnames.extend(retval)
+
+        # workaround: marked as okay to call builder.read() twice in same process
+        self.env.config_status = CONFIG_OK
 
         return sorted(docnames)
 
