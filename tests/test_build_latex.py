@@ -1249,18 +1249,18 @@ def test_latex_glossary(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert (u'\\item[{änhlich\\index{änhlich|textbf}\\phantomsection\\relax'
+    assert (u'\\item[{änhlich\\index{änhlich|textbf}\\phantomsection'
             r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
-    assert (r'\item[{boson\index{boson|textbf}\phantomsection\relax'
+    assert (r'\item[{boson\index{boson|textbf}\phantomsection'
             r'\label{\detokenize{index:term-boson}}}] \leavevmode' in result)
     assert (r'\item[{\sphinxstyleemphasis{fermion}\index{fermion|textbf}'
-            r'\phantomsection\relax\label{\detokenize{index:term-fermion}}}] '
-            r'\leavevmode' in result)
-    assert (r'\item[{tauon\index{tauon|textbf}\phantomsection\relax'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-fermion}}}] \leavevmode' in result)
+    assert (r'\item[{tauon\index{tauon|textbf}\phantomsection'
             r'\label{\detokenize{index:term-tauon}}}] \leavevmode'
-            r'\item[{myon\index{myon|textbf}\phantomsection\relax'
+            r'\item[{myon\index{myon|textbf}\phantomsection'
             r'\label{\detokenize{index:term-myon}}}] \leavevmode'
-            r'\item[{electron\index{electron|textbf}\phantomsection\relax'
+            r'\item[{electron\index{electron|textbf}\phantomsection'
             r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
-    assert (u'\\item[{über\\index{über|textbf}\\phantomsection\\relax'
+    assert (u'\\item[{über\\index{über|textbf}\\phantomsection'
             r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
