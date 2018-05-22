@@ -33,6 +33,7 @@ Incompatible changes
   :confval:`viewcode_follow_imported_members` (refs: #4035)
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
+* #4648: latex: Now "rubric" elements are rendered as unnumbered section title
 
 Deprecated
 ----------
