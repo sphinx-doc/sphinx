@@ -117,6 +117,7 @@ Features added
 * #4785: napoleon: Add strings to translation file for localisation
 * #4927: Display a warning when invalid values are passed to linenothreshold
   option of highlight directive
+* #3606: MathJax should be loaded with async attribute
 
 Bugs fixed
 ----------
