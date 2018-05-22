@@ -20,6 +20,7 @@ from six import string_types, u
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
+from sphinx.locale import _
 from sphinx.util.pycompat import UnicodeMixin
 
 if False:
@@ -614,8 +615,13 @@ class GoogleDocstring(UnicodeMixin):
 
     def _parse_examples_section(self, section):
         # type: (unicode) -> List[unicode]
+        labels = {
+            'example': _('Example'),
+            'examples': _('Examples'),
+        }  # type: Dict[unicode, unicode]
         use_admonition = self._config.napoleon_use_admonition_for_examples
-        return self._parse_generic_section(section, use_admonition)
+        label = labels.get(section.lower(), section)
+        return self._parse_generic_section(label, use_admonition)
 
     def _parse_custom_generic_section(self, section):
         # for now, no admonition for simple custom sections
@@ -652,12 +658,12 @@ class GoogleDocstring(UnicodeMixin):
                 field_role="keyword",
                 type_role="kwtype")
         else:
-            return self._format_fields('Keyword Arguments', fields)
+            return self._format_fields(_('Keyword Arguments'), fields)
 
     def _parse_methods_section(self, section):
         # type: (unicode) -> List[unicode]
         lines = []  # type: List[unicode]
-        for _name, _, _desc in self._consume_fields(parse_type=False):
+        for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if _desc:
                 lines.extend([u''] + self._indent(_desc, 3))
@@ -667,11 +673,11 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_notes_section(self, section):
         # type: (unicode) -> List[unicode]
         use_admonition = self._config.napoleon_use_admonition_for_notes
-        return self._parse_generic_section('Notes', use_admonition)
+        return self._parse_generic_section(_('Notes'), use_admonition)
 
     def _parse_other_parameters_section(self, section):
         # type: (unicode) -> List[unicode]
-        return self._format_fields('Other Parameters', self._consume_fields())
+        return self._format_fields(_('Other Parameters'), self._consume_fields())
 
     def _parse_parameters_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -679,7 +685,7 @@ class GoogleDocstring(UnicodeMixin):
         if self._config.napoleon_use_param:
             return self._format_docutils_params(fields)
         else:
-            return self._format_fields('Parameters', fields)
+            return self._format_fields(_('Parameters'), fields)
 
     def _parse_raises_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -688,7 +694,7 @@ class GoogleDocstring(UnicodeMixin):
         padding = ' ' * len(field_type)
         multi = len(fields) > 1
         lines = []  # type: List[unicode]
-        for _, _type, _desc in fields:
+        for _name, _type, _desc in fields:
             _desc = self._strip_empty(_desc)
             has_desc = any(_desc)
             separator = has_desc and ' -- ' or ''
@@ -723,7 +729,7 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_references_section(self, section):
         # type: (unicode) -> List[unicode]
         use_admonition = self._config.napoleon_use_admonition_for_references
-        return self._parse_generic_section('References', use_admonition)
+        return self._parse_generic_section(_('References'), use_admonition)
 
     def _parse_returns_section(self, section):
         # type: (unicode) -> List[unicode]
@@ -760,12 +766,12 @@ class GoogleDocstring(UnicodeMixin):
 
     def _parse_warns_section(self, section):
         # type: (unicode) -> List[unicode]
-        return self._format_fields('Warns', self._consume_fields())
+        return self._format_fields(_('Warns'), self._consume_fields())
 
     def _parse_yields_section(self, section):
         # type: (unicode) -> List[unicode]
         fields = self._consume_returns_section()
-        return self._format_fields('Yields', fields)
+        return self._format_fields(_('Yields'), fields)
 
     def _partition_field_on_colon(self, line):
         # type: (unicode) -> Tuple[unicode, unicode, unicode]

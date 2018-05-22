@@ -112,6 +112,7 @@ Features added
   configuration file
 * #4866: Wrap graphviz diagrams in ``<div>`` tag
 * Add :event:`viewcode-find-source` event to viewcode extension.
+* #4785: napoleon: Add strings to translation file for localisation
 
 Bugs fixed
 ----------
