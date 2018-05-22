@@ -1252,7 +1252,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if len(node.children) == 1 and node.children[0].astext() in \
            ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
-        self.body.append('\\paragraph{')
+        self.body.append('\\subsubsection*{')
         self.context.append('}\n')
         self.in_title = 1
 
