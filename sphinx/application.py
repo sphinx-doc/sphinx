@@ -1000,6 +1000,14 @@ class Sphinx(object):
 
     def add_javascript(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
+        """An alias of :meth:`add_js_file`."""
+        warnings.warn('The app.add_javascript() is deprecated. '
+                      'Please use app.add_js_file() instead.',
+                      RemovedInSphinx40Warning)
+        self.add_js_file(filename, **kwargs)
+
+    def add_js_file(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
         """Register a JavaScript file to include in the HTML output.
 
         Add *filename* to the list of JavaScript files that the default HTML
@@ -1009,16 +1017,17 @@ class Sphinx(object):
 
         Example::
 
-            app.add_javascript('example.js')
+            app.add_js_file('example.js')
             # => <scrtipt src="_static/example.js"></script>
 
-            app.add_javascript('example.js', async="async")
+            app.add_js_file('example.js', async="async")
             # => <scrtipt src="_static/example.js" async="async"></script>
 
         .. versionadded:: 0.5
 
         .. versionchanged:: 1.8
-           Allows keyword arguments as attributes of script tag.
+           Renamed from ``app.add_javascript()``.
+           And it allows keyword arguments as attributes of script tag.
         """
         logger.debug('[app] adding javascript: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder, JavaScript

@@ -53,6 +53,7 @@ Deprecated
 * ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
+* ``app.add_javascript()`` is deprecated
 * ``sphinx.versioning.prepare()`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated

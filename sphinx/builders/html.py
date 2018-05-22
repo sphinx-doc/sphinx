@@ -266,7 +266,7 @@ class StandaloneHTMLBuilder(Builder):
     # use html5 translator by default
     default_html5_translator = False
 
-    # This is a class attribute because it is mutated by Sphinx.add_javascript.
+    # This is a class attribute because it is mutated by Sphinx.add_js_file().
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']  # type: List[unicode]
 

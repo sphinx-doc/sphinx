@@ -126,6 +126,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
+   * - :meth:`~sphinx.application.Sphinx.add_javascript()`
+     - 1.8
+     - 4.0
+     - :meth:`~sphinx.application.Sphinx.add_js_file()`
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0
