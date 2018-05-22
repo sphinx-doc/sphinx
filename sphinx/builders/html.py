@@ -13,6 +13,7 @@ import codecs
 import posixpath
 import re
 import sys
+import types
 import warnings
 from hashlib import md5
 from os import path
@@ -1409,6 +1410,11 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         # we're not taking the return value here, since no template is
         # actually rendered
         self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
+
+        # make context object serializable
+        for key in list(ctx):
+            if isinstance(ctx[key], types.FunctionType):
+                del ctx[key]
 
         ensuredir(path.dirname(outfilename))
         self.dump_context(ctx, outfilename)
