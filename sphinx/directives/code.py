@@ -53,8 +53,15 @@ class Highlight(SphinxDirective):
         if 'linenothreshold' in self.options:
             try:
                 linenothreshold = int(self.options['linenothreshold'])
-            except Exception:
-                linenothreshold = 10
+            except ValueError:
+                default_linenothreshold = 10
+                location = self.state_machine.get_source_and_line(self.lineno)
+                logger.warning(__('linenothreshold value must be int typed. '
+                                  'Passed %r. Using default value (%d).'
+                                  % (self.options['linenothreshold'],
+                                     default_linenothreshold)),
+                              location=location)
+                linenothreshold = default_linenothreshold
         else:
             linenothreshold = sys.maxsize
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
