@@ -113,6 +113,8 @@ Features added
 * #4866: Wrap graphviz diagrams in ``<div>`` tag
 * Add :event:`viewcode-find-source` event to viewcode extension.
 * #4785: napoleon: Add strings to translation file for localisation
+* #4927: Display a warning when invalid values are passed to linenothreshold
+  option of highlight directive
 
 Bugs fixed
 ----------
