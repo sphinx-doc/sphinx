@@ -1242,3 +1242,69 @@ def test_latex_nested_enumerated_list(app, status, warning):
     assert r'\setcounter{enumiii}{9}' in result
     assert r'\setcounter{enumiv}{23}' in result
     assert r'\setcounter{enumii}{2}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='glossary')
+def test_latex_glossary(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    assert (u'\\item[{änhlich\\index{änhlich|textbf}\\phantomsection'
+            r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
+    assert (r'\item[{boson\index{boson|textbf}\phantomsection'
+            r'\label{\detokenize{index:term-boson}}}] \leavevmode' in result)
+    assert (r'\item[{\sphinxstyleemphasis{fermion}\index{fermion|textbf}'
+            r'\phantomsection'
+            r'\label{\detokenize{index:term-fermion}}}] \leavevmode' in result)
+    assert (r'\item[{tauon\index{tauon|textbf}\phantomsection'
+            r'\label{\detokenize{index:term-tauon}}}] \leavevmode'
+            r'\item[{myon\index{myon|textbf}\phantomsection'
+            r'\label{\detokenize{index:term-myon}}}] \leavevmode'
+            r'\item[{electron\index{electron|textbf}\phantomsection'
+            r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
+    assert (u'\\item[{über\\index{über|textbf}\\phantomsection'
+            r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
+
+
+@pytest.mark.sphinx('latex', testroot='latex-labels')
+def test_latex_labels(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+
+    # figures
+    assert (r'\caption{labeled figure}'
+            r'\label{\detokenize{index:id1}}'
+            r'\label{\detokenize{index:figure2}}'
+            r'\label{\detokenize{index:figure1}}'
+            r'\end{figure}' in result)
+    assert (r'\caption{labeled figure}'
+            r'\label{\detokenize{index:figure3}}'
+            r'\end{figure}' in result)
+
+    # code-blocks
+    assert (r'\def\sphinxLiteralBlockLabel{'
+            r'\label{\detokenize{index:codeblock2}}'
+            r'\label{\detokenize{index:codeblock1}}}' in result)
+    assert (r'\def\sphinxLiteralBlockLabel{'
+            r'\label{\detokenize{index:codeblock3}}}' in result)
+
+    # tables
+    assert (r'\sphinxcaption{table caption}'
+            r'\label{\detokenize{index:id2}}'
+            r'\label{\detokenize{index:table2}}'
+            r'\label{\detokenize{index:table1}}' in result)
+    assert (r'\sphinxcaption{table caption}'
+            r'\label{\detokenize{index:table3}}' in result)
+
+    # sections
+    assert ('\\chapter{subsection}\n'
+            r'\label{\detokenize{index:subsection}}'
+            r'\label{\detokenize{index:section2}}'
+            r'\label{\detokenize{index:section1}}' in result)
+    assert ('\\section{subsubsection}\n'
+            r'\label{\detokenize{index:subsubsection}}'
+            r'\label{\detokenize{index:section3}}' in result)
+    assert ('\\subsection{otherdoc}\n'
+            r'\label{\detokenize{otherdoc:otherdoc}}'
+            r'\label{\detokenize{otherdoc::doc}}' in result)

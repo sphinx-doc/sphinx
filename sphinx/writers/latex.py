@@ -49,6 +49,12 @@ BEGIN_DOC = r'''
 
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
+HYPERLINK_SUPPORT_NODES = (
+    nodes.figure,
+    nodes.literal_block,
+    nodes.table,
+    nodes.section,
+)
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -728,6 +734,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return (anchor and '\\phantomsection' or '') + \
             '\\label{%s}' % self.idescape(id)
 
+    def hypertarget_to(self, node, anchor=False):
+        # type: (nodes.Node, bool) -> unicode
+        labels = ''.join(self.hypertarget(node_id, anchor=False) for node_id in node['ids'])
+        if anchor:
+            return r'\phantomsection' + labels
+        else:
+            return labels
+
     def hyperlink(self, id):
         # type: (unicode) -> unicode
         return '{\\hyperref[%s]{' % self.idescape(id)
@@ -937,8 +951,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.this_is_the_title:
             self.sectionlevel += 1
         self.body.append('\n\n')
-        if node.get('ids'):
-            self.next_section_ids.update(node['ids'])
 
     def depart_section(self, node):
         # type: (nodes.Node) -> None
@@ -1033,9 +1045,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 except IndexError:
                     # just use "subparagraph", it's not numbered anyway
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-                self.context.append('}\n')
-
+                self.context.append('}\n' + self.hypertarget_to(node.parent))
                 self.restrict_footnote(node)
+
                 if self.next_section_ids:
                     for id in self.next_section_ids:
                         self.context[-1] += self.hypertarget(id, anchor=False)
@@ -1306,12 +1318,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_table(self, node):
         # type: (nodes.Node) -> None
-        labels = ''  # type: unicode
-        for labelid in self.pop_hyperlink_ids('table'):
-            labels += self.hypertarget(labelid, anchor=False)
-        if node['ids']:
-            labels += self.hypertarget(node['ids'][0], anchor=False)
-
+        labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
         table = self.render(table_type + '.tex_t',
                             dict(table=self.table, labels=labels))
@@ -1555,9 +1562,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_term(self, node):
         # type: (nodes.Node) -> None
         self.in_term += 1
-        ctx = '}] \\leavevmode'  # type: unicode
+        ctx = ''  # type: unicode
         if node.get('ids'):
-            ctx += self.hypertarget(node['ids'][0])
+            ctx = '\\phantomsection'
+            for node_id in node['ids']:
+                ctx += self.hypertarget(node_id, anchor=False)
+        ctx += '}] \\leavevmode'
         self.body.append('\\item[{')
         self.restrict_footnote(node)
         self.context.append(ctx)
@@ -1755,16 +1765,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_figure(self, node):
         # type: (nodes.Node) -> None
-        ids = ''  # type: unicode
-        for id in self.pop_hyperlink_ids('figure'):
-            ids += self.hypertarget(id, anchor=False)
-        if node['ids']:
-            ids += self.hypertarget(node['ids'][0], anchor=False)
+        labels = self.hypertarget_to(node)
         self.restrict_footnote(node)
-        if (len(node.children) and
-           isinstance(node.children[0], nodes.image) and
-           node.children[0]['ids']):
-            ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
         if self.table:
             # TODO: support align option
             if 'width' in node:
@@ -1776,7 +1778,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
+            self.context.append(labels + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             length = None
             if 'width' in node:
@@ -1785,7 +1787,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
-            self.context.append(ids + '\\end{wrapfigure}\n')
+            self.context.append(labels + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')
@@ -1794,7 +1796,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              self.elements['figure_align'])
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
-            self.context.append(ids + '\\end{figure}\n')
+            self.context.append(labels + '\\end{figure}\n')
 
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
@@ -1896,6 +1898,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             anchor = not self.in_title
             self.body.append(self.hypertarget(id, anchor=anchor))
 
+        # skip if visitor for next node supports hyperlink
+        next_node = node.next_node(ascend=True)
+        if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
+            return
+
         # postpone the labels until after the sectioning command
         parindex = node.parent.index(node)
         try:
@@ -1909,22 +1916,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         node.parent.parent.index(node.parent)]
                 else:
                     raise
-            if isinstance(next, nodes.section):
+            domain = self.builder.env.get_domain('std')
+            figtype = domain.get_figtype(next)
+            if figtype and domain.get_numfig_title(next):
+                ids = set()
+                # labels for figures go in the figure body, not before
                 if node.get('refid'):
-                    self.next_section_ids.add(node['refid'])
-                self.next_section_ids.update(node['ids'])
+                    ids.add(node['refid'])
+                ids.update(node['ids'])
+                self.push_hyperlink_ids(figtype, ids)
                 return
-            else:
-                domain = self.builder.env.get_domain('std')
-                figtype = domain.get_figtype(next)
-                if figtype and domain.get_numfig_title(next):
-                    ids = set()
-                    # labels for figures go in the figure body, not before
-                    if node.get('refid'):
-                        ids.add(node['refid'])
-                    ids.update(node['ids'])
-                    self.push_hyperlink_ids(figtype, ids)
-                    return
         except IndexError:
             pass
         if 'refuri' in node:
@@ -2229,15 +2230,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.in_parsed_literal += 1
             self.body.append('\\begin{sphinxalltt}\n')
         else:
-            ids = ''  # type: unicode
-            for id in self.pop_hyperlink_ids('code-block'):
-                ids += self.hypertarget(id, anchor=False)
-            if node['ids']:
-                # suppress with anchor=False \phantomsection insertion
-                ids += self.hypertarget(node['ids'][0], anchor=False)
+            labels = self.hypertarget_to(node)
             # LaTeX code will insert \phantomsection prior to \label
-            if ids and not self.in_footnote:
-                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + ids + '}')
+            if labels and not self.in_footnote:
+                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
