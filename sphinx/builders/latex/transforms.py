@@ -13,7 +13,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.latex.nodes import (
-    footnotemark, footnotetext, math_reference, thebibliography
+    captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
 )
 from sphinx.transforms import SphinxTransform
 
@@ -566,3 +566,18 @@ class MathReferenceTransform(SphinxTransform):
                 if docname:
                     refnode = math_reference('', docname=docname, target=node['reftarget'])
                     node.replace_self(refnode)
+
+
+class LiteralBlockTransform(SphinxTransform):
+    """Replace container nodes for literal_block by captioned_literal_block."""
+    default_priority = 400
+
+    def apply(self):
+        # type: () -> None
+        if self.app.builder.name != 'latex':
+            return
+
+        for node in self.document.traverse(nodes.container):
+            if node['literal_block'] is True:
+                newnode = captioned_literal_block('', *node.children, **node.attributes)
+                node.replace_self(newnode)

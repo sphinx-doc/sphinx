@@ -20,7 +20,8 @@ from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
     BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
-    FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
+    FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
+    ShowUrlsTransform,
 )
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
@@ -223,7 +224,8 @@ class LaTeXBuilder(Builder):
         transformer.set_environment(self.env)
         transformer.add_transforms([BibliographyTransform,
                                     ShowUrlsTransform,
-                                    LaTeXFootnoteTransform])
+                                    LaTeXFootnoteTransform,
+                                    LiteralBlockTransform])
         transformer.apply_transforms()
 
     def finish(self):

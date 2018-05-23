@@ -25,7 +25,7 @@ from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.nodes import footnotetext
+from sphinx.builders.latex.nodes import captioned_literal_block, footnotetext
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -58,6 +58,7 @@ HYPERLINK_SUPPORT_NODES = (
     nodes.literal_block,
     nodes.table,
     nodes.section,
+    captioned_literal_block,
 )
 
 DEFAULT_SETTINGS = {
@@ -465,7 +466,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_production_list = 0
         self.in_footnote = 0
         self.in_caption = 0
-        self.in_container_literal_block = 0
         self.in_term = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
@@ -691,7 +691,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
         self.curfilestack = []          # type: List[unicode]
         self.handled_abbrs = set()      # type: Set[unicode]
-        self.next_hyperlink_ids = {}    # type: Dict[unicode, Set[unicode]]
         self.next_section_ids = set()   # type: Set[unicode]
 
     def pushbody(self, newbody):
@@ -704,15 +703,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def push_hyperlink_ids(self, figtype, ids):
-        # type: (unicode, Set[unicode]) -> None
-        hyperlink_ids = self.next_hyperlink_ids.setdefault(figtype, set())
-        hyperlink_ids.update(ids)
-
-    def pop_hyperlink_ids(self, figtype):
-        # type: (unicode) -> Set[unicode]
-        return self.next_hyperlink_ids.pop(figtype, set())
 
     def check_latex_elements(self):
         # type: () -> None
@@ -1790,7 +1780,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_caption(self, node):
         # type: (nodes.Node) -> None
         self.in_caption += 1
-        if self.in_container_literal_block:
+        if isinstance(node.parent, captioned_literal_block):
             self.body.append('\\sphinxSetupCaptionForVerbatim{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
@@ -1883,35 +1873,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
+        domain = self.builder.env.get_domain('std')
         next_node = node.next_node(ascend=True)
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
+        elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
+            return
 
-        # postpone the labels until after the sectioning command
-        parindex = node.parent.index(node)
-        try:
-            try:
-                next = node.parent[parindex + 1]
-            except IndexError:
-                # last node in parent, look at next after parent
-                # (for section of equal level) if it exists
-                if node.parent.parent is not None:
-                    next = node.parent.parent[
-                        node.parent.parent.index(node.parent)]
-                else:
-                    raise
-            domain = self.builder.env.get_domain('std')
-            figtype = domain.get_enumerable_node_type(next)
-            if figtype and domain.get_numfig_title(next):
-                ids = set()
-                # labels for figures go in the figure body, not before
-                if node.get('refid'):
-                    ids.add(node['refid'])
-                ids.update(node['ids'])
-                self.push_hyperlink_ids(figtype, ids)
-                return
-        except IndexError:
-            pass
         if 'refuri' in node:
             return
         if node.get('refid'):
@@ -2221,6 +2189,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # the \ignorespaces in particular for after table header use
         self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
 
+    def visit_captioned_literal_block(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def depart_captioned_literal_block(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
     def visit_literal_block(self, node):
         # type: (nodes.Node) -> None
         if node.rawsource != node.astext():
@@ -2229,9 +2205,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\begin{sphinxalltt}\n')
         else:
             labels = self.hypertarget_to(node)
-            # LaTeX code will insert \phantomsection prior to \label
+            if isinstance(node.parent, captioned_literal_block):
+                labels += self.hypertarget_to(node.parent)
             if labels and not self.in_footnote:
                 self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
+
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
@@ -2458,22 +2436,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_container(self, node):
         # type: (nodes.Node) -> None
-        if node.get('literal_block'):
-            self.in_container_literal_block += 1
-            ids = ''  # type: unicode
-            for id in self.pop_hyperlink_ids('code-block'):
-                ids += self.hypertarget(id, anchor=False)
-            if node['ids']:
-                # suppress with anchor=False \phantomsection insertion
-                ids += self.hypertarget(node['ids'][0], anchor=False)
-            # define label for use in caption.
-            if ids:
-                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + ids + '}\n')
+        pass
 
     def depart_container(self, node):
         # type: (nodes.Node) -> None
-        if node.get('literal_block'):
-            self.in_container_literal_block -= 1
+        pass
 
     def visit_decoration(self, node):
         # type: (nodes.Node) -> None
@@ -2602,6 +2569,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
                       RemovedInSphinx30Warning)
         return []
+
+    @property
+    def in_container_literal_block(self):
+        # type: () -> int
+        warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
+                      RemovedInSphinx30Warning)
+        return 0
+
+    @property
+    def next_hyperlink_ids(self):
+        # type: () -> Dict
+        warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
+                      RemovedInSphinx30Warning)
+        return {}
+
+    def push_hyperlink_ids(self, figtype, ids):
+        # type: (unicode, Set[unicode]) -> None
+        warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
+                      RemovedInSphinx30Warning)
+        pass
+
+    def pop_hyperlink_ids(self, figtype):
+        # type: (unicode) -> Set[unicode]
+        warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
+                      RemovedInSphinx30Warning)
+        return set()
 
 
 # Import old modules here for compatibility
