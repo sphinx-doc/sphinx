@@ -10,3 +10,7 @@ A :index:`famous` :index:`equation`:
 .. index:: Einstein, relativity
 
 and some text.
+
+.. index:: main {
+
+An index entry containing non paired curly brace

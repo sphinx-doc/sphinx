@@ -227,11 +227,11 @@ def test_get_toctree_for(app):
                  [list_item, compact_paragraph, reference, "foo.1"],
                  [list_item, compact_paragraph, reference, "foo.2"]))
 
-    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=(1,))
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=(1, 1))
-    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=(1, 2))
-    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=(1, 3))
-    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=(2,))
+    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
+    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=[1, 1])
+    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=[1, 2])
+    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
+    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
 
     assert_node(toctree[2],
@@ -258,8 +258,8 @@ def test_get_toctree_for_collapse(app):
                 ([list_item, compact_paragraph, reference, "foo"],
                  [list_item, compact_paragraph, reference, "bar"],
                  [list_item, compact_paragraph, reference, "http://sphinx-doc.org/"]))
-    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=(1,))
-    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=(2,))
+    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
+    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
 
     assert_node(toctree[2],
@@ -296,13 +296,13 @@ def test_get_toctree_for_maxdepth(app):
     assert_node(toctree[1][0][1][1][1],
                 [bullet_list, list_item, compact_paragraph, reference, "foo.1-1"])
 
-    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=(1,))
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=(1, 1))
-    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=(1, 2))
+    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
+    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=[1, 1])
+    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=[1, 2])
     assert_node(toctree[1][0][1][1][1][0][0][0],
-                reference, refuri="foo#foo-1-1", secnumber=(1, 2, 1))
-    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=(1, 3))
-    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=(2,))
+                reference, refuri="foo#foo-1-1", secnumber=[1, 2, 1])
+    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
+    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
 
     assert_node(toctree[2],
@@ -335,11 +335,11 @@ def test_get_toctree_for_includehidden(app):
                  [list_item, compact_paragraph, reference, "foo.1"],
                  [list_item, compact_paragraph, reference, "foo.2"]))
 
-    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=(1,))
-    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=(1, 1))
-    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=(1, 2))
-    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=(1, 3))
-    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=(2,))
+    assert_node(toctree[1][0][0][0], reference, refuri="foo", secnumber=[1])
+    assert_node(toctree[1][0][1][0][0][0], reference, refuri="quux", secnumber=[1, 1])
+    assert_node(toctree[1][0][1][1][0][0], reference, refuri="foo#foo-1", secnumber=[1, 2])
+    assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
+    assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="http://sphinx-doc.org/")
 
     assert_node(toctree[2],

@@ -33,6 +33,12 @@ Bugs fixed
 * #4978: latex: shorthandoff is not set up for Brazil locale
 * #4928: i18n: Ignore dot-directories like .git/ in LC_MESSAGES/
 * #4946: py domain: type field could not handle "None" as a type
+* #4979: latex: Incorrect escaping of curly braces in index entries
+* #4956: autodoc: Failed to extract document from a subclass of the class on
+  mocked module
+* #4973: latex: glossary directive adds whitespace to each item
+* #4980: latex: Explicit labels on code blocks are duplicated
+* #4919: node.asdom() crashes if toctree has :numbered: option
 * #4914: autodoc: Parsing error when using dataclasses without default values
 
 Testing
