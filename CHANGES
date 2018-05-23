@@ -169,6 +169,8 @@ Bugs fixed
 * #4979: latex: Incorrect escaping of curly braces in index entries
 * #4956: autodoc: Failed to extract document from a subclass of the class on
   mocked module
+* #4973: latex: glossary directive adds whitespace to each item
+* #4980: latex: Explicit labels on code blocks are duplicated
 
 Testing
 --------
