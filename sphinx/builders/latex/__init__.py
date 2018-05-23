@@ -21,7 +21,7 @@ from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
     BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
-    ShowUrlsTransform,
+    ShowUrlsTransform, DocumentTargetTransform,
 )
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
@@ -225,7 +225,8 @@ class LaTeXBuilder(Builder):
         transformer.add_transforms([BibliographyTransform,
                                     ShowUrlsTransform,
                                     LaTeXFootnoteTransform,
-                                    LiteralBlockTransform])
+                                    LiteralBlockTransform,
+                                    DocumentTargetTransform])
         transformer.apply_transforms()
 
     def finish(self):

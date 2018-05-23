@@ -691,7 +691,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
         self.curfilestack = []          # type: List[unicode]
         self.handled_abbrs = set()      # type: Set[unicode]
-        self.next_section_ids = set()   # type: Set[unicode]
 
     def pushbody(self, newbody):
         # type: (List[unicode]) -> None
@@ -921,8 +920,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
-        # also add a document target
-        self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
         # use default highlight settings for new file
         self.hlsettingstack.append(self.hlsettingstack[0])
@@ -1057,11 +1054,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # just use "subparagraph", it's not numbered anyway
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
                 self.context.append('}\n' + self.hypertarget_to(node.parent))
-
-                if self.next_section_ids:
-                    for id in self.next_section_ids:
-                        self.context[-1] += self.hypertarget(id, anchor=False)
-                    self.next_section_ids.clear()
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}\n')
@@ -2576,6 +2568,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
                       RemovedInSphinx30Warning)
         return 0
+
+    @property
+    def next_section_ids(self):
+        # type: () -> Set[unicode]
+        warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
+                      RemovedInSphinx30Warning)
+        return set()
 
     @property
     def next_hyperlink_ids(self):

@@ -176,6 +176,11 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXWriter.next_section_ids``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids``
      - 1.8
      - 3.0

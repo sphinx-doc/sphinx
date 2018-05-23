@@ -581,3 +581,18 @@ class LiteralBlockTransform(SphinxTransform):
             if node['literal_block'] is True:
                 newnode = captioned_literal_block('', *node.children, **node.attributes)
                 node.replace_self(newnode)
+
+
+class DocumentTargetTransform(SphinxTransform):
+    """Add :doc label to the first section of each document."""
+    default_priority = 400
+
+    def apply(self):
+        # type: () -> None
+        if self.app.builder.name != 'latex':
+            return
+
+        for node in self.document.traverse(addnodes.start_of_file):
+            section = node.next_node(nodes.section)
+            if section:
+                section['ids'].append(':doc')  # special label for :doc:
