@@ -168,10 +168,10 @@ class TocTreeCollector(EnvironmentCollector):
                         number = tuple(numstack)
                     else:
                         number = None
-                    secnums[subnode[0]['anchorname']] = \
-                        subnode[0]['secnumber'] = number
+                    secnums[subnode[0]['anchorname']] = number
+                    subnode[0]['secnumber'] = list(number)
                     if titlenode:
-                        titlenode['secnumber'] = number
+                        titlenode['secnumber'] = list(number)
                         titlenode = None
                 elif isinstance(subnode, addnodes.toctree):
                     _walk_toctree(subnode, depth)

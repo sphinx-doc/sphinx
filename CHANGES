@@ -38,6 +38,7 @@ Bugs fixed
   mocked module
 * #4973: latex: glossary directive adds whitespace to each item
 * #4980: latex: Explicit labels on code blocks are duplicated
+* #4919: node.asdom() crashes if toctree has :numbered: option
 
 Testing
 --------
