@@ -1219,6 +1219,22 @@ class ASTPostfixExpr(ASTBase):
             p.describe_signature(signode, mode, env, symbol)
 
 
+class ASTPackExpansionExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return text_type(self.expr) + '...'
+
+    def get_id(self, version):
+        id = self.expr.get_id(version)
+        return 'sp' + id
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode += nodes.Text('...')
+
+
 class ASTFallbackExpr(ASTBase):
     def __init__(self, expr):
         self.expr = expr
@@ -4273,6 +4289,9 @@ class DefinitionParser(object):
                     if self.skip_string('*'):
                         # don't steal the dot
                         self.pos -= 2
+                    elif self.skip_string('..'):
+                        # don't steal the dot
+                        self.pos -= 3
                     else:
                         name = self._parse_nested_name()
                         postFixes.append(ASTPostfixMember(name))  # type: ignore
@@ -4299,7 +4318,11 @@ class DefinitionParser(object):
                     while True:
                         self.skip_ws()
                         expr = self._parse_expression(inTemplate=False)
-                        exprs.append(expr)
+                        self.skip_ws()
+                        if self.skip_string('...'):
+                            exprs.append(ASTPackExpansionExpr(expr))
+                        else:
+                            exprs.append(expr)
                         self.skip_ws()
                         if self.skip_string(')'):
                             break
