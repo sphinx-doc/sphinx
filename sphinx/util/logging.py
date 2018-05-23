@@ -373,7 +373,7 @@ class WarningIsErrorFilter(logging.Filter):
             location = getattr(record, 'location', '')
             try:
                 message = record.msg % record.args
-            except TypeError:
+            except (TypeError, ValueError):
                 message = record.msg  # use record.msg itself
 
             if location:
