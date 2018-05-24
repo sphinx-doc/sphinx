@@ -173,6 +173,12 @@ Bugs fixed
   mocked module
 * #4973: latex: glossary directive adds whitespace to each item
 * #4980: latex: Explicit labels on code blocks are duplicated
+* #4919: node.asdom() crashes if toctree has :numbered: option
+* #4914: autodoc: Parsing error when using dataclasses without default values
+* #4931: autodoc: crashed when handler for autodoc-skip-member raises an error
+* #4931: autodoc: crashed when subclass of mocked class are processed by
+  napoleon module
+* #5007: sphinx-build crashes when error log contains a "%" character
 
 Testing
 --------

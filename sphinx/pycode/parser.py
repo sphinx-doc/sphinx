@@ -225,12 +225,13 @@ class AfterCommentParser(TokenProcessor):
     def parse(self):
         # type: () -> None
         """Parse the code and obtain comment after assignment."""
-        # skip lvalue (until '=' operator)
-        while self.fetch_token() != [OP, '=']:
+        # skip lvalue (or whole of AnnAssign)
+        while not self.fetch_token().match([OP, '='], NEWLINE, COMMENT):
             assert self.current
 
-        # skip rvalue
-        self.fetch_rvalue()
+        # skip rvalue (if exists)
+        if self.current == [OP, '=']:
+            self.fetch_rvalue()
 
         if self.current == COMMENT:
             self.comment = self.current.value
