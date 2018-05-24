@@ -23,7 +23,7 @@ from sphinx.util.inspect import isenumclass, safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, List, Optional, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class _MockObject(object):
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
-        pass
+        self.__qualname__ = ''
 
     def __len__(self):
         # type: () -> int
@@ -52,8 +52,8 @@ class _MockObject(object):
         return False
 
     def __iter__(self):
-        # type: () -> None
-        pass
+        # type: () -> Iterator
+        return iter([])
 
     def __mro_entries__(self, bases):
         # type: (Tuple) -> Tuple
