@@ -43,6 +43,7 @@ Bugs fixed
 * #4931: autodoc: crashed when handler for autodoc-skip-member raises an error
 * #4931: autodoc: crashed when subclass of mocked class are processed by
   napoleon module
+* #5007: sphinx-build crashes when error log contains a "%" character
 
 Testing
 --------
