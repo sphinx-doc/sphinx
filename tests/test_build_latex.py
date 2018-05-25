@@ -122,6 +122,14 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     compile_latex_document(app)
 
 
+@pytest.mark.sphinx('latex', testroot='build-multiple-latex-docs')
+def test_build_multiple_latex_docs(app, status, warning):
+    app.builder.build_all()
+
+    assert (app.outdir / 'file1.tex').isfile()
+    assert (app.outdir / 'file2.tex').isfile()
+
+
 @pytest.mark.sphinx('latex')
 def test_writer(app, status, warning):
     app.builder.build_all()
