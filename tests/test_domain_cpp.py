@@ -214,6 +214,9 @@ def test_expressions():
     exprCheck('operator()()', 'clclE')
     exprCheck('operator()<int>()', 'clclIiEE')
 
+    # pack expansion
+    exprCheck('a(b(c, 1 + d...)..., e(f..., g))', 'cl1aspcl1b1cspplL1E1dEcl1esp1f1gEE')
+
 
 def test_type_definitions():
     check("type", "public bool b", {1: "b", 2: "1b"}, "bool b")

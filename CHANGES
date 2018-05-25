@@ -124,6 +124,7 @@ Bugs fixed
 * #4850: latex: footnote inside footnote was not rendered
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
   to Shengjing Zhu.
+* C++, parse pack expansions in function calls
 
 Testing
 --------
