@@ -491,6 +491,10 @@ def test_class_definitions():
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
+def test_union_definitions():
+    check('union', 'A', {2: "1A"})
+
+
 def test_enum_definitions():
     check('enum', 'A', {2: "1A"})
     check('enum', 'A : std::underlying_type<B>::type', {2: "1A"})

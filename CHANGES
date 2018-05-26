@@ -117,6 +117,7 @@ Features added
 * #4927: Display a warning when invalid values are passed to linenothreshold
   option of highlight directive
 * C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
+* C++, add support for unions.
 
 Bugs fixed
 ----------

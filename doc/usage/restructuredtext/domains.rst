@@ -702,6 +702,10 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:enumerator:: MyEnum::myOtherEnumerator = 42
 
+.. rst:directive:: .. cpp:union:: name
+
+   Describe a union.
+
 .. rst:directive:: .. cpp:concept:: template-parameter-list name
 
    .. warning:: The support for concepts is experimental. It is based on the

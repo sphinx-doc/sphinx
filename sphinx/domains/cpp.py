@@ -3196,6 +3196,27 @@ class ASTClass(ASTBase):
             signode.pop()
 
 
+class ASTUnion(ASTBase):
+    def __init__(self, name):
+        # type: (Any) -> None
+        self.name = name
+
+    def get_id(self, version, objectType, symbol):
+        # type: (int, unicode, Symbol) -> unicode
+        if version == 1:
+            raise NoOldIdError()
+        return symbol.get_full_nested_name().get_id(version)
+
+    def __unicode__(self):
+        # type: () -> unicode
+        return text_type(self.name)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        _verify_description_mode(mode)
+        self.name.describe_signature(signode, mode, env, symbol=symbol)
+
+
 class ASTEnum(ASTBase):
     def __init__(self, name, scoped, underlyingType):
         # type: (Any, unicode, Any) -> None
@@ -3361,6 +3382,8 @@ class ASTDeclaration(ASTBase):
             pass
         elif self.objectType == 'class':
             mainDeclNode += addnodes.desc_annotation('class ', 'class ')
+        elif self.objectType == 'union':
+            mainDeclNode += addnodes.desc_annotation('union ', 'union ')
         elif self.objectType == 'enum':
             prefix = 'enum '
             if self.scoped:  # type: ignore
@@ -5259,6 +5282,11 @@ class DefinitionParser(object):
                     break
         return ASTClass(name, final, bases)
 
+    def _parse_union(self):
+        # type: () -> ASTUnion
+        name = self._parse_nested_name()
+        return ASTUnion(name)
+
     def _parse_enum(self):
         # type: () -> ASTEnum
         scoped = None  # type: unicode #  is set by CPPEnumObject
@@ -5466,7 +5494,7 @@ class DefinitionParser(object):
     def parse_declaration(self, objectType):
         # type: (unicode) -> ASTDeclaration
         if objectType not in ('type', 'concept', 'member',
-                              'function', 'class', 'enum', 'enumerator'):
+                              'function', 'class', 'union', 'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
         visibility = None
         templatePrefix = None
@@ -5505,6 +5533,8 @@ class DefinitionParser(object):
             declaration = self._parse_type(named=True, outer='function')
         elif objectType == 'class':
             declaration = self._parse_class()
+        elif objectType == 'union':
+            declaration = self._parse_union()
         elif objectType == 'enum':
             declaration = self._parse_enum()
         elif objectType == 'enumerator':
@@ -5807,6 +5837,16 @@ class CPPClassObject(CPPObject):
         return parser.parse_declaration("class")
 
 
+class CPPUnionObject(CPPObject):
+    def get_index_text(self, name):
+        # type: (unicode) -> unicode
+        return _('%s (C++ union)') % name
+
+    def parse_definition(self, parser):
+        # type: (Any) -> Any
+        return parser.parse_declaration("union")
+
+
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         # type: (unicode) -> unicode
@@ -6007,6 +6047,7 @@ class CPPDomain(Domain):
     label = 'C++'
     object_types = {
         'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
+        'union':      ObjType(_('union'),      'union',             'type', 'identifier'),
         'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
         'member':     ObjType(_('member'),     'member',    'var'),
         'type':       ObjType(_('type'),                            'type', 'identifier'),
@@ -6017,6 +6058,7 @@ class CPPDomain(Domain):
 
     directives = {
         'class': CPPClassObject,
+        'union': CPPUnionObject,
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
         'var': CPPMemberObject,
@@ -6033,6 +6075,7 @@ class CPPDomain(Domain):
     roles = {
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
+        'union': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),
         'var': CPPXRefRole(),
