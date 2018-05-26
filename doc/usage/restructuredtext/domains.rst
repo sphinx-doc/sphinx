@@ -569,10 +569,10 @@ visibility statement (``public``, ``private`` or ``protected``).
    Full and partial template specialisations can be declared::
 
       .. cpp:class:: template<> \
-                      std::array<bool, 256>
+                     std::array<bool, 256>
 
       .. cpp:class:: template<typename T> \
-                      std::array<T, 42>
+                     std::array<T, 42>
 
 .. rst:directive:: .. cpp:function:: (member) function prototype
 
@@ -815,24 +815,31 @@ Inline Expressions and Tpes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
+              cpp:texpr
 
-   A role for inserting a C++ expression or type as inline text.  For example::
+   Insert a C++ expression or type either as inline code (``cpp:expr``)
+   or inline text (``cpp:texpr``). For example::
 
       .. cpp:var:: int a = 42
 
       .. cpp:function:: int f(int i)
 
-      An expression: :cpp:expr:`a * f(a)`.
-      A type: :cpp:expr:`const MySortedContainer<int>&`.
+      An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
+
+      A type: :cpp:expr:`const MySortedContainer<int>&`
+      (or as text :cpp:texpr:`const MySortedContainer<int>&`).
 
    will be rendered as follows:
 
-  .. cpp:var:: int a = 42
+   .. cpp:var:: int a = 42
 
-  .. cpp:function:: int f(int i)
+   .. cpp:function:: int f(int i)
 
-  An expression: :cpp:expr:`a * f(a)`.  A type: :cpp:expr:`const
-  MySortedContainer<int>&`.
+   An expression: :cpp:expr:`a * f(a)` (or as text: :cpp:texpr:`a * f(a)`).
+
+   A type: :cpp:expr:`const MySortedContainer<int>&`
+   (or as text :cpp:texpr:`const MySortedContainer<int>&`).
+
 
 Namespacing
 ~~~~~~~~~~~
@@ -880,7 +887,7 @@ The ``cpp:namespace-pop`` directive undoes the most recent
 
          .. cpp:function:: std::size_t size() const
 
-   or:::
+   or::
 
       .. cpp:class:: template<typename T> \
                      std::vector
@@ -949,20 +956,23 @@ These roles link to the given declaration types:
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
-   Sphinx's syntax to give references a custom title can interfere with linking
-   to class templates, if nothing follows the closing angle bracket, i.e. if
-   the link looks like this: ``:cpp:class:`MyClass<int>```.  This is
-   interpreted as a link to ``int`` with a title of ``MyClass``.  In this case,
-   please escape the opening angle bracket with a backslash, like this:
-   ``:cpp:class:`MyClass\<int>```.
+   These roles follow the Sphinx :ref:`xref-syntax` rules. This means care must be
+   taken when referencing a (partial) template specialization, e.g. if the link looks like
+   this: ``:cpp:class:`MyClass<int>```.
+   This is interpreted as a link to ``int`` with a title of ``MyClass``.
+   In this case, escape the opening angle bracket with a backslash,
+   like this: ``:cpp:class:`MyClass\<int>```.
+
+   When a custom title is not needed it may be useful to use the roles for inline expressions,
+   :rst:role:`cpp:expr` and :rst:role:`cpp:texpr`, where angle brackets do not need escaping.
 
 .. admonition:: Note on References to Overloaded Functions
 
    It is currently impossible to link to a specific version of an overloaded
-   method.  Currently the C++ domain is the first domain that has basic support
-   for overloaded methods and until there is more data for comparison we don't
-   want to select a bad syntax to reference a specific overload.  Currently
-   Sphinx will link to the first overloaded version of the method / function.
+   function.  Currently the C++ domain is the first domain that has basic
+   support for overloaded functions and until there is more data for comparison
+   we don't want to select a bad syntax to reference a specific overload.
+   Currently Sphinx will link to the first overloaded version of the function.
 
 Declarations without template parameters and template arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -983,13 +993,13 @@ Assume the following declarations.
       .. cpp:class:: template<typename TInner> \
                      Inner
 
-In general the reference must include the template paraemter declarations,
+In general the reference must include the template parameter declarations,
 e.g., ``template\<typename TOuter> Wrapper::Outer``
 (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).  Currently the lookup
 only succeed if the template parameter identifiers are equal strings. That is,
 ``template\<typename UOuter> Wrapper::Outer`` will not work.
 
-The inner class template can not be directly referenced, unless the current
+The inner class template cannot be directly referenced, unless the current
 namespace is changed or the following shorthand is used.  If a template
 parameter list is omitted, then the lookup will assume either a template or a
 non-template, but not a partial template specialisation.  This means the

@@ -5965,6 +5965,16 @@ class CPPXRefRole(XRefRole):
 
 
 class CPPExprRole(object):
+    def __init__(self, asCode):
+        if asCode:
+            # render the expression as inline code
+            self.class_type = 'cpp-expr'
+            self.node_type = nodes.literal
+        else:
+            # render the expression as inline text
+            self.class_type = 'cpp-texpr'
+            self.node_type = nodes.inline
+
     def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
         class Warner(object):
             def warn(self, msg):
@@ -5972,18 +5982,23 @@ class CPPExprRole(object):
         text = utils.unescape(text).replace('\n', ' ')
         env = inliner.document.settings.env
         parser = DefinitionParser(text, Warner(), env.config)
+        # attempt to mimic XRefRole classes, except that...
+        classes = ['xref', 'cpp', self.class_type]
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
             Warner().warn('Unparseable C++ expression: %r\n%s'
                           % (text, text_type(ex.description)))
-            return [nodes.literal(text)], []
+            # see below
+            return [self.node_type(text, text, classes=classes)], []
         parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = env.domaindata['cpp']['root_symbol']
-        p = nodes.literal()
-        ast.describe_signature(p, 'markType', env, parentSymbol)
-        return [p], []
+        # ...most if not all of these classes should really apply to the individual references,
+        # not the container node
+        signode = self.node_type(classes=classes)
+        ast.describe_signature(signode, 'markType', env, parentSymbol)
+        return [signode], []
 
 
 class CPPDomain(Domain):
@@ -6025,7 +6040,8 @@ class CPPDomain(Domain):
         'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole(),
-        'expr': CPPExprRole()
+        'expr': CPPExprRole(asCode=True),
+        'texpr': CPPExprRole(asCode=False)
     }
     initial_data = {
         'root_symbol': Symbol(None, None, None, None, None, None),
