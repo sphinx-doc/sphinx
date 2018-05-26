@@ -1525,12 +1525,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return get_nested_level(node.parent)
 
         enum = "enum%s" % toRoman(get_nested_level(node)).lower()
+        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
 
         self.body.append('\\begin{enumerate}\n')
-        self.body.append('\\renewcommand{\\the%s}{%s{%s}}\n' % (enum, style, enum))
-        self.body.append('\\makeatletter\\renewcommand{\\p@%s}{%s\\the%s%s}\\makeatother\n' %
-                         (enum, node['prefix'], enum, node['suffix']))
+        self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
+        self.body.append('\\def\\label%s{\\the%s.}\n' % (enum, enum))
+        self.body.append('\\makeatletter\\def\\p@%s{\\p@%s\\the%s.}\\makeatother\n' %
+                         (enumnext, enum, enum))
         if 'start' in node:
             self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
