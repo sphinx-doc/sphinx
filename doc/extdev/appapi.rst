@@ -71,7 +71,7 @@ package.
 
 .. automethod:: Sphinx.add_post_transform(transform)
 
-.. automethod:: Sphinx.add_javascript(filename)
+.. automethod:: Sphinx.add_js_file(filename, **kwargs)
 
 .. automethod:: Sphinx.add_css_file(filename, **kwargs)
 
