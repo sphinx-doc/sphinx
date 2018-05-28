@@ -144,7 +144,7 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
-Release 1.7.5 (in development)
+Release 1.7.6 (in development)
 ==============================
 
 Dependencies
@@ -162,6 +162,15 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 1.7.5 (released May 29, 2018)
+=====================================
+
+Bugs fixed
+----------
+
 * #4924: html search: Upper characters problem in any other languages
 * #4932: apidoc: some subpackage is ignored if sibling subpackage contains a
   module starting with underscore
@@ -172,6 +181,7 @@ Bugs fixed
 * #4825: C++, properly parse expr roles and give better error messages when
   (escaped) line breaks are present.
 * C++, properly use ``desc_addname`` nodes for prefixes of names.
+* C++, parse pack expansions in function calls.
 * #4915, #4916: links on search page are broken when using dirhtml builder
 * #4969: autodoc: constructor method should not have return annotation
 * latex: deeply nested enumerated list which is beginning with non-1 causes
@@ -190,9 +200,6 @@ Bugs fixed
 * #4931: autodoc: crashed when subclass of mocked class are processed by
   napoleon module
 * #5007: sphinx-build crashes when error log contains a "%" character
-
-Testing
---------
 
 Release 1.7.4 (released Apr 25, 2018)
 =====================================
