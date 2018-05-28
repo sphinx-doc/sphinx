@@ -65,9 +65,14 @@ Deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_section_ids`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
-* ``LaTeXWriter.bibitems`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.bibitems`` is deprecated
 * ``BuildEnvironment.load()`` is deprecated
 * ``BuildEnvironment.loads()`` is deprecated
 * ``BuildEnvironment.frompickle()`` is deprecated
@@ -117,6 +122,8 @@ Features added
 * #4785: napoleon: Add strings to translation file for localisation
 * #4927: Display a warning when invalid values are passed to linenothreshold
   option of highlight directive
+* C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
+* C++, add support for unions.
 * #3606: MathJax should be loaded with async attribute
 
 Bugs fixed
@@ -175,6 +182,12 @@ Bugs fixed
   mocked module
 * #4973: latex: glossary directive adds whitespace to each item
 * #4980: latex: Explicit labels on code blocks are duplicated
+* #4919: node.asdom() crashes if toctree has :numbered: option
+* #4914: autodoc: Parsing error when using dataclasses without default values
+* #4931: autodoc: crashed when handler for autodoc-skip-member raises an error
+* #4931: autodoc: crashed when subclass of mocked class are processed by
+  napoleon module
+* #5007: sphinx-build crashes when error log contains a "%" character
 
 Testing
 --------

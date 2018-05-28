@@ -313,19 +313,6 @@ class BuildEnvironment(object):
         """Like :meth:`warn`, but with source information taken from *node*."""
         self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
 
-    def need_refresh(self, app):
-        # type: (Sphinx) -> Tuple[bool, unicode]
-        """Check refresh environment is needed.
-
-        If needed, this method returns the reason for refresh.
-        """
-        if self.version != app.registry.get_envversion(app):
-            return True, __('build environment version not current')
-        elif self.srcdir != app.srcdir:
-            return True, __('source directory has changed')
-        else:
-            return False, None
-
     def clear_doc(self, docname):
         # type: (unicode) -> None
         """Remove all traces of a source file in the inventory."""

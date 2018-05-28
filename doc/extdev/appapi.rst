@@ -73,7 +73,7 @@ package.
 
 .. automethod:: Sphinx.add_js_file(filename, **kwargs)
 
-.. automethod:: Sphinx.add_stylesheet(filename, alternate=None, title=None)
+.. automethod:: Sphinx.add_css_file(filename, **kwargs)
 
 .. automethod:: Sphinx.add_latex_package(packagename, options=None)
 

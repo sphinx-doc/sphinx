@@ -56,8 +56,7 @@ def repr_domxml(node, length=80):
        returns full of DOM XML representation.
     :return: DOM XML representation
     """
-    # text = node.asdom().toxml()  # #4919 crush if node has secnumber with tuple value
-    text = text_type(node)  # workaround for #4919
+    text = node.asdom().toxml()
     if length and len(text) > length:
         text = text[:length] + '...'
     return text
@@ -82,9 +81,8 @@ def apply_source_workaround(node):
                      get_full_module_name(node), repr_domxml(node))
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.title) and node.source is None:
-        # Uncomment these lines after merging into master(1.8)
-        # logger.debug('[i18n] PATCH: %r to have source: %s',
-        #              get_full_module_name(node), repr_domxml(node))
+        logger.debug('[i18n] PATCH: %r to have source: %s',
+                     get_full_module_name(node), repr_domxml(node))
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
         logger.debug('[i18n] PATCH: %r to have rawsource: %s',

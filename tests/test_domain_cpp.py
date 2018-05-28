@@ -491,6 +491,10 @@ def test_class_definitions():
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
+def test_union_definitions():
+    check('union', 'A', {2: "1A"})
+
+
 def test_enum_definitions():
     check('enum', 'A', {2: "1A"})
     check('enum', 'A : std::underlying_type<B>::type', {2: "1A"})
@@ -735,3 +739,68 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     t = (app.outdir / f).text()
     for s in parenPatterns:
         check(s, t, f)
+
+
+@pytest.mark.sphinx(testroot='domain-cpp')
+def test_xref_consistency(app, status, warning):
+    app.builder.build_all()
+
+    test = 'xref_consistency.html'
+    output = (app.outdir / test).text()
+
+    def classes(role, tag):
+        pattern = (r'{role}-role:.*?'
+                    '<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+                    '.*'
+                    '</(?P=tag)>').format(role=role, tag=tag)
+        result = re.search(pattern, output)
+        expect = '''\
+Pattern for role `{role}` with tag `{tag}`
+\t{pattern}
+not found in `{test}`
+'''.format(role=role, tag=tag, pattern=pattern, test=test)
+        assert result, expect
+        return set(result.group('classes').split())
+
+    class RoleClasses(object):
+        """Collect the classes from the layout that was generated for a given role."""
+
+        def __init__(self, role, root, contents):
+            self.name = role
+            self.classes = classes(role, root)
+            self.content_classes = dict()
+            for tag in contents:
+                self.content_classes[tag] = classes(role, tag)
+
+    # not actually used as a reference point
+    #code_role = RoleClasses('code', 'code', [])
+    any_role = RoleClasses('any', 'a', ['code'])
+    cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
+    # NYI: consistent looks
+    #texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
+    expr_role = RoleClasses('cpp-expr', 'code', ['a'])
+    texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
+
+    # XRefRole-style classes
+
+    ## any and cpp:any do not put these classes at the root
+
+    # n.b. the generic any machinery finds the specific 'cpp-class' object type
+    expect = 'any uses XRefRole classes'
+    assert {'xref', 'any', 'cpp', 'cpp-class'} <= any_role.content_classes['code'], expect
+
+    expect = 'cpp:any uses XRefRole classes'
+    assert {'xref', 'cpp-any', 'cpp'} <= cpp_any_role.content_classes['code'], expect
+
+    for role in (expr_role, texpr_role):
+        name = role.name
+        expect = '`{name}` puts the domain and role classes at its root'.format(name=name)
+        # NYI: xref should go in the references
+        assert {'xref', 'cpp', name} <= role.classes, expect
+
+    # reference classes
+
+    expect = 'the xref roles use the same reference classes'
+    assert any_role.classes == cpp_any_role.classes, expect
+    assert any_role.classes == expr_role.content_classes['a'], expect
+    assert any_role.classes == texpr_role.content_classes['a'], expect
