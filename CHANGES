@@ -1,17 +1,5 @@
-Release 1.7.5 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.7.5 (released May 29, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -45,9 +33,6 @@ Bugs fixed
 * #4931: autodoc: crashed when subclass of mocked class are processed by
   napoleon module
 * #5007: sphinx-build crashes when error log contains a "%" character
-
-Testing
---------
 
 Release 1.7.4 (released Apr 25, 2018)
 =====================================
