@@ -64,9 +64,14 @@ Deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_section_ids`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
-* ``LaTeXWriter.bibitems`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.bibitems`` is deprecated
 * ``BuildEnvironment.load()`` is deprecated
 * ``BuildEnvironment.loads()`` is deprecated
 * ``BuildEnvironment.frompickle()`` is deprecated
