@@ -33,6 +33,7 @@ Incompatible changes
   :confval:`viewcode_follow_imported_members` (refs: #4035)
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
+* #4648: latex: Now "rubric" elements are rendered as unnumbered section title
 * #4983: html: The URL for the productionlist has been changed
 
 Deprecated
@@ -64,9 +65,14 @@ Deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_section_ids`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
-* ``LaTeXWriter.bibitems`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXWriter.bibitems`` is deprecated
 * ``BuildEnvironment.load()`` is deprecated
 * ``BuildEnvironment.loads()`` is deprecated
 * ``BuildEnvironment.frompickle()`` is deprecated
@@ -113,6 +119,11 @@ Features added
   configuration file
 * #4866: Wrap graphviz diagrams in ``<div>`` tag
 * Add :event:`viewcode-find-source` event to viewcode extension.
+* #4785: napoleon: Add strings to translation file for localisation
+* #4927: Display a warning when invalid values are passed to linenothreshold
+  option of highlight directive
+* C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
+* C++, add support for unions.
 
 Bugs fixed
 ----------
@@ -169,6 +180,14 @@ Bugs fixed
 * #4979: latex: Incorrect escaping of curly braces in index entries
 * #4956: autodoc: Failed to extract document from a subclass of the class on
   mocked module
+* #4973: latex: glossary directive adds whitespace to each item
+* #4980: latex: Explicit labels on code blocks are duplicated
+* #4919: node.asdom() crashes if toctree has :numbered: option
+* #4914: autodoc: Parsing error when using dataclasses without default values
+* #4931: autodoc: crashed when handler for autodoc-skip-member raises an error
+* #4931: autodoc: crashed when subclass of mocked class are processed by
+  napoleon module
+* #5007: sphinx-build crashes when error log contains a "%" character
 
 Testing
 --------

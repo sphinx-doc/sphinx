@@ -45,18 +45,12 @@ class Highlight(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec = {
-        'linenothreshold': directives.unchanged,
+        'linenothreshold': directives.positive_int,
     }
 
     def run(self):
         # type: () -> List[nodes.Node]
-        if 'linenothreshold' in self.options:
-            try:
-                linenothreshold = int(self.options['linenothreshold'])
-            except Exception:
-                linenothreshold = 10
-        else:
-            linenothreshold = sys.maxsize
+        linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
                                        linenothreshold=linenothreshold)]
 

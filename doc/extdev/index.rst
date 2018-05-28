@@ -171,12 +171,37 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.next_section_ids``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
      - 1.8
      - 3.0
      - N/A
 
    * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()``
      - 1.8
      - 3.0
      - N/A
