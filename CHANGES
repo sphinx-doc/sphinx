@@ -84,9 +84,11 @@ Deprecated
 * ``env._read_parallel()`` is deprecated
 * ``env.write_doctree()`` is deprecated
 * ``env._nitpick_ignore`` is deprecated
+* ``env.versionchanges`` is deprecated
 * ``env.dump()`` is deprecated
 * ``env.dumps()`` is deprecated
 * ``env.topickle()`` is deprecated
+* ``env.note_versionchange()`` is deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.footnotestack`` is deprecated

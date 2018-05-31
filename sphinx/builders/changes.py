@@ -11,11 +11,13 @@
 
 import codecs
 from os import path
+from typing import cast
 
 from six import iteritems
 
 from sphinx import package_dir
 from sphinx.builders import Builder
+from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
@@ -60,6 +62,7 @@ class ChangesBuilder(Builder):
     def write(self, *ignored):
         # type: (Any) -> None
         version = self.config.version
+        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         libchanges = {}     # type: Dict[unicode, List[Tuple[unicode, unicode, int]]]
         apichanges = []     # type: List[Tuple[unicode, unicode, int]]
         otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
@@ -67,21 +70,22 @@ class ChangesBuilder(Builder):
             logger.info(bold(__('no changes in version %s.') % version))
             return
         logger.info(bold('writing summary file...'))
-        for type, docname, lineno, module, descname, content in \
-                self.env.versionchanges[version]:
-            if isinstance(descname, tuple):
-                descname = descname[0]
-            ttext = self.typemap[type]
-            context = content.replace('\n', ' ')
-            if descname and docname.startswith('c-api'):
+        for changeset in domain.get_changesets_for(version):
+            if isinstance(changeset.descname, tuple):
+                descname = changeset.descname[0]
+            else:
+                descname = changeset.descname
+            ttext = self.typemap[changeset.type]
+            context = changeset.content.replace('\n', ' ')
+            if descname and changeset.docname.startswith('c-api'):
                 if context:
                     entry = '<b>%s</b>: <i>%s:</i> %s' % (descname, ttext,
                                                           context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
-                apichanges.append((entry, docname, lineno))
-            elif descname or module:
-                if not module:
+                apichanges.append((entry, changeset.docname, changeset.lineno))
+            elif descname or changeset.module:
+                if not changeset.module:
                     module = _('Builtins')
                 if not descname:
                     descname = _('Module level')
@@ -90,15 +94,15 @@ class ChangesBuilder(Builder):
                                                           context)
                 else:
                     entry = '<b>%s</b>: <i>%s</i>.' % (descname, ttext)
-                libchanges.setdefault(module, []).append((entry, docname,
-                                                          lineno))
+                libchanges.setdefault(module, []).append((entry, changeset.docname,
+                                                          changeset.lineno))
             else:
                 if not context:
                     continue
                 entry = '<i>%s:</i> %s' % (ttext.capitalize(), context)
-                title = self.env.titles[docname].astext()
-                otherchanges.setdefault((docname, title), []).append(
-                    (entry, docname, lineno))
+                title = self.env.titles[changeset.docname].astext()
+                otherchanges.setdefault((changeset.docname, title), []).append(
+                    (entry, changeset.docname, changeset.lineno))
 
         ctx = {
             'project': self.config.project,

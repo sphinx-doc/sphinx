@@ -261,8 +261,8 @@ class VersionChange(SphinxDirective):
                                                 classes=['versionmodified']),
                                    translatable=False)
             node.append(para)
-        # XXX should record node.source as well
-        self.env.note_versionchange(node['type'], node['version'], node, node.line)
+
+        self.env.get_domain('changeset').note_changeset(node)  # type: ignore
         return [node] + messages
 
 

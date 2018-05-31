@@ -80,6 +80,7 @@ builtin_extensions = (
     'sphinx.builders.xml',
     'sphinx.config',
     'sphinx.domains.c',
+    'sphinx.domains.changeset',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
     'sphinx.domains.math',

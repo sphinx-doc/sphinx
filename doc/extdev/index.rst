@@ -385,6 +385,11 @@ The following is a list of deprecated interface.
      - 3.0
      - :confval:`nitpick_ignore`
 
+   * - ``BuildEnvironment.versionchanges``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``BuildEnvironment.update()``
      - 1.8
      - 3.0
@@ -409,6 +414,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``Builder.write_doctree()``
+
+   * - ``BuildEnvironment.note_versionchange()``
+     - 1.8
+     - 3.0
+     - ``ChangesDomain.note_changeset()``
 
    * - ``warn()`` (template helper function)
      - 1.8
