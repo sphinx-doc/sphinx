@@ -171,47 +171,47 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.footnotestack``
+   * - ``sphinx.writers.latex.LaTeXTranslator.footnotestack``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block``
+   * - ``sphinx.writers.latex.LaTeXTranslator.in_container_literal_block``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.next_section_ids``
+   * - ``sphinx.writers.latex.LaTeXTranslator.next_section_ids``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids``
+   * - ``sphinx.writers.latex.LaTeXTranslator.next_hyperlink_ids``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.restrict_footnote()``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.unrestrict_footnote()``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.push_hyperlink_ids()``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.pop_hyperlink_ids()``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.bibitems``
+   * - ``sphinx.writers.latex.LaTeXTranslator.bibitems``
      - 1.8
      - 3.0
      - N/A
