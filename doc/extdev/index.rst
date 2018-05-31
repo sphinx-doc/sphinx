@@ -247,10 +247,22 @@ The following is a list of deprecated interface.
      - 3.0
      - ``sphinx.versioning.UIDTransform``
 
-   * - ``sphinx.application.Sphinx.override_domain()``
+   * - ``Sphinx.override_domain()``
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_domain()`
+
+   * - ``Sphinx.import_object()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.import_object()``
+
+   * - ``suffix`` argument of
+       :meth:`~sphinx.application.Sphinx.add_source_parser()`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
+
 
    * - ``BuildEnvironment.load()``
      - 1.8
@@ -321,17 +333,6 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_source_parser()`
-
-   * - ``Sphinx.import_object()``
-     - 1.8
-     - 3.0
-     - ``sphinx.util.import_object()``
-
-   * - ``suffix`` argument of
-       :meth:`~sphinx.application.Sphinx.add_source_parser()`
-     - 1.8
-     - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
 
    * - ``sphinx.util.docutils.directive_helper()``
      - 1.8

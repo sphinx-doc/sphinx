@@ -40,11 +40,8 @@ Deprecated
 ----------
 
 * :confval:`source_parsers` is deprecated
-* ``Application.import_object()`` is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
-* ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
-  been deprecated
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
 * ``sphinx.locale.l_()`` is deprecated
@@ -52,6 +49,9 @@ Deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
 * ``app.add_javascript()`` is deprecated
+* ``app.import_object()`` is deprecated
+* ``app.add_source_parser()`` has changed;  the *suffix* argument has been
+  deprecated
 * ``sphinx.versioning.prepare()`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
