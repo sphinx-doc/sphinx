@@ -32,7 +32,10 @@ def apidoc(rootdir, tempdir, apidoc_params):
 
 @pytest.fixture
 def apidoc_params(request):
-    markers = request.node.get_marker("apidoc")
+    if hasattr(request.node, 'iter_markers'):  # pytest-3.6.0 or newer
+        markers = request.node.iter_markers("apidoc")
+    else:
+        markers = request.node.get_marker("apidoc")
     pargs = {}
     kwargs = {}
 
