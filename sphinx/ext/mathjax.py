@@ -11,6 +11,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import json
+
 from docutils import nodes
 
 import sphinx
@@ -79,6 +81,10 @@ def builder_inited(app):
             options.update(app.config.mathjax_options)
         app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
+        if app.config.mathjax_config:
+            body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
+            app.builder.add_js_file(None, type="text/x-mathjax-config", body=body)  # type: ignore  # NOQA
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
@@ -94,6 +100,7 @@ def setup(app):
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
+    app.add_config_value('mathjax_config', None, 'html')
     app.connect('builder-inited', builder_inited)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

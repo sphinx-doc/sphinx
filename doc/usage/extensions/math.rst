@@ -168,6 +168,23 @@ Sphinx.
 
    The default is empty (``{}``).
 
+.. confval:: mathjax_config
+
+   The inline configuration options for mathjax.  The value is used as a
+   parameter of ``MathJax.Hub.Config()``.  For more information, please
+   read `Using in-line configuration options`_.
+
+   For example::
+
+       mathjax_config = {
+           'extensions': ['tex2jax.js'],
+           'jax': ['input/TeX', 'output/HTML-CSS'],
+       }
+
+   The default is empty (not configured).
+
+.. _Using in-line configuration options: http://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
+
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------
 
