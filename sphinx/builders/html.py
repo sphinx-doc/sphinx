@@ -1524,6 +1524,7 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
             attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
             # str value (old styled)
+            attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
         return '<script %s></script>' % ' '.join(attrs)
 
