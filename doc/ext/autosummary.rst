@@ -205,6 +205,11 @@ The following variables available in the templates:
    List containing names of all members of the module or class.  Only available
    for modules and classes.
 
+.. data:: inherited_members
+
+   List containing names of all inherited members of class.  Only available for
+   classes.
+
 .. data:: functions
 
    List containing names of "public" functions in the module.  Here, "public"
