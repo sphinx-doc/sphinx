@@ -16,6 +16,10 @@ Features added
 Bugs fixed
 ----------
 
+* #5016: ``character_level_inline_markup`` setting is not initialized for
+  combination of non reST source parsers (ex. recommonmark) and docutils-0.13
+
+
 Testing
 --------
 

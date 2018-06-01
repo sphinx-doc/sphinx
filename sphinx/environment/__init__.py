@@ -66,6 +66,7 @@ default_settings = {
     'halt_level': 5,
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
+    'character_level_inline_markup': False,  # for docutils-0.13.1 or older
 }
 
 # This is increased every time an environment attribute is added
