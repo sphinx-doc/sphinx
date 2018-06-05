@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5037: LaTeX ``\sphinxupquote{}`` breaks in Russian
+
 Testing
 --------
 
