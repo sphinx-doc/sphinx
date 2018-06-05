@@ -200,15 +200,10 @@ class ExtBabel(Babel):
 
     def get_shorthandoff(self):
         # type: () -> unicode
-        shortlang = self.language.split('_')[0]
-        if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
-                         'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
-                         'italian', 'pt-BR', 'brazil'):
-            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
-        elif shortlang in ('tr', 'turkish'):
-            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
-            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
-        return ''
+        return ('\\ifdefined\\shorthandoff\n'
+                '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
+                '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
+                '\\fi')
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -568,6 +563,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese
                     self.elements['babel'] = ''
+                    self.elements['shorthandoff'] = ''
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
