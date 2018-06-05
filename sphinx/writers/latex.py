@@ -200,42 +200,10 @@ class ExtBabel(Babel):
 
     def get_shorthandoff(self):
         # type: () -> unicode
-        shortlang = self.language.split('_')[0]
-        if shortlang in ('br', 'breton',
-                         'bg', 'bulgarian',
-                         'ca', 'catalan',
-                         'cs', 'czech',
-                         'da', 'danish',
-                         'de', 'ngerman',
-                         'de-1901', 'german',
-                         'de-AT', 'naustrian',
-                         'de-AT-1901', 'austrian',
-                         'es', 'spanish',
-                         'et', 'estonian',
-                         'eu', 'basque',
-                         'hsb', 'uppersorbian',
-                         'gl', 'galician',
-                         'is', 'icelandic',
-                         'it', 'italian',
-                         'fi', 'finnish',
-                         'nn', 'nynorsk',
-                         'no', 'norsk',
-                         'nl', 'dutch',
-                         'pl', 'polish',
-                         'pt', 'pt-PT', 'portuges',
-                         'pt-BR', 'brazil',
-                         'ru', 'russian',
-                         'sh-Latn', 'serbian',
-                         'sk', 'slovak',
-                         'sl', 'slovene',
-                         'sq', 'albanian',
-                         'sv', 'swedish',
-                         'uk', 'ukrainian'):
-            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
-        elif shortlang in ('tr', 'turkish'):
-            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
-            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
-        return ''
+        return ('\\ifdefined\\shorthandoff\n'
+                '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
+                '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
+                '\\fi')
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -595,6 +563,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese
                     self.elements['babel'] = ''
+                    self.elements['shorthandoff'] = ''
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
