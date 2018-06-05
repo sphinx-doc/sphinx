@@ -144,19 +144,19 @@ Sphinx runtime information
 
 The application object also provides runtime information as attributes.
 
-.. attribute:: srcdir
+.. attribute:: Sphinx.srcdir
 
    Source directory.
 
-.. attribute:: confdir
+.. attribute:: Sphinx.confdir
 
    Directory containing ``conf.py``.
 
-.. attribute:: doctreedir
+.. attribute:: Sphinx.doctreedir
 
    Directory for storing pickled doctrees.
 
-.. attribute:: outdir
+.. attribute:: Sphinx.outdir
 
    Directory for storing built document.
 
