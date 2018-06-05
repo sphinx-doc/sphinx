@@ -467,7 +467,7 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
             u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
-    assert '\\shorthandoff' not in result
+    assert '\\shorthandoff' in result
 
 
 @pytest.mark.sphinx(
@@ -529,7 +529,7 @@ def test_babel_with_unknown_language(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
-    assert '\\shorthandoff' not in result
+    assert '\\shorthandoff' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
