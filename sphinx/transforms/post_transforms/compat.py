@@ -71,8 +71,12 @@ class MathNodeMigrator(SphinxTransform):
                     warnings.warn("math node for Sphinx was replaced by docutils'. "
                                   "Please use ``docutils.nodes.math_block`` instead.",
                                   RemovedInSphinx30Warning)
-                    latex = node['latex']
-                    node += nodes.Text(latex, latex)
+                    if isinstance(node, displaymath):
+                        newnode = nodes.math_block('', node['latex'], **node.attributes)
+                        node.replace_self(newnode)
+                    else:
+                        latex = node['latex']
+                        node += nodes.Text(latex, latex)
 
 
 def setup(app):
