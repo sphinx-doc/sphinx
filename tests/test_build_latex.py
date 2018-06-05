@@ -424,7 +424,6 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
-    assert '\\shorthandoff' not in result
 
 
 @pytest.mark.sphinx(
@@ -445,7 +444,6 @@ def test_babel_with_language_de(app, status, warning):
     assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\addto\\extrasngerman{\\def\\pageautorefname{Seite}}\n' in result
-    assert '\\shorthandoff{"}' in result
 
 
 @pytest.mark.sphinx(
@@ -467,7 +465,6 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
             u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
-    assert '\\shorthandoff' in result
 
 
 @pytest.mark.sphinx(
@@ -488,7 +485,6 @@ def test_babel_with_language_tr(app, status, warning):
     assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\addto\\extrasturkish{\\def\\pageautorefname{sayfa}}\n' in result
-    assert '\\shorthandoff{=}' in result
 
 
 @pytest.mark.sphinx(
@@ -508,7 +504,6 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\figurename}{Fig.}\n' in result
     assert '\\renewcommand{\\tablename}{Table.}\n' in result
     assert u'\\def\\pageautorefname{ページ}\n' in result
-    assert '\\shorthandoff' not in result
 
 
 @pytest.mark.sphinx(
@@ -529,7 +524,6 @@ def test_babel_with_unknown_language(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
-    assert '\\shorthandoff' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
@@ -553,7 +547,6 @@ def test_polyglossia_with_language_de(app, status, warning):
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\def\\pageautorefname{Seite}\n' in result
-    assert '\\shorthandoff' not in result
 
 
 @pytest.mark.sphinx(
@@ -575,7 +568,6 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\def\\pageautorefname{page}\n' in result
-    assert '\\shorthandoff' not in result
 
 
 @pytest.mark.sphinx('latex')

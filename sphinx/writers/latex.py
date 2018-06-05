@@ -44,7 +44,10 @@ logger = logging.getLogger(__name__)
 
 BEGIN_DOC = r'''
 \begin{document}
-%(shorthandoff)s
+\ifdefined\shorthandoff
+  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
+  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
+\fi
 %(maketitle)s
 %(tableofcontents)s
 '''
@@ -101,7 +104,6 @@ DEFAULT_SETTINGS = {
     'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
-    'shorthandoff':    '',
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
@@ -216,13 +218,6 @@ class ExtBabel(Babel):
         self.use_polyglossia = use_polyglossia
         self.supported = True
         super(ExtBabel, self).__init__(language_code or '')
-
-    def get_shorthandoff(self):
-        # type: () -> unicode
-        return ('\\ifdefined\\shorthandoff\n'
-                '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
-                '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
-                '\\fi')
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -579,7 +574,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
-                self.elements['shorthandoff'] = self.babel.get_shorthandoff()
 
                 # Times fonts don't work with Cyrillic languages
                 if self.babel.uses_cyrillic() \
@@ -592,7 +586,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese
                     self.elements['babel'] = ''
-                    self.elements['shorthandoff'] = ''
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
