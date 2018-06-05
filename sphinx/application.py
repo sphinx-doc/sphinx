@@ -964,6 +964,7 @@ class Sphinx(object):
         document.
 
         .. list-table:: priority range categories for Sphinx transforms
+           :widths: 20,80
 
            * - Priority
              - Main purpose in Sphinx
