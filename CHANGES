@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #5037: LaTeX ``\sphinxupquote{}`` breaks in Russian
+* #5048: crashed with numbered toctree
 
 Testing
 --------
