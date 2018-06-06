@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #5037: LaTeX ``\sphinxupquote{}`` breaks in Russian
+* sphinx.testing uses deprecated pytest API; ``Node.get_marker(name)``
 
 Testing
 --------
