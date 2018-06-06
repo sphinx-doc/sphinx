@@ -74,6 +74,7 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXWriter.bibitems`` is deprecated
+* ``sphinx.writers.latex.ExtBabel.get_shorthandoff()`` is deprecated
 * ``BuildEnvironment.load()`` is deprecated
 * ``BuildEnvironment.loads()`` is deprecated
 * ``BuildEnvironment.frompickle()`` is deprecated
