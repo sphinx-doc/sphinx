@@ -44,14 +44,17 @@ logger = logging.getLogger(__name__)
 
 BEGIN_DOC = r'''
 \begin{document}
-\ifdefined\shorthandoff
-  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
-  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
-\fi
+%(shorthandoff)s
 %(maketitle)s
 %(tableofcontents)s
 '''
 
+SHORTHANDOFF = r'''
+\ifdefined\shorthandoff
+  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
+  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
+\fi
+'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -104,6 +107,7 @@ DEFAULT_SETTINGS = {
     'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
+    'shorthandoff':    '',
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
@@ -201,16 +205,6 @@ class LaTeXWriter(writers.Writer):
 
 class ExtBabel(Babel):
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
-    shorthands = {
-        'ngerman': '"',
-        'slovene': '"',
-        'portuges': '"',
-        'brazil': '"',
-        'spanish': '"',
-        'dutch': '"',
-        'polish': '"',
-        'italian': '"',
-    }
 
     def __init__(self, language_code, use_polyglossia=False):
         # type: (unicode, bool) -> None
@@ -218,6 +212,12 @@ class ExtBabel(Babel):
         self.use_polyglossia = use_polyglossia
         self.supported = True
         super(ExtBabel, self).__init__(language_code or '')
+
+    def get_shorthandoff(self):
+        # type: () -> unicode
+        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
+                      RemovedInSphinx20Warning)
+        return SHORTHANDOFF
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -574,6 +574,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
+                self.elements['shorthandoff'] = SHORTHANDOFF
 
                 # Times fonts don't work with Cyrillic languages
                 if self.babel.uses_cyrillic() \
@@ -586,6 +587,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese
                     self.elements['babel'] = ''
+                    self.elements['shorthandoff'] = ''
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
