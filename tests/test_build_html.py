@@ -1268,3 +1268,28 @@ def test_html_sidebar(app, status, warning):
 def test_html_manpage(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/'})
+def test_html_baseurl(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/index.html" />' in result
+
+    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/subdir',
+                                   'html_file_suffix': '.htm'})
+def test_html_baseurl_and_html_file_suffix(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
+
+    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result

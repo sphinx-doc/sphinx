@@ -827,6 +827,11 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.4
 
+.. confval:: html_baseurl
+
+   The URL which points to the root of the HTML documentation.  It is used to
+   indicate the location of document like ``canonical_url``.
+
 .. confval:: html_context
 
    A dictionary of values to pass into the template engine's context for all
