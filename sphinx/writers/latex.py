@@ -26,7 +26,7 @@ from six import itervalues, text_type
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.builders.latex.nodes import captioned_literal_block, footnotetext
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx20Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
