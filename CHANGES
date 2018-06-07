@@ -20,6 +20,7 @@ Bugs fixed
 * sphinx.testing uses deprecated pytest API; ``Node.get_marker(name)``
 * #5016: ``character_level_inline_markup`` setting is not initialized for
   combination of non reST source parsers (ex. recommonmark) and docutils-0.13
+* #5022: latex: crashed with docutils package provided by Debian/Ubuntu
 
 Testing
 --------
