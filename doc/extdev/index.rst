@@ -218,7 +218,7 @@ The following is a list of deprecated interface.
 
    * - ``sphinx.writers.latex.ExtBabel.get_shorthandoff()``
      - 1.8
-     - 2.0
+     - 3.0
      - N/A
 
    * - ``sphinx.application.CONFIG_FILENAME``

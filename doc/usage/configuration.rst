@@ -2114,7 +2114,6 @@ information.
      ``'author'``
      ``'logo'``
      ``'makeindex'``
-     ``'shorthandoff'``
 
 .. confval:: latex_docclass
 
