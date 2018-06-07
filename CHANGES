@@ -18,8 +18,7 @@ Bugs fixed
 
 * #5037: LaTeX ``\sphinxupquote{}`` breaks in Russian
 * sphinx.testing uses deprecated pytest API; ``Node.get_marker(name)``
-* #5016: ``character_level_inline_markup`` setting is not initialized for
-  combination of non reST source parsers (ex. recommonmark) and docutils-0.13
+* #5016: crashed when recommonmark.AutoStrictify is enabled
 
 Testing
 --------
