@@ -13,7 +13,6 @@ your documents.
 
 It adds these directives:
 
-
 .. rst:directive:: graphviz
 
    Directive to embed graphviz code.  The input code for ``dot`` is given as the

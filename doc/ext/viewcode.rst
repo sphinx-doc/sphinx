@@ -7,9 +7,8 @@
 
 .. versionadded:: 1.0
 
-
-This extension looks at your Python object descriptions (``.. class::``,
-``.. function::`` etc.) and tries to find the source files where the objects are
+This extension looks at your Python object descriptions (``.. class::``, ``..
+function::`` etc.) and tries to find the source files where the objects are
 contained.  When found, a separate HTML page will be output for each module with
 a highlighted version of the source code, and a link will be added to all object
 descriptions that leads to the source code of the described object.  A link back
@@ -33,14 +32,15 @@ This extension works only on HTML related builders like ``html``,
 ``singlehtml``. By default ``epub`` builder doesn't
 support this extension (see :confval:`viewcode_enable_epub`).
 
-There is an additional config value:
+Configuration
+-------------
 
 .. confval:: viewcode_follow_imported_members
 
    If this is ``True``, viewcode extension will follow alias objects that
-   imported from another module such as functions, classes and attributes.
-   As side effects, this option
-   else they produce nothing.  The default is ``True``.
+   imported from another module such as functions, classes and attributes.  As
+   side effects, this option else they produce nothing.  The default is
+   ``True``.
 
    .. versionadded:: 1.3
 

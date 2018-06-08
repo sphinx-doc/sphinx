@@ -165,7 +165,6 @@ a comma-separated list of group names.
 
          Output text.
 
-
 The following is an example for the usage of the directives.  The test via
 :rst:dir:`doctest` and the test via :rst:dir:`testcode` and
 :rst:dir:`testoutput` are equivalent. ::

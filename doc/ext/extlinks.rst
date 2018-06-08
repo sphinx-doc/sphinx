@@ -7,7 +7,6 @@
 
 .. versionadded:: 1.0
 
-
 This extension is meant to help with the common pattern of having many external
 links that point to URLs on one and the same site, e.g. links to bug trackers,
 version control web interfaces, or simply subpages in other websites.  It does

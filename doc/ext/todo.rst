@@ -27,7 +27,10 @@ There are two additional directives when using this extension:
    documentation, if :confval:`todo_include_todos` is ``True``.
 
 
-There is also an additional config value:
+These can be configured as seen below.
+
+Configuration
+-------------
 
 .. confval:: todo_include_todos
 
