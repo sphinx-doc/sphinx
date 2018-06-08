@@ -246,7 +246,7 @@ Sphinx.
    page`__ for details. If you want MathJax to be available offline, you have
    to download it and set this value to a different path.
 
-   __ https://cdjns.com
+   __ https://cdnjs.com
 
    __ https://docs.mathjax.org/en/latest/start.html
 
