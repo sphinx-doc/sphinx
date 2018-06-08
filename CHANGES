@@ -40,21 +40,18 @@ Deprecated
 ----------
 
 * :confval:`source_parsers` is deprecated
-* ``Application.import_object()`` is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
-* ``Sphinx.add_source_parser()`` has changed;  the *suffix* argument has
-  been deprecated
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
-* All ``env.update()``, ``env._read_serial()`` and ``env._read_parallel()`` are
-  deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
-* ``env._nitpick_ignore`` is deprecated
 * ``app.override_domain()`` is deprecated
 * ``app.add_stylesheet()`` is deprecated
 * ``app.add_javascript()`` is deprecated
+* ``app.import_object()`` is deprecated
+* ``app.add_source_parser()`` has changed;  the *suffix* argument has been
+  deprecated
 * ``sphinx.versioning.prepare()`` is deprecated
 * ``Config.__init__()`` has changed;  the *dirname*, *filename* and *tags*
   argument has been deprecated
@@ -62,25 +59,30 @@ Deprecated
 * ``Config.check_unicode()`` is deprecated
 * ``sphinx.application.CONFIG_FILENAME`` is deprecated
 * ``highlightlang`` directive is deprecated
-* ``env.read_doc()`` is deprecated
-* ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
-* ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.footnotestack`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.in_container_literal_block`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.next_section_ids`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.next_hyperlink_ids`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.push_hyperlink_ids()`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.pop_hyperlink_ids()`` is deprecated
-* ``sphinx.writers.latex.LaTeXWriter.bibitems`` is deprecated
-* ``sphinx.writers.latex.ExtBabel.get_shorthandoff()`` is deprecated
 * ``BuildEnvironment.load()`` is deprecated
 * ``BuildEnvironment.loads()`` is deprecated
 * ``BuildEnvironment.frompickle()`` is deprecated
-* ``BuildEnvironment.dump()`` is deprecated
-* ``BuildEnvironment.dumps()`` is deprecated
-* ``BuildEnvironment.topickle()`` is deprecated
+* ``env.read_doc()`` is deprecated
+* ``env.update()`` is deprecated
+* ``env._read_serial()`` is deprecated
+* ``env._read_parallel()`` is deprecated
+* ``env.write_doctree()`` is deprecated
+* ``env._nitpick_ignore`` is deprecated
+* ``env.dump()`` is deprecated
+* ``env.dumps()`` is deprecated
+* ``env.topickle()`` is deprecated
+* ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.footnotestack`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.in_container_literal_block`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.next_section_ids`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.next_hyperlink_ids`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.restrict_footnote()`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.unrestrict_footnote()`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.push_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.pop_hyperlink_ids()`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.bibitems`` is deprecated
+* ``sphinx.writers.latex.ExtBabel.get_shorthandoff()`` is deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
@@ -127,6 +129,8 @@ Features added
 * C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
 * C++, add support for unions.
 * #3606: MathJax should be loaded with async attribute
+* html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
+  #4193)
 
 Bugs fixed
 ----------

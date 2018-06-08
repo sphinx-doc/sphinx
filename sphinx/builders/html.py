@@ -1025,6 +1025,12 @@ class StandaloneHTMLBuilder(Builder):
         # part, which relative_uri doesn't really like...
         default_baseuri = default_baseuri.rsplit('#', 1)[0]
 
+        if self.config.html_baseurl:
+            ctx['pageurl'] = posixpath.join(self.config.html_baseurl,
+                                            pagename + self.out_suffix)
+        else:
+            ctx['pageurl'] = None
+
         def pathto(otheruri, resource=False, baseuri=default_baseuri):
             # type: (unicode, bool, unicode) -> unicode
             if resource and '://' in otheruri:
@@ -1578,6 +1584,7 @@ def setup(app):
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
+    app.add_config_value('html_baseurl', '', 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
