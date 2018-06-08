@@ -20,6 +20,7 @@ Bugs fixed
 * sphinx.testing uses deprecated pytest API; ``Node.get_marker(name)``
 * #5016: crashed when recommonmark.AutoStrictify is enabled
 * #5022: latex: crashed with docutils package provided by Debian/Ubuntu
+* #5009: latex: a label for table is vanished if table does not have a caption
 * #5048: crashed with numbered toctree
 
 Testing
