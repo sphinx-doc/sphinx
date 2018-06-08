@@ -128,6 +128,8 @@ Features added
 * C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
 * C++, add support for unions.
 * #3606: MathJax should be loaded with async attribute
+* html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
+  #4193)
 
 Bugs fixed
 ----------

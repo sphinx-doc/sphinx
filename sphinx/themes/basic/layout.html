@@ -130,6 +130,9 @@
     {%- block scripts %}
     {{- script() }}
     {%- endblock %}
+    {%- if pageurl %}
+    <link rel="canonical" href="{{ pageurl }}" />
+    {%- endif %}
     {%- if use_opensearch %}
     <link rel="search" type="application/opensearchdescription+xml"
           title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
