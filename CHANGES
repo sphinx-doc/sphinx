@@ -26,6 +26,7 @@ Bugs fixed
 * C++, fix lookup of full template specializations with no template arguments.
 * #4667: C++, fix assertion on missing references in global scope when using
   intersphinx. Thanks to Alan M. Carroll.
+* #5036: quickstart: Typing Ctrl-U clears the whole of line
 
 Testing
 --------
