@@ -82,6 +82,7 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.push_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.pop_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.bibitems`` is deprecated
+* ``sphinx.writers.latex.ExtBabel.get_shorthandoff()`` is deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated

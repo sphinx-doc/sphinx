@@ -49,6 +49,12 @@ BEGIN_DOC = r'''
 %(tableofcontents)s
 '''
 
+SHORTHANDOFF = r'''
+\ifdefined\shorthandoff
+  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
+  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
+\fi
+'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -199,16 +205,6 @@ class LaTeXWriter(writers.Writer):
 
 class ExtBabel(Babel):
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
-    shorthands = {
-        'ngerman': '"',
-        'slovene': '"',
-        'portuges': '"',
-        'brazil': '"',
-        'spanish': '"',
-        'dutch': '"',
-        'polish': '"',
-        'italian': '"',
-    }
 
     def __init__(self, language_code, use_polyglossia=False):
         # type: (unicode, bool) -> None
@@ -219,10 +215,9 @@ class ExtBabel(Babel):
 
     def get_shorthandoff(self):
         # type: () -> unicode
-        return ('\\ifdefined\\shorthandoff\n'
-                '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
-                '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
-                '\\fi')
+        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
+                      RemovedInSphinx30Warning)
+        return SHORTHANDOFF
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -579,7 +574,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
-                self.elements['shorthandoff'] = self.babel.get_shorthandoff()
+                self.elements['shorthandoff'] = SHORTHANDOFF
 
                 # Times fonts don't work with Cyrillic languages
                 if self.babel.uses_cyrillic() \

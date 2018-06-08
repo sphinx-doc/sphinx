@@ -467,7 +467,7 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
             u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
-    assert '\\shorthandoff' in result
+    assert '\\shorthandoff{"}' in result
 
 
 @pytest.mark.sphinx(
