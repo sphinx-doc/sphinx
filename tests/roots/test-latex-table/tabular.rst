@@ -1,4 +1,4 @@
-taburar and taburary
+tabular and tabulary
 ====================
 
 simple table
@@ -15,8 +15,11 @@ cell3-1 cell3-2
 table having :widths: option
 ----------------------------
 
+.. _mytabular:
+
 .. table::
    :widths: 30,70
+   :name: namedtabular
 
    ======= =======
    header1 header2
@@ -25,6 +28,8 @@ table having :widths: option
    cell2-1 cell2-2
    cell3-1 cell3-2
    ======= =======
+
+See :ref:`this <mytabular>`, same as namedtabular_.
 
 table having :align: option (tabulary)
 --------------------------------------
