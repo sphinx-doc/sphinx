@@ -6044,7 +6044,7 @@ class CPPXRefRole(XRefRole):
         if not has_explicit_title:
             # major hax: replace anon names via simple string manipulation.
             # Can this actually fail?
-            title = _anon_identifier_re.sub("[anonymous]", title)
+            title = _anon_identifier_re.sub("[anonymous]", str(title))
 
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
