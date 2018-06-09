@@ -19,7 +19,6 @@ from collections import defaultdict
 from os import path
 
 from docutils import nodes, writers
-from docutils.utils.roman import toRoman
 from docutils.writers.latex2e import Babel
 from six import itervalues, text_type
 
@@ -34,6 +33,12 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
+
+try:
+    from docutils.utils.roman import toRoman
+except ImportError:
+    # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
+    from roman import toRoman
 
 if False:
     # For type annotation
