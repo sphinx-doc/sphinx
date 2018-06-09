@@ -23,6 +23,7 @@ Bugs fixed
 * #5009: latex: a label for table is vanished if table does not have a caption
 * #5048: crashed with numbered toctree
 * #2410: C, render empty argument lists for macros.
+* C++, fix lookup of full template specializations with no template arguments.
 
 Testing
 --------
