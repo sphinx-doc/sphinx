@@ -331,13 +331,13 @@ class IndexBuilder(object):
         for domainname, domain in sorted(iteritems(self.env.domains)):
             for fullname, dispname, type, docname, anchor, prio in \
                     sorted(domain.get_objects()):
-                # XXX use dispname?
                 if docname not in fn2index:
                     continue
                 if prio < 0:
                     continue
                 fullname = htmlescape(fullname)
-                prefix, name = rpartition(fullname, '.')
+                dispname = htmlescape(dispname)
+                prefix, name = rpartition(dispname, '.')
                 pdict = rv.setdefault(prefix, {})
                 try:
                     typeindex = otypes[domainname, type]

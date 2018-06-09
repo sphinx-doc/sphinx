@@ -161,7 +161,7 @@ def test_IndexBuilder():
         'docnames': ('docname', 'docname2'),
         'envversion': '1.0',
         'filenames': ['filename', 'filename2'],
-        'objects': {'': {'objname': (0, 0, 1, '#anchor')}},
+        'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
         'terms': {'comment': [0, 1],
