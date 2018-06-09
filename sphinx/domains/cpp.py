@@ -6327,11 +6327,13 @@ class CPPDomain(Domain):
             if symbol.declaration is None:
                 continue
             assert symbol.docname
-            dispname = symbol.get_full_nested_name().get_display_string().lstrip(':')
+            fullNestedName = symbol.get_full_nested_name()
+            name = text_type(fullNestedName).lstrip(':')
+            dispname = fullNestedName.get_display_string().lstrip(':')
             objectType = symbol.declaration.objectType
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
-            yield (dispname, dispname, objectType, docname, newestId, 1)
+            yield (name, dispname, objectType, docname, newestId, 1)
 
     def get_full_qualified_name(self, node):
         # type: (nodes.Node) -> unicode
