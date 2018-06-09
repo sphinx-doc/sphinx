@@ -22,6 +22,7 @@ Bugs fixed
 * #5022: latex: crashed with docutils package provided by Debian/Ubuntu
 * #5009: latex: a label for table is vanished if table does not have a caption
 * #5048: crashed with numbered toctree
+* #2410: C, render empty argument lists for macros.
 
 Testing
 --------
