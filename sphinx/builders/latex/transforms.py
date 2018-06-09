@@ -578,7 +578,7 @@ class LiteralBlockTransform(SphinxTransform):
             return
 
         for node in self.document.traverse(nodes.container):
-            if node['literal_block'] is True:
+            if node.get('literal_block') is True:
                 newnode = captioned_literal_block('', *node.children, **node.attributes)
                 node.replace_self(newnode)
 
