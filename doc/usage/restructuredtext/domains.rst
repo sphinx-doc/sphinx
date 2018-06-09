@@ -759,6 +759,41 @@ Some directives support options:
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
 
+Anonymous Entities
+~~~~~~~~~~~~~~~~~~
+
+C++ supposrts anonymous namespaces, classes, enums, and unions.
+For the sake of documentation they must be given some name that starts with ``@``,
+e.g., ``@42`` or ``@data``.
+These names can also be used in cross-references and (type) expressions,
+though nested symbols will be found even when omitted.
+The ``@...`` name will always be rendered as **[anonymous]** (possibly as a link).
+
+Example::
+
+   .. cpp:class:: Data
+
+      .. cpp:union:: @data
+
+         .. cpp:var:: int a
+
+         .. cpp:var:: double b
+
+   Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
+
+This will be rendered as:
+
+.. cpp:class:: Data
+
+   .. cpp:union:: @data
+
+      .. cpp:var:: int a
+
+      .. cpp:var:: double b
+
+Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
+
+
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~
 

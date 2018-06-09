@@ -414,7 +414,7 @@ def test_function_definitions():
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
-    check('function', 'friend std::ostream &f(std::ostream&, int)',
+    check('function', 'friend std::ostream &f(std::ostream &s, int i)',
           {1: 'f__osR.i', 2: '1fRNSt7ostreamEi'})
 
     # from breathe#223
@@ -507,6 +507,13 @@ def test_enum_definitions():
 
     check('enumerator', 'A', {2: "1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
+
+
+def test_anon_definitions():
+    check('class', '@a', {3: "Ut1_a"})
+    check('union', '@a', {3: "Ut1_a"})
+    check('enum', '@a', {3: "Ut1_a"})
+    check('class', '@1', {3: "Ut1_1"})
 
 
 def test_templates():
