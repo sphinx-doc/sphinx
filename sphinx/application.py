@@ -13,7 +13,6 @@
 from __future__ import print_function
 
 import os
-import posixpath
 import sys
 import warnings
 from collections import deque
@@ -1030,14 +1029,7 @@ class Sphinx(object):
            Renamed from ``app.add_javascript()``.
            And it allows keyword arguments as attributes of script tag.
         """
-        logger.debug('[app] adding javascript: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder, JavaScript
-        if '://' in filename:
-            js = JavaScript(filename, **kwargs)  # type: ignore
-        else:
-            js = JavaScript(posixpath.join('_static', filename), **kwargs)
-
-        StandaloneHTMLBuilder.script_files.append(js)
+        self.registry.add_js_file(filename, **kwargs)
 
     def add_css_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None

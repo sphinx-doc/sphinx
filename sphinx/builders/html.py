@@ -267,10 +267,6 @@ class StandaloneHTMLBuilder(Builder):
     # use html5 translator by default
     default_html5_translator = False
 
-    # This is a class attribute because it is mutated by Sphinx.add_js_file().
-    script_files = ['_static/jquery.js', '_static/underscore.js',
-                    '_static/doctools.js']  # type: List[unicode]
-
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
@@ -283,6 +279,9 @@ class StandaloneHTMLBuilder(Builder):
 
         # CSS files
         self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
+
+        # JS files
+        self.script_files = []  # type: List[JavaScript]
 
     def init(self):
         # type: () -> None
@@ -297,6 +296,7 @@ class StandaloneHTMLBuilder(Builder):
         self.init_templates()
         self.init_highlighter()
         self.init_css_files()
+        self.init_js_files()
         if self.config.html_file_suffix is not None:
             self.out_suffix = self.config.html_file_suffix
 
@@ -305,9 +305,6 @@ class StandaloneHTMLBuilder(Builder):
         else:
             self.link_suffix = self.out_suffix
 
-        if self.config.language is not None:
-            if self._get_translations_js():
-                self.script_files.append('_static/translations.js')
         self.use_index = self.get_builder_config('use_index', 'html')
 
         if self.config.html_experimental_html5_writer and not html5_ready:
@@ -373,6 +370,28 @@ class StandaloneHTMLBuilder(Builder):
             filename = posixpath.join('_static', filename)
 
         self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
+
+    def init_js_files(self):
+        # type: () -> None
+        self.add_js_file('jquery.js')
+        self.add_js_file('underscore.js')
+        self.add_js_file('doctools.js')
+
+        for filename, attrs in self.app.registry.js_files:
+            self.add_js_file(filename, **attrs)
+
+        for filename, attrs in self.get_builder_config('js_files', 'html'):
+            self.add_js_file(filename, **attrs)
+
+        if self.config.language and self._get_translations_js():
+            self.add_js_file('translations.js')
+
+    def add_js_file(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
+        if '://' not in filename:
+            filename = posixpath.join('_static', filename)
+
+        self.script_files.append(JavaScript(filename, **kwargs))  # type: ignore
 
     @property
     def default_translator_class(self):
@@ -1384,6 +1403,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.init_templates()
         self.init_highlighter()
         self.init_css_files()
+        self.init_js_files()
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
@@ -1511,6 +1531,24 @@ def convert_html_css_files(app, config):
     config.html_css_files = html_css_files  # type: ignore
 
 
+def convert_html_js_files(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts string styled html_js_files to tuple styled one."""
+    html_js_files = []  # type: List[Tuple[unicode, Dict]]
+    for entry in config.html_js_files:
+        if isinstance(entry, string_types):
+            html_js_files.append((entry, {}))
+        else:
+            try:
+                filename, attrs = entry
+                html_js_files.append((filename, attrs))
+            except Exception:
+                logger.warning(__('invalid js_file: %r, ignored'), entry)
+                continue
+
+    config.html_js_files = html_js_files  # type: ignore
+
+
 def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
     # type: (Sphinx, unicode, unicode, Dict, nodes.Node) -> None
     """Set up js_tag() template helper.
@@ -1558,6 +1596,7 @@ def setup(app):
     app.add_config_value('html_logo', None, 'html', string_classes)
     app.add_config_value('html_favicon', None, 'html', string_classes)
     app.add_config_value('html_css_files', [], 'html')
+    app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
@@ -1588,6 +1627,7 @@ def setup(app):
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
+    app.connect('config-inited', convert_html_js_files)
     app.connect('html-page-context', setup_js_tag_helper)
 
     return {
