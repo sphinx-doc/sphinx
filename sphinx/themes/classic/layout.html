@@ -10,5 +10,8 @@
 {%- extends "basic/layout.html" %}
 
 {% if theme_collapsiblesidebar|tobool %}
-{% set script_files = script_files + ['_static/sidebar.js'] %}
+{%- macro script() %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/sidebar.js', 1) }}"></script>
+{%- endmacro %}
 {% endif %}
