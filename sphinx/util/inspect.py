@@ -176,8 +176,8 @@ def isstaticmethod(obj, cls=None, name=None):
     elif cls and name:
         # trace __mro__ if the method is defined in parent class
         #
-        # .. note:: This only works with new style classes.
-        for basecls in getattr(cls, '__mro__', []):
+        # .. note:: This only works well with new style classes.
+        for basecls in getattr(cls, '__mro__', [cls]):
             meth = basecls.__dict__.get(name)
             if meth:
                 if isinstance(meth, staticmethod):

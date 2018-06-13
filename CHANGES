@@ -27,6 +27,7 @@ Bugs fixed
 * #4667: C++, fix assertion on missing references in global scope when using
   intersphinx. Thanks to Alan M. Carroll.
 * #5019: autodoc: crashed by Form Feed Character
+* #5032: autodoc: loses the first staticmethod parameter for old styled classes
 
 Testing
 --------
