@@ -137,6 +137,7 @@ Features added
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
 * #5029: autosummary: expose ``inherited_members`` to template
+* #4362: latex: Don't overwrite .tex file if document not changed
 
 Bugs fixed
 ----------
