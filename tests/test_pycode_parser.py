@@ -315,3 +315,12 @@ def test_decorators():
                                   'func3': ('def', 7, 9),
                                   'Foo': ('class', 11, 15),
                                   'Foo.method': ('def', 13, 15)}
+
+
+def test_formfeed_char():
+    source = ('class Foo:\n'
+              '\f\n'
+              '    attr = 1234  #: comment\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('Foo', 'attr'): 'comment'}
