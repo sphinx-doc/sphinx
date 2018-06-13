@@ -105,7 +105,8 @@ class BuildDoc(Command):
         self.config_dir = None  # type: unicode
         self.link_index = False
         self.copyright = ''
-        self.verbosity = 0
+        # Link verbosity to distutils' (which uses 1 by default).
+        self.verbosity = self.distribution.verbose - 1
         self.traceback = False
 
     def _guess_source_dir(self):
@@ -185,7 +186,8 @@ class BuildDoc(Command):
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,
                                  freshenv=self.fresh_env,
-                                 warningiserror=self.warning_is_error)
+                                 warningiserror=self.warning_is_error,
+                                 verbosity=self.verbosity)
                     app.build(force_all=self.all_files)
                     if app.statuscode:
                         raise DistutilsExecError(
