@@ -64,7 +64,8 @@ def builder_inited(app):
     if not app.config.jsmath_path:
         raise ExtensionError('jsmath_path config value must be set for the '
                              'jsmath extension to work')
-    app.add_js_file(app.config.jsmath_path)
+    if app.builder.format == 'html':
+        app.builder.add_js_file(app.config.jsmath_path)  # type: ignore
 
 
 def setup(app):

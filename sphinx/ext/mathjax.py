@@ -72,8 +72,9 @@ def builder_inited(app):
     if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
-    options = {'async': 'async'}
-    app.add_js_file(app.config.mathjax_path, **options)
+    if app.builder.format == 'html':
+        options = {'async': 'async'}
+        app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
 
 def setup(app):
