@@ -101,7 +101,7 @@ Deprecated APIs
 
 On developing Sphinx, we are always careful to the compatibility of our APIs.
 But, sometimes, the change of interface are needed for some reasons.  In such
-cases, we've marked thme as deprecated. And they are kept during the two
+cases, we've marked them as deprecated. And they are kept during the two
 major versions (for more details, please see :ref:`deprecation-policy`).
 
 The following is a list of deprecated interface.
