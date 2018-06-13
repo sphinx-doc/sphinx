@@ -374,7 +374,7 @@ There are also new config values that you can set:
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
    process. You may only specify the root package of the dependencies
-   themselves and ommit the sub-modules:
+   themselves and omit the sub-modules:
 
    .. code-block:: python
 
