@@ -110,7 +110,7 @@ Windows
 
 Most Windows users do not have Python installed by default, so we begin with
 the installation of Python itself.  If you are unsure, open the *Command
-Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).  Once the command prompt is
+Prompt* (:kbd:`Win-r` and type :command:`cmd`).  Once the command prompt is
 open, type :command:`python --version` and press Enter.  If Python is
 available, you will see the version of Python printed to the screen.  If you do
 not have Python installed, refer to the `Hitchhikers Guide to Python's`__
