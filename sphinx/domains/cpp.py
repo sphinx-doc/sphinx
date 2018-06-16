@@ -3566,6 +3566,9 @@ class Symbol(object):
             # and params that are packs must in the args be the name expanded
             if len(templateParams.params) != len(templateArgs.args):
                 return True
+            # having no template params and no arguments is also a specialization
+            if len(templateParams.params) == 0:
+                return True
             for i in range(len(templateParams.params)):
                 param = templateParams.params[i]
                 arg = templateArgs.args[i]
