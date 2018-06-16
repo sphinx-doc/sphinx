@@ -137,6 +137,8 @@ Features added
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
 * #5029: autosummary: expose ``inherited_members`` to template
+* #3784: mathjax: Add :confval:`mathjax_options` to give options to script tag
+  for mathjax
 
 Bugs fixed
 ----------
