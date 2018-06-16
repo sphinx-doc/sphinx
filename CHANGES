@@ -34,7 +34,7 @@ Incompatible changes
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
 * #4648: latex: Now "rubric" elements are rendered as unnumbered section title
-* #4983: html: The URL for the productionlist has been changed
+* #4983: html: The anchor for productionlist tokens has been changed
 * Modifying a template variable ``script_files`` in templates is allowed now.
   Please use ``app.add_js_file()`` instead.
 
