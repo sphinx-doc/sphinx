@@ -139,6 +139,7 @@ Features added
 * #5029: autosummary: expose ``inherited_members`` to template
 * #3784: mathjax: Add :confval:`mathjax_options` to give options to script tag
   for mathjax
+* #4362: latex: Don't overwrite .tex file if document not changed
 
 Bugs fixed
 ----------
