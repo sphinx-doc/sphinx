@@ -1,9 +1,10 @@
 # Makefile for Sphinx documentation
 #
+PYTHON ?= python
 
 # You can set these variables from the command line.
 SPHINXOPTS   =
-SPHINXBUILD  = python3 ../sphinx/cmd/build.py
+SPHINXBUILD  = $(PYTHON) ../sphinx/cmd/build.py
 SPHINXPROJ   = sphinx
 SOURCEDIR    = .
 BUILDDIR     = _build
