@@ -157,6 +157,11 @@ Features removed
 
 * ``sphinx.ext.pngmath`` extension
 
+Documentation
+-------------
+
+* #5083: Fix wrong make.bat option for internationalization.
+
 Release 1.7.6 (in development)
 ==============================
 
