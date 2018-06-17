@@ -34,7 +34,7 @@ Incompatible changes
 * #1857: latex: :confval:`latex_show_pagerefs` does not add pagerefs for
   citations
 * #4648: latex: Now "rubric" elements are rendered as unnumbered section title
-* #4983: html: The URL for the productionlist has been changed
+* #4983: html: The anchor for productionlist tokens has been changed
 * Modifying a template variable ``script_files`` in templates is allowed now.
   Please use ``app.add_js_file()`` instead.
 
@@ -137,6 +137,8 @@ Features added
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
 * #5029: autosummary: expose ``inherited_members`` to template
+* #3784: mathjax: Add :confval:`mathjax_options` to give options to script tag
+  for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 
 Bugs fixed
@@ -155,6 +157,11 @@ Features removed
 ----------------
 
 * ``sphinx.ext.pngmath`` extension
+
+Documentation
+-------------
+
+* #5083: Fix wrong make.bat option for internationalization.
 
 Release 1.7.6 (in development)
 ==============================
@@ -180,6 +187,13 @@ Bugs fixed
 * #5022: latex: crashed with docutils package provided by Debian/Ubuntu
 * #5009: latex: a label for table is vanished if table does not have a caption
 * #5048: crashed with numbered toctree
+* #2410: C, render empty argument lists for macros.
+* C++, fix lookup of full template specializations with no template arguments.
+* #4667: C++, fix assertion on missing references in global scope when using
+  intersphinx. Thanks to Alan M. Carroll.
+* #5019: autodoc: crashed by Form Feed Character
+* #5032: autodoc: loses the first staticmethod parameter for old styled classes
+* #5036: quickstart: Typing Ctrl-U clears the whole of line
 
 Testing
 --------

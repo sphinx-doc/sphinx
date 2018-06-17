@@ -365,7 +365,7 @@ def eval_config_file(filename, tags):
                      "called sys.exit()")
             raise ConfigError(msg)
         except Exception:
-            msg = __("There is a programable error in your configuration file:\n\n%s")
+            msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc())
 
     return namespace

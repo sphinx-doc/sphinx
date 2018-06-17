@@ -260,6 +260,16 @@ Sphinx.
 
    You can also give a full ``https://`` URL different from the CDN URL.
 
+.. confval:: mathjax_options
+
+   The options to script tag for mathjax.  For example, you can set integrity
+   option with following setting::
+
+       mathjax_options = {
+           'integrity': 'sha384-......',
+       }
+
+   The default is empty (``{}``).
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------

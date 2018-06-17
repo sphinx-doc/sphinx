@@ -34,6 +34,11 @@ else:
     ASSIGN_NODES = (ast.Assign)
 
 
+def filter_whitespace(code):
+    # type: (unicode) -> unicode
+    return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
+
+
 def get_assign_targets(node):
     # type: (ast.AST) -> List[ast.expr]
     """Get list of targets from Assign and AnnAssign node."""
@@ -467,7 +472,7 @@ class Parser(object):
 
     def __init__(self, code, encoding='utf-8'):
         # type: (unicode, unicode) -> None
-        self.code = code
+        self.code = filter_whitespace(code)
         self.encoding = encoding
         self.comments = {}          # type: Dict[Tuple[unicode, unicode], unicode]
         self.deforders = {}         # type: Dict[unicode, int]
