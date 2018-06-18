@@ -31,6 +31,7 @@ Bugs fixed
 * #5036: quickstart: Typing Ctrl-U clears the whole of line
 * #5066: html: "relations" sidebar is not shown by default
 * #5091: latex: curly braces in index entries are not handled correctly
+* #5070: epub: Wrong internal href fragment links
 
 Testing
 --------
