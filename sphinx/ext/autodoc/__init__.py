@@ -476,6 +476,9 @@ class Documenter(object):
         docstring = self.get_attr(self.object, '__doc__', None)
         if docstring is None and self.env.config.autodoc_inherit_docstrings:
             docstring = getdoc(self.object)
+            # getdoc already strips leading indentation (ignoring the first
+            # line). Make sure that prepare_docstring will not do it again.
+            ignore = 0
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
         if isinstance(docstring, text_type):
