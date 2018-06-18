@@ -277,6 +277,26 @@ The following role creates a cross-reference to a term in a
    during build.
 
 
+Math
+----
+
+.. rst:role:: math
+
+   Role for inline math.  Use like this::
+
+      Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
+
+.. rst:role:: eq
+
+   Role for cross-referencing equations via their label.  Example::
+
+      .. math:: e^{i\pi} + 1 = 0
+         :label: euler
+
+      Euler's identity, equation :eq:`euler`, was elected one of the most
+      beautiful mathematical formulas.
+
+
 Other semantic markup
 ---------------------
 
