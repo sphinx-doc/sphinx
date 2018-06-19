@@ -178,9 +178,25 @@ def test_latex_basic(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert r'\begin{document}' in result
+    assert r'\maketitle' in result
+    assert r'\sphinxtableofcontents' in result
     assert r'\title{The basic Sphinx documentation for testing}' in result
     assert r'\release{}' in result
     assert r'\renewcommand{\releasename}{}' in result
+
+
+@pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language':'de'})
+def test_latex_shorthandoff(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert ('\\ifdefined\\shorthandoff\n'
+            '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
+            '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
+            '\\fi\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
