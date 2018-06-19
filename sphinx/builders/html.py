@@ -1014,19 +1014,27 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern):
             # type: (unicode) -> bool
             return any(char in pattern for char in '*?[')
-        sidebars = self.theme.get_config('theme', 'sidebars', None)
+        sidebars = None
         matched = None
         customsidebar = None
 
         # default sidebars settings for selected theme
-        theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
-        if theme_default_sidebars:
-            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
-        elif self.theme.name == 'alabaster':
+        if self.theme.name == 'alabaster':
             # provide default settings for alabaster (for compatibility)
             # Note: this will be removed before Sphinx-2.0
-            sidebars = ['about.html', 'navigation.html', 'relation.html',
-                        'searchbox.html', 'donate.html']
+            try:
+                # get default sidebars settings from alabaster (if defined)
+                theme_default_sidebars = self.theme.config.get('theme', 'sidebars')
+                if theme_default_sidebars:
+                    sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+            except Exception:
+                # fallback to better default settings
+                sidebars = ['about.html', 'navigation.html', 'relations.html',
+                            'searchbox.html', 'donate.html']
+        else:
+            theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
+            if theme_default_sidebars:
+                sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
         for pattern, patsidebars in iteritems(self.config.html_sidebars):

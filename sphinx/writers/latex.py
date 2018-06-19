@@ -1894,8 +1894,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'\sphinxleftcurlybrace')
-            value = value.replace(r'\}', r'\sphinxrightcurlybrace')
+            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
+            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
             return value
 
         if not node.get('inline', True):

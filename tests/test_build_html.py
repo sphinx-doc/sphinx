@@ -1245,20 +1245,49 @@ def test_html_remote_images(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
+    ctx = {}
+
+    # default for alabaster
     app.builder.build_all()
     result = (app.outdir / 'index.html').text(encoding='utf8')
-    assert '<h3><a href="#">Table Of Contents</a></h3>' in result
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
+    assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>This Page</h3>' in result
     assert '<h3>Quick search</h3>' in result
 
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['about.html', 'navigation.html', 'relations.html',
+                               'searchbox.html', 'donate.html']
+
+    # only relations.html
+    app.config.html_sidebars = {'**': ['relations.html']}
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
+    assert '<h3>Related Topics</h3>' in result
+    assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['relations.html']
+
+    # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
     result = (app.outdir / 'index.html').text(encoding='utf8')
-    assert '<h3><a href="#">Table Of Contents</a></h3>' not in result
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' not in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result
-    assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == []
 
 
 @pytest.mark.parametrize('fname,expect', flat_dict({
