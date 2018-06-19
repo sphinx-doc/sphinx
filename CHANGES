@@ -30,6 +30,7 @@ Bugs fixed
 * #5032: autodoc: loses the first staticmethod parameter for old styled classes
 * #5036: quickstart: Typing Ctrl-U clears the whole of line
 * #5066: html: "relations" sidebar is not shown by default
+* #5091: latex: curly braces in index entries are not handled correctly
 
 Testing
 --------
