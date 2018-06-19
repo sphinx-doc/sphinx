@@ -37,6 +37,7 @@ Incompatible changes
 * #4983: html: The anchor for productionlist tokens has been changed
 * Modifying a template variable ``script_files`` in templates is allowed now.
   Please use ``app.add_js_file()`` instead.
+* #5072: Save environment object also with only new documents
 
 Deprecated
 ----------
