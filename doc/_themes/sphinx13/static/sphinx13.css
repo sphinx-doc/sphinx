@@ -140,6 +140,10 @@ div.sphinxsidebar .logo img {
     vertical-align: middle;
 }
 
+div.sphinxsidebar .download a img {
+    vertical-align: middle;
+}
+
 div.subscribeformwrapper {
     display: block;
     overflow: auto;
