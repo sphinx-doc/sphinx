@@ -123,14 +123,14 @@ This section describe an easy way to translate with sphinx-intl.
 
    .. code-block:: console
 
-      > set SPHINXOPTS=-D language='de'
+      > set SPHINXOPTS=-D language=de
       > .\make.bat html
 
    command line (for PowerShell):
 
    .. code-block:: console
 
-      > Set-Item env:SPHINXOPTS "-D language='de'"
+      > Set-Item env:SPHINXOPTS "-D language=de"
       > .\make.bat html
 
 
