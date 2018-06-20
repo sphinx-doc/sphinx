@@ -38,6 +38,7 @@ Incompatible changes
 * Modifying a template variable ``script_files`` in templates is allowed now.
   Please use ``app.add_js_file()`` instead.
 * #5072: Save environment object also with only new documents
+* #5035: qthelp builder allows dashes in :confval:`qthelp_namespace`
 
 Deprecated
 ----------
