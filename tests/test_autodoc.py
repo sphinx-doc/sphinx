@@ -18,12 +18,22 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL, Options
 )
+from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
+from sphinx.util.docutils import LoggingReporter
 
 app = None
+
+
+def do_autodoc(app, objtype, name, options={}):
+    bridge = DocumenterBridge(app.env, LoggingReporter(''), Options(options), 1)
+    documenter = app.registry.documenters[objtype](bridge, name)
+    documenter.generate()
+
+    return bridge.result
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -917,17 +927,8 @@ def test_generate():
 
 @pytest.mark.skipif(sys.version_info < (3, 4),
                     reason='functools.partialmethod is available on py34 or above')
-@pytest.mark.usefixtures('setup_test')
-def test_partialmethod():
-    def call_autodoc(objtype, name):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate()
-        result = list(directive.result)
-        del directive.result[:]
-        return result
-
-    options.inherited_members = True
-    options.undoc_members = True
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_partialmethod(app):
     expected = [
         '',
         '.. py:class:: Cell',
@@ -962,4 +963,6 @@ def test_partialmethod():
         # TODO: this condition should be updated after 3.7-final release.
         expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
-    assert call_autodoc('class', 'target.partialmethod.Cell') == expected
+    options = {"members": ALL}
+    actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
+    assert list(actual) == expected
