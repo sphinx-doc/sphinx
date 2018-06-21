@@ -30,7 +30,7 @@ matrix:
       env: TOXENV=docs
     - python: '3.6'
       env: TOXENV=mypy
-    - python: '2.7'
+    - python: '3.6'
       env: TOXENV=flake8
 
 install:
