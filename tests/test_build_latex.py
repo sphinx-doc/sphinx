@@ -1229,11 +1229,26 @@ def test_latex_nested_enumerated_list(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert r'\setcounter{enumi}{4}' in result
-    assert r'\setcounter{enumii}{3}' in result
-    assert r'\setcounter{enumiii}{9}' in result
-    assert r'\setcounter{enumiv}{23}' in result
-    assert r'\setcounter{enumii}{2}' in result
+    assert ('\\def\\theenumi{\\arabic{enumi}}\n'
+            '\\def\\labelenumi{\\theenumi .}\n'
+            '\\makeatletter\\def\\p@enumii{\\p@enumi \\theenumi .}\\makeatother\n'
+            '\\setcounter{enumi}{4}\n' in result)
+    assert ('\\def\\theenumii{\\alph{enumii}}\n'
+            '\\def\\labelenumii{\\theenumii .}\n'
+            '\\makeatletter\\def\\p@enumiii{\\p@enumii \\theenumii .}\\makeatother\n'
+            '\\setcounter{enumii}{3}\n' in result)
+    assert ('\\def\\theenumiii{\\arabic{enumiii}}\n'
+            '\\def\\labelenumiii{\\theenumiii )}\n'
+            '\\makeatletter\\def\\p@enumiv{\\p@enumiii \\theenumiii )}\\makeatother\n'
+            '\\setcounter{enumiii}{9}\n' in result)
+    assert ('\\def\\theenumiv{\\arabic{enumiv}}\n'
+            '\\def\\labelenumiv{(\\theenumiv )}\n'
+            '\\makeatletter\\def\\p@enumv{\\p@enumiv (\\theenumiv )}\\makeatother\n'
+            '\\setcounter{enumiv}{23}\n' in result)
+    assert ('\\def\\theenumii{\\roman{enumii}}\n'
+            '\\def\\labelenumii{\\theenumii .}\n'
+            '\\makeatletter\\def\\p@enumiii{\\p@enumii \\theenumii .}\\makeatother\n'
+            '\\setcounter{enumii}{2}\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='footnotes')
