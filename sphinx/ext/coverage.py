@@ -56,7 +56,7 @@ class CoverageBuilder(Builder):
     """
     name = 'coverage'
     epilog = __('Testing of coverage in the sources finished, look at the '
-                'results in %(outdir)s/python.txt.')
+                'results in %(outdir)s' + path.sep + 'python.txt.')
 
     def init(self):
         # type: () -> None

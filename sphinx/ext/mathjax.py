@@ -72,7 +72,11 @@ def builder_inited(app):
     if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
-    app.add_javascript(app.config.mathjax_path)
+    if app.builder.format == 'html':
+        options = {'async': 'async'}
+        if app.config.mathjax_options:
+            options.update(app.config.mathjax_options)
+        app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
 
 def setup(app):
@@ -86,7 +90,8 @@ def setup(app):
     # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
                          'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
-                         'config=TeX-AMS-MML_HTMLorMML', False)
+                         'config=TeX-AMS-MML_HTMLorMML', 'html')
+    app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.connect('builder-inited', builder_inited)

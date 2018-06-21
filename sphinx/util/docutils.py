@@ -10,6 +10,7 @@
 """
 from __future__ import absolute_import
 
+import codecs
 import os
 import re
 import types
@@ -21,6 +22,7 @@ from os import path
 
 import docutils
 from docutils import nodes
+from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
@@ -300,11 +302,33 @@ def switch_source_input(state, content):
         state.memo.reporter.get_source_and_line = get_source_and_line
 
 
-class SphinxDirective(Directive):
-    """A base class for Directives.
+class SphinxFileOutput(FileOutput):
+    """Better FileOutput class for Sphinx."""
 
-    Compared with ``docutils.parsers.rst.Directive``, this class improves
-    accessibility to Sphinx APIs.
+    def __init__(self, **kwargs):
+        # type: (Any) -> None
+        self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
+        FileOutput.__init__(self, **kwargs)
+
+    def write(self, data):
+        # type: (unicode) -> unicode
+        if (self.destination_path and self.autoclose and 'b' not in self.mode and
+                self.overwrite_if_changed and os.path.exists(self.destination_path)):
+            with codecs.open(self.destination_path, encoding=self.encoding) as f:
+                # skip writing: content not changed
+                if f.read() == data:
+                    return data
+
+        return FileOutput.write(self, data)
+
+
+class SphinxDirective(Directive):
+    """A base class for Sphinx directives.
+
+    This class provides helper methods for Sphinx directives.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
     """
 
     @property

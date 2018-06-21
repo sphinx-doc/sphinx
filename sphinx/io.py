@@ -13,6 +13,7 @@ import re
 
 from docutils.core import Publisher
 from docutils.io import FileInput, NullOutput
+from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
@@ -304,6 +305,13 @@ def read_doc(app, env, filename):
     source = input_class(app, env, source=None, source_path=filename,
                          encoding=env.config.source_encoding)
     parser = app.registry.create_source_parser(app, filetype)
+    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
+        # a workaround for recommonmark
+        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
+        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
+        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
+        #   CommonMarkParser.
+        parser.settings_spec = RSTParser.settings_spec
 
     pub = Publisher(reader=reader,
                     parser=parser,

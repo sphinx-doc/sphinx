@@ -380,3 +380,26 @@ def test_dict_customtype():
     description = inspect.object_description(dictionary)
     # Type is unsortable, just check that it does not crash
     assert "<CustomType(2)>: 2" in description
+
+
+def test_isstaticmethod():
+    class Foo():
+        @staticmethod
+        def method1():
+            pass
+
+        def method2(self):
+            pass
+
+    class Bar(Foo):
+        pass
+
+    assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
+    assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
+
+    if sys.version_info < (3, 0):
+        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is False
+        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    else:
+        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
+        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False

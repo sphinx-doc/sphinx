@@ -14,6 +14,8 @@
 \sphinxcapstartof{table}
 \sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
 \sphinxaftercaption
+<% elif labels -%>
+\phantomsection<%= labels %>\nobreak
 <% endif -%>
 \begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
 \hline

@@ -41,7 +41,7 @@ from sphinx import __display_version__, package_dir
 from sphinx.locale import __
 from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
-    purple, bold, red, turquoise, nocolor, color_terminal
+    colorize, bold, red, turquoise, nocolor, color_terminal
 )
 from sphinx.util.osutil import ensuredir, make_filename
 from sphinx.util.template import SphinxRenderer
@@ -85,8 +85,14 @@ PROMPT_PREFIX = '> '
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
     # type: (unicode) -> unicode
-    print(prompt, end='')
-    return input('')
+    if sys.platform == 'win32':
+        # Important: On windows, readline is not enabled by default.  In these
+        #            environment, escape sequences have been broken.  To avoid the
+        #            problem, quickstart uses ``print()`` to show prompt.
+        print(prompt, end='')
+        return input('')
+    else:
+        return input(prompt)
 
 
 class ValidationError(Exception):
@@ -186,7 +192,7 @@ def do_prompt(text, default=None, validator=nonempty):
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
                         prompt = prompt.encode('latin1')
-        prompt = purple(prompt)
+        prompt = colorize('purple', prompt, input_mode=True)
         x = term_input(prompt).strip()
         if default and not x:
             x = default

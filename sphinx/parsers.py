@@ -41,6 +41,9 @@ class Parser(docutils.parsers.Parser):
         Emit a warning. (Same as :meth:`sphinx.application.Sphinx.warn()`)
     self.info()
         Emit a informational message. (Same as :meth:`sphinx.application.Sphinx.info()`)
+
+    .. deprecated:: 1.6
+       ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
     """
 
     def set_application(self, app):

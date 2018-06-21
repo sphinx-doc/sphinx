@@ -90,6 +90,18 @@ def test_imgmath_svg(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_options': {'integrity': 'sha384-0123456789'}})
+def test_mathjax_options(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert ('<script async="async" integrity="sha384-0123456789" type="text/javascript" '
+            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
+            'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_align(app, status, warning):
     app.builder.build_all()

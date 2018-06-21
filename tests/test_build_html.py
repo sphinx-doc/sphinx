@@ -227,7 +227,7 @@ def test_html_warnings(app, warning):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try_stmt']"
+        (".//a[@href='#grammar-token-try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -259,7 +259,7 @@ def test_html_warnings(app, warning):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -1123,6 +1123,11 @@ def test_html_assets(app):
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
 
+    # html_js_files
+    assert '<script type="text/javascript" src="_static/js/custom.js"></script>' in content
+    assert ('<script async="async" type="text/javascript" src="https://example.com/script.js">'
+            '</script>' in content)
+
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
 def test_html_copy_source(app):
@@ -1240,20 +1245,49 @@ def test_html_remote_images(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app, status, warning):
+    ctx = {}
+
+    # default for alabaster
     app.builder.build_all()
     result = (app.outdir / 'index.html').text(encoding='utf8')
-    assert '<h3><a href="#">Table Of Contents</a></h3>' in result
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
+    assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
-    assert '<h3>This Page</h3>' in result
     assert '<h3>Quick search</h3>' in result
 
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['about.html', 'navigation.html', 'relations.html',
+                               'searchbox.html', 'donate.html']
+
+    # only relations.html
+    app.config.html_sidebars = {'**': ['relations.html']}
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
+    assert '<h3>Related Topics</h3>' in result
+    assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['relations.html']
+
+    # no sidebars
     app.config.html_sidebars = {'**': []}
     app.builder.build_all()
     result = (app.outdir / 'index.html').text(encoding='utf8')
-    assert '<h3><a href="#">Table Of Contents</a></h3>' not in result
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' not in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result
-    assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == []
 
 
 @pytest.mark.parametrize('fname,expect', flat_dict({
@@ -1268,3 +1302,28 @@ def test_html_sidebar(app, status, warning):
 def test_html_manpage(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/'})
+def test_html_baseurl(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/index.html" />' in result
+
+    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/subdir',
+                                   'html_file_suffix': '.htm'})
+def test_html_baseurl_and_html_file_suffix(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
+
+    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result

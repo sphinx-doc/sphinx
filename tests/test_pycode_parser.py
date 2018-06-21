@@ -100,11 +100,13 @@ def test_comment_picker_location():
 def test_annotated_assignment_py36():
     source = ('a: str = "Sphinx"  #: comment\n'
               'b: int = 1\n'
-              '"""string on next line"""')
+              '"""string on next line"""\n'
+              'c: int  #: comment')
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'a'): 'comment',
-                               ('', 'b'): 'string on next line'}
+                               ('', 'b'): 'string on next line',
+                               ('', 'c'): 'comment'}
     assert parser.definitions == {}
 
 
@@ -313,3 +315,12 @@ def test_decorators():
                                   'func3': ('def', 7, 9),
                                   'Foo': ('class', 11, 15),
                                   'Foo.method': ('def', 13, 15)}
+
+
+def test_formfeed_char():
+    source = ('class Foo:\n'
+              '\f\n'
+              '    attr = 1234  #: comment\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('Foo', 'attr'): 'comment'}

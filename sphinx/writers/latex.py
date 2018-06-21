@@ -19,13 +19,12 @@ from collections import defaultdict
 from os import path
 
 from docutils import nodes, writers
-from docutils.utils.roman import toRoman
 from docutils.writers.latex2e import Babel
 from six import itervalues, text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.nodes import footnotetext
+from sphinx.builders.latex.nodes import captioned_literal_block, footnotetext
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -34,6 +33,12 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
+
+try:
+    from docutils.utils.roman import toRoman
+except ImportError:
+    # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
+    from roman import toRoman
 
 if False:
     # For type annotation
@@ -49,6 +54,12 @@ BEGIN_DOC = r'''
 %(tableofcontents)s
 '''
 
+SHORTHANDOFF = r'''
+\ifdefined\shorthandoff
+  \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
+  \ifnum\catcode`\"=\active\shorthandoff{"}\fi
+\fi
+'''
 
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
@@ -58,6 +69,7 @@ HYPERLINK_SUPPORT_NODES = (
     nodes.literal_block,
     nodes.table,
     nodes.section,
+    captioned_literal_block,
 )
 ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                    {
@@ -206,16 +218,6 @@ class LaTeXWriter(writers.Writer):
 
 class ExtBabel(Babel):
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
-    shorthands = {
-        'ngerman': '"',
-        'slovene': '"',
-        'portuges': '"',
-        'brazil': '"',
-        'spanish': '"',
-        'dutch': '"',
-        'polish': '"',
-        'italian': '"',
-    }
 
     def __init__(self, language_code, use_polyglossia=False):
         # type: (unicode, bool) -> None
@@ -226,13 +228,9 @@ class ExtBabel(Babel):
 
     def get_shorthandoff(self):
         # type: () -> unicode
-        shorthand = self.shorthands.get(self.language)
-        if shorthand:
-            return r'\ifnum\catcode`\%s=\active\shorthandoff{%s}\fi' % (shorthand, shorthand)
-        elif self.language == 'turkish':
-            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
-            return r'\ifnum\catcode`\=\string=\active\shorthandoff{=}\fi'
-        return ''
+        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
+                      RemovedInSphinx30Warning)
+        return SHORTHANDOFF
 
     def uses_cyrillic(self):
         # type: () -> bool
@@ -473,7 +471,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_production_list = 0
         self.in_footnote = 0
         self.in_caption = 0
-        self.in_container_literal_block = 0
         self.in_term = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
@@ -590,7 +587,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
-                self.elements['shorthandoff'] = self.babel.get_shorthandoff()
+                self.elements['shorthandoff'] = SHORTHANDOFF
 
                 # Times fonts don't work with Cyrillic languages
                 if self.babel.uses_cyrillic() \
@@ -603,6 +600,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese
                     self.elements['babel'] = ''
+                    self.elements['shorthandoff'] = ''
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
@@ -699,8 +697,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
         self.curfilestack = []          # type: List[unicode]
         self.handled_abbrs = set()      # type: Set[unicode]
-        self.next_hyperlink_ids = {}    # type: Dict[unicode, Set[unicode]]
-        self.next_section_ids = set()   # type: Set[unicode]
 
     def pushbody(self, newbody):
         # type: (List[unicode]) -> None
@@ -712,15 +708,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def push_hyperlink_ids(self, figtype, ids):
-        # type: (unicode, Set[unicode]) -> None
-        hyperlink_ids = self.next_hyperlink_ids.setdefault(figtype, set())
-        hyperlink_ids.update(ids)
-
-    def pop_hyperlink_ids(self, figtype):
-        # type: (unicode) -> Set[unicode]
-        return self.next_hyperlink_ids.pop(figtype, set())
 
     def check_latex_elements(self):
         # type: () -> None
@@ -939,8 +926,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
-        # also add a document target
-        self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
         # use default highlight settings for new file
         self.hlsettingstack.append(self.hlsettingstack[0])
@@ -1075,11 +1060,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # just use "subparagraph", it's not numbered anyway
                     self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
                 self.context.append('}\n' + self.hypertarget_to(node.parent))
-
-                if self.next_section_ids:
-                    for id in self.next_section_ids:
-                        self.context[-1] += self.hypertarget(id, anchor=False)
-                    self.next_section_ids.clear()
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}\n')
@@ -1815,7 +1795,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_caption(self, node):
         # type: (nodes.Node) -> None
         self.in_caption += 1
-        if self.in_container_literal_block:
+        if isinstance(node.parent, captioned_literal_block):
             self.body.append('\\sphinxSetupCaptionForVerbatim{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
@@ -1908,35 +1888,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
+        domain = self.builder.env.get_domain('std')
         next_node = node.next_node(ascend=True)
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
+        elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
+            return
 
-        # postpone the labels until after the sectioning command
-        parindex = node.parent.index(node)
-        try:
-            try:
-                next = node.parent[parindex + 1]
-            except IndexError:
-                # last node in parent, look at next after parent
-                # (for section of equal level) if it exists
-                if node.parent.parent is not None:
-                    next = node.parent.parent[
-                        node.parent.parent.index(node.parent)]
-                else:
-                    raise
-            domain = self.builder.env.get_domain('std')
-            figtype = domain.get_enumerable_node_type(next)
-            if figtype and domain.get_numfig_title(next):
-                ids = set()
-                # labels for figures go in the figure body, not before
-                if node.get('refid'):
-                    ids.add(node['refid'])
-                ids.update(node['ids'])
-                self.push_hyperlink_ids(figtype, ids)
-                return
-        except IndexError:
-            pass
         if 'refuri' in node:
             return
         if node.get('refid'):
@@ -1961,8 +1919,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'\sphinxleftcurlybrace')
-            value = value.replace(r'\}', r'\sphinxrightcurlybrace')
+            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
+            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
             return value
 
         if not node.get('inline', True):
@@ -2246,6 +2204,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # the \ignorespaces in particular for after table header use
         self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
 
+    def visit_captioned_literal_block(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def depart_captioned_literal_block(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
     def visit_literal_block(self, node):
         # type: (nodes.Node) -> None
         if node.rawsource != node.astext():
@@ -2254,9 +2220,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\begin{sphinxalltt}\n')
         else:
             labels = self.hypertarget_to(node)
-            # LaTeX code will insert \phantomsection prior to \label
+            if isinstance(node.parent, captioned_literal_block):
+                labels += self.hypertarget_to(node.parent)
             if labels and not self.in_footnote:
                 self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
+
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
@@ -2483,22 +2451,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_container(self, node):
         # type: (nodes.Node) -> None
-        if node.get('literal_block'):
-            self.in_container_literal_block += 1
-            ids = ''  # type: unicode
-            for id in self.pop_hyperlink_ids('code-block'):
-                ids += self.hypertarget(id, anchor=False)
-            if node['ids']:
-                # suppress with anchor=False \phantomsection insertion
-                ids += self.hypertarget(node['ids'][0], anchor=False)
-            # define label for use in caption.
-            if ids:
-                self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + ids + '}\n')
+        pass
 
     def depart_container(self, node):
         # type: (nodes.Node) -> None
-        if node.get('literal_block'):
-            self.in_container_literal_block -= 1
+        pass
 
     def visit_decoration(self, node):
         # type: (nodes.Node) -> None
@@ -2627,6 +2584,39 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
                       RemovedInSphinx30Warning)
         return []
+
+    @property
+    def in_container_literal_block(self):
+        # type: () -> int
+        warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
+                      RemovedInSphinx30Warning)
+        return 0
+
+    @property
+    def next_section_ids(self):
+        # type: () -> Set[unicode]
+        warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
+                      RemovedInSphinx30Warning)
+        return set()
+
+    @property
+    def next_hyperlink_ids(self):
+        # type: () -> Dict
+        warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
+                      RemovedInSphinx30Warning)
+        return {}
+
+    def push_hyperlink_ids(self, figtype, ids):
+        # type: (unicode, Set[unicode]) -> None
+        warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
+                      RemovedInSphinx30Warning)
+        pass
+
+    def pop_hyperlink_ids(self, figtype):
+        # type: (unicode) -> Set[unicode]
+        warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
+                      RemovedInSphinx30Warning)
+        return set()
 
 
 # Import old modules here for compatibility

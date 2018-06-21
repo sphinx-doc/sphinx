@@ -34,6 +34,11 @@ else:
     ASSIGN_NODES = (ast.Assign)
 
 
+def filter_whitespace(code):
+    # type: (unicode) -> unicode
+    return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
+
+
 def get_assign_targets(node):
     # type: (ast.AST) -> List[ast.expr]
     """Get list of targets from Assign and AnnAssign node."""
@@ -225,12 +230,13 @@ class AfterCommentParser(TokenProcessor):
     def parse(self):
         # type: () -> None
         """Parse the code and obtain comment after assignment."""
-        # skip lvalue (until '=' operator)
-        while self.fetch_token() != [OP, '=']:
+        # skip lvalue (or whole of AnnAssign)
+        while not self.fetch_token().match([OP, '='], NEWLINE, COMMENT):
             assert self.current
 
-        # skip rvalue
-        self.fetch_rvalue()
+        # skip rvalue (if exists)
+        if self.current == [OP, '=']:
+            self.fetch_rvalue()
 
         if self.current == COMMENT:
             self.comment = self.current.value
@@ -466,7 +472,7 @@ class Parser(object):
 
     def __init__(self, code, encoding='utf-8'):
         # type: (unicode, unicode) -> None
-        self.code = code
+        self.code = filter_whitespace(code)
         self.encoding = encoding
         self.comments = {}          # type: Dict[Tuple[unicode, unicode], unicode]
         self.deforders = {}         # type: Dict[unicode, int]

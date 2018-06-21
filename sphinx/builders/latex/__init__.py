@@ -13,14 +13,14 @@ import os
 from os import path
 
 from docutils.frontend import OptionParser
-from docutils.io import FileOutput
 from six import text_type
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
     BibliographyTransform, CitationReferenceTransform, MathReferenceTransform,
-    FootnoteDocnameUpdater, LaTeXFootnoteTransform, ShowUrlsTransform
+    FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
+    ShowUrlsTransform, DocumentTargetTransform,
 )
 from sphinx.config import string_classes, ENUM
 from sphinx.environment import NoUri
@@ -30,7 +30,7 @@ from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.util.docutils import new_document
+from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
@@ -133,9 +133,8 @@ class LaTeXBuilder(Builder):
             toctree_only = False
             if len(entry) > 5:
                 toctree_only = entry[5]
-            destination = FileOutput(
-                destination_path=path.join(self.outdir, targetname),
-                encoding='utf-8')
+            destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
+                                           encoding='utf-8', overwrite_if_changed=True)
             logger.info(__("processing %s..."), targetname, nonl=1)
             toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
             if toctrees:
@@ -223,7 +222,9 @@ class LaTeXBuilder(Builder):
         transformer.set_environment(self.env)
         transformer.add_transforms([BibliographyTransform,
                                     ShowUrlsTransform,
-                                    LaTeXFootnoteTransform])
+                                    LaTeXFootnoteTransform,
+                                    LiteralBlockTransform,
+                                    DocumentTargetTransform])
         transformer.apply_transforms()
 
     def finish(self):

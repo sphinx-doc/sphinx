@@ -203,6 +203,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, 'exception', imported=imported_members)
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
+                ns['inherited_members'] = \
+                    set(dir(obj)) - set(obj.__dict__.keys())
                 ns['methods'], ns['all_methods'] = \
                     get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \

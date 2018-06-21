@@ -88,11 +88,11 @@ def test_qthelp_namespace(app, status, warning):
     app.builder.build_all()
 
     qhp = (app.outdir / 'Python.qhp').text()
-    assert '<namespace>org.sphinxdoc.sphinx</namespace>' in qhp
+    assert '<namespace>org.sphinx-doc.sphinx</namespace>' in qhp
 
     qhcp = (app.outdir / 'Python.qhcp').text()
-    assert '<homePage>qthelp://org.sphinxdoc.sphinx/doc/index.html</homePage>' in qhcp
-    assert '<startPage>qthelp://org.sphinxdoc.sphinx/doc/index.html</startPage>' in qhcp
+    assert '<homePage>qthelp://org.sphinx-doc.sphinx/doc/index.html</homePage>' in qhcp
+    assert '<startPage>qthelp://org.sphinx-doc.sphinx/doc/index.html</startPage>' in qhcp
 
 
 @pytest.mark.sphinx('qthelp', testroot='basic')

@@ -41,7 +41,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
 .. _Google:
-   https://google.github.io/styleguide/pyguide.html#Comments
+   https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
 .. _NumPy:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
@@ -374,7 +374,7 @@ There are also new config values that you can set:
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
    process. You may only specify the root package of the dependencies
-   themselves and ommit the sub-modules:
+   themselves and omit the sub-modules:
 
    .. code-block:: python
 

@@ -827,6 +827,11 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.4
 
+.. confval:: html_baseurl
+
+   The URL which points to the root of the HTML documentation.  It is used to
+   indicate the location of document like ``canonical_url``.
+
 .. confval:: html_context
 
    A dictionary of values to pass into the template engine's context for all
@@ -871,6 +876,22 @@ that use Sphinx's HTMLWriter class.
        html_css_files = ['custom.css'
                          'https://example.com/css/custom.css',
                          ('print.css', {'media': 'print'})]
+
+   .. versionadded:: 1.8
+
+.. confval:: html_js_files
+
+   A list of JavaScript *filename*.  The entry must be a *filename* string or a
+   tuple containing the *filename* string and the *attributes* dictionary.  The
+   *filename* must be relative to the :confval:`html_static_path`, or a full
+   URI with scheme like ``http://example.org/script.js``.  The *attributes* is
+   used for attributes of ``<script>`` tag.  It defaults to an empty list.
+
+   Example::
+
+       html_js_files = ['script.js',
+                        'https://example.com/scripts/custom.js',
+                        ('custom.js', {'async': 'async'})]
 
    .. versionadded:: 1.8
 
@@ -2114,7 +2135,6 @@ information.
      ``'author'``
      ``'logo'``
      ``'makeindex'``
-     ``'shorthandoff'``
 
 .. confval:: latex_docclass
 

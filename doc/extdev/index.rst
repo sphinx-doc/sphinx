@@ -101,7 +101,7 @@ Deprecated APIs
 
 On developing Sphinx, we are always careful to the compatibility of our APIs.
 But, sometimes, the change of interface are needed for some reasons.  In such
-cases, we've marked thme as deprecated. And they are kept during the two
+cases, we've marked them as deprecated. And they are kept during the two
 major versions (for more details, please see :ref:`deprecation-policy`).
 
 The following is a list of deprecated interface.
@@ -125,6 +125,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
+
+   * - :meth:`~sphinx.application.Sphinx.add_javascript()`
+     - 1.8
+     - 4.0
+     - :meth:`~sphinx.application.Sphinx.add_js_file()`
 
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
@@ -166,22 +171,52 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.footnotestack``
+   * - ``sphinx.writers.latex.LaTeXTranslator.footnotestack``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.restrict_footnote()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.in_container_literal_block``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.unrestrict_footnote()``
+   * - ``sphinx.writers.latex.LaTeXTranslator.next_section_ids``
      - 1.8
      - 3.0
      - N/A
 
-   * - ``sphinx.writers.latex.LaTeXWriter.bibitems``
+   * - ``sphinx.writers.latex.LaTeXTranslator.next_hyperlink_ids``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.restrict_footnote()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.unrestrict_footnote()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.push_hyperlink_ids()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.pop_hyperlink_ids()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.bibitems``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.ExtBabel.get_shorthandoff()``
      - 1.8
      - 3.0
      - N/A
@@ -217,10 +252,22 @@ The following is a list of deprecated interface.
      - 3.0
      - ``sphinx.versioning.UIDTransform``
 
-   * - ``sphinx.application.Sphinx.override_domain()``
+   * - ``Sphinx.override_domain()``
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_domain()`
+
+   * - ``Sphinx.import_object()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.import_object()``
+
+   * - ``suffix`` argument of
+       :meth:`~sphinx.application.Sphinx.add_source_parser()`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
+
 
    * - ``BuildEnvironment.load()``
      - 1.8
@@ -257,37 +304,6 @@ The following is a list of deprecated interface.
      - 3.0
      - :confval:`nitpick_ignore`
 
-   * - ``warn()`` (template helper function)
-     - 1.8
-     - 3.0
-     - ``warning()``
-
-   * - :confval:`source_parsers`
-     - 1.8
-     - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_source_parser()`
-
-   * - ``Sphinx.import_object()``
-     - 1.8
-     - 3.0
-     - ``sphinx.util.import_object()``
-
-   * - ``suffix`` argument of
-       :meth:`~sphinx.application.Sphinx.add_source_parser()`
-     - 1.8
-     - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
-
-   * - ``sphinx.util.docutils.directive_helper()``
-     - 1.8
-     - 3.0
-     - ``Directive`` class of docutils
-
-   * - ``sphinx.cmdline``
-     - 1.8
-     - 3.0
-     - ``sphinx.cmd.build``
-
    * - ``BuildEnvironment.update()``
      - 1.8
      - 3.0
@@ -312,6 +328,26 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``Builder.write_doctree()``
+
+   * - ``warn()`` (template helper function)
+     - 1.8
+     - 3.0
+     - ``warning()``
+
+   * - :confval:`source_parsers`
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_source_parser()`
+
+   * - ``sphinx.util.docutils.directive_helper()``
+     - 1.8
+     - 3.0
+     - ``Directive`` class of docutils
+
+   * - ``sphinx.cmdline``
+     - 1.8
+     - 3.0
+     - ``sphinx.cmd.build``
 
    * - ``sphinx.locale.l_()``
      - 1.8

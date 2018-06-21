@@ -9,10 +9,13 @@
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
-{% set script_files = script_files + ['_static/theme_extras.js'] %}
 {%- block css %}
-  {{ super() }}
+    {{ super() }}
     <link rel="stylesheet" href="_static/print.css" type="text/css" />
+{%- endblock %}
+{%- block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/theme_extras.js', 1) }}"></script>
 {%- endblock %}
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}

@@ -13,7 +13,6 @@
 from __future__ import print_function
 
 import os
-import posixpath
 import sys
 import warnings
 from collections import deque
@@ -964,6 +963,7 @@ class Sphinx(object):
         document.
 
         .. list-table:: priority range categories for Sphinx transforms
+           :widths: 20,80
 
            * - Priority
              - Main purpose in Sphinx
@@ -998,25 +998,38 @@ class Sphinx(object):
         """
         self.registry.add_post_transform(transform)
 
-    def add_javascript(self, filename):
-        # type: (unicode) -> None
+    def add_javascript(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
+        """An alias of :meth:`add_js_file`."""
+        warnings.warn('The app.add_javascript() is deprecated. '
+                      'Please use app.add_js_file() instead.',
+                      RemovedInSphinx40Warning)
+        self.add_js_file(filename, **kwargs)
+
+    def add_js_file(self, filename, **kwargs):
+        # type: (unicode, **unicode) -> None
         """Register a JavaScript file to include in the HTML output.
 
         Add *filename* to the list of JavaScript files that the default HTML
         template will include.  The filename must be relative to the HTML
-        static path, see :confval:`the docs for the config value
-        <html_static_path>`.  A full URI with scheme, like
-        ``http://example.org/foo.js``, is also supported.
+        static path , or a full URI with scheme.  The keyword arguments are
+        also accepted for attributes of ``<script>`` tag.
+
+        Example::
+
+            app.add_js_file('example.js')
+            # => <scrtipt src="_static/example.js"></script>
+
+            app.add_js_file('example.js', async="async")
+            # => <scrtipt src="_static/example.js" async="async"></script>
 
         .. versionadded:: 0.5
+
+        .. versionchanged:: 1.8
+           Renamed from ``app.add_javascript()``.
+           And it allows keyword arguments as attributes of script tag.
         """
-        logger.debug('[app] adding javascript: %r', filename)
-        from sphinx.builders.html import StandaloneHTMLBuilder
-        if '://' in filename:
-            StandaloneHTMLBuilder.script_files.append(filename)
-        else:
-            StandaloneHTMLBuilder.script_files.append(
-                posixpath.join('_static', filename))
+        self.registry.add_js_file(filename, **kwargs)
 
     def add_css_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None

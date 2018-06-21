@@ -147,7 +147,8 @@ class CObject(ObjectDescription):
             fullname = name
 
         if not arglist:
-            if self.objtype == 'function':
+            if self.objtype == 'function' or \
+                    self.objtype == 'macro' and sig.rstrip().endswith('()'):
                 # for functions, add an empty parameter list
                 signode += addnodes.desc_parameterlist()
             if const:
