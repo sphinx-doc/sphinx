@@ -272,6 +272,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     node['refuri'] = self.fix_fragment(m.group(1), m.group(2))
             if 'refid' in node:
                 node['refid'] = self.fix_fragment('', node['refid'])
+        for node in tree.traverse(nodes.target):
+            for i, node_id in enumerate(node['ids']):
+                if ':' in node_id:
+                    node['ids'][i] = self.fix_fragment('', node_id)
+
+            next_node = node.next_node(siblings=True)
+            if next_node and isinstance(next_node, nodes.Element):
+                for i, node_id in enumerate(next_node['ids']):
+                    if ':' in node_id:
+                        next_node['ids'][i] = self.fix_fragment('', node_id)
         for node in tree.traverse(addnodes.desc_signature):
             ids = node.attributes['ids']
             newids = []

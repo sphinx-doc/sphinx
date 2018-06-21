@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 import warnings
 
 from sphinx.deprecation import RemovedInSphinx20Warning
@@ -16,19 +17,18 @@ from sphinx.ext.apidoc import main as _main
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
-def main(*args, **kwargs):
-    # type: (Any, Any) -> None
+def main(argv=sys.argv):
+    # type: (List[str]) -> None
     warnings.warn(
         '`sphinx.apidoc.main()` has moved to `sphinx.ext.apidoc.main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
-    _main(*args, **kwargs)
+    _main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
 # So program can be started with "python -m sphinx.apidoc ..."
