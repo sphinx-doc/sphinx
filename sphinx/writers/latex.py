@@ -1510,7 +1510,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         self.body.append('\\begin{enumerate}\n')
         self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
-        self.body.append('\\def\\label%s{%s\\the%s %s}\n' % 
+        self.body.append('\\def\\label%s{%s\\the%s %s}\n' %
                          (enum, node['prefix'], enum, node['suffix']))
         self.body.append('\\makeatletter\\def\\p@%s{\\p@%s %s\\the%s %s}\\makeatother\n' %
                          (enumnext, enum, node['prefix'], enum, node['suffix']))
