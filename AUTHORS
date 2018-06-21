@@ -43,6 +43,7 @@ Other contributors, listed alphabetically, are:
 * Chris Lamb -- reproducibility fixes
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
+* Martin Larralde -- additional napoleon admonitions
 * Ian Lee -- quickstart improvements
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes
