@@ -97,9 +97,15 @@ All of the following section headers are supported:
 
     * ``Args`` *(alias of Parameters)*
     * ``Arguments`` *(alias of Parameters)*
+    * ``Attention``
     * ``Attributes``
+    * ``Caution``
+    * ``Danger``
+    * ``Error``
     * ``Example``
     * ``Examples``
+    * ``Hint``
+    * ``Important``
     * ``Keyword Args`` *(alias of Keyword Arguments)*
     * ``Keyword Arguments``
     * ``Methods``
@@ -112,6 +118,7 @@ All of the following section headers are supported:
     * ``Raises``
     * ``References``
     * ``See Also``
+    * ``Tip``
     * ``Todo``
     * ``Warning``
     * ``Warnings`` *(alias of Warning)*
