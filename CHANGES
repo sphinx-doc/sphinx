@@ -143,6 +143,7 @@ Features added
   for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
+* #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 
 Bugs fixed
 ----------
