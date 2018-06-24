@@ -14,10 +14,10 @@ Sphinx documentation contents
    usage/configuration
    usage/builders/index
    usage/extensions/index
+   usage/advanced/intl
 
    intro
    man/index
-   intl
    theming
    setuptools
    templating
