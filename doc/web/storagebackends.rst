@@ -27,8 +27,8 @@ documentation of the :class:`StorageBackend` class below.
    sphinx.websupport.storage.
 
 
-StorageBackend Methods
-~~~~~~~~~~~~~~~~~~~~~~
+Methods
+-------
 
 .. automethod:: StorageBackend.pre_build
 
