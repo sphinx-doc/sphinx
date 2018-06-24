@@ -15,11 +15,11 @@ Sphinx documentation contents
    usage/builders/index
    usage/extensions/index
    usage/advanced/intl
+   usage/advanced/setuptools
 
    intro
    man/index
    theming
-   setuptools
    templating
    latex
    extdev/index
