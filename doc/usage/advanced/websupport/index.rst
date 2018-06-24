@@ -10,7 +10,7 @@ web application.  To learn more read the :ref:`websupportquickstart`.
 
 .. toctree::
 
-   web/quickstart
-   web/api
-   web/searchadapters
-   web/storagebackends
+   quickstart
+   api
+   searchadapters
+   storagebackends

@@ -16,6 +16,7 @@ Sphinx documentation contents
    usage/extensions/index
    usage/advanced/intl
    usage/advanced/setuptools
+   usage/advanced/websupport/index
 
    intro
    man/index
@@ -23,7 +24,6 @@ Sphinx documentation contents
    templating
    latex
    extdev/index
-   websupport
 
    faq
    glossary
