@@ -850,8 +850,9 @@ class Sphinx(object):
           object.  It will automatically add index entries if *indextemplate*
           is nonempty; if given, it must contain exactly one instance of
           ``%s``.  See the example below for how the template will be
-          interpreted.  * Create a new role (called *rolename*) to
-          cross-reference to these object descriptions.
+          interpreted.
+        - Create a new role (called *rolename*) to cross-reference to these
+          object descriptions.
         - If you provide *parse_node*, it must be a function that takes a
           string and a docutils node, and it must populate the node with
           children parsed from the string.  It must then return the name of the
