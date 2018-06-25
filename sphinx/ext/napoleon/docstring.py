@@ -529,10 +529,10 @@ class GoogleDocstring(UnicodeMixin):
         if self._name and (self._what == 'attribute' or self._what == 'data'):
             # Implicit stop using StopIteration no longer allowed in
             # Python 3.7; see PEP 479
-            res = []
+            res = []  # type: List[unicode]
             try:
                 res = self._parse_attribute_docstring()
-            except StopIteration as e:
+            except StopIteration:
                 pass
             self._parsed_lines.extend(res)
             return
