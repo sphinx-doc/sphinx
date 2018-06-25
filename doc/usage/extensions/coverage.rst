@@ -4,7 +4,6 @@
 .. module:: sphinx.ext.coverage
    :synopsis: Check Python modules and C API for coverage in the documentation.
 
-
 This extension features one additional builder, the :class:`CoverageBuilder`.
 
 .. class:: CoverageBuilder
@@ -13,7 +12,6 @@ This extension features one additional builder, the :class:`CoverageBuilder`.
    file and give ``-b coverage`` on the command line.
 
 .. todo:: Write this section.
-
 
 Several new configuration values can be used to specify what the builder
 should check:

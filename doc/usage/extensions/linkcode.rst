@@ -16,6 +16,10 @@ found somewhere on the Internet.
 In your configuration, you need to specify a :confval:`linkcode_resolve`
 function that returns an URL based on the object.
 
+
+Configuration
+-------------
+
 .. confval:: linkcode_resolve
 
    This is a function ``linkcode_resolve(domain, info)``,

@@ -1,5 +1,5 @@
 :mod:`sphinx.ext.napoleon` -- Support for NumPy and Google style docstrings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+===========================================================================
 
 .. module:: sphinx.ext.napoleon
    :synopsis: Support for NumPy and Google style docstrings
@@ -8,8 +8,8 @@
 
 .. versionadded:: 1.3
 
-Napoleon - *Marching toward legible docstrings*
-===============================================
+Overview
+--------
 
 .. highlight:: text
 
@@ -25,7 +25,7 @@ Are you tired of writing docstrings that look like this::
     :returns: A buffered writable file descriptor
     :rtype: BufferedFileStorage
 
-`ReStructuredText`_ is great, but it creates visually dense, hard to read
+`reStructuredText`_ is great, but it creates visually dense, hard to read
 `docstrings`_. Compare the jumble above to the same thing rewritten
 according to the `Google Python Style Guide`_::
 
@@ -40,8 +40,8 @@ according to the `Google Python Style Guide`_::
 
 Much more legible, no?
 
-Napoleon is a :doc:`../extensions` that enables Sphinx to parse both `NumPy`_
-and `Google`_ style docstrings - the style recommended by `Khan Academy`_.
+Napoleon is a :term:`extension` that enables Sphinx to parse both `NumPy`_ and
+`Google`_ style docstrings - the style recommended by `Khan Academy`_.
 
 Napoleon is a pre-processor that parses `NumPy`_ and `Google`_ style
 docstrings and converts them to reStructuredText before Sphinx attempts to
@@ -61,7 +61,7 @@ source code files.
    https://github.com/Khan/style-guides/blob/master/style/python.md#docstrings
 
 Getting Started
----------------
+~~~~~~~~~~~~~~~
 
 1. After :doc:`setting up Sphinx </usage/quickstart>` to build your docs,
    enable napoleon in the Sphinx `conf.py` file::
@@ -77,7 +77,7 @@ Getting Started
 
 
 Docstrings
-----------
+~~~~~~~~~~
 
 Napoleon interprets every docstring that :mod:`autodoc <sphinx.ext.autodoc>`
 can find, including docstrings on: ``modules``, ``classes``, ``attributes``,
@@ -91,7 +91,7 @@ All standard reStructuredText formatting still works as expected.
 .. _Sections:
 
 Docstring Sections
-------------------
+~~~~~~~~~~~~~~~~~~
 
 All of the following section headers are supported:
 
@@ -127,7 +127,7 @@ All of the following section headers are supported:
     * ``Yields``
 
 Google vs NumPy
----------------
+~~~~~~~~~~~~~~~
 
 Napoleon supports two styles of docstrings: `Google`_ and `NumPy`_. The
 main difference between the two styles is that Google uses indention to
@@ -195,7 +195,7 @@ not be mixed. Choose one style for your project and be consistent with it.
 
 
 Type Annotations
-----------------
+~~~~~~~~~~~~~~~~
 
 `PEP 484`_ introduced a standard way to express types in Python code.
 This is an alternative to expressing types directly in docstrings.
@@ -249,7 +249,7 @@ Google style with types in docstrings::
 
 
 Configuration
-=============
+-------------
 
 Listed below are all the settings used by napoleon and their default
 values. These settings can be changed in the Sphinx `conf.py` file. Make
@@ -277,8 +277,6 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    https://google.github.io/styleguide/pyguide.html
 .. _NumPy style:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
-
-
 
 .. confval:: napoleon_google_docstring
 

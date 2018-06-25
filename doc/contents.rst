@@ -12,16 +12,16 @@ Sphinx documentation contents
    usage/restructuredtext/index
    usage/markdown
    usage/configuration
+   usage/builders/index
+   usage/extensions/index
 
    intro
    man/index
-   builders
    intl
    theming
    setuptools
    templating
    latex
-   extensions
    extdev/index
    websupport
 

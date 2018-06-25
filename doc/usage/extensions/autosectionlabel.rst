@@ -27,6 +27,7 @@ default. The ``autosectionlabel_prefix_document`` configuration variable can be
 used to make headings which appear multiple times but in different documents
 unique.
 
+
 Configuration
 -------------
 

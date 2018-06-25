@@ -1,13 +1,14 @@
 .. _builders:
 
-Available builders
-==================
+========
+Builders
+========
 
 .. module:: sphinx.builders
    :synopsis: Available built-in builder classes.
 
 These are the built-in Sphinx builders.  More builders can be added by
-:ref:`extensions <extensions>`.
+:doc:`extensions </usage/extensions/index>`.
 
 The builder's "name" must be given to the **-b** command-line option of
 :program:`sphinx-build` to select a builder.
@@ -75,8 +76,8 @@ The builder's "name" must be given to the **-b** command-line option of
 .. class:: QtHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
-   also generates `Qt help`_ collection support files that allow
-   the Qt collection generator to compile them.
+   also generates `Qt help`_ collection support files that allow the Qt
+   collection generator to compile them.
 
    .. autoattribute:: name
 
@@ -144,7 +145,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionchanged:: 1.5
 
-      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
+      Since Sphinx-1.5, the epub3 builder is used for the default builder of
+      epub.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
@@ -159,12 +161,12 @@ The builder's "name" must be given to the **-b** command-line option of
    in a "minimal" TeX distribution installation.  For example, on Ubuntu, the
    following packages need to be installed for successful PDF builds:
 
-   * texlive-latex-recommended
-   * texlive-fonts-recommended
-   * texlive-latex-extra
-   * latexmk (for ``make latexpdf`` on GNU/Linux and MacOS X)
-   * latex-xcolor (old Ubuntu)
-   * texlive-luatex, texlive-xetex (see :confval:`latex_engine`)
+   * ``texlive-latex-recommended``
+   * ``texlive-fonts-recommended``
+   * ``texlive-latex-extra``
+   * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
+   * ``latex-xcolor`` (old Ubuntu)
+   * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
 
    The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
    mentioned packages, which are from a TeXLive 2013 snapshot dated
@@ -178,7 +180,7 @@ The builder's "name" must be given to the **-b** command-line option of
       Since 1.6, ``make latexpdf`` uses ``latexmk`` (not on Windows).  This
       makes sure the needed number of runs is automatically executed to get
       the cross-references, bookmarks, indices, and tables of contents right.
-  
+
       One can pass to ``latexmk`` options via the ``LATEXMKOPTS``
       Makefile variable. For example:
 
@@ -310,7 +312,6 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. attribute:: searchindex_filename
 
       The filename for the search index Sphinx generates.
-
 
    See :ref:`serialization-details` for details about the output format.
 
