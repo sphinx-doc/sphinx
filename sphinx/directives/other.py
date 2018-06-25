@@ -45,7 +45,7 @@ locale.versionlabels = DeprecatedDict(
     RemovedInSphinx30Warning
 )
 
-glob_re = re.compile('.*[*?\[].*')
+glob_re = re.compile(r'.*[*?\[].*')
 
 
 def int_or_nothing(argument):
