@@ -142,7 +142,7 @@ General configuration
    .. versionadded:: 1.3
 
    .. deprecated:: 1.8
-      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      Now Sphinx provides an API :meth:`.Sphinx.add_source_parser` to register
       a source parser.  Please use it instead.
 
 .. confval:: master_doc

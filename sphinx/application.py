@@ -642,7 +642,7 @@ class Sphinx(object):
         a title.
 
         Other keyword arguments are used for node visitor functions. See the
-        :meth:`Sphinx.add_node` for details.
+        :meth:`.Sphinx.add_node` for details.
 
         .. versionadded:: 1.4
         """
