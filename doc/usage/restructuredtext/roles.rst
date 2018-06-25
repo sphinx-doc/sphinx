@@ -62,7 +62,7 @@ Cross-referencing anything
      by :rst:role:`doc`, :rst:role:`ref` or :rst:role:`option`.
 
      Custom objects added to the standard domain by extensions (see
-     :meth:`Sphinx.add_object_type`) are also searched.
+     :meth:`.Sphinx.add_object_type`) are also searched.
 
    * Then, it looks for objects (targets) in all loaded domains.  It is up to
      the domains how specific a match must be.  For example, in the Python
