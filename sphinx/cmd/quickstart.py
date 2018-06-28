@@ -265,12 +265,7 @@ Selected root path: %s''') % d['path']))
 Enter the root path for documentation.'''))
         d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
-    while path.isfile(path.join(d['path'], 'conf.py')) or \
-            path.isfile(path.join(d['path'], 'source', 'conf.py')):
-        print()
-        print(bold(__('Error: an existing conf.py has been found in the '
-                      'selected root path.')))
-        print(__('sphinx-quickstart will not overwrite existing Sphinx projects.'))
+    while not check_valid_dir(d):
         print()
         d['path'] = do_prompt(__('Please enter a new root path (or just Enter '
                                  'to exit)'), '', is_path)
@@ -523,6 +518,18 @@ def valid_dir(d):
     return True
 
 
+def check_valid_dir(d):
+    # type: (Dict) -> bool
+    if valid_dir(d):
+        return True
+
+    print()
+    print(bold(__('Error: specified path is not a directory, or Sphinx'
+                  ' files already exist.')))
+    print(__('sphinx-quickstart will not overwrite existing Sphinx projects.'))
+    return False
+
+
 def get_parser():
     # type: () -> argparse.ArgumentParser
     parser = argparse.ArgumentParser(
@@ -639,12 +646,7 @@ def main(argv=sys.argv[1:]):
             d2.update(d)
             d = d2
 
-            if not valid_dir(d):
-                print()
-                print(bold(__('Error: specified path is not a directory, or sphinx'
-                              ' files already exist.')))
-                print(__('sphinx-quickstart only generate into a empty directory.'
-                         ' Please specify a new root path.'))
+            if not check_valid_dir(d):
                 return 1
         else:
             ask_user(d)
