@@ -597,6 +597,8 @@ class GoogleDocstring(UnicodeMixin):
         lines = []
         for _name, _type, _desc in self._consume_fields():
             if self._config.napoleon_use_ivar:
+                if not _name.startswith('~') and self._obj:
+                    _name = '~%s.%s' % (self._obj.__qualname__, _name)
                 field = ':ivar %s: ' % _name  # type: unicode
                 lines.extend(self._format_block(field, _desc))
                 if _type:
