@@ -34,6 +34,8 @@ Bugs fixed
 * #5070: epub: Wrong internal href fragment links
 * #5104: apidoc: Interface of ``sphinx.apidoc:main()`` has changed
 * #5125: sphinx-build: Interface of ``sphinx:main()`` has changed
+* sphinx-build: ``sphinx.cmd.build.main()`` refers ``sys.argv`` instead of given
+  argument
 
 Testing
 --------
