@@ -1,0 +1,16 @@
+(markup-index :open  "\begin{sphinxtheindex}
+\providecommand\lettergroup[1]{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+\providecommand\lettergroupDefault[1]{{\Large\sffamily\sphinxsymbolsandnumbersname}\nopagebreak\vspace{1mm}}
+
+"
+	      :close "
+
+\end{sphinxtheindex}
+"
+	      :tree)
+
+;; End
+
+;; Local Variables:
+;; mode: lisp
+;; End:

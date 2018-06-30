@@ -22,6 +22,12 @@ export LATEXOPTS =
 # or on command line for faster builds.
 {% endif -%}
 LATEXMKOPTS =
+{% if latex_use_xindy -%}
+export XINDYOPTS = -L {{ xindy_lang }} -C utf8 -M python.xdy
+{% if latex_engine == 'xelatex' or latex_engine == 'lualatex' -%}
+export XINDYOPTS += -I xelatex
+{% endif -%}
+{% endif -%}
 # format: pdf or dvi (used only by archive targets)
 FMT = pdf
 

@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/03/28 v1.8 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2018/06/30 v1.8 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -470,6 +470,8 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of \ltx@ifundefined
 
+% for usage with xindy string is internationalized in document preamble
+\newcommand*{\sphinxsymbolsandnumbersname}{Symbols and Numbers}
 
 %% COLOR (general)
 %

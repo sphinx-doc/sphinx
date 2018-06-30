@@ -44,6 +44,31 @@ if False:
     from sphinx.config import Config  # NOQA
 
 
+XINDY_LANGUAGES = {
+# currently only Latin scripts here, for use with -L option of texindy
+# code, name
+ 'hr': 'croatian',
+ 'cs': 'czech',
+ 'da': 'danish',
+ 'en': 'english',
+ 'et': 'estonian',
+ 'fi': 'finnish',
+ 'fr': 'french',
+ 'de': 'german-din', # there is also german-duden
+ 'hu': 'hungarian',
+ 'it': 'italian',
+ 'lv': 'latvian',
+ 'lt': 'lithuanian',
+ 'nb': 'norwegian',
+ 'pl': 'polish',
+ 'pt': 'portuguese',
+ 'sk': 'slovak-small', # xindy recognizes slovak-small and slovak-large
+ 'sl': 'slovenian',
+ 'es': 'spanish-modern',
+ 'sv': 'swedish',
+ 'tr': 'turkish'
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -232,7 +257,14 @@ class LaTeXBuilder(Builder):
         self.copy_image_files()
 
         # copy TeX support files from texinputs
-        context = {'latex_engine': self.config.latex_engine}
+        if self.config.language:
+            xindy_lang = \
+                XINDY_LANGUAGES.get(self.config.language[:2], 'general')
+        else:
+            xindy_lang = 'english'
+        context = {'latex_engine': self.config.latex_engine,
+                   'latex_use_xindy': self.config.latex_use_xindy,
+                   'xindy_lang': xindy_lang}
         logger.info(bold(__('copying TeX support files...')))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
@@ -334,6 +366,7 @@ def setup(app):
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
+    app.add_config_value('latex_use_xindy', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])

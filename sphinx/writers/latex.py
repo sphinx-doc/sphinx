@@ -130,7 +130,7 @@ DEFAULT_SETTINGS = {
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
-    'literalblockpto': '',
+    'translatablestrings': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -667,12 +667,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['literalblockpto'] = (
+        self.elements['translatablestrings'] = (
             self.babel_renewcommand(
                 '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
             ) +
             self.babel_renewcommand(
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsandnumbersname', self.encode(_('Symbols and Numbers'))
             )
         )
         self.elements['pageautorefname'] = \
