@@ -45,28 +45,28 @@ if False:
 
 
 XINDY_LANGUAGES = {
-# currently only Latin scripts here, for use with -L option of texindy
-# code, name
- 'hr': 'croatian',
- 'cs': 'czech',
- 'da': 'danish',
- 'en': 'english',
- 'et': 'estonian',
- 'fi': 'finnish',
- 'fr': 'french',
- 'de': 'german-din', # there is also german-duden
- 'hu': 'hungarian',
- 'it': 'italian',
- 'lv': 'latvian',
- 'lt': 'lithuanian',
- 'nb': 'norwegian',
- 'pl': 'polish',
- 'pt': 'portuguese',
- 'sk': 'slovak-small', # xindy recognizes slovak-small and slovak-large
- 'sl': 'slovenian',
- 'es': 'spanish-modern',
- 'sv': 'swedish',
- 'tr': 'turkish'
+    # currently only Latin scripts here, for use with -L option of texindy
+    # code, name
+    'hr': 'croatian',
+    'cs': 'czech',
+    'da': 'danish',
+    'en': 'english',
+    'et': 'estonian',
+    'fi': 'finnish',
+    'fr': 'french',
+    'de': 'german-din',  # there is also german-duden
+    'hu': 'hungarian',
+    'it': 'italian',
+    'lv': 'latvian',
+    'lt': 'lithuanian',
+    'nb': 'norwegian',
+    'pl': 'polish',
+    'pt': 'portuguese',
+    'sk': 'slovak-small',  # xindy recognizes slovak-small and slovak-large
+    'sl': 'slovenian',
+    'es': 'spanish-modern',
+    'sv': 'swedish',
+    'tr': 'turkish'
 }
 
 logger = logging.getLogger(__name__)
