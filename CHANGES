@@ -143,6 +143,7 @@ Features added
   for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
+* Add :confval:`latex_use_xindy` for UTF-8 savvy indexing
 
 Bugs fixed
 ----------
@@ -152,6 +153,7 @@ Bugs fixed
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
   to Shengjing Zhu.
 * #4983: productionlist directive generates invalid IDs for the tokens
+* #5132: (lualatex) PDF build fails if indexed word starts with Unicode characters
 
 Testing
 --------

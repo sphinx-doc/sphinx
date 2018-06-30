@@ -1872,6 +1872,33 @@ information.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_use_xindy
+
+   If ``True`` (default ``False``), the PDF build from the LaTeX files
+   created by Sphinx will use :program:`xindy` (doc__) rather than
+   :program:`makeindex`.  This means that utf-8 initials in indexed
+   words will be handled correctly, and entries will be ordered
+   according to the rules appropriate to the :confval:`language`.
+   Currently, this uses :program:`texindy` and only (most) European
+   languages with Latin scripts are supported.  For usages requiring
+   direct use of ``xindy``, user will have to customize the files
+   :file:`Makefile` and :file:`latexmkrc` which are written to LaTeX
+   build repertory.  This can be done via
+   :confval:`latex_additional_files` and customized such files located
+   in source repertory.
+
+   __ http://xindy.sourceforge.net/
+
+   This option is recommended in case of :confval:`latex_engine` set
+   to ``xelatex`` or ``lualatex`` (it is even mandatory for the latter
+   as the PDF build is broken if some indexed terms start with a
+   non-ascii character).  It is without effect in case of
+   :confval:`platex` (Japanese documents).  Even if
+   :confval:`latex_engine` is left to its default, the option is
+   recommended as soon as indexed terms use non-ascii characters.
+
+   .. versionadded:: 1.8
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
