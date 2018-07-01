@@ -1765,20 +1765,30 @@ information.
    It must be a list of tuples ``(startdocname, targetname, title, author,
    documentclass, toctree_only)``, where the items are:
 
-   * *startdocname*: document name that is the "root" of the LaTeX file.  All
-     documents referenced by it in TOC trees will be included in the LaTeX file
-     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
-     here.)
-   * *targetname*: file name of the LaTeX file in the output directory.
-   * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
-     backslash or ampersand must be represented by the proper LaTeX commands if
-     they are to be inserted literally.
-   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
+   *startdocname*
+     String that specifies the relative path (without file suffix) from the
+     source directory to the document that is the master document of the LaTeX
+     file.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the LaTeX file.  (If you want to use the default master
+     document for your LaTeX build, provide your :confval:`master_doc` here.)
+
+   *targetname*
+     File name of the LaTeX file in the output directory.
+
+   *title*
+     LaTeX document title.  Can be empty to use the title of the
+     *startdoc* document.  This is inserted as LaTeX markup, so special
+     characters like a backslash or ampersand must be represented by the proper
+     LaTeX commands if they are to be inserted literally.
+
+   * *author*
+     Author for the LaTeX document.  The same LaTeX markup caveat as
      for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
      ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach
      LaTeX).
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
+
+   *documentclass*
+     Normally, one of ``'manual'`` or ``'howto'`` (provided
      by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
      documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
      documents will not get appendices. Also they have a simpler title page.
@@ -1786,7 +1796,8 @@ information.
      the "sphinx" package is always loaded in order to define Sphinx's custom
      LaTeX commands.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
+   *toctree_only*
+     Must be ``True`` or ``False``.  If true, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
      in the master document that shows up in the HTML, but not the LaTeX
@@ -2227,9 +2238,11 @@ These options influence manual page output.
    section)``, where the items are:
 
    *startdocname*
-     Document name that is the "root" of the manual page.  All documents
-     referenced by it in TOC trees will be included in the manual file too.
-     (If you want one master manual page, use your :confval:`master_doc` here.)
+     String that specifies the relative path (without file suffix) from the
+     source directory to the document that is the master of the manual page.
+     All documents referenced by the *startdoc* document in TOC trees will be
+     included in the manual file.  (If you want to use the default master
+     document for your manual pages build, use your :confval:`master_doc` here.)
 
    *name*
      Name of the manual page.  This should be a short string without spaces or
@@ -2272,17 +2285,20 @@ These options influence Texinfo output.
    are:
 
    *startdocname*
-     Document name that is the "root" of the Texinfo file.  All documents
-     referenced by it in TOC trees will be included in the Texinfo file too.
-     (If you want only one Texinfo file, use your :confval:`master_doc` here.)
+     String that specifies the relative path (without file suffix) from the
+     source directory to the document that is the master document of the Texinfo
+     file.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the Texinfo file.  (If you want to use the default
+     master document for your Texinfo build, provide your :confval:`master_doc`
+     here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
 
    *title*
-     Texinfo document title.  Can be empty to use the title of the *startdoc*.
-     Inserted as Texinfo markup, so special characters like ``@`` and ``{}``
-     will need to be escaped to be inserted literally.
+     Texinfo document title.  Can be empty to use the title of the *startdoc*
+     document.  Inserted as Texinfo markup, so special characters like ``@`` and
+     ``{}`` will need to be escaped to be inserted literally.
 
    *author*
      Author for the Texinfo document.  Inserted as Texinfo markup.  Use ``@*``
