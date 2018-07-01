@@ -673,6 +673,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ) +
             self.babel_renewcommand(
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsname', self.encode(_('Symbols'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnumbersname', self.encode(_('Numbers'))
             )
         )
         self.elements['pageautorefname'] = \
