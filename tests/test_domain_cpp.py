@@ -760,6 +760,85 @@ def test_attributes():
           output='int f() const & noexcept [[maybe_unused]] __attribute__((pure))')
 
 
+def test_contracts():
+    # expects
+    check('function', 'void take_a_zero(int param) [[  expects  :  param == 0  ]]',
+          {1: 'take_a_zero__i', 2: '11take_a_zeroi'},
+          output='void take_a_zero(int param) [[expects: param == 0]]')
+    check('function', 'void take_a_zero(int param) [[  expects  default  :  param == 0  ]]',
+          {1: 'take_a_zero__i', 2: '11take_a_zeroi'},
+          output='void take_a_zero(int param) [[expects default: param == 0]]')
+    check('function', 'void take_a_zero(int param) [[  expects  audit  :  param == 0  ]]',
+          {1: 'take_a_zero__i', 2: '11take_a_zeroi'},
+          output='void take_a_zero(int param) [[expects audit: param == 0]]')
+    check('function', 'void take_a_zero(int param) [[  expects  axiom  :  param == 0  ]]',
+          {1: 'take_a_zero__i', 2: '11take_a_zeroi'},
+          output='void take_a_zero(int param) [[expects axiom: param == 0]]')
+    with pytest.raises(DefinitionError):
+        parse('function',
+              'void take_a_zero(int param) [[  expects  default  param:  param == 0  ]]')
+
+    # ensures
+    check('function', 'int make_a_zero() [[  ensures  :  res == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures: res == 0]]')
+    check('function', 'int make_a_zero() [[  ensures  default  :  res == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures default: res == 0]]')
+    check('function', 'int make_a_zero() [[  ensures  audit  :  res == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures audit: res == 0]]')
+    check('function', 'int make_a_zero() [[  ensures  axiom  :  res == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures axiom: res == 0]]')
+    check('function', 'int make_a_zero() [[  ensures  default  res  :  res == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures default res: res == 0]]')
+    # pathological identifier
+    check('function', 'int make_a_zero() [[  ensures  audit  audit  :  audit == 0  ]]',
+          {1: 'make_a_zero', 2: '11make_a_zerov'},
+          output='int make_a_zero() [[ensures audit audit: audit == 0]]')
+
+    # assert contracts are meant in function bodies only so this is not valid C++, should fail
+    # if/when correctness is enforced
+    check('function', 'void f() [[  assert  audit  :  this->level != -1  ]]',
+          {1: 'f', 2: '1fv'},
+          output='void f() [[assert audit: this->level != -1]]')
+
+    # multiple contracts
+    sig = '''
+    int f(int param)
+    [[assert: 0 != 1]]
+    [[expects: (param%2) == 0]] \
+    [[expects: param >= 0]] \
+    [[ensures res: res >= 0]]
+    '''
+    output = ('int f(int param) [[assert: 0 != 1]] [[expects: (param % 2) == 0]] '
+              '[[expects: param >= 0]] [[ensures res: res >= 0]]')
+    check('function', sig, {1: 'f__i', 2: '1fi'},
+          output=output)
+
+    # contract conditions outside of function types are also invalid, should fail if/when
+    # correctness is enforced
+    sig = '''
+    [[assert: 0 != 1]] \
+    [[expects: (param%2) == 0]] \
+    int \
+    [[assert: arr[0] == a]] \
+    [[ensures res: std::div(res, 3).rem == 0]] \
+    f(int param) \
+    [[expects: param >= 0]] \
+    [[ensures res: res >= 0]]
+    '''
+    output = ('[[assert: 0 != 1]] [[expects: (param % 2) == 0]] '
+              'int '
+              '[[assert: arr[0] == a]] [[ensures res: std::div(res, 3).rem == 0]] '
+              'f(int param) '
+              '[[expects: param >= 0]] [[ensures res: res >= 0]]')
+    check('function', sig, {1: 'f__i', 2: '1fi'},
+          output=output)
+
+
 def test_xref_parsing():
     def check(target):
         class Config:

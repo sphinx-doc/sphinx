@@ -67,6 +67,8 @@ logger = logging.getLogger(__name__)
     - 'templateParams', if the line has template parameters
       Note: such lines might get a new tag in the future.
     - 'templateIntroduction, if the line is on the form 'conceptName{...}'
+    - 'contracts', if the line starts a contract list
+    - 'contract', if the line lists a contract
     No other desc_signature nodes should exist (so far).
 
 
@@ -364,6 +366,8 @@ _keywords = [
     'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
     'while', 'xor', 'xor_eq'
 ]
+_contract_kind_re = re.compile(r'\b(expects|ensures|assert)\b')
+_contract_level_re = re.compile(r'\b(default|audit|axiom)\b')
 
 _max_id = 4
 _id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
@@ -665,8 +669,8 @@ class ASTCPPAttribute(ASTBase):
     def _stringify(self, transform):
         return "[[" + self.arg + "]]"
 
-    def describe_signature(self, signode):
-        # type: (addnodes.desc_signature) -> None
+    def describe_signature(self, signode, env, symbol):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol) -> None
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
@@ -704,8 +708,8 @@ class ASTGnuAttributeList(ASTBase):
         res.append('))')
         return ''.join(res)
 
-    def describe_signature(self, signode):
-        # type: (addnodes.desc_signature) -> None
+    def describe_signature(self, signode, env, symbol):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol) -> None
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
@@ -721,8 +725,8 @@ class ASTIdAttribute(ASTBase):
         # type: (Callable[[Any], str]) -> str
         return self.id
 
-    def describe_signature(self, signode):
-        # type: (addnodes.desc_signature) -> None
+    def describe_signature(self, signode, env, symbol):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol) -> None
         signode.append(nodes.Text(self.id, self.id))
 
 
@@ -738,10 +742,70 @@ class ASTParenAttribute(ASTBase):
         # type: (Callable[[Any], str]) -> str
         return self.id + '(' + self.arg + ')'
 
-    def describe_signature(self, signode):
-        # type: (addnodes.desc_signature) -> None
+    def describe_signature(self, signode, env, symbol):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol) -> None
         txt = str(self)
         signode.append(nodes.Text(txt, txt))
+
+
+class ASTContractAttribute(ASTBase):
+    def __init__(self, kind, level, identifier, expr):
+        # type: (str, str, Any, Any) -> None
+        self.kind = kind
+        self.level = level
+        self.identifier = identifier
+        self.expr = expr
+
+    def _stringify(self, transform):
+        res = ['[[']  # type: List[str]
+
+        res.append(self.kind)
+
+        if self.level:
+            res.append(' ' + self.level)
+
+        if self.identifier:
+            res.append(' ')
+            res.append(transform(self.identifier))
+
+        res.append(': ')
+        res.append(transform(self.expr))
+
+        res.append(']]')
+
+        return ''.join(res)
+
+    def get_id(self, version, objectType=None, symbol=None):
+        # type: (int, str, Symbol) -> str
+        if version < 3:
+            raise NoOldIdError()
+        return symbol.parent.declaration.get_id(version, prefixed=None)
+
+    def describe_signature(self, signode, env, symbol):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol) -> None
+        def annotation(text, spaced=True):
+            if spaced:
+                signode.append(nodes.Text(' '))
+            signode.append(addnodes.desc_annotation(text, text))
+
+        def text(contents):
+            signode.append(nodes.Text(contents, contents))
+
+        text('[[')
+
+        annotation(self.kind, spaced=False)
+
+        if self.level:
+            annotation(self.level)
+
+        if self.identifier:
+            text(' ')
+            self.identifier.describe_signature(signode, 'lastIsName', env, '', '', symbol)
+
+        text(': ')
+        self.expr.describe_signature(signode, 'markType', env, symbol)
+
+        text(']]')
 
 
 ################################################################################
@@ -2395,6 +2459,7 @@ class ASTParametersQualifiers(ASTBase):
                  refQual,        # type: str
                  exceptionSpec,  # type: str
                  attrs,          # type: List[Any]
+                 contracts,      # type: List[ASTContractAttribute]
                  override,       # type: bool
                  final,          # type: bool
                  initializer     # type: str
@@ -2406,13 +2471,14 @@ class ASTParametersQualifiers(ASTBase):
         self.refQual = refQual
         self.exceptionSpec = exceptionSpec
         self.attrs = attrs
+        self.contracts = contracts
         self.override = override
         self.final = final
         self.initializer = initializer
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.args
 
     def get_modifiers_id(self, version):
@@ -2467,6 +2533,9 @@ class ASTParametersQualifiers(ASTBase):
         for attr in self.attrs:
             res.append(' ')
             res.append(str(attr))
+        for contract in self.contracts:
+            res.append(' ')
+            res.append(str(contract))
         if self.final:
             res.append(' final')
         if self.override:
@@ -2504,13 +2573,17 @@ class ASTParametersQualifiers(ASTBase):
             _add_text(signode, self.refQual)
         if self.exceptionSpec:
             _add_anno(signode, str(self.exceptionSpec))
+        for attr in self.attrs:
+            signode += nodes.Text(' ')
+            attr.describe_signature(signode, env, symbol)
+        if mode != 'lastIsName':
+            for contract in self.contracts:
+                signode += nodes.Text(' ')
+                contract.describe_signature(signode, env, symbol)
         if self.final:
             _add_anno(signode, 'final')
         if self.override:
             _add_anno(signode, 'override')
-        for attr in self.attrs:
-            signode += nodes.Text(' ')
-            attr.describe_signature(signode)
         if self.initializer:
             _add_text(signode, '= ' + str(self.initializer))
 
@@ -2569,34 +2642,37 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append('const')
         return ' '.join(res)
 
-    def describe_signature(self, modifiers):
-        # type: (List[nodes.Node]) -> None
-        def _add(modifiers, text):
-            if len(modifiers) > 0:
-                modifiers.append(nodes.Text(' '))
-            modifiers.append(addnodes.desc_annotation(text, text))
+    def describe_signature(self, signode, env, symbol, leading=False):
+        # type: (addnodes.desc_signature, BuildEnvironment, Symbol, bool) -> None
+
+        if not leading:
+            signode.append(nodes.Text(' '))
+
+        def add(text):
+            signode.append(addnodes.desc_annotation(text, text))
+            signode.append(nodes.Text(' '))
+
         for attr in self.attrs:
-            if len(modifiers) > 0:
-                modifiers.append(nodes.Text(' '))
-            modifiers.append(attr.describe_signature(modifiers))
+            attr.describe_signature(signode, env, symbol)
+            signode.append(nodes.Text(' '))
         if self.storage:
-            _add(modifiers, self.storage)
+            add(self.storage)
         if self.threadLocal:
-            _add(modifiers, 'thread_local')
+            add('thread_local')
         if self.inline:
-            _add(modifiers, 'inline')
+            add('inline')
         if self.friend:
-            _add(modifiers, 'friend')
+            add('friend')
         if self.virtual:
-            _add(modifiers, 'virtual')
+            add('virtual')
         if self.explicit:
-            _add(modifiers, 'explicit')
+            add('explicit')
         if self.constexpr:
-            _add(modifiers, 'constexpr')
+            add('constexpr')
         if self.volatile:
-            _add(modifiers, 'volatile')
+            add('volatile')
         if self.const:
-            _add(modifiers, 'const')
+            add('const')
 
 
 class ASTDeclSpecs(ASTBase):
@@ -2654,28 +2730,13 @@ class ASTDeclSpecs(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        modifiers = []  # type: List[nodes.Node]
 
-        def _add(modifiers, text):
-            if len(modifiers) > 0:
-                modifiers.append(nodes.Text(' '))
-            modifiers.append(addnodes.desc_annotation(text, text))
+        self.leftSpecs.describe_signature(signode, env, symbol, leading=True)
 
-        self.leftSpecs.describe_signature(modifiers)
-
-        for m in modifiers:
-            signode += m
         if self.trailingTypeSpec:
-            if len(modifiers) > 0:
-                signode += nodes.Text(' ')
             self.trailingTypeSpec.describe_signature(signode, mode, env,
                                                      symbol=symbol)
-            modifiers = []
-            self.rightSpecs.describe_signature(modifiers)
-            if len(modifiers) > 0:
-                signode += nodes.Text(' ')
-            for m in modifiers:
-                signode += m
+            self.rightSpecs.describe_signature(signode, env, symbol)
 
 
 class ASTArray(ASTBase):
@@ -2727,8 +2788,13 @@ class ASTDeclaratorPtr(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.next.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.next.contracts
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -2738,8 +2804,8 @@ class ASTDeclaratorPtr(ASTBase):
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
         res = ['*']
-        for a in self.attrs:
-            res.append(transform(a))
+        for attr in self.attrs:
+            res.append(transform(attr))
         if len(self.attrs) > 0 and (self.volatile or self.const):
             res.append(' ')
         if self.volatile:
@@ -2800,8 +2866,8 @@ class ASTDeclaratorPtr(ASTBase):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         signode += nodes.Text("*")
-        for a in self.attrs:
-            a.describe_signature(signode)
+        for attr in self.attrs:
+            attr.describe_signature(signode, env, symbol)
         if len(self.attrs) > 0 and (self.volatile or self.const):
             signode += nodes.Text(' ')
 
@@ -2838,8 +2904,13 @@ class ASTDeclaratorRef(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.next.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.next.contracts
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -2848,8 +2919,8 @@ class ASTDeclaratorRef(ASTBase):
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
         res = ['&']
-        for a in self.attrs:
-            res.append(transform(a))
+        for attr in self.attrs:
+            res.append(transform(attr))
         if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
             res.append(' ')
         res.append(transform(self.next))
@@ -2884,8 +2955,8 @@ class ASTDeclaratorRef(ASTBase):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         signode += nodes.Text("&")
-        for a in self.attrs:
-            a.describe_signature(signode)
+        for attr in self.attrs:
+            attr.describe_signature(signode, env, symbol)
         if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
             signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
@@ -2904,8 +2975,13 @@ class ASTDeclaratorParamPack(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.next.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.next.contracts
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -2969,8 +3045,13 @@ class ASTDeclaratorMemPtr(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.next.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.next.contracts
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -3066,8 +3147,13 @@ class ASTDeclaratorParen(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.inner.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.inner.contracts
 
     def require_space_after_declSpecs(self):
         # type: () -> bool
@@ -3138,8 +3224,13 @@ class ASTDeclaratorNameParamQual(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.paramQual.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.paramQual.contracts
 
     def get_modifiers_id(self, version):  # only the modifiers for a function, e.g.,
         # type: (int) -> str
@@ -3308,8 +3399,13 @@ class ASTType(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         return self.decl.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        return self.decl.contracts
 
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, str, Symbol) -> str
@@ -3695,10 +3791,17 @@ class ASTDeclaration(ASTBase):
 
     @property
     def function_params(self):
-        # type: () -> Any
+        # type: () -> List[Any]
         if self.objectType != 'function':
-            return None
+            return []
         return self.declaration.function_params
+
+    @property
+    def contracts(self):
+        # type: () -> List[ASTContractAttribute]
+        if self.objectType != 'function':
+            return []
+        return self.declaration.contracts
 
     def get_id(self, version, prefixed=True):
         # type: (int, bool) -> str
@@ -3735,8 +3838,8 @@ class ASTDeclaration(ASTBase):
         res.append(transform(self.declaration))
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, options):
-        # type: (addnodes.desc_signature, str, BuildEnvironment, Dict) -> None
+    def describe_signature(self, signode, mode, env, options, is_alias=False):
+        # type: (addnodes.desc_signature, str, BuildEnvironment, Dict, bool) -> None
         _verify_description_mode(mode)
         assert self.symbol
         # The caller of the domain added a desc_signature node.
@@ -3786,6 +3889,28 @@ class ASTDeclaration(ASTBase):
         else:
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+
+        if self.objectType == 'function' and not is_alias:
+            line_spec = options.get('contract-line-spec')
+
+            def line(tag):
+                node = addnodes.desc_signature_line()
+                signode.append(node)
+                node.sphinx_cpp_tagname = tag
+                return node
+
+            if self.contracts:
+                contracts_node = line('contracts')
+                first = True
+
+                for contract in self.contracts:
+                    if not first:
+                        if line_spec:
+                            contracts_node = line('contract')
+                        else:
+                            contracts_node.append(nodes.Text(' '))
+                    first = False
+                    contract.describe_signature(contracts_node, env, self.symbol)
 
 
 class ASTNamespace(ASTBase):
@@ -3864,7 +3989,7 @@ class Symbol:
             self.declaration.symbol = self
 
         # Do symbol addition after self._children has been initialised.
-        self._add_template_and_function_params()
+        self._add_template_and_function_symbols()
 
     def _fill_empty(self, declaration, docname):
         # type: (ASTDeclaration, str) -> None
@@ -3878,9 +4003,9 @@ class Symbol:
         self.docname = docname
         self._assert_invariants()
         # and symbol addition should be done as well
-        self._add_template_and_function_params()
+        self._add_template_and_function_symbols()
 
-    def _add_template_and_function_params(self):
+    def _add_template_and_function_symbols(self):
         # Note: we may be called from _fill_empty, so the symbols we want
         #       to add may actually already be present (as empty symbols).
 
@@ -3898,7 +4023,7 @@ class Symbol:
                 nn = ASTNestedName([nne], [False], rooted=False)
                 self._add_symbols(nn, [], decl, self.docname)
         # add symbols for function parameters, if any
-        if self.declaration is not None and self.declaration.function_params is not None:
+        if self.declaration is not None:
             for p in self.declaration.function_params:
                 if p.arg is None:
                     continue
@@ -3909,6 +4034,14 @@ class Symbol:
                 decl = ASTDeclaration('functionParam', None, None, None, p)
                 assert not nn.rooted
                 assert len(nn.names) == 1
+                self._add_symbols(nn, [], decl, self.docname)
+
+            for contract in self.declaration.contracts:
+                if not contract.identifier:
+                    continue
+                decl = ASTDeclaration('contract', None, None, None, contract)
+                nne = ASTNestedNameElement(contract.identifier, None)
+                nn = ASTNestedName([nne], [False], rooted=False)
                 self._add_symbols(nn, [], decl, self.docname)
 
     def remove(self):
@@ -4704,8 +4837,8 @@ class DefinitionParser:
                       % startPos)
         return self.definition[startPos:self.pos]
 
-    def _parse_attribute(self):
-        # type: () -> Any
+    def _parse_attribute(self, contract_expectations=None):
+        # type: (List[str]) -> Any
         self.skip_ws()
         # try C++11 style
         startPos = self.pos
@@ -4713,13 +4846,67 @@ class DefinitionParser:
             if not self.skip_string('['):
                 self.pos = startPos
             else:
-                # TODO: actually implement the correct grammar
-                arg = self._parse_balanced_token_seq(end=[']'])
-                if not self.skip_string_and_ws(']'):
-                    self.fail("Expected ']' in end of attribute.")
-                if not self.skip_string_and_ws(']'):
-                    self.fail("Expected ']' in end of attribute after [[...]")
-                return ASTCPPAttribute(arg)
+                # preserve leading whitespace for generic attributes
+                if self.skip_ws():
+                    leading_ws = self.matched_text
+                else:
+                    leading_ws = ''
+
+                if self.match(_contract_kind_re):
+                    # contracts
+                    kind = self.matched_text
+
+                    warning = None
+                    if contract_expectations is None or kind not in contract_expectations:
+                        if kind in ['expects', 'ensures']:
+                            warning = ('Unexpected contract in attribute list: only function'
+                                       ' declarations may have pre- or post-conditions.')
+
+                        if kind == 'assert':
+                            warning = ('Unexpected contract in attribute list: only empty'
+                                       ' expressions may have an assertion.')
+
+                    self.skip_ws()
+                    if self.match(_contract_level_re):
+                        level = self.matched_text
+                    else:
+                        level = None
+
+                    self.skip_ws()
+                    if kind == 'ensures' and self.match(_identifier_re):
+                        identifier = ASTIdentifier(self.matched_text)
+                    else:
+                        identifier = None
+
+                    self.skip_ws()
+                    if not self.skip_string_and_ws(':'):
+                        self.fail("Expected ':' in contract attribute.")
+
+                    try:
+                        expr = self._parse_constant_expression(False)
+                    except DefinitionError as eExpr:
+                        header = "Error in contract attribute."
+                        errors = []
+                        errors.append((eExpr, "in contract expression"))
+                        raise self._make_multi_error(errors, header)
+
+                    if not self.skip_string_and_ws(']'):
+                        self.fail("Expected ']' at end of contract attribute.")
+                    if not self.skip_string_and_ws(']'):
+                        self.fail("Expected ']' at end of contract attribute after [[...]")
+
+                    if warning:
+                        self.warn(warning)
+                    return ASTContractAttribute(kind, level, identifier, expr)
+
+                else:
+                    # TODO: actually implement the correct grammar
+                    arg = self._parse_balanced_token_seq(end=[']'])
+                    if not self.skip_string_and_ws(']'):
+                        self.fail("Expected ']' in end of attribute.")
+                    if not self.skip_string_and_ws(']'):
+                        self.fail("Expected ']' in end of attribute after [[...]")
+                    return ASTCPPAttribute(leading_ws + arg)
 
         # try GNU style
         if self.skip_word_and_ws('__attribute__'):
@@ -5605,12 +5792,16 @@ class DefinitionParser:
                 self.fail('Parameterised "noexcept" not implemented.')
 
         attrs = []
+        contracts = []
         while 1:
             self.skip_ws()
-            attr = self._parse_attribute()
+            attr = self._parse_attribute(contract_expectations=['expects', 'ensures'])
             if not attr:
                 break
-            attrs.append(attr)
+            if isinstance(attr, ASTContractAttribute):
+                contracts.append(attr)
+            else:
+                attrs.append(attr)
 
         self.skip_ws()
         override = self.skip_word_and_ws('override')
@@ -5633,7 +5824,7 @@ class DefinitionParser:
                     % '" or "'.join(valid))
 
         return ASTParametersQualifiers(
-            args, volatile, const, refQual, exceptionSpec, attrs, override, final,
+            args, volatile, const, refQual, exceptionSpec, attrs, contracts, override, final,
             initializer)
 
     def _parse_decl_specs_simple(self, outer, typed):
@@ -6673,6 +6864,7 @@ class CPPObject(ObjectDescription):
         # if it has multiple signatures, so don't mess with the original options.
         options = dict(self.options)
         options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        options['contract-line-spec'] = 'contract-line-spec' in self.options
         self.describe_signature(signode, ast, options)
         return ast
 
@@ -6705,6 +6897,9 @@ class CPPMemberObject(CPPObject):
 
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
+
+    option_spec = dict(CPPObject.option_spec)
+    option_spec['contract-line-spec'] = directives.flag
 
 
 class CPPClassObject(CPPObject):
@@ -6924,11 +7119,13 @@ class AliasTransform(SphinxTransform):
                 nodes = []
                 options = dict()
                 options['tparam-line-spec'] = False
+                options['contract-line-spec'] = False
                 for s in symbols:
                     signode = addnodes.desc_signature(sig, '')
                     signode['first'] = False
                     nodes.append(signode)
-                    s.declaration.describe_signature(signode, 'markName', self.env, options)
+                    s.declaration.describe_signature(signode, 'markName', self.env, options,
+                                                     is_alias=True)
                 node.replace_self(nodes)
 
 

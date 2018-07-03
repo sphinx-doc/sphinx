@@ -101,6 +101,7 @@ Features added
   full production rule
 * #6373: autosectionlabel: Allow suppression of warnings
 * coverage: Support a new ``coverage_ignore_pyobjects`` option
+* C++: add support for contracts
 
 Bugs fixed
 ----------

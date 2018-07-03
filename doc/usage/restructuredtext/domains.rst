@@ -792,6 +792,9 @@ Some directives support options:
 - ``:noindex:``, see :ref:`basic-domain-markup`.
 - ``:tparam-line-spec:``, for templated declarations.
   If specified, each template parameter will be rendered on a separate line.
+- ``:contract-line-spec:``, for :rst:dir:`cpp:function` directives. If
+  specified, each contract assertion will be rendered on a separate line. (See
+  :ref:`cpp-contracts`.)
 
   .. versionadded:: 1.6
 
@@ -1211,6 +1214,66 @@ References to partial specialisations must always include the template
 parameter lists, e.g., ``template\<typename T> Outer\<T*>``
 (:cpp:class:`template\<typename T> Outer\<T*>`).  Currently the lookup only
 succeed if the template parameter identifiers are equal strings.
+
+.. _cpp-contracts:
+
+Contracts
+~~~~~~~~~
+
+Pre- and post-conditions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a function is documented with its pre- and post-condition contracts, these
+will not be displayed in the attribute list but on a separate line below.
+Example::
+
+    .. cpp:function:: double sqrt(double arg)         \
+                          [[expects: 0 <= arg]]       \
+                          __attribute__((deprecated)) \
+                          [[ensures root: is_approx(root * root, arg)]]
+
+        Computes the square root of a nonnegative real number.
+
+This is rendered as follows:
+
+.. cpp:namespace-push:: @no_contract_line_spec
+
+.. cpp:function:: double sqrt(double arg)         \
+                      [[expects: 0 <= arg]]       \
+                      __attribute__((deprecated)) \
+                      [[ensures root: is_approx(root * root, arg)]]
+
+    Computes the square root of a nonnegative real number.
+
+This can be split to span multiple lines with the ``:contract-line-spec:``
+directive option:
+
+.. code-block:: rst
+    :emphasize-lines: 5
+
+    .. cpp:function:: double sqrt(double arg)         \
+                          [[expects: 0 <= arg]]       \
+                          __attribute__((deprecated)) \
+                          [[ensures root: is_approx(root * root, arg)]]
+        :contract-line-spec:
+
+        Computes the square root of a nonnegative real number.
+
+Resulting in the following:
+
+.. cpp:namespace-pop::
+
+.. cpp:namespace-push:: @contract_line_spec
+
+.. cpp:function:: double sqrt(double arg)         \
+                      [[expects: 0 <= arg]]       \
+                      __attribute__((deprecated)) \
+                      [[ensures root: is_approx(root * root, arg)]]
+    :contract-line-spec:
+
+    Computes the square root of a nonnegative real number.
+
+.. cpp:namespace-pop::
 
 Configuration Variables
 ~~~~~~~~~~~~~~~~~~~~~~~
