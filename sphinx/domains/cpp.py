@@ -2388,14 +2388,24 @@ class ASTFunctionParameter(ASTBase):
 
 
 class ASTParametersQualifiers(ASTBase):
-    def __init__(self, args, volatile, const, refQual, exceptionSpec, override,
-                 final, initializer):
-        # type: (List[Any], bool, bool, str, str, bool, bool, str) -> None
+    def __init__(self,
+                 args,           # type: List[Any]
+                 volatile,       # type: bool
+                 const,          # type: bool
+                 refQual,        # type: str
+                 exceptionSpec,  # type: str
+                 attrs,          # type: List[Any]
+                 override,       # type: bool
+                 final,          # type: bool
+                 initializer     # type: str
+                 ):
+        # type: (...) -> None
         self.args = args
         self.volatile = volatile
         self.const = const
         self.refQual = refQual
         self.exceptionSpec = exceptionSpec
+        self.attrs = attrs
         self.override = override
         self.final = final
         self.initializer = initializer
@@ -2454,6 +2464,9 @@ class ASTParametersQualifiers(ASTBase):
         if self.exceptionSpec:
             res.append(' ')
             res.append(str(self.exceptionSpec))
+        for attr in self.attrs:
+            res.append(' ')
+            res.append(str(attr))
         if self.final:
             res.append(' final')
         if self.override:
@@ -2495,6 +2508,9 @@ class ASTParametersQualifiers(ASTBase):
             _add_anno(signode, 'final')
         if self.override:
             _add_anno(signode, 'override')
+        for attr in self.attrs:
+            signode += nodes.Text(' ')
+            attr.describe_signature(signode)
         if self.initializer:
             _add_text(signode, '= ' + str(self.initializer))
 
@@ -5563,7 +5579,7 @@ class DefinitionParser:
         # it's needed for pointer to member functions
         if paramMode != 'function' and False:
             return ASTParametersQualifiers(
-                args, None, None, None, None, None, None, None)
+                args, None, None, None, None, None, None, None, None)
 
         self.skip_ws()
         const = self.skip_word_and_ws('const')
@@ -5588,6 +5604,14 @@ class DefinitionParser:
             if self.skip_string('('):
                 self.fail('Parameterised "noexcept" not implemented.')
 
+        attrs = []
+        while 1:
+            self.skip_ws()
+            attr = self._parse_attribute()
+            if not attr:
+                break
+            attrs.append(attr)
+
         self.skip_ws()
         override = self.skip_word_and_ws('override')
         final = self.skip_word_and_ws('final')
@@ -5609,7 +5633,7 @@ class DefinitionParser:
                     % '" or "'.join(valid))
 
         return ASTParametersQualifiers(
-            args, volatile, const, refQual, exceptionSpec, override, final,
+            args, volatile, const, refQual, exceptionSpec, attrs, override, final,
             initializer)
 
     def _parse_decl_specs_simple(self, outer, typed):

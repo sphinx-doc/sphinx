@@ -754,6 +754,11 @@ def test_attributes():
     check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
     check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
 
+    # position: function type
+    check('function', 'int f()  const&  noexcept  [[maybe_unused]]  __attribute__((pure))',
+          {1: 'fCR', 2: 'NKR1fEv'},
+          output='int f() const & noexcept [[maybe_unused]] __attribute__((pure))')
+
 
 def test_xref_parsing():
     def check(target):
