@@ -859,8 +859,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
-                       '\\nopagebreak\\vspace{1mm}}\n')
+            ret.append('\\let\\bigletter\\sphinxstyleindexletterhead\n')
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
@@ -869,7 +868,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item {\\sphinxstyleindexentry{%s}}' % self.encode(entry[0]))
+                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' % self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
