@@ -868,7 +868,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' % self.encode(entry[0]))
+                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' %
+                               self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
