@@ -497,6 +497,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
+            'use_xindy':    builder.config.latex_use_xindy,
         })
         if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
@@ -675,7 +676,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
             ) +
             self.babel_renewcommand(
-                '\\sphinxsymbolsandnumbersname', self.encode(_('Symbols and Numbers'))
+                '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
             )
         )
         self.elements['pageautorefname'] = \
@@ -859,7 +860,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\let\\bigletter\\sphinxstyleindexletterhead\n')
+            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
@@ -1922,8 +1923,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
-            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
+            value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
+            value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
             value = value.replace('"', '""')
             value = value.replace('@', '"@')
             value = value.replace('!', '"!')

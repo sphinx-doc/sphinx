@@ -1,16 +1,0 @@
-(markup-index :open  "\begin{sphinxtheindex}
-\let\lettergroup\sphinxstyleindexletterhead
-\let\lettergroupDefault\sphinxstyleindexxindygroupheadsymbols
-
-"
-	      :close "
-
-\end{sphinxtheindex}
-"
-	      :tree)
-
-;; End
-
-;; Local Variables:
-;; mode: lisp
-;; End:

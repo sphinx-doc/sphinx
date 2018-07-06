@@ -470,8 +470,8 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of \ltx@ifundefined
 
-% for usage with xindy string is internationalized in document preamble
-\newcommand*{\sphinxsymbolsandnumbersname}{Symbols and Numbers}
+% for usage with xindy: this string gets internationalized in preamble
+\newcommand*{\sphinxnonalphabeticalgroupname}{}
 
 %% COLOR (general)
 %
@@ -1596,9 +1596,10 @@
 \def\sphinxstyleindexentry   #1{\texttt{#1}}
 \def\sphinxstyleindexextra   #1{ \emph{(#1)}}
 \def\sphinxstyleindexpageref #1{, \pageref{#1}}
-\def\sphinxstyleindexletterhead #1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
-\def\sphinxstyleindexxindygroupheadsymbols
-       {{\Large\sffamily\sphinxsymbolsandnumbersname}\nopagebreak\vspace{1mm}}
+\def\sphinxstyleindexlettergroup #1%
+    {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+\def\sphinxstyleindexlettergroupDefault #1%
+    {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
 \protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
