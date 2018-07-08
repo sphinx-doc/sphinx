@@ -33,6 +33,7 @@ Bugs fixed
 * #5091: latex: curly braces in index entries are not handled correctly
 * #5070: epub: Wrong internal href fragment links
 * #5104: apidoc: Interface of ``sphinx.apidoc:main()`` has changed
+* autosummary: warnings of autosummary indicates wrong location (refs: #5146)
 
 Testing
 --------
