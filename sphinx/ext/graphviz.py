@@ -238,7 +238,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
     try:
-        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=path.dirname(
+            path.join(self.builder.srcdir, self.builder.current_docname)))
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
