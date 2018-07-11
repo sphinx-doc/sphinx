@@ -1924,6 +1924,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             value = self.encode(value)
             value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
             value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
+            value = value.replace('"', '""')
             value = value.replace('@', '"@')
             value = value.replace('!', '"!')
             return value
