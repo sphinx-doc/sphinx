@@ -1956,6 +1956,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
             value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
             value = value.replace('@', '"@')
+            value = value.replace('!', '"!')
             return value
 
         if not node.get('inline', True):
