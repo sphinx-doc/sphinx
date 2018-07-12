@@ -91,6 +91,7 @@ logger = logging.getLogger(__name__)
 
 
 periods_re = re.compile(r'\.(?:\s+)')
+literal_re = re.compile(r'::\s*$')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -483,6 +484,9 @@ def extract_summary(doc, document):
             if not node.traverse(nodes.system_message):
                 # considered as that splitting by period does not break inline markups
                 break
+
+    # strip literal notation mark ``::`` from tail of summary
+    summary = literal_re.sub('.', summary)
 
     return summary
 

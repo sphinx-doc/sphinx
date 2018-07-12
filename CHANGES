@@ -37,6 +37,8 @@ Bugs fixed
 * #5125: sphinx-build: Interface of ``sphinx:main()`` has changed
 * sphinx-build: ``sphinx.cmd.build.main()`` refers ``sys.argv`` instead of given
   argument
+* #5146: autosummary: warning is emitted when the first line of docstring ends
+  with literal notation
 
 Testing
 --------
