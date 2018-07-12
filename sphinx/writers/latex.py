@@ -453,6 +453,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # for xelatex+French, don't use polyglossia
+        if self.elements['latex_engine'] == 'xelatex':
+            if builder.config.language:
+                if builder.config.language[:2] == 'fr':
+                    self.elements.update({
+                        'polyglossia': '',
+                        'babel':       '\\usepackage{babel}',
+                    })
         # allow the user to override them all
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
