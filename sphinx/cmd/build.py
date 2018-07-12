@@ -32,7 +32,7 @@ def make_main(argv=sys.argv[1:]):
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
-    if sys.argv[1:2] == ['-M']:
+    if argv[:1] == ['-M']:
         return make_main(argv)
     else:
         return build_main(argv)
