@@ -42,6 +42,7 @@ Bugs fixed
 * autosummary: warnings of autosummary indicates wrong location (refs: #5146)
 * #5143: autodoc: crashed on inspecting dict like object which does not support
   sorting
+* #4946: py domain: rtype field could not handle "None" as a type
 
 Testing
 --------
