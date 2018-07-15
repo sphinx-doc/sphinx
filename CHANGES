@@ -202,6 +202,13 @@ Bugs fixed
 * #5091: latex: curly braces in index entries are not handled correctly
 * #5070: epub: Wrong internal href fragment links
 * #5104: apidoc: Interface of ``sphinx.apidoc:main()`` has changed
+* #5076: napoleon raises RuntimeError with python 3.7
+* #5125: sphinx-build: Interface of ``sphinx:main()`` has changed
+* sphinx-build: ``sphinx.cmd.build.main()`` refers ``sys.argv`` instead of given
+  argument
+* #5146: autosummary: warning is emitted when the first line of docstring ends
+  with literal notation
+* autosummary: warnings of autosummary indicates wrong location (refs: #5146)
 
 Testing
 --------
