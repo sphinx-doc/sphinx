@@ -209,6 +209,8 @@ Bugs fixed
 * #5146: autosummary: warning is emitted when the first line of docstring ends
   with literal notation
 * autosummary: warnings of autosummary indicates wrong location (refs: #5146)
+* #5143: autodoc: crashed on inspecting dict like object which does not support
+  sorting
 
 Testing
 --------
