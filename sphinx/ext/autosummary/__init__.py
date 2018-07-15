@@ -78,7 +78,9 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
-from sphinx.util.docutils import NullReporter, SphinxDirective, new_document, switch_source_input
+from sphinx.util.docutils import (
+    NullReporter, SphinxDirective, new_document, switch_source_input
+)
 
 if False:
     # For type annotation
