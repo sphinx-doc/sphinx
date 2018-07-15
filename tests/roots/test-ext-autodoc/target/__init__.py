@@ -233,3 +233,4 @@ class EnumCls(enum.Enum):
     val2 = 23  #: doc for val2
     val3 = 34
     """doc for val3"""
+    val4 = 34
