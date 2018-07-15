@@ -58,7 +58,7 @@ class _TranslationProxy(UserString, object):
     # replace function from UserString; it instantiates a self.__class__
     # for the encoding result
 
-    def encode(self, encoding=None, errors=None):
+    def encode(self, encoding=None, errors=None):  # type: ignore
         # type: (unicode, unicode) -> str
         if encoding:
             if errors:
@@ -82,7 +82,7 @@ class _TranslationProxy(UserString, object):
         return dir(text_type)
 
     def __iter__(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator
         return iter(self.data)
 
     def __len__(self):
@@ -97,15 +97,15 @@ class _TranslationProxy(UserString, object):
         # type: () -> unicode
         return text_type(self.data)
 
-    def __add__(self, other):
+    def __add__(self, other):  # type: ignore
         # type: (unicode) -> unicode
         return self.data + other
 
-    def __radd__(self, other):
+    def __radd__(self, other):  # type: ignore
         # type: (unicode) -> unicode
         return other + self.data
 
-    def __mod__(self, other):
+    def __mod__(self, other):  # type: ignore
         # type: (unicode) -> unicode
         return self.data % other
 
@@ -113,11 +113,11 @@ class _TranslationProxy(UserString, object):
         # type: (unicode) -> unicode
         return other % self.data
 
-    def __mul__(self, other):
+    def __mul__(self, other):  # type: ignore
         # type: (Any) -> unicode
         return self.data * other
 
-    def __rmul__(self, other):
+    def __rmul__(self, other):  # type: ignore
         # type: (Any) -> unicode
         return other * self.data
 
@@ -159,7 +159,7 @@ class _TranslationProxy(UserString, object):
         # type: (Tuple[Callable, Tuple[unicode]]) -> None
         self._func, self._args = tup
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # type: ignore
         # type: (Any) -> unicode
         return self.data[key]
 

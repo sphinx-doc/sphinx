@@ -34,6 +34,17 @@ Bugs fixed
 * #5070: epub: Wrong internal href fragment links
 * #5104: apidoc: Interface of ``sphinx.apidoc:main()`` has changed
 * #4272: PDF builds of French projects have issues with XeTeX
+* #5076: napoleon raises RuntimeError with python 3.7
+* #5125: sphinx-build: Interface of ``sphinx:main()`` has changed
+* sphinx-build: ``sphinx.cmd.build.main()`` refers ``sys.argv`` instead of given
+  argument
+* #5146: autosummary: warning is emitted when the first line of docstring ends
+  with literal notation
+* autosummary: warnings of autosummary indicates wrong location (refs: #5146)
+* #5143: autodoc: crashed on inspecting dict like object which does not support
+  sorting
+* #5139: autodoc: Enum argument missing if it shares value with another
+* #4946: py domain: rtype field could not handle "None" as a type
 
 Testing
 --------

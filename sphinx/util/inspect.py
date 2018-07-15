@@ -241,7 +241,7 @@ def object_description(object):
     if isinstance(object, dict):
         try:
             sorted_keys = sorted(object)
-        except TypeError:
+        except Exception:
             pass  # Cannot sort dict keys, fall back to generic repr
         else:
             items = ("%r: %r" % (key, object[key]) for key in sorted_keys)
