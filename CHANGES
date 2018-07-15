@@ -42,6 +42,8 @@ Bugs fixed
 * autosummary: warnings of autosummary indicates wrong location (refs: #5146)
 * #5143: autodoc: crashed on inspecting dict like object which does not support
   sorting
+* #5139: autodoc: Enum argument missing if it shares value with another
+* #4946: py domain: rtype field could not handle "None" as a type
 * #3329: i18n: crashed by auto-symbol footnote references
 
 Testing
