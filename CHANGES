@@ -43,6 +43,7 @@ Bugs fixed
 * #5143: autodoc: crashed on inspecting dict like object which does not support
   sorting
 * #5139: autodoc: Enum argument missing if it shares value with another
+* #4946: py domain: rtype field could not handle "None" as a type
 
 Testing
 --------
