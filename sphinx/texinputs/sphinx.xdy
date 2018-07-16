@@ -86,9 +86,10 @@
 
 ;; Sphinx additions, cf sphinx.util.texescape for rationale
 ;;
-;; blanks are already ignored from above merge-rules, so no space
-;; character after TeX control words, despite the fact that they will
-;; be present in .idx file.
+;; The LaTeX \index command turns \ into normal character so the TeX macros
+;; written to .idx files are not followed by a blank. This is different
+;; from non-ascii letters which end up (with pdflatex) as \IeC macros in .idx
+;; file, with a blank.
 
 (merge-rule "\\sphinxleftcurlybrace\{\}" "{")
 (merge-rule "\\sphinxrightcurlybrace\{\}" "}")
