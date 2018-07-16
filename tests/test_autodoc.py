@@ -873,13 +873,14 @@ def test_generate():
     # test members with enum attributes
     directive.env.ref_context['py:module'] = 'target'
     options.inherited_members = False
-    options.undoc_members = False
+    options.undoc_members = True
     options.members = ALL
     assert_processes([
         ('class', 'target.EnumCls'),
         ('attribute', 'target.EnumCls.val1'),
         ('attribute', 'target.EnumCls.val2'),
         ('attribute', 'target.EnumCls.val3'),
+        ('attribute', 'target.EnumCls.val4'),
     ], 'class', 'EnumCls')
     assert_result_contains(
         '   :annotation: = 12', 'attribute', 'EnumCls.val1')

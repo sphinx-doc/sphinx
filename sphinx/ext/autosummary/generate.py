@@ -269,7 +269,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
         pass
     except ImportError as e:
         print("Failed to import '%s': %s" % (name, e))
-    except SystemExit as e:
+    except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)
     return []

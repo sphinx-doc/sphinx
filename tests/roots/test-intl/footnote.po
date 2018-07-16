@@ -19,8 +19,8 @@ msgstr ""
 msgid "i18n with Footnote"
 msgstr "I18N WITH FOOTNOTE"
 
-msgid "[100]_ Contents [#]_ for `i18n with Footnote`_ [ref]_ [#named]_."
-msgstr "`I18N WITH FOOTNOTE`_ INCLUDE THIS CONTENTS [#named]_ [ref]_ [#]_ [100]_."
+msgid "[100]_ Contents [#]_ for `i18n with Footnote`_ [ref]_ [#named]_ [*]_."
+msgstr "`I18N WITH FOOTNOTE`_ INCLUDE THIS CONTENTS [#named]_ [ref]_ [#]_ [100]_ [*]_."
 
 msgid "This is a auto numbered footnote."
 msgstr "THIS IS A AUTO NUMBERED FOOTNOTE."
@@ -34,3 +34,5 @@ msgstr "THIS IS A NUMBERED FOOTNOTE."
 msgid "This is a auto numbered named footnote."
 msgstr "THIS IS A AUTO NUMBERED NAMED FOOTNOTE."
 
+msgid "This is a auto symbol footnote."
+msgstr "THIS IS A AUTO SYMBOL FOOTNOTE."
