@@ -427,6 +427,13 @@ table.field-list td, table.field-list th {
     hyphens: manual;
 }
 
+/* -- hlist styles ---------------------------------------------------------- */
+
+table.hlist td {
+    vertical-align: top;
+}
+
+
 /* -- other body styles ----------------------------------------------------- */
 
 ol.arabic {
