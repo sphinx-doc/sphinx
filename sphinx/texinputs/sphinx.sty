@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/03/28 v1.8 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2018/06/30 v1.8 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -478,6 +478,11 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of \ltx@ifundefined
 
+% for usage with xindy: this string gets internationalized in preamble
+\newcommand*{\sphinxnonalphabeticalgroupname}{}
+% redefined in preamble, headings for makeindex produced index
+\newcommand*{\sphinxsymbolsname}{}
+\newcommand*{\sphinxnumbersname}{}
 
 %% COLOR (general)
 %
@@ -1599,10 +1604,13 @@
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
 % additional customizable styling
-% FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
-\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexlettergroup #1%
+    {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+\def\sphinxstyleindexlettergroupDefault #1%
+    {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
 \protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}

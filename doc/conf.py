@@ -67,6 +67,7 @@ latex_elements = {
     'printindex': '\\footnotesize\\raggedright\\sphinxprintindex',
 }
 latex_show_urls = 'footnote'
+latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
 todo_include_todos = True

@@ -78,7 +78,9 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
-from sphinx.util.docutils import NullReporter, SphinxDirective, new_document
+from sphinx.util.docutils import (
+    NullReporter, SphinxDirective, new_document, switch_source_input
+)
 
 if False:
     # For type annotation
@@ -92,6 +94,7 @@ logger = logging.getLogger(__name__)
 
 
 periods_re = re.compile(r'\.(?:\s+)')
+literal_re = re.compile(r'::\s*$')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -373,17 +376,19 @@ class Autosummary(SphinxDirective):
         def append_row(*column_texts):
             # type: (unicode) -> None
             row = nodes.row('')
+            source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
                 node = nodes.paragraph('')
                 vl = ViewList()
-                vl.append(text, '<autosummary>')
-                self.state.nested_parse(vl, 0, node)
-                try:
-                    if isinstance(node[0], nodes.paragraph):
-                        node = node[0]
-                except IndexError:
-                    pass
-                row.append(nodes.entry('', node))
+                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                with switch_source_input(self.state, vl):
+                    self.state.nested_parse(vl, 0, node)
+                    try:
+                        if isinstance(node[0], nodes.paragraph):
+                            node = node[0]
+                    except IndexError:
+                        pass
+                    row.append(nodes.entry('', node))
             body.append(row)
 
         for name, sig, summary, real_name in items:
@@ -483,6 +488,9 @@ def extract_summary(doc, document):
             if not node.traverse(nodes.system_message):
                 # considered as that splitting by period does not break inline markups
                 break
+
+    # strip literal notation mark ``::`` from tail of summary
+    summary = literal_re.sub('.', summary)
 
     return summary
 
