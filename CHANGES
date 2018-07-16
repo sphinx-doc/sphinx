@@ -49,6 +49,7 @@ Bugs fixed
 * #5161: html: crashes if copying static files are failed
 * #5167: autodoc: Fix formatting type annotations for tuples with more than two
   arguments
+* #3329: i18n: crashed by auto-symbol footnote references
 
 Testing
 --------
