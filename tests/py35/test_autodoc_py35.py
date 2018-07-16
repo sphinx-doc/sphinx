@@ -6,21 +6,21 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 # "raises" imported for usage by autodoc
-import six
 import sys
-from sphinx.testing.util import SphinxTestApp, Struct
+
 import pytest
-
-from six import StringIO
+import six
 from docutils.statemachine import ViewList
+from six import StringIO
 
-from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+from sphinx.ext.autodoc import add_documenter, FunctionDocumenter, ALL  # NOQA
+from sphinx.testing.util import SphinxTestApp, Struct
+from sphinx.util import logging
 
 app = None
 
@@ -30,7 +30,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app
     srcdir = sphinx_test_tempdir / 'autodoc-root'
     if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
+        (rootdir / 'test-root').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
@@ -47,7 +47,7 @@ directive = options = None
 @pytest.fixture
 def setup_test():
     global options, directive
-    global processed_docstrings, processed_signatures, _warnings
+    global processed_docstrings, processed_signatures
 
     options = Struct(
         inherited_members = False,
@@ -70,22 +70,15 @@ def setup_test():
         env = app.builder.env,
         genopt = options,
         result = ViewList(),
-        warn = warnfunc,
         filename_set = set(),
     )
 
     processed_docstrings = []
     processed_signatures = []
-    _warnings = []
 
 
-_warnings = []
 processed_docstrings = []
 processed_signatures = []
-
-
-def warnfunc(msg):
-    _warnings.append(msg)
 
 
 def process_docstring(app, what, name, obj, options, lines):
@@ -111,20 +104,21 @@ def skip_member(app, what, name, obj, skip, options):
 
 @pytest.mark.usefixtures('setup_test')
 def test_generate():
+    logging.setup(app, app._status, app._warning)
+
     def assert_warns(warn_str, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert len(directive.result) == 0, directive.result
-        assert len(_warnings) == 1, _warnings
-        assert warn_str in _warnings[0], _warnings
-        del _warnings[:]
+        assert warn_str in app._warning.getvalue()
+        app._warning.truncate(0)
 
     def assert_works(objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         del directive.result[:]
 
     def assert_processes(items, objtype, name, **kw):
@@ -134,18 +128,18 @@ def test_generate():
         assert set(processed_docstrings) | set(processed_signatures) == set(items)
 
     def assert_result_contains(item, objtype, name, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
         # print '\n'.join(directive.result)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         assert item in directive.result
         del directive.result[:]
 
     def assert_order(items, objtype, name, member_order, **kw):
-        inst = AutoDirective._registry[objtype](directive, name)
+        inst = app.registry.documenters[objtype](directive, name)
         inst.options.member_order = member_order
         inst.generate(**kw)
-        assert len(_warnings) == 0, _warnings
+        assert app._warning.getvalue() == ''
         items = list(reversed(items))
         lineiter = iter(directive.result)
         # for line in directive.result:
@@ -284,8 +278,8 @@ class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
 
-if six.PY3 and sys.version_info[:2] >= (3, 5):
 
+if six.PY3 and sys.version_info[:2] >= (3, 5):
     async def _other_coro_func():
         return "run"
 
@@ -350,5 +344,4 @@ class Class(Base):
 
         async def do_coroutine(self):
             """A documented coroutine function"""
-
-            attr_coro_result = await _other_coro_func()
+            attr_coro_result = await _other_coro_func()  # NOQA

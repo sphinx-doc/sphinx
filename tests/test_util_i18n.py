@@ -5,18 +5,19 @@
 
     Test i18n util.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import os
 import datetime
+import os
 
 import pytest
 from babel.messages.mofile import read_mo
-from sphinx.util import i18n
+
 from sphinx.errors import SphinxError
+from sphinx.util import i18n
 
 
 def test_catalog_info_for_file_and_path():
@@ -156,6 +157,17 @@ def test_get_catalogs_with_compact(tempdir):
     assert domains == set(['test1', 'test2', 'sub'])
 
 
+def test_get_catalogs_excluded(tempdir):
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git').makedirs()
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / '.git' / 'no_no.po').write_text('#')
+
+    catalogs = i18n.find_catalog_source_files(
+        [tempdir / 'loc1'], 'en', force_all=False, excluded=lambda path: '.git' in path)
+    domains = set(c.domain for c in catalogs)
+    assert domains == set(['en_dom'])
+
+
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
@@ -176,6 +188,8 @@ def test_format_date():
     datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
     assert i18n.format_date(format, date=datet) == 'February 07, 2016, 05:11:17 05 AM'
 
+    format = '%B %-d, %Y, %-H:%-M:%-S %-I %p'
+    assert i18n.format_date(format, date=datet) == 'February 7, 2016, 5:11:17 5 AM'
     format = '%x'
     assert i18n.format_date(format, date=datet) == 'Feb 7, 2016'
     format = '%X'

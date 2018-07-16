@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- classic theme.
  *
- * :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -32,7 +32,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 {{ theme_sidebarwidth|toint }}px;
+    margin: 0 0 0 {{ theme_sidebarwidth|todim }};
 }
 
 div.body {
@@ -43,7 +43,7 @@ div.body {
 
 {%- if theme_rightsidebar|tobool %}
 div.bodywrapper {
-    margin: 0 {{ theme_sidebarwidth|toint }}px 0 0;
+    margin: 0 {{ theme_sidebarwidth|todim }} 0 0;
 }
 {%- endif %}
 

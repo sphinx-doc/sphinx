@@ -5,7 +5,7 @@
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -43,7 +43,7 @@ def extract_zip(filename, targetdir):
     """Extract zip file to target directory."""
     ensuredir(targetdir)
 
-    with ZipFile(filename) as archive:  # type: ignore
+    with ZipFile(filename) as archive:
         for name in archive.namelist():
             if name.endswith('/'):
                 continue
@@ -133,7 +133,7 @@ class Theme(object):
 
         for option, value in iteritems(overrides):
             if option not in options:
-                logger.warning('unsupported theme option %r given' % option)
+                logger.warning(__('unsupported theme option %r given') % option)
             else:
                 options[option] = value
 
@@ -155,9 +155,9 @@ def is_archived_theme(filename):
     # type: (unicode) -> bool
     """Check the specified file is an archived theme file or not."""
     try:
-        with ZipFile(filename) as f:  # type: ignore
+        with ZipFile(filename) as f:
             return THEMECONF in f.namelist()
-    except:
+    except Exception:
         return False
 
 

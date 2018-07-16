@@ -6,43 +6,85 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import codecs
 import posixpath
+import re
+from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from hashlib import sha1
-
-from six import text_type
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
+from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
 if False:
     # For type annotation
+    from docutils.parsers.rst import Directive  # NOQA
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-mapname_re = re.compile(r'<map id="(.*?)"')
-
-
 class GraphvizError(SphinxError):
     category = 'Graphviz error'
+
+
+class ClickableMapDefinition(object):
+    """A manipulator for clickable map file of graphviz."""
+    maptag_re = re.compile('<map id="(.*?)"')
+    href_re = re.compile('href=".*?"')
+
+    def __init__(self, filename, content, dot=''):
+        # type: (unicode, unicode, unicode) -> None
+        self.id = None  # type: unicode
+        self.filename = filename
+        self.content = content.splitlines()
+        self.clickable = []  # type: List[unicode]
+
+        self.parse(dot=dot)
+
+    def parse(self, dot=None):
+        # type: (unicode) -> None
+        matched = self.maptag_re.match(self.content[0])   # type: ignore
+        if not matched:
+            raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
+
+        self.id = matched.group(1)
+        if self.id == '%3':
+            # graphviz generates wrong ID if graph name not specified
+            # https://gitlab.com/graphviz/graphviz/issues/1327
+            hashed = sha1(dot.encode('utf-8')).hexdigest()
+            self.id = 'grapviz%s' % hashed[-10:]
+            self.content[0] = self.content[0].replace('%3', self.id)
+
+        for line in self.content:
+            if self.href_re.search(line):  # type: ignore
+                self.clickable.append(line)
+
+    def generate_clickable_map(self):
+        # type: () -> unicode
+        """Generate clickable map tags if clickable item exists.
+
+        If not exists, this only returns empty string.
+        """
+        if self.clickable:
+            return '\n'.join([self.content[0]] + self.clickable + [self.content[-1]])
+        else:
+            return ''
 
 
 class graphviz(nodes.General, nodes.Inline, nodes.Element):
@@ -71,7 +113,7 @@ def align_spec(argument):
     return directives.choice(argument, ('left', 'center', 'right'))
 
 
-class Graphviz(Directive):
+class Graphviz(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
@@ -95,12 +137,11 @@ class Graphviz(Directive):
                 return [document.reporter.warning(
                     __('Graphviz directive cannot have both content and '
                        'a filename argument'), line=self.lineno)]
-            env = self.state.document.settings.env
-            argument = search_image_for_language(self.arguments[0], env)
-            rel_filename, filename = env.relfn2path(argument)
-            env.note_dependency(rel_filename)
+            argument = search_image_for_language(self.arguments[0], self.env)
+            rel_filename, filename = self.env.relfn2path(argument)
+            self.env.note_dependency(rel_filename)
             try:
-                with codecs.open(filename, 'r', 'utf-8') as fp:
+                with codecs.open(filename, 'r', 'utf-8') as fp:  # type: ignore
                     dotcode = fp.read()
             except (IOError, OSError):
                 return [document.reporter.warning(
@@ -130,7 +171,7 @@ class Graphviz(Directive):
         return [node]
 
 
-class GraphvizSimple(Directive):
+class GraphvizSimple(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
@@ -237,7 +278,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                    "'svg', but is %r") % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
-        logger.warning('dot code %r: ' % code + str(exc))
+        logger.warning(__('dot code %r: %s'), code, text_type(exc))
         raise nodes.SkipNode
 
     if fname is None:
@@ -246,28 +287,33 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
         imgcss = imgcls and 'class="%s"' % imgcls or ''
+        if 'align' in node:
+            self.body.append('<div align="%s" class="align-%s">' %
+                             (node['align'], node['align']))
         if format == 'svg':
-            svgtag = '''<object data="%s" type="image/svg+xml">
-            <p class="warning">%s</p></object>\n''' % (fname, alt)
-            self.body.append(svgtag)
+            self.body.append('<div class="graphviz">')
+            self.body.append('<object data="%s" type="image/svg+xml" %s>\n' %
+                             (fname, imgcss))
+            self.body.append('<p class="warning">%s</p>' % alt)
+            self.body.append('</object></div>\n')
         else:
-            if 'align' in node:
-                self.body.append('<div align="%s" class="align-%s">' %
-                                 (node['align'], node['align']))
-            with open(outfn + '.map', 'rb') as mapfile:
-                imgmap = mapfile.readlines()
-            if len(imgmap) == 2:
-                # nothing in image map (the lines are <map> and </map>)
-                self.body.append('<img src="%s" alt="%s" %s/>\n' %
-                                 (fname, alt, imgcss))
-            else:
-                # has a map: get the name of the map and connect the parts
-                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)  # type: ignore
-                self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
-                                 (fname, alt, mapname, imgcss))
-                self.body.extend([item.decode('utf-8') for item in imgmap])
-            if 'align' in node:
-                self.body.append('</div>\n')
+            with codecs.open(outfn + '.map', 'r', encoding='utf-8') as mapfile:  # type: ignore
+                imgmap = ClickableMapDefinition(outfn + '.map', mapfile.read(), dot=code)
+                if imgmap.clickable:
+                    # has a map
+                    self.body.append('<div class="graphviz">')
+                    self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>' %
+                                     (fname, alt, imgmap.id, imgcss))
+                    self.body.append('</div>\n')
+                    self.body.append(imgmap.generate_clickable_map())
+                else:
+                    # nothing in image map
+                    self.body.append('<div class="graphviz">')
+                    self.body.append('<img src="%s" alt="%s" %s/>' %
+                                     (fname, alt, imgcss))
+                    self.body.append('</div>\n')
+        if 'align' in node:
+            self.body.append('</div>\n')
 
     raise nodes.SkipNode
 
@@ -282,28 +328,30 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
-        logger.warning('dot code %r: ' % code + str(exc))
+        logger.warning(__('dot code %r: %s'), code, text_type(exc))
         raise nodes.SkipNode
 
     is_inline = self.is_inline(node)
-    if is_inline:
-        para_separator = ''
-    else:
-        para_separator = '\n'
 
-    if fname is not None:
-        post = None  # type: unicode
-        if not is_inline and 'align' in node:
+    if not is_inline:
+        pre = ''
+        post = ''
+        if 'align' in node:
             if node['align'] == 'left':
-                self.body.append('{')
-                post = '\\hspace*{\\fill}}'
+                pre = '{'
+                post = r'\hspace*{\fill}}'
             elif node['align'] == 'right':
-                self.body.append('{\\hspace*{\\fill}')
+                pre = r'{\hspace*{\fill}'
                 post = '}'
-        self.body.append('%s\\includegraphics{%s}%s' %
-                         (para_separator, fname, para_separator))
-        if post:
-            self.body.append(post)
+            elif node['align'] == 'center':
+                pre = r'{\hfill'
+                post = r'\hspace*{\fill}}'
+        self.body.append('\n%s' % pre)
+
+    self.body.append(r'\sphinxincludegraphics[]{%s}' % fname)
+
+    if not is_inline:
+        self.body.append('%s\n' % post)
 
     raise nodes.SkipNode
 
@@ -318,7 +366,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
-        logger.warning('dot code %r: ' % code + str(exc))
+        logger.warning(__('dot code %r: %s'), code, text_type(exc))
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])

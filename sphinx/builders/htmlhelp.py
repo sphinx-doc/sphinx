@@ -6,13 +6,13 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import os
 import codecs
+import os
 from os import path
 
 from docutils import nodes
@@ -20,6 +20,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
@@ -174,6 +175,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
+    epilog = __('You can now run HTML Help Workshop with the .htp file in '
+                '%(outdir)s.')
 
     # don't copy the reST source
     copysource = False
@@ -226,12 +229,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def build_hhx(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        logger.info('dumping stopword list...')
+        logger.info(__('dumping stopword list...'))
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
-        logger.info('writing project file...')
+        logger.info(__('writing project file...'))
         with self.open_file(outdir, outname + '.hhp') as f:
             f.write(project_template % {
                 'outname': outname,
@@ -245,6 +248,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 outdir += os.sep
             olen = len(outdir)
             for root, dirs, files in os.walk(outdir):
+                dirs.sort()
+                files.sort()
                 staticdir = root.startswith(path.join(outdir, '_static'))
                 for fn in sorted(files):
                     if (staticdir and not fn.endswith('.js')) or \
@@ -252,7 +257,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
 
-        logger.info('writing TOC file...')
+        logger.info(__('writing TOC file...'))
         with self.open_file(outdir, outname + '.hhc') as f:
             f.write(contents_header)
             # special books
@@ -294,7 +299,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 write_toc(node)
             f.write(contents_footer)
 
-        logger.info('writing index file...')
+        logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
         with self.open_file(outdir, outname + '.hhk') as f:
             f.write('<UL>\n')

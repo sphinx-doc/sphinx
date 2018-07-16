@@ -5,7 +5,7 @@
 
     Chinese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -233,14 +233,14 @@ class SearchChinese(SearchLanguage):
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
-    latin1_letters = re.compile(r'\w+(?u)[\u0000-\u00ff]')
+    latin1_letters = re.compile(u'(?u)\\w+[\u0000-\u00ff]')
 
     def init(self, options):
         # type: (Dict) -> None
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
-                jieba.set_dictionary(dict_path)
+                jieba.load_userdict(dict_path)
 
         self.stemmer = get_stemmer()
 
@@ -250,7 +250,7 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = self.latin1_letters.findall(input)  # type: ignore
+        latin1 = self.latin1_letters.findall(input)
         return chinese + latin1
 
     def word_filter(self, stemmed_word):
@@ -259,4 +259,4 @@ class SearchChinese(SearchLanguage):
 
     def stem(self, word):
         # type: (unicode) -> unicode
-        return self.stemmer.stem(word)
+        return self.stemmer.stem(word.lower())

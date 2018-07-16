@@ -5,12 +5,12 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import codecs
+import sys
 
 from six import PY3, text_type, exec_
 
@@ -36,7 +36,7 @@ if PY3:
     from io import TextIOWrapper
 else:
     def TextIOWrapper(stream, encoding):
-        # type: (file, str) -> unicode
+        # type: (file, str) -> Any
         return codecs.lookup(encoding or 'ascii')[2](stream)
 
 

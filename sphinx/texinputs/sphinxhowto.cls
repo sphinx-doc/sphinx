@@ -25,6 +25,7 @@
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}% i.e. section and subsection
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
@@ -79,7 +80,7 @@
 %
 \newenvironment{sphinxthebibliography}[1]{%
   % \phantomsection % not needed here since TeXLive 2010's hyperref
-  \begin{thebibliography}{1}%
+  \begin{thebibliography}{#1}%
   \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\ifdefined\bibname\bibname\fi\fi}}{\end{thebibliography}}
 
 

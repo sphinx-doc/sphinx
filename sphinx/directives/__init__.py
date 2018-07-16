@@ -5,17 +5,18 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
+from sphinx.util.docutils import SphinxDirective
 
 # import all directives sphinx provides
 from sphinx.directives.code import (  # noqa
@@ -33,6 +34,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
@@ -41,7 +43,7 @@ nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
 
-class ObjectDescription(Directive):
+class ObjectDescription(SphinxDirective):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -135,7 +137,6 @@ class ObjectDescription(Directive):
             self.domain, self.objtype = self.name.split(':', 1)
         else:
             self.domain, self.objtype = '', self.name
-        self.env = self.state.document.settings.env  # type: BuildEnvironment
         self.indexnode = addnodes.index(entries=[])
 
         node = addnodes.desc()
@@ -187,7 +188,7 @@ class ObjectDescription(Directive):
 DescDirective = ObjectDescription
 
 
-class DefaultRole(Directive):
+class DefaultRole(SphinxDirective):
     """
     Set the default interpreted text role.  Overridden from docutils.
     """
@@ -212,11 +213,11 @@ class DefaultRole(Directive):
                 line=self.lineno)
             return messages + [error]
         roles._roles[''] = role
-        self.state.document.settings.env.temp_data['default_role'] = role_name
+        self.env.temp_data['default_role'] = role_name
         return messages
 
 
-class DefaultDomain(Directive):
+class DefaultDomain(SphinxDirective):
     """
     Directive to (re-)set the default domain for this source file.
     """
@@ -229,7 +230,6 @@ class DefaultDomain(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
@@ -237,7 +237,7 @@ class DefaultDomain(Directive):
         #         if domain.label.lower() == domain_name:
         #             domain_name = domain.name
         #             break
-        env.temp_data['default_domain'] = env.domains.get(domain_name)
+        self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
 

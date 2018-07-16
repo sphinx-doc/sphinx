@@ -9,6 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
+import pytest
+from six import PY2
+
 from sphinx.pycode.parser import Parser
 
 
@@ -91,12 +96,29 @@ def test_comment_picker_location():
                                ('Foo', 'attr3'): 'comment for attr3(3)'}
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='tests for py36+ syntax')
+def test_annotated_assignment_py36():
+    source = ('a: str = "Sphinx"  #: comment\n'
+              'b: int = 1\n'
+              '"""string on next line"""\n'
+              'c: int  #: comment')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'comment',
+                               ('', 'b'): 'string on next line',
+                               ('', 'c'): 'comment'}
+    assert parser.definitions == {}
+
+
 def test_complex_assignment():
     source = ('a = 1 + 1; b = a  #: compound statement\n'
               'c, d = (1, 1)  #: unpack assignment\n'
               'e = True  #: first assignment\n'
               'e = False  #: second assignment\n'
-              'f = g = None  #: multiple assignment at once\n')
+              'f = g = None  #: multiple assignment at once\n'
+              '(theta, phi) = (0, 0.5)  #: unpack assignment via tuple\n'
+              '[x, y] = (5, 6)  #: unpack assignment via list\n'
+              )
     parser = Parser(source)
     parser.parse()
     assert parser.comments == {('', 'b'): 'compound statement',
@@ -104,7 +126,29 @@ def test_complex_assignment():
                                ('', 'd'): 'unpack assignment',
                                ('', 'e'): 'second assignment',
                                ('', 'f'): 'multiple assignment at once',
-                               ('', 'g'): 'multiple assignment at once'}
+                               ('', 'g'): 'multiple assignment at once',
+                               ('', 'theta'): 'unpack assignment via tuple',
+                               ('', 'phi'): 'unpack assignment via tuple',
+                               ('', 'x'): 'unpack assignment via list',
+                               ('', 'y'): 'unpack assignment via list',
+                               }
+    assert parser.definitions == {}
+
+
+@pytest.mark.skipif(PY2, reason='tests for py3 syntax')
+def test_complex_assignment_py3():
+    source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
+              'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'
+              'e, *f[0] = (8, 9, 0)  #: unpack assignment3\n'
+              )
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'unpack assignment',
+                               ('', 'b'): 'unpack assignment',
+                               ('', 'c'): 'unpack assignment',
+                               ('', 'd'): 'unpack assignment2',
+                               ('', 'e'): 'unpack assignment3',
+                               }
     assert parser.definitions == {}
 
 
@@ -218,6 +262,18 @@ def test_nested_class():
                                 'Foo.Bar.attr2': 3}
 
 
+def test_class_comment():
+    source = ('import logging\n'
+              'logger = logging.getLogger(__name__)\n'
+              '\n'
+              'class Foo(object):\n'
+              '    """Bar"""\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {}
+    assert parser.definitions == {'Foo': ('class', 4, 5)}
+
+
 def test_comment_picker_multiline_string():
     source = ('class Foo(object):\n'
               '    a = None\n'
@@ -259,3 +315,12 @@ def test_decorators():
                                   'func3': ('def', 7, 9),
                                   'Foo': ('class', 11, 15),
                                   'Foo.method': ('def', 13, 15)}
+
+
+def test_formfeed_char():
+    source = ('class Foo:\n'
+              '\f\n'
+              '    attr = 1234  #: comment\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('Foo', 'attr'): 'comment'}

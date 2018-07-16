@@ -34,6 +34,8 @@ Documentation using the alabaster theme
 * pytest: https://docs.pytest.org/ (customized)
 * python-apt: https://apt.alioth.debian.org/python-apt-doc/
 * PyVisfile: https://documen.tician.de/pyvisfile/
+* Requests: http://www.python-requests.org/
+* searx: https://asciimoo.github.io/searx/
 * Tablib: http://docs.python-tablib.org/
 * urllib3: https://urllib3.readthedocs.io/ (customized)
 * Werkzeug: http://werkzeug.pocoo.org/docs/ (customized)
@@ -46,6 +48,7 @@ Documentation using the classic theme
 * APSW: https://rogerbinns.github.io/apsw/
 * Arb: http://arblib.org/
 * Bazaar: http://doc.bazaar.canonical.com/ (customized)
+* Beautiful Soup: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 * Blender: https://docs.blender.org/api/current/
 * Bugzilla: https://bugzilla.readthedocs.io/
 * Buildbot: https://docs.buildbot.net/latest/
@@ -79,6 +82,8 @@ Documentation using the classic theme
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pygame: https://www.pygame.org/docs/ (customized)
 * PyMQI: https://pythonhosted.org/pymqi/
+* PyQt4: http://pyqt.sourceforge.net/Docs/PyQt4/ (customized)
+* PyQt5: http://pyqt.sourceforge.net/Docs/PyQt5/ (customized)
 * Python 2: https://docs.python.org/2/
 * Python 3: https://docs.python.org/3/ (customized)
 * Python Packaging Authority: https://www.pypa.io/ (customized)
@@ -88,7 +93,7 @@ Documentation using the classic theme
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html (customized)
 * Sprox: http://sprox.org/ (customized)
 * SymPy: http://docs.sympy.org/
-* TurboGears: https://turbogears.readthedocs.org/ (customized)
+* TurboGears: https://turbogears.readthedocs.io/ (customized)
 * tvtk: http://docs.enthought.com/mayavi/tvtk/
 * Varnish: https://www.varnish-cache.org/docs/ (customized, alabaster for index)
 * Waf: https://waf.io/apidocs/
@@ -121,11 +126,16 @@ Documentation using the nature theme
 
 * Alembic: http://alembic.zzzcomputing.com/
 * Cython: http://docs.cython.org/
+* easybuild: https://easybuild.readthedocs.io/
 * jsFiddle: http://doc.jsfiddle.net/
 * libLAS: https://www.liblas.org/ (customized)
+* Lmod: https://lmod.readthedocs.io/
 * MapServer: http://mapserver.org/ (customized)
+* Pandas: https://pandas.pydata.org/pandas-docs/stable/
+* pyglet: https://pyglet.readthedocs.io/ (customized)
 * Setuptools: https://setuptools.readthedocs.io/
 * Spring Python: https://docs.spring.io/spring-python/1.2.x/sphinx/html/
+* StatsModels: http://www.statsmodels.org/ (customized)
 * Sylli: http://sylli.sourceforge.net/
 
 Documentation using another builtin theme
@@ -133,6 +143,7 @@ Documentation using another builtin theme
 
 * Breathe: https://breathe.readthedocs.io/ (haiku)
 * MPipe: https://vmlaker.github.io/mpipe/ (sphinx13)
+* NLTK: http://www.nltk.org/ (agogo)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo, customized)
 * PyPubSub: https://pypubsub.readthedocs.io/ (bizstyle)
@@ -147,11 +158,15 @@ Documentation using sphinx_rtd_theme
 
 * Annotator: http://docs.annotatorjs.org/
 * Ansible: https://docs.ansible.com/ (customized)
+* Arcade: http://arcade.academy/
+* aria2: https://aria2.github.io/manual/en/html/
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * Autofac: http://docs.autofac.org/
 * BigchainDB: https://docs.bigchaindb.com/
+* Blocks: https://blocks.readthedocs.io/
 * bootstrap-datepicker: https://bootstrap-datepicker.readthedocs.io/
 * Certbot: https://letsencrypt.readthedocs.io/
+* Chainer: https://docs.chainer.org/ (customized)
 * CherryPy: http://docs.cherrypy.org/
 * Chainer: https://docs.chainer.org/
 * CodeIgniter: https://www.codeigniter.com/user_guide/
@@ -178,14 +193,19 @@ Documentation using sphinx_rtd_theme
 * Idris: http://docs.idris-lang.org/
 * javasphinx: https://bronto-javasphinx.readthedocs.io/
 * Julia: https://julia.readthedocs.io/
+* Jupyter Notebook: https://jupyter-notebook.readthedocs.io/
+* Lasagne: https://lasagne.readthedocs.io/
+* latexindent.pl: https://latexindentpl.readthedocs.io/
 * Linguistica: https://linguistica-uchicago.github.io/lxa5/
 * Linux kernel: https://www.kernel.org/doc/html/latest/index.html
 * MathJax: https://docs.mathjax.org/
 * MDTraj: http://mdtraj.org/latest/ (customized)
 * MICrobial Community Analysis (micca): http://micca.org/docs/latest/
 * MicroPython: https://docs.micropython.org/
+* Minds: https://www.minds.org/docs/ (customized)
 * Mink: http://mink.behat.org/
 * Mockery: http://docs.mockery.io/
+* mod_wsgi: https://modwsgi.readthedocs.io/
 * MoinMoin: https://moin-20.readthedocs.io/
 * Mopidy: https://docs.mopidy.com/
 * MyHDL: http://docs.myhdl.org/
@@ -199,6 +219,7 @@ Documentation using sphinx_rtd_theme
 * peewee: http://docs.peewee-orm.com/
 * Phinx: http://docs.phinx.org/
 * phpMyAdmin: https://docs.phpmyadmin.net/
+* PROS: https://pros.cs.purdue.edu/v5/ (customized)
 * Pweave: http://mpastell.com/pweave/
 * PyPy: http://doc.pypy.org/
 * python-sqlparse: https://sqlparse.readthedocs.io/
@@ -224,13 +245,16 @@ Documentation using sphinx_rtd_theme
 * Sylius: http://docs.sylius.org/
 * Tango Controls: https://tango-controls.readthedocs.io/ (customized)
 * Topshelf: http://docs.topshelf-project.com/
+* Theano: http://www.deeplearning.net/software/theano/
 * ThreatConnect: https://docs.threatconnect.com/
 * Tuleap: https://tuleap.net/doc/en/
 * TYPO3: https://docs.typo3.org/ (customized)
+* uWSGI: https://uwsgi-docs.readthedocs.io/
 * Wagtail: http://docs.wagtail.io/
 * Web Application Attack and Audit Framework (w3af): http://docs.w3af.org/
 * Weblate: https://docs.weblate.org/
 * x265: https://x265.readthedocs.io/
+* ZeroNet: https://zeronet.readthedocs.io/
 
 Documentation using sphinx_bootstrap_theme
 ------------------------------------------
@@ -238,19 +262,21 @@ Documentation using sphinx_bootstrap_theme
 * Bootstrap Theme: https://ryan-roemer.github.io/sphinx-bootstrap-theme/
 * C/C++ Software Development with Eclipse: http://eclipsebook.in/
 * Dataverse: http://guides.dataverse.org/
-* e-cidadania: http://e-cidadania.readthedocs.org/
+* e-cidadania: https://e-cidadania.readthedocs.io/
 * Hangfire: http://docs.hangfire.io/
 * Hedge: https://documen.tician.de/hedge/
 * ObsPy: https://docs.obspy.org/
 * Open Dylan: https://opendylan.org/documentation/
 * Pootle: http://docs.translatehouse.org/projects/pootle/
 * PyUblas: https://documen.tician.de/pyublas/
+* seaborn: https://seaborn.pydata.org/
 
 Documentation using a custom theme or integrated in a website
 -------------------------------------------------------------
 
 * Apache Cassandra: https://cassandra.apache.org/doc/
 * Astropy: http://docs.astropy.org/
+* Bokeh: https://bokeh.pydata.org/
 * Boto 3: https://boto3.readthedocs.io/
 * CakePHP: https://book.cakephp.org/
 * CasperJS: http://docs.casperjs.org/
@@ -263,8 +289,10 @@ Documentation using a custom theme or integrated in a website
 * Enterprise Toolkit for Acrobat products:
   https://www.adobe.com/devnet-docs/acrobatetk/
 * Gameduino: http://excamera.com/sphinx/gameduino/
+* gensim: https://radimrehurek.com/gensim/
 * GeoServer: http://docs.geoserver.org/
 * gevent: http://www.gevent.org/
+* GHC - Glasgow Haskell Compiler: http://downloads.haskell.org/~ghc/master/users-guide/
 * Guzzle: http://docs.guzzlephp.org/en/stable/
 * H2O.ai: http://docs.h2o.ai/
 * Istihza (Turkish Python documentation project): https://belgeler.yazbel.com/python-istihza/
@@ -274,6 +302,7 @@ Documentation using a custom theme or integrated in a website
 * MirrorBrain: http://mirrorbrain.org/docs/
 * MongoDB: https://docs.mongodb.com/
 * Music21: http://web.mit.edu/music21/doc/
+* MyHDL: http://docs.myhdl.org/en/latest/
 * nose: https://nose.readthedocs.io/
 * ns-3: https://www.nsnam.org/documentation/
 * NumPy: https://docs.scipy.org/doc/numpy/reference/
@@ -290,7 +319,7 @@ Documentation using a custom theme or integrated in a website
 * PSI4: http://www.psicode.org/psi4manual/master/index.html
 * PyMOTW: https://pymotw.com/2/
 * python-aspectlib: https://python-aspectlib.readthedocs.io/
-  (`sphinx_py3doc_enhanced_theme <https://pypi.python.org/pypi/sphinx_py3doc_enhanced_theme>`__)
+  (`sphinx_py3doc_enhanced_theme <https://pypi.org/project/sphinx_py3doc_enhanced_theme/>`__)
 * QGIS: https://qgis.org/en/docs/index.html
 * qooxdoo: http://www.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
@@ -305,6 +334,7 @@ Documentation using a custom theme or integrated in a website
 * Sulu: http://docs.sulu.io/
 * SQLAlchemy: https://docs.sqlalchemy.org/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
+* Twisted: http://twistedmatrix.com/documents/current/
 * Ubuntu Packaging Guide: http://packaging.ubuntu.com/html/
 * WebFaction: https://docs.webfaction.com/
 * WTForms: https://wtforms.readthedocs.io/
@@ -318,8 +348,10 @@ Homepages and other non-documentation sites
 * Benoit Boissinot: https://bboissin.appspot.com/ (classic, customized)
 * Computer Networks, Parallelization, and Simulation Laboratory (CNPSLab):
   https://lab.miletic.net/ (sphinx_rtd_theme)
+* Deep Learning Tutorials: http://www.deeplearning.net/tutorial/ (sphinxdoc)
 * Loyola University Chicago COMP 339-439 Distributed Systems course:
   http://books.cs.luc.edu/distributedsystems/ (sphinx_bootstrap_theme)
+* Pylearn2: http://www.deeplearning.net/software/pylearn2/ (sphinxdoc, customized)
 * SciPy Cookbook: https://scipy-cookbook.readthedocs.io/ (sphinx_rtd_theme)
 * The Wine Cellar Book: https://www.thewinecellarbook.com/doc/en/ (sphinxdoc)
 * Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials:
@@ -336,6 +368,7 @@ Books produced using Sphinx
   https://www.packtpub.com/application-development/expert-python-programming
 * "Expert Python Programming" (Japanese translation):
   https://www.amazon.co.jp/dp/4048686291/
+* "The Hitchhiker's Guide to Python": http://docs.python-guide.org/en/latest/
 * "LassoGuide": http://www.lassosoft.com/Lasso-Documentation
 * "Learning Sphinx" (in Japanese):
   https://www.oreilly.co.jp/books/9784873116488/
@@ -345,7 +378,7 @@ Books produced using Sphinx
 * "Pomodoro Technique Illustrated" (Japanese translation):
   https://www.amazon.co.jp/dp/4048689525/
 * "Python Professional Programming" (in Japanese):
-  https://www.amazon.co.jp/dp/4798032948/
+  http://www.amazon.co.jp/dp/4798032948/
 * "The ``repoze.bfg`` Web Application Framework":
   https://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379
 * "Simple and Steady Way of Learning for Software Engineering" (in Japanese):

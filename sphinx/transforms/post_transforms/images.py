@@ -5,20 +5,21 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-from math import ceil
 from hashlib import sha1
+from math import ceil
 
-from six import text_type
 from docutils import nodes
+from six import text_type
 
+from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
-from sphinx.util import logging, requests
 from sphinx.util import epoch_to_rfc1123, rfc1123_to_epoch
+from sphinx.util import logging, requests
 from sphinx.util.images import guess_mimetype, get_image_extension, parse_data_uri
 from sphinx.util.osutil import ensuredir, movefile
 
@@ -29,6 +30,8 @@ if False:
 
 
 logger = logging.getLogger(__name__)
+
+MAX_FILENAME_LEN = 32
 
 
 class BaseImageConverter(SphinxTransform):
@@ -66,24 +69,29 @@ class ImageDownloader(BaseImageConverter):
 
     def handle(self, node):
         # type: (nodes.Node) -> None
-        basename = os.path.basename(node['uri'])
-        if '?' in basename:
-            basename = basename.split('?')[0]
-        if basename == '':
-            basename = sha1(node['uri']).hexdigest()
-        dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
-                                                             ord("&"): u"/"})
-        ensuredir(os.path.join(self.imagedir, dirname))
-        path = os.path.join(self.imagedir, dirname, basename)
         try:
+            basename = os.path.basename(node['uri'])
+            if '?' in basename:
+                basename = basename.split('?')[0]
+            if basename == '' or len(basename) > MAX_FILENAME_LEN:
+                filename, ext = os.path.splitext(node['uri'])
+                basename = sha1(filename.encode("utf-8")).hexdigest() + ext
+
+            dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
+                                                                 ord("&"): u"/"})
+            if len(dirname) > MAX_FILENAME_LEN:
+                dirname = sha1(dirname.encode('utf-8')).hexdigest()
+            ensuredir(os.path.join(self.imagedir, dirname))
+            path = os.path.join(self.imagedir, dirname, basename)
+
             headers = {}
             if os.path.exists(path):
-                timestamp = ceil(os.stat(path).st_mtime)
+                timestamp = ceil(os.stat(path).st_mtime)  # type: float
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
             r = requests.get(node['uri'], headers=headers)
             if r.status_code >= 400:
-                logger.warning('Could not fetch remote image: %s [%d]' %
+                logger.warning(__('Could not fetch remote image: %s [%d]') %
                                (node['uri'], r.status_code))
             else:
                 self.app.env.original_image_uri[path] = node['uri']
@@ -111,7 +119,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning('Could not fetch remote image: %s [%s]' %
+            logger.warning(__('Could not fetch remote image: %s [%s]') %
                            (node['uri'], text_type(exc)))
 
 
@@ -132,7 +140,7 @@ class DataURIExtractor(BaseImageConverter):
         image = parse_data_uri(node['uri'])
         ext = get_image_extension(image.mimetype)
         if ext is None:
-            logger.warning('Unknown image format: %s...', node['uri'][:32],
+            logger.warning(__('Unknown image format: %s...'), node['uri'][:32],
                            location=node)
             return
 
@@ -157,19 +165,37 @@ def get_filename_for(filename, mimetype):
 
 
 class ImageConverter(BaseImageConverter):
-    """A base class images converter.
+    """A base class for image converters.
 
-    The concrete image converters should derive this class and
-    overrides the following methods and attributes:
+    An image converter is kind of Docutils transform module.  It is used to
+    convert image files which does not supported by builder to appropriate
+    format for that builder.
 
-    * default_priority (if needed)
-    * conversion_rules
-    * is_available()
-    * convert()
+    For example, :py:class:`LaTeX builder <.LaTeXBuilder>` supports PDF,
+    PNG and JPEG as image formats.  However it does not support SVG images.
+    For such case, to use image converters allows to embed these
+    unsupported images into the document.  One of image converters;
+    :ref:`sphinx.ext.imgconverter <sphinx.ext.imgconverter>` can convert
+    a SVG image to PNG format using Imagemagick internally.
+
+    There are three steps to make your custom image converter:
+
+    1. Make a subclass of ``ImageConverter`` class
+    2. Override ``conversion_rules``, ``is_available()`` and ``convert()``
+    3. Register your image converter to Sphinx using
+       :py:meth:`.Sphinx.add_post_transform`
     """
     default_priority = 200
 
-    #: A conversion rules between two mimetypes which this converters supports
+    #: A conversion rules the image converter supports.
+    #: It is represented as a list of pair of source image format (mimetype) and
+    #: destination one::
+    #:
+    #:     conversion_rules = [
+    #:         ('image/svg+xml', 'image/png'),
+    #:         ('image/gif', 'image/png'),
+    #:         ('application/pdf', 'image/png'),
+    #:     ]
     conversion_rules = []  # type: List[Tuple[unicode, unicode]]
 
     def __init__(self, *args, **kwargs):
@@ -208,7 +234,7 @@ class ImageConverter(BaseImageConverter):
 
     def is_available(self):
         # type: () -> bool
-        """Confirms the converter is available or not."""
+        """Return the image converter is available or not."""
         raise NotImplementedError()
 
     def guess_mimetypes(self, node):
@@ -247,7 +273,11 @@ class ImageConverter(BaseImageConverter):
 
     def convert(self, _from, _to):
         # type: (unicode, unicode) -> bool
-        """Converts the image to expected one."""
+        """Convert a image file to expected format.
+
+        *_from* is a path for source image file, and *_to* is a path for
+        destination file.
+        """
         raise NotImplementedError()
 
 

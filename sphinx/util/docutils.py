@@ -5,43 +5,52 @@
 
     Utility functions for docutils.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
+import codecs
+import os
 import re
 import types
+import warnings
+from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
-from contextlib import contextmanager
+from os import path
 
 import docutils
-from docutils.languages import get_language
+from docutils import nodes
+from docutils.io import FileOutput
+from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter
-from docutils.parsers.rst import directives, roles, convert_directive_function
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
-                       '(.+?)\n?$')
+report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, List, Tuple  # NOQA
-    from docutils import nodes  # NOQA
+    from typing import Any, Callable, Generator, List, Set, Tuple  # NOQA
+    from docutils.statemachine import State, ViewList  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.io import SphinxFileInput  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
+additional_nodes = set()  # type: Set[nodes.Node]
 
 
 @contextmanager
 def docutils_namespace():
-    # type: () -> Iterator[None]
+    # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)
@@ -52,28 +61,87 @@ def docutils_namespace():
         directives._directives = _directives
         roles._roles = _roles
 
+        for node in list(additional_nodes):
+            unregister_node(node)
+            additional_nodes.discard(node)
 
-def patched_get_language(language_code, reporter=None):
-    # type: (unicode, Reporter) -> Any
-    """A wrapper for docutils.languages.get_language().
+
+def is_node_registered(node):
+    # type: (nodes.Node) -> bool
+    """Check the *node* is already registered."""
+    return hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__)
+
+
+def register_node(node):
+    # type: (nodes.Node) -> None
+    """Register a node to docutils.
+
+    This modifies global state of some visitors.  So it is better to use this
+    inside ``docutils_namespace()`` to prevent side-effects.
+    """
+    if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        nodes._add_node_class_names([node.__name__])
+        additional_nodes.add(node)
+
+
+def unregister_node(node):
+    # type: (nodes.Node) -> None
+    """Unregister a node from docutils.
+
+    This is inverse of ``nodes._add_nodes_class_names()``.
+    """
+    if hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        delattr(nodes.GenericNodeVisitor, "visit_" + node.__name__)
+        delattr(nodes.GenericNodeVisitor, "depart_" + node.__name__)
+        delattr(nodes.SparseNodeVisitor, 'visit_' + node.__name__)
+        delattr(nodes.SparseNodeVisitor, 'depart_' + node.__name__)
+
+
+@contextmanager
+def patched_get_language():
+    # type: () -> Generator[None, None, None]
+    """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
     refs: https://github.com/sphinx-doc/sphinx/issues/3788
     """
-    return get_language(language_code)
+    from docutils.languages import get_language
 
+    def patched_get_language(language_code, reporter=None):
+        # type: (unicode, Reporter) -> Any
+        return get_language(language_code)
 
-@contextmanager
-def patch_docutils():
-    # type: () -> Iterator[None]
-    """Patch to docutils temporarily."""
     try:
         docutils.languages.get_language = patched_get_language
-
         yield
     finally:
         # restore original implementations
         docutils.languages.get_language = get_language
+
+
+@contextmanager
+def using_user_docutils_conf(confdir):
+    # type: (unicode) -> Generator[None, None, None]
+    """Let docutils know the location of ``docutils.conf`` for Sphinx."""
+    try:
+        docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
+        if confdir:
+            os.environ['DOCUTILSCONFIG'] = path.join(path.abspath(confdir), 'docutils.conf')  # type: ignore  # NOQA
+
+        yield
+    finally:
+        if docutilsconfig is None:
+            os.environ.pop('DOCUTILSCONFIG')
+        else:
+            os.environ['DOCUTILSCONFIG'] = docutilsconfig
+
+
+@contextmanager
+def patch_docutils(confdir=None):
+    # type: (unicode) -> Generator[None, None, None]
+    """Patch to docutils temporarily."""
+    with patched_get_language(), using_user_docutils_conf(confdir):
+        yield
 
 
 class ElementLookupError(Exception):
@@ -162,21 +230,34 @@ class WarningStream(object):
         if not matched:
             logger.warning(text.rstrip("\r\n"))
         else:
-            location, type, level, message = matched.groups()
+            location, type, level = matched.groups()
+            message = report_re.sub('', text).rstrip()  # type: ignore
             logger.log(type, message, location=location)
 
 
 class LoggingReporter(Reporter):
-    def __init__(self, source, report_level, halt_level,
-                 debug=False, error_handler='backslashreplace'):
+    @classmethod
+    def from_reporter(cls, reporter):
+        # type: (Reporter) -> LoggingReporter
+        """Create an instance of LoggingReporter from other reporter object."""
+        return cls(reporter.source, reporter.report_level, reporter.halt_level,
+                   reporter.debug_flag, reporter.error_handler)
+
+    def __init__(self, source, report_level=Reporter.WARNING_LEVEL,
+                 halt_level=Reporter.SEVERE_LEVEL, debug=False,
+                 error_handler='backslashreplace'):
         # type: (unicode, int, int, bool, unicode) -> None
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
 
-    def set_conditions(self, category, report_level, halt_level, debug=False):
-        # type: (unicode, int, int, bool) -> None
-        Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
+
+class NullReporter(Reporter):
+    """A dummy reporter; write nothing."""
+
+    def __init__(self):
+        # type: () -> None
+        Reporter.__init__(self, '', 999, 4)
 
 
 def is_html5_writer_available():
@@ -186,6 +267,10 @@ def is_html5_writer_available():
 
 def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
     # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+    warnings.warn('function based directive support is now deprecated. '
+                  'Use class based directive instead.',
+                  RemovedInSphinx30Warning)
+
     if isinstance(obj, (types.FunctionType, types.MethodType)):
         obj.content = has_content                       # type: ignore
         obj.arguments = argument_spec or (0, 0, False)  # type: ignore
@@ -196,3 +281,91 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
             raise ExtensionError(__('when adding directive classes, no '
                                     'additional arguments may be given'))
         return obj
+
+
+@contextmanager
+def switch_source_input(state, content):
+    # type: (State, ViewList) -> Generator[None, None, None]
+    """Switch current source input of state temporarily."""
+    try:
+        # remember the original ``get_source_and_line()`` method
+        get_source_and_line = state.memo.reporter.get_source_and_line
+
+        # replace it by new one
+        state_machine = StateMachine([], None)
+        state_machine.input_lines = content
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
+
+        yield
+    finally:
+        # restore the method
+        state.memo.reporter.get_source_and_line = get_source_and_line
+
+
+class SphinxFileOutput(FileOutput):
+    """Better FileOutput class for Sphinx."""
+
+    def __init__(self, **kwargs):
+        # type: (Any) -> None
+        self.overwrite_if_changed = kwargs.pop('overwrite_if_changed', False)
+        FileOutput.__init__(self, **kwargs)
+
+    def write(self, data):
+        # type: (unicode) -> unicode
+        if (self.destination_path and self.autoclose and 'b' not in self.mode and
+                self.overwrite_if_changed and os.path.exists(self.destination_path)):
+            with codecs.open(self.destination_path, encoding=self.encoding) as f:
+                # skip writing: content not changed
+                if f.read() == data:
+                    return data
+
+        return FileOutput.write(self, data)
+
+
+class SphinxDirective(Directive):
+    """A base class for Sphinx directives.
+
+    This class provides helper methods for Sphinx directives.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
+    """
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
+        return self.state.document.settings.env
+
+    @property
+    def config(self):
+        # type: () -> Config
+        """Reference to the :class:`.Config` object."""
+        return self.env.config
+
+
+# cache a vanilla instance of nodes.document
+# Used in new_document() function
+__document_cache__ = None  # type: nodes.document
+
+
+def new_document(source_path, settings=None):
+    # type: (unicode, Any) -> nodes.document
+    """Return a new empty document object.  This is an alternative of docutils'.
+
+    This is a simple wrapper for ``docutils.utils.new_document()``.  It
+    caches the result of docutils' and use it on second call for instanciation.
+    This makes an instantiation of document nodes much faster.
+    """
+    global __document_cache__
+    if __document_cache__ is None:
+        __document_cache__ = docutils.utils.new_document(source_path)
+
+    if settings is None:
+        # Make a copy of ``settings`` from cache to accelerate instansiation
+        settings = copy(__document_cache__.settings)
+
+    # Create a new instance of nodes.document using cached reporter
+    document = nodes.document(settings, __document_cache__.reporter, source=source_path)
+    document.note_source(source_path, -1)
+    return document

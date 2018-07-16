@@ -13,7 +13,13 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
+<% if use_xindy -%>
+%% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
+%% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility
+\PassOptionsToPackage{hyperindex=false}{hyperref}
+<% endif -%>
 <%= passoptionstopackages %>
+\PassOptionsToPackage{warn}{textcomp}
 <%= inputenc %>
 <%= utf8extra %>
 <%= cmappkg %>
@@ -24,12 +30,13 @@
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
+<%= fvset %>
 <%= geometry %>
 <%= usepackages %>
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>
-<%= literalblockpto %>
+<%= translatablestrings %>
 <%= pageautorefname %>
 <%= tocdepth %>
 <%= secnumdepth %>

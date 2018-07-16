@@ -5,31 +5,31 @@
 
     Render math in HTML via dvipng or dvisvgm.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import codecs
+import posixpath
+import re
 import shutil
 import tempfile
-import posixpath
+from hashlib import sha1
 from os import path
 from subprocess import Popen, PIPE
-from hashlib import sha1
-
-from six import text_type
 
 from docutils import nodes
+from six import text_type
 
 import sphinx
-from sphinx.locale import _
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.util import logging
-from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.osutil import ensuredir, ENOENT, cd
-from sphinx.util.pycompat import sys_encoding
+from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.locale import _, __
+from sphinx.util import logging
+from sphinx.util.osutil import ensuredir, ENOENT, cd
+from sphinx.util.png import read_png_depth, write_png_depth
+from sphinx.util.pycompat import sys_encoding
 
 if False:
     # For type annotation
@@ -37,7 +37,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
+    from sphinx.ext.mathbase import displaymath  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -141,8 +141,8 @@ def compile_math(latex, builder):
         except OSError as err:
             if err.errno != ENOENT:   # No such file or directory
                 raise
-            logger.warning('LaTeX command %r cannot be run (needed for math '
-                           'display), check the imgmath_latex setting',
+            logger.warning(__('LaTeX command %r cannot be run (needed for math '
+                              'display), check the imgmath_latex setting'),
                            builder.config.imgmath_latex)
             raise InvokeError
 
@@ -161,8 +161,8 @@ def convert_dvi_to_image(command, name):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        logger.warning('%s command %r cannot be run (needed for math '
-                       'display), check the imgmath_%s setting',
+        logger.warning(__('%s command %r cannot be run (needed for math '
+                          'display), check the imgmath_%s setting'),
                        name, command[0], name)
         raise InvokeError
 
@@ -285,27 +285,27 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    # type: (nodes.NodeVisitor, math_node) -> unicode
+    # type: (nodes.NodeVisitor, nodes.math) -> unicode
     if self.builder.config.imgmath_add_tooltips:
-        return ' alt="%s"' % self.encode(node['latex']).strip()
+        return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, math_node) -> None
+    # type: (nodes.NodeVisitor, nodes.math) -> None
     try:
-        fname, depth = render_math(self, '$' + node['latex'] + '$')
+        fname, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
-                                  backrefs=[], source=node['latex'])
+                                  backrefs=[], source=node.astext())
         sm.walkabout(self)
-        logger.warning('display latex %r: %s', node['latex'], msg)
+        logger.warning(__('display latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span>' %
-                         self.encode(node['latex']).strip())
+                         self.encode(node.astext()).strip())
     else:
         c = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
         if depth is not None:
@@ -317,29 +317,30 @@ def html_visit_math(self, node):
 def html_visit_displaymath(self, node):
     # type: (nodes.NodeVisitor, displaymath) -> None
     if node['nowrap']:
-        latex = node['latex']
+        latex = node.astext()
     else:
-        latex = wrap_displaymath(node['latex'], None,
+        latex = wrap_displaymath(node.astext(), None,
                                  self.builder.config.math_number_all)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
-                                  backrefs=[], source=node['latex'])
+                                  backrefs=[], source=node.astext())
         sm.walkabout(self)
-        logger.warning('inline latex %r: %s', node['latex'], msg)
+        logger.warning(__('inline latex %r: %s'), node.astext(), msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
     if node['number']:
-        self.body.append('<span class="eqno">(%s)' % node['number'])
+        number = get_node_equation_number(self, node)
+        self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     if fname is None:
         # something failed -- use text-only as a bad substitute
         self.body.append('<span class="math">%s</span></p>\n</div>' %
-                         self.encode(node['latex']).strip())
+                         self.encode(node.astext()).strip())
     else:
         self.body.append(('<img src="%s"' % fname) + get_tooltip(self, node) +
                          '/></p>\n</div>')

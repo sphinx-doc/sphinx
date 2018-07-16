@@ -5,26 +5,27 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 from pprint import pformat
-
-from six import string_types
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
-    contextfunction
-from jinja2.utils import open_if_exists
-from jinja2.sandbox import SandboxedEnvironment
 from typing import Any, Callable, Iterator, Tuple  # NOQA
 
+from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
+    contextfunction
+from jinja2.sandbox import SandboxedEnvironment
+from jinja2.utils import open_if_exists
+from six import string_types
+
 from sphinx.application import TemplateBridge
+from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA
@@ -43,6 +44,25 @@ def _toint(val):
         return int(val)
     except ValueError:
         return 0
+
+
+def _todim(val):
+    # type: (Union[int, unicode]) -> unicode
+    """
+    Make val a css dimension. In particular the following transformations
+    are performed:
+
+    - None -> 'initial' (default CSS value)
+    - 0 -> '0'
+    - ints and string representations of ints are interpreted as pixels.
+
+    Everything else is returned unchanged.
+    """
+    if val is None:
+        return 'initial'
+    elif str(val).isdigit():
+        return '0' if int(val) == 0 else '%spx' % val
+    return val  # type: ignore
 
 
 def _slice_index(values, slices):
@@ -92,6 +112,17 @@ class idgen(object):
         self.id += 1
         return self.id
     next = __next__  # Python 2/Jinja compatibility
+
+
+@contextfunction
+def warning(context, message, *args, **kwargs):
+    # type: (Dict, unicode, Any, Any) -> unicode
+    if 'pagename' in context:
+        filename = context.get('pagename') + context.get('file_suffix', '')
+        message = 'in rendering %s: %s' % (filename, message)
+    logger = logging.getLogger('sphinx.themes')
+    logger.warning(message, *args, **kwargs)
+    return ''  # return empty string not to output any values
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
@@ -164,8 +195,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
+        self.environment.globals['warning'] = warning
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:

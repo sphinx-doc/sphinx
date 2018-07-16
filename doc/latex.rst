@@ -1,4 +1,4 @@
-.. highlightlang:: python
+.. highlight:: python
 
 .. _latex:
 
@@ -8,8 +8,8 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
-The *latex* target does not benefit from pre-prepared themes like the
-*html* target does (see :doc:`theming`).
+For details of the LaTeX/PDF builder command line invocation, refer to
+:py:class:`~sphinx.builders.latex.LaTeXBuilder`.
 
 .. raw:: latex
 
@@ -29,12 +29,15 @@ The *latex* target does not benefit from pre-prepared themes like the
          cautionBgColor={named}{LightCyan}}
    \relax
 
+.. _latex-basic:
 
 Basic customization
 -------------------
 
-It is achieved via usage of the
-:ref:`latex-options` as described in :doc:`config`. For example::
+The *latex* target does not benefit from prepared themes.
+
+Basic customization is obtained via usage of the :ref:`latex-options`. For
+example::
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -61,28 +64,31 @@ It is achieved via usage of the
 .. highlight:: latex
 
 If the size of the ``'preamble'`` contents becomes inconvenient, one may move
-all needed macros into some file :file:`mystyle.tex` of the project source
+all needed macros into some file :file:`mystyle.tex.txt` of the project source
 repertory, and get LaTeX to import it at run time::
 
-   'preamble': r'\input{mystyle.tex}',
+   'preamble': r'\input{mystyle.tex.txt}',
    # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
    'preamble': r'\usepackage{mystyle}',
 
-It is needed to set appropriately :confval:`latex_additional_files`, for
+It is then needed to set appropriately :confval:`latex_additional_files`, for
 example::
 
-   latex_additional_files = ["mystyle.tex"]
+   latex_additional_files = ["mystyle.sty"]
 
 .. _latexsphinxsetup:
 
 The LaTeX style file options
 ----------------------------
 
+Additional customization is possible via LaTeX options of the Sphinx style
+file.
+
 The sphinxsetup interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``'sphinxsetup'`` key of :confval:`latex_elements` provides a convenient
-interface to the package options of the Sphinx style file::
+interface::
 
    latex_elements = {
        'sphinxsetup': 'key1=value1, key2=value2, ...',
@@ -102,40 +108,39 @@ inside the document preamble, like this::
 
 .. versionadded:: 1.5
 
-It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
-directly into the body of the document, via the help of the :rst:dir:`raw`
-directive. This is what is done for this documentation, for local styling
-of this chapter in the PDF output::
+.. hint::
 
-   .. raw:: latex
+   It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
+   directly into the body of the document, via the help of the :rst:dir:`raw`
+   directive.  Here is how this present chapter in PDF is styled::
 
-      \begingroup
-      \sphinxsetup{%
-            verbatimwithframe=false,
-            VerbatimColor={named}{OldLace},
-            TitleColor={named}{DarkGoldenrod},
-            hintBorderColor={named}{LightCoral},
-            attentionborder=3pt,
-            attentionBorderColor={named}{Crimson},
-            attentionBgColor={named}{FloralWhite},
-            noteborder=2pt,
-            noteBorderColor={named}{Olive},
-            cautionborder=3pt,
-            cautionBorderColor={named}{Cyan},
-            cautionBgColor={named}{LightCyan}}
+     .. raw:: latex
 
-at the start of the chapter and::
+        \begingroup
+        \sphinxsetup{%
+              verbatimwithframe=false,
+              VerbatimColor={named}{OldLace},
+              TitleColor={named}{DarkGoldenrod},
+              hintBorderColor={named}{LightCoral},
+              attentionborder=3pt,
+              attentionBorderColor={named}{Crimson},
+              attentionBgColor={named}{FloralWhite},
+              noteborder=2pt,
+              noteBorderColor={named}{Olive},
+              cautionborder=3pt,
+              cautionBorderColor={named}{Cyan},
+              cautionBgColor={named}{LightCyan}}
 
-    .. raw:: latex
+   at the start of the chapter and::
 
-       \endgroup
+     .. raw:: latex
 
-at its end.
+        \endgroup
 
-.. note::
+   at its end.
 
-   The colors above are made available via the ``svgnames`` option of
-   the "xcolor" package::
+   The colors used in the above are provided by the ``svgnames`` option of the
+   "xcolor" package::
 
       latex_elements = {
           'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
@@ -266,6 +271,16 @@ The available styling options
 ``VerbatimBorderColor``
     default ``{rgb}{0,0,0}``. The frame color, defaults to black.
 
+``VerbatimHighlightColor``
+    default ``{rgb}{0.878,1,1}``. The color for highlighted lines.
+
+    .. versionadded:: 1.6.6
+
+.. note::
+
+   Starting with this colour key, and for all others coming next, the actual
+   names declared to "color" or "xcolor" are prefixed with "sphinx".
+
 ``verbatimsep``
     default ``\fboxsep``. The separation between code lines and the frame.
 
@@ -286,11 +301,6 @@ The available styling options
 |notebdcolors|
     default ``{rgb}{0,0,0}`` (black). The colour for the two horizontal rules
     used by Sphinx in LaTeX for styling a :dudir:`note` type admonition.
-
-.. note::
-
-   The actual colour names declared to "color" or "xcolor" are prefixed with
-   "sphinx".
 
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     default ``0.5pt``. The width of the two horizontal rules.
@@ -379,13 +389,6 @@ Macros
      multiple paragraphs in header cells of tables.
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
-- by default the Sphinx style file ``sphinx.sty`` executes the command
-  ``\fvset{fontsize=\small}`` as part of its configuration of
-  ``fancyvrb.sty``. This may be overriden for example via
-  ``\fvset{fontsize=auto}`` which will let code listings use the ambient font
-  size. Refer to ``fancyvrb.sty``'s documentation for further keys.
-
-  .. versionadded:: 1.5
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
   wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
   :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
@@ -394,6 +397,8 @@ Macros
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
 - the ``\maketitle`` command is redefined by the class files
   :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
+- the citation reference is typeset via ``\sphinxcite`` which is a wrapper
+  of standard ``\cite``.
 
 Environments
 ~~~~~~~~~~~~
@@ -440,6 +445,11 @@ Environments
   .. versionadded:: 1.5
      options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
+  .. versionadded:: 1.6.6
+     support for ``:emphasize-lines:`` option
+  .. versionadded:: 1.6.6
+     easier customizability of the formatting via exposed to user LaTeX macros
+     such as ``\sphinxVerbatimHighlightLine``.
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
@@ -461,7 +471,6 @@ Miscellany
   .. versionchanged:: 1.5
      formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
-- check file :file:`sphinx.sty` for more...
 
 .. hint::
 

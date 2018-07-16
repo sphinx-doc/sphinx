@@ -5,22 +5,21 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import re
+import xml.etree.cElementTree as ElementTree
 from itertools import cycle, chain
 
+import pytest
+from html5lib import getTreeBuilder, HTMLParser
 from six import PY3
 
-from sphinx import __display_version__
-from sphinx.util.inventory import InventoryFile
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
-import xml.etree.cElementTree as ElementTree
-from html5lib import getTreeBuilder, HTMLParser
-import pytest
+from sphinx.util.inventory import InventoryFile
 
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
@@ -41,7 +40,7 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
@@ -126,24 +125,6 @@ def check_xpath(etree, fname, path, check, be_found=True):
                                               [node.text for node in nodes]))
 
 
-def check_static_entries(outdir):
-    staticdir = outdir / '_static'
-    assert staticdir.isdir()
-    # a file from a directory entry in html_static_path
-    assert (staticdir / 'README').isfile()
-    # a directory from a directory entry in html_static_path
-    assert (staticdir / 'subdir' / 'foo.css').isfile()
-    # a file from a file entry in html_static_path
-    assert (staticdir / 'templated.css').isfile()
-    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
-    # a file from _static, but matches exclude_patterns
-    assert not (staticdir / 'excluded.css').exists()
-
-
-def check_extra_entries(outdir):
-    assert (outdir / 'robots.txt').isfile()
-
-
 @pytest.mark.sphinx('html', testroot='warnings')
 def test_html_warnings(app, warning):
     app.build()
@@ -154,15 +135,6 @@ def test_html_warnings(app, warning):
         'Warnings don\'t match:\n' + \
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
-
-
-@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
-    'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
-def test_static_output(app):
-    app.build()
-    check_static_entries(app.builder.outdir)
-    check_extra_entries(app.builder.outdir)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -191,30 +163,29 @@ def test_static_output(app):
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
-        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+        (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
-        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+        (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
          r'^    def baz\(\):\n        pass\n\s*$'),
-        (".//div[@class='inc-lines highlight-text']//pre",
+        (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
-        (".//div[@class='inc-startend highlight-text']//pre",
+        (".//div[@class='inc-startend highlight-text notranslate']//pre",
          u'^foo = "Including Unicode characters: üöä"\\n$'),
-        (".//div[@class='inc-preappend highlight-text']//pre",
+        (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
-        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+        (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
          r'def'),
-        (".//div[@class='inc-tab3 highlight-text']//pre",
+        (".//div[@class='inc-tab3 highlight-text notranslate']//pre",
          r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre/span",
+        (".//div[@class='inc-tab8 highlight-python notranslate']//pre/span",
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
-        (".//strong", 'from function: Foo'),
         (".//strong", 'from class: Bar'),
     ],
     'markup.html': [
@@ -238,7 +209,7 @@ def test_static_output(app):
         (".//li/strong", r'^command\\n$'),
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
-        (".//li/code/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/kbd", r'^kbd\\n$'),
         (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
         (".//li/code/span[@class='pre']", '^a/$'),
         (".//li/code/em/span[@class='pre']", '^varpart$'),
@@ -256,7 +227,7 @@ def test_static_output(app):
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try_stmt']"
+        (".//a[@href='#grammar-token-try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -288,7 +259,7 @@ def test_static_output(app):
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -297,6 +268,8 @@ def test_static_output(app):
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        # tests for numeric labels
+        (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
         (".//li", u'Smart “quotes” in English ‘text’.'),
         (".//li", u'Smart — long and – short dashes.'),
@@ -377,7 +350,6 @@ def test_static_output(app):
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),
         (".//td[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -409,9 +381,6 @@ def test_static_output(app):
         (".//a[@href='http://python.org/dev/']", "http://python.org/dev/"),
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
-    ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
     ],
     'genindex.html': [
         # index entries
@@ -537,7 +506,6 @@ def test_numfig_disabled_warn(app, warning):
     app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
-    assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' not in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
@@ -555,10 +523,10 @@ def test_numfig_disabled_warn(app, warning):
         (".//li/code/span", '^Table:%s$', True),
         (".//li/code/span", '^CODE_1$', True),
         (".//li/code/span", '^Code-%s$', True),
-        (".//li/code/span", '^foo$', True),
-        (".//li/code/span", '^bar_a$', True),
+        (".//li/a/span", '^Section 1$', True),
+        (".//li/a/span", '^Section 2.1$', True),
         (".//li/code/span", '^Fig.{number}$', True),
-        (".//li/code/span", '^Sect.{number}$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
     ],
     'foo.html': [
         (".//div[@class='figure']/p[@class='caption']/"
@@ -1121,14 +1089,19 @@ def test_enumerable_node(app, cached_etree_parse, fname, expect):
 def test_html_assets(app):
     app.builder.build_all()
 
+    # exclude_path and its family
+    assert not (app.outdir / 'static' / 'index.html').exists()
+    assert not (app.outdir / 'extra' / 'index.html').exists()
+
     # html_static_path
     assert not (app.outdir / '_static' / '.htaccess').exists()
     assert not (app.outdir / '_static' / '.htpasswd').exists()
     assert (app.outdir / '_static' / 'API.html').exists()
     assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
-    assert (app.outdir / '_static' / 'css/style.css').exists()
+    assert (app.outdir / '_static' / 'css' / 'style.css').exists()
+    assert (app.outdir / '_static' / 'js' / 'custom.js').exists()
     assert (app.outdir / '_static' / 'rimg.png').exists()
-    assert not (app.outdir / '_static' / '_build/index.html').exists()
+    assert not (app.outdir / '_static' / '_build' / 'index.html').exists()
     assert (app.outdir / '_static' / 'background.png').exists()
     assert not (app.outdir / '_static' / 'subdir' / '.htaccess').exists()
     assert not (app.outdir / '_static' / 'subdir' / '.htpasswd').exists()
@@ -1139,22 +1112,45 @@ def test_html_assets(app):
     assert (app.outdir / 'API.html_t').exists()
     assert (app.outdir / 'css/style.css').exists()
     assert (app.outdir / 'rimg.png').exists()
-    assert not (app.outdir / '_build/index.html').exists()
+    assert not (app.outdir / '_build' / 'index.html').exists()
     assert (app.outdir / 'background.png').exists()
     assert (app.outdir / 'subdir' / '.htaccess').exists()
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
+    # html_css_files
+    content = (app.outdir / 'index.html').text()
+    assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
+    assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
+            'href="https://example.com/custom.css" />' in content)
 
-@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
+    # html_js_files
+    assert '<script type="text/javascript" src="_static/js/custom.js"></script>' in content
+    assert ('<script async="async" type="text/javascript" src="https://example.com/script.js">'
+            '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_copy_source': False})
+def test_html_copy_source(app):
+    app.builder.build_all()
+    assert not (app.outdir / '_sources' / 'index.rst.txt').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.txt'})
 def test_html_sourcelink_suffix(app):
     app.builder.build_all()
-    content_otherext = (app.outdir / 'otherext.html').text()
-    content_images = (app.outdir / 'images.html').text()
+    assert (app.outdir / '_sources' / 'index.rst.txt').exists()
 
-    assert '<a href="_sources/otherext.foo"' in content_otherext
-    assert '<a href="_sources/images.txt"' in content_images
-    assert (app.outdir / '_sources' / 'otherext.foo').exists()
-    assert (app.outdir / '_sources' / 'images.txt').exists()
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': '.rst'})
+def test_html_sourcelink_suffix_same(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix_empty(app):
+    app.builder.build_all()
+    assert (app.outdir / '_sources' / 'index.rst').exists()
 
 
 @pytest.mark.sphinx('html', testroot='html_entity')
@@ -1245,3 +1241,89 @@ def test_html_remote_images(app, status, warning):
     assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
             'src="https://www.python.org/static/img/python-logo.png" />' in result)
     assert not (app.outdir / 'python-logo.png').exists()
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_sidebar(app, status, warning):
+    ctx = {}
+
+    # default for alabaster
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
+    assert '<h3>Navigation</h3>' in result
+    assert '<h3>Related Topics</h3>' in result
+    assert '<h3>Quick search</h3>' in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['about.html', 'navigation.html', 'relations.html',
+                               'searchbox.html', 'donate.html']
+
+    # only relations.html
+    app.config.html_sidebars = {'**': ['relations.html']}
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
+    assert '<h3>Related Topics</h3>' in result
+    assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == ['relations.html']
+
+    # no sidebars
+    app.config.html_sidebars = {'**': []}
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<div class="sphinxsidebar" role="navigation" '
+            'aria-label="main navigation">' not in result)
+    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
+    assert '<h3>Navigation</h3>' not in result
+    assert '<h3>Related Topics</h3>' not in result
+    assert '<h3>Quick search</h3>' not in result
+
+    app.builder.add_sidebars('index', ctx)
+    assert ctx['sidebars'] == []
+
+
+@pytest.mark.parametrize('fname,expect', flat_dict({
+    'index.html': [(".//em/a[@href='https://example.com/man.1']", "", True),
+                   (".//em/a[@href='https://example.com/ls.1']", "", True),
+                   (".//em/a[@href='https://example.com/sphinx.']", "", True)]
+
+}))
+@pytest.mark.sphinx('html', testroot='manpage_url', confoverrides={
+    'manpages_url': 'https://example.com/{page}.{section}'})
+@pytest.mark.test_params(shared_result='test_build_html_manpage_url')
+def test_html_manpage(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/'})
+def test_html_baseurl(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/index.html" />' in result
+
+    result = (app.outdir / 'qux' / 'index.html').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/qux/index.html" />' in result
+
+
+@pytest.mark.sphinx('html', testroot='toctree-glob',
+                    confoverrides={'html_baseurl': 'https://example.com/subdir',
+                                   'html_file_suffix': '.htm'})
+def test_html_baseurl_and_html_file_suffix(app, status, warning):
+    app.build()
+
+    result = (app.outdir / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/index.htm" />' in result
+
+    result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
+    assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result

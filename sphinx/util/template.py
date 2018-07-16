@@ -5,11 +5,12 @@
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
+
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir

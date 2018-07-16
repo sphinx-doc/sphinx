@@ -5,20 +5,20 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import codecs
 import re
 import socket
-import codecs
 import threading
 from os import path
 
+from docutils import nodes
 from requests.exceptions import HTTPError
 from six.moves import queue, html_parser
 from six.moves.urllib.parse import unquote
-from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
 # removed in Python 3.5, however for backward compatibility reasons, we're not
@@ -31,6 +31,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
@@ -58,6 +59,7 @@ class AnchorCheckParser(html_parser.HTMLParser):
         self.found = False
 
     def handle_starttag(self, tag, attrs):
+        # type: (Any, Any) -> None
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
@@ -90,6 +92,8 @@ class CheckExternalLinksBuilder(Builder):
     Checks for broken external links.
     """
     name = 'linkcheck'
+    epilog = __('Look for any errors in the above output or in '
+                '%(outdir)s/output.txt')
 
     def init(self):
         # type: () -> None
@@ -149,14 +153,14 @@ class CheckExternalLinksBuilder(Builder):
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
-                        raise Exception("Anchor '%s' not found" % anchor)
+                        raise Exception(__("Anchor '%s' not found") % anchor)
                 else:
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
                         response = requests.head(req_url, config=self.app.config, **kwargs)
                         response.raise_for_status()
-                    except HTTPError as err:
+                    except HTTPError:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True, config=self.app.config,
@@ -247,7 +251,7 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
-                logger.warning('broken link: %s (%s)', uri, info,
+                logger.warning(__('broken link: %s (%s)'), uri, info,
                                location=(self.env.doc2path(docname), lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))

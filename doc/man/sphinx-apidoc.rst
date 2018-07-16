@@ -4,7 +4,7 @@ sphinx-apidoc
 Synopsis
 --------
 
-**sphinx-apidoc** [*options*] -o <*outputdir*> <*sourcedir*> [*pathnames* ...]
+**sphinx-apidoc** [*OPTIONS*] -o <*OUTPUT_PATH*> <*MODULE_PATH*> [*EXCLUDE_PATTERN*, ...]
 
 Description
 -----------
@@ -13,9 +13,12 @@ Description
 that, using the :rst:dir:`autodoc` extension, document a whole package in the
 style of other automatic API documentation tools.
 
-*sourcedir* is the path to a Python package to document, and *outputdir* is the
-directory where the generated sources are placed. Any *pathnames* given are
-paths to be excluded from the generation.
+*MODULE_PATH* is the path to a Python package to document, and *OUTPUT_PATH* is
+the directory where the generated sources are placed. Any *EXCLUDE_PATTERN*\s
+given are `fnmatch-style`_ file and/or directory patterns that will be excluded
+from generation.
+
+.. _fnmatch-style: https://docs.python.org/3/library/fnmatch.html
 
 .. warning::
 
@@ -31,7 +34,7 @@ Options
 
 .. program:: sphinx-apidoc
 
-.. option:: -o <outputdir>
+.. option:: -o <OUTPUT_PATH>
 
    Directory to place the output files. If it does not exist, it is created.
 
@@ -51,7 +54,7 @@ Options
 
    Suffix for the source files generated. Defaults to ``rst``.
 
-.. option:: -d <maxdepth>
+.. option:: -d <MAXDEPTH>
 
    Maximum depth for the generated table of contents file.
 
@@ -91,7 +94,7 @@ Options
 
    Interpret paths recursively according to PEP-0420.
 
-.. option:: -M
+.. option:: -M, --module-first
 
    Put module documentation before submodule documentation.
 
@@ -118,7 +121,17 @@ These options are used when :option:`--full` is specified:
 
    Sets the project release to put in generated files (see :confval:`release`).
 
+Environment
+-----------
+
+.. envvar:: SPHINX_APIDOC_OPTIONS
+
+   A comma-separated list of option to append to generated ``automodule``
+   directives. Defaults to ``members,undoc-members,show-inheritance``.
+
 See also
 --------
 
 :manpage:`sphinx-build(1)`, :manpage:`sphinx-autogen(1)`
+
+.. _fnmatch: https://docs.python.org/3/library/fnmatch.html

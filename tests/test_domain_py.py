@@ -5,18 +5,17 @@
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
+from docutils import nodes
 from mock import Mock
 from six import text_type
-from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
-
 from sphinx.testing.util import assert_node
 
 
@@ -115,6 +114,15 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[10], False, False, 'float', 'class')
     assert_refnode(refnodes[11], False, False, 'list', 'class')
     assert len(refnodes) == 12
+
+    doctree = app.env.get_doctree('module_option')
+    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    print(refnodes)
+    print(refnodes[0])
+    print(refnodes[1])
+    assert_refnode(refnodes[0], 'test.extra', 'B', 'foo', 'meth')
+    assert_refnode(refnodes[1], 'test.extra', 'B', 'foo', 'meth')
+    assert len(refnodes) == 2
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')

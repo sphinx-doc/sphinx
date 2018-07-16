@@ -5,7 +5,7 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
@@ -65,7 +65,7 @@ var Stemmer = function() {
 }
 """                             # type: unicode
 
-    _word_re = re.compile(r'\w+(?u)')
+    _word_re = re.compile(r'(?u)\w+')
 
     def __init__(self, options):
         # type: (Dict) -> None
@@ -265,6 +265,11 @@ class IndexBuilder(object):
                                     # objtype index -> (domain, type, objname (localized))
         lang_class = languages.get(lang)    # type: Type[SearchLanguage]
                                             # add language-specific SearchLanguage instance
+
+        # fallback; try again with language-code
+        if lang_class is None and '_' in lang:
+            lang_class = languages.get(lang.split('_')[0])
+
         if lang_class is None:
             self.lang = SearchEnglish(options)  # type: SearchLanguage
         elif isinstance(lang_class, str):

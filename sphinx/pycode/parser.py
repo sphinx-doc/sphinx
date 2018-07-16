@@ -5,14 +5,15 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import ast
 import inspect
-import tokenize
 import itertools
+import re
+import sys
+import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
@@ -25,6 +26,26 @@ if False:
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile(u'^\\s*$')
 emptyline_re = re.compile(u'^\\s*(#.*)?$')
+
+
+if sys.version_info >= (3, 6):
+    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
+else:
+    ASSIGN_NODES = (ast.Assign)
+
+
+def filter_whitespace(code):
+    # type: (unicode) -> unicode
+    return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
+
+
+def get_assign_targets(node):
+    # type: (ast.AST) -> List[ast.expr]
+    """Get list of targets from Assign and AnnAssign node."""
+    if isinstance(node, ast.Assign):
+        return node.targets
+    else:
+        return [node.target]  # type: ignore
 
 
 def get_lvar_names(node, self=None):
@@ -51,9 +72,14 @@ def get_lvar_names(node, self=None):
             return [node.id]  # type: ignore
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
-    elif node_name == 'Tuple':
-        members = [get_lvar_names(elt) for elt in node.elts]  # type: ignore
-        return sum(members, [])
+    elif node_name in ('Tuple', 'List'):
+        members = []
+        for elt in node.elts:  # type: ignore
+            try:
+                members.extend(get_lvar_names(elt, self))
+            except TypeError:
+                pass
+        return members
     elif node_name == 'Attribute':
         if node.value.__class__.__name__ == 'Name' and self and node.value.id == self_id:  # type: ignore  # NOQA
             # instance variable
@@ -62,14 +88,17 @@ def get_lvar_names(node, self=None):
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
         return [node]  # type: ignore
+    elif node_name == 'Starred':
+        return get_lvar_names(node.value, self)  # type: ignore
     else:
-        raise NotImplementedError
+        raise NotImplementedError('Unexpected node name %r' % node_name)
 
 
 def dedent_docstring(s):
     # type: (unicode) -> unicode
     """Remove common leading indentation from docstring."""
     def dummy():
+        # type: () -> None
         # dummy function to mock `inspect.getdoc`.
         pass
 
@@ -201,12 +230,13 @@ class AfterCommentParser(TokenProcessor):
     def parse(self):
         # type: () -> None
         """Parse the code and obtain comment after assignment."""
-        # skip lvalue (until '=' operator)
-        while self.fetch_token() != [OP, '=']:
+        # skip lvalue (or whole of AnnAssign)
+        while not self.fetch_token().match([OP, '='], NEWLINE, COMMENT):
             assert self.current
 
-        # skip rvalue
-        self.fetch_rvalue()
+        # skip rvalue (if exists)
+        if self.current == [OP, '=']:
+            self.fetch_rvalue()
 
         if self.current == COMMENT:
             self.comment = self.current.value
@@ -277,7 +307,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         # type: (ast.Assign) -> None
         """Handles Assign node and pick up a variable comment."""
         try:
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in node.targets], [])  # type: ignore  # NOQA
+            targets = get_assign_targets(node)
+            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -313,12 +344,18 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
+    def visit_AnnAssign(self, node):
+        # type: (ast.AST) -> None
+        """Handles AnnAssign node and pick up a variable comment."""
+        self.visit_Assign(node)  # type: ignore
+
     def visit_Expr(self, node):
         # type: (ast.Expr) -> None
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ast.Assign) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
             try:
-                varnames = get_lvar_names(self.previous.targets[0], self.get_self())
+                targets = get_assign_targets(self.previous)
+                varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
                     if isinstance(node.value.s, text_type):
                         docstring = node.value.s
@@ -336,6 +373,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.current_classes.append(node.name)
         self.add_entry(node.name)
         self.context.append(node.name)
+        self.previous = node
         for child in node.body:
             self.visit(child)
         self.context.pop()
@@ -434,7 +472,7 @@ class Parser(object):
 
     def __init__(self, code, encoding='utf-8'):
         # type: (unicode, unicode) -> None
-        self.code = code
+        self.code = filter_whitespace(code)
         self.encoding = encoding
         self.comments = {}          # type: Dict[Tuple[unicode, unicode], unicode]
         self.deforders = {}         # type: Dict[unicode, int]

@@ -5,14 +5,14 @@
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import mock
+from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
-from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
 

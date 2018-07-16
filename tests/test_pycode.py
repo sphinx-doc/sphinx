@@ -10,6 +10,7 @@
 """
 
 import os
+
 from six import PY2
 
 import sphinx
@@ -41,7 +42,8 @@ def test_ModuleAnalyzer_for_file():
 def test_ModuleAnalyzer_for_module():
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
-    assert analyzer.srcname == SPHINX_MODULE_PATH
+    assert analyzer.srcname in (SPHINX_MODULE_PATH,
+                                os.path.abspath(SPHINX_MODULE_PATH))
     assert analyzer.encoding == 'utf-8'
 
 

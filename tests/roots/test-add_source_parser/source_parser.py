@@ -4,8 +4,9 @@ from docutils.parsers import Parser
 
 
 class TestSourceParser(Parser):
-    pass
+    supported = ('test',)
 
 
 def setup(app):
-    app.add_source_parser('.test', TestSourceParser)
+    app.add_source_suffix('.test', 'test')
+    app.add_source_parser(TestSourceParser)

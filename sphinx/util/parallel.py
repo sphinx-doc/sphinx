@@ -5,7 +5,7 @@
 
     Parallel building utilities.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,6 +13,7 @@ import os
 import time
 import traceback
 from math import sqrt
+
 from six import iteritems
 
 try:
@@ -122,6 +123,7 @@ class ParallelTasks(object):
                     logger.handle(log)
                 self._result_funcs.pop(tid)(self._args.pop(tid), result)
                 self._procs[tid].join()
+                self._precvs.pop(tid)
                 self._pworking -= 1
                 break
         else:

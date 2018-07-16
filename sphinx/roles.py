@@ -5,18 +5,18 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from six import iteritems
 from docutils import nodes, utils
+from six import iteritems
 
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info
@@ -185,9 +185,11 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
-        typ = env.config.default_role
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
     else:
         typ = typ.lower()
+
     has_explicit_title, title, target = split_explicit_title(text)
     title = utils.unescape(title)
     target = utils.unescape(target)
@@ -249,6 +251,13 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    env = inliner.document.settings.env
+    if not typ:
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
+    else:
+        typ = typ.lower()
+
     text = utils.unescape(text)
     if typ == 'menuselection':
         text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
@@ -275,22 +284,56 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 _litvar_re = re.compile('{([^}]+)}')
+parens_re = re.compile(r'(\\*{|\\*})')
 
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
-    text = utils.unescape(text)
-    pos = 0
+    env = inliner.document.settings.env
+    if not typ:
+        assert env.temp_data['default_role']
+        typ = env.temp_data['default_role'].lower()
+    else:
+        typ = typ.lower()
+
     retnode = nodes.literal(role=typ.lower(), classes=[typ])
-    for m in _litvar_re.finditer(text):  # type: ignore
-        if m.start() > pos:
-            txt = text[pos:m.start()]
-            retnode += nodes.Text(txt, txt)
-        retnode += nodes.emphasis(m.group(1), m.group(1))
-        pos = m.end()
-    if pos < len(text):
-        retnode += nodes.Text(text[pos:], text[pos:])
+    parts = list(parens_re.split(utils.unescape(text)))
+    stack = ['']
+    for part in parts:
+        matched = parens_re.match(part)
+        if matched:
+            backslashes = len(part) - 1
+            if backslashes % 2 == 1:    # escaped
+                stack[-1] += "\\" * int((backslashes - 1) / 2) + part[-1]
+            elif part[-1] == '{':       # rparen
+                stack[-1] += "\\" * int(backslashes / 2)
+                if len(stack) >= 2 and stack[-2] == "{":
+                    # nested
+                    stack[-1] += "{"
+                else:
+                    # start emphasis
+                    stack.append('{')
+                    stack.append('')
+            else:                       # lparen
+                stack[-1] += "\\" * int(backslashes / 2)
+                if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
+                    # emphasized word found
+                    if stack[0]:
+                        retnode += nodes.Text(stack[0], stack[0])
+                    retnode += nodes.emphasis(stack[2], stack[2])
+                    stack = ['']
+                else:
+                    # emphasized word not found; the rparen is not a special symbol
+                    stack.append('}')
+                    stack = [''.join(stack)]
+        else:
+            stack[-1] += part
+    if ''.join(stack):
+        # remaining is treated as Text
+        text = ''.join(stack)
+        retnode += nodes.Text(text, text)
+
     return [retnode], []
 
 

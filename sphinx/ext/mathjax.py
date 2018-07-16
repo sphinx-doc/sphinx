@@ -3,44 +3,53 @@
     sphinx.ext.mathjax
     ~~~~~~~~~~~~~~~~~~
 
-    Allow `MathJax <http://mathjax.org/>`_ to be used to display math in
+    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
     Sphinx's HTML writer -- requires the MathJax JavaScript library on your
     webserver/computer.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
 
 import sphinx
-from sphinx.locale import _
 from sphinx.errors import ExtensionError
+from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.ext.mathbase import setup_math as mathbase_setup
+from sphinx.locale import _
+
+if False:
+    # For type annotation
+    from typing import Any, Dict  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 def html_visit_math(self, node):
-    self.body.append(self.starttag(node, 'span', '', CLASS='math'))
+    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
-                     self.encode(node['latex']) +
+                     self.encode(node.astext()) +
                      self.builder.config.mathjax_inline[1] + '</span>')
     raise nodes.SkipNode
 
 
 def html_visit_displaymath(self, node):
-    self.body.append(self.starttag(node, 'div', CLASS='math'))
+    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
-        self.body.append(self.encode(node['latex']))
+        self.body.append(self.encode(node.astext()))
         self.body.append('</div>')
         raise nodes.SkipNode
 
     # necessary to e.g. set the id property correctly
     if node['number']:
-        self.body.append('<span class="eqno">(%s)' % node['number'])
+        number = get_node_equation_number(self, node)
+        self.body.append('<span class="eqno">(%s)' % number)
         self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
-    parts = [prt for prt in node['latex'].split('\n\n') if prt.strip()]
+    parts = [prt for prt in node.astext().split('\n\n') if prt.strip()]
     if len(parts) > 1:  # Add alignment if there are more than 1 equation
         self.body.append(r' \begin{align}\begin{aligned}')
     for i, part in enumerate(parts):
@@ -59,23 +68,30 @@ def html_visit_displaymath(self, node):
 
 
 def builder_inited(app):
+    # type: (Sphinx) -> None
     if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
-    app.add_javascript(app.config.mathjax_path)
+    if app.builder.format == 'html':
+        options = {'async': 'async'}
+        if app.config.mathjax_options:
+            options.update(app.config.mathjax_options)
+        app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     except ExtensionError:
         raise ExtensionError('sphinx.ext.mathjax: other math package is already loaded')
 
     # more information for mathjax secure url is here:
-    # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+    # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
                          'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
-                         'config=TeX-AMS-MML_HTMLorMML', False)
+                         'config=TeX-AMS-MML_HTMLorMML', 'html')
+    app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.connect('builder-inited', builder_inited)

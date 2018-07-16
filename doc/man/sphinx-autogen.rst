@@ -15,7 +15,7 @@ that, using the :rst:dir:`autodoc` extension, document items included in
 
 *sourcefile* is the path to one or more reStructuredText documents containing
 :rst:dir:`autosummary` entries with the ``:toctree::`` option set. *sourcefile*
-can be an :py:module:`fnmatch`-style pattern.
+can be an :py:mod:`fnmatch`-style pattern.
 
 Options
 -------
@@ -73,7 +73,7 @@ If you run the following:
 
 .. code-block:: bash
 
-    $ sphinx-autodoc doc/index.rst
+    $ PYTHONPATH=. sphinx-autodoc doc/index.rst
 
 then the following stub files will be created in ``docs``::
 

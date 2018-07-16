@@ -3,18 +3,11 @@
 Logging API
 ===========
 
-.. function:: sphinx.util.logging.getLogger(name)
+.. currentmodule:: sphinx.util.logging
 
-   Returns a logger wrapped by :class:`SphinxLoggerAdapter` with the specified *name*.
+.. autofunction:: getLogger(name)
 
-   Example usage::
-
-     from sphinx.util import logging  # Load on top of python's logging module
-
-     logger = logging.getLogger(__name__)
-     logger.info('Hello, this is an extension!')
-
-.. class:: SphinxLoggerAdapter(logging.LoggerAdapter)
+.. autoclass:: SphinxLoggerAdapter(logging.LoggerAdapter)
 
    .. method:: SphinxLoggerAdapter.error(level, msg, *args, **kwargs)
    .. method:: SphinxLoggerAdapter.critical(level, msg, *args, **kwargs)
@@ -57,21 +50,15 @@ Logging API
         If true, the logger does not fold lines at the end of the log message.
         The default is ``False``.
 
+      **location**
+        Where the message emitted.  For more detail, see
+        :meth:`SphinxLoggerAdapter.warning`.
+
       **color**
         The color of logs.  By default, debug level logs are
         colored as ``"darkgray"``, and debug2 level ones are ``"lightgray"``.
         The others are not colored.
 
-.. function:: pending_logging()
+.. autofunction:: pending_logging()
 
-   Marks all logs as pending::
-
-     with pending_logging():
-       logger.warning('Warning message!')  # not flushed yet
-       some_long_process()
-
-     # the warning is flushed here
-
-.. function:: pending_warnings()
-
-   Marks warning logs as pending.  Similar to :func:`pending_logging`.
+.. autofunction:: pending_warnings()

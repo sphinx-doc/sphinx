@@ -19,8 +19,8 @@
        notices and this notice are preserved.
        This file is offered as-is, without any warranty.
 
-    .. _SmartyPants: http://daringfireball.net/projects/smartypants/
-    .. _2-Clause BSD license: http://www.spdx.org/licenses/BSD-2-Clause
+    .. _SmartyPants: https://daringfireball.net/projects/smartypants/
+    .. _2-Clause BSD license: https://spdx.org/licenses/BSD-2-Clause
 
     See the LICENSE file and the original docutils code for details.
 
@@ -28,7 +28,9 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
+
 from docutils.utils import smartquotes
+
 from sphinx.util.docutils import __version_info__ as docutils_version
 
 if False:  # For type annotation
@@ -68,7 +70,7 @@ langquotes = {'af':           u'“”‘’',
               'he':           u'”“»«',  # Hebrew is RTL, test position:
               'he-x-altquot': u'„”‚’',  # low quotation marks are opening.
               # 'he-x-altquot': u'“„‘‚',  # RTL: low quotation marks opening
-              'hr':           u'„”‘’',  # http://hrvatska-tipografija.com/polunavodnici/
+              'hr':           u'„”‘’',  # https://hrvatska-tipografija.com/polunavodnici/
               'hr-x-altquot': u'»«›‹',
               'hsb':          u'„“‚‘',
               'hsb-x-altquot': u'»«›‹',
@@ -139,7 +141,7 @@ def educateQuotes(text, language='en'):
     smart = smartquotes.smartchars(language)
     try:
         apostrophe = smart.apostrophe
-    except:
+    except Exception:
         apostrophe = u'’'
 
     # oldtext = text

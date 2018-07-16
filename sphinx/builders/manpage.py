@@ -5,24 +5,24 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 
-from six import string_types
-
-from docutils.io import FileOutput
 from docutils.frontend import OptionParser
+from docutils.io import FileOutput
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
 
 if False:
@@ -40,14 +40,16 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
+    epilog = __('The manual pages are in %(outdir)s.')
+
     default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
 
     def init(self):
         # type: () -> None
         if not self.config.man_pages:
-            logger.warning('no "man_pages" config value found; no manual pages '
-                           'will be written')
+            logger.warning(__('no "man_pages" config value found; no manual pages '
+                              'will be written'))
 
     def get_outdated_docs(self):
         # type: () -> Union[unicode, List[unicode]]
@@ -67,7 +69,7 @@ class ManualPageBuilder(Builder):
             components=(docwriter,),
             read_config_files=True).get_default_values()
 
-        logger.info(bold('writing... '), nonl=True)
+        logger.info(bold(__('writing... ')), nonl=True)
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info

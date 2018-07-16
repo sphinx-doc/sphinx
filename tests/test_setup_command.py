@@ -5,20 +5,20 @@
 
     Test setup_command for distutils.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-import sys
 import subprocess
+import sys
 from collections import namedtuple
-import sphinx
+from textwrap import dedent
 
 import pytest
 
+import sphinx
 from sphinx.util.osutil import cd
-from textwrap import dedent
 
 
 @pytest.fixture
@@ -27,7 +27,10 @@ def setup_command(request, tempdir, rootdir):
     Run `setup.py build_sphinx` with args and kwargs,
     pass it to the test and clean up properly.
     """
-    marker = request.node.get_marker('setup_command')
+    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
+        marker = request.node.get_closest_marker('setup_command')
+    else:
+        marker = request.node.get_marker('setup_command')
     args = marker.args if marker else []
 
     pkgrootdir = tempdir / 'test-setup'

@@ -5,7 +5,7 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -13,10 +13,9 @@ import re
 import textwrap
 from itertools import groupby
 
-from six.moves import zip_longest
-
 from docutils import nodes, writers
 from docutils.utils import column_width
+from six.moves import zip_longest
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
@@ -183,6 +182,8 @@ class TextTranslator(nodes.NodeVisitor):
         else:
             self.nl = '\n'
         self.sectionchars = builder.config.text_sectionchars
+        self.add_secnumbers = builder.config.text_add_secnumbers
+        self.secnumber_suffix = builder.config.text_secnumber_suffix
         self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]
@@ -307,6 +308,17 @@ class TextTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
         self.new_state(0)
 
+    def get_section_number_string(self, node):
+        # type: (nodes.Node) -> unicode
+        if isinstance(node.parent, nodes.section):
+            anchorname = '#' + node.parent['ids'][0]
+            numbers = self.builder.secnumbers.get(anchorname)
+            if numbers is None:
+                numbers = self.builder.secnumbers.get('')
+            if numbers is not None:
+                return '.'.join(map(str, numbers)) + self.secnumber_suffix
+        return ''
+
     def depart_title(self, node):
         # type: (nodes.Node) -> None
         if isinstance(node.parent, nodes.section):
@@ -315,6 +327,8 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = None  # type: unicode
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore
+        if self.add_secnumbers:
+            text = self.get_section_number_string(node) + text
         self.stateindent.pop()
         title = ['', text, '%s' % (char * column_width(text)), '']  # type: List[unicode]
         if len(self.states) == 2 and len(self.states[-1]) == 0:
@@ -973,10 +987,6 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_pending_xref(self, node):
         # type: (nodes.Node) -> None
         pass
@@ -987,7 +997,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         # type: (nodes.Node) -> None
-        pass
+        if self.add_secnumbers:
+            numbers = node.get("secnumber")
+            if numbers is not None:
+                self.add_text('.'.join(map(str, numbers)) + self.secnumber_suffix)
 
     def depart_reference(self, node):
         # type: (nodes.Node) -> None
@@ -1166,13 +1179,19 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html',
-                       location=(self.builder.current_docname, node.line))
-        raise nodes.SkipNode
+        pass
 
-    visit_math_block = visit_math
+    def depart_math(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.new_state()
+
+    def depart_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.end_state()
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

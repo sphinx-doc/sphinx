@@ -12,7 +12,7 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * The mailing list for development is at `Google Groups
   <https://groups.google.com/forum/#!forum/sphinx-dev>`_.
 * There is also the #sphinx-doc IRC channel on `freenode
-  <http://freenode.net/>`_.
+  <https://freenode.net/>`_.
 
 For more about our development process and methods, see the :doc:`devguide`.
 
@@ -106,40 +106,40 @@ own extensions.
 
 .. _aafigure: https://launchpad.net/aafigure
 .. _gnuplot: http://www.gnuplot.info/
-.. _paver: http://paver.github.io/paver/
-.. _Sword: http://www.crosswire.org/sword/
+.. _paver: https://paver.readthedocs.io/en/latest/
+.. _Sword: https://www.crosswire.org/sword/
 .. _Lilypond: http://lilypond.org/
 .. _sdedit: http://sdedit.sourceforge.net/
-.. _Trac: http://trac.edgewall.org
-.. _TracLinks: http://trac.edgewall.org/wiki/TracLinks
-.. _OmegaT: http://www.omegat.org/
+.. _Trac: https://trac.edgewall.org/
+.. _TracLinks: https://trac.edgewall.org/wiki/TracLinks
+.. _OmegaT: https://omegat.org/
 .. _PlantUML: http://plantuml.com/
-.. _PyEnchant: http://www.rfk.id.au/software/pyenchant/
+.. _PyEnchant: https://pythonhosted.org/pyenchant/
 .. _sadisplay: https://bitbucket.org/estin/sadisplay/wiki/Home
 .. _blockdiag: http://blockdiag.com/en/
 .. _seqdiag: http://blockdiag.com/en/
 .. _actdiag: http://blockdiag.com/en/
 .. _nwdiag: http://blockdiag.com/en/
-.. _Google Analytics: http://www.google.com/analytics/
+.. _Google Analytics: https://www.google.com/analytics/
 .. _Google Chart: https://developers.google.com/chart/
 .. _Google Maps: https://www.google.com/maps
 .. _Google style: https://google.github.io/styleguide/pyguide.html
 .. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _hyphenator: https://github.com/mnater/hyphenator
-.. _exceltable: http://pythonhosted.org/sphinxcontrib-exceltable/
+.. _exceltable: https://pythonhosted.org/sphinxcontrib-exceltable/
 .. _YouTube: http://www.youtube.com/
-.. _ClearQuest: http://www-03.ibm.com/software/products/en/clearquest
-.. _Zope interfaces: http://docs.zope.org/zope.interface/README.html
-.. _slideshare: http://www.slideshare.net/
+.. _ClearQuest: https://www.ibm.com/us-en/marketplace/rational-clearquest
+.. _Zope interfaces: https://zopeinterface.readthedocs.io/en/latest/README.html
+.. _slideshare: https://www.slideshare.net/
 .. _TikZ/PGF LaTeX package: https://sourceforge.net/projects/pgf/
-.. _MATLAB: http://www.mathworks.com/products/matlab/
+.. _MATLAB: https://www.mathworks.com/products/matlab.html
 .. _swf: https://bitbucket.org/klorenz/sphinxcontrib-swf
 .. _findanything: https://bitbucket.org/klorenz/sphinxcontrib-findanything
 .. _cmakedomain: https://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
-.. _GNU Make: http://www.gnu.org/software/make/
+.. _GNU Make: https://www.gnu.org/software/make/
 .. _makedomain: https://bitbucket.org/klorenz/sphinxcontrib-makedomain
-.. _inlinesyntaxhighlight: http://sphinxcontrib-inlinesyntaxhighlight.readthedocs.org
+.. _inlinesyntaxhighlight: https://sphinxcontrib-inlinesyntaxhighlight.readthedocs.io/
 .. _CMake: https://cmake.org
 .. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
-.. _restbuilder: https://pypi.python.org/pypi/sphinxcontrib-restbuilder
+.. _restbuilder: https://pypi.org/project/sphinxcontrib-restbuilder/
 .. _Lasso: http://www.lassosoft.com/

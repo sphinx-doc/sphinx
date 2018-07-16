@@ -5,17 +5,16 @@
 
     Tests the JavaScript Domain
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
-from mock import Mock
 from docutils import nodes
+from mock import Mock
 
 from sphinx import addnodes
 from sphinx.domains.javascript import JavaScriptDomain
-
 from sphinx.testing.util import assert_node
 
 

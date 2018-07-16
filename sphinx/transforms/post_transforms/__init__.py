@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,6 +20,7 @@ from sphinx.environment import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
+from sphinx.util.nodes import process_only_nodes
 
 if False:
     # For type annotation
@@ -134,9 +135,12 @@ class ReferencesResolver(SphinxTransform):
         if not results:
             return None
         if len(results) > 1:
-            nice_results = ' or '.join(':%s:' % r[0] for r in results)
+            def stringify(name, node):
+                reftitle = node.get('reftitle', node.astext())
+                return ':%s:`%s`' % (name, reftitle)
+            candidates = ' or '.join(stringify(name, role) for name, role in results)
             logger.warning(__('more than one target found for \'any\' cross-'
-                              'reference %r: could be %s'), target, nice_results,
+                              'reference %r: could be %s'), target, candidates,
                            location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
@@ -152,13 +156,13 @@ class ReferencesResolver(SphinxTransform):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
-            if self.env._nitpick_ignore:
+            if self.config.nitpick_ignore:
                 dtype = domain and '%s:%s' % (domain.name, typ) or typ
-                if (dtype, target) in self.env._nitpick_ignore:
+                if (dtype, target) in self.config.nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
                 if (not domain or domain.name == 'std') and \
-                   (typ, target) in self.env._nitpick_ignore:
+                   (typ, target) in self.config.nitpick_ignore:
                     warn = False
         if not warn:
             return
@@ -182,18 +186,7 @@ class OnlyNodeTransform(SphinxTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        for node in self.document.traverse(addnodes.only):
-            try:
-                ret = self.app.builder.tags.eval_condition(node['expr'])
-            except Exception as err:
-                logger.warning('exception while evaluating only directive expression: %s', err,
-                               location=node)
-                node.replace_self(node.children or nodes.comment())
-            else:
-                if ret:
-                    node.replace_self(node.children or nodes.comment())
-                else:
-                    node.replace_self(nodes.comment())
+        process_only_nodes(self.document, self.app.builder.tags)
 
 
 def setup(app):

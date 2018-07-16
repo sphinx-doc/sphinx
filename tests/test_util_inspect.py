@@ -5,14 +5,15 @@
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import sys
-from six import PY3
 import functools
+import sys
 from textwrap import dedent
+
 import pytest
+from six import PY3
 
 from sphinx.util import inspect
 
@@ -200,10 +201,37 @@ def test_Signature_methods():
         assert sig == '(arg1, **kwargs)'
 
 
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='functools.partialmethod is available on py34 or above')
+def test_Signature_partialmethod():
+    from functools import partialmethod
+
+    class Foo(object):
+        def meth1(self, arg1, arg2, arg3=None, arg4=None):
+            pass
+
+        def meth2(self, arg1, arg2):
+            pass
+
+        foo = partialmethod(meth1, 1, 2)
+        bar = partialmethod(meth1, 1, arg3=3)
+        baz = partialmethod(meth2, 1, 2)
+
+    subject = Foo()
+    sig = inspect.Signature(subject.foo).format_args()
+    assert sig == '(arg3=None, arg4=None)'
+
+    sig = inspect.Signature(subject.bar).format_args()
+    assert sig == '(arg2, *, arg3=3, arg4=None)'
+
+    sig = inspect.Signature(subject.baz).format_args()
+    assert sig == '()'
+
+
 @pytest.mark.skipif(sys.version_info < (3, 5),
                     reason='type annotation test is available on py35 or above')
 def test_Signature_annotations():
-    from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11
+    from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -211,15 +239,15 @@ def test_Signature_annotations():
 
     # Generic types with concrete parameters
     sig = inspect.Signature(f1).format_args()
-    assert sig == '(x: typing.List[int]) -> typing.List[int]'
+    assert sig == '(x: List[int]) -> List[int]'
 
     # TypeVars and generic types with TypeVars
     sig = inspect.Signature(f2).format_args()
-    assert sig == '(x: typing.List[T], y: typing.List[T_co], z: T) -> typing.List[T_contra]'
+    assert sig == '(x: List[T], y: List[T_co], z: T) -> List[T_contra]'
 
     # Union types
     sig = inspect.Signature(f3).format_args()
-    assert sig == '(x: typing.Union[str, numbers.Integral]) -> None'
+    assert sig == '(x: Union[str, numbers.Integral]) -> None'
 
     # Quoted annotations
     sig = inspect.Signature(f4).format_args()
@@ -239,18 +267,26 @@ def test_Signature_annotations():
 
     # Callable types
     sig = inspect.Signature(f8).format_args()
-    assert sig == '(x: typing.Callable[[int, str], int]) -> None'
+    assert sig == '(x: Callable[[int, str], int]) -> None'
 
     sig = inspect.Signature(f9).format_args()
-    assert sig == '(x: typing.Callable) -> None'
+    assert sig == '(x: Callable) -> None'
 
     # Tuple types
     sig = inspect.Signature(f10).format_args()
-    assert sig == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
+    assert sig == '(x: Tuple[int, str], y: Tuple[int, ...]) -> None'
 
     # Instance annotations
     sig = inspect.Signature(f11).format_args()
     assert sig == '(x: CustomAnnotation, y: 123) -> None'
+
+    # has_retval=False
+    sig = inspect.Signature(f11, has_retval=False).format_args()
+    assert sig == '(x: CustomAnnotation, y: 123)'
+
+    # tuple with more than two items
+    sig = inspect.Signature(f12).format_args()
+    assert sig == '() -> Tuple[int, str, int]'
 
 
 def test_safe_getattr_with_default():
@@ -310,3 +346,64 @@ def test_safe_getattr_with___dict___override():
         assert exc.args[0] == 'bar'
     else:
         pytest.fail('AttributeError not raised')
+
+
+def test_dictionary_sorting():
+    dictionary = {"c": 3, "a": 1, "d": 2, "b": 4}
+    description = inspect.object_description(dictionary)
+    assert description == "{'a': 1, 'b': 4, 'c': 3, 'd': 2}"
+
+
+def test_set_sorting():
+    set_ = set("gfedcba")
+    description = inspect.object_description(set_)
+    if PY3:
+        assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
+    else:
+        assert description == "set(['a', 'b', 'c', 'd', 'e', 'f', 'g'])"
+
+
+def test_set_sorting_fallback():
+    set_ = set((None, 1))
+    description = inspect.object_description(set_)
+    if PY3:
+        assert description in ("{1, None}", "{None, 1}")
+    else:
+        assert description in ("set([1, None])", "set([None, 1])")
+
+
+def test_dict_customtype():
+    class CustomType(object):
+        def __init__(self, value):
+            self._value = value
+
+        def __repr__(self):
+            return "<CustomType(%r)>" % self._value
+
+    dictionary = {CustomType(2): 2, CustomType(1): 1}
+    description = inspect.object_description(dictionary)
+    # Type is unsortable, just check that it does not crash
+    assert "<CustomType(2)>: 2" in description
+
+
+def test_isstaticmethod():
+    class Foo():
+        @staticmethod
+        def method1():
+            pass
+
+        def method2(self):
+            pass
+
+    class Bar(Foo):
+        pass
+
+    assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
+    assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
+
+    if sys.version_info < (3, 0):
+        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is False
+        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    else:
+        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
+        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False

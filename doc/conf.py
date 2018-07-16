@@ -3,6 +3,7 @@
 # Sphinx documentation build configuration file
 
 import re
+
 import sphinx
 
 
@@ -15,7 +16,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2017, Georg Brandl and the Sphinx team'
+copyright = '2007-2018, Georg Brandl and the Sphinx team'
 version = sphinx.__display_version__
 release = version
 show_authors = True
@@ -38,7 +39,7 @@ epub_uid = 'web-site'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
 epub_pre_files = [('index.xhtml', 'Welcome')]
-epub_post_files = [('install.xhtml', 'Installing Sphinx'),
+epub_post_files = [('usage/installation.xhtml', 'Installing Sphinx'),
                    ('develop.xhtml', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
                       '_static/jquery.js', '_static/searchtools.js',
@@ -55,8 +56,14 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
-    'fontpkg': '\\usepackage{palatino}',
+    'fontpkg': r'''
+\usepackage[sc]{mathpazo}
+\usepackage[scaled]{helvet}
+\usepackage{courier}
+''',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
+    'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
+    'fvset': '\\fvset{fontsize=auto}',
     # fix missing index entry due to RTD doing only once pdflatex after makeindex
     'printindex': r'''
 \IfFileExists{\jobname.ind}
@@ -65,6 +72,7 @@ latex_elements = {
 ''',
 }
 latex_show_urls = 'footnote'
+latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
 todo_include_todos = True
@@ -96,7 +104,7 @@ texinfo_documents = [
 
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
-intersphinx_mapping = {'python': ('https://docs.python.org/2/', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
 locale_dirs = ['locale/']

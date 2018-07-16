@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,6 +13,10 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.transforms import SphinxTransform
+
+if False:
+    # For type annotation
+    from typing import List  # NOQA
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -32,7 +36,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
 
     def visit_list_item(self, node):
         # type: (nodes.Node) -> None
-        children = []
+        children = []  # type: List[nodes.Node]
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
                 children.append(child)

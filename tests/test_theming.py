@@ -5,30 +5,36 @@
 
     Test the Theme class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 
+import alabaster
 import pytest
 
 from sphinx.theming import ThemeError
 
 
 @pytest.mark.sphinx(
+    testroot='theming',
     confoverrides={'html_theme': 'ziptheme',
                    'html_theme_options.testopt': 'foo'})
 def test_theme_api(app, status, warning):
     cfg = app.config
 
+    themes = ['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
+              'traditional', 'epub', 'nature', 'pyramid', 'bizstyle', 'classic', 'nonav',
+              'test-theme', 'ziptheme', 'staticfiles', 'parent', 'child']
+    if alabaster.version.__version_info__ >= (0, 7, 11):
+        themes.append('alabaster')
+
     # test Theme class API
-    assert set(app.html_themes.keys()) == \
-        set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
-             'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
-             'pyramid', 'bizstyle', 'classic', 'nonav'])
-    assert app.html_themes['testtheme'] == app.srcdir / 'testtheme'
+    assert set(app.html_themes.keys()) == set(themes)
+    assert app.html_themes['test-theme'] == app.srcdir / 'test_theme' / 'test-theme'
     assert app.html_themes['ziptheme'] == app.srcdir / 'ziptheme.zip'
+    assert app.html_themes['staticfiles'] == app.srcdir / 'test_theme' / 'staticfiles'
 
     # test Theme instance API
     theme = app.builder.theme
@@ -69,7 +75,7 @@ def test_js_source(app, status, warning):
 
     app.builder.build(['contents'])
 
-    v = '3.1.0'
+    v = '3.2.1'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
     jquery_min = (app.outdir / '_static' / 'jquery.js').text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
@@ -95,3 +101,30 @@ def test_double_inheriting_theme(app, status, warning):
 def test_nested_zipped_theme(app, status, warning):
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
+
+
+@pytest.mark.sphinx(testroot='theming',
+                    confoverrides={'html_theme': 'staticfiles'})
+def test_staticfiles(app, status, warning):
+    app.build()
+    assert (app.outdir / '_static' / 'staticimg.png').exists()
+    assert (app.outdir / '_static' / 'statictmpl.html').exists()
+    assert (app.outdir / '_static' / 'statictmpl.html').text() == (
+        '<!-- testing static templates -->\n'
+        '<html><project>Python</project></html>'
+    )
+
+    result = (app.outdir / 'index.html').text()
+    assert '<meta name="testopt" content="optdefault" />' in result
+
+
+@pytest.mark.sphinx(testroot='theming')
+def test_theme_sidebars(app, status, warning):
+    app.build()
+
+    # test-theme specifies globaltoc and searchbox as default sidebars
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert '<h3><a href="#">Table Of Contents</a></h3>' in result
+    assert '<h3>Related Topics</h3>' not in result
+    assert '<h3>This Page</h3>' not in result
+    assert '<h3>Quick search</h3>' in result

@@ -8,17 +8,17 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import sys
 import os
+import sys
+from distutils.cmd import Command
+from distutils.errors import DistutilsOptionError, DistutilsExecError
 
 from six import StringIO, string_types
-from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
 
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception
@@ -116,11 +116,11 @@ class BuildDoc(Command):
             for root, dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
-        return None
+        return os.curdir
 
     # Overriding distutils' Command._ensure_stringlike which doesn't support
     # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for http://bugs.python.org/issue19570
+    # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
         # type: (unicode, unicode, Any) -> Any
         val = getattr(self, option)
@@ -134,30 +134,26 @@ class BuildDoc(Command):
 
     def finalize_options(self):
         # type: () -> None
+        self.ensure_string_list('builder')
+
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
-            self.announce('Using source directory %s' % self.source_dir)  # type: ignore
-        self.ensure_dirname('source_dir')  # type: ignore
-        if self.source_dir is None:
-            self.source_dir = os.curdir
-        self.source_dir = abspath(self.source_dir)
+            self.announce('Using source directory %s' % self.source_dir)
+
+        self.ensure_dirname('source_dir')
+
         if self.config_dir is None:
             self.config_dir = self.source_dir
-        self.config_dir = abspath(self.config_dir)
 
-        self.ensure_string_list('builder')  # type: ignore
         if self.build_dir is None:
-            build = self.get_finalized_command('build')  # type: ignore
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
-            self.mkpath(self.build_dir)  # type: ignore
-        self.build_dir = abspath(self.build_dir)
+            build = self.get_finalized_command('build')
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
+
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
-        self.mkpath(self.doctree_dir)  # type: ignore
+
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]  # type: List[Tuple[str, unicode]]
-        for _, builder_target_dir in self.builder_target_dirs:
-            self.mkpath(builder_target_dir)  # type: ignore
 
     def run(self):
         # type: () -> None
@@ -183,7 +179,8 @@ class BuildDoc(Command):
             app = None
 
             try:
-                with patch_docutils(), docutils_namespace():
+                confdir = self.config_dir or self.source_dir
+                with patch_docutils(confdir), docutils_namespace():
                     app = Sphinx(self.source_dir, self.config_dir,
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,

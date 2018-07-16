@@ -6,15 +6,20 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from uuid import uuid4
-from operator import itemgetter
+import warnings
 from itertools import product
+from operator import itemgetter
+from uuid import uuid4
 
 from six import iteritems
+from six.moves import cPickle as pickle
 from six.moves import range, zip_longest
+
+from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
@@ -148,3 +153,39 @@ def levenshtein_distance(a, b):
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row  # type: ignore
     return previous_row[-1]
+
+
+class UIDTransform(SphinxTransform):
+    """Add UIDs to doctree for versioning."""
+    default_priority = 880
+
+    def apply(self):
+        # type: () -> None
+        env = self.env
+        old_doctree = None
+        if not env.versioning_condition:
+            return
+
+        if env.versioning_compare:
+            # get old doctree
+            try:
+                filename = env.doc2path(env.docname, env.doctreedir, '.doctree')
+                with open(filename, 'rb') as f:
+                    old_doctree = pickle.load(f)
+            except EnvironmentError:
+                pass
+
+        # add uids for versioning
+        if not env.versioning_compare or old_doctree is None:
+            list(add_uids(self.document, env.versioning_condition))
+        else:
+            list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
+
+
+def prepare(document):
+    # type: (nodes.Node) -> None
+    """Simple wrapper for UIDTransform."""
+    warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
+                  RemovedInSphinx30Warning)
+    transform = UIDTransform(document)
+    transform.apply()

@@ -5,20 +5,20 @@
 
     Experimental docutils writers for HTML5 handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import posixpath
 import os
+import posixpath
+import sys
 
-from six import string_types
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
+from six import string_types
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
 
@@ -49,6 +49,7 @@ class HTML5Translator(BaseTranslator):
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
         self.docnames = [builder.current_docname]  # for singlehtml builder
+        self.manpages_url = builder.config.manpages_url
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -302,17 +303,17 @@ class HTML5Translator(BaseTranslator):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
-                    msg = 'numfig_format is not defined for %s' % figtype
+                    msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_figtype(node)  # type: ignore
+        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assigned for %s node' % node.tagname
+                msg = __('Any IDs not assigned for %s node') % node.tagname
                 logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
@@ -389,7 +390,7 @@ class HTML5Translator(BaseTranslator):
             location=(self.builder.current_docname, node.line), **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s' % lang)
+                                 CLASS='highlight-%s notranslate' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -437,14 +438,21 @@ class HTML5Translator(BaseTranslator):
     # overwritten
     def visit_literal(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(self.starttag(node, 'code', '',
-                                       CLASS='docutils literal'))
-        self.protect_literal_text += 1
+        if 'kbd' in node['classes']:
+            self.body.append(self.starttag(node, 'kbd', '',
+                                           CLASS='docutils literal notranslate'))
+        else:
+            self.body.append(self.starttag(node, 'code', '',
+                                           CLASS='docutils literal notranslate'))
+            self.protect_literal_text += 1
 
     def depart_literal(self, node):
         # type: (nodes.Node) -> None
-        self.protect_literal_text -= 1
-        self.body.append('</code>')
+        if 'kbd' in node['classes']:
+            self.body.append('</kbd>')
+        else:
+            self.protect_literal_text -= 1
+            self.body.append('</code>')
 
     def visit_productionlist(self, node):
         # type: (nodes.Node) -> None
@@ -563,7 +571,7 @@ class HTML5Translator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
                                    location=node)
                 else:
                     if 'width' not in node:
@@ -751,9 +759,14 @@ class HTML5Translator(BaseTranslator):
     def visit_manpage(self, node):
         # type: (nodes.Node) -> None
         self.visit_literal_emphasis(node)
+        if self.manpages_url:
+            node['refuri'] = self.manpages_url.format(**dict(node))
+            self.visit_reference(node)
 
     def depart_manpage(self, node):
         # type: (nodes.Node) -> None
+        if self.manpages_url:
+            self.depart_reference(node)
         self.depart_literal_emphasis(node)
 
     # overwritten to add even/odd classes
@@ -812,9 +825,9 @@ class HTML5Translator(BaseTranslator):
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html',
+        logger.warning(__('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
                        location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 

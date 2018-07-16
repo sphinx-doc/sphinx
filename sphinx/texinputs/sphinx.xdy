@@ -1,0 +1,134 @@
+;;; -*- mode: lisp; coding: utf-8; -*-
+
+;; Unfortunately xindy is out-of-the-box hyperref-incompatible.  This
+;; configuration is a workaround, which requires to pass option
+;; hyperindex=false to hyperref.
+;; textit and emph not currently used by Sphinx LaTeX writer.
+(define-attributes (("textbf" "textit" "emph" "default")))
+(markup-locref :open "\textbf{\hyperpage{" :close "}}" :attr "textbf")
+(markup-locref :open "\textit{\hyperpage{" :close "}}" :attr "textit")
+(markup-locref :open "\emph{\hyperpage{" :close "}}" :attr "emph")
+(markup-locref :open "\hyperpage{" :close "}" :attr "default")
+
+(require "numeric-sort.xdy")
+
+;; xindy base module latex.xdy loads tex.xdy and the latter instructs
+;; xindy to ignore **all** TeX macros in .idx entries, except those
+;; explicitely described in merge rule.  But when after applying all
+;; merge rules an empty string results, xindy raises an error:
+
+;;   ERROR: CHAR: index 0 should be less than the length of the string
+
+;; For example when using pdflatex with utf-8 characters the index
+;; file will contain \IeC macros and they will get ignored except if
+;; suitable merge rules are loaded early.  The texindy script coming
+;; with xindy provides this, but only for Latin scripts.  The texindy
+;; man page says to use rather xelatex or lualatex in case of Cyrillic
+;; scripts.
+
+;; Sphinx contributes cyrLICRutf8.xdy to provide support for Cyrillic
+;; scripts for the pdflatex engine.
+
+;; Another issue caused by xindy ignoring all TeX macros except those
+;; explicitely declared reveals itself when attempting to index ">>>",
+;; as the ">" is converted to "\textgreater{}" by Sphinx's LaTeX
+;; escaping.
+
+;; To fix this, Sphinx does **not** use texindy, and does not even
+;; load the xindy latex.xdy base module.
+
+;(require "latex.xdy")
+
+;; Rather it incorporates some suitable extracts from latex.xdy and
+;; tex.xdy with additional Sphinx contributed rules.
+
+;;;;;;;; extracts from tex.xdy (discarding most original comments):
+
+;;;
+;;; TeX conventions
+;;;
+
+;; Discard leading and trailing white space. Collapse multiple white
+;; space characters to blank.
+
+(merge-rule "^ +" "" :eregexp)
+(merge-rule " +$" "" :eregexp)
+(merge-rule "  +" " " :eregexp)
+
+;; Handle TeX markup
+
+(merge-rule "\\([{}$%&#])" "\1" :eregexp)
+
+;;;;;;;; end of extracts from xindy's tex.xdy
+
+;;;;;;;; extracts from latex.xdy:
+
+;; Standard location classes: arabic and roman numbers, and alphabets.
+
+(define-location-class "arabic-page-numbers" ("arabic-numbers"))
+(define-location-class "roman-page-numbers"  ("roman-numbers-lowercase"))
+(define-location-class "Roman-page-numbers"  ("roman-numbers-uppercase"))
+(define-location-class "alpha-page-numbers"  ("alpha"))
+(define-location-class "Alpha-page-numbers"  ("ALPHA"))
+
+;; Output Markup
+
+(markup-letter-group-list :sep "~n~n  \indexspace~n")
+
+(markup-indexentry :open "~n  \item "           :depth 0)
+(markup-indexentry :open "~n    \subitem "      :depth 1)
+(markup-indexentry :open "~n      \subsubitem " :depth 2)
+
+(markup-locclass-list :open ", " :sep ", ")
+(markup-locref-list   :sep ", ")
+
+;;;;;;;; end of extracts from latex.xdy
+
+;; Sphinx additions, cf sphinx.util.texescape for rationale
+;;
+;; The LaTeX \index command turns \ into normal character so the TeX macros
+;; written to .idx files are not followed by a blank. This is different
+;; from non-ascii letters which end up (with pdflatex) as \IeC macros in .idx
+;; file, with a blank.
+
+(merge-rule "\\sphinxleftcurlybrace\{\}" "{")
+(merge-rule "\\sphinxrightcurlybrace\{\}" "}")
+(merge-rule "\\_" "_")
+(merge-rule "\{\[\}" "[")
+(merge-rule "\{\]\}" "]")
+(merge-rule "\{\}`" "`")
+(merge-rule "\\textbackslash\{\}" "\\")
+(merge-rule "\\textasciitilde\{\}" "~~")
+(merge-rule "\\textless\{\}" "<")
+(merge-rule "\\textgreater\{\}" ">")
+(merge-rule "\\textasciicircum\{\}" "^")
+(merge-rule "\\P\{\}" "¶")
+(merge-rule "\\S\{\}" "§")
+(merge-rule "\\texteuro\{\}" "€")
+(merge-rule "\\\(\\infty\\\)" "∞")
+(merge-rule "\\\(\\pm\\\)" "±")
+(merge-rule "\\\(\\rightarrow\\\)" "→")
+(merge-rule "\\\(\\checkmark\\\)" "✓")
+(merge-rule "\\textendash\{\}" "–")
+(merge-rule "\\textbar\{\}" "|")
+
+;; This xindy module provides some basic support for "see"
+(require "makeindex.xdy")
+
+;; This creates one-letter headings and works fine with utf-8 letters.
+;; For Cyrillic and pdflatex necessitates cyrLICRutf8.xdy to be loaded too.
+(require "latin-lettergroups.xdy")
+
+;; currently we don't (know how to easily) separate "Numbers" from
+;; "Symbols" with xindy as is the case with makeindex.
+(markup-index :open  "\begin{sphinxtheindex}
+\let\lettergroup\sphinxstyleindexlettergroup
+\let\lettergroupDefault\sphinxstyleindexlettergroupDefault
+
+"
+	      :close "
+
+\end{sphinxtheindex}
+"
+	      :tree)
+

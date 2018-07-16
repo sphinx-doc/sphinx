@@ -99,7 +99,7 @@
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
   % \phantomsection % not needed here since TeXLive 2010's hyperref
-  \begin{thebibliography}{1}%
+  \begin{thebibliography}{#1}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
 % Same for the indices.

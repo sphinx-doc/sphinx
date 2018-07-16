@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -27,6 +27,7 @@ if False:
 # List of all known core events. Maps name to arguments description.
 core_events = {
     'builder-inited': '',
+    'config-inited': 'config',
     'env-get-outdated': 'env, added, changed, removed',
     'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',

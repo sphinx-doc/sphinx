@@ -5,7 +5,7 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,10 +20,13 @@ import warnings
 from os import path
 
 from .deprecation import RemovedInNextVersionWarning
+from .deprecation import RemovedInSphinx20Warning
 
 if False:
     # For type annotation
-    from typing import List  # NOQA
+    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
+    from typing import Any  # NOQA
+
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
@@ -34,13 +37,18 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '1.7+'
-__released__ = '1.7'  # used when Sphinx builds its own docs
+__version__ = '1.8.0+'
+__released__ = '1.8.0'  # used when Sphinx builds its own docs
 
-# version info for better programmatic use
-# possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
-# 'final' has 0 as the last element
-version_info = (1, 7, 0, 'beta', 0)
+#: Version info for better programmatic use.
+#:
+#: A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
+#: ``(1, 2, 1, 'beta', 3)``. The fourth element can be one of: ``alpha``,
+#: ``beta``, ``rc``, ``final``. ``final`` always has 0 as the last element.
+#:
+#: .. versionadded:: 1.2
+#:    Before version 1.2, check the string ``sphinx.__version__``.
+version_info = (1, 8, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -63,62 +71,45 @@ if __version__.endswith('+'):
         pass
 
 
-def main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
-    if sys.argv[1:2] == ['-M']:
-        return make_main(argv)
-    else:
-        return build_main(argv)
+def main(argv=sys.argv):  # type: ignore
+    # type: (List[unicode]) -> int
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    argv = argv[1:]  # skip first argument to adjust arguments (refs: #4615)
+    return build.main(argv)
 
 
-def build_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def build_main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
-    if (sys.version_info[:3] < (2, 7, 0) or
-       (3, 0, 0) <= sys.version_info[:3] < (3, 4, 0)):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.7 or 3.4 to run.\n')
-        return 1
-    try:
-        from sphinx import cmdline
-    except ImportError:
-        err = sys.exc_info()[1]
-        errstr = str(err)
-        if errstr.lower().startswith('no module named'):
-            whichmod = errstr[16:]
-            hint = ''
-            if whichmod.startswith('docutils'):
-                whichmod = 'Docutils library'
-            elif whichmod.startswith('jinja'):
-                whichmod = 'Jinja2 library'
-            elif whichmod == 'roman':
-                whichmod = 'roman module (which is distributed with Docutils)'
-                hint = ('This can happen if you upgraded docutils using\n'
-                        'easy_install without uninstalling the old version'
-                        'first.\n')
-            else:
-                whichmod += ' module'
-            sys.stderr.write('Error: The %s cannot be found. '
-                             'Did you install Sphinx and its dependencies '
-                             'correctly?\n' % whichmod)
-            if hint:
-                sys.stderr.write(hint)
-            return 1
-        raise
-
-    import sphinx.util.docutils
-    if sphinx.util.docutils.__version_info__ < (0, 10):
-        sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
-                         'run.\n')
-        return 1
-    return cmdline.main(argv)  # type: ignore
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.build_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
-def make_main(argv=sys.argv[1:]):
-    # type: (List[str]) -> int
+def make_main(argv=sys.argv):
     """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
-    return make_mode.run_make_mode(argv[1:])  # type: ignore
+    from .cmd import build
+    warnings.warn(
+        '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    return build.make_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    from .cmd import build
+    warnings.warn(
+        '`sphinx` has moved to `sphinx.build`.',
+        RemovedInSphinx20Warning,
+        stacklevel=2,
+    )
+    build.main()

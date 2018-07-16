@@ -4,7 +4,7 @@
 
     Sphinx layout template for the sphinxdoc theme.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -13,8 +13,13 @@
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
 
+{% block linktags %}
+{{ super() }}
+    <link rel="canonical" href="http://www.sphinx-doc.org/en/master/{{ pagename }}{{ file_suffix }}" />
+{% endblock %}
+
 {% block extrahead %}
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700'
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700'
           rel='stylesheet' type='text/css' />
 {{ super() }}
 {%- if not embedded %}
@@ -65,7 +70,7 @@
 <div class="pageheader">
   <ul>
     <li><a href="{{ pathto('index') }}">Home</a></li>
-    <li><a href="{{ pathto('install') }}">Get it</a></li>
+    <li><a href="{{ pathto('usage/installation') }}">Get it</a></li>
     <li><a href="{{ pathto('contents') }}">Docs</a></li>
     <li><a href="{{ pathto('develop') }}">Extend/Develop</a></li>
   </ul>

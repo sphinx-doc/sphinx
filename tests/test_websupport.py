@@ -5,9 +5,11 @@
 
     Test the Web Support Package
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import pytest
 
 from sphinx.websupport import WebSupport
 try:
@@ -15,8 +17,6 @@ try:
     import sqlalchemy  # NOQA
 except ImportError:
     sqlalchemy_missing = True
-
-import pytest
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')

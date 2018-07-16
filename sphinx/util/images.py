@@ -5,19 +5,19 @@
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
 import base64
 import imghdr
-import imagesize
-from os import path
 from collections import OrderedDict
-
-from six import PY3, BytesIO, iteritems
+from os import path
 from typing import NamedTuple
+
+import imagesize
+from six import PY3, BytesIO, iteritems
 
 try:
     from PIL import Image        # check for the Python Imaging Library
@@ -64,7 +64,7 @@ def get_image_size(filename):
                 pass
 
         return size
-    except:
+    except Exception:
         return None
 
 
@@ -123,12 +123,15 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
+    # type: (unicode, IO) -> unicode
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode('utf-8').lower():
             return 'svg+xml'
     except UnicodeDecodeError:
         pass
+
+    return None
 
 
 # install test_svg() to imghdr

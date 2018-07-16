@@ -6,20 +6,16 @@ environment:
 
   matrix:
     - PYTHON: 27
-      DOCUTILS: 0.12
-      TEST_IGNORE: --ignore py35
-    - PYTHON: 27
-      DOCUTILS: 0.13.1
       TEST_IGNORE: --ignore py35
     - PYTHON: 36
-      DOCUTILS: 0.13.1
     - PYTHON: 36-x64
-      DOCUTILS: 0.13.1
 
 install:
   - C:\Python%PYTHON%\python.exe -m pip install -U pip setuptools
-  - C:\Python%PYTHON%\python.exe -m pip install docutils==%DOCUTILS%
-  - C:\Python%PYTHON%\python.exe -m pip install -r test-reqs.txt
+  - C:\Python%PYTHON%\python.exe -m pip install .[test,websupport]
+
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
 
 # No automatic build, just run python tests
 build: off
@@ -39,10 +35,24 @@ test_script:
       if (-not $test_ignore) { $test_ignore = '' }
       $tests = $env:TEST
       if (-not $tests) { $tests = '' }
-      & "C:\Python$($env:PYTHON)\python.exe" run.py $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
+      & "C:\Python$($env:PYTHON)\python.exe" -m pytest $test_ignore.Split(' ') --junitxml .junit.xml $tests.Split(' ')
       Pop-Location
       if ($LastExitCode -eq 1) { Write-Host "Test Failures Occurred, leaving for test result parsing" }
       elseif ($LastExitCode -ne 0) { Write-Host "Other Error Occurred, aborting"; exit $LastExitCode }
 
 after_test:
   - ps: (New-Object System.Net.WebClient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path (Join-Path tests .junit.xml)))
+
+after_build:
+  # Remove old or huge cache files to hopefully not exceed the 1GB cache limit.
+  #
+  # If the cache limit is reached, the cache will not be updated (of not even
+  # created in the first run). So this is a trade of between keeping the cache
+  # current and having a cache at all.
+  # NB: This is done only `on_success` since the cache in uploaded only on
+  # success anyway.
+  - C:\cygwin\bin\find "%LOCALAPPDATA%\pip" -type f -mtime +360 -delete
+  - C:\cygwin\bin\find "%LOCALAPPDATA%\pip" -type f -size +10M -delete
+  - C:\cygwin\bin\find "%LOCALAPPDATA%\pip" -empty -delete
+  # Show size of cache
+  - C:\cygwin\bin\du -hs "%LOCALAPPDATA%\pip\Cache"

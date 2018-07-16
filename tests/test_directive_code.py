@@ -5,18 +5,19 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import pytest
 import os
+
+import pytest
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
 from sphinx.testing.util import etree_parse
 
-DUMMY_CONFIG = Config(None, None, {}, '')
+DUMMY_CONFIG = Config({}, {})
 
 
 @pytest.fixture(scope='module')
@@ -347,6 +348,14 @@ def test_code_block_namedlink_latex(app, status, warning):
     assert link1 in latex
     assert label2 in latex
     assert link2 in latex
+
+
+@pytest.mark.sphinx('latex', testroot='directive-code')
+def test_code_block_emphasize_latex(app, status, warning):
+    app.builder.build(['emphasize'])
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
+    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
+    assert includes in latex
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')

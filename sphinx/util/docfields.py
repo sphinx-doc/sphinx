@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -288,6 +288,12 @@ class DocFieldTransformer(object):
                 fieldtype, fieldarg = fieldname.astext(), ''
             typedesc, is_typefield = typemap.get(fieldtype, (None, None))
 
+            # collect the content, trying not to keep unnecessary paragraphs
+            if _is_single_paragraph(fieldbody):
+                content = fieldbody.children[0].children
+            else:
+                content = fieldbody.children
+
             # sort out unknown fields
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
@@ -297,15 +303,26 @@ class DocFieldTransformer(object):
                     new_fieldname += ' ' + fieldarg
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
+
+                # but if this has a type then we can at least link it
+                if typedesc and is_typefield and content:
+                    target = content[0].astext()
+                    xrefs = typedesc.make_xrefs(
+                        typedesc.typerolename,
+                        self.directive.domain,
+                        target,
+                        contnode=content[0],
+                    )
+                    if _is_single_paragraph(fieldbody):
+                        fieldbody.children[0].clear()
+                        fieldbody.children[0].extend(xrefs)
+                    else:
+                        fieldbody.clear()
+                        fieldbody.extend(xrefs)
+
                 continue
 
             typename = typedesc.name
-
-            # collect the content, trying not to keep unnecessary paragraphs
-            if _is_single_paragraph(fieldbody):
-                content = fieldbody.children[0].children
-            else:
-                content = fieldbody.children
 
             # if the field specifies a type, put it in the types collection
             if is_typefield:

@@ -5,7 +5,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,10 +16,10 @@ from docutils.writers.manpage import (
     Translator as BaseTranslator
 )
 
+import sphinx.util.docutils
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
-import sphinx.util.docutils
 from sphinx.util.i18n import format_date
 
 if False:
@@ -107,7 +107,7 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
+            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
@@ -513,12 +513,19 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
-        raise nodes.SkipNode
+        pass
 
-    visit_math_block = visit_math
+    def depart_math(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.visit_centered(node)
+
+    def depart_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.depart_centered(node)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

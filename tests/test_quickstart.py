@@ -5,19 +5,19 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import time
 
+import pytest
 from six import PY2, text_type, StringIO
 from six.moves import input
-import pytest
 
 from sphinx import application
-from sphinx import quickstart as qs
+from sphinx.cmd import quickstart as qs
 from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
 
@@ -61,27 +61,7 @@ def teardown_module():
     coloron()
 
 
-def test_quickstart_inputstrip():
-    d = {}
-    answers = {
-        'Q1': 'Y',
-        'Q2': ' Yes ',
-        'Q3': 'N',
-        'Q4': 'N ',
-    }
-    qs.term_input = mock_input(answers)
-    qs.do_prompt(d, 'k1', 'Q1')
-    assert d['k1'] == 'Y'
-    qs.do_prompt(d, 'k2', 'Q2')
-    assert d['k2'] == 'Yes'
-    qs.do_prompt(d, 'k3', 'Q3')
-    assert d['k3'] == 'N'
-    qs.do_prompt(d, 'k4', 'Q4')
-    assert d['k4'] == 'N'
-
-
 def test_do_prompt():
-    d = {}
     answers = {
         'Q2': 'v2',
         'Q3': 'v3',
@@ -90,39 +70,43 @@ def test_do_prompt():
         'Q6': 'foo',
     }
     qs.term_input = mock_input(answers)
-    try:
-        qs.do_prompt(d, 'k1', 'Q1')
-    except AssertionError:
-        assert 'k1' not in d
-    else:
-        assert False, 'AssertionError not raised'
-    qs.do_prompt(d, 'k1', 'Q1', default='v1')
-    assert d['k1'] == 'v1'
-    qs.do_prompt(d, 'k3', 'Q3', default='v3_default')
-    assert d['k3'] == 'v3'
-    qs.do_prompt(d, 'k2', 'Q2')
-    assert d['k2'] == 'v2'
-    qs.do_prompt(d, 'k4', 'Q4', validator=qs.boolean)
-    assert d['k4'] is True
-    qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
-    assert d['k5'] is False
+
+    assert qs.do_prompt('Q1', default='v1') == 'v1'
+    assert qs.do_prompt('Q3', default='v3_default') == 'v3'
+    assert qs.do_prompt('Q2') == 'v2'
+    assert qs.do_prompt('Q4', validator=qs.boolean) is True
+    assert qs.do_prompt('Q5', validator=qs.boolean) is False
     with pytest.raises(AssertionError):
-        qs.do_prompt(d, 'k6', 'Q6', validator=qs.boolean)
+        qs.do_prompt('Q6', validator=qs.boolean)
+
+
+def test_do_prompt_inputstrip():
+    answers = {
+        'Q1': 'Y',
+        'Q2': ' Yes ',
+        'Q3': 'N',
+        'Q4': 'N ',
+    }
+    qs.term_input = mock_input(answers)
+
+    assert qs.do_prompt('Q1') == 'Y'
+    assert qs.do_prompt('Q2') == 'Yes'
+    assert qs.do_prompt('Q3') == 'N'
+    assert qs.do_prompt('Q4') == 'N'
 
 
 def test_do_prompt_with_nonascii():
-    d = {}
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
     }
     qs.term_input = mock_input(answers)
     try:
-        qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
+        result = qs.do_prompt('Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
         raise pytest.skip.Exception(
             'non-ASCII console input not supported on this encoding: %s',
             qs.TERM_ENCODING)
-    assert d['k1'] == u'\u30c9\u30a4\u30c4'
+    assert result == u'\u30c9\u30a4\u30c4'
 
 
 def test_quickstart_defaults(tempdir):
@@ -149,7 +133,6 @@ def test_quickstart_defaults(tempdir):
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
     assert ns['version'] == '0.1'
     assert ns['release'] == '0.1'
-    assert ns['todo_include_todos'] is False
     assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
         ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',

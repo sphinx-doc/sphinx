@@ -14,13 +14,12 @@
 \sphinxcapstartof{table}
 \sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
 \sphinxaftercaption
+<% elif labels -%>
+\phantomsection<%= labels %>\nobreak
 <% endif -%>
 \begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
 \hline
 <%= ''.join(table.header) %>
-<%- if table.caption_footnotetexts -%>
-<%= ''.join(table.caption_footnotetexts) -%>
-<%- endif -%>
 <%=- ''.join(table.body) %>
 \end{tabulary}
 \par
