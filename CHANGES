@@ -45,6 +45,9 @@ Bugs fixed
 * #5139: autodoc: Enum argument missing if it shares value with another
 * #4946: py domain: rtype field could not handle "None" as a type
 * #5176: LaTeX: indexing of terms containing ``@``, ``!``, or ``"`` fails
+* #5161: html: crashes if copying static files are failed
+* #5167: autodoc: Fix formatting type annotations for tuples with more than two
+  arguments
 
 Testing
 --------
