@@ -471,21 +471,32 @@ def extract_summary(doc, document):
             doc = doc[:i]
             break
 
-    # Try to find the "first sentence", which may span multiple lines
-    sentences = periods_re.split(" ".join(doc))  # type: ignore
-    if len(sentences) == 1:
-        summary = sentences[0].strip()
+    if doc == []:
+        return ''
+
+    # parse the docstring
+    state_machine = RSTStateMachine(state_classes, 'Body')
+    node = new_document('', document.settings)
+    node.reporter = NullReporter()
+    state_machine.run(doc, node)
+
+    if not isinstance(node[0], nodes.paragraph):
+        # document starts with non-paragraph: pick up the first line
+        summary = doc[0].strip()
     else:
-        summary = ''
-        state_machine = RSTStateMachine(state_classes, 'Body')
-        while sentences:
-            summary += sentences.pop(0) + '.'
-            node = new_document('', document.settings)
-            node.reporter = NullReporter()
-            state_machine.run([summary], node)
-            if not node.traverse(nodes.system_message):
-                # considered as that splitting by period does not break inline markups
-                break
+        # Try to find the "first sentence", which may span multiple lines
+        sentences = periods_re.split(" ".join(doc))  # type: ignore
+        if len(sentences) == 1:
+            summary = sentences[0].strip()
+        else:
+            summary = ''
+            while sentences:
+                summary += sentences.pop(0) + '.'
+                node[:] = []
+                state_machine.run([summary], node)
+                if not node.traverse(nodes.system_message):
+                    # considered as that splitting by period does not break inline markups
+                    break
 
     # strip literal notation mark ``::`` from tail of summary
     summary = literal_re.sub('.', summary)
