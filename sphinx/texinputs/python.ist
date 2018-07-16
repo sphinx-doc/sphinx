@@ -9,5 +9,5 @@ preamble "\\begin{sphinxtheindex}
 
 postamble "\n\n\\end{sphinxtheindex}\n"
 
-symhead_positive "{Symbols}"
-numhead_positive "{Numbers}"
+symhead_positive "{\\sphinxsymbolsname}"
+numhead_positive "{\\sphinxnumbersname}"

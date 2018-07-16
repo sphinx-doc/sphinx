@@ -677,6 +677,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ) +
             self.babel_renewcommand(
                 '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsname', self.encode(_('Symbols'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnumbersname', self.encode(_('Numbers'))
             )
         )
         self.elements['pageautorefname'] = \

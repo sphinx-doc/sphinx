@@ -311,7 +311,7 @@ def main(argv=sys.argv[1:]):  # type: ignore
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
-    if sys.argv[1:2] == ['-M']:
+    if argv[:1] == ['-M']:
         return make_main(argv)
     else:
         return build_main(argv)
