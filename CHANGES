@@ -1,17 +1,5 @@
-Release 1.7.6 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.7.6 (released Jul 17, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -51,9 +39,6 @@ Bugs fixed
   arguments
 * #3329: i18n: crashed by auto-symbol footnote references
 * #5158: autosummary: module summary has been broken when it starts with heading
-
-Testing
---------
 
 Release 1.7.5 (released May 29, 2018)
 =====================================
