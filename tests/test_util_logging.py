@@ -171,6 +171,37 @@ def test_warningiserror(app, status, warning):
         logger.warning('%s')
 
 
+def test_info_location(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1', location='index')
+    assert 'index.txt: message1' in status.getvalue()
+
+    logger.info('message2', location=('index', 10))
+    assert 'index.txt:10: message2' in status.getvalue()
+
+    logger.info('message3', location=None)
+    assert '\nmessage3' in status.getvalue()
+
+    node = nodes.Node()
+    node.source, node.line = ('index.txt', 10)
+    logger.info('message4', location=node)
+    assert 'index.txt:10: message4' in status.getvalue()
+
+    node.source, node.line = ('index.txt', None)
+    logger.info('message5', location=node)
+    assert 'index.txt:: message5' in status.getvalue()
+
+    node.source, node.line = (None, 10)
+    logger.info('message6', location=node)
+    assert '<unknown>:10: message6' in status.getvalue()
+
+    node.source, node.line = (None, None)
+    logger.info('message7', location=node)
+    assert '\nmessage7' in status.getvalue()
+
+
 def test_warning_location(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)

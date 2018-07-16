@@ -50,6 +50,10 @@ Logging API
         If true, the logger does not fold lines at the end of the log message.
         The default is ``False``.
 
+      **location**
+        Where the message emitted.  For more detail, see
+        :meth:`SphinxLoggerAdapter.warning`.
+
       **color**
         The color of logs.  By default, debug level logs are
         colored as ``"darkgray"``, and debug2 level ones are ``"lightgray"``.

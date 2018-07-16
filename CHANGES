@@ -154,6 +154,7 @@ Features added
 * #1431: latex: Add alphanumeric enumerated list support
 * Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
+* #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 
 Bugs fixed
 ----------
