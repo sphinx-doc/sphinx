@@ -29,7 +29,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-glob_re = re.compile('.*[*?\[].*')
+glob_re = re.compile(r'.*[*?\[].*')
 
 
 def int_or_nothing(argument):

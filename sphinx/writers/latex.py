@@ -235,7 +235,7 @@ class ExtBabel(Babel):
 
     def get_mainlanguage_options(self):
         # type: () -> unicode
-        """Return options for polyglossia's ``\setmainlanguage``."""
+        """Return options for polyglossia's ``\\setmainlanguage``."""
         language = super(ExtBabel, self).get_language()
         if self.use_polyglossia is False:
             return None
