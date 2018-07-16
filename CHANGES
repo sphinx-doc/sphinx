@@ -50,6 +50,7 @@ Bugs fixed
 * #5167: autodoc: Fix formatting type annotations for tuples with more than two
   arguments
 * #3329: i18n: crashed by auto-symbol footnote references
+* #5158: autosummary: module summary has been broken when it starts with heading
 
 Testing
 --------
