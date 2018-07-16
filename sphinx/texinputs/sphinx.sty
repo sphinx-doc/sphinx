@@ -470,6 +470,9 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of \ltx@ifundefined
 
+% redefined in preamble, headings for makeindex produced index
+\newcommand*{\sphinxsymbolsname}{}
+\newcommand*{\sphinxnumbersname}{}
 
 %% COLOR (general)
 %
@@ -1592,9 +1595,10 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
-\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexlettergroup #1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}

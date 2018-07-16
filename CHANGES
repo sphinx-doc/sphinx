@@ -152,6 +152,7 @@ Bugs fixed
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
   to Shengjing Zhu.
 * #4983: productionlist directive generates invalid IDs for the tokens
+* #5133: latex: index headings "Symbols" and "Numbers" not internationalized
 
 Testing
 --------
