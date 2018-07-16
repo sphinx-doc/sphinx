@@ -1,4 +1,4 @@
-PYTHON ?= python
+PYTHON ?= python3
 
 .PHONY: all
 all: clean-pyc clean-backupfiles style-check type-check test

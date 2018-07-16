@@ -12,7 +12,8 @@ Glossary
       use the builder builders that e.g. check for broken links in the
       documentation, or build coverage information.
 
-      See :ref:`builders` for an overview over Sphinx's built-in builders.
+      See :doc:`/usage/builders/index` for an overview over Sphinx's built-in
+      builders.
 
    configuration directory
       The directory containing :file:`conf.py`.  By default, this is the same as
@@ -65,6 +66,12 @@ Glossary
       and used for cross-referencing.  The environment is pickled after the
       parsing stage, so that successive runs only need to read and parse new and
       changed documents.
+
+   extension
+     A custom :term:`role`, :term:`directive` or other aspect of Sphinx that
+     allows users to modify any aspect of the build process within Sphinx.
+
+     For more information, refer to :doc:`/usage/extensions/index`.
 
    master document
       The document that contains the root :rst:dir:`toctree` directive.

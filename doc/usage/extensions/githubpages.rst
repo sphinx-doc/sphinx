@@ -1,5 +1,3 @@
-.. highlight:: rest
-
 :mod:`sphinx.ext.githubpages` -- Publish HTML docs in GitHub Pages
 ==================================================================
 

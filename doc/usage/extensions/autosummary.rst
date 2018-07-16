@@ -25,7 +25,6 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    These files by default contain only the corresponding
    :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
 
-
 .. rst:directive:: autosummary
 
    Insert a table that contains links to documented items, and a short summary
@@ -58,7 +57,6 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    Autosummary preprocesses the docstrings and signatures with the same
    :event:`autodoc-process-docstring` and :event:`autodoc-process-signature`
    hooks as :mod:`~sphinx.ext.autodoc`.
-
 
    **Options**
 
