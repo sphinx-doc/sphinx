@@ -1201,7 +1201,7 @@ def test_latex_index(app, status, warning):
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     assert 'A \\index{famous}famous \\index{equation}equation:\n' in result
     assert '\n\\index{Einstein}\\index{relativity}\\ignorespaces \nand' in result
-    assert '\n\\index{main {\\sphinxleftcurlybrace}}\\ignorespaces ' in result
+    assert '\n\\index{main \\sphinxleftcurlybrace{}}\\ignorespaces ' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-equations')

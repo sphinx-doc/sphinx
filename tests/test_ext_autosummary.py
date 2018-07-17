@@ -85,6 +85,11 @@ def test_extract_summary(capsys):
     doc = ['blah blah::']
     assert extract_summary(doc, document) == 'blah blah.'
 
+    # heading
+    doc = ['blah blah',
+           '=========']
+    assert extract_summary(doc, document) == 'blah blah'
+
     _, err = capsys.readouterr()
     assert err == ''
 

@@ -39,6 +39,7 @@ if False:
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
@@ -270,7 +271,7 @@ class SphinxComponentRegistry(object):
         # type: (unicode, unicode, bool) -> None
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
-            raise ExtensionError(__('source_parser for %r is already registered') % suffix)
+            raise ExtensionError(__('source_suffix %r is already registered') % suffix)
         else:
             self.source_suffix[suffix] = filetype
 
@@ -290,7 +291,7 @@ class SphinxComponentRegistry(object):
             parser = args[1]
 
         if suffix:
-            self.add_source_suffix(suffix, suffix)
+            self.add_source_suffix(suffix, suffix, override=True)
 
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
@@ -493,8 +494,8 @@ class SphinxComponentRegistry(object):
         return envversion
 
 
-def merge_source_suffix(app):
-    # type: (Sphinx) -> None
+def merge_source_suffix(app, config):
+    # type: (Sphinx, Config) -> None
     """Merge source_suffix which specified by user and added by extensions."""
     for suffix, filetype in iteritems(app.registry.source_suffix):
         if suffix not in app.config.source_suffix:
@@ -510,7 +511,7 @@ def merge_source_suffix(app):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.connect('builder-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix)
 
     return {
         'version': 'builtin',

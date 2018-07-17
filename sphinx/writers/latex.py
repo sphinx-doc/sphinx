@@ -124,13 +124,13 @@ DEFAULT_SETTINGS = {
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
-    'printindex':      '\\printindex',
+    'printindex':      '\\sphinxprintindex',
     'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
-    'literalblockpto': '',
+    'translatablestrings': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -485,6 +485,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # for xelatex+French, don't use polyglossia
+        if self.elements['latex_engine'] == 'xelatex':
+            if builder.config.language:
+                if builder.config.language[:2] == 'fr':
+                    self.elements.update({
+                        'polyglossia': '',
+                        'babel':       '\\usepackage{babel}',
+                    })
         # allow the user to override them all
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
@@ -497,6 +505,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
+            'use_xindy':    builder.config.latex_use_xindy,
         })
         if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
@@ -667,12 +676,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['literalblockpto'] = (
+        self.elements['translatablestrings'] = (
             self.babel_renewcommand(
                 '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
             ) +
             self.babel_renewcommand(
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsname', self.encode(_('Symbols'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnumbersname', self.encode(_('Numbers'))
             )
         )
         self.elements['pageautorefname'] = \
@@ -856,8 +874,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
-                       '\\nopagebreak\\vspace{1mm}}\n')
+            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
@@ -866,7 +883,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item {\\sphinxstyleindexentry{%s}}' % self.encode(entry[0]))
+                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' %
+                               self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
@@ -1919,8 +1937,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
-            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
+            value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
+            value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
+            value = value.replace('"', '""')
+            value = value.replace('@', '"@')
+            value = value.replace('!', '"!')
             return value
 
         if not node.get('inline', True):

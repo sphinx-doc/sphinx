@@ -4,6 +4,11 @@ Release 1.8.0 (in development)
 Dependencies
 ------------
 
+* LaTeX: :confval:`latex_use_xindy`, if ``True`` (default for
+  ``xelatex/lualatex``), instructs ``make latexpdf`` to use :program:`xindy`
+  for general index.  Make sure your LaTeX distribution includes it.
+  (refs: #5134)
+
 Incompatible changes
 --------------------
 
@@ -39,6 +44,10 @@ Incompatible changes
   Please use ``app.add_js_file()`` instead.
 * #5072: Save environment object also with only new documents
 * #5035: qthelp builder allows dashes in :confval:`qthelp_namespace`
+* LaTeX: with lualatex or xelatex use by default :program:`xindy` as
+  UTF-8 able replacement of :program:`makeindex` (refs: #5134).  After
+  upgrading Sphinx, please clean latex build repertory of existing project
+  before new build.
 
 Deprecated
 ----------
@@ -143,6 +152,14 @@ Features added
   for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
+* Extend to all projects not using the Sphinx LaTeX Makefile a workaround for
+  `issue rtfd/readthedocs.org#2857`__ about insufficient number of
+  ``pdflatex`` runs for index to show up in PDF bookmarks (refs: #3742)
+
+  __ https://github.com/rtfd/readthedocs.org/issues/2857
+* Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
+  if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
+* #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 
 Bugs fixed
 ----------
@@ -152,6 +169,8 @@ Bugs fixed
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
   to Shengjing Zhu.
 * #4983: productionlist directive generates invalid IDs for the tokens
+* #5132: (lualatex) PDF build fails if indexed word starts with Unicode character
+* #5133: latex: index headings "Symbols" and "Numbers" not internationalized
 * #5114: sphinx-build: Handle errors on scanning documents
 
 Testing
@@ -168,7 +187,7 @@ Documentation
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
 
-Release 1.7.6 (in development)
+Release 1.7.7 (in development)
 ==============================
 
 Dependencies
@@ -182,6 +201,15 @@ Deprecated
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.6 (released Jul 17, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -203,6 +231,7 @@ Bugs fixed
 * #5091: latex: curly braces in index entries are not handled correctly
 * #5070: epub: Wrong internal href fragment links
 * #5104: apidoc: Interface of ``sphinx.apidoc:main()`` has changed
+* #4272: PDF builds of French projects have issues with XeTeX
 * #5076: napoleon raises RuntimeError with python 3.7
 * #5125: sphinx-build: Interface of ``sphinx:main()`` has changed
 * sphinx-build: ``sphinx.cmd.build.main()`` refers ``sys.argv`` instead of given
@@ -212,9 +241,14 @@ Bugs fixed
 * autosummary: warnings of autosummary indicates wrong location (refs: #5146)
 * #5143: autodoc: crashed on inspecting dict like object which does not support
   sorting
-
-Testing
---------
+* #5139: autodoc: Enum argument missing if it shares value with another
+* #4946: py domain: rtype field could not handle "None" as a type
+* #5176: LaTeX: indexing of terms containing ``@``, ``!``, or ``"`` fails
+* #5161: html: crashes if copying static files are failed
+* #5167: autodoc: Fix formatting type annotations for tuples with more than two
+  arguments
+* #3329: i18n: crashed by auto-symbol footnote references
+* #5158: autosummary: module summary has been broken when it starts with heading
 
 Release 1.7.5 (released May 29, 2018)
 =====================================

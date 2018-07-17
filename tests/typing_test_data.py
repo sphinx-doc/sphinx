@@ -62,3 +62,7 @@ class CustomAnnotation:
 
 def f11(x: CustomAnnotation(), y: 123) -> None:
     pass
+
+
+def f12() -> Tuple[int, str, int]:
+    pass
