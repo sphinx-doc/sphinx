@@ -82,6 +82,11 @@ class ConfigError(SphinxError):
     category = 'Configuration error'
 
 
+class DocumentError(SphinxError):
+    """Document error."""
+    category = 'Document error'
+
+
 class ThemeError(SphinxError):
     """Theme error."""
     category = 'Theme error'
