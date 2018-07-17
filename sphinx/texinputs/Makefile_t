@@ -27,6 +27,9 @@ export XINDYOPTS = {{ xindy_lang_option }} -M sphinx.xdy
 {% if latex_engine == 'pdflatex' and xindy_cyrillic -%}
 XINDYOPTS += -M cyrLICRutf8.xdy
 {% endif -%}
+{% if xindy_cyrillic -%}
+XINDYOPTS += -M sphinx-basiclatin.xdy
+{% endif -%}
 {% if latex_engine == 'xelatex' or latex_engine == 'lualatex' -%}
 XINDYOPTS += -I xelatex
 {% endif -%}
