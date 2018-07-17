@@ -34,7 +34,7 @@ def test_defaults(app, status, warning):
     confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"],
                    'linkcheck_ignore': [
                        'https://localhost:7777/doesnotexist',
-                       'http://www.sphinx-doc.org/en/1.7/intro.html#*']
+                       'http://www.sphinx-doc.org/en/1.7/intro.html#']
                    })
 def test_anchors_ignored(app, status, warning):
     app.builder.build_all()

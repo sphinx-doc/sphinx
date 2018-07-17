@@ -2497,7 +2497,7 @@ Options for the linkcheck builder
       follows::
 
          linkcheck_ignore = [
-            'http://www.sphinx-doc.org/en/1.7/intro.html#*'
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
          ]
 
    .. versionadded:: 1.5
