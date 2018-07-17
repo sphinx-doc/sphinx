@@ -412,8 +412,10 @@ Macros
   .. tip::
 
      Advanced LaTeX users can also, via :confval:`latex_additional_files`, use
-     a custom :file:`python.ist` style file for :program:`makeindex` to modify
-     the looks of the general index.
+     a custom :program:`makeindex` style file :file:`python.ist`, or a custom
+     :program:`xindy` style file :file:`sphinx.xdy` (see
+     :confval:`latex_use_xindy`) in order to modify how the general index is
+     typeset.
 
 Environments
 ~~~~~~~~~~~~
