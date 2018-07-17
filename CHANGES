@@ -152,6 +152,11 @@ Features added
   for mathjax
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
+* Extend to all projects not using the Sphinx LaTeX Makefile a workaround for
+  `issue rtfd/readthedocs.org#2857`__ about insufficient number of
+  ``pdflatex`` runs for index to show up in PDF bookmarks (refs: #3742)
+
+  __ https://github.com/rtfd/readthedocs.org/issues/2857
 * Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter

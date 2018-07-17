@@ -124,7 +124,7 @@ DEFAULT_SETTINGS = {
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
-    'printindex':      '\\printindex',
+    'printindex':      '\\sphinxprintindex',
     'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',

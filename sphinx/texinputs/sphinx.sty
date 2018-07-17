@@ -459,6 +459,14 @@
   }
 \fi
 
+% provide \sphinxprintindex as variant of \printindex designed to workaround
+% rtfd/readthedocs.org#2857 regarding "Index" entry in PDF bookmarks
+\newcommand*{\sphinxprintindex}{%
+    \IfFileExists{\jobname.ind}
+        {\printindex}
+        {\begin{sphinxtheindex}\end{sphinxtheindex}}%
+}%
+
 % make commands known to non-Sphinx document classes
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
 \ltx@ifundefined{sphinxthebibliography}
