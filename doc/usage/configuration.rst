@@ -1079,12 +1079,6 @@ that use Sphinx's HTMLWriter class.
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.  The default is ``True``.
 
-   .. warning::
-
-      If this config value is set to ``False``, the JavaScript search function
-      will only display the titles of matching documents, and no excerpt from
-      the matching contents.
-
 .. confval:: html_show_sourcelink
 
    If true (and :confval:`html_copy_source` is true as well), links to the
