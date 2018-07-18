@@ -48,6 +48,7 @@ Incompatible changes
   UTF-8 able replacement of :program:`makeindex` (refs: #5134).  After
   upgrading Sphinx, please clean latex build repertory of existing project
   before new build.
+* #5163: html: hlist items are now aligned to top
 
 Deprecated
 ----------
