@@ -405,6 +405,7 @@ There are also new config values that you can set:
 
    .. versionadded:: 1.7
 
+
 Docstring preprocessing
 -----------------------
 

@@ -38,8 +38,9 @@ Behind the scenes, this works as follows:
   specified individually, e.g. if the docs should be buildable without Internet
   access.
 
-Configuring Intersphinx
------------------------
+
+Configuration
+-------------
 
 To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
 :confval:`extensions` config value, and use these new config values to activate
@@ -136,12 +137,14 @@ linking:
       exception is raised if the server has not issued a response for timeout
       seconds.
 
+
 Showing all links of an Intersphinx mapping file
 ------------------------------------------------
 
-To show all Intersphinx links and their targets of an Intersphinx mapping file, run
-``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when searching for the root cause of a broken
-Intersphinx link in a documentation project. The following example prints the Intersphinx mapping of the Python 3
+To show all Intersphinx links and their targets of an Intersphinx mapping file,
+run ``python -msphinx.ext.intersphinx url-or-path``.  This is helpful when
+searching for the root cause of a broken Intersphinx link in a documentation
+project. The following example prints the Intersphinx mapping of the Python 3
 documentation::
 
    $ python -msphinx.ext.intersphinx https://docs.python.org/3/objects.inv

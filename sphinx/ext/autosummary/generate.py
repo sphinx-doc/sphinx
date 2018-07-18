@@ -124,7 +124,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     else:
         if template_dir:
             template_dirs.insert(0, template_dir)
-        template_loader = FileSystemLoader(template_dirs)  # type: ignore
+        template_loader = FileSystemLoader(template_dirs)
     template_env = SandboxedEnvironment(loader=template_loader)
     template_env.filters['underline'] = _underline
 
@@ -269,7 +269,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
         pass
     except ImportError as e:
         print("Failed to import '%s': %s" % (name, e))
-    except SystemExit as e:
+    except SystemExit:
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)
     return []

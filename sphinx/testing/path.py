@@ -223,7 +223,7 @@ class path(text_type):
         """
         Joins the path with the argument given and returns the result.
         """
-        return self.__class__(os.path.join(self, *map(self.__class__, args)))  # type: ignore  # NOQA
+        return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
     def listdir(self):
         # type: () -> List[unicode]

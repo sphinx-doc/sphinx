@@ -91,7 +91,9 @@ It adds this directive:
    .. versionchanged:: 1.7
       Added ``top-classes`` option to limit the scope of inheritance graphs.
 
-New config values are:
+
+Configuration
+-------------
 
 .. confval:: inheritance_graph_attrs
 
