@@ -1727,8 +1727,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output. Refer to :doc:`/latex` for more
-information.
+These options influence LaTeX output. For customization of LaTeX
+macros and environments, see also :doc:`/latex`.
 
 .. confval:: latex_engine
 
@@ -1871,6 +1871,40 @@ information.
    ``tabulary``.
 
    .. versionadded:: 1.6
+
+.. confval:: latex_use_xindy
+
+   If ``True``, the PDF build from the LaTeX files created by Sphinx
+   will use :program:`xindy` (doc__) rather than :program:`makeindex`
+   for preparing the index of general terms (from :rst:dir:`index`
+   usage).  This means that words with UTF-8 characters will get
+   ordered correctly for the :confval:`language`.
+
+   __ http://xindy.sourceforge.net/
+
+   - This option is ignored if :confval:`latex_engine` is ``'platex'``
+     (Japanese documents) as :program:`mendex` is used in that case.
+
+   - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
+     :program:`makeindex`, if any indexed term starts with a non-ascii
+     character, creates ``.ind`` file containing invalid bytes for
+     UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
+     build.  Notice that :program:`xindy` supports most but not
+     all European languages.
+
+   - The default is ``False`` for ``'pdflatex'`` but ``True`` is
+     recommended for non-English documents as soon as some indexed
+     terms use non-ascii characters from the language script.
+     Cyrillic scripts are (transparently) supported with
+     ``'pdflatex'`` thanks to a specific Sphinx-contributed ``xindy``
+     style file :file:`cyrLICRutf8.xdy`.
+
+     As :program:`xindy` does not support the same range of languages
+     as ``LaTeX/babel`` does, the default :program:`makeindex` for
+     ``'pdflatex'`` may be preferred in some circumstances, although
+     the index will be ill-formed probably.
+
+   .. versionadded:: 1.8
 
 .. confval:: latex_elements
 
@@ -2108,11 +2142,14 @@ information.
            Remove unneeded ``{}`` after ``\\hrule``.
 
      ``'printindex'``
-        "printindex" call, the last thing in the file, default
-        ``'\\printindex'``.  Override if you want to generate the index
-        differently or append some content after the index. For example
-        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-        index is full of long entries.
+        "printindex" call, the last thing in the file.
+
+        .. versionchanged:: 1.8
+           Former default ``'\\printindex'`` now ``'\\sphinxprintindex'``.
+           This macro works around an issue__ with PDF builds at RTD doing too
+           few ``pdflatex`` runs.
+
+           __ https://github.com/rtfd/readthedocs.org/issues/2857
 
      ``'fvset'``
         Customization of ``fancyvrb`` LaTeX package. Defaults to

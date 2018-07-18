@@ -24,7 +24,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -94,20 +94,31 @@ def convert_serializable(records):
             r.location = get_node_location(location)  # type: ignore
 
 
-class SphinxWarningLogRecord(logging.LogRecord):
+class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+    prefix = ''
     location = None  # type: Any
 
     def getMessage(self):
         # type: () -> str
-        message = super(SphinxWarningLogRecord, self).getMessage()
+        message = super(SphinxLogRecord, self).getMessage()
         location = getattr(self, 'location', None)
         if location:
-            message = '%s: WARNING: %s' % (location, message)
-        elif 'WARNING:' not in message:
-            message = 'WARNING: %s' % message
+            message = '%s: %s%s' % (location, self.prefix, message)
+        elif self.prefix not in message:
+            message = self.prefix + message
 
         return message
+
+
+class SphinxInfoLogRecord(SphinxLogRecord):
+    """Info log record class supporting location"""
+    prefix = ''  # do not show any prefix for INFO messages
+
+
+class SphinxWarningLogRecord(SphinxLogRecord):
+    """Warning log record class supporting location"""
+    prefix = 'WARNING: '
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
@@ -412,21 +423,23 @@ class DisableWarningIsErrorFilter(logging.Filter):
         return True
 
 
-class WarningLogRecordTranslator(logging.Filter):
+class SphinxLogRecordTranslator(logging.Filter):
     """Converts a log record to one Sphinx expects
 
-    * Make a instance of SphinxWarningLogRecord
+    * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
+    LogRecordClass = None  # type: Type[logging.LogRecord]
+
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningLogRecordTranslator, self).__init__()
+        super(SphinxLogRecordTranslator, self).__init__()
 
     def filter(self, record):  # type: ignore
         # type: (SphinxWarningLogRecord) -> bool
         if isinstance(record, logging.LogRecord):
-            record.__class__ = SphinxWarningLogRecord  # force subclassing to handle location
+            record.__class__ = self.LogRecordClass  # force subclassing to handle location
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
@@ -443,6 +456,16 @@ class WarningLogRecordTranslator(logging.Filter):
             record.location = '%s' % self.app.env.doc2path(location)
 
         return True
+
+
+class InfoLogRecordTranslator(SphinxLogRecordTranslator):
+    """LogRecordTranslator for INFO level log records."""
+    LogRecordClass = SphinxInfoLogRecord
+
+
+class WarningLogRecordTranslator(SphinxLogRecordTranslator):
+    """LogRecordTranslator for WARNING level log records."""
+    LogRecordClass = SphinxWarningLogRecord
 
 
 def get_node_location(node):
@@ -518,6 +541,7 @@ def setup(app, status, warning):
 
     info_handler = NewLineStreamHandler(SafeEncodingWriter(status))  # type: ignore
     info_handler.addFilter(InfoFilter())
+    info_handler.addFilter(InfoLogRecordTranslator(app))
     info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     info_handler.setFormatter(ColorizeFormatter())
 

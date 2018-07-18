@@ -848,85 +848,94 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
-                except Exception as err:
+                except EnvironmentError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
     def copy_static_files(self):
         # type: () -> None
-        # copy static files
-        logger.info(bold(__('copying static files... ')), nonl=True)
-        ensuredir(path.join(self.outdir, '_static'))
-        # first, create pygments style file
-        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-            f.write(self.highlighter.get_stylesheet())  # type: ignore
-        # then, copy translations JavaScript file
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static',
-                                           'translations.js'))
+        try:
+            # copy static files
+            logger.info(bold(__('copying static files... ')), nonl=True)
+            ensuredir(path.join(self.outdir, '_static'))
+            # first, create pygments style file
+            with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+                f.write(self.highlighter.get_stylesheet())  # type: ignore
+            # then, copy translations JavaScript file
+            if self.config.language is not None:
+                jsfile = self._get_translations_js()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static',
+                                               'translations.js'))
 
-        # copy non-minified stemmer JavaScript file
-        if self.indexer is not None:
-            jsfile = self.indexer.get_js_stemmer_rawcode()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+            # copy non-minified stemmer JavaScript file
+            if self.indexer is not None:
+                jsfile = self.indexer.get_js_stemmer_rawcode()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
-        ctx = self.globalcontext.copy()
+            ctx = self.globalcontext.copy()
 
-        # add context items for search function used in searchtools.js_t
-        if self.indexer is not None:
-            ctx.update(self.indexer.context_for_searchtool())
+            # add context items for search function used in searchtools.js_t
+            if self.indexer is not None:
+                ctx.update(self.indexer.context_for_searchtool())
 
-        # then, copy over theme-supplied static files
-        if self.theme:
-            for theme_path in self.theme.get_theme_dirs()[::-1]:
-                entry = path.join(theme_path, 'static')
-                copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
+            # then, copy over theme-supplied static files
+            if self.theme:
+                for theme_path in self.theme.get_theme_dirs()[::-1]:
+                    entry = path.join(theme_path, 'static')
+                    copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
+                               context=ctx, renderer=self.templates)
+            # then, copy over all user-supplied static files
+            excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+            for static_path in self.config.html_static_path:
+                entry = path.join(self.confdir, static_path)
+                if not path.exists(entry):
+                    logger.warning(__('html_static_path entry %r does not exist'), entry)
+                    continue
+                copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                            context=ctx, renderer=self.templates)
-        # then, copy over all user-supplied static files
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
-        for static_path in self.config.html_static_path:
-            entry = path.join(self.confdir, static_path)
-            if not path.exists(entry):
-                logger.warning(__('html_static_path entry %r does not exist'), entry)
-                continue
-            copy_asset(entry, path.join(self.outdir, '_static'), excluded,
-                       context=ctx, renderer=self.templates)
-        # copy logo and favicon files if not already in static path
-        if self.config.html_logo:
-            logobase = path.basename(self.config.html_logo)
-            logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                logger.warning(__('logo file %r does not exist'), self.config.html_logo)
-            elif not path.isfile(logotarget):
-                copyfile(path.join(self.confdir, self.config.html_logo),
-                         logotarget)
-        if self.config.html_favicon:
-            iconbase = path.basename(self.config.html_favicon)
-            icontarget = path.join(self.outdir, '_static', iconbase)
-            if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                logger.warning(__('favicon file %r does not exist'), self.config.html_favicon)
-            elif not path.isfile(icontarget):
-                copyfile(path.join(self.confdir, self.config.html_favicon),
-                         icontarget)
-        logger.info('done')
+            # copy logo and favicon files if not already in static path
+            if self.config.html_logo:
+                logobase = path.basename(self.config.html_logo)
+                logotarget = path.join(self.outdir, '_static', logobase)
+                if not path.isfile(path.join(self.confdir, self.config.html_logo)):
+                    logger.warning(__('logo file %r does not exist'), self.config.html_logo)
+                elif not path.isfile(logotarget):
+                    copyfile(path.join(self.confdir, self.config.html_logo),
+                             logotarget)
+            if self.config.html_favicon:
+                iconbase = path.basename(self.config.html_favicon)
+                icontarget = path.join(self.outdir, '_static', iconbase)
+                if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
+                    logger.warning(__('favicon file %r does not exist'),
+                                   self.config.html_favicon)
+                elif not path.isfile(icontarget):
+                    copyfile(path.join(self.confdir, self.config.html_favicon),
+                             icontarget)
+            logger.info('done')
+        except EnvironmentError as err:
+            # TODO: In py3, EnvironmentError (and IOError) was merged into OSError.
+            # So it should be replaced by IOError on dropping py2 support
+            logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self):
         # type: () -> None
-        # copy html_extra_path files
-        logger.info(bold(__('copying extra files... ')), nonl=True)
-        excluded = Matcher(self.config.exclude_patterns)
+        try:
+            # copy html_extra_path files
+            logger.info(bold(__('copying extra files... ')), nonl=True)
+            excluded = Matcher(self.config.exclude_patterns)
 
-        for extra_path in self.config.html_extra_path:
-            entry = path.join(self.confdir, extra_path)
-            if not path.exists(entry):
-                logger.warning(__('html_extra_path entry %r does not exist'), entry)
-                continue
+            for extra_path in self.config.html_extra_path:
+                entry = path.join(self.confdir, extra_path)
+                if not path.exists(entry):
+                    logger.warning(__('html_extra_path entry %r does not exist'), entry)
+                    continue
 
-            copy_asset(entry, self.outdir, excluded)
-        logger.info(__('done'))
+                copy_asset(entry, self.outdir, excluded)
+            logger.info(__('done'))
+        except EnvironmentError as err:
+            logger.warning(__('cannot copy extra file %r'), err)
 
     def write_buildinfo(self):
         # type: () -> None
