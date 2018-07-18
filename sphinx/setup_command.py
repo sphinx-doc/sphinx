@@ -28,7 +28,7 @@ from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
-    from typing import Any, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 
 class BuildDoc(Command):
@@ -165,7 +165,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}
+        confoverrides = {}  # type: Dict[unicode, Any]
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
