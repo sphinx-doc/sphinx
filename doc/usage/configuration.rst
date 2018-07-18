@@ -2493,8 +2493,9 @@ Options for the linkcheck builder
    .. note::
 
       If you want to ignore anchors of a specific page or of pages that match a
-      specific pattern, use :confval:`linkcheck_ignore` instead, for example as
-      follows::
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
 
          linkcheck_ignore = [
             'http://www.sphinx-doc.org/en/1.7/intro.html#'
