@@ -229,6 +229,13 @@ Options
    Turn warnings into errors.  This means that the build stops at the first
    warning and ``sphinx-build`` exits with exit status 1.
 
+.. option:: --keep-going
+
+   With -W option, keep going processing when getting warnings to the end
+   of build, and ``sphinx-build`` exits with exit status 1.
+
+   .. versionadded:: 1.8
+
 .. option:: -T
 
    Display the full traceback when an unhandled exception occurs.  Otherwise,

@@ -189,6 +189,8 @@ files can be built by specifying individual filenames.
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
+    group.add_argument('--keep-going', action='store_true', dest='keep_going',
+                       help=__("With -W, Keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',
@@ -298,7 +300,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs)
+                         args.tags, args.verbosity, args.jobs, args.keep_going)
             app.build(args.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

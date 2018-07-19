@@ -162,6 +162,7 @@ Features added
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
+* #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
 
 Bugs fixed
 ----------
