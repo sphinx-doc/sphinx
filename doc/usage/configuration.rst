@@ -2488,12 +2488,21 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors_ignore
 
-   A list of regular expressions that match URIs that should skip checking
-   the validity of anchors in links. This allows skipping entire sites, where
-   anchors are used to control dynamic pages, or just specific anchors within
-   a page, where JavaScript is used to add anchors dynamically, or use the
-   fragment as part of to trigger an internal REST request. Default is
-   ``["/#!"]``.
+   A list of regular expressions that match anchors Sphinx should skip when
+   checking the validity of anchors in links. This allows skipping anchors that
+   a website's JavaScript adds to control dynamic pages or when triggering an
+   internal REST request. Default is ``["^!"]``.
+
+   .. note::
+
+      If you want to ignore anchors of a specific page or of pages that match a
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
+
+         linkcheck_ignore = [
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+         ]
 
    .. versionadded:: 1.5
 
