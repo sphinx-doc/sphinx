@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -20,6 +22,7 @@ from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 from six import text_type
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
@@ -93,6 +96,8 @@ class PygmentsBridge(object):
 
     def unhighlighted(self, source):
         # type: (unicode) -> unicode
+        warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
+                      RemovedInSphinx30Warning)
         if self.dest == 'html':
             return '<pre>' + htmlescape(source) + '</pre>\n'
         else:

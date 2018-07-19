@@ -131,6 +131,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
 
+   * - ``sphinx.highlighting.PygmentsBridge.unhighlight()``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0
