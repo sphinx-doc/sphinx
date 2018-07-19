@@ -161,8 +161,6 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return hlsource
         else:
-            if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
-                hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):
