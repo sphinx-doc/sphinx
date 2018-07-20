@@ -49,6 +49,7 @@ Incompatible changes
   upgrading Sphinx, please clean latex build repertory of existing project
   before new build.
 * #5163: html: hlist items are now aligned to top
+* ``highlightlang`` directive is processed on resolving phase
 
 Deprecated
 ----------
@@ -96,7 +97,16 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.push_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.pop_hyperlink_ids()`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.bibitems`` is deprecated
+* ``sphinx.writers.latex.LaTeXTranslator.hlsettingstack`` is deprecated
 * ``sphinx.writers.latex.ExtBabel.get_shorthandoff()`` is deprecated
+* ``sphinx.writers.html.HTMLTranslator.highlightlang`` is deprecated
+* ``sphinx.writers.html.HTMLTranslator.highlightlang_base`` is deprecated
+* ``sphinx.writers.html.HTMLTranslator.highlightlangopts`` is deprecated
+* ``sphinx.writers.html.HTMLTranslator.highlightlinenothreshold`` is deprecated
+* ``sphinx.writers.html5.HTMLTranslator.highlightlang`` is deprecated
+* ``sphinx.writers.html5.HTMLTranslator.highlightlang_base`` is deprecated
+* ``sphinx.writers.html5.HTMLTranslator.highlightlangopts`` is deprecated
+* ``sphinx.writers.html5.HTMLTranslator.highlightlinenothreshold`` is deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
