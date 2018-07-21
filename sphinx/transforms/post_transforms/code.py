@@ -13,9 +13,11 @@ import sys
 from typing import NamedTuple
 
 from docutils import nodes
+from pygments.lexers import PythonConsoleLexer, guess_lexer
 from six import text_type
 
 from sphinx import addnodes
+from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 if False:
@@ -95,9 +97,51 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
             node['linenos'] = (lines >= setting.lineno_threshold - 1)
 
 
+class TrimDoctestFlagsTransform(SphinxTransform):
+    """
+    Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
+
+    see :confval:`trim_doctest_flags` for more information.
+    """
+    default_priority = HighlightLanguageTransform.default_priority + 1
+
+    def apply(self):
+        if not self.config.trim_doctest_flags:
+            return
+
+        for node in self.document.traverse(nodes.literal_block):
+            if self.is_pyconsole(node):
+                source = node.rawsource
+                source = doctest.blankline_re.sub('', source)
+                source = doctest.doctestopt_re.sub('', source)
+                node.rawsource = source
+                node[:] = [nodes.Text(source)]
+
+    @staticmethod
+    def is_pyconsole(node):
+        # type: (nodes.literal_block) -> bool
+        if node.rawsource != node.astext():
+            return False  # skip parsed-literal node
+
+        language = node.get('language')
+        if language in ('pycon', 'pycon3'):
+            return True
+        elif language in ('py', 'py3', 'python', 'python3', 'default'):
+            return node.rawsource.startswith('>>>')
+        elif language == 'guess':
+            try:
+                lexer = guess_lexer(node.rawsource)
+                return isinstance(lexer, PythonConsoleLexer)
+            except Exception:
+                pass
+
+        return False
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(HighlightLanguageTransform)
+    app.add_post_transform(TrimDoctestFlagsTransform)
 
     return {
         'version': 'builtin',

@@ -136,6 +136,12 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``trim_doctest_flags`` arguments of
+       ``sphinx.highlighting.PygmentsBridge``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0

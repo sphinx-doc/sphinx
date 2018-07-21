@@ -697,9 +697,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
-        self.highlighter = highlighting.PygmentsBridge(
-            'latex',
-            builder.config.pygments_style, builder.config.trim_doctest_flags)
+        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
         self.context = []               # type: List[Any]
         self.descstack = []             # type: List[unicode]
         self.table = None               # type: Table

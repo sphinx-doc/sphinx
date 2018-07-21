@@ -113,6 +113,8 @@ Deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated
+* The ``trim_doctest_flags`` argument of ``sphinx.highlighting.PygmentsBridge``
+  is deprecated
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
@@ -173,6 +175,7 @@ Features added
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
+* Apply :confval:`trim_doctest_flags` to all builders (cf. text, manpages)
 
 Bugs fixed
 ----------

@@ -68,7 +68,7 @@ class PygmentsBridge(object):
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=False):
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
         # type: (unicode, unicode, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
@@ -81,13 +81,17 @@ class PygmentsBridge(object):
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.trim_doctest_flags = trim_doctest_flags
         self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
+
+        self.trim_doctest_flags = trim_doctest_flags
+        if trim_doctest_flags is not None:
+            warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
+                          RemovedInSphinx30Warning)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter

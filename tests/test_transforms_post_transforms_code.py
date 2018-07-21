@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    test_config_trim_doctest_flags
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    test_transforms_post_transforms_code
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
