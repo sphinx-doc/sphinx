@@ -162,6 +162,7 @@ Features added
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
+* #2820: autoclass directive supports nested class
 
 Bugs fixed
 ----------

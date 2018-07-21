@@ -771,6 +771,9 @@ def test_generate():
                       ('class', 'target.Outer.Inner'),
                       ('method', 'target.Outer.Inner.meth')],
                      'class', 'Outer', all_members=True)
+    assert_processes([('class', 'target.Outer.Inner'),
+                      ('method', 'target.Outer.Inner.meth')],
+                     'class', 'target.Outer.Inner', all_members=True)
 
     # test descriptor docstrings
     assert_result_contains('   Descriptor instance docstring.',
