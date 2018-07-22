@@ -1,5 +1,5 @@
 /*
- * searchtools.js_t
+ * searchtools.js
  * ~~~~~~~~~~~~~~~~
  *
  * Sphinx JavaScript utilities for the full-text search.
