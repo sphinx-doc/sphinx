@@ -31,7 +31,7 @@ XINDYOPTS += -M LICRcyr2utf8.xdy
 {% endif -%}
 {% endif -%}
 {% if xindy_cyrillic -%}
-XINDYOPTS += -M sphinx-basiclatin.xdy
+XINDYOPTS += -M sphinx-isolatin.xdy
 {% endif -%}
 # also with pdflatex as LICRlatin2utf8.xdy replaces xindy's /tex/inputenc/utf8.xdy
 XINDYOPTS += -I xelatex
