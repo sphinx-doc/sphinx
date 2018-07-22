@@ -1,5 +1,5 @@
 ;; style file for xindy
-;; filename: sphinx-isolatin.xdy
+;; filename: LatinRules.xdy
 ;;
 ;; It is based upon xindy's files lang/general/utf8.xdy and
 ;; lang/general/utf8-lang.xdy which implement
@@ -13,7 +13,8 @@
 ;; observed not to use bytes with octal encoding 0o266 or higher.
 ;;
 ;; So here we use only 0o266 or higher bytes.
-;;
+;; (Ŋ, ŋ, Ĳ, and ĳ are absent from
+;; lang/general/utf8.xdy and not included here)
 ;; Contributed by the Sphinx team, 2018.
 
 (define-letter-group "A" :prefixes ("�"))
