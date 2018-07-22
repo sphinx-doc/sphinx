@@ -207,6 +207,9 @@ Features added
 Bugs fixed
 ----------
 
+* #5198: document not in toctree warning when including files only for parallel
+  builds
+
 Testing
 --------
 
