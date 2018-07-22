@@ -7,6 +7,7 @@ env:
   global:
     - PYTHONFAULTHANDLER=x
     - SKIP_LATEX_BUILD=1
+    - RUN_TOX=true
 
 matrix:
   include:
@@ -33,11 +34,19 @@ matrix:
     - python: '3.6'
       env: TOXENV=flake8
 
+    - language: node_js
+      node_js:
+        - 10.7
+      env: RUN_TOX=false
+      before_script:
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start
+
 install:
-  - pip install -U tox codecov
+  - if [ $RUN_TOX = true ]; then pip install -U tox codecov; fi
 
 script:
-  - tox -- -v
+  - if [ $RUN_TOX = true ]; then tox -- -v; fi
 
 after_success:
   - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi

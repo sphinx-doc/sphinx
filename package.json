@@ -1,7 +1,7 @@
 {
   "name": "sphinx",
   "scripts": {
-    "test": "test"
+    "test": "./node_modules/.bin/karma start --browsers Firefox --single-run"
   },
   "repository": {
     "type": "git",
