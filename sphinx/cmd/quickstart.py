@@ -265,13 +265,6 @@ Selected root path: %s''') % d['path']))
 Enter the root path for documentation.'''))
         d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
-    while not check_valid_dir(d):
-        print()
-        d['path'] = do_prompt(__('Please enter a new root path (or just Enter '
-                                 'to exit)'), '', is_path)
-        if not d['path']:
-            sys.exit(1)
-
     if 'sep' not in d:
         print(__('''
 You have two options for placing the build directory for Sphinx output.
@@ -341,6 +334,13 @@ document is a custom template, you can also set this to another filename.'''))
         print()
         d['master'] = do_prompt(__('Please enter a new file name, or rename the '
                                    'existing file and press Enter'), d['master'])
+
+    while not check_valid_dir(d):
+        print()
+        d['path'] = do_prompt(__('Please enter a new root path (or just Enter '
+                                 'to exit)'), '', is_path)
+        if not d['path']:
+            sys.exit(1)
 
     if 'epub' not in d:
         print(__('''
