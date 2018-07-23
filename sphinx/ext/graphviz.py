@@ -235,11 +235,14 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(['-T' + format, '-o' + outfn])
+
+    cwd = path.dirname(
+        path.join(self.builder.srcdir, self.builder.env.docname))
+
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
     try:
-        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=path.dirname(
-            path.join(self.builder.srcdir, self.builder.current_docname)))
+        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=cwd)
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
