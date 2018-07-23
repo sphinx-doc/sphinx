@@ -175,6 +175,7 @@ Features added
   if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
+* #2820: autoclass directive supports nested class
 * Apply :confval:`trim_doctest_flags` to all builders (cf. text, manpages)
 
 Bugs fixed
@@ -188,6 +189,8 @@ Bugs fixed
 * #5132: (lualatex) PDF build fails if indexed word starts with Unicode character
 * #5133: latex: index headings "Symbols" and "Numbers" not internationalized
 * #5114: sphinx-build: Handle errors on scanning documents
+* epub: spine has been broken when "self" is listed on toctree (refs: #4611)
+* #344: autosummary does not understand docstring of module level attributes
 
 Testing
 --------
@@ -220,6 +223,9 @@ Features added
 
 Bugs fixed
 ----------
+
+* #5198: document not in toctree warning when including files only for parallel
+  builds
 
 Testing
 --------

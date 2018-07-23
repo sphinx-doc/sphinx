@@ -167,8 +167,21 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         logger.debug('[autodoc] import %s', modname)
 
     try:
-        module = import_module(modname, warningiserror=warningiserror)
-        logger.debug('[autodoc] => %r', module)
+        module = None
+        objpath = list(objpath)
+        while module is None:
+            try:
+                module = import_module(modname, warningiserror=warningiserror)
+                logger.debug('[autodoc] import %s => %r', modname, module)
+            except ImportError:
+                logger.debug('[autodoc] import %s => failed', modname)
+                if '.' in modname:
+                    # retry with parent module
+                    modname, name = modname.rsplit('.', 1)
+                    objpath.insert(0, name)
+                else:
+                    raise
+
         obj = module
         parent = None
         object_name = None

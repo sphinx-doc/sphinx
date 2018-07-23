@@ -124,7 +124,7 @@ def test_theme_sidebars(app, status, warning):
 
     # test-theme specifies globaltoc and searchbox as default sidebars
     result = (app.outdir / 'index.html').text(encoding='utf8')
-    assert '<h3><a href="#">Table Of Contents</a></h3>' in result
+    assert '<h3><a href="#">Table of Contents</a></h3>' in result
     assert '<h3>Related Topics</h3>' not in result
     assert '<h3>This Page</h3>' not in result
     assert '<h3>Quick search</h3>' in result
