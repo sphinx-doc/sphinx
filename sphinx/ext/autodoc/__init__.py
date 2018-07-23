@@ -1265,6 +1265,11 @@ class DataDocumenter(ModuleLevelDocumenter):
         # type: (bool) -> None
         pass
 
+    def get_real_modname(self):
+        # type: () -> str
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+            or self.modname
+
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
