@@ -1765,32 +1765,39 @@ macros and environments, see also :doc:`/latex`.
    It must be a list of tuples ``(startdocname, targetname, title, author,
    documentclass, toctree_only)``, where the items are:
 
-   * *startdocname*: document name that is the "root" of the LaTeX file.  All
-     documents referenced by it in TOC trees will be included in the LaTeX file
-     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
-     here.)
-   * *targetname*: file name of the LaTeX file in the output directory.
-   * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
+   *startdocname*
+     String that specifies the :term:`document name` of the LaTeX file's master
+     document.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the LaTeX file.  (If you want to use the default master
+     document for your LaTeX build, provide your :confval:`master_doc` here.)
+
+   *targetname*
+     File name of the LaTeX file in the output directory.
+
+   *title*
+     LaTeX document title.  Can be empty to use the title of the *startdoc*
+     document.  This is inserted as LaTeX markup, so special characters like a
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
-   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
-     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach
-     LaTeX).
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
-     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
-     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
-     documents will not get appendices. Also they have a simpler title page.
-     Other document classes can be given. Independently of the document class,
-     the "sphinx" package is always loaded in order to define Sphinx's custom
-     LaTeX commands.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
-     document itself is not included in the output, only the documents
-     referenced by it via TOC trees.  With this option, you can put extra stuff
-     in the master document that shows up in the HTML, but not the LaTeX
-     output.
+   *author*
+     Author for the LaTeX document.  The same LaTeX markup caveat as for *title*
+     applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
+
+   *documentclass*
+     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
+     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
+     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
+     appendices. Also they have a simpler title page.  Other document classes
+     can be given. Independently of the document class, the "sphinx" package is
+     always loaded in order to define Sphinx's custom LaTeX commands.
+
+   *toctree_only*
+     Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
+     not included in the output, only the documents referenced by it via TOC
+     trees.  With this option, you can put extra stuff in the master document
+     that shows up in the HTML, but not the LaTeX output.
 
    .. versionadded:: 1.2
       In the past including your own document class required you to prepend the
@@ -2264,9 +2271,11 @@ These options influence manual page output.
    section)``, where the items are:
 
    *startdocname*
-     Document name that is the "root" of the manual page.  All documents
-     referenced by it in TOC trees will be included in the manual file too.
-     (If you want one master manual page, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the manual page's master
+     document. All documents referenced by the *startdoc* document in TOC trees
+     will be included in the manual file.  (If you want to use the default
+     master document for your manual pages build, use your :confval:`master_doc`
+     here.)
 
    *name*
      Name of the manual page.  This should be a short string without spaces or
@@ -2309,17 +2318,19 @@ These options influence Texinfo output.
    are:
 
    *startdocname*
-     Document name that is the "root" of the Texinfo file.  All documents
-     referenced by it in TOC trees will be included in the Texinfo file too.
-     (If you want only one Texinfo file, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the the Texinfo file's
+     master document.  All documents referenced by the *startdoc* document in
+     TOC trees will be included in the Texinfo file.  (If you want to use the
+     default master document for your Texinfo build, provide your
+     :confval:`master_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
 
    *title*
-     Texinfo document title.  Can be empty to use the title of the *startdoc*.
-     Inserted as Texinfo markup, so special characters like ``@`` and ``{}``
-     will need to be escaped to be inserted literally.
+     Texinfo document title.  Can be empty to use the title of the *startdoc*
+     document.  Inserted as Texinfo markup, so special characters like ``@`` and
+     ``{}`` will need to be escaped to be inserted literally.
 
    *author*
      Author for the Texinfo document.  Inserted as Texinfo markup.  Use ``@*``
@@ -2488,12 +2499,21 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors_ignore
 
-   A list of regular expressions that match URIs that should skip checking
-   the validity of anchors in links. This allows skipping entire sites, where
-   anchors are used to control dynamic pages, or just specific anchors within
-   a page, where JavaScript is used to add anchors dynamically, or use the
-   fragment as part of to trigger an internal REST request. Default is
-   ``["/#!"]``.
+   A list of regular expressions that match anchors Sphinx should skip when
+   checking the validity of anchors in links. This allows skipping anchors that
+   a website's JavaScript adds to control dynamic pages or when triggering an
+   internal REST request. Default is ``["^!"]``.
+
+   .. note::
+
+      If you want to ignore anchors of a specific page or of pages that match a
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
+
+         linkcheck_ignore = [
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+         ]
 
    .. versionadded:: 1.5
 

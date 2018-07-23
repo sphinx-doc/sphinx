@@ -21,14 +21,21 @@ def test_defaults(app, status, warning):
     content = (app.outdir / 'output.txt').text()
 
     print(content)
-    # looking for #top should fail
+    # looking for '#top' and 'does-not-exist' not found should fail
     assert "Anchor 'top' not found" in content
-    assert len(content.splitlines()) == 1
+    assert "Anchor 'does-not-exist' not found" in content
+    # looking for non-existent URL should fail
+    assert " Max retries exceeded with url: /doesnotexist" in content
+    assert len(content.splitlines()) == 3
 
 
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck', freshenv=True,
-    confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
+    confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"],
+                   'linkcheck_ignore': [
+                       'https://localhost:7777/doesnotexist',
+                       'http://www.sphinx-doc.org/en/1.7/intro.html#']
+                   })
 def test_anchors_ignored(app, status, warning):
     app.builder.build_all()
 

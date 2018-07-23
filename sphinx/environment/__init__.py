@@ -319,6 +319,7 @@ class BuildEnvironment(object):
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
+            self.included.discard(docname)
 
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
@@ -339,6 +340,8 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
+            if docname in other.included:
+                self.included.add(docname)
 
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
