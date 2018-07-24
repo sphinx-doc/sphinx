@@ -7,7 +7,7 @@ env:
   global:
     - PYTHONFAULTHANDLER=x
     - SKIP_LATEX_BUILD=1
-    - RUN_TOX=true
+    - IS_PYTHON=true
 
 matrix:
   include:
@@ -37,16 +37,18 @@ matrix:
     - language: node_js
       node_js:
         - 10.7
-      env: RUN_TOX=false
+      env: IS_PYTHON=false
       before_script:
         - export DISPLAY=:99.0
         - sh -e /etc/init.d/xvfb start
 
 install:
-  - if [ $RUN_TOX = true ]; then pip install -U tox codecov; fi
+  - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
+  - if [ $IS_PYTHON = false ]; then npm install; fi
 
 script:
-  - if [ $RUN_TOX = true ]; then tox -- -v; fi
+  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
+  - if [ $IS_PYTHON = false ]; then npm test; fi
 
 after_success:
   - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi
