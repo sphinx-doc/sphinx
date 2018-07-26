@@ -1926,26 +1926,23 @@ macros and environments, see also :doc:`/latex`.
    __ http://xindy.sourceforge.net/
 
    - This option is ignored if :confval:`latex_engine` is ``'platex'``
-     (Japanese documents) as :program:`mendex` is used in that case.
+     (Japanese documents; :program:`mendex` replaces :program:`makeindex`
+     then).
 
    - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
      :program:`makeindex`, if any indexed term starts with a non-ascii
-     character, creates ``.ind`` file containing invalid bytes for
+     character, creates ``.ind`` files containing invalid bytes for
      UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
-     build.  Notice that :program:`xindy` supports most but not
-     all European languages.
+     build.
 
    - The default is ``False`` for ``'pdflatex'`` but ``True`` is
      recommended for non-English documents as soon as some indexed
      terms use non-ascii characters from the language script.
-     Cyrillic scripts are (transparently) supported with
-     ``'pdflatex'`` thanks to a specific Sphinx-contributed ``xindy``
-     style file :file:`cyrLICRutf8.xdy`.
 
-     As :program:`xindy` does not support the same range of languages
-     as ``LaTeX/babel`` does, the default :program:`makeindex` for
-     ``'pdflatex'`` may be preferred in some circumstances, although
-     the index will be ill-formed probably.
+   Sphinx adds to :program:`xindy` base distribution some dedicated support
+   for using ``'pdflatex'`` engine with Cyrillic scripts.  And whether with
+   ``'pdflatex'`` or Unicode engines, Cyrillic documents handle correctly the
+   indexing of Latin names, even with diacritics.
 
    .. versionadded:: 1.8
 
