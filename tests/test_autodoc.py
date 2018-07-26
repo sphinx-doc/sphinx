@@ -34,7 +34,9 @@ else:
     ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
 
 
-def do_autodoc(app, objtype, name, options={}):
+def do_autodoc(app, objtype, name, options=None):
+    if options is None:
+        options = {}
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
