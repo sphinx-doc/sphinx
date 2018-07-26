@@ -143,7 +143,7 @@ class Make(object):
         papersize = os.getenv('PAPER', '')
         opts = self.opts
         if papersize in ('a4', 'letter'):
-            opts.extend(['-D', 'latex_elements.papersize=' + papersize])
+            opts.extend(['-D', 'latex_elements.papersize=' + papersize + 'paper'])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
 
