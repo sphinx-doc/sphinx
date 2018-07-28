@@ -19,9 +19,9 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL, Options
+    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 )
-from sphinx.ext.autodoc.directive import DocumenterBridge
+from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
@@ -30,8 +30,10 @@ app = None
 
 
 def do_autodoc(app, objtype, name, options={}):
-    bridge = DocumenterBridge(app.env, LoggingReporter(''), Options(options), 1)
-    documenter = app.registry.documenters[objtype](bridge, name)
+    doccls = app.registry.documenters[objtype]
+    docoptions = process_documenter_options(doccls, app.config, options)
+    bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
+    documenter = doccls(bridge, name)
     documenter.generate()
 
     return bridge.result
@@ -770,8 +772,7 @@ def test_generate():
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_noindex(app):
-    options = {"members": [],
-               "noindex": True}
+    options = {"noindex": True}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
         '',
@@ -794,7 +795,7 @@ def test_autodoc_noindex(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_subclass_of_builtin_class(app):
-    options = {"members": ALL}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.CustomDict', options)
     assert list(actual) == [
         '',
@@ -813,7 +814,7 @@ def test_autodoc_inner_class(app):
     else:
         builtins = '      alias of :class:`__builtin__.dict`'
 
-    options = {"members": ALL}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.Outer', options)
     assert list(actual) == [
         '',
@@ -894,7 +895,7 @@ def test_autodoc_member_order(app):
         roger_method = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
 
     # case member-order='bysource'
-    options = {"members": ALL,
+    options = {"members": None,
                'member-order': 'bysource',
                "undoc-members": True,
                'private-members': True}
@@ -921,7 +922,7 @@ def test_autodoc_member_order(app):
     ]
 
     # case member-order='groupwise'
-    options = {"members": ALL,
+    options = {"members": None,
                'member-order': 'groupwise',
                "undoc-members": True,
                'private-members': True}
@@ -948,7 +949,7 @@ def test_autodoc_member_order(app):
     ]
 
     # case member-order=None
-    options = {"members": ALL,
+    options = {"members": None,
                "undoc-members": True,
                'private-members': True}
     actual = do_autodoc(app, 'class', 'target.Class', options)
@@ -1013,7 +1014,7 @@ def test_autodoc_class_scope(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
-    options = {"members": ALL}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
         '',
@@ -1098,7 +1099,7 @@ def test_autodoc_docstring_signature(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_attributes(app):
-    options = {"members": ALL,
+    options = {"members": None,
                "undoc-members": True}
     actual = do_autodoc(app, 'class', 'target.AttCls', options)
     assert list(actual) == [
@@ -1121,7 +1122,7 @@ def test_class_attributes(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_instance_attributes(app):
-    options = {"members": ALL}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
         '',
@@ -1169,7 +1170,7 @@ def test_instance_attributes(app):
     ]
 
     # pick up arbitrary attributes
-    options = {"members": ['ca1', 'ia1']}
+    options = {"members": 'ca1,ia1'}
     actual = do_autodoc(app, 'class', 'target.InstAttCls', options)
     assert list(actual) == [
         '',
@@ -1198,7 +1199,7 @@ def test_instance_attributes(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_enum_class(app):
-    options = {"members": ALL,
+    options = {"members": None,
                "undoc-members": True}
     actual = do_autodoc(app, 'class', 'target.EnumCls', options)
     assert list(actual) == [
@@ -1237,7 +1238,7 @@ def test_enum_class(app):
     ]
 
     # checks for an attribute of EnumClass
-    actual = do_autodoc(app, 'attribute', 'target.EnumCls.val1', options)
+    actual = do_autodoc(app, 'attribute', 'target.EnumCls.val1')
     assert list(actual) == [
         '',
         '.. py:attribute:: EnumCls.val1',
@@ -1251,7 +1252,7 @@ def test_enum_class(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
-    options = {"members": ['CustomDataDescriptor', 'CustomDataDescriptor2']}
+    options = {"members": 'CustomDataDescriptor,CustomDataDescriptor2'}
     actual = do_autodoc(app, 'module', 'target', options)
     assert list(actual) == [
         '',
@@ -1280,7 +1281,7 @@ def test_descriptor_class(app):
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_mocked_module_imports(app):
-    options = {"members": ['TestAutodoc', 'decoratedFunction']}
+    options = {"members": 'TestAutodoc,decoratedFunction'}
     actual = do_autodoc(app, 'module', 'autodoc_missing_imports', options)
     assert list(actual) == [
         '',
@@ -1345,6 +1346,27 @@ def test_partialmethod(app):
         # TODO: this condition should be updated after 3.7-final release.
         expected = '\n'.join(expected).replace(' -> None', '').split('\n')
 
-    options = {"members": ALL}
+    options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.partialmethod.Cell', options)
     assert list(actual) == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_flags(app):
+    # no settings
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' not in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :members:
+    app.config.autodoc_default_flags = ['members']
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :members: and :undoc-members:
+    app.config.autodoc_default_flags = ['members',
+                                        'undoc-members']
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' in actual
