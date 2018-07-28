@@ -186,6 +186,7 @@ Features added
 * Apply :confval:`trim_doctest_flags` to all builders (cf. text, manpages)
 * #5140: linkcheck: Add better Accept header to HTTP client
 * #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
+* Add :rst:role:`math:numref` role to refer equations (Same as :rst:role:`eq`)
 
 Bugs fixed
 ----------

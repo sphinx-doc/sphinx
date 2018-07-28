@@ -288,13 +288,7 @@ Math
 
 .. rst:role:: eq
 
-   Role for cross-referencing equations via their label.  Example::
-
-      .. math:: e^{i\pi} + 1 = 0
-         :label: euler
-
-      Euler's identity, equation :eq:`euler`, was elected one of the most
-      beautiful mathematical formulas.
+   Same as :rst:role:`math:numref`.
 
 
 Other semantic markup

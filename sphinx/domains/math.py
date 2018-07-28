@@ -21,10 +21,11 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,9 @@ class MathDomain(Domain):
         displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
     }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    roles = {
+        'numref': MathReferenceRole(),
+    }
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
@@ -66,7 +70,7 @@ class MathDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
-        assert typ == 'eq'
+        assert typ in ('eq', 'numref')
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
             # TODO: perhaps use rather a sphinx-core provided prefix here?
