@@ -1249,7 +1249,6 @@ def test_enum_class(app):
     ]
 
 
-
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_descriptor_class(app):
     options = {"members": ['CustomDataDescriptor', 'CustomDataDescriptor2']}
