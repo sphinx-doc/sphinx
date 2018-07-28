@@ -36,7 +36,7 @@ from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warnin
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import ThemeError
+from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
@@ -437,6 +437,27 @@ class StandaloneHTMLBuilder(Builder):
             return HTML5Translator
         else:
             return HTMLTranslator
+
+    @property
+    def math_renderer_name(self):
+        # type: () -> unicode
+        name = self.get_builder_config('math_renderer', 'html')
+        if name is not None:
+            # use given name
+            return name
+        else:
+            # not given: choose a math_renderer from registered ones as possible
+            renderers = list(self.app.registry.html_inline_math_renderers)
+            if len(renderers) == 1:
+                # only default math_renderer (mathjax) is registered
+                return renderers[0]
+            elif len(renderers) == 2:
+                # default and another math_renderer are registered; prior the another
+                renderers.remove('mathjax')
+                return renderers[0]
+            else:
+                # many math_renderers are registered. can't choose automatically!
+                return None
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
@@ -1625,6 +1646,19 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
     context['js_tag'] = js_tag
 
 
+def validate_math_renderer(app):
+    # type: (Sphinx) -> None
+    if app.builder.format != 'html':
+        return
+
+    name = app.builder.math_renderer_name  # type: ignore
+    if name is None:
+        raise ConfigError(__('Many math_renderers are registered. '
+                             'But no math_renderer is selected.'))
+    elif name not in app.registry.html_inline_math_renderers:
+        raise ConfigError(__('Unknown math_renderer %r is given.') % name)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1674,11 +1708,16 @@ def setup(app):
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
+    app.add_config_value('html_math_renderer', None, 'env')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
     app.connect('config-inited', convert_html_js_files)
+    app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
+
+    # load default math renderer
+    app.setup_extension('sphinx.ext.mathjax')
 
     return {
         'version': 'builtin',

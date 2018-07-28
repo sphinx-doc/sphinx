@@ -1220,6 +1220,20 @@ class Sphinx(object):
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
 
+    def add_html_math_renderer(self, name, inline_renderers=None, block_renderers=None):
+        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        """Register a math renderer for HTML.
+
+        The *name* is a name of the math renderer.  Both *inline_renderers* and
+        *block_renderes* are used as visitor functions for HTML writer.
+        *inline_renderers* is used for inline math node (``nodes.math`)).  The
+        another is used for block math node (``nodes.math_block``).  About
+        visitor functions, see :meth:`add_node` for more details.
+
+        .. versionadded:: 1.8
+        """
+        self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
+
     def add_message_catalog(self, catalog, locale_dir):
         # type: (unicode, unicode) -> None
         """Register a message catalog.

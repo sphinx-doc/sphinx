@@ -92,6 +92,11 @@ class SphinxComponentRegistry(object):
         #: a dict of node class -> tuple of figtype and title_getter function
         self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[unicode, TitleGetter]]
 
+        #: HTML inline and block math renderers
+        #: a dict of name -> tuple of visit function and depart function
+        self.html_inline_math_renderers = {}    # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
+        self.html_block_math_renderers = {}     # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
+
         #: js_files; list of JS paths or URLs
         self.js_files = []              # type: List[Tuple[unicode, Dict[unicode, unicode]]]
 
@@ -438,6 +443,16 @@ class SphinxComponentRegistry(object):
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
+
+    def add_html_math_renderer(self, name, inline_renderers, block_renderers):
+        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        logger.debug('[app] adding html_math_renderer: %s, %r, %r',
+                     name, inline_renderers, block_renderers)
+        if name in self.html_inline_math_renderers:
+            raise ExtensionError(__('math renderer %s is already registred') % name)
+
+        self.html_inline_math_renderers[name] = inline_renderers
+        self.html_block_math_renderers[name] = block_renderers
 
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None

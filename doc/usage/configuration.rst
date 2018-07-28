@@ -773,6 +773,35 @@ documentation on :ref:`intl` for details.
       Added ``{path}`` and ``{basename}`` tokens.
 
 
+.. _math-options:
+
+Options for Math
+----------------
+
+These options influence Math notations.
+
+.. confval:: math_number_all
+
+   Set this option to ``True`` if you want all displayed math to be numbered.
+   The default is ``False``.
+
+.. confval:: math_eqref_format
+
+   A string that are used for format of label of references to equations.
+   As a special character, ``{number}`` will be replaced to equaition number.
+
+   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
+
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
+
+   .. versionadded:: 1.7
+
+
 .. _html-options:
 
 Options for HTML output
@@ -1289,6 +1318,13 @@ that use Sphinx's HTMLWriter class.
    The default is ``True``.
 
    .. versionadded:: 1.3
+
+.. confval:: html_math_renderer
+
+   The name of math_renderer extension for HTML output.  The default is
+   ``'mathjax'``.
+
+   .. versionadded:: 1.8
 
 .. confval:: html_experimental_html5_writer
 
