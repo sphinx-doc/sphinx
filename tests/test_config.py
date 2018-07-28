@@ -172,20 +172,20 @@ def make_app_with_empty_project(make_app, tempdir):
 def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
-    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
