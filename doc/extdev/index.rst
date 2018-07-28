@@ -142,6 +142,11 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``sphinx.ext.mathbase``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0
@@ -156,6 +161,16 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - N/A
+
+   * - ``sphinx.ext.mathbase.get_node_equation_number()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.math.get_node_equation_number()``
+
+   * - ``sphinx.ext.mathbase.wrap_displaymath()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.math.wrap_displaymath()``
 
    * - ``sphinx.ext.mathbase.math`` (node)
      - 1.8

@@ -2544,11 +2544,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append(r'\label{%s}' % label)
             self.body.append(node.astext())
         else:
-            def is_equation(part):
-                # type: (unicode) -> unicode
-                return part.strip()
-
-            from sphinx.ext.mathbase import wrap_displaymath
+            from sphinx.util.math import wrap_displaymath
             self.body.append(wrap_displaymath(node.astext(), label,
                                               self.builder.config.math_number_all))
         raise nodes.SkipNode

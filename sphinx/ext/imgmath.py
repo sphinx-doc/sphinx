@@ -23,10 +23,9 @@ from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError
-from sphinx.ext.mathbase import get_node_equation_number
-from sphinx.ext.mathbase import wrap_displaymath
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
@@ -34,10 +33,10 @@ from sphinx.util.pycompat import sys_encoding
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.addnodes import displaymath  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.ext.mathbase import displaymath  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -315,7 +314,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
+    # type: (nodes.NodeVisitor, nodes.math_block) -> None
     if node['nowrap']:
         latex = node.astext()
     else:

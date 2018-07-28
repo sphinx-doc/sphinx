@@ -107,6 +107,7 @@ Deprecated
 * ``sphinx.writers.html5.HTMLTranslator.highlightlang_base`` is deprecated
 * ``sphinx.writers.html5.HTMLTranslator.highlightlangopts`` is deprecated
 * ``sphinx.writers.html5.HTMLTranslator.highlightlinenothreshold`` is deprecated
+* ``sphinx.ext.mathbase`` extension is deprecated
 * ``sphinx.ext.mathbase.math`` node is deprecated
 * ``sphinx.ext.mathbase.displaymath`` node is deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
@@ -114,6 +115,8 @@ Deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
 * ``sphinx.ext.mathbase.setup_math()`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated
+* ``sphinx.ext.mathbase.get_node_equation_number()`` is deprecated
+* ``sphinx.ext.mathbase.wrap_displaymath()`` is deprecated
 * The ``trim_doctest_flags`` argument of ``sphinx.highlighting.PygmentsBridge``
   is deprecated
 
