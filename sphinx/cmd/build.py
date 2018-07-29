@@ -200,7 +200,7 @@ files can be built by specifying individual filenames.
 def make_main(argv=sys.argv[1:]):  # type: ignore
     # type: (List[unicode]) -> int
     """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
+    from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 

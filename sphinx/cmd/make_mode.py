@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.make_mode
-    ~~~~~~~~~~~~~~~~
+    sphinx.cmd.make_mode
+    ~~~~~~~~~~~~~~~~~~~~
 
     sphinx-build -M command-line handling.
 
