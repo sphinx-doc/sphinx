@@ -14,8 +14,8 @@ from docutils import nodes
 
 import sphinx
 from sphinx.errors import ExtensionError
-from sphinx.ext.mathbase import get_node_equation_number
 from sphinx.locale import _
+from sphinx.util.math import get_node_equation_number
 
 if False:
     # For type annotation
