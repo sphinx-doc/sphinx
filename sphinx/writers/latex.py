@@ -494,7 +494,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         'babel':       '\\usepackage{babel}',
                     })
         # allow the user to override them all
-        self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
 
         # but some have other interface in config file
@@ -718,13 +717,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def check_latex_elements(self):
-        # type: () -> None
-        for key in self.builder.config.latex_elements:
-            if key not in self.elements:
-                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
-                logger.warning(msg % key)
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
@@ -2624,6 +2616,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
                       RemovedInSphinx30Warning)
         return [[self.builder.config.highlight_language, sys.maxsize]]
+
+    def check_latex_elements(self):
+        # type: () -> None
+        warnings.warn('check_latex_elements() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        for key in self.builder.config.latex_elements:
+            if key not in self.elements:
+                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
+                logger.warning(msg % key)
 
 
 # Import old modules here for compatibility
