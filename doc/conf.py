@@ -64,14 +64,10 @@ latex_elements = {
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
     'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
     'fvset': '\\fvset{fontsize=auto}',
-    # fix missing index entry due to RTD doing only once pdflatex after makeindex
-    'printindex': r'''
-\IfFileExists{\jobname.ind}
-             {\footnotesize\raggedright\printindex}
-             {\begin{sphinxtheindex}\end{sphinxtheindex}}
-''',
+    'printindex': '\\footnotesize\\raggedright\\sphinxprintindex',
 }
 latex_show_urls = 'footnote'
+latex_use_xindy = True
 
 autodoc_member_order = 'groupwise'
 todo_include_todos = True

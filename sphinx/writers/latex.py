@@ -124,13 +124,13 @@ DEFAULT_SETTINGS = {
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
-    'printindex':      '\\printindex',
+    'printindex':      '\\sphinxprintindex',
     'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
-    'literalblockpto': '',
+    'translatablestrings': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -485,6 +485,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # for xelatex+French, don't use polyglossia
+        if self.elements['latex_engine'] == 'xelatex':
+            if builder.config.language:
+                if builder.config.language[:2] == 'fr':
+                    self.elements.update({
+                        'polyglossia': '',
+                        'babel':       '\\usepackage{babel}',
+                    })
         # allow the user to override them all
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
@@ -497,6 +505,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
+            'use_xindy':    builder.config.latex_use_xindy,
         })
         if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
@@ -667,31 +676,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['literalblockpto'] = (
+        self.elements['translatablestrings'] = (
             self.babel_renewcommand(
                 '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
             ) +
             self.babel_renewcommand(
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsname', self.encode(_('Symbols'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnumbersname', self.encode(_('Numbers'))
             )
         )
         self.elements['pageautorefname'] = \
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
-        self.highlighter = highlighting.PygmentsBridge(
-            'latex',
-            builder.config.pygments_style, builder.config.trim_doctest_flags)
+        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
         self.context = []               # type: List[Any]
         self.descstack = []             # type: List[unicode]
         self.table = None               # type: Table
         self.next_table_colspec = None  # type: unicode
-        # stack of [language, linenothreshold] settings per file
-        # the first item here is the default and must not be changed
-        # the second item is the default for the master file and can be changed
-        # by .. highlight:: directive in the master file
-        self.hlsettingstack = 2 * [[builder.config.highlight_language,
-                                    sys.maxsize]]
         self.bodystack = []             # type: List[List[unicode]]
         self.footnote_restricted = False
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
@@ -856,8 +866,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
-                       '\\nopagebreak\\vspace{1mm}}\n')
+            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
@@ -866,7 +875,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item {\\sphinxstyleindexentry{%s}}' % self.encode(entry[0]))
+                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' %
+                               self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
@@ -927,8 +937,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
         self.curfilestack.append(node['docname'])
-        # use default highlight settings for new file
-        self.hlsettingstack.append(self.hlsettingstack[0])
 
     def collect_footnotes(self, node):
         # type: (nodes.Node) -> Dict[unicode, List[Union[collected_footnote, bool]]]
@@ -953,12 +961,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_start_of_file(self, node):
         # type: (nodes.Node) -> None
         self.curfilestack.pop()
-        self.hlsettingstack.pop()
-
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        self.hlsettingstack[-1] = [node['lang'], node['linenothreshold']]
-        raise nodes.SkipNode
 
     def visit_section(self, node):
         # type: (nodes.Node) -> None
@@ -1919,8 +1921,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
-            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
+            value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
+            value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
+            value = value.replace('"', '""')
+            value = value.replace('@', '"@')
+            value = value.replace('!', '"!')
             return value
 
         if not node.get('inline', True):
@@ -2225,26 +2230,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if labels and not self.in_footnote:
                 self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
 
-            code = node.astext()
-            lang = self.hlsettingstack[-1][0]
-            linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
+            lang = node.get('language', 'default')
+            linenos = node.get('linenos', False)
             highlight_args = node.get('highlight_args', {})
-            hllines = '\\fvset{hllines={, %s,}}%%' %\
-                      str(highlight_args.get('hl_lines', []))[1:-1]
-            if 'language' in node:
-                # code-block directives
-                lang = node['language']
-                highlight_args['force'] = True
-            if 'linenos' in node:
-                linenos = node['linenos']
-            if lang is self.hlsettingstack[0][0]:
+            highlight_args['force'] = node.get('force_highlighting', False)
+            if lang is self.builder.config.highlight_language:
                 # only pass highlighter options for original language
                 opts = self.builder.config.highlight_options
             else:
                 opts = {}
 
             hlcode = self.highlighter.highlight_block(
-                code, lang, opts=opts, linenos=linenos,
+                node.rawsource, lang, opts=opts, linenos=linenos,
                 location=(self.curfilestack[-1], node.line), **highlight_args
             )
             # workaround for Unicode issue
@@ -2269,6 +2266,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
+
+            hllines = '\\fvset{hllines={, %s,}}%%' %\
+                      str(highlight_args.get('hl_lines', []))[1:-1]
             self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             raise nodes.SkipNode
 
@@ -2617,6 +2617,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
                       RemovedInSphinx30Warning)
         return set()
+
+    @property
+    def hlsettingstack(self):
+        # type: () -> List[List[Union[unicode, int]]]
+        warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return [[self.builder.config.highlight_language, sys.maxsize]]
 
 
 # Import old modules here for compatibility

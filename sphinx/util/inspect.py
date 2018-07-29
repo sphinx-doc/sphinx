@@ -241,7 +241,7 @@ def object_description(object):
     if isinstance(object, dict):
         try:
             sorted_keys = sorted(object)
-        except TypeError:
+        except Exception:
             pass  # Cannot sort dict keys, fall back to generic repr
         else:
             items = ("%s: %s" %
@@ -532,6 +532,13 @@ class Signature(object):
 
         if annotation.__module__ == 'builtins':
             return annotation.__qualname__  # type: ignore
+        elif (hasattr(typing, 'TupleMeta') and
+              isinstance(annotation, typing.TupleMeta) and  # type: ignore
+              not hasattr(annotation, '__tuple_params__')):
+            # This is for Python 3.6+, 3.5 case is handled below
+            params = annotation.__args__
+            param_str = ', '.join(self.format_annotation(p) for p in params)
+            return '%s[%s]' % (qualified_name, param_str)
         elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
               isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,

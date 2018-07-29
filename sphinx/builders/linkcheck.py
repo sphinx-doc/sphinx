@@ -163,7 +163,7 @@ class CheckExternalLinksBuilder(Builder):
                         # the server and the network
                         response = requests.head(req_url, config=self.app.config, **kwargs)
                         response.raise_for_status()
-                    except HTTPError as err:
+                    except HTTPError:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True, config=self.app.config,

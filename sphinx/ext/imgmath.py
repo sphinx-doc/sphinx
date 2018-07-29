@@ -22,9 +22,9 @@ from docutils import nodes
 from six import text_type
 
 import sphinx
-from sphinx.errors import SphinxError, ExtensionError
+from sphinx.errors import SphinxError
 from sphinx.ext.mathbase import get_node_equation_number
-from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.ext.mathbase import wrap_displaymath
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, ENOENT, cd
@@ -349,10 +349,9 @@ def html_visit_displaymath(self, node):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    try:
-        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    except ExtensionError:
-        raise ExtensionError('sphinx.ext.imgmath: other math package is already loaded')
+    app.add_html_math_renderer('imgmath',
+                               (html_visit_math, None),
+                               (html_visit_displaymath, None))
 
     app.add_config_value('imgmath_image_format', 'png', 'html')
     app.add_config_value('imgmath_dvipng', 'dvipng', 'html')

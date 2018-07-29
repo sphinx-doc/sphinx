@@ -78,7 +78,9 @@ from sphinx.ext.autodoc.importer import import_module
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
-from sphinx.util.docutils import NullReporter, SphinxDirective, new_document
+from sphinx.util.docutils import (
+    NullReporter, SphinxDirective, new_document, switch_source_input
+)
 
 if False:
     # For type annotation
@@ -92,6 +94,7 @@ logger = logging.getLogger(__name__)
 
 
 periods_re = re.compile(r'\.(?:\s+)')
+literal_re = re.compile(r'::\s*$')
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -373,17 +376,19 @@ class Autosummary(SphinxDirective):
         def append_row(*column_texts):
             # type: (unicode) -> None
             row = nodes.row('')
+            source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
                 node = nodes.paragraph('')
                 vl = ViewList()
-                vl.append(text, '<autosummary>')
-                self.state.nested_parse(vl, 0, node)
-                try:
-                    if isinstance(node[0], nodes.paragraph):
-                        node = node[0]
-                except IndexError:
-                    pass
-                row.append(nodes.entry('', node))
+                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                with switch_source_input(self.state, vl):
+                    self.state.nested_parse(vl, 0, node)
+                    try:
+                        if isinstance(node[0], nodes.paragraph):
+                            node = node[0]
+                    except IndexError:
+                        pass
+                    row.append(nodes.entry('', node))
             body.append(row)
 
         for name, sig, summary, real_name in items:
@@ -468,21 +473,35 @@ def extract_summary(doc, document):
             doc = doc[:i]
             break
 
-    # Try to find the "first sentence", which may span multiple lines
-    sentences = periods_re.split(" ".join(doc))  # type: ignore
-    if len(sentences) == 1:
-        summary = sentences[0].strip()
+    if doc == []:
+        return ''
+
+    # parse the docstring
+    state_machine = RSTStateMachine(state_classes, 'Body')
+    node = new_document('', document.settings)
+    node.reporter = NullReporter()
+    state_machine.run(doc, node)
+
+    if not isinstance(node[0], nodes.paragraph):
+        # document starts with non-paragraph: pick up the first line
+        summary = doc[0].strip()
     else:
-        summary = ''
-        state_machine = RSTStateMachine(state_classes, 'Body')
-        while sentences:
-            summary += sentences.pop(0) + '.'
-            node = new_document('', document.settings)
-            node.reporter = NullReporter()
-            state_machine.run([summary], node)
-            if not node.traverse(nodes.system_message):
-                # considered as that splitting by period does not break inline markups
-                break
+        # Try to find the "first sentence", which may span multiple lines
+        sentences = periods_re.split(" ".join(doc))  # type: ignore
+        if len(sentences) == 1:
+            summary = sentences[0].strip()
+        else:
+            summary = ''
+            while sentences:
+                summary += sentences.pop(0) + '.'
+                node[:] = []
+                state_machine.run([summary], node)
+                if not node.traverse(nodes.system_message):
+                    # considered as that splitting by period does not break inline markups
+                    break
+
+    # strip literal notation mark ``::`` from tail of summary
+    summary = literal_re.sub('.', summary)
 
     return summary
 

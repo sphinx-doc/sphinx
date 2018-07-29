@@ -22,6 +22,20 @@ export LATEXOPTS =
 # or on command line for faster builds.
 {% endif -%}
 LATEXMKOPTS =
+{% if xindy_use -%}
+export XINDYOPTS = {{ xindy_lang_option }} -M sphinx.xdy
+{% if latex_engine == 'pdflatex' -%}
+XINDYOPTS += -M LICRlatin2utf8.xdy
+{% if xindy_cyrillic -%}
+XINDYOPTS += -M LICRcyr2utf8.xdy
+{% endif -%}
+{% endif -%}
+{% if xindy_cyrillic -%}
+XINDYOPTS += -M LatinRules.xdy
+{% endif -%}
+# also with pdflatex as LICRlatin2utf8.xdy replaces xindy's /tex/inputenc/utf8.xdy
+XINDYOPTS += -I xelatex
+{% endif -%}
 # format: pdf or dvi (used only by archive targets)
 FMT = pdf
 

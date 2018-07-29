@@ -276,10 +276,9 @@ class Locale(SphinxTransform):
                 continue  # skip
 
             # auto-numbered foot note reference should use original 'ids'.
-            def is_autonumber_footnote_ref(node):
+            def is_autofootnote_ref(node):
                 # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.footnote_reference) and \
-                    node.get('auto') == 1
+                return isinstance(node, nodes.footnote_reference) and node.get('auto')
 
             def list_replace_or_append(lst, old, new):
                 # type: (List, Any, Any) -> None
@@ -287,8 +286,8 @@ class Locale(SphinxTransform):
                     lst[lst.index(old)] = new
                 else:
                     lst.append(new)
-            old_foot_refs = node.traverse(is_autonumber_footnote_ref)
-            new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
+            old_foot_refs = node.traverse(is_autofootnote_ref)
+            new_foot_refs = patch.traverse(is_autofootnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
@@ -309,8 +308,14 @@ class Locale(SphinxTransform):
                 new['ids'] = old['ids']
                 for id in new['ids']:
                     self.document.ids[id] = new
-                list_replace_or_append(
-                    self.document.autofootnote_refs, old, new)
+
+                if new['auto'] == 1:
+                    # autofootnote_refs
+                    list_replace_or_append(self.document.autofootnote_refs, old, new)
+                else:
+                    # symbol_footnote_refs
+                    list_replace_or_append(self.document.symbol_footnote_refs, old, new)
+
                 if refname:
                     list_replace_or_append(
                         self.document.footnote_refs.setdefault(refname, []),

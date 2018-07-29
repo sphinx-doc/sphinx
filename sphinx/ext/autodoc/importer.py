@@ -167,8 +167,21 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         logger.debug('[autodoc] import %s', modname)
 
     try:
-        module = import_module(modname, warningiserror=warningiserror)
-        logger.debug('[autodoc] => %r', module)
+        module = None
+        objpath = list(objpath)
+        while module is None:
+            try:
+                module = import_module(modname, warningiserror=warningiserror)
+                logger.debug('[autodoc] import %s => %r', modname, module)
+            except ImportError:
+                logger.debug('[autodoc] import %s => failed', modname)
+                if '.' in modname:
+                    # retry with parent module
+                    modname, name = modname.rsplit('.', 1)
+                    objpath.insert(0, name)
+                else:
+                    raise
+
         obj = module
         parent = None
         object_name = None
@@ -221,12 +234,21 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
         for name, value in subject.__members__.items():
             obj_dict[name] = value
 
-    members = {}
+    members = {}  # type: Dict[str, Attribute]
+
+    # enum members
+    if isenumclass(subject):
+        for name, value in subject.__members__.items():
+            if name not in members:
+                members[name] = Attribute(name, True, value)
+
+    # other members
     for name in dir(subject):
         try:
             value = attrgetter(subject, name)
             directly_defined = name in obj_dict
-            members[name] = Attribute(name, directly_defined, value)
+            if name not in members:
+                members[name] = Attribute(name, directly_defined, value)
         except AttributeError:
             continue
 

@@ -773,6 +773,35 @@ documentation on :ref:`intl` for details.
       Added ``{path}`` and ``{basename}`` tokens.
 
 
+.. _math-options:
+
+Options for Math
+----------------
+
+These options influence Math notations.
+
+.. confval:: math_number_all
+
+   Set this option to ``True`` if you want all displayed math to be numbered.
+   The default is ``False``.
+
+.. confval:: math_eqref_format
+
+   A string that are used for format of label of references to equations.
+   As a special character, ``{number}`` will be replaced to equaition number.
+
+   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
+
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
+
+   .. versionadded:: 1.7
+
+
 .. _html-options:
 
 Options for HTML output
@@ -1290,6 +1319,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
+.. confval:: html_math_renderer
+
+   The name of math_renderer extension for HTML output.  The default is
+   ``'mathjax'``.
+
+   .. versionadded:: 1.8
+
 .. confval:: html_experimental_html5_writer
 
    Output is processed with HTML5 writer.  This feature needs docutils 0.13 or
@@ -1727,8 +1763,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output. Refer to :doc:`/latex` for more
-information.
+These options influence LaTeX output. For customization of LaTeX
+macros and environments, see also :doc:`/latex`.
 
 .. confval:: latex_engine
 
@@ -1765,32 +1801,39 @@ information.
    It must be a list of tuples ``(startdocname, targetname, title, author,
    documentclass, toctree_only)``, where the items are:
 
-   * *startdocname*: document name that is the "root" of the LaTeX file.  All
-     documents referenced by it in TOC trees will be included in the LaTeX file
-     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
-     here.)
-   * *targetname*: file name of the LaTeX file in the output directory.
-   * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
+   *startdocname*
+     String that specifies the :term:`document name` of the LaTeX file's master
+     document.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the LaTeX file.  (If you want to use the default master
+     document for your LaTeX build, provide your :confval:`master_doc` here.)
+
+   *targetname*
+     File name of the LaTeX file in the output directory.
+
+   *title*
+     LaTeX document title.  Can be empty to use the title of the *startdoc*
+     document.  This is inserted as LaTeX markup, so special characters like a
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
-   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
-     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach
-     LaTeX).
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
-     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
-     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
-     documents will not get appendices. Also they have a simpler title page.
-     Other document classes can be given. Independently of the document class,
-     the "sphinx" package is always loaded in order to define Sphinx's custom
-     LaTeX commands.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
-     document itself is not included in the output, only the documents
-     referenced by it via TOC trees.  With this option, you can put extra stuff
-     in the master document that shows up in the HTML, but not the LaTeX
-     output.
+   *author*
+     Author for the LaTeX document.  The same LaTeX markup caveat as for *title*
+     applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
+
+   *documentclass*
+     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
+     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
+     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
+     appendices. Also they have a simpler title page.  Other document classes
+     can be given. Independently of the document class, the "sphinx" package is
+     always loaded in order to define Sphinx's custom LaTeX commands.
+
+   *toctree_only*
+     Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
+     not included in the output, only the documents referenced by it via TOC
+     trees.  With this option, you can put extra stuff in the master document
+     that shows up in the HTML, but not the LaTeX output.
 
    .. versionadded:: 1.2
       In the past including your own document class required you to prepend the
@@ -1871,6 +1914,40 @@ information.
    ``tabulary``.
 
    .. versionadded:: 1.6
+
+.. confval:: latex_use_xindy
+
+   If ``True``, the PDF build from the LaTeX files created by Sphinx
+   will use :program:`xindy` (doc__) rather than :program:`makeindex`
+   for preparing the index of general terms (from :rst:dir:`index`
+   usage).  This means that words with UTF-8 characters will get
+   ordered correctly for the :confval:`language`.
+
+   __ http://xindy.sourceforge.net/
+
+   - This option is ignored if :confval:`latex_engine` is ``'platex'``
+     (Japanese documents) as :program:`mendex` is used in that case.
+
+   - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
+     :program:`makeindex`, if any indexed term starts with a non-ascii
+     character, creates ``.ind`` file containing invalid bytes for
+     UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
+     build.  Notice that :program:`xindy` supports most but not
+     all European languages.
+
+   - The default is ``False`` for ``'pdflatex'`` but ``True`` is
+     recommended for non-English documents as soon as some indexed
+     terms use non-ascii characters from the language script.
+     Cyrillic scripts are (transparently) supported with
+     ``'pdflatex'`` thanks to a specific Sphinx-contributed ``xindy``
+     style file :file:`cyrLICRutf8.xdy`.
+
+     As :program:`xindy` does not support the same range of languages
+     as ``LaTeX/babel`` does, the default :program:`makeindex` for
+     ``'pdflatex'`` may be preferred in some circumstances, although
+     the index will be ill-formed probably.
+
+   .. versionadded:: 1.8
 
 .. confval:: latex_elements
 
@@ -2108,11 +2185,14 @@ information.
            Remove unneeded ``{}`` after ``\\hrule``.
 
      ``'printindex'``
-        "printindex" call, the last thing in the file, default
-        ``'\\printindex'``.  Override if you want to generate the index
-        differently or append some content after the index. For example
-        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-        index is full of long entries.
+        "printindex" call, the last thing in the file.
+
+        .. versionchanged:: 1.8
+           Former default ``'\\printindex'`` now ``'\\sphinxprintindex'``.
+           This macro works around an issue__ with PDF builds at RTD doing too
+           few ``pdflatex`` runs.
+
+           __ https://github.com/rtfd/readthedocs.org/issues/2857
 
      ``'fvset'``
         Customization of ``fancyvrb`` LaTeX package. Defaults to
@@ -2227,9 +2307,11 @@ These options influence manual page output.
    section)``, where the items are:
 
    *startdocname*
-     Document name that is the "root" of the manual page.  All documents
-     referenced by it in TOC trees will be included in the manual file too.
-     (If you want one master manual page, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the manual page's master
+     document. All documents referenced by the *startdoc* document in TOC trees
+     will be included in the manual file.  (If you want to use the default
+     master document for your manual pages build, use your :confval:`master_doc`
+     here.)
 
    *name*
      Name of the manual page.  This should be a short string without spaces or
@@ -2272,17 +2354,19 @@ These options influence Texinfo output.
    are:
 
    *startdocname*
-     Document name that is the "root" of the Texinfo file.  All documents
-     referenced by it in TOC trees will be included in the Texinfo file too.
-     (If you want only one Texinfo file, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the the Texinfo file's
+     master document.  All documents referenced by the *startdoc* document in
+     TOC trees will be included in the Texinfo file.  (If you want to use the
+     default master document for your Texinfo build, provide your
+     :confval:`master_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
 
    *title*
-     Texinfo document title.  Can be empty to use the title of the *startdoc*.
-     Inserted as Texinfo markup, so special characters like ``@`` and ``{}``
-     will need to be escaped to be inserted literally.
+     Texinfo document title.  Can be empty to use the title of the *startdoc*
+     document.  Inserted as Texinfo markup, so special characters like ``@`` and
+     ``{}`` will need to be escaped to be inserted literally.
 
    *author*
      Author for the Texinfo document.  Inserted as Texinfo markup.  Use ``@*``
@@ -2451,12 +2535,21 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors_ignore
 
-   A list of regular expressions that match URIs that should skip checking
-   the validity of anchors in links. This allows skipping entire sites, where
-   anchors are used to control dynamic pages, or just specific anchors within
-   a page, where JavaScript is used to add anchors dynamically, or use the
-   fragment as part of to trigger an internal REST request. Default is
-   ``["/#!"]``.
+   A list of regular expressions that match anchors Sphinx should skip when
+   checking the validity of anchors in links. This allows skipping anchors that
+   a website's JavaScript adds to control dynamic pages or when triggering an
+   internal REST request. Default is ``["^!"]``.
+
+   .. note::
+
+      If you want to ignore anchors of a specific page or of pages that match a
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
+
+         linkcheck_ignore = [
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+         ]
 
    .. versionadded:: 1.5
 

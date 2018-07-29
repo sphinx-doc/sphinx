@@ -13,7 +13,7 @@ import warnings
 
 from docutils import nodes
 
-from sphinx.addnodes import math, math_block as displaymath
+from sphinx.addnodes import math, math_block as displaymath  # NOQA  # to keep compatibility
 from sphinx.builders.latex.nodes import math_reference as eqref  # NOQA  # to keep compatibility
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
@@ -44,7 +44,7 @@ def get_node_equation_number(writer, node):
     return number
 
 
-def wrap_displaymath(math, label, numbering):
+def wrap_displaymath(text, label, numbering):
     # type: (unicode, unicode, bool) -> unicode
     def is_equation(part):
         # type: (unicode) -> unicode
@@ -56,7 +56,7 @@ def wrap_displaymath(math, label, numbering):
         labeldef = r'\label{%s}' % label
         numbering = True
 
-    parts = list(filter(is_equation, math.split('\n\n')))
+    parts = list(filter(is_equation, text.split('\n\n')))
     equations = []
     if len(parts) == 0:
         return ''
@@ -97,8 +97,9 @@ def is_in_section_title(node):
 
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
-    # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
-    app.add_node(math, override=True,
-                 html=htmlinlinevisitors)
-    app.add_node(displaymath, override=True,
-                 html=htmldisplayvisitors)
+    # type: (Sphinx, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+    warnings.warn('setup_math() is deprecated. '
+                  'Please use app.add_html_math_renderer() instead.',
+                  RemovedInSphinx30Warning)
+
+    app.add_html_math_renderer('unknown', htmlinlinevisitors, htmldisplayvisitors)
