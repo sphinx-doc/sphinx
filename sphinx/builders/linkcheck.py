@@ -123,8 +123,7 @@ class CheckExternalLinksBuilder(Builder):
         kwargs = {
             'allow_redirects': True,
             'headers': {
-                'Accept': ('text/html,application/xhtml+xml,'
-                           'application/xml;q=0.9,*/*;q=0.8')
+                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8'
             },
         }
         if self.app.config.linkcheck_timeout:
