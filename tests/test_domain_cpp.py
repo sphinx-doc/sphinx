@@ -760,9 +760,9 @@ def test_xref_consistency(app, status, warning):
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'
-                    '<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
-                    '.*'
-                    '</(?P=tag)>').format(role=role, tag=tag)
+                   r'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+                   r'.*'
+                   r'</(?P=tag)>').format(role=role, tag=tag)
         result = re.search(pattern, output)
         expect = '''\
 Pattern for role `{role}` with tag `{tag}`
@@ -783,17 +783,17 @@ not found in `{test}`
                 self.content_classes[tag] = classes(role, tag)
 
     # not actually used as a reference point
-    #code_role = RoleClasses('code', 'code', [])
+    # code_role = RoleClasses('code', 'code', [])
     any_role = RoleClasses('any', 'a', ['code'])
     cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
     # NYI: consistent looks
-    #texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
+    # texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
     expr_role = RoleClasses('cpp-expr', 'code', ['a'])
     texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
 
     # XRefRole-style classes
 
-    ## any and cpp:any do not put these classes at the root
+    # any and cpp:any do not put these classes at the root
 
     # n.b. the generic any machinery finds the specific 'cpp-class' object type
     expect = 'any uses XRefRole classes'

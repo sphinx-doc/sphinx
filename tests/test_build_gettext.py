@@ -175,8 +175,8 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
     result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
     assert re.search(
         ('msgid "Template 1".*'
-         'msgid "This is Template 1\.".*'
+         'msgid "This is Template 1\\.".*'
          'msgid "Template 2".*'
-         'msgid "This is Template 2\.".*'),
+         'msgid "This is Template 2\\.".*'),
         result,
         flags=re.S)

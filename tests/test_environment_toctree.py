@@ -113,7 +113,8 @@ def test_glob(app):
                 maxdepth=-1, numbered=0, includefiles=includefiles,
                 entries=[(None, 'foo'), (None, 'bar/index'), (None, 'bar/bar_1'),
                          (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'baz'),
-                         (None, 'qux/index'), ('hyperref', 'https://sphinx-doc.org/?q=sphinx')])
+                         (None, 'qux/index'),
+                         ('hyperref', 'https://sphinx-doc.org/?q=sphinx')])
     assert_node(toctree[0][1][1],
                 [list_item, ([compact_paragraph, reference, "reversed order"],
                              [bullet_list, addnodes.toctree])])  # [0][1][1][1][0]

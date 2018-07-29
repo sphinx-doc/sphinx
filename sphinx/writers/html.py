@@ -858,11 +858,29 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
-        logger.warning(__('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/en/master/ext/math.html'),
-                       location=(self.builder.current_docname, node.line))
-        raise nodes.SkipNode
+        name = self.builder.math_renderer_name
+        visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
+        visit(self, node)
+
+    def depart_math(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        _, depart = self.builder.app.registry.html_inline_math_renderers[name]
+        if depart:
+            depart(self, node)
+
+    def visit_math_block(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        visit, _ = self.builder.app.registry.html_block_math_renderers[name]
+        visit(self, node)
+
+    def depart_math_block(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        _, depart = self.builder.app.registry.html_block_math_renderers[name]
+        if depart:
+            depart(self, node)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

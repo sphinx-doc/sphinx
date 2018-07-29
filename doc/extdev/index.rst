@@ -147,6 +147,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``sphinx.domains.math.MathDomain``
 
+   * - ``sphinx.ext.mathbase.setup_math()``
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_html_math_renderer()`
+
    * - ``sphinx.ext.mathbase.is_in_section_title()``
      - 1.8
      - 3.0

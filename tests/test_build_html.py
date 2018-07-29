@@ -18,6 +18,7 @@ import pytest
 from html5lib import getTreeBuilder, HTMLParser
 from six import PY3
 
+from sphinx.errors import ConfigError
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
 from sphinx.util.inventory import InventoryFile
 
@@ -1327,3 +1328,62 @@ def test_html_baseurl_and_html_file_suffix(app, status, warning):
 
     result = (app.outdir / 'qux' / 'index.htm').text(encoding='utf8')
     assert '<link rel="canonical" href="https://example.com/subdir/qux/index.htm" />' in result
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_default_html_math_renderer(app, status, warning):
+    assert app.builder.math_renderer_name == 'mathjax'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_html_math_renderer_is_mathjax(app, status, warning):
+    assert app.builder.math_renderer_name == 'mathjax'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath']})
+def test_html_math_renderer_is_imgmath(app, status, warning):
+    assert app.builder.math_renderer_name == 'imgmath'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                                                  'sphinx.ext.imgmath']})
+def test_html_math_renderer_is_duplicated(make_app, app_params):
+    try:
+        args, kwargs = app_params
+        make_app(*args, **kwargs)
+        assert False
+    except ConfigError as exc:
+        assert str(exc) == ('Many math_renderers are registered. '
+                            'But no math_renderer is selected.')
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath',
+                                                  'sphinx.ext.mathjax']})
+def test_html_math_renderer_is_duplicated2(app, status, warning):
+    # case of both mathjax and another math_renderer is loaded
+    assert app.builder.math_renderer_name == 'imgmath'  # The another one is chosen
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                                                  'sphinx.ext.imgmath'],
+                                   'html_math_renderer': 'imgmath'})
+def test_html_math_renderer_is_chosen(app, status, warning):
+    assert app.builder.math_renderer_name == 'imgmath'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                                                  'sphinx.ext.mathjax'],
+                                   'html_math_renderer': 'imgmath'})
+def test_html_math_renderer_is_mismatched(make_app, app_params):
+    try:
+        args, kwargs = app_params
+        make_app(*args, **kwargs)
+        assert False
+    except ConfigError as exc:
+        assert str(exc) == "Unknown math_renderer 'imgmath' is given."
