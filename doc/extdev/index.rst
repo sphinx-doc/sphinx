@@ -410,6 +410,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``sphinx.cmd.build``
 
+   * - ``sphinx.make_mode``
+     - 1.8
+     - 3.0
+     - ``sphinx.cmd.make_mode``
+
    * - ``sphinx.locale.l_()``
      - 1.8
      - 3.0
