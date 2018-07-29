@@ -96,6 +96,7 @@ builtin_extensions = (
     'sphinx.registry',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
+    'sphinx.transforms.post_transforms.code',
     'sphinx.transforms.post_transforms.images',
     'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',

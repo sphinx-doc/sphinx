@@ -251,10 +251,6 @@ class TextTranslator(nodes.NodeVisitor):
                                  for line in lines)
         # XXX header/footer?
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_section(self, node):
         # type: (nodes.Node) -> None
         self._title_char = self.sectionchars[self.sectionlevel]

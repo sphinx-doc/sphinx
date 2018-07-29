@@ -131,6 +131,17 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
 
+   * - ``sphinx.highlighting.PygmentsBridge.unhighlight()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``trim_doctest_flags`` arguments of
+       ``sphinx.highlighting.PygmentsBridge``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0
@@ -221,7 +232,52 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.hlsettingstack``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.latex.ExtBabel.get_shorthandoff()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlang()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlang_base()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlangopts()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlinenothreshold()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlang()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlang_base()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlangopts()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlinenothreshold()``
      - 1.8
      - 3.0
      - N/A
