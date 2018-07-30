@@ -129,8 +129,8 @@ class Sphinx(object):
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
-                 parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
+                 parallel=0, keep_going=False):
+        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int, bool) -> None  # NOQA
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
@@ -173,7 +173,11 @@ class Sphinx(object):
         else:
             self._warning = warning
         self._warncount = 0
-        self.warningiserror = warningiserror
+        self.keep_going = warningiserror and keep_going
+        if self.keep_going:
+            self.warningiserror = False
+        else:
+            self.warningiserror = warningiserror
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager()
@@ -334,6 +338,9 @@ class Sphinx(object):
             else:
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
+
+            if self._warncount and self.keep_going:
+                self.statuscode = 1
 
             status = (self.statuscode == 0 and
                       __('succeeded') or __('finished with problems'))

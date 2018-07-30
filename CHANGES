@@ -185,6 +185,7 @@ Features added
 * Add ``app.add_html_math_renderer()`` to register a math renderer for HTML
 * Apply :confval:`trim_doctest_flags` to all builders (cf. text, manpages)
 * #5140: linkcheck: Add better Accept header to HTTP client
+* #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
 
 Bugs fixed
 ----------
