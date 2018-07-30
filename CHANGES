@@ -59,6 +59,7 @@ Deprecated
   based directives.
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
+* ``sphinx.make_mode`` is deprecated
 * ``sphinx.locale.l_()`` is deprecated
 * #2157: helper function ``warn()`` for HTML themes is deprecated
 * ``app.override_domain()`` is deprecated
