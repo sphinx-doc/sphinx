@@ -1533,14 +1533,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n\n')
         raise nodes.SkipNode
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     # -- Desc
 
     def visit_desc(self, node):

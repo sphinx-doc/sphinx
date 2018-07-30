@@ -12,7 +12,6 @@ import pytest
 from docutils import nodes
 
 from sphinx.errors import ExtensionError
-from sphinx.domains import Domain
 from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 

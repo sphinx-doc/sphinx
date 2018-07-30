@@ -21,7 +21,7 @@ from distutils.errors import DistutilsOptionError, DistutilsExecError
 from six import StringIO, string_types
 
 from sphinx.application import Sphinx
-from sphinx.cmdline import handle_exception
+from sphinx.cmd.build import handle_exception
 from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath

@@ -378,14 +378,6 @@ class ManualPageTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     def visit_download_reference(self, node):
         # type: (nodes.Node) -> None
         pass

@@ -154,6 +154,12 @@ These are the basic steps needed to start developing on Sphinx.
 
          tox -e docs -- -b html,latexpdf
 
+   * To run JavaScript tests with `Karma <https://karma-runner.github.io>`_,
+     execute the following commands (requires `Node.js <https://nodejs.org>`_)::
+
+      npm install
+      npm run test
+
    You can also test by installing dependencies in your local environment. ::
 
        pip install .[test]
@@ -302,8 +308,8 @@ Debugging Tips
   in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
   You can get the resulting JavaScript files using the following command::
 
-     $ npm install
-     $ node_modules/.bin/grunt build # -> dest/*.global.js
+     npm install
+     node_modules/.bin/grunt build # -> dest/*.global.js
 
 
 Branch Model
@@ -402,3 +408,6 @@ and other ``test_*.py`` files under ``tests`` directory.
 
 .. versionadded:: 1.6
    ``sphinx.testing`` as a experimental.
+
+.. versionadded:: 1.8
+   Sphinx also runs JavaScript tests.

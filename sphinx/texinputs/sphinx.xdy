@@ -26,7 +26,7 @@
 ;; man page says to use rather xelatex or lualatex in case of Cyrillic
 ;; scripts.
 
-;; Sphinx contributes cyrLICRutf8.xdy to provide support for Cyrillic
+;; Sphinx contributes LICRcyr2utf8.xdy to provide support for Cyrillic
 ;; scripts for the pdflatex engine.
 
 ;; Another issue caused by xindy ignoring all TeX macros except those
@@ -41,6 +41,14 @@
 
 ;; Rather it incorporates some suitable extracts from latex.xdy and
 ;; tex.xdy with additional Sphinx contributed rules.
+
+;; But, this means for pdflatex and Latin scripts that the xindy file
+;; tex/inputenc/uf8.xdy is not usable because it refers to the macro
+;; \IeC only sporadically, and as tex.xdy is not loaded, a rule such as
+;;     (merge-rule "\'e" "é" :string)
+;; does not work, it must be
+;;     (merge-rule "\IeC {\'e}" "é" :string)
+;; So Sphinx contributes LICRlatin2utf8.xdy to mitigate that problem.
 
 ;;;;;;;; extracts from tex.xdy (discarding most original comments):
 
@@ -84,12 +92,10 @@
 
 ;;;;;;;; end of extracts from latex.xdy
 
-;; Sphinx additions, cf sphinx.util.texescape for rationale
-;;
 ;; The LaTeX \index command turns \ into normal character so the TeX macros
 ;; written to .idx files are not followed by a blank. This is different
 ;; from non-ascii letters which end up (with pdflatex) as \IeC macros in .idx
-;; file, with a blank.
+;; file, with a blank space after \IeC
 
 ;; Details of the syntax are explained at
 ;;     http://xindy.sourceforge.net/doc/manual-3.html
@@ -97,6 +103,8 @@
 ;; if the pattern is a regular expression or not". But it is not obvious to
 ;; guess, for example "\\_" is not detected as RE but "\\P\{\}" is, so for
 ;; being sure we apply the :string switch everywhere and do not use \\ etc...
+
+;; Go back from sphinx.util.texescape TeX macros to UTF-8
 
 (merge-rule "\sphinxleftcurlybrace{}" "{" :string)
 (merge-rule "\sphinxrightcurlybrace{}" "}" :string)
@@ -118,12 +126,66 @@
 (merge-rule "\(\checkmark\)" "✓" :string)
 (merge-rule "\textendash{}" "–" :string)
 (merge-rule "\textbar{}" "|" :string)
+(merge-rule "\(\sp{\text{0}}\)" "⁰" :string)
+(merge-rule "\(\sp{\text{1}}\)" "¹" :string)
+(merge-rule "\(\sp{\text{2}}\)" "²" :string)
+(merge-rule "\(\sp{\text{3}}\)" "³" :string)
+(merge-rule "\(\sp{\text{4}}\)" "⁴" :string)
+(merge-rule "\(\sp{\text{5}}\)" "⁵" :string)
+(merge-rule "\(\sp{\text{6}}\)" "⁶" :string)
+(merge-rule "\(\sp{\text{7}}\)" "⁷" :string)
+(merge-rule "\(\sp{\text{8}}\)" "⁸" :string)
+(merge-rule "\(\sp{\text{9}}\)" "⁹" :string)
+(merge-rule "\(\sb{\text{0}}\)" "₀" :string)
+(merge-rule "\(\sb{\text{1}}\)" "₁" :string)
+(merge-rule "\(\sb{\text{2}}\)" "₂" :string)
+(merge-rule "\(\sb{\text{3}}\)" "₃" :string)
+(merge-rule "\(\sb{\text{4}}\)" "₄" :string)
+(merge-rule "\(\sb{\text{5}}\)" "₅" :string)
+(merge-rule "\(\sb{\text{6}}\)" "₆" :string)
+(merge-rule "\(\sb{\text{7}}\)" "₇" :string)
+(merge-rule "\(\sb{\text{8}}\)" "₈" :string)
+(merge-rule "\(\sb{\text{9}}\)" "₉" :string)
+(merge-rule "\(\alpha\)" "α" :string)
+(merge-rule "\(\beta\)" "β" :string)
+(merge-rule "\(\gamma\)" "γ" :string)
+(merge-rule "\(\delta\)" "δ" :string)
+(merge-rule "\(\epsilon\)" "ε" :string)
+(merge-rule "\(\zeta\)" "ζ" :string)
+(merge-rule "\(\eta\)" "η" :string)
+(merge-rule "\(\theta\)" "θ" :string)
+(merge-rule "\(\iota\)" "ι" :string)
+(merge-rule "\(\kappa\)" "κ" :string)
+(merge-rule "\(\lambda\)" "λ" :string)
+(merge-rule "\(\mu\)" "μ" :string)
+(merge-rule "\(\nu\)" "ν" :string)
+(merge-rule "\(\xi\)" "ξ" :string)
+(merge-rule "\(\pi\)" "π" :string)
+(merge-rule "\(\rho\)" "ρ" :string)
+(merge-rule "\(\sigma\)" "σ" :string)
+(merge-rule "\(\tau\)" "τ" :string)
+(merge-rule "\(\upsilon\)" "υ" :string)
+(merge-rule "\(\phi\)" "φ" :string)
+(merge-rule "\(\chi\)" "χ" :string)
+(merge-rule "\(\psi\)" "ψ" :string)
+(merge-rule "\(\omega\)" "ω" :string)
+(merge-rule "\(\Gamma\)" "Γ" :string)
+(merge-rule "\(\Delta\)" "Δ" :string)
+(merge-rule "\(\Theta\)" "Θ" :string)
+(merge-rule "\(\Lambda\)" "Λ" :string)
+(merge-rule "\(\Xi\)" "Ξ" :string)
+(merge-rule "\(\Pi\)" "Π" :string)
+(merge-rule "\(\Sigma\)" "Σ" :string)
+(merge-rule "\(\Upsilon\)" "Υ" :string)
+(merge-rule "\(\Phi\)" "Φ" :string)
+(merge-rule "\(\Psi\)" "Ψ" :string)
+(merge-rule "\(\Omega\)" "Ω" :string)
 
 ;; This xindy module provides some basic support for "see"
 (require "makeindex.xdy")
 
 ;; This creates one-letter headings and works fine with utf-8 letters.
-;; For Cyrillic and pdflatex necessitates cyrLICRutf8.xdy to be loaded too.
+;; For Cyrillic with pdflatex works thanks to LICRcyr2utf8.xdy
 (require "latin-lettergroups.xdy")
 
 ;; currently we don't (know how to easily) separate "Numbers" from

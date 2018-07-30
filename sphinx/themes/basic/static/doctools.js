@@ -150,9 +150,9 @@ var Documentation = {
     this.fixFirefoxAnchorBug();
     this.highlightSearchWords();
     this.initIndexTable();
-    {% if theme_navigation_with_keys|tobool %}
-    this.initOnKeyListeners();
-    {% endif %}
+    if (DOCUMENTATION_OPTIONS.NAVIGATION_WITH_KEYS) {
+      this.initOnKeyListeners();
+    }
   },
 
   /**

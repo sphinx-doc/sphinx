@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import os
+
 import pytest
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
