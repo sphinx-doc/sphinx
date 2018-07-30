@@ -22,7 +22,7 @@ from sphinx.testing.path import path
 @pytest.mark.sphinx(testroot='config', confoverrides={
     'master_doc': 'master',
     'nonexisting_value': 'True',
-    'latex_elements.docclass': 'scrartcl',
+    'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app, status, warning):
     cfg = app.config
@@ -34,7 +34,7 @@ def test_core_config(app, status, warning):
 
     # overrides
     assert cfg.master_doc == 'master'
-    assert cfg.latex_elements['docclass'] == 'scrartcl'
+    assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
