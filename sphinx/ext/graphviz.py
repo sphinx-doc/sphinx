@@ -155,7 +155,10 @@ class Graphviz(SphinxDirective):
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = {}
+        node['options'] = {
+            'docpath': path.splitext(self.state.document.current_source)[0],
+        }
+
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
@@ -192,7 +195,9 @@ class GraphvizSimple(SphinxDirective):
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = {}
+        node['options'] = {
+            'docpath': path.splitext(self.state.document.current_source)[0],
+        }
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
@@ -236,8 +241,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(['-T' + format, '-o' + outfn])
 
-    cwd = path.dirname(
-        path.join(self.builder.srcdir, self.builder.env.docname))
+    cwd = path.dirname(options.get('docpath', self.builder.srcdir))
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
