@@ -173,7 +173,8 @@ Features added
 * #4362: latex: Don't overwrite .tex file if document not changed
 * #1431: latex: Add alphanumeric enumerated list support
 * Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
-  if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
+  if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``. (refs: #5134,
+  #5192, #5212)
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
 * #2820: autoclass directive supports nested class
