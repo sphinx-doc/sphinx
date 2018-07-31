@@ -2005,14 +2005,6 @@ macros and environments, see also :doc:`/latex`.
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times for text, Helvetica for sans serif and Courier for code-blocks).
 
-        .. hint::
-
-           Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
-           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
-           preamble to not change font size in code-blocks.  Since ``1.8`` a
-           separate ``'fvset'`` key is provided for this.
-
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
            script.
@@ -2020,8 +2012,7 @@ macros and environments, see also :doc:`/latex`.
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            Defaults to ``''`` also with ``'lualatex'``.
-        .. versionchanged:: 1.8
-           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
+
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -2192,13 +2183,18 @@ macros and environments, see also :doc:`/latex`.
            __ https://github.com/rtfd/readthedocs.org/issues/2857
 
      ``'fvset'``
-        Customization of ``fancyvrb`` LaTeX package. Defaults to
-        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
-        code-blocks is wider and taller than default text font (Times).
+        Customization of ``fancyvrb`` LaTeX package.  Currently, Sphinx uses
+        this key to set the fontsize in code-blocks according to the
+        :confval:`latex_engine`.
 
-        For ``'xelatex'`` and ``'lualatex'``, defaults to
-        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
-        one unified typeface family (Latin Modern OpenType).
+        - ``'pdflatex'`` uses ``'fvvset': '\\fvset{fontsize=\\small}'``,
+          to mitigate the size difference between the default monospaced font
+          (Courier) and the default text font (Times).  You may need to modify
+          this if you use custom fonts.
+
+        - ``'xelatex'`` and ``'lualatex'`` use ``'\\fvset{fontsize=auto}'``,
+          as there is no size difference between the regular and the
+          monospaced fonts used by default by Sphinx.
 
         .. versionadded:: 1.8
 
