@@ -9,8 +9,8 @@ SOURCEDIR     = {{ rsrcdir }}
 BUILDDIR      = {{ rbuilddir }}
 
 # Internal variables.
-PAPEROPT_a4     = -D latex_elements.papersize=a4
-PAPEROPT_letter = -D latex_elements.papersize=letter
+PAPEROPT_a4     = -D latex_elements.papersize=a4paper
+PAPEROPT_letter = -D latex_elements.papersize=letterpaper
 # $(O) is meant as a shortcut for $(SPHINXOPTS)
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) $(O) $(SOURCEDIR)
 # the i18n builder cannot share the environment and doctrees with the others
