@@ -18,6 +18,10 @@ Bugs fixed
 
 * #5198: document not in toctree warning when including files only for parallel
   builds
+* LaTeX: reduce "Token not allowed in a PDF string" hyperref warnings in latex
+  console output (refs: #5136)
+* LaTeX: suppress "remreset Warning: The remreset package is obsolete" in latex
+  console output with recent LaTeX (refs: #5137)
 
 Testing
 --------
