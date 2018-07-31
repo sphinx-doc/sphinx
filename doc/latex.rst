@@ -55,7 +55,7 @@ example::
    \setlength{\cftsecnumwidth}{1.25cm}
    ''',
        'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
-       'printindex': r'\footnotesize\raggedright\sphinxprintindex',
+       'printindex': r'\footnotesize\raggedright\printindex',
    }
    latex_show_urls = 'footnote'
 
@@ -399,23 +399,6 @@ Macros
   :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
 - the citation reference is typeset via ``\sphinxcite`` which is a wrapper
   of standard ``\cite``.
-- regarding the general index, the :confval:`latex_elements` dictionary has a
-  ``'printindex'`` key which defaults to ``'\\sphinxprintindex'``.  It often
-  proves advantageous to use::
-
-    'printindex': '\\footnotesize\\raggedright\\sphinxprintindex',
-
-  especially if the index contains long entries. The LaTeX class for Japanese
-  ``'manual'``-type documents already does the font size and text
-  justification change, so the above is not needed then.
-
-  .. tip::
-
-     Advanced LaTeX users can also, via :confval:`latex_additional_files`, use
-     a custom :program:`makeindex` style file :file:`python.ist`, or a custom
-     :program:`xindy` style file :file:`sphinx.xdy` (see
-     :confval:`latex_use_xindy`) in order to modify how the general index is
-     typeset.
 
 Environments
 ~~~~~~~~~~~~
@@ -470,8 +453,7 @@ Environments
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
-  environments, needed mainly to insert a corresponding entry in the PDF
-  bookmarks and table of contents.
+  environments as provided by the document class (or packages).
 
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
