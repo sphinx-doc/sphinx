@@ -2187,14 +2187,14 @@ macros and environments, see also :doc:`/latex`.
         this key to set the fontsize in code-blocks according to the
         :confval:`latex_engine`.
 
-        - ``'pdflatex'`` uses ``'fvvset': '\\fvset{fontsize=\\small}'``,
+        - ``'pdflatex'`` uses ``'fvset': '\\fvset{fontsize=\\small}'``,
           to mitigate the size difference between the default monospaced font
           (Courier) and the default text font (Times).  You may need to modify
           this if you use custom fonts.
 
         - ``'xelatex'`` and ``'lualatex'`` use ``'\\fvset{fontsize=auto}'``,
           as there is no size difference between the regular and the
-          monospaced fonts used by default by Sphinx.
+          monospaced fonts used by default by Sphinx with these engines.
 
         .. versionadded:: 1.8
 
