@@ -4,10 +4,9 @@ Release 1.8.0 (in development)
 Dependencies
 ------------
 
-* LaTeX: :confval:`latex_use_xindy`, if ``True`` (default for
-  ``xelatex/lualatex``), instructs ``make latexpdf`` to use :program:`xindy`
-  for general index.  Make sure your LaTeX distribution includes it.
-  (refs: #5134)
+* LaTeX: :confval:`latex_use_xindy`, if ``True`` instructs ``make latexpdf``
+  to use :program:`xindy` for general index.  Make sure your LaTeX
+  distribution includes it.  (refs: #5134)
 
 Incompatible changes
 --------------------
@@ -44,10 +43,6 @@ Incompatible changes
   Please use ``app.add_js_file()`` instead.
 * #5072: Save environment object also with only new documents
 * #5035: qthelp builder allows dashes in :confval:`qthelp_namespace`
-* LaTeX: with lualatex or xelatex use by default :program:`xindy` as
-  UTF-8 able replacement of :program:`makeindex` (refs: #5134).  After
-  upgrading Sphinx, please clean latex build repertory of existing project
-  before new build.
 * #5163: html: hlist items are now aligned to top
 * ``highlightlang`` directive is processed on resolving phase
 
@@ -177,8 +172,7 @@ Features added
   ``pdflatex`` runs for index to show up in PDF bookmarks (refs: #3742)
 
   __ https://github.com/rtfd/readthedocs.org/issues/2857
-* Add :confval:`latex_use_xindy` for UTF-8 savvy indexing, defaults to ``True``
-  if :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``.
+* Add :confval:`latex_use_xindy` for UTF-8 savvy indexing.
 * #4976: ``SphinxLoggerAdapter.info()`` now supports ``location`` parameter
 * #5122: setuptools: support nitpicky option
 * #2820: autoclass directive supports nested class

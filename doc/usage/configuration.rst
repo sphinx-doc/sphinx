@@ -1917,7 +1917,8 @@ macros and environments, see also :doc:`/latex`.
 
 .. confval:: latex_use_xindy
 
-   If ``True``, the PDF build from the LaTeX files created by Sphinx
+   If ``True`` (the default is ``False``),
+   the PDF build from the LaTeX files created by Sphinx
    will use :program:`xindy` (doc__) rather than :program:`makeindex`
    for preparing the index of general terms (from :rst:dir:`index`
    usage).  This means that words with UTF-8 characters will get
@@ -1929,13 +1930,15 @@ macros and environments, see also :doc:`/latex`.
      (Japanese documents; :program:`mendex` replaces :program:`makeindex`
      then).
 
-   - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
-     :program:`makeindex`, if any indexed term starts with a non-ascii
-     character, creates ``.ind`` files containing invalid bytes for
-     UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
-     build.
+   - With``'xelatex'`` or ``'lualatex'``, :program:`makeindex` creates
+     ``.ind`` files containing invalid bytes for UTF-8 encoding, if any
+     indexed term starts with a non-ascii letter.  With ``'lualatex'``
+     this then breaks the PDF build.  It is thus highly recommended to
+     set the variable to ``True``.  This is not done by default because
+     :program:`xindy` creates empty Index section in PDF if no indexed
+     terms exist.
 
-   - The default is ``False`` for ``'pdflatex'`` but ``True`` is
+   - For ``'pdflatex'``, setting the option to ``True`` is
      recommended for non-English documents as soon as some indexed
      terms use non-ascii characters from the language script.
 
@@ -1943,6 +1946,9 @@ macros and environments, see also :doc:`/latex`.
    for using ``'pdflatex'`` engine with Cyrillic scripts.  And whether with
    ``'pdflatex'`` or Unicode engines, Cyrillic documents handle correctly the
    indexing of Latin names, even with diacritics.
+
+   After setting this option to ``True`` on existing project, issue ``make
+   clean`` inside the LaTeX build repertory before next ``make latex``.
 
    .. versionadded:: 1.8
 
