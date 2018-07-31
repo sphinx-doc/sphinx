@@ -399,12 +399,6 @@ def default_latex_docclass(config):
         return {}
 
 
-def default_latex_use_xindy(config):
-    # type: (Config) -> bool
-    """ Better default latex_use_xindy settings for specific engines. """
-    return config.latex_engine in {'xelatex', 'lualatex'}
-
-
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
@@ -422,7 +416,7 @@ def setup(app):
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None)
+    app.add_config_value('latex_use_xindy', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])
