@@ -22,6 +22,8 @@ Bugs fixed
   console output (refs: #5236)
 * LaTeX: suppress "remreset Warning: The remreset package is obsolete" in latex
   console output with recent LaTeX (refs: #5237)
+* #5234: PDF output: usage of PAPER environment variable is broken since Sphinx
+  1.5
 
 Testing
 --------
