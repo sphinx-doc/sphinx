@@ -11,7 +11,7 @@ $pdflatex = 'xelatex ' . $ENV{'LATEXOPTS'} . ' %O %S';
 $lualatex = 'lualatex ' . $ENV{'LATEXOPTS'} . ' %O %S';
 $xelatex = 'xelatex --no-pdf ' . $ENV{'LATEXOPTS'} . ' %O %S';
 {% if xindy_use -%}
-$makeindex = 'xindy ' . $ENV{'XINDYOPTS'} . ' %O -o %D %S';
+$makeindex = '[ ! -s %S ] && : > %D || xindy ' . $ENV{'XINDYOPTS'} . ' %O -o %D %S';
 {% else -%}
 $makeindex = 'makeindex -s python.ist %O -o %D %S';
 {% endif -%}
