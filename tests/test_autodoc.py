@@ -518,43 +518,6 @@ def test_docstring_processing():
 
 
 @pytest.mark.usefixtures('setup_test')
-def test_docstring_property_processing():
-    def genarate_docstring(objtype, name, **kw):
-        del processed_docstrings[:]
-        del processed_signatures[:]
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        results = list(directive.result)
-        docstrings = inst.get_doc()[0]
-        del directive.result[:]
-        return results, docstrings
-
-    directive.env.config.autodoc_docstring_signature = False
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop1')
-    assert '.. py:attribute:: DocstringSig.prop1' in results
-    assert 'First line of docstring' in docstrings
-    assert 'DocstringSig.prop1(self)' in docstrings
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop2')
-    assert '.. py:attribute:: DocstringSig.prop2' in results
-    assert 'First line of docstring' in docstrings
-    assert 'Second line of docstring' in docstrings
-
-    directive.env.config.autodoc_docstring_signature = True
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop1')
-    assert '.. py:attribute:: DocstringSig.prop1' in results
-    assert 'First line of docstring' in docstrings
-    assert 'DocstringSig.prop1(self)' not in docstrings
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop2')
-    assert '.. py:attribute:: DocstringSig.prop2' in results
-    assert 'First line of docstring' in docstrings
-    assert 'Second line of docstring' in docstrings
-
-
-@pytest.mark.usefixtures('setup_test')
 def test_new_documenter():
     logging.setup(app, app._status, app._warning)
 
