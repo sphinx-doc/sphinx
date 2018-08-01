@@ -739,13 +739,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 footnode.walkabout(self)
             self.pending_footnotes = []
 
-    @property
-    def footnotestack(self):
-        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
-        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning)
-        return []
-
     def format_docclass(self, docclass):
         # type: (unicode) -> unicode
         """ prepends prefix to sphinx document classes
@@ -2565,6 +2558,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
     # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    @property
+    def footnotestack(self):
+        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
+        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     @property
     def bibitems(self):
