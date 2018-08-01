@@ -118,6 +118,7 @@ Deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
 * ``sphinx.ext.mathbase.setup_math()`` is deprecated
+* ``sphinx.directives.other.VersionChanges`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated
 * ``sphinx.ext.mathbase.get_node_equation_number()`` is deprecated
 * ``sphinx.ext.mathbase.wrap_displaymath()`` is deprecated
