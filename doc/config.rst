@@ -1820,6 +1820,9 @@ These options influence LaTeX output. See further :doc:`latex`.
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
         .. versionchanged:: 1.6
            ``'lualatex'`` uses same default setting as ``'xelatex'``
+        .. versionchanged:: 1.7.6
+           For French, ``xelatex`` and ``lualatex`` default to using
+           ``babel``, not ``polyglossia``.
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times for text, Helvetica for sans serif and Courier for code-blocks).
