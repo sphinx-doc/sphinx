@@ -24,6 +24,8 @@ Bugs fixed
   console output with recent LaTeX (refs: #5237)
 * #5234: PDF output: usage of PAPER environment variable is broken since Sphinx
   1.5
+* LaTeX: fix the :confval:`latex_engine` documentation regarding Latin Modern
+  font with XeLaTeX/LuaLateX (refs: #5251)
 
 Testing
 --------
