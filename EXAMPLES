@@ -406,6 +406,6 @@ Projects integrating Sphinx functionality
   Sphinx to automatically build documentation updates that are pushed to GitHub:
   https://readthedocs.org/
 
-* *Spyder: The Scientific Python Development Environment* uses Sphinx in its
+* *Spyder*, the Scientific Python Development Environment, uses Sphinx in its
   help pane to render rich documentation for functions, classes and methods
-  automatically or on-demand: https://docs.spyder-ide.org/
+  automatically or on-demand: https://docs.spyder-ide.org/help.html
