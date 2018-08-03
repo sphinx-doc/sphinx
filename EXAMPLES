@@ -398,3 +398,14 @@ Theses produced using Sphinx
 * "Content Conditioning and Distribution for Dynamic Virtual Worlds":
   https://www.cs.princeton.edu/research/techreps/TR-941-12
 * "The Sphinx Thesis Resource": https://jterrace.github.io/sphinxtr/
+
+Projects integrating Sphinx functionality
+-----------------------------------------
+
+* *Read the Docs*, a software-as-a-service documentation hosting platform, uses
+  Sphinx to automatically build documentation updates that are pushed to GitHub:
+  https://readthedocs.org/
+
+* *Spyder: The Scientific Python Development Environment* uses Sphinx in its
+  help pane to render rich documentation for functions, classes and methods
+  automatically or on-demand: https://docs.spyder-ide.org/
