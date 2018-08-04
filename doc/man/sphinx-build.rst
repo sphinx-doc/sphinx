@@ -280,7 +280,16 @@ variables to customize behavior:
 
 .. describe:: PAPER
 
-   The value for '"papersize"` key of :confval:`latex_elements`.
+   This sets the ``'papersize'`` key of :confval:`latex_elements`:
+   i.e. ``PAPER=a4`` sets it to ``'a4paper'`` and ``PAPER=letter`` to
+   ``'letterpaper'``.
+
+   .. note::
+
+      Usage of this environment variable got broken at Sphinx 1.5 as
+      ``a4`` or ``letter`` ended up as option to LaTeX document in
+      place of the needed ``a4paper``, resp. ``letterpaper``.  Fixed at
+      1.7.7.
 
 .. describe:: SPHINXBUILD
 

@@ -1785,15 +1785,33 @@ information.
    preamble.
 
    If your project uses such extra Unicode characters, switching the engine to
-   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
-   encoded sources and can (in fact, should) use OpenType fonts, either from
-   the system or the TeX install tree. Recent LaTeX releases will default with
-   these engines to the Latin Modern OpenType font, which has good coverage of
-   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
-   and Sphinx does not modify this default. Refer to the documentation of the
-   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
-   other OpenType font if Unicode coverage proves insufficient (or use
-   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+   XeLaTeX or LuaLaTeX and setting up the document to use an OpenType font
+   with wide-enough glyph coverage is often easier than sticking with PDFLaTeX
+   and trying to get it to work with the Unicode characters.
+
+   The :confval:`latex_elements` ``'fontpkg'`` key allows to set up the
+   document fonts, see :ref:`this example <latex-basic>`.  Currently, for
+   XeLaTeX and LuaLaTeX, Sphinx leaves this key empty and LaTeX then defaults
+   to the `Latin Modern`_ font family (from the TeX distribution fonts).  This
+   font family provides good coverage of Latin scripts (European languages,
+   Vietnamese) but Cyrillic requires some other OpenType font; for example
+   Computer Modern Unicode (see `babel-russian`_ documentation on how to load
+   it in the LaTeX document).  In future, it is planned Sphinx will provide
+   another default choice of OpenType font than `Latin Modern`_, perhaps
+   `Libertinus`_, which is included in recent TeX distributions and supports
+   Latin and Cyrillic and also has an accompanying math font.
+
+   With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
+   `polyglossia`_.  For some languages the `babel`_ support appears
+   preferable; Sphinx uses currently `babel`_ for French and perhaps will also
+   for some more languages in future.  One can use the
+   :confval:`latex_elements` ``'babel'`` key to override Sphinx's default.
+
+   .. _`Latin Modern`: http://www.gust.org.pl/projects/e-foundry/latin-modern
+   .. _`polyglossia`: https://ctan.org/pkg/polyglossia
+   .. _`babel`: https://ctan.org/pkg/babel
+   .. _`babel-russian`: https://ctan.org/pkg/babel-russian
+   .. _`Libertinus`: https://ctan.org/pkg/libertinus
 
 .. confval:: latex_documents
 
@@ -2000,6 +2018,9 @@ information.
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
         .. versionchanged:: 1.6
            ``'lualatex'`` uses same default setting as ``'xelatex'``
+        .. versionchanged:: 1.7.6
+           For French, ``xelatex`` and ``lualatex`` default to using
+           ``babel``, not ``polyglossia``.
 
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
