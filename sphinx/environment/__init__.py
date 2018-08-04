@@ -186,9 +186,6 @@ class BuildEnvironment(object):
         self.indexentries = {}      # type: Dict[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]  # NOQA
                                     # docname -> list of
                                     # (type, unicode, target, aliasname)
-        self.versionchanges = {}    # type: Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
-                                    # version -> list of (type, docname,
-                                    # lineno, module, descname, content)
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
@@ -321,10 +318,6 @@ class BuildEnvironment(object):
             self.reread_always.discard(docname)
             self.included.discard(docname)
 
-            for version, changes in self.versionchanges.items():
-                new = [change for change in changes if change[1] != docname]
-                changes[:] = new
-
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
@@ -342,10 +335,6 @@ class BuildEnvironment(object):
                 self.reread_always.add(docname)
             if docname in other.included:
                 self.included.add(docname)
-
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
@@ -570,13 +559,6 @@ class BuildEnvironment(object):
         automatically be re-read at the next build.
         """
         self.reread_always.add(self.docname)
-
-    def note_versionchange(self, type, version, node, lineno):
-        # type: (unicode, unicode, nodes.Node, int) -> None
-        self.versionchanges.setdefault(version, []).append(
-            (type, self.temp_data['docname'], lineno,
-             self.ref_context.get('py:module'),
-             self.temp_data.get('object'), node.astext()))
 
     def note_toctree(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None
@@ -857,3 +839,21 @@ class BuildEnvironment(object):
                       RemovedInSphinx30Warning)
         with open(filename, 'wb') as f:
             self.dump(self, f)
+
+    @property
+    def versionchanges(self):
+        # type: () -> Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
+        warnings.warn('env.versionchanges() is deprecated. '
+                      'Please use ChangeSetDomain instead.',
+                      RemovedInSphinx30Warning)
+        return self.domaindata['changeset']['changes']
+
+    def note_versionchange(self, type, version, node, lineno):
+        # type: (unicode, unicode, nodes.Node, int) -> None
+        warnings.warn('env.note_versionchange() is deprecated. '
+                      'Please use ChangeSetDomain.note_changeset() instead.',
+                      RemovedInSphinx30Warning)
+        node['type'] = type
+        node['version'] = version
+        node.line = lineno
+        self.get_domain('changeset').note_changeset(node)  # type: ignore

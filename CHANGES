@@ -84,9 +84,11 @@ Deprecated
 * ``env._read_parallel()`` is deprecated
 * ``env.write_doctree()`` is deprecated
 * ``env._nitpick_ignore`` is deprecated
+* ``env.versionchanges`` is deprecated
 * ``env.dump()`` is deprecated
 * ``env.dumps()`` is deprecated
 * ``env.topickle()`` is deprecated
+* ``env.note_versionchange()`` is deprecated
 * ``sphinx.writers.latex.Table.caption_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.Table.header_footnotetexts`` is deprecated
 * ``sphinx.writers.latex.LaTeXTranslator.footnotestack`` is deprecated
@@ -116,6 +118,7 @@ Deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
 * ``sphinx.ext.mathbase.setup_math()`` is deprecated
+* ``sphinx.directives.other.VersionChanges`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated
 * ``sphinx.ext.mathbase.get_node_equation_number()`` is deprecated
 * ``sphinx.ext.mathbase.wrap_displaymath()`` is deprecated
