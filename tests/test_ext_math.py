@@ -249,3 +249,15 @@ def test_math_compat(app, status, warning):
                      [nodes.math_block, "e^{i\\pi}+1=0\n\n"],
                      [nodes.paragraph, "Multi math equations"],
                      [nodes.math_block, "E = mc^2"]))
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax_config(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert ('<script type="text/x-mathjax-config">'
+            'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
+            '</script>' in content)

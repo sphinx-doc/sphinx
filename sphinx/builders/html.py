@@ -420,7 +420,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def add_js_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
-        if '://' not in filename:
+        if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
         self.script_files.append(JavaScript(filename, **kwargs))  # type: ignore
@@ -1630,17 +1630,22 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
     def js_tag(js):
         # type: (JavaScript) -> unicode
         attrs = []
+        body = ''  # type: unicode
         if isinstance(js, JavaScript):
             for key in sorted(js.attributes):
                 value = js.attributes[key]
                 if value is not None:
-                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
-            attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                    if key == 'body':
+                        body = value
+                    else:
+                        attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+            if js.filename:
+                attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
             # str value (old styled)
             attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
-        return '<script %s></script>' % ' '.join(attrs)
+        return '<script %s>%s</script>' % (' '.join(attrs), body)
 
     context['js_tag'] = js_tag
 
