@@ -200,6 +200,7 @@ Bugs fixed
 * #5114: sphinx-build: Handle errors on scanning documents
 * epub: spine has been broken when "self" is listed on toctree (refs: #4611)
 * #344: autosummary does not understand docstring of module level attributes
+* #5191: C++, prevent nested declarations in functions to avoid lookup problems.
 
 Testing
 --------
