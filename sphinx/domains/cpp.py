@@ -2085,7 +2085,7 @@ class ASTTrailingTypeSpecName(ASTBase):
 
     @property
     def name(self):
-        # type: () -> Any
+        # type: () -> ASTNestedName
         return self.nestedName
 
     def get_id(self, version):
@@ -2379,7 +2379,7 @@ class ASTDeclSpecs(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.trailingTypeSpec.name
 
     def get_id(self, version):
@@ -2487,7 +2487,7 @@ class ASTDeclaratorPtr(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.next.name
 
     @property
@@ -2583,7 +2583,7 @@ class ASTDeclaratorRef(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.next.name
 
     @property
@@ -2638,7 +2638,7 @@ class ASTDeclaratorParamPack(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.next.name
 
     @property
@@ -2702,7 +2702,7 @@ class ASTDeclaratorMemPtr(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.next.name
 
     @property
@@ -2798,7 +2798,7 @@ class ASTDeclaratorParen(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.inner.name
 
     @property
@@ -2864,7 +2864,7 @@ class ASTDeclaratorNameParamQual(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.declId
 
     @property
@@ -2962,9 +2962,8 @@ class ASTType(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
-        name = self.decl.name
-        return name
+        # type: () -> ASTNestedName
+        return self.decl.name
 
     @property
     def function_params(self):
@@ -3054,7 +3053,7 @@ class ASTTypeWithInit(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.type.name
 
     def get_id(self, version, objectType=None, symbol=None):
@@ -3122,7 +3121,7 @@ class ASTConcept(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.nestedName
 
     def get_id(self, version, objectType=None, symbol=None):
@@ -3326,7 +3325,7 @@ class ASTDeclaration(ASTBase):
 
     @property
     def name(self):
-        # type: () -> unicode
+        # type: () -> ASTNestedName
         return self.declaration.name
 
     @property
