@@ -5790,12 +5790,37 @@ class CPPObject(ObjectDescription):
         # type: (addnodes.desc_signature, Any, Dict) -> None
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
+    def run(self):
+        env = self.state.document.settings.env  # from ObjectDescription.run
+        if 'cpp:parent_symbol' not in env.temp_data:
+            root = env.domaindata['cpp']['root_symbol']
+            env.temp_data['cpp:parent_symbol'] = root
+            env.ref_context['cpp:parent_key'] = root.get_lookup_key()
+
+        # The lookup keys assume that no nested scopes exists inside overloaded functions.
+        # (see also #5191)
+        # Example:
+        # .. cpp:function:: void f(int)
+        # .. cpp:function:: void f(double)
+        #
+        #    .. cpp:function:: void g()
+        #
+        #       :cpp:any:`boom`
+        #
+        # So we disallow any signatures inside functions.
+        parentSymbol = env.temp_data['cpp:parent_symbol']
+        parentDecl = parentSymbol.declaration
+        if parentDecl is not None and parentDecl.objectType == 'function':
+            self.warn("C++ declarations inside functions are not supported." +
+                      " Parent function is " + text_type(parentSymbol.get_full_nested_name()))
+            name = _make_phony_error_name()
+            symbol = parentSymbol.add_name(name)
+            env.temp_data['cpp:last_symbol'] = symbol
+            return []
+        return ObjectDescription.run(self)
+
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Any
-        if 'cpp:parent_symbol' not in self.env.temp_data:
-            root = self.env.domaindata['cpp']['root_symbol']
-            self.env.temp_data['cpp:parent_symbol'] = root
-            self.env.ref_context['cpp:parent_key'] = root.get_lookup_key()
         parentSymbol = self.env.temp_data['cpp:parent_symbol']
 
         parser = DefinitionParser(sig, self, self.env.config)
