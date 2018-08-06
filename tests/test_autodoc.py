@@ -1420,6 +1420,7 @@ def test_autodoc_default_flags(app):
 
     # with :members:
     app.config.autodoc_default_flags = ['members']
+    app.emit('config-inited', app.config)
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
@@ -1427,6 +1428,14 @@ def test_autodoc_default_flags(app):
     # with :members: and :undoc-members:
     app.config.autodoc_default_flags = ['members',
                                         'undoc-members']
+    app.emit('config-inited', app.config)
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' in actual
+
+    # with :members: and :undoc-members:
+    app.config.autodoc_default_flags = {'members': 'val1,val4'}
+    app.emit('config-inited', app.config)
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' in actual
