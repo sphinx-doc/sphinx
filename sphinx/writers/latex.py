@@ -487,33 +487,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.first_param = 0
 
         # sort out some elements
-        self.elements = DEFAULT_SETTINGS.copy()
-        self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
-        # for xelatex+French, don't use polyglossia
-        if self.elements['latex_engine'] == 'xelatex':
-            if builder.config.language:
-                if builder.config.language[:2] == 'fr':
-                    self.elements.update({
-                        'polyglossia': '',
-                        'babel':       '\\usepackage{babel}',
-                    })
-        # allow the user to override them all
-        self.elements.update(builder.config.latex_elements)
+        self.elements = builder.context.copy()
 
         # but some have other interface in config file
-        self.elements.update({
-            'wrapperclass': self.format_docclass(document.settings.docclass),
-            # if empty, the title is set to the first section title
-            'title':        document.settings.title,    # treat as a raw LaTeX code
-            'release':      self.encode(builder.config.release),
-            'author':       document.settings.author,   # treat as a raw LaTeX code
-            'indexname':    _('Index'),
-            'use_xindy':    builder.config.latex_use_xindy,
-        })
-        if not self.elements['releasename'] and self.elements['release']:
-            self.elements.update({
-                'releasename':  _('Release'),
-            })
+        self.elements['wrapperclass'] = self.format_docclass(document.settings.docclass)
 
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case

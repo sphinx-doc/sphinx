@@ -34,7 +34,9 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.writers.latex import DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
+from sphinx.writers.latex import (
+    ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
+)
 
 if False:
     # For type annotation
@@ -126,10 +128,13 @@ class LaTeXBuilder(Builder):
 
     def init(self):
         # type: () -> None
+        self.context = {}           # type: Dict[unicode, Any]
         self.docnames = []          # type: Iterable[unicode]
         self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
         self.usepackages = self.app.registry.latex_packages
         texescape.init()
+
+        self.init_context()
 
     def get_outdated_docs(self):
         # type: () -> Union[unicode, List[unicode]]
@@ -166,6 +171,31 @@ class LaTeXBuilder(Builder):
             if docname.endswith(SEP + 'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
+
+    def init_context(self):
+        # type: () -> None
+        self.context = DEFAULT_SETTINGS.copy()
+
+        # Add special settings for latex_engine
+        self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
+
+        # for xelatex+French, don't use polyglossia by default
+        if self.config.latex_engine == 'xelatex':
+            if self.config.language:
+                if self.config.language[:2] == 'fr':
+                    self.context['polyglossia'] = ''
+                    self.context['babel'] = r'\usepackage{babel}'
+
+        # Apply user settings to context
+        self.context.update(self.config.latex_elements)
+        self.context['release'] = self.config.release
+        self.context['use_xindy'] = self.config.latex_use_xindy
+
+        # for compatibilities
+        self.context['indexname'] = _('Index')
+        if self.config.release:
+            # Show the release label only if release value exists
+            self.context['releasename'] = _('Release')
 
     def write_stylesheet(self):
         # type: () -> None
@@ -210,6 +240,8 @@ class LaTeXBuilder(Builder):
             doctree['tocdepth'] = tocdepth
             self.apply_transforms(doctree)
             self.post_process_images(doctree)
+            self.update_doc_context(title, author)
+
             logger.info(__("writing... "), nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
@@ -230,6 +262,11 @@ class LaTeXBuilder(Builder):
                 break
 
         return contentsname
+
+    def update_doc_context(self, title, author):
+        # type: (unicode, unicode) -> None
+        self.context['title'] = title
+        self.context['author'] = author
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node

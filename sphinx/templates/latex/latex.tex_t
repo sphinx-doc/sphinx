@@ -47,11 +47,15 @@
 \release{<%= release %>}
 \author{<%= author %>}
 \newcommand{\sphinxlogo}{<%= logo %>}
-\renewcommand{\releasename}{<%= releasename %>}
+<%- if releasename or release %>
+\renewcommand{\releasename}{<%= releasename or _('Release') %>}
+<%- else %>
+\renewcommand{\releasename}{}
+<%- endif %>
 <%= makeindex %>
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
-\renewcommand{\indexname}{<%= indexname %>}
+\renewcommand{\indexname}{<%= _('Index') %>}
 <%= printindex %>
 \end{document}
