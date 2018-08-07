@@ -19,7 +19,7 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
@@ -27,6 +27,11 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 app = None
+
+if PY3:
+    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
+else:
+    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
 
 
 def do_autodoc(app, objtype, name, options={}):
@@ -513,43 +518,6 @@ def test_docstring_processing():
 
 
 @pytest.mark.usefixtures('setup_test')
-def test_docstring_property_processing():
-    def genarate_docstring(objtype, name, **kw):
-        del processed_docstrings[:]
-        del processed_signatures[:]
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        results = list(directive.result)
-        docstrings = inst.get_doc()[0]
-        del directive.result[:]
-        return results, docstrings
-
-    directive.env.config.autodoc_docstring_signature = False
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop1')
-    assert '.. py:attribute:: DocstringSig.prop1' in results
-    assert 'First line of docstring' in docstrings
-    assert 'DocstringSig.prop1(self)' in docstrings
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop2')
-    assert '.. py:attribute:: DocstringSig.prop2' in results
-    assert 'First line of docstring' in docstrings
-    assert 'Second line of docstring' in docstrings
-
-    directive.env.config.autodoc_docstring_signature = True
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop1')
-    assert '.. py:attribute:: DocstringSig.prop1' in results
-    assert 'First line of docstring' in docstrings
-    assert 'DocstringSig.prop1(self)' not in docstrings
-    results, docstrings = \
-        genarate_docstring('attribute', 'target.DocstringSig.prop2')
-    assert '.. py:attribute:: DocstringSig.prop2' in results
-    assert 'First line of docstring' in docstrings
-    assert 'Second line of docstring' in docstrings
-
-
-@pytest.mark.usefixtures('setup_test')
 def test_new_documenter():
     logging.setup(app, app._status, app._warning)
 
@@ -617,72 +585,11 @@ def test_attrgetter_using():
 
 @pytest.mark.usefixtures('setup_test')
 def test_generate():
-    logging.setup(app, app._status, app._warning)
-
-    def assert_warns(warn_str, objtype, name, **kw):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        assert len(directive.result) == 0, directive.result
-
-        assert warn_str in app._warning.getvalue()
-        app._warning.truncate(0)
-
-    def assert_works(objtype, name, **kw):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        assert directive.result
-        # print '\n'.join(directive.result)
-        assert app._warning.getvalue() == ''
-        del directive.result[:]
-
-    def assert_processes(items, objtype, name, **kw):
-        del processed_docstrings[:]
-        del processed_signatures[:]
-        assert_works(objtype, name, **kw)
-        assert set(processed_docstrings) | set(processed_signatures) == set(items)
-
     def assert_result_contains(item, objtype, name, **kw):
         inst = app.registry.documenters[objtype](directive, name)
         inst.generate(**kw)
-        # print '\n'.join(directive.result)
-        assert app._warning.getvalue() == ''
         assert item in directive.result
         del directive.result[:]
-
-    def assert_order(items, objtype, name, member_order, **kw):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.options.member_order = member_order
-        inst.generate(**kw)
-        assert app._warning.getvalue() == ''
-        items = list(reversed(items))
-        lineiter = iter(directive.result)
-        # for line in directive.result:
-        #     if line.strip():
-        #         print repr(line)
-        while items:
-            item = items.pop()
-            for line in lineiter:
-                if line == item:
-                    break
-            else:  # ran out of items!
-                assert False, ('item %r not found in result or not in the '
-                               ' correct order' % item)
-        del directive.result[:]
-
-    options.members = []
-
-    # no module found?
-    assert_warns("import for autodocumenting 'foobar'",
-                 'function', 'foobar', more_content=None)
-    # importing
-    assert_warns("failed to import module 'test_foobar'",
-                 'module', 'test_foobar', more_content=None)
-    # attributes missing
-    assert_warns("failed to import function 'foobar' from module 'util'",
-                 'function', 'util.foobar', more_content=None)
-    # method missing
-    assert_warns("failed to import method 'Class.foobar' from module 'target';",
-                 'method', 'target.Class.foobar', more_content=None)
 
     # test auto and given content mixing
     directive.env.ref_context['py:module'] = 'target'
@@ -694,80 +601,238 @@ def test_generate():
     assert_result_contains('   Content.', 'method',
                            'Class.meth', more_content=add_content)
 
-    # test check_module
-    inst = FunctionDocumenter(directive, 'add_documenter')
-    inst.generate(check_module=True)
-    assert len(directive.result) == 0
 
-    # assert that exceptions can be documented
-    assert_works('exception', 'target.CustomEx', all_members=True)
-    assert_works('exception', 'target.CustomEx')
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_exception(app):
+    actual = do_autodoc(app, 'exception', 'target.CustomEx')
+    assert list(actual) == [
+        '',
+        '.. py:exception:: CustomEx',
+        '   :module: target',
+        '',
+        '   My custom exception.',
+        '   '
+    ]
 
-    # test diverse inclusion settings for members
-    should = [('class', 'target.Class')]
-    assert_processes(should, 'class', 'Class')
-    should.extend([('method', 'target.Class.meth')])
-    options.members = ['meth']
-    options.exclude_members = set(['excludemeth'])
-    assert_processes(should, 'class', 'Class')
-    should.extend([('attribute', 'target.Class.prop'),
-                   ('attribute', 'target.Class.descr'),
-                   ('attribute', 'target.Class.attr'),
-                   ('attribute', 'target.Class.docattr'),
-                   ('attribute', 'target.Class.udocattr'),
-                   ('attribute', 'target.Class.mdocattr'),
-                   ('attribute', 'target.Class.inst_attr_comment'),
-                   ('attribute', 'target.Class.inst_attr_inline'),
-                   ('attribute', 'target.Class.inst_attr_string'),
-                   ('method', 'target.Class.moore'),
-                   ])
-    options.members = ALL
-    assert_processes(should, 'class', 'Class')
-    options.undoc_members = True
-    should.extend((('attribute', 'target.Class.skipattr'),
-                   ('method', 'target.Class.undocmeth'),
-                   ('method', 'target.Class.roger')))
-    assert_processes(should, 'class', 'Class')
-    options.inherited_members = True
-    should.append(('method', 'target.Class.inheritedmeth'))
-    should.append(('method', 'target.Class.inheritedclassmeth'))
-    should.append(('method', 'target.Class.inheritedstaticmeth'))
-    assert_processes(should, 'class', 'Class')
 
-    # test special members
-    options.special_members = ['__special1__']
-    should.append(('method', 'target.Class.__special1__'))
-    assert_processes(should, 'class', 'Class')
-    options.special_members = ALL
-    should.append(('method', 'target.Class.__special2__'))
-    assert_processes(should, 'class', 'Class')
-    options.special_members = False
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_warnings(app, warning):
+    app.env.temp_data['docname'] = 'dummy'
 
-    options.members = []
-    # test module flags
-    assert_result_contains('.. py:module:: target',
-                           'module', 'target')
-    options.synopsis = 'Synopsis'
-    assert_result_contains('   :synopsis: Synopsis', 'module', 'target')
-    options.deprecated = True
-    assert_result_contains('   :deprecated:', 'module', 'target')
-    options.platform = 'Platform'
-    assert_result_contains('   :platform: Platform', 'module', 'target')
-    # test if __all__ is respected for modules
-    options.members = ALL
-    assert_result_contains('.. py:class:: Class(arg)', 'module', 'target')
-    try:
-        assert_result_contains('.. py:exception:: CustomEx',
-                               'module', 'target')
-    except AssertionError:
-        pass
-    else:
-        assert False, 'documented CustomEx which is not in __all__'
+    # can't import module
+    do_autodoc(app, 'module', 'unknown')
+    assert "failed to import module 'unknown'" in warning.getvalue()
 
-    # test ignore-module-all
-    options.ignore_module_all = True
-    assert_result_contains('.. py:class:: Class(arg)', 'module', 'target')
-    assert_result_contains('.. py:exception:: CustomEx', 'module', 'target')
+    # missing function
+    do_autodoc(app, 'function', 'unknown')
+    assert "import for autodocumenting 'unknown'" in warning.getvalue()
+
+    do_autodoc(app, 'function', 'target.unknown')
+    assert "failed to import function 'unknown' from module 'target'" in warning.getvalue()
+
+    # missing method
+    do_autodoc(app, 'method', 'target.Class.unknown')
+    assert "failed to import method 'Class.unknown' from module 'target'" in warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_attributes(app):
+    options = {"synopsis": 'Synopsis',
+               "platform": "Platform",
+               "deprecated": None}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target',
+        '   :synopsis: Synopsis',
+        '   :platform: Platform',
+        '   :deprecated:',
+        ''
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_members(app):
+    # default (no-members)
+    actual = do_autodoc(app, 'class', 'target.Base')
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base',
+    ]
+
+    # default ALL-members
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base',
+        '   .. py:classmethod:: Base.inheritedclassmeth()',
+        '   .. py:method:: Base.inheritedmeth()',
+        '   .. py:staticmethod:: Base.inheritedstaticmeth(cls)'
+    ]
+
+    # default specific-members
+    options = {"members": "inheritedmeth,inheritedstaticmeth"}
+    actual = do_autodoc(app, 'class', 'target.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base',
+        '   .. py:method:: Base.inheritedmeth()',
+        '   .. py:staticmethod:: Base.inheritedstaticmeth(cls)'
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_exclude_members(app):
+    options = {"members": None,
+               "exclude-members": "inheritedmeth,inheritedstaticmeth"}
+    actual = do_autodoc(app, 'class', 'target.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base',
+        '   .. py:classmethod:: Base.inheritedclassmeth()'
+    ]
+
+    # members vs exclude-members
+    options = {"members": "inheritedmeth",
+               "exclude-members": "inheritedmeth"}
+    actual = do_autodoc(app, 'class', 'target.Base', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Base',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_undoc_members(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.descr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:attribute:: Class.prop',
+        ROGER_METHOD,
+        '   .. py:attribute:: Class.skipattr',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:method:: Class.undocmeth()'
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_inherited_members(app):
+    options = {"members": None,
+               "inherited-members": None}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: 'method::' in l, actual)) == [
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:classmethod:: Class.inheritedclassmeth()',
+        '   .. py:method:: Class.inheritedmeth()',
+        '   .. py:staticmethod:: Class.inheritedstaticmeth(cls)',
+        '   .. py:method:: Class.meth()',
+        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.skipmeth()'
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_imported_members(app):
+    options = {"members": None,
+               "imported-members": None,
+               "ignore-module-all": None}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert '.. py:function:: add_documenter(cls)' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_special_members(app):
+    # all special methods
+    options = {"members": None,
+               "undoc-members": None,
+               "special-members": None}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:attribute:: Class.__module__',
+        '   .. py:method:: Class.__special1__()',
+        '   .. py:method:: Class.__special2__()',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.descr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:attribute:: Class.prop',
+        ROGER_METHOD,
+        '   .. py:attribute:: Class.skipattr',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:method:: Class.undocmeth()'
+    ]
+
+    # specific special methods
+    options = {"members": None,
+               "undoc-members": None,
+               "special-members": "__init__,__special1__"}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:method:: Class.__special1__()',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.descr',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_string',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:attribute:: Class.prop',
+        ROGER_METHOD,
+        '   .. py:attribute:: Class.skipattr',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:method:: Class.undocmeth()'
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_ignore_module_all(app):
+    # default (no-ignore-module-all)
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert list(filter(lambda l: 'class::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+    ]
+
+    # ignore-module-all
+    options = {"members": None,
+               "ignore-module-all": None}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert list(filter(lambda l: 'class::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '.. py:class:: CustomDataDescriptor(doc)',
+        '.. py:class:: CustomDataDescriptor2(doc)',
+        '.. py:class:: CustomDataDescriptorMeta',
+        '.. py:class:: CustomDict',
+        '.. py:class:: EnumCls',
+        '.. py:class:: InstAttCls()',
+        '.. py:class:: Outer',
+        '   .. py:class:: Outer.Inner',
+        '.. py:class:: StrRepr'
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -889,11 +954,6 @@ def test_autodoc_c_module(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_member_order(app):
-    if PY3:
-        roger_method = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
-    else:
-        roger_method = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
-
     # case member-order='bysource'
     options = {"members": None,
                'member-order': 'bysource',
@@ -913,7 +973,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
-        roger_method,
+        ROGER_METHOD,
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -932,7 +992,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.excludemeth()',
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
-        roger_method,
+        ROGER_METHOD,
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -967,7 +1027,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        roger_method,
+        ROGER_METHOD,
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
