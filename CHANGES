@@ -12,6 +12,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #5156: the :py:mod:`sphinx.ext.graphviz: extension runs `dot` in the
+  directory of the document being built instead of in the root directory of
+  the documentation.
 * #4460: extensions which stores any data to environment should return the
   version of its env data structure as metadata.  In detail, please see
   :ref:`ext-metadata`.
