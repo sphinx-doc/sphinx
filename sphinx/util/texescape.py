@@ -128,6 +128,7 @@ tex_hl_escape_map_new = {}
 
 def escape(s):
     # type: (unicode) -> unicode
+    """Escape text for LaTeX output."""
     return s.translate(tex_escape_map)
 
 

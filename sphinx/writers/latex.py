@@ -115,7 +115,6 @@ DEFAULT_SETTINGS = {
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
-    'translatablestrings': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -628,23 +627,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['translatablestrings'] = (
-            self.babel_renewcommand(
-                '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
-            ) +
-            self.babel_renewcommand(
-                '\\literalblockcontinuesname', self.encode(_('continues on next page'))
-            ) +
-            self.babel_renewcommand(
-                '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
-            ) +
-            self.babel_renewcommand(
-                '\\sphinxsymbolsname', self.encode(_('Symbols'))
-            ) +
-            self.babel_renewcommand(
-                '\\sphinxnumbersname', self.encode(_('Numbers'))
-            )
-        )
         self.elements['pageautorefname'] = \
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)

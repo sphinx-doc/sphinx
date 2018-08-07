@@ -29,6 +29,7 @@
 <%= fontpkg %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
+\input{sphinxmessage.sty}
 <%= sphinxsetup %>
 <%= fvset %>
 <%= geometry %>
@@ -36,7 +37,6 @@
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>
-<%= translatablestrings %>
 <%= pageautorefname %>
 <%= tocdepth %>
 <%= secnumdepth %>

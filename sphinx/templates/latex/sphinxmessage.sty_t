@@ -1,0 +1,5 @@
+\renewcommand{\literalblockcontinuedname}{<%= _('continued from previous page') | e %>}
+\renewcommand{\literalblockcontinuesname}{<%= _('continues on next page') | e %>}
+\renewcommand{\sphinxnonalphabeticalgroupname}{<%= _('Non-alphabetical') | e %>}
+\renewcommand{\sphinxsymbolsname}{<%= _('Symbols') | e %>}
+\renewcommand{\sphinxnumbersname}{<%= _('Numbers') | e %>}
