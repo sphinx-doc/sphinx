@@ -49,10 +49,6 @@ ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('rebuild', Union[bool, unicode])])
 
 
-#: represents the config value accepts any type of value.
-Any = object()
-
-
 class ENUM(object):
     """represents the config value should be a one of candidates.
 
