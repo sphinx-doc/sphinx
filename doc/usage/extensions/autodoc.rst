@@ -353,7 +353,24 @@ There are also new config values that you can set:
 
    the directive will be interpreted as if only ``:members:`` was given.
 
+   You can also set `autodoc_default_flags` to a dictionary, mapping option
+   names to the values which can used in .rst files. For example::
+
+     autodoc_default_flags = {
+        'members': 'var1, var2',
+        'member-order': 'bysource',
+        'special-members': '__init__',
+        'undoc-members': None,
+    }
+
+    Setting ``None`` is equivalent to giving the option name in the list format
+    (i.e. it means "yes/true/on").
+
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.8
+
+      Specifying in dictionary format added.
 
 .. confval:: autodoc_docstring_signature
 
