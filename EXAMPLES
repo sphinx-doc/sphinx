@@ -293,7 +293,6 @@ Documentation using sphinx_rtd_theme
 * `Certbot`__
 * `Chainer`__ (customized)
 * `CherryPy`__
-* `Chainer`__
 * `CodeIgniter`__
 * `Conda`__
 * `Corda`__
@@ -392,7 +391,6 @@ __ https://bootstrap-datepicker.readthedocs.io/
 __ https://letsencrypt.readthedocs.io/
 __ https://docs.chainer.org/
 __ http://docs.cherrypy.org/
-__ https://docs.chainer.org/
 __ https://www.codeigniter.com/user_guide/
 __ https://conda.io/docs/
 __ https://docs.corda.net/
@@ -669,7 +667,7 @@ Books produced using Sphinx
 * `"The Hitchhiker's Guide to Python"`__
 * `"LassoGuide"`__
 * `"Learning Sphinx" (in Japanese)`__
-* `"Mercurial__ the definitive guide (Second edition)"`__
+* `"Mercurial: the definitive guide (Second edition)"`__
 * `"Pioneers and Prominent Men of Utah"`__
 * `"Pomodoro Technique Illustrated" (Japanese translation)`__
 * `"Python Professional Programming" (in Japanese)`__
