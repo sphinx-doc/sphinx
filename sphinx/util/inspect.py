@@ -433,8 +433,7 @@ class Signature(object):
         if PY2 or self.return_annotation is inspect.Parameter.empty:
             return '(%s)' % ', '.join(args)
         else:
-            if isinstance(self.return_annotation, string_types) and \
-                    'return' in self.annotations:
+            if 'return' in self.annotations:
                 annotation = self.format_annotation(self.annotations['return'])
             else:
                 annotation = self.format_annotation(self.return_annotation)
