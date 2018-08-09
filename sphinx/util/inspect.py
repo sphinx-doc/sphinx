@@ -20,6 +20,7 @@ from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
+from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
@@ -464,6 +465,8 @@ class Signature(object):
             return annotation.__name__
         elif not annotation:
             return repr(annotation)
+        elif annotation is NoneType:  # type: ignore
+            return 'None'
         elif module == 'builtins':
             return annotation.__qualname__
         elif annotation is Ellipsis:
@@ -517,6 +520,9 @@ class Signature(object):
             qualified_name = annotation.__qualname__  # type: ignore
         else:
             qualified_name = (annotation.__module__ + '.' + annotation.__qualname__)  # type: ignore  # NOQA
+
+        if annotation is NoneType:  # type: ignore
+            return 'None'
 
         if annotation.__module__ == 'builtins':
             return annotation.__qualname__  # type: ignore
