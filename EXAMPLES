@@ -145,7 +145,6 @@ __ https://cmake.org/documentation/
 __ http://docs.enthought.com/chaco/
 __ http://cormoran.nhopkg.org/docs/
 __ https://deap.readthedocs.io/
-__ https://deap.readthedocs.io/
 __ https://pythonhosted.org/director/
 __ https://pageperso.lif.univ-mrs.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html
 __ http://f2py.sourceforge.net/docs/
@@ -643,7 +642,7 @@ Homepages and other non-documentation sites
 * `Benoit Boissinot`__ (classic, customized)
 * `Computer Networks, Parallelization, and Simulation Laboratory (CNPSLab)`__ (sphinx_rtd_theme)
 * `Deep Learning Tutorials`__ (sphinxdoc)
-* `Loyola University Chicago COMP 339-439 Distributed Systems course´__ (sphinx_bootstrap_theme)
+* `Loyola University Chicago COMP 339-439 Distributed Systems course`__ (sphinx_bootstrap_theme)
 * `Pylearn2`__ (sphinxdoc, customized)
 * `SciPy Cookbook`__ (sphinx_rtd_theme)
 * `The Wine Cellar Book`__ (sphinxdoc)
@@ -670,11 +669,11 @@ Books produced using Sphinx
 * `"The Hitchhiker's Guide to Python"`__
 * `"LassoGuide"`__
 * `"Learning Sphinx" (in Japanese)`__
-* `"Mercurial`__ the definitive guide (Second edition)"`__
+* `"Mercurial__ the definitive guide (Second edition)"`__
 * `"Pioneers and Prominent Men of Utah"`__
 * `"Pomodoro Technique Illustrated" (Japanese translation)`__
 * `"Python Professional Programming" (in Japanese)`__
-* `"The ``repoze.bfg`` Web Application Framework"`__
+* `"The repoze.bfg Web Application Framework"`__
 * `"Simple and Steady Way of Learning for Software Engineering" (in Japanese)`__
 * `"Software-Dokumentation mit Sphinx"`__
 * `"Theoretical Physics Reference"`__
