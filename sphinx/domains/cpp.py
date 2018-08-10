@@ -289,13 +289,26 @@ logger = logging.getLogger(__name__)
             nested-name
 """
 
-# TODO: support hex, oct, etc. work
 _integer_literal_re = re.compile(r'[1-9][0-9]*')
 _octal_literal_re = re.compile(r'0[0-7]*')
 _hex_literal_re = re.compile(r'0[xX][0-7a-fA-F][0-7a-fA-F]*')
 _binary_literal_re = re.compile(r'0[bB][01][01]*')
 _integer_suffix_re = re.compile(r'')
 _float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
+_char_literal_re = re.compile(r'''(?x)
+    ((?:u8)|u|U|L)?
+    '(
+      (?:[^\\'])
+    | (\\(
+        (?:['"?\\abfnrtv])
+      | (?:[0-7]{1,3})
+      | (?:x[0-9a-fA-F]{2})
+      | (?:u[0-9a-fA-F]{4})
+      | (?:U[0-9a-fA-F]{8})
+      ))
+    )'
+''')
+
 _anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
 _identifier_re = re.compile(r'''(?x)
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
@@ -522,6 +535,10 @@ _id_operator_unary_v2 = {
     '!': 'nt',
     '~': 'co'
 }
+_id_char_from_prefix = {
+    None: 'c', 'u8': 'c',
+    'u': 'Ds', 'U': 'Di', 'L': 'w'
+}  # type: Dict[unicode, unicode]
 # these are ordered by preceedence
 _expression_bin_ops = [
     ['||'],
@@ -774,6 +791,38 @@ class ASTNumberLiteral(ASTBase):
 
     def get_id(self, version):
         return "L%sE" % self.data
+
+    def describe_signature(self, signode, mode, env, symbol):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class UnsupportedMultiCharacterCharLiteral(UnicodeMixin, Exception):
+    def __init__(self, decoded):
+        self.decoded = decoded
+
+
+class ASTCharLiteral(ASTBase):
+    def __init__(self, prefix, data):
+        # type: (unicode, unicode) -> None
+        self.prefix = prefix  # may be None when no prefix
+        self.data = data
+        assert prefix in _id_char_from_prefix
+        self.type = _id_char_from_prefix[prefix]
+        decoded = data.encode().decode('unicode-escape')
+        if len(decoded) == 1:
+            self.value = ord(decoded)
+        else:
+            raise UnsupportedMultiCharacterCharLiteral(decoded)
+
+    def _stringify(self, transform):
+        if self.prefix is None:
+            return "'" + self.data + "'"
+        else:
+            return self.prefix + "'" + self.data + "'"
+
+    def get_id(self, version):
+        return self.type + str(self.value)
 
     def describe_signature(self, signode, mode, env, symbol):
         txt = text_type(self)
@@ -4177,7 +4226,19 @@ class DefinitionParser(object):
         string = self._parse_string()
         if string is not None:
             return ASTStringLiteral(string)
-        # TODO: char lit
+
+        # character-literal
+        if self.match(_char_literal_re):
+            prefix = self.last_match.group(1)  # may be None when no prefix
+            data = self.last_match.group(2)
+            try:
+                return ASTCharLiteral(prefix, data)
+            except UnicodeDecodeError as e:
+                self.fail("Can not handle character literal. Internal error was: %s" % e)
+            except UnsupportedMultiCharacterCharLiteral as e:
+                self.fail("Can not handle character literal"
+                          " resulting in multiple decoded characters.")
+
         # TODO: user-defined lit
         return None
 
