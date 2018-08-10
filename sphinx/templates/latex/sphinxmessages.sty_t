@@ -8,3 +8,4 @@
 \renewcommand{\sphinxnonalphabeticalgroupname}{<%= _('Non-alphabetical') | e %>}
 \renewcommand{\sphinxsymbolsname}{<%= _('Symbols') | e %>}
 \renewcommand{\sphinxnumbersname}{<%= _('Numbers') | e %>}
+\def\pageautorefname{<%= _('page') | e %>}

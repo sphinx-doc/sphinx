@@ -24,7 +24,7 @@ from six import text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
@@ -114,7 +114,6 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-    'pageautorefname': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
@@ -627,8 +626,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['pageautorefname'] = \
-            self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
         self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
@@ -729,17 +726,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             suffix = ''
 
         return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
-
-    def babel_defmacro(self, name, definition):
-        # type: (unicode, unicode) -> unicode
-        if self.elements['babel']:
-            prefix = '\\addto\\extras%s{' % self.babel.get_language()
-            suffix = '}'
-        else:  # babel is disabled (mainly for Japanese environment)
-            prefix = ''
-            suffix = ''
-
-        return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
 
     def generate_numfig_format(self, builder):
         # type: (Builder) -> unicode
@@ -2564,6 +2550,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 msg = __("Unknown configure key: latex_elements[%r] is ignored.")
                 logger.warning(msg % key)
 
+    def babel_defmacro(self, name, definition):
+        # type: (unicode, unicode) -> unicode
+        warnings.warn('babel_defmacro() is deprecated.',
+                      RemovedInSphinx40Warning)
+
+        if self.elements['babel']:
+            prefix = '\\addto\\extras%s{' % self.babel.get_language()
+            suffix = '}'
+        else:  # babel is disabled (mainly for Japanese environment)
+            prefix = ''
+            suffix = ''
+
+        return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
 
 # Import old modules here for compatibility
 # They should be imported after `LaTeXTranslator` to avoid recursive import.

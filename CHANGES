@@ -26,7 +26,11 @@ Deprecated
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.get_matching_docs()`` is deprecated
 * ``sphinx.util.osutil.walk()``
-* ``translatablestrings`` variable for LaTeX template
+* ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+* template variables for LaTeX template
+
+  - ``pageautorefname``
+  - ``translatablestrings``
 
 For more details, see `deprecation APIs list
 <http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
