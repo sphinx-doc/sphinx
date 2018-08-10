@@ -353,7 +353,18 @@ There are also new config values that you can set:
 
    the directive will be interpreted as if only ``:members:`` was given.
 
+   It also allows a dict of flags and values like this::
+
+      autodoc_default_flags = {
+          'members': 'var1, var2',  # Give a parameter as a value of dict
+          'undoc-members': None,    # Set "None" if value is not needed
+      }
+
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.8
+
+      It takes dict style configuration also.
 
 .. confval:: autodoc_docstring_signature
 

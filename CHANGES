@@ -191,6 +191,8 @@ Features added
 * #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
 * Add :rst:role:`math:numref` role to refer equations (Same as :rst:role:`eq`)
 * quickstart: epub builder is enabled by default
+* #4075: autodoc: :confval:`autodoc_default_flags` allows dict style
+  configuration
 
 Bugs fixed
 ----------
