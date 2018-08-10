@@ -127,7 +127,20 @@ def test_expressions():
         exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
-    # TODO: test the rest
+    # character literals
+    for p, t in [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]:
+        exprCheck(p + "'a'", t + "97")
+        exprCheck(p + "'\\n'", t + "10")
+        exprCheck(p + "'\\012'", t + "10")
+        exprCheck(p + "'\\0'", t + "0")
+        exprCheck(p + "'\\x0a'", t + "10")
+        exprCheck(p + "'\\x0A'", t + "10")
+        exprCheck(p + "'\\u0a42'", t + "2626")
+        exprCheck(p + "'\\u0A42'", t + "2626")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
+
+    # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')

@@ -171,6 +171,7 @@ Features added
 * C++, add support for unions.
 * C++, add support for anonymous entities using names staring with ``@``.
   Fixes #3593 and #2683.
+* #5147: C++, add support for (most) character literals.
 * #3606: MathJax should be loaded with async attribute
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
