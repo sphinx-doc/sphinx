@@ -1492,6 +1492,10 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
         # type: () -> ASTNestedName
         return self.type.name
 
+    @property
+    def isPack(self):
+        return self.type.isPack
+
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, unicode, Symbol) -> unicode
         # this is not part of the normal name mangling in C++
@@ -1531,6 +1535,10 @@ class ASTTemplateParamTemplateType(ASTBase):
         id = self.get_identifier()
         return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
+    @property
+    def isPack(self):
+        return self.data.parameterPack
+
     def get_identifier(self):
         # type: () -> unicode
         return self.data.get_identifier()
@@ -1566,6 +1574,10 @@ class ASTTemplateParamNonType(ASTBase):
         # type: () -> ASTNestedName
         id = self.get_identifier()
         return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
+
+    @property
+    def isPack(self):
+        return self.param.isPack
 
     def get_identifier(self):
         # type: () -> unicode
@@ -2636,6 +2648,10 @@ class ASTDeclaratorRef(ASTBase):
         return self.next.name
 
     @property
+    def isPack(self):
+        return True
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.next.function_params
@@ -2917,6 +2933,10 @@ class ASTDeclaratorNameParamQual(ASTBase):
         return self.declId
 
     @property
+    def isPack(self):
+        return False
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.paramQual.function_params
@@ -3015,6 +3035,10 @@ class ASTType(ASTBase):
         return self.decl.name
 
     @property
+    def isPack(self):
+        return self.decl.isPack
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.decl.function_params
@@ -3104,6 +3128,10 @@ class ASTTypeWithInit(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         return self.type.name
+
+    @property
+    def isPack(self):
+        return self.type.isPack
 
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, unicode, Symbol) -> unicode

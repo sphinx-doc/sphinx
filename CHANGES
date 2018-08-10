@@ -207,6 +207,7 @@ Bugs fixed
 * epub: spine has been broken when "self" is listed on toctree (refs: #4611)
 * #344: autosummary does not understand docstring of module level attributes
 * #5191: C++, prevent nested declarations in functions to avoid lookup problems.
+* #5126: C++, add missing isPack method for certain template parameter types.
 * #5002: graphviz: SVGs do not adapt to the column width
 
 Testing
