@@ -7,8 +7,8 @@ environment:
   matrix:
     - PYTHON: 27
       TEST_IGNORE: --ignore py35
-    - PYTHON: 36
-    - PYTHON: 36-x64
+    - PYTHON: 37
+    - PYTHON: 37-x64
 
 install:
   - C:\Python%PYTHON%\python.exe -m pip install -U pip setuptools
