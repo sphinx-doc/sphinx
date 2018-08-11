@@ -2647,7 +2647,7 @@ class ASTDeclaratorPtr(ASTBase):
 
 class ASTDeclaratorRef(ASTBase):
     def __init__(self, next, attrs):
-        # type: (Any) -> None
+        # type: (Any, Any) -> None
         assert next
         self.next = next
         self.attrs = attrs
