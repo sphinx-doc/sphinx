@@ -172,6 +172,8 @@ Features added
 * C++, add support for anonymous entities using names staring with ``@``.
   Fixes #3593 and #2683.
 * #5147: C++, add support for (most) character literals.
+* C++, cross-referencing entities inside primary templates is supported,
+  and now properly documented.
 * #3606: MathJax should be loaded with async attribute
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)
@@ -207,6 +209,7 @@ Bugs fixed
 * epub: spine has been broken when "self" is listed on toctree (refs: #4611)
 * #344: autosummary does not understand docstring of module level attributes
 * #5191: C++, prevent nested declarations in functions to avoid lookup problems.
+* #5126: C++, add missing isPack method for certain template parameter types.
 * #5002: graphviz: SVGs do not adapt to the column width
 
 Testing

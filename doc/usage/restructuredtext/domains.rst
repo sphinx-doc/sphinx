@@ -1033,19 +1033,25 @@ Assume the following declarations.
                      Inner
 
 In general the reference must include the template parameter declarations,
-e.g., ``template\<typename TOuter> Wrapper::Outer``
-(:cpp:class:`template\<typename TOuter> Wrapper::Outer`).  Currently the lookup
-only succeed if the template parameter identifiers are equal strings. That is,
-``template\<typename UOuter> Wrapper::Outer`` will not work.
+and template arguments for the prefix of qualified names. For example:
 
-The inner class template cannot be directly referenced, unless the current
-namespace is changed or the following shorthand is used.  If a template
-parameter list is omitted, then the lookup will assume either a template or a
-non-template, but not a partial template specialisation.  This means the
-following references work.
+- ``template\<typename TOuter> Wrapper::Outer``
+  (:cpp:class:`template\<typename TOuter> Wrapper::Outer`)
+- ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
+  (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-- ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
-- ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
+Currently the lookup only succeed if the template parameter identifiers are equal strings.
+That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
+
+As a shorthand notation, if a template parameter list is omitted,
+then the lookup will assume either a primary template or a non-template,
+but not a partial template specialisation.
+This means the following references work as well:
+
+- ``Wrapper::Outer``
+  (:cpp:class:`Wrapper::Outer`)
+- ``Wrapper::Outer::Inner``
+  (:cpp:class:`Wrapper::Outer::Inner`)
 - ``template\<typename TInner> Wrapper::Outer::Inner``
   (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
 

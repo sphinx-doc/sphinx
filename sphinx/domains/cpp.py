@@ -1492,6 +1492,10 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
         # type: () -> ASTNestedName
         return self.type.name
 
+    @property
+    def isPack(self):
+        return self.type.isPack
+
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, unicode, Symbol) -> unicode
         # this is not part of the normal name mangling in C++
@@ -1531,6 +1535,10 @@ class ASTTemplateParamTemplateType(ASTBase):
         id = self.get_identifier()
         return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
 
+    @property
+    def isPack(self):
+        return self.data.parameterPack
+
     def get_identifier(self):
         # type: () -> unicode
         return self.data.get_identifier()
@@ -1566,6 +1574,10 @@ class ASTTemplateParamNonType(ASTBase):
         # type: () -> ASTNestedName
         id = self.get_identifier()
         return ASTNestedName([ASTNestedNameElement(id, None)], [False], rooted=False)
+
+    @property
+    def isPack(self):
+        return self.param.isPack
 
     def get_identifier(self):
         # type: () -> unicode
@@ -2636,6 +2648,10 @@ class ASTDeclaratorRef(ASTBase):
         return self.next.name
 
     @property
+    def isPack(self):
+        return True
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.next.function_params
@@ -2917,6 +2933,10 @@ class ASTDeclaratorNameParamQual(ASTBase):
         return self.declId
 
     @property
+    def isPack(self):
+        return False
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.paramQual.function_params
@@ -3015,6 +3035,10 @@ class ASTType(ASTBase):
         return self.decl.name
 
     @property
+    def isPack(self):
+        return self.decl.isPack
+
+    @property
     def function_params(self):
         # type: () -> Any
         return self.decl.function_params
@@ -3104,6 +3128,10 @@ class ASTTypeWithInit(ASTBase):
     def name(self):
         # type: () -> ASTNestedName
         return self.type.name
+
+    @property
+    def isPack(self):
+        return self.type.isPack
 
     def get_id(self, version, objectType=None, symbol=None):
         # type: (int, unicode, Symbol) -> unicode
@@ -3606,8 +3634,9 @@ class Symbol(object):
         return ASTNestedName(names, templates, rooted=False)
 
     def _find_named_symbol(self, identOrOp, templateParams, templateArgs,
-                           templateShorthand, matchSelf, recurseInAnon):
-        # type: (Any, Any, Any, Any, bool, bool) -> Symbol
+                           templateShorthand, matchSelf, recurseInAnon,
+                           correctPrimaryTemplateArgs):
+        # type: (Any, Any, Any, Any, bool, bool, bool) -> Symbol
 
         def isSpecialization():
             # the names of the template parameters must be given exactly as args
@@ -3630,12 +3659,13 @@ class Symbol(object):
                 if paramName != argName:
                     return True
             return False
-        if templateParams is not None and templateArgs is not None:
-            # If both are given, but it's not a specialization, then do lookup as if
-            # there is no argument list.
-            # For example: template<typename T> int A<T>::var;
-            if not isSpecialization():
-                templateArgs = None
+        if correctPrimaryTemplateArgs:
+            if templateParams is not None and templateArgs is not None:
+                # If both are given, but it's not a specialization, then do lookup as if
+                # there is no argument list.
+                # For example: template<typename T> int A<T>::var;
+                if not isSpecialization():
+                    templateArgs = None
 
         def matches(s):
             if s.identOrOp != identOrOp:
@@ -3694,7 +3724,8 @@ class Symbol(object):
                                                      templateArgs,
                                                      templateShorthand=False,
                                                      matchSelf=False,
-                                                     recurseInAnon=True)
+                                                     recurseInAnon=True,
+                                                     correctPrimaryTemplateArgs=True)
             if symbol is None:
                 symbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
                                 templateParams=templateParams,
@@ -3718,7 +3749,8 @@ class Symbol(object):
                                                  templateArgs,
                                                  templateShorthand=False,
                                                  matchSelf=False,
-                                                 recurseInAnon=True)
+                                                 recurseInAnon=True,
+                                                 correctPrimaryTemplateArgs=False)
         if symbol:
             if not declaration:
                 # good, just a scope creation
@@ -3769,7 +3801,8 @@ class Symbol(object):
                                                templateArgs=otherChild.templateArgs,
                                                templateShorthand=False,
                                                matchSelf=False,
-                                               recurseInAnon=False)
+                                               recurseInAnon=False,
+                                               correctPrimaryTemplateArgs=False)
             if ourChild is None:
                 # TODO: hmm, should we prune by docnames?
                 self._children.append(otherChild)
@@ -3832,7 +3865,8 @@ class Symbol(object):
                                      templateParams, templateArgs,
                                      templateShorthand=False,
                                      matchSelf=False,
-                                     recurseInAnon=False)
+                                     recurseInAnon=False,
+                                     correctPrimaryTemplateArgs=False)
             if not s:
                 return None
         return s
@@ -3883,7 +3917,8 @@ class Symbol(object):
                                                          templateParams, templateArgs,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon)
+                                                         recurseInAnon=recurseInAnon,
+                                                         correctPrimaryTemplateArgs=False)
                 if symbol is not None:
                     return symbol
                 # try without template params and args
@@ -3891,7 +3926,8 @@ class Symbol(object):
                                                          None, None,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon)
+                                                         recurseInAnon=recurseInAnon,
+                                                         correctPrimaryTemplateArgs=False)
                 return symbol
             else:
                 identOrOp = name.identOrOp
@@ -3905,9 +3941,13 @@ class Symbol(object):
                                                          templateParams, templateArgs,
                                                          templateShorthand=templateShorthand,
                                                          matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon)
+                                                         recurseInAnon=recurseInAnon,
+                                                         correctPrimaryTemplateArgs=True)
                 if symbol is None:
-                    # TODO: maybe search without template args
+                    # TODO: Maybe search without template args?
+                    #       Though, the correctPrimaryTemplateArgs above does
+                    #       that for primary templates.
+                    #       Is there another case where it would be good?
                     return None
                 # We have now matched part of a nested name, and need to match more
                 # so even if we should matchSelf before, we definitely shouldn't
@@ -6315,6 +6355,7 @@ class CPPDomain(Domain):
             if not parentSymbol:
                 print("Target: ", target)
                 print("ParentKey: ", parentKey)
+                print(rootSymbol.dump(1))
             assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
