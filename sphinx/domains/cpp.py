@@ -2539,12 +2539,13 @@ class ASTArray(ASTBase):
 
 
 class ASTDeclaratorPtr(ASTBase):
-    def __init__(self, next, volatile, const):
-        # type: (Any, bool, bool) -> None
+    def __init__(self, next, volatile, const, attrs):
+        # type: (Any, bool, bool, Any) -> None
         assert next
         self.next = next
         self.volatile = volatile
         self.const = const
+        self.attrs = attrs
 
     @property
     def name(self):
@@ -2563,13 +2564,17 @@ class ASTDeclaratorPtr(ASTBase):
 
     def _stringify(self, transform):
         res = ['*']  # type: List[unicode]
+        for a in self.attrs:
+            res.append(transform(a))
+        if len(self.attrs) > 0 and (self.volatile or self.const):
+            res.append(' ')
         if self.volatile:
             res.append('volatile')
         if self.const:
             if self.volatile:
                 res.append(' ')
             res.append('const')
-        if self.const or self.volatile:
+        if self.const or self.volatile or len(self.attrs) > 0:
             if self.next.require_space_after_declSpecs:
                 res.append(' ')
         res.append(transform(self.next))
@@ -2621,6 +2626,10 @@ class ASTDeclaratorPtr(ASTBase):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         signode += nodes.Text("*")
+        for a in self.attrs:
+            a.describe_signature(signode)
+        if len(self.attrs) > 0 and (self.volatile or self.const):
+            signode += nodes.Text(' ')
 
         def _add_anno(signode, text):
             signode += addnodes.desc_annotation(text, text)
@@ -2630,17 +2639,18 @@ class ASTDeclaratorPtr(ASTBase):
             if self.volatile:
                 signode += nodes.Text(' ')
             _add_anno(signode, 'const')
-        if self.const or self.volatile:
+        if self.const or self.volatile or len(self.attrs) > 0:
             if self.next.require_space_after_declSpecs:
                 signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
 
 class ASTDeclaratorRef(ASTBase):
-    def __init__(self, next):
+    def __init__(self, next, attrs):
         # type: (Any) -> None
         assert next
         self.next = next
+        self.attrs = attrs
 
     @property
     def name(self):
@@ -2661,7 +2671,13 @@ class ASTDeclaratorRef(ASTBase):
         return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform):
-        return '&' + transform(self.next)
+        res = ['&']
+        for a in self.attrs:
+            res.append(transform(a))
+        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
+            res.append(' ')
+        res.append(transform(self.next))
+        return u''.join(res)
 
     def get_modifiers_id(self, version):
         # type: (int) -> unicode
@@ -2692,6 +2708,10 @@ class ASTDeclaratorRef(ASTBase):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         signode += nodes.Text("&")
+        for a in self.attrs:
+            a.describe_signature(signode)
+        if len(self.attrs) > 0 and self.next.require_space_after_declSpecs:
+            signode += nodes.Text(' ')
         self.next.describe_signature(signode, mode, env, symbol)
 
 
@@ -5151,6 +5171,7 @@ class DefinitionParser(object):
             self.skip_ws()
             volatile = False
             const = False
+            attrs = []
             while 1:
                 if not volatile:
                     volatile = self.skip_word_and_ws('volatile')
@@ -5160,13 +5181,23 @@ class DefinitionParser(object):
                     const = self.skip_word_and_ws('const')
                     if const:
                         continue
+                attr = self._parse_attribute()
+                if attr is not None:
+                    attrs.append(attr)
+                    continue
                 break
             next = self._parse_declarator(named, paramMode, typed)
-            return ASTDeclaratorPtr(next=next, volatile=volatile, const=const)
+            return ASTDeclaratorPtr(next=next, volatile=volatile, const=const, attrs=attrs)
         # TODO: shouldn't we parse an R-value ref here first?
         if typed and self.skip_string("&"):
+            attrs = []
+            while 1:
+                attr = self._parse_attribute()
+                if attr is None:
+                    break
+                attrs.append(attr)
             next = self._parse_declarator(named, paramMode, typed)
-            return ASTDeclaratorRef(next=next)
+            return ASTDeclaratorRef(next=next, attrs=attrs)
         if typed and self.skip_string("..."):
             next = self._parse_declarator(named, paramMode, False)
             return ASTDeclaratorParamPack(next=next)

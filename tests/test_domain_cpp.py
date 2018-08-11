@@ -665,6 +665,12 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    # position: declarator
+    check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
+    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr]] volatile const i')
+    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
 
 
 # def test_print():
