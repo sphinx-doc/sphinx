@@ -196,10 +196,12 @@ class Cmdoption(ObjectDescription):
             targetname = 'cmdoption' + targetname
             signode['names'].append(targetname)
 
+        domain = cast(StandardDomain, self.env.get_domain('std'))
         self.state.document.note_explicit_target(signode)
         for optname in signode.get('allnames', []):
-            self.env.domaindata['std']['progoptions'][currprogram, optname] = \
-                self.env.docname, signode['ids'][0]
+            domain.add_program_option(currprogram, optname,
+                                      self.env.docname, signode['ids'][0])
+
             # create only one index entry for the whole option
             if optname == firstname:
                 self.indexnode['entries'].append(
@@ -651,6 +653,10 @@ class StandardDomain(Domain):
     def add_object(self, objtype, name, docname, labelid):
         # type: (unicode, unicode, unicode, unicode) -> None
         self.data['objects'][objtype, name] = (docname, labelid)
+
+    def add_program_option(self, program, name, docname, labelid):
+        # type: (unicode, unicode, unicode, unicode) -> None
+        self.data['progoptions'][program, name] = (docname, labelid)
 
     def check_consistency(self):
         # type: () -> None
