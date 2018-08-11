@@ -49,12 +49,12 @@ matrix:
         - sh -e /etc/init.d/xvfb start
 
 install:
-  - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
-  - if [ $IS_PYTHON = false ]; then npm install; fi
+  - if [[ $IS_PYTHON = true ]]; then pip install -U tox codecov; fi
+  - if [[ $IS_PYTHON = false && -e package.json ]]; then npm install; fi
 
 script:
-  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
-  - if [ $IS_PYTHON = false ]; then npm test; fi
+  - if [[ $IS_PYTHON = true ]]; then tox -- -v; fi
+  - if [[ $IS_PYTHON = false && -e package.json ]]; then npm test; fi
 
 after_success:
   - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi
