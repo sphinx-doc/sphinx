@@ -1493,7 +1493,7 @@ class ASTIdentifier(ASTBase):
 
 class ASTTemplateKeyParamPackIdDefault(ASTBase):
     def __init__(self, key, identifier, parameterPack, default):
-        # type: (unicode, Any, bool, Any) -> None
+        # type: (unicode, ASTIdentifier, bool, ASTType) -> None
         assert key
         if parameterPack:
             assert default is None
@@ -1503,7 +1503,7 @@ class ASTTemplateKeyParamPackIdDefault(ASTBase):
         self.default = default
 
     def get_identifier(self):
-        # type: () -> unicode
+        # type: () -> ASTIdentifier
         return self.identifier
 
     def get_id(self, version):
@@ -1550,7 +1550,7 @@ class ASTTemplateKeyParamPackIdDefault(ASTBase):
 
 class ASTTemplateParamType(ASTBase):
     def __init__(self, data):
-        # type: (Any) -> None
+        # type: (ASTTemplateKeyParamPackIdDefault) -> None
         assert data
         self.data = data
 
@@ -1565,7 +1565,7 @@ class ASTTemplateParamType(ASTBase):
         return self.data.parameterPack
 
     def get_identifier(self):
-        # type: () -> unicode
+        # type: () -> ASTIdentifier
         return self.data.get_identifier()
 
     def get_id(self, version, objectType=None, symbol=None):
@@ -1629,7 +1629,7 @@ class ASTTemplateParamConstrainedTypeWithInit(ASTBase):
 
 class ASTTemplateParamTemplateType(ASTBase):
     def __init__(self, nestedParams, data):
-        # type: (Any, Any) -> None
+        # type: (Any, ASTTemplateKeyParamPackIdDefault) -> None
         assert nestedParams
         assert data
         self.nestedParams = nestedParams
@@ -1646,7 +1646,7 @@ class ASTTemplateParamTemplateType(ASTBase):
         return self.data.parameterPack
 
     def get_identifier(self):
-        # type: () -> unicode
+        # type: () -> ASTIdentifier
         return self.data.get_identifier()
 
     def get_id(self, version, objectType=None, symbol=None):
@@ -1686,7 +1686,7 @@ class ASTTemplateParamNonType(ASTBase):
         return self.param.isPack
 
     def get_identifier(self):
-        # type: () -> unicode
+        # type: () -> ASTIdentifier
         name = self.param.name
         if name:
             assert len(name.names) == 1
@@ -1766,7 +1766,7 @@ class ASTTemplateParams(ASTBase):
 
 class ASTTemplateIntroductionParameter(ASTBase):
     def __init__(self, identifier, parameterPack):
-        # type: (Any, Any) -> None
+        # type: (ASTIdentifier, bool) -> None
         self.identifier = identifier
         self.parameterPack = parameterPack
 
@@ -1781,7 +1781,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
         return self.parameterPack
 
     def get_identifier(self):
-        # type: () -> unicode
+        # type: () -> ASTIdentifier
         return self.identifier
 
     def get_id(self, version, objectType=None, symbol=None):
@@ -1900,17 +1900,35 @@ class ASTTemplateDeclarationPrefix(ASTBase):
             t.describe_signature(signode, 'lastIsName', env, symbol, lineSpec)
 
 
-class ASTOperatorBuildIn(ASTBase):
-    def __init__(self, op):
-        # type: (unicode) -> None
-        self.op = op
+##############################################################################################
 
+
+class ASTOperator(ASTBase):
     def is_anon(self):
         return False
 
     def is_operator(self):
         # type: () -> bool
         return True
+
+    def get_id(self, version):
+        # type: (int) -> unicode
+        raise NotImplementedError()
+
+    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
+        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
+        _verify_description_mode(mode)
+        identifier = text_type(self)
+        if mode == 'lastIsName':
+            signode += addnodes.desc_name(identifier, identifier)
+        else:
+            signode += addnodes.desc_addname(identifier, identifier)
+
+
+class ASTOperatorBuildIn(ASTOperator):
+    def __init__(self, op):
+        # type: (unicode) -> None
+        self.op = op
 
     def get_id(self, version):
         # type: (int) -> unicode
@@ -1929,27 +1947,11 @@ class ASTOperatorBuildIn(ASTBase):
         else:
             return u'operator' + self.op
 
-    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
-        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
-        _verify_description_mode(mode)
-        identifier = text_type(self)
-        if mode == 'lastIsName':
-            signode += addnodes.desc_name(identifier, identifier)
-        else:
-            signode += addnodes.desc_addname(identifier, identifier)
 
-
-class ASTOperatorType(ASTBase):
+class ASTOperatorType(ASTOperator):
     def __init__(self, type):
         # type: (Any) -> None
         self.type = type
-
-    def is_anon(self):
-        return False
-
-    def is_operator(self):
-        # type: () -> bool
-        return True
 
     def get_id(self, version):
         # type: (int) -> unicode
@@ -1965,27 +1967,11 @@ class ASTOperatorType(ASTBase):
         # type: () -> unicode
         return text_type(self)
 
-    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
-        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
-        _verify_description_mode(mode)
-        identifier = text_type(self)
-        if mode == 'lastIsName':
-            signode += addnodes.desc_name(identifier, identifier)
-        else:
-            signode += addnodes.desc_addname(identifier, identifier)
 
-
-class ASTOperatorLiteral(ASTBase):
+class ASTOperatorLiteral(ASTOperator):
     def __init__(self, identifier):
         # type: (Any) -> None
         self.identifier = identifier
-
-    def is_anon(self):
-        return False
-
-    def is_operator(self):
-        # type: () -> bool
-        return True
 
     def get_id(self, version):
         # type: (int) -> unicode
@@ -1997,14 +1983,8 @@ class ASTOperatorLiteral(ASTBase):
     def _stringify(self, transform):
         return u'operator""' + transform(self.identifier)
 
-    def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
-        # type: (addnodes.desc_signature, unicode, Any, unicode, unicode, Symbol) -> None
-        _verify_description_mode(mode)
-        identifier = text_type(self)
-        if mode == 'lastIsName':
-            signode += addnodes.desc_name(identifier, identifier)
-        else:
-            signode += addnodes.desc_addname(identifier, identifier)
+
+##############################################################################################
 
 
 class ASTTemplateArgConstant(ASTBase):
@@ -2070,7 +2050,7 @@ class ASTTemplateArgs(ASTBase):
 
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identOrOp, templateArgs):
-        # type: (Any, Any) -> None
+        # type: (Union[ASTIdentifier, ASTOperator], ASTTemplateArgs) -> None
         self.identOrOp = identOrOp
         self.templateArgs = templateArgs
 
@@ -2101,7 +2081,7 @@ class ASTNestedNameElement(ASTBase):
 
 class ASTNestedName(ASTBase):
     def __init__(self, names, templates, rooted):
-        # type: (List[Any], List[bool], bool) -> None
+        # type: (List[ASTNestedNameElement], List[bool], bool) -> None
         assert len(names) > 0
         self.names = names
         self.templates = templates
@@ -2186,7 +2166,7 @@ class ASTNestedName(ASTBase):
             if mode == 'lastIsName':
                 dest = addnodes.desc_addname()
             for i in range(len(names)):
-                name = names[i]
+                nne = names[i]
                 template = self.templates[i]
                 if not first:
                     dest += nodes.Text('::')
@@ -2194,14 +2174,14 @@ class ASTNestedName(ASTBase):
                 if template:
                     dest += nodes.Text("template ")
                 first = False
-                if name != '':
-                    if (name.templateArgs and  # type: ignore
-                            iTemplateParams < len(templateParams)):
+                txt_nne = text_type(nne)
+                if txt_nne != '':
+                    if nne.templateArgs and iTemplateParams < len(templateParams):
                         templateParamsPrefix += text_type(templateParams[iTemplateParams])
                         iTemplateParams += 1
-                    name.describe_signature(dest, 'markType',  # type: ignore
-                                            env, templateParamsPrefix + prefix, symbol)
-                prefix += text_type(name)
+                    nne.describe_signature(dest, 'markType',
+                                           env, templateParamsPrefix + prefix, symbol)
+                prefix += txt_nne
             if mode == 'lastIsName':
                 if len(self.names) > 1:
                     dest += addnodes.desc_addname('::', '::')
@@ -3621,7 +3601,7 @@ class ASTDeclaration(ASTBase):
 
 class ASTNamespace(ASTBase):
     def __init__(self, nestedName, templatePrefix):
-        # type: (Any, Any) -> None
+        # type: (ASTNestedName, ASTTemplateDeclarationPrefix) -> None
         self.nestedName = nestedName
         self.templatePrefix = templatePrefix
 
@@ -3646,9 +3626,15 @@ class Symbol(object):
         else:
             return object.__setattr__(self, key, value)
 
-    def __init__(self, parent, identOrOp,
-                 templateParams, templateArgs, declaration, docname):
-        # type: (Any, Any, Any, Any, Any, unicode) -> None
+    def __init__(self,
+                 parent,          # type: Symbol
+                 identOrOp,       # type: Union[ASTIdentifier, ASTOperator]
+                 templateParams,  # type: Any
+                 templateArgs,    # type: Any
+                 declaration,     # type: ASTDeclaration
+                 docname          # type: unicode
+                 ):
+        # type: (...) -> None
         self.parent = parent
         self.identOrOp = identOrOp
         self.templateParams = templateParams  # template<templateParams>
@@ -3658,8 +3644,8 @@ class Symbol(object):
         self.isRedeclaration = False
         self._assert_invariants()
 
-        self._children = []  # type: List[Any]
-        self._anonChildren = []  # type: List[Any]
+        self._children = []  # type: List[Symbol]
+        self._anonChildren = []  # type: List[Symbol]
         # note: _children includes _anonChildren
         if self.parent:
             self.parent._children.append(self)
@@ -3697,7 +3683,7 @@ class Symbol(object):
                        declaration=decl, docname=docname)
 
     def _fill_empty(self, declaration, docname):
-        # type: (Any, unicode) -> None
+        # type: (ASTDeclaration, unicode) -> None
         self._assert_invariants()
         assert not self.declaration
         assert not self.docname
@@ -3759,10 +3745,16 @@ class Symbol(object):
             templates.append(False)
         return ASTNestedName(names, templates, rooted=False)
 
-    def _find_named_symbol(self, identOrOp, templateParams, templateArgs,
-                           templateShorthand, matchSelf, recurseInAnon,
-                           correctPrimaryTemplateArgs):
-        # type: (Any, Any, Any, Any, bool, bool, bool) -> Symbol
+    def _find_named_symbol(self,
+                           identOrOp,          # type: Union[ASTIdentifier, ASTOperator]
+                           templateParams,     # type: Any
+                           templateArgs,       # type: ASTTemplateArgs
+                           templateShorthand,  # type: bool
+                           matchSelf,          # type: bool
+                           recurseInAnon,      # type: bool
+                           correctPrimaryTemplateArgs  # type: bool
+                           ):
+        # type: (...) -> Symbol
 
         def isSpecialization():
             # the names of the template parameters must be given exactly as args
@@ -3823,7 +3815,10 @@ class Symbol(object):
         return None
 
     def _add_symbols(self, nestedName, templateDecls, declaration, docname):
-        # type: (Any, List[Any], Any, unicode) -> Symbol
+        # type: (ASTNestedName, List[Any], ASTDeclaration, unicode) -> Symbol
+        # Used for adding a whole path of symbols, where the last may or may not
+        # be an actual declaration.
+
         # This condition should be checked at the parser level.
         # Each template argument list must have a template parameter list.
         # But to declare a template there must be an additional template parameter list.
@@ -3919,7 +3914,7 @@ class Symbol(object):
         return symbol
 
     def merge_with(self, other, docnames, env):
-        # type: (Any, List[unicode], BuildEnvironment) -> None
+        # type: (Symbol, List[unicode], BuildEnvironment) -> None
         assert other is not None
         for otherChild in other._children:
             ourChild = self._find_named_symbol(identOrOp=otherChild.identOrOp,
@@ -3952,7 +3947,7 @@ class Symbol(object):
             ourChild.merge_with(otherChild, docnames, env)
 
     def add_name(self, nestedName, templatePrefix=None):
-        # type: (unicode, Any) -> Symbol
+        # type: (ASTNestedName, ASTTemplateDeclarationPrefix) -> Symbol
         if templatePrefix:
             templateDecls = templatePrefix.templates
         else:
@@ -3961,7 +3956,7 @@ class Symbol(object):
                                  declaration=None, docname=None)
 
     def add_declaration(self, declaration, docname):
-        # type: (Any, unicode) -> Symbol
+        # type: (ASTDeclaration, unicode) -> Symbol
         assert declaration
         assert docname
         nestedName = declaration.name
@@ -3972,7 +3967,7 @@ class Symbol(object):
         return self._add_symbols(nestedName, templateDecls, declaration, docname)
 
     def find_identifier(self, identOrOp, matchSelf, recurseInAnon):
-        # type: (Any, bool, bool) -> Symbol
+        # type: (Union[ASTIdentifier, ASTOperator], bool, bool) -> Symbol
         if matchSelf and self.identOrOp == identOrOp:
             return self
         children = self.children_recurse_anon if recurseInAnon else self._children
@@ -3982,7 +3977,7 @@ class Symbol(object):
         return None
 
     def direct_lookup(self, key):
-        # type: (List[Tuple[Any, Any]]) -> Symbol
+        # type: (List[Tuple[ASTNestedNameElement, Any]]) -> Symbol
         s = self
         for name, templateParams in key:
             identOrOp = name.identOrOp
@@ -3999,7 +3994,7 @@ class Symbol(object):
 
     def find_name(self, nestedName, templateDecls, typ, templateShorthand,
                   matchSelf, recurseInAnon):
-        # type: (Any, Any, Any, Any, bool, bool) -> Symbol
+        # type: (ASTNestedName, List[Any], unicode, bool, bool, bool) -> Symbol
         # templateShorthand: missing template parameter lists for templates is ok
 
         # TODO: unify this with the _add_symbols
@@ -4895,7 +4890,7 @@ class DefinitionParser(object):
         return ASTFallbackExpr(value.strip())
 
     def _parse_operator(self):
-        # type: () -> Any
+        # type: () -> ASTOperator
         self.skip_ws()
         # adapted from the old code
         # thank god, a regular operator definition
@@ -4991,6 +4986,7 @@ class DefinitionParser(object):
             else:
                 template = False
             templates.append(template)
+            identOrOp = None  # type: Union[ASTIdentifier, ASTOperator]
             if self.skip_word_and_ws('operator'):
                 identOrOp = self._parse_operator()
             else:
@@ -5757,12 +5753,12 @@ class DefinitionParser(object):
             self.skip_ws()
             if not self.match(_identifier_re):
                 self.fail("Expected identifier in template introduction list.")
-            identifier = self.matched_text
+            txt_identifier = self.matched_text
             # make sure there isn't a keyword
-            if identifier in _keywords:
+            if txt_identifier in _keywords:
                 self.fail("Expected identifier in template introduction list, "
-                          "got keyword: %s" % identifier)
-            identifier = ASTIdentifier(identifier)  # type: ignore
+                          "got keyword: %s" % txt_identifier)
+            identifier = ASTIdentifier(txt_identifier)
             params.append(ASTTemplateIntroductionParameter(identifier, parameterPack))
 
             self.skip_ws()
