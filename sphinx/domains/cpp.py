@@ -3814,64 +3814,136 @@ class Symbol(object):
                 return s
         return None
 
-    def _add_symbols(self, nestedName, templateDecls, declaration, docname):
-        # type: (ASTNestedName, List[Any], ASTDeclaration, unicode) -> Symbol
-        # Used for adding a whole path of symbols, where the last may or may not
-        # be an actual declaration.
+    def _symbol_lookup(
+            self,
+            nestedName,                   # type: ASTNestedName
+            templateDecls,                # type: List[Any]
+            onMissingQualifiedSymbol,
+            # type: Callable[[Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs], Symbol]  # NOQA
+            strictTemplateParamArgLists,  # type: bool
+            ancestorLookupType,           # type: unicode
+            templateShorthand,            # type: bool
+            matchSelf,                    # type: bool
+            recurseInAnon,                # type: bool
+            correctPrimaryTemplateArgs    # type: bool
+            ):
+        # type: (...) -> Tuple[Symbol, Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs]  # NOQA
+        # ancestorLookupType: if not None, specifies the target type of the lookup
 
-        # This condition should be checked at the parser level.
-        # Each template argument list must have a template parameter list.
-        # But to declare a template there must be an additional template parameter list.
-        assert(nestedName.num_templates() == len(templateDecls) or
-               nestedName.num_templates() + 1 == len(templateDecls))
+        if strictTemplateParamArgLists:
+            # Each template argument list must have a template parameter list.
+            # But to declare a template there must be an additional template parameter list.
+            assert (nestedName.num_templates() == len(templateDecls) or
+                    nestedName.num_templates() + 1 == len(templateDecls))
+        else:
+            assert len(templateDecls) <= nestedName.num_templates() + 1
 
+        names = nestedName.names
+
+        # find the right starting point for lookup
         parentSymbol = self
         if nestedName.rooted:
             while parentSymbol.parent:
                 parentSymbol = parentSymbol.parent
-        names = nestedName.names
+        if ancestorLookupType is not None:
+            # walk up until we find the first identifier
+            firstName = names[0]
+            if not firstName.is_operator():
+                while parentSymbol.parent:
+                    if parentSymbol.find_identifier(firstName.identOrOp,
+                                                    matchSelf=matchSelf,
+                                                    recurseInAnon=recurseInAnon):
+                        # if we are in the scope of a constructor but wants to
+                        # reference the class we need to walk one extra up
+                        if (len(names) == 1 and ancestorLookupType == 'class' and matchSelf and
+                                parentSymbol.parent and
+                                parentSymbol.parent.identOrOp == firstName.identOrOp):
+                            pass
+                        else:
+                            break
+                    parentSymbol = parentSymbol.parent
+
+        # and now the actual lookup
         iTemplateDecl = 0
         for name in names[:-1]:
             identOrOp = name.identOrOp
             templateArgs = name.templateArgs
-            if templateArgs:
-                assert iTemplateDecl < len(templateDecls)
-                templateParams = templateDecls[iTemplateDecl]
-                iTemplateDecl += 1
+            if strictTemplateParamArgLists:
+                # there must be a parameter list
+                if templateArgs:
+                    assert iTemplateDecl < len(templateDecls)
+                    templateParams = templateDecls[iTemplateDecl]
+                    iTemplateDecl += 1
+                else:
+                    templateParams = None
             else:
-                templateParams = None
-            symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                     templateParams,
-                                                     templateArgs,
-                                                     templateShorthand=False,
-                                                     matchSelf=False,
-                                                     recurseInAnon=True,
-                                                     correctPrimaryTemplateArgs=True)
+                # take the next template parameter list if there is one
+                # otherwise it's ok
+                if templateArgs and iTemplateDecl < len(templateDecls):
+                    templateParams = templateDecls[iTemplateDecl]
+                    iTemplateDecl += 1
+                else:
+                    templateParams = None
+
+            symbol = parentSymbol._find_named_symbol(
+                identOrOp,
+                templateParams, templateArgs,
+                templateShorthand=templateShorthand,
+                matchSelf=matchSelf,
+                recurseInAnon=recurseInAnon,
+                correctPrimaryTemplateArgs=correctPrimaryTemplateArgs)
             if symbol is None:
-                symbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
-                                templateParams=templateParams,
-                                templateArgs=templateArgs, declaration=None,
-                                docname=None)
+                symbol = onMissingQualifiedSymbol(parentSymbol, identOrOp,
+                                                  templateParams, templateArgs)
+                if symbol is None:
+                    return None, None, None, None, None
+            # We have now matched part of a nested name, and need to match more
+            # so even if we should matchSelf before, we definitely shouldn't
+            # even more. (see also issue #2666)
+            matchSelf = False
             parentSymbol = symbol
+
+        # handle the last name
         name = names[-1]
         identOrOp = name.identOrOp
         templateArgs = name.templateArgs
         if iTemplateDecl < len(templateDecls):
-            if iTemplateDecl + 1 != len(templateDecls):
-                print(text_type(templateDecls))
-                print(text_type(nestedName))
             assert iTemplateDecl + 1 == len(templateDecls)
             templateParams = templateDecls[iTemplateDecl]
         else:
             assert iTemplateDecl == len(templateDecls)
             templateParams = None
+
         symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                 templateParams,
-                                                 templateArgs,
-                                                 templateShorthand=False,
-                                                 matchSelf=False,
-                                                 recurseInAnon=True,
+                                                 templateParams, templateArgs,
+                                                 templateShorthand=templateShorthand,
+                                                 matchSelf=matchSelf,
+                                                 recurseInAnon=recurseInAnon,
                                                  correctPrimaryTemplateArgs=False)
+        return symbol, parentSymbol, identOrOp, templateParams, templateArgs
+
+    def _add_symbols(self, nestedName, templateDecls, declaration, docname):
+        # type: (ASTNestedName, List[Any], ASTDeclaration, unicode) -> Symbol
+        # Used for adding a whole path of symbols, where the last may or may not
+        # be an actual declaration.
+
+        def onMissingQualifiedSymbol(parentSymbol, identOrOp, templateParams, templateArgs):
+            # type: (Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> Symbol
+            return Symbol(parent=parentSymbol, identOrOp=identOrOp,
+                          templateParams=templateParams,
+                          templateArgs=templateArgs, declaration=None,
+                          docname=None)
+
+        symbol, parentSymbol, identOrOp, templateParams, templateArgs = \
+            self._symbol_lookup(nestedName, templateDecls,
+                                onMissingQualifiedSymbol,
+                                strictTemplateParamArgLists=True,
+                                ancestorLookupType=None,
+                                templateShorthand=False,
+                                matchSelf=False,
+                                recurseInAnon=True,
+                                correctPrimaryTemplateArgs=True)
+
         if symbol:
             if not declaration:
                 # good, just a scope creation
@@ -3997,85 +4069,37 @@ class Symbol(object):
         # type: (ASTNestedName, List[Any], unicode, bool, bool, bool) -> Symbol
         # templateShorthand: missing template parameter lists for templates is ok
 
-        # TODO: unify this with the _add_symbols
-        # This condition should be checked at the parser level.
-        assert len(templateDecls) <= nestedName.num_templates() + 1
-        parentSymbol = self
-        if nestedName.rooted:
-            while parentSymbol.parent:
-                parentSymbol = parentSymbol.parent
-        names = nestedName.names
+        def onMissingQualifiedSymbol(parentSymbol, identOrOp, templateParams, templateArgs):
+            # type: (Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> Symbol
+            # TODO: Maybe search without template args?
+            #       Though, the correctPrimaryTemplateArgs does
+            #       that for primary templates.
+            #       Is there another case where it would be good?
+            return None
 
-        # walk up until we find the first identifier
-        firstName = names[0]
-        if not firstName.is_operator():
-            while parentSymbol.parent:
-                if parentSymbol.find_identifier(firstName.identOrOp,
-                                                matchSelf=matchSelf,
-                                                recurseInAnon=recurseInAnon):
-                    # if we are in the scope of a constructor but wants to reference the class
-                    # we need to walk one extra up
-                    if (len(names) == 1 and typ == 'class' and matchSelf and
-                            parentSymbol.parent and
-                            parentSymbol.parent.identOrOp == firstName.identOrOp):
-                        pass
-                    else:
-                        break
-                parentSymbol = parentSymbol.parent
-        iTemplateDecl = 0
-        for iName in range(len(names)):
-            name = names[iName]
-            if iName + 1 == len(names):
-                identOrOp = name.identOrOp
-                templateArgs = name.templateArgs
-                if iTemplateDecl < len(templateDecls):
-                    assert iTemplateDecl + 1 == len(templateDecls)
-                    templateParams = templateDecls[iTemplateDecl]
-                else:
-                    assert iTemplateDecl == len(templateDecls)
-                    templateParams = None
-                symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                         templateParams, templateArgs,
-                                                         templateShorthand=templateShorthand,
-                                                         matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon,
-                                                         correctPrimaryTemplateArgs=False)
-                if symbol is not None:
-                    return symbol
-                # try without template params and args
-                symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                         None, None,
-                                                         templateShorthand=templateShorthand,
-                                                         matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon,
-                                                         correctPrimaryTemplateArgs=False)
-                return symbol
-            else:
-                identOrOp = name.identOrOp
-                templateArgs = name.templateArgs
-                if templateArgs and iTemplateDecl < len(templateDecls):
-                    templateParams = templateDecls[iTemplateDecl]
-                    iTemplateDecl += 1
-                else:
-                    templateParams = None
-                symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                         templateParams, templateArgs,
-                                                         templateShorthand=templateShorthand,
-                                                         matchSelf=matchSelf,
-                                                         recurseInAnon=recurseInAnon,
-                                                         correctPrimaryTemplateArgs=True)
-                if symbol is None:
-                    # TODO: Maybe search without template args?
-                    #       Though, the correctPrimaryTemplateArgs above does
-                    #       that for primary templates.
-                    #       Is there another case where it would be good?
-                    return None
-                # We have now matched part of a nested name, and need to match more
-                # so even if we should matchSelf before, we definitely shouldn't
-                # even more. (see also issue #2666)
-                matchSelf = False
-            parentSymbol = symbol
-        assert False  # should have returned in the loop
+        symbol, parentSymbol, identOrOp, templateParams, templateArgs = \
+            self._symbol_lookup(nestedName, templateDecls,
+                                onMissingQualifiedSymbol,
+                                strictTemplateParamArgLists=False,
+                                ancestorLookupType=typ,
+                                templateShorthand=templateShorthand,
+                                matchSelf=matchSelf,
+                                recurseInAnon=recurseInAnon,
+                                correctPrimaryTemplateArgs=False)
+
+        if symbol is not None:
+            return symbol
+        # if it was a part of the qualification that could not be found:
+        if parentSymbol is None:
+            return None
+        # try without template params and args
+        symbol = parentSymbol._find_named_symbol(identOrOp,
+                                                 None, None,
+                                                 templateShorthand=templateShorthand,
+                                                 matchSelf=matchSelf,
+                                                 recurseInAnon=recurseInAnon,
+                                                 correctPrimaryTemplateArgs=False)
+        return symbol
 
     def to_string(self, indent):
         # type: (int) -> unicode
