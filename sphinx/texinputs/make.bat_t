@@ -10,7 +10,7 @@ set PDFLATEX=latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
 {% else -%}
 set PDFLATEX=latexmk -pdf -dvi- -ps-
 {% endif %}
-set LATEXOPTS=
+set "LATEXOPTS= "
 
 {% if xindy_use -%}
 set XINDYOPTS={{ xindy_lang_option }} -M sphinx.xdy
