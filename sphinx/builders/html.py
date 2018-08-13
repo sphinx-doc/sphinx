@@ -1066,7 +1066,8 @@ class StandaloneHTMLBuilder(Builder):
                 sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
-        for pattern, patsidebars in iteritems(self.config.html_sidebars):
+        html_sidebars = self.get_builder_config('sidebars', 'html')
+        for pattern, patsidebars in iteritems(html_sidebars):
             if patmatch(pagename, pattern):
                 if matched:
                     if has_wildcard(pattern):
@@ -1713,6 +1714,8 @@ def setup(app):
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_math_renderer', None, 'env')
+
+    app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)

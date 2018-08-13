@@ -194,6 +194,8 @@ Features added
 * #4614: sphinx-build: Add ``--keep-going`` option to show all warnings
 * Add :rst:role:`math:numref` role to refer equations (Same as :rst:role:`eq`)
 * quickstart: epub builder is enabled by default
+* #5246: Add :confval:`singlehtml_sidebars` to configure sidebars for singlehtml
+  builder
 
 Bugs fixed
 ----------

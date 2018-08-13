@@ -1333,6 +1333,16 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+Options for Single HTML output
+-------------------------------
+
+.. confval:: singlehtml_sidebars
+
+   Custom sidebar templates, must be a dictionary that maps document names to
+   template names.  And it only allows a key named `'index'`.  All other keys
+   are ignored.  For more information, refer to :confval:`html_sidebars`.  By
+   default, it is same as :confval:`html_sidebars`.
+
 
 .. _htmlhelp-options:
 
