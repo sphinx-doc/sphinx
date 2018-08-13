@@ -99,22 +99,32 @@ class Make(object):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
+
+        if sys.platform == 'win32':
+            makecmd = os.environ.get('MAKE', 'make.bat')
+        else:
+            makecmd = self.makecmd
         try:
             with cd(self.builddir_join('latex')):
-                return subprocess.call([self.makecmd, 'all-pdf'])
+                return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
-            print('Error: Failed to run: %s' % self.makecmd)
+            print('Error: Failed to run: %s' % makecmd)
             return 1
 
     def build_latexpdfja(self):
         # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
+
+        if sys.platform == 'win32':
+            makecmd = os.environ.get('MAKE', 'make.bat')
+        else:
+            makecmd = self.makecmd
         try:
             with cd(self.builddir_join('latex')):
-                return subprocess.call([self.makecmd, 'all-pdf-ja'])
+                return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
-            print('Error: Failed to run: %s' % self.makecmd)
+            print('Error: Failed to run: %s' % makecmd)
             return 1
 
     def build_info(self):
