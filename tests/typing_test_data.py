@@ -66,3 +66,8 @@ def f11(x: CustomAnnotation(), y: 123) -> None:
 
 def f12() -> Tuple[int, str, int]:
     pass
+
+
+class Node:
+    def children(self) -> List['Node']:
+        pass
