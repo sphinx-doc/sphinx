@@ -177,6 +177,9 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
+        'babel':        '',
+        'classoptions': ',dvipdfmx',
+        'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
@@ -570,8 +573,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
 
-        if builder.config.language \
-           and 'fncychap' not in builder.config.latex_elements:
+        if (builder.config.language and builder.config.language != 'ja' and
+                'fncychap' not in builder.config.latex_elements):
             # use Sonny style if any language specified
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
                                          '\\ChNameVar{\\Large\\normalfont'
@@ -586,13 +589,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             logger.warning(__('no Babel option known for language %r'),
                            builder.config.language)
 
-        # simply use babel.get_language() always, as get_language() returns
-        # 'english' even if language is invalid or empty
-        self.elements['classoptions'] += ',' + self.babel.get_language()
-
         # set up multilingual module...
         # 'babel' key is public and user setting must be obeyed
         if self.elements['babel']:
+            self.elements['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
@@ -602,18 +602,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if self.babel.uses_cyrillic() \
                    and 'fontpkg' not in builder.config.latex_elements:
                     self.elements['fontpkg'] = ''
-
-                # pTeX (Japanese TeX) for support
-                if builder.config.language == 'ja':
-                    # use dvipdfmx as default class option in Japanese
-                    self.elements['classoptions'] = ',dvipdfmx'
-                    # disable babel which has not publishing quality in Japanese
-                    self.elements['babel'] = ''
-                    self.elements['shorthandoff'] = ''
-                    self.elements['multilingual'] = ''
-                    # disable fncychap in Japanese documents
-                    self.elements['fncychap'] = ''
         elif self.elements['polyglossia']:
+            self.elements['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
             if options:
                 mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
