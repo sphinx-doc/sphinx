@@ -228,8 +228,8 @@ def test_Signature_partialmethod():
     assert sig == '()'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5),
-                    reason='type annotation test is available on py35 or above')
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='type annotation test is available on py34 or above')
 def test_Signature_annotations():
     from typing_test_data import (
         f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, Node)
