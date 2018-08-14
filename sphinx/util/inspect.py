@@ -477,6 +477,8 @@ class Signature(object):
                 qualname = annotation._name
             elif getattr(annotation, '__qualname__', None):
                 qualname = annotation.__qualname__
+            elif getattr(annotation, '__forward_arg__', None):
+                qualname = annotation.__forward_arg__
             else:
                 qualname = self.format_annotation(annotation.__origin__)  # ex. Union
         elif hasattr(annotation, '__qualname__'):
@@ -510,6 +512,8 @@ class Signature(object):
                 qualname = annotation._name
             elif getattr(annotation, '__qualname__', None):
                 qualname = annotation.__qualname__
+            elif getattr(annotation, '__forward_arg__', None):
+                qualname = annotation.__forward_arg__
             else:
                 qualname = self.format_annotation(annotation.__origin__)  # ex. Union
         elif hasattr(annotation, '__qualname__'):

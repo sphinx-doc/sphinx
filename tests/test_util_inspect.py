@@ -297,6 +297,9 @@ def test_Signature_annotations():
     sig = inspect.Signature(Node.children).format_args()
     assert sig == '(self) -> List[typing_test_data.Node]'
 
+    sig = inspect.Signature(Node.__init__).format_args()
+    assert sig == '(self, parent: Optional[Node]) -> None'
+
 
 def test_safe_getattr_with_default():
     class Foo(object):
