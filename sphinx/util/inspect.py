@@ -450,6 +450,19 @@ class Signature(object):
 
         Displaying complex types from ``typing`` relies on its private API.
         """
+        if isinstance(annotation, string_types):
+            return annotation  # type: ignore
+        elif isinstance(annotation, typing.TypeVar):  # type: ignore
+            return annotation.__name__
+        elif not annotation:
+            return repr(annotation)
+        elif annotation is NoneType:  # type: ignore
+            return 'None'
+        elif getattr(annotation, '__module__', None) == 'builtins':
+            return annotation.__qualname__
+        elif annotation is Ellipsis:
+            return '...'
+
         if sys.version_info >= (3, 7):  # py37+
             return self.format_annotation_new(annotation)
         else:
@@ -459,19 +472,6 @@ class Signature(object):
         # type: (Any) -> str
         """format_annotation() for py37+"""
         module = getattr(annotation, '__module__', None)
-        if isinstance(annotation, string_types):
-            return annotation  # type: ignore
-        elif isinstance(annotation, typing.TypeVar):  # type: ignore
-            return annotation.__name__
-        elif not annotation:
-            return repr(annotation)
-        elif annotation is NoneType:  # type: ignore
-            return 'None'
-        elif module == 'builtins':
-            return annotation.__qualname__
-        elif annotation is Ellipsis:
-            return '...'
-
         if module == 'typing':
             if getattr(annotation, '_name', None):
                 qualname = annotation._name
@@ -505,19 +505,6 @@ class Signature(object):
         # type: (Any) -> str
         """format_annotation() for py36 or below"""
         module = getattr(annotation, '__module__', None)
-        if isinstance(annotation, string_types):
-            return annotation  # type: ignore
-        elif isinstance(annotation, typing.TypeVar):  # type: ignore
-            return annotation.__name__
-        elif not annotation:
-            return repr(annotation)
-        elif annotation is NoneType:  # type: ignore
-            return 'None'
-        elif module == 'builtins':
-            return annotation.__qualname__
-        elif annotation is Ellipsis:
-            return '...'
-
         if module == 'typing':
             if getattr(annotation, '_name', None):
                 qualname = annotation._name
