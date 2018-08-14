@@ -167,13 +167,17 @@ Features added
 * #4785: napoleon: Add strings to translation file for localisation
 * #4927: Display a warning when invalid values are passed to linenothreshold
   option of highlight directive
-* C++, add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
-* C++, add support for unions.
-* C++, add support for anonymous entities using names staring with ``@``.
-  Fixes #3593 and #2683.
-* #5147: C++, add support for (most) character literals.
-* C++, cross-referencing entities inside primary templates is supported,
-  and now properly documented.
+* C++:
+
+  - Add a ``cpp:texpr`` role as a sibling to ``cpp:expr``.
+  - Add support for unions.
+  - #3593, #2683: add support for anonymous entities using names staring with ``@``.
+  - #5147: add support for (most) character literals.
+  - Cross-referencing entities inside primary templates is supported,
+    and now properly documented.
+  - #1552: add new cross-referencing format for ``cpp:any`` and ``cpp:func`` roles,
+    for referencing specific function overloads.
+
 * #3606: MathJax should be loaded with async attribute
 * html: Output ``canonical_url`` metadata if :confval:`html_baseurl` set (refs:
   #4193)

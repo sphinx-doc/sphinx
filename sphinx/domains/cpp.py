@@ -622,20 +622,6 @@ class ASTBase(UnicodeMixin):
         """Clone a definition expression node."""
         return deepcopy(self)
 
-    def get_name(self):
-        # type: () -> unicode
-        """Return the name.
-
-        Returns either `None` or a node with a name you might call
-        :meth:`split_owner` on.
-        """
-        raise NotImplementedError(repr(self))
-
-    def prefix_nested_name(self, prefix):
-        # type: (unicode) -> unicode
-        """Prefix a name node (a node returned by :meth:`get_name`)."""
-        raise NotImplementedError(repr(self))
-
     def _stringify(self, transform):
         # type: (Callable[[Any], unicode]) -> unicode
         raise NotImplementedError(repr(self))
@@ -1875,7 +1861,7 @@ class ASTTemplateIntroduction(ASTBase):
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self, templates):
         # type: (List[Any]) -> None
-        # template is None means it's an explicit instantiation of a variable
+        # templates is None means it's an explicit instantiation of a variable
         self.templates = templates
 
     def get_id(self, version):
@@ -3606,6 +3592,16 @@ class ASTNamespace(ASTBase):
         self.templatePrefix = templatePrefix
 
 
+class SymbolLookupResult(object):
+    def __init__(self, symbols, parentSymbol, identOrOp, templateParams, templateArgs):
+        # type: (Iterator[Symbol], Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> None  # NOQA
+        self.symbols = symbols
+        self.parentSymbol = parentSymbol
+        self.identOrOp = identOrOp
+        self.templateParams = templateParams
+        self.templateArgs = templateArgs
+
+
 class Symbol(object):
     def _assert_invariants(self):
         # type: () -> None
@@ -3644,6 +3640,7 @@ class Symbol(object):
         self.isRedeclaration = False
         self._assert_invariants()
 
+        # Remember to modify Symbol.remove if modifications to the parent change.
         self._children = []  # type: List[Symbol]
         self._anonChildren = []  # type: List[Symbol]
         # note: _children includes _anonChildren
@@ -3681,6 +3678,13 @@ class Symbol(object):
                 Symbol(parent=self, identOrOp=identOrOp,
                        templateParams=None, templateArgs=None,
                        declaration=decl, docname=docname)
+
+    def remove(self):
+        if self.parent is None:
+            return
+        assert self in self.parent._children
+        self.parent._children.remove(self)
+        self.parent = None
 
     def _fill_empty(self, declaration, docname):
         # type: (ASTDeclaration, unicode) -> None
@@ -3745,16 +3749,35 @@ class Symbol(object):
             templates.append(False)
         return ASTNestedName(names, templates, rooted=False)
 
-    def _find_named_symbol(self,
-                           identOrOp,          # type: Union[ASTIdentifier, ASTOperator]
-                           templateParams,     # type: Any
-                           templateArgs,       # type: ASTTemplateArgs
-                           templateShorthand,  # type: bool
-                           matchSelf,          # type: bool
-                           recurseInAnon,      # type: bool
-                           correctPrimaryTemplateArgs  # type: bool
-                           ):
+    def _find_first_named_symbol(
+            self,
+            identOrOp,          # type: Union[ASTIdentifier, ASTOperator]
+            templateParams,     # type: Any
+            templateArgs,       # type: ASTTemplateArgs
+            templateShorthand,  # type: bool
+            matchSelf,          # type: bool
+            recurseInAnon,      # type: bool
+            correctPrimaryTemplateArgs  # type: bool
+            ):  # NOQA
         # type: (...) -> Symbol
+        res = self._find_named_symbols(identOrOp, templateParams, templateArgs,
+                                       templateShorthand, matchSelf, recurseInAnon,
+                                       correctPrimaryTemplateArgs)
+        try:
+            return next(res)
+        except StopIteration:
+            return None
+
+    def _find_named_symbols(self,
+                            identOrOp,          # type: Union[ASTIdentifier, ASTOperator]
+                            templateParams,     # type: Any
+                            templateArgs,       # type: ASTTemplateArgs
+                            templateShorthand,  # type: bool
+                            matchSelf,          # type: bool
+                            recurseInAnon,      # type: bool
+                            correctPrimaryTemplateArgs  # type: bool
+                            ):
+        # type: (...) -> Iterator[Symbol]
 
         def isSpecialization():
             # the names of the template parameters must be given exactly as args
@@ -3807,12 +3830,11 @@ class Symbol(object):
                     return False
             return True
         if matchSelf and matches(self):
-            return self
+            yield self
         children = self.children_recurse_anon if recurseInAnon else self._children
         for s in children:
             if matches(s):
-                return s
-        return None
+                yield s
 
     def _symbol_lookup(
             self,
@@ -3827,7 +3849,7 @@ class Symbol(object):
             recurseInAnon,                # type: bool
             correctPrimaryTemplateArgs    # type: bool
             ):
-        # type: (...) -> Tuple[Symbol, Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs]  # NOQA
+        # type: (...) -> SymbolLookupResult
         # ancestorLookupType: if not None, specifies the target type of the lookup
 
         if strictTemplateParamArgLists:
@@ -3885,7 +3907,7 @@ class Symbol(object):
                 else:
                     templateParams = None
 
-            symbol = parentSymbol._find_named_symbol(
+            symbol = parentSymbol._find_first_named_symbol(
                 identOrOp,
                 templateParams, templateArgs,
                 templateShorthand=templateShorthand,
@@ -3896,7 +3918,7 @@ class Symbol(object):
                 symbol = onMissingQualifiedSymbol(parentSymbol, identOrOp,
                                                   templateParams, templateArgs)
                 if symbol is None:
-                    return None, None, None, None, None
+                    return None
             # We have now matched part of a nested name, and need to match more
             # so even if we should matchSelf before, we definitely shouldn't
             # even more. (see also issue #2666)
@@ -3914,13 +3936,12 @@ class Symbol(object):
             assert iTemplateDecl == len(templateDecls)
             templateParams = None
 
-        symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                 templateParams, templateArgs,
-                                                 templateShorthand=templateShorthand,
-                                                 matchSelf=matchSelf,
-                                                 recurseInAnon=recurseInAnon,
-                                                 correctPrimaryTemplateArgs=False)
-        return symbol, parentSymbol, identOrOp, templateParams, templateArgs
+        symbols = parentSymbol._find_named_symbols(
+            identOrOp, templateParams, templateArgs,
+            templateShorthand=templateShorthand, matchSelf=matchSelf,
+            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
+        return SymbolLookupResult(symbols, parentSymbol,
+                                  identOrOp, templateParams, templateArgs)
 
     def _add_symbols(self, nestedName, templateDecls, declaration, docname):
         # type: (ASTNestedName, List[Any], ASTDeclaration, unicode) -> Symbol
@@ -3934,15 +3955,20 @@ class Symbol(object):
                           templateArgs=templateArgs, declaration=None,
                           docname=None)
 
-        symbol, parentSymbol, identOrOp, templateParams, templateArgs = \
-            self._symbol_lookup(nestedName, templateDecls,
-                                onMissingQualifiedSymbol,
-                                strictTemplateParamArgLists=True,
-                                ancestorLookupType=None,
-                                templateShorthand=False,
-                                matchSelf=False,
-                                recurseInAnon=True,
-                                correctPrimaryTemplateArgs=True)
+        lookupResult = self._symbol_lookup(nestedName, templateDecls,
+                                           onMissingQualifiedSymbol,
+                                           strictTemplateParamArgLists=True,
+                                           ancestorLookupType=None,
+                                           templateShorthand=False,
+                                           matchSelf=False,
+                                           recurseInAnon=True,
+                                           correctPrimaryTemplateArgs=True)
+        assert lookupResult is not None  # we create symbols all the way, so that can't happen
+        # TODO: actually do the iteration over results, though let's find a test case first
+        try:
+            symbol = next(lookupResult.symbols)
+        except StopIteration:
+            symbol = None
 
         if symbol:
             if not declaration:
@@ -3958,9 +3984,10 @@ class Symbol(object):
                 return symbol
             # It may simply be a function overload, so let's compare ids.
             isRedeclaration = True
-            candSymbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
-                                templateParams=templateParams,
-                                templateArgs=templateArgs,
+            candSymbol = Symbol(parent=lookupResult.parentSymbol,
+                                identOrOp=lookupResult.identOrOp,
+                                templateParams=lookupResult.templateParams,
+                                templateArgs=lookupResult.templateArgs,
                                 declaration=declaration,
                                 docname=docname)
             if declaration.objectType == "function":
@@ -3978,9 +4005,10 @@ class Symbol(object):
                 candSymbol.isRedeclaration = True
                 raise _DuplicateSymbolError(symbol, declaration)
         else:
-            symbol = Symbol(parent=parentSymbol, identOrOp=identOrOp,
-                            templateParams=templateParams,
-                            templateArgs=templateArgs,
+            symbol = Symbol(parent=lookupResult.parentSymbol,
+                            identOrOp=lookupResult.identOrOp,
+                            templateParams=lookupResult.templateParams,
+                            templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
                             docname=docname)
         return symbol
@@ -3989,13 +4017,12 @@ class Symbol(object):
         # type: (Symbol, List[unicode], BuildEnvironment) -> None
         assert other is not None
         for otherChild in other._children:
-            ourChild = self._find_named_symbol(identOrOp=otherChild.identOrOp,
-                                               templateParams=otherChild.templateParams,
-                                               templateArgs=otherChild.templateArgs,
-                                               templateShorthand=False,
-                                               matchSelf=False,
-                                               recurseInAnon=False,
-                                               correctPrimaryTemplateArgs=False)
+            ourChild = self._find_first_named_symbol(
+                identOrOp=otherChild.identOrOp,
+                templateParams=otherChild.templateParams,
+                templateArgs=otherChild.templateArgs,
+                templateShorthand=False, matchSelf=False,
+                recurseInAnon=False, correctPrimaryTemplateArgs=False)
             if ourChild is None:
                 # TODO: hmm, should we prune by docnames?
                 self._children.append(otherChild)
@@ -4054,12 +4081,12 @@ class Symbol(object):
         for name, templateParams in key:
             identOrOp = name.identOrOp
             templateArgs = name.templateArgs
-            s = s._find_named_symbol(identOrOp,
-                                     templateParams, templateArgs,
-                                     templateShorthand=False,
-                                     matchSelf=False,
-                                     recurseInAnon=False,
-                                     correctPrimaryTemplateArgs=False)
+            s = s._find_first_named_symbol(identOrOp,
+                                           templateParams, templateArgs,
+                                           templateShorthand=False,
+                                           matchSelf=False,
+                                           recurseInAnon=False,
+                                           correctPrimaryTemplateArgs=False)
             if not s:
                 return None
         return s
@@ -4077,29 +4104,75 @@ class Symbol(object):
             #       Is there another case where it would be good?
             return None
 
-        symbol, parentSymbol, identOrOp, templateParams, templateArgs = \
-            self._symbol_lookup(nestedName, templateDecls,
-                                onMissingQualifiedSymbol,
-                                strictTemplateParamArgLists=False,
-                                ancestorLookupType=typ,
-                                templateShorthand=templateShorthand,
-                                matchSelf=matchSelf,
-                                recurseInAnon=recurseInAnon,
-                                correctPrimaryTemplateArgs=False)
-
-        if symbol is not None:
-            return symbol
-        # if it was a part of the qualification that could not be found:
-        if parentSymbol is None:
+        lookupResult = self._symbol_lookup(nestedName, templateDecls,
+                                           onMissingQualifiedSymbol,
+                                           strictTemplateParamArgLists=False,
+                                           ancestorLookupType=typ,
+                                           templateShorthand=templateShorthand,
+                                           matchSelf=matchSelf,
+                                           recurseInAnon=recurseInAnon,
+                                           correctPrimaryTemplateArgs=False)
+        if lookupResult is None:
+            # if it was a part of the qualification that could not be found
             return None
+
+        # TODO: hmm, what if multiple symbols match?
+        try:
+            return next(lookupResult.symbols)
+        except StopIteration:
+            pass
+
         # try without template params and args
-        symbol = parentSymbol._find_named_symbol(identOrOp,
-                                                 None, None,
-                                                 templateShorthand=templateShorthand,
-                                                 matchSelf=matchSelf,
-                                                 recurseInAnon=recurseInAnon,
-                                                 correctPrimaryTemplateArgs=False)
+        symbol = lookupResult.parentSymbol._find_first_named_symbol(
+            lookupResult.identOrOp, None, None,
+            templateShorthand=templateShorthand, matchSelf=matchSelf,
+            recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
         return symbol
+
+    def find_declaration(self, declaration, typ, templateShorthand,
+                         matchSelf, recurseInAnon):
+        # type: (ASTDeclaration, unicode, bool, bool, bool) -> Symbol
+        # templateShorthand: missing template parameter lists for templates is ok
+        nestedName = declaration.name
+        if declaration.templatePrefix:
+            templateDecls = declaration.templatePrefix.templates
+        else:
+            templateDecls = []
+
+        def onMissingQualifiedSymbol(parentSymbol, identOrOp, templateParams, templateArgs):
+            # type: (Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> Symbol
+            return None
+
+        lookupResult = self._symbol_lookup(nestedName, templateDecls,
+                                           onMissingQualifiedSymbol,
+                                           strictTemplateParamArgLists=False,
+                                           ancestorLookupType=typ,
+                                           templateShorthand=templateShorthand,
+                                           matchSelf=matchSelf,
+                                           recurseInAnon=recurseInAnon,
+                                           correctPrimaryTemplateArgs=False)
+
+        if lookupResult is None:
+            return None
+
+        symbols = list(lookupResult.symbols)
+        if len(symbols) == 0:
+            return None
+
+        querySymbol = Symbol(parent=lookupResult.parentSymbol,
+                             identOrOp=lookupResult.identOrOp,
+                             templateParams=lookupResult.templateParams,
+                             templateArgs=lookupResult.templateArgs,
+                             declaration=declaration,
+                             docname='fakeDocnameForQuery')
+        queryId = declaration.get_newest_id()
+        for symbol in symbols:
+            candId = symbol.declaration.get_newest_id()
+            if candId == queryId:
+                querySymbol.remove()
+                return symbol
+        querySymbol.remove()
+        return None
 
     def to_string(self, indent):
         # type: (int) -> unicode
@@ -5825,9 +5898,13 @@ class DefinitionParser(object):
         else:
             return ASTTemplateDeclarationPrefix(templates)
 
-    def _check_template_consistency(self, nestedName, templatePrefix,
-                                    fullSpecShorthand, isMember=False):
-        # type: (Any, Any, Any, bool) -> ASTTemplateDeclarationPrefix
+    def _check_template_consistency(self,
+                                    nestedName,         # type: ASTNestedName
+                                    templatePrefix,     # type: ASTTemplateDeclarationPrefix
+                                    fullSpecShorthand,  # type: bool
+                                    isMember=False      # type: bool
+                                    ):
+        # type: (...) -> ASTTemplateDeclarationPrefix
         numArgs = nestedName.num_templates()
         isMemberInstantiation = False
         if not templatePrefix:
@@ -5931,17 +6008,33 @@ class DefinitionParser(object):
         return res
 
     def parse_xref_object(self):
-        # type: () -> ASTNamespace
-        templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
-        name = self._parse_nested_name()
-        # if there are '()' left, just skip them
-        self.skip_ws()
-        self.skip_string('()')
-        templatePrefix = self._check_template_consistency(name, templatePrefix,
-                                                          fullSpecShorthand=True)
-        res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'xref'  # type: ignore
-        return res
+        # type: () -> Tuple[Any, bool]
+        pos = self.pos
+        try:
+            templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
+            name = self._parse_nested_name()
+            # if there are '()' left, just skip them
+            self.skip_ws()
+            self.skip_string('()')
+            templatePrefix = self._check_template_consistency(name, templatePrefix,
+                                                              fullSpecShorthand=True)
+            res1 = ASTNamespace(name, templatePrefix)
+            res1.objectType = 'xref'  # type: ignore
+            return res1, True
+        except DefinitionError as e1:
+            try:
+                self.pos = pos
+                res2 = self.parse_declaration('function')
+                # if there are '()' left, just skip them
+                self.skip_ws()
+                self.skip_string('()')
+                return res2, False
+            except DefinitionError as e2:
+                errs = []
+                errs.append((e1, "If shorthand ref"))
+                errs.append((e2, "If full function ref"))
+                msg = "Error in cross-reference."
+                raise self._make_multi_error(errs, msg)
 
     def parse_expression(self):
         pos = self.pos
@@ -6542,7 +6635,7 @@ class CPPDomain(Domain):
             target += '()'
         parser = DefinitionParser(target, warner, env.config)
         try:
-            ast = parser.parse_xref_object()
+            ast, isShorthand = parser.parse_xref_object()
             parser.assert_end()
         except DefinitionError as e:
             def findWarning(e):  # as arg to stop flake8 from complaining
@@ -6573,14 +6666,21 @@ class CPPDomain(Domain):
         else:
             parentSymbol = rootSymbol
 
-        name = ast.nestedName
-        if ast.templatePrefix:
-            templateDecls = ast.templatePrefix.templates
+        if isShorthand:
+            ns = ast  # type: ASTNamespace
+            name = ns.nestedName
+            if ns.templatePrefix:
+                templateDecls = ns.templatePrefix.templates
+            else:
+                templateDecls = []
+            s = parentSymbol.find_name(name, templateDecls, typ,
+                                       templateShorthand=True,
+                                       matchSelf=True, recurseInAnon=True)
         else:
-            templateDecls = []
-        s = parentSymbol.find_name(name, templateDecls, typ,
-                                   templateShorthand=True,
-                                   matchSelf=True, recurseInAnon=True)
+            decl = ast  # type: ASTDeclaration
+            s = parentSymbol.find_declaration(decl, typ,
+                                              templateShorthand=True,
+                                              matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
             txtName = text_type(name)
             if txtName.startswith('std::') or txtName == 'std':
@@ -6609,8 +6709,11 @@ class CPPDomain(Domain):
                            s.get_full_nested_name()))
 
         declaration = s.declaration
-        fullNestedName = s.get_full_nested_name()
-        displayName = fullNestedName.get_display_string().lstrip(':')
+        if isShorthand:
+            fullNestedName = s.get_full_nested_name()
+            displayName = fullNestedName.get_display_string().lstrip(':')
+        else:
+            displayName = decl.get_display_string()
         docname = s.docname
         assert docname
 
@@ -6622,19 +6725,33 @@ class CPPDomain(Domain):
             # are requested. Then the Sphinx machinery will add another pair.
             # Also, if it's an 'any' ref that resolves to a function, we need to add
             # parens as well.
+            # However, if it's a non-shorthand function ref, for a function that
+            # takes no arguments, then we may need to add parens again as well.
             addParen = 0
             if not node.get('refexplicit', False) and declaration.objectType == 'function':
-                # this is just the normal haxing for 'any' roles
-                if env.config.add_function_parentheses and typ == 'any':
-                    addParen += 1
-                # and now this stuff for operator()
-                if (env.config.add_function_parentheses and typ == 'function' and
-                        title.endswith('operator()')):
-                    addParen += 1
-                if ((typ == 'any' or typ == 'function') and
-                        title.endswith('operator') and
-                        displayName.endswith('operator()')):
-                    addParen += 1
+                if isShorthand:
+                    # this is just the normal haxing for 'any' roles
+                    if env.config.add_function_parentheses and typ == 'any':
+                        addParen += 1
+                    # and now this stuff for operator()
+                    if (env.config.add_function_parentheses and typ == 'function' and
+                            title.endswith('operator()')):
+                        addParen += 1
+                    if ((typ == 'any' or typ == 'function') and
+                            title.endswith('operator') and
+                            displayName.endswith('operator()')):
+                        addParen += 1
+                else:
+                    # our job here is to essentially nullify add_function_parentheses
+                    if env.config.add_function_parentheses:
+                        if typ == 'any' and displayName.endswith('()'):
+                            addParen += 1
+                        elif typ == 'function':
+                            if title.endswith('()') and not displayName.endswith('()'):
+                                title = title[:-2]
+                    else:
+                        if displayName.endswith('()'):
+                            addParen += 1
             if addParen > 0:
                 title += '()' * addParen
             # and reconstruct the title again
