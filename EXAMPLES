@@ -362,6 +362,7 @@ Documentation using sphinx_rtd_theme
 * `Sphinx AutoAPI`__
 * `sphinx-argparse`__
 * `Sphinx-Gallery`__ (customized)
+* `SpotBugs`__
 * `StarUML`__
 * `Sublime Text Unofficial Documentation`__
 * `SunPy`__
@@ -460,6 +461,7 @@ __ http://docs.python-soco.com/
 __ https://sphinx-autoapi.readthedocs.io/
 __ https://sphinx-argparse.readthedocs.io/
 __ https://sphinx-gallery.readthedocs.io/
+__ https://spotbugs.readthedocs.io/
 __ http://docs.staruml.io/
 __ http://docs.sublimetext.info/
 __ http://docs.sunpy.org/
