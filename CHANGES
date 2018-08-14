@@ -27,6 +27,7 @@ Bugs fixed
 * LaTeX: fix the :confval:`latex_engine` documentation regarding Latin Modern
   font with XeLaTeX/LuaLateX (refs: #5251)
 * #5280: autodoc: Fix wrong type annotations for complex typing
+* autodoc: Optional types are wrongly rendered
 
 Testing
 --------
