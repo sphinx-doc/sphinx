@@ -171,6 +171,11 @@ def test_expressions():
     exprCheck('sizeof -42', 'szngL42E')
     exprCheck('alignof(T)', 'at1T')
     exprCheck('noexcept(-42)', 'nxngL42E')
+    # TODO: new-expression
+    exprCheck('delete p', 'dl1p')
+    exprCheck('delete [] p', 'da1p')
+    exprCheck('::delete p', 'dl1p')
+    exprCheck('::delete [] p', 'da1p')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op

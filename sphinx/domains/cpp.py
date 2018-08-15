@@ -1106,6 +1106,38 @@ class ASTNoexceptExpr(ASTBase):
         signode.append(nodes.Text(')'))
 
 
+class ASTDeleteExpr(ASTBase):
+    def __init__(self, rooted, array, expr):
+        self.rooted = rooted
+        self.array = array
+        self.expr = expr
+
+    def _stringify(self, transform):
+        res = []
+        if self.rooted:
+            res.append('::')
+        res.append('delete ')
+        if self.array:
+            res.append('[] ')
+        res.append(transform(self.expr))
+        return u''.join(res)
+
+    def get_id(self, version):
+        if self.array:
+            id = "da"
+        else:
+            id = "dl"
+        return id + self.expr.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        if self.rooted:
+            signode.append(nodes.Text('::'))
+        signode.append(nodes.Text('delete '))
+        if self.array:
+            signode.append(nodes.Text('[] '))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
 class ASTExplicitCast(ASTBase):
     def __init__(self, cast, typ, expr):
         assert cast in _id_explicit_cast
@@ -4571,7 +4603,26 @@ class DefinitionParser(object):
             if not self.skip_string(')'):
                 self.fail("Expecting ')' to end 'noexcept'.")
             return ASTNoexceptExpr(expr)
-        # TODO: the rest
+        # new-expression
+        pos = self.pos
+        rooted = self.skip_string('::')
+        self.skip_ws()
+        if not self.skip_word_and_ws('new'):
+            self.pos = pos
+        else:
+            self.fail("Sorry, new-expressions not yet supported.")
+        # delete-expression
+        pos = self.pos
+        rooted = self.skip_string('::')
+        self.skip_ws()
+        if not self.skip_word_and_ws('delete'):
+            self.pos = pos
+        else:
+            array = self.skip_string_and_ws('[')
+            if array and not self.skip_string_and_ws(']'):
+                self.fail("Expected ']' in array delete-expression.")
+            expr = self._parse_cast_expression()
+            return ASTDeleteExpr(rooted, array, expr)
         return self._parse_postfix_expression()
 
     def _parse_cast_expression(self):
@@ -5776,8 +5827,8 @@ class DefinitionParser(object):
             except DefinitionError as exType:
                 header = "Error when parsing (type) expression."
                 errs = []
-                errs.append((exExpr, "If expression:"))
-                errs.append((exType, "If type:"))
+                errs.append((exExpr, "If expression"))
+                errs.append((exType, "If type"))
                 raise self._make_multi_error(errs, header)
         return expr
 
