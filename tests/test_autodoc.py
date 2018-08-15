@@ -912,6 +912,44 @@ def test_generate():
                            'module', 'autodoc_missing_imports')
 
 
+@pytest.mark.usefixtures('setup_test')
+def test_partialfunction():
+    def call_autodoc(objtype, name):
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate()
+        result = list(directive.result)
+        del directive.result[:]
+        return result
+
+    options.members = ALL
+    #options.undoc_members = True
+    expected = [
+        '',
+        '.. py:module:: target.partialfunction',
+        '',
+        '',
+        '.. py:function:: func1()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func1',
+        '   ',
+        '',
+        '.. py:function:: func2()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func1',
+        '   ',
+        '',
+        '.. py:function:: func3()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func3',
+        '   '
+    ]
+
+    assert call_autodoc('module', 'target.partialfunction') == expected
+
+
 @pytest.mark.skipif(sys.version_info < (3, 4),
                     reason='functools.partialmethod is available on py34 or above')
 @pytest.mark.usefixtures('setup_test')

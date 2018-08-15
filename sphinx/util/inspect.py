@@ -15,6 +15,7 @@ import re
 import sys
 import typing
 from collections import OrderedDict
+from functools import partial
 
 from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
@@ -99,8 +100,6 @@ if PY3:
                                    kwonlyargs, kwdefaults, annotations)
 
 else:  # 2.7
-    from functools import partial
-
     def getargspec(func):
         # type: (Any) -> Any
         """Like inspect.getargspec but supports functools.partial as well."""
@@ -155,6 +154,12 @@ def isenumattribute(x):
     return isinstance(x, enum.Enum)
 
 
+def ispartial(obj):
+    # type: (Any) -> bool
+    """Check if the object is partial."""
+    return isinstance(obj, partial)
+
+
 def isclassmethod(obj):
     # type: (Any) -> bool
     """Check if the object is classmethod."""
@@ -196,6 +201,18 @@ def isdescriptor(x):
         if hasattr(safe_getattr(x, item, None), '__call__'):
             return True
     return False
+
+
+def isfunction(obj):
+    # type: (Any) -> bool
+    """Check if the object is function."""
+    return inspect.isfunction(obj) or ispartial(obj) and inspect.isfunction(obj.func)
+
+
+def isbuiltin(obj):
+    # type: (Any) -> bool
+    """Check if the object is builtin."""
+    return inspect.isbuiltin(obj) or ispartial(obj) and inspect.isbuiltin(obj.func)
 
 
 def safe_getattr(obj, name, *defargs):
@@ -601,7 +618,7 @@ class Signature(object):
 
 
 if sys.version_info >= (3, 5):
-    getdoc = inspect.getdoc
+    _getdoc = inspect.getdoc
 else:
     # code copied from the inspect.py module of the standard library
     # of Python 3.5
@@ -679,7 +696,7 @@ else:
                 return doc
         return None
 
-    def getdoc(object):
+    def _getdoc(object):
         """Get the documentation string for an object.
 
         All tabs are expanded to spaces.  To clean up docstrings that are
@@ -697,3 +714,21 @@ else:
         if not isinstance(doc, str):
             return None
         return inspect.cleandoc(doc)
+
+
+def getdoc(obj, attrgetter=safe_getattr, allow_inherited=False):
+    # type: (Any, Callable, bool) -> unicode
+    """Get the docstring for the object.
+
+    This tries to obtain the docstring for some kind of objects additionally:
+
+    * partial functions
+    * inherited docstring
+    """
+    doc = attrgetter(obj, '__doc__', None)
+    if ispartial(obj) and doc == obj.__class__.__doc__:
+        return getdoc(obj.func)
+    elif doc is None and allow_inherited:
+        doc = _getdoc(obj)
+
+    return doc
