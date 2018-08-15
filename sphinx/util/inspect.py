@@ -486,7 +486,7 @@ class Signature(object):
 
         if getattr(annotation, '__args__', None):
             if qualname == 'Union':
-                if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:
+                if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:  # type: ignore  # NOQA
                     return 'Optional[%s]' % self.format_annotation(annotation.__args__[0])
                 else:
                     args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
@@ -550,7 +550,7 @@ class Signature(object):
               hasattr(annotation, '__union_params__')):
             params = annotation.__union_params__
             if params is not None:
-                if len(params) == 2 and params[1] is NoneType:
+                if len(params) == 2 and params[1] is NoneType:  # type: ignore
                     return 'Optional[%s]' % self.format_annotation(params[0])
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
@@ -560,7 +560,7 @@ class Signature(object):
               annotation.__origin__ is typing.Union):
             params = annotation.__args__
             if params is not None:
-                if len(params) == 2 and params[1] is NoneType:
+                if len(params) == 2 and params[1] is NoneType:  # type: ignore
                     return 'Optional[%s]' % self.format_annotation(params[0])
                 else:
                     param_str = ', '.join(self.format_annotation(p) for p in params)
