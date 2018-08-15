@@ -28,6 +28,7 @@ Bugs fixed
   font with XeLaTeX/LuaLateX (refs: #5251)
 * #5280: autodoc: Fix wrong type annotations for complex typing
 * autodoc: Optional types are wrongly rendered
+* #5298: imgmath: math_number_all causes equations to have two numbers in html
 
 Testing
 --------
