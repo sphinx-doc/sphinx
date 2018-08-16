@@ -29,6 +29,7 @@ Bugs fixed
 * #5280: autodoc: Fix wrong type annotations for complex typing
 * autodoc: Optional types are wrongly rendered
 * #5291: autodoc crashed by ForwardRef types
+* #5211: autodoc: No docs generated for functools.partial functions
 * #5298: imgmath: math_number_all causes equations to have two numbers in html
 
 Testing
