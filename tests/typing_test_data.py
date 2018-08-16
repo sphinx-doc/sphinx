@@ -73,5 +73,8 @@ def f13() -> Optional[str]:
 
 
 class Node:
+    def __init__(self, parent: Optional['Node']) -> None:
+        pass
+
     def children(self) -> List['Node']:
         pass
