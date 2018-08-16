@@ -20,6 +20,7 @@ from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
+from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
@@ -444,8 +445,7 @@ class Signature(object):
         if PY2 or self.return_annotation is inspect.Parameter.empty:
             return '(%s)' % ', '.join(args)
         else:
-            if isinstance(self.return_annotation, string_types) and \
-                    'return' in self.annotations:
+            if 'return' in self.annotations:
                 annotation = self.format_annotation(self.annotations['return'])
             else:
                 annotation = self.format_annotation(self.return_annotation)
@@ -461,6 +461,19 @@ class Signature(object):
 
         Displaying complex types from ``typing`` relies on its private API.
         """
+        if isinstance(annotation, string_types):
+            return annotation  # type: ignore
+        elif isinstance(annotation, typing.TypeVar):  # type: ignore
+            return annotation.__name__
+        elif not annotation:
+            return repr(annotation)
+        elif annotation is NoneType:  # type: ignore
+            return 'None'
+        elif getattr(annotation, '__module__', None) == 'builtins':
+            return annotation.__qualname__
+        elif annotation is Ellipsis:
+            return '...'
+
         if sys.version_info >= (3, 7):  # py37+
             return self.format_annotation_new(annotation)
         else:
@@ -470,22 +483,13 @@ class Signature(object):
         # type: (Any) -> str
         """format_annotation() for py37+"""
         module = getattr(annotation, '__module__', None)
-        if isinstance(annotation, string_types):
-            return annotation  # type: ignore
-        elif isinstance(annotation, typing.TypeVar):  # type: ignore
-            return annotation.__name__
-        elif not annotation:
-            return repr(annotation)
-        elif module == 'builtins':
-            return annotation.__qualname__
-        elif annotation is Ellipsis:
-            return '...'
-
         if module == 'typing':
             if getattr(annotation, '_name', None):
                 qualname = annotation._name
             elif getattr(annotation, '__qualname__', None):
                 qualname = annotation.__qualname__
+            elif getattr(annotation, '__forward_arg__', None):
+                qualname = annotation.__forward_arg__
             else:
                 qualname = self.format_annotation(annotation.__origin__)  # ex. Union
         elif hasattr(annotation, '__qualname__'):
@@ -495,8 +499,11 @@ class Signature(object):
 
         if getattr(annotation, '__args__', None):
             if qualname == 'Union':
-                args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
-                return '%s[%s]' % (qualname, args)
+                if len(annotation.__args__) == 2 and annotation.__args__[1] is NoneType:  # type: ignore  # NOQA
+                    return 'Optional[%s]' % self.format_annotation(annotation.__args__[0])
+                else:
+                    args = ', '.join(self.format_annotation(a) for a in annotation.__args__)
+                    return '%s[%s]' % (qualname, args)
             elif qualname == 'Callable':
                 args = ', '.join(self.format_annotation(a) for a in annotation.__args__[:-1])
                 returns = self.format_annotation(annotation.__args__[-1])
@@ -510,35 +517,28 @@ class Signature(object):
     def format_annotation_old(self, annotation):
         # type: (Any) -> str
         """format_annotation() for py36 or below"""
-        if isinstance(annotation, string_types):
-            return annotation  # type: ignore
-        if isinstance(annotation, typing.TypeVar):  # type: ignore
-            return annotation.__name__
-        if annotation == Ellipsis:
-            return '...'
-        if not isinstance(annotation, type):
-            qualified_name = repr(annotation)
-            if qualified_name.startswith('typing.'):  # for typing.Union
-                return qualified_name.split('.', 1)[1]
+        module = getattr(annotation, '__module__', None)
+        if module == 'typing':
+            if getattr(annotation, '_name', None):
+                qualname = annotation._name
+            elif getattr(annotation, '__qualname__', None):
+                qualname = annotation.__qualname__
+            elif getattr(annotation, '__forward_arg__', None):
+                qualname = annotation.__forward_arg__
             else:
-                return qualified_name
-
-        if not annotation:
-            qualified_name = repr(annotation)
-        elif annotation.__module__ == 'typing':
-            qualified_name = annotation.__qualname__  # type: ignore
+                qualname = self.format_annotation(annotation.__origin__)  # ex. Union
+        elif hasattr(annotation, '__qualname__'):
+            qualname = '%s.%s' % (module, annotation.__qualname__)
         else:
-            qualified_name = (annotation.__module__ + '.' + annotation.__qualname__)  # type: ignore  # NOQA
+            qualname = repr(annotation)
 
-        if annotation.__module__ == 'builtins':
-            return annotation.__qualname__  # type: ignore
-        elif (hasattr(typing, 'TupleMeta') and
-              isinstance(annotation, typing.TupleMeta) and  # type: ignore
-              not hasattr(annotation, '__tuple_params__')):
+        if (hasattr(typing, 'TupleMeta') and
+                isinstance(annotation, typing.TupleMeta) and  # type: ignore
+                not hasattr(annotation, '__tuple_params__')):
             # This is for Python 3.6+, 3.5 case is handled below
             params = annotation.__args__
             param_str = ', '.join(self.format_annotation(p) for p in params)
-            return '%s[%s]' % (qualified_name, param_str)
+            return '%s[%s]' % (qualname, param_str)
         elif (hasattr(typing, 'GenericMeta') and  # for py36 or below
               isinstance(annotation, typing.GenericMeta)):
             # In Python 3.5.2+, all arguments are stored in __args__,
@@ -554,19 +554,32 @@ class Signature(object):
                     args = ', '.join(self.format_annotation(arg) for arg
                                      in annotation.__args__[:-1])  # type: ignore
                     result = self.format_annotation(annotation.__args__[-1])  # type: ignore
-                    return '%s[[%s], %s]' % (qualified_name, args, result)
+                    return '%s[[%s], %s]' % (qualname, args, result)
             elif hasattr(annotation, '__parameters__'):
                 params = annotation.__parameters__  # type: ignore
             if params is not None:
                 param_str = ', '.join(self.format_annotation(p) for p in params)
-                return '%s[%s]' % (qualified_name, param_str)
+                return '%s[%s]' % (qualname, param_str)
         elif (hasattr(typing, 'UnionMeta') and  # for py35 or below
               isinstance(annotation, typing.UnionMeta) and  # type: ignore
               hasattr(annotation, '__union_params__')):
             params = annotation.__union_params__
             if params is not None:
-                param_str = ', '.join(self.format_annotation(p) for p in params)
-                return '%s[%s]' % (qualified_name, param_str)
+                if len(params) == 2 and params[1] is NoneType:  # type: ignore
+                    return 'Optional[%s]' % self.format_annotation(params[0])
+                else:
+                    param_str = ', '.join(self.format_annotation(p) for p in params)
+                    return '%s[%s]' % (qualname, param_str)
+        elif (hasattr(typing, 'Union') and  # for py36
+              hasattr(annotation, '__origin__') and
+              annotation.__origin__ is typing.Union):
+            params = annotation.__args__
+            if params is not None:
+                if len(params) == 2 and params[1] is NoneType:  # type: ignore
+                    return 'Optional[%s]' % self.format_annotation(params[0])
+                else:
+                    param_str = ', '.join(self.format_annotation(p) for p in params)
+                    return 'Union[%s]' % param_str
         elif (hasattr(typing, 'CallableMeta') and  # for py36 or below
               isinstance(annotation, typing.CallableMeta) and  # type: ignore
               getattr(annotation, '__args__', None) is not None and
@@ -574,13 +587,13 @@ class Signature(object):
             # Skipped in the case of plain typing.Callable
             args = annotation.__args__
             if args is None:
-                return qualified_name
+                return qualname
             elif args is Ellipsis:
                 args_str = '...'
             else:
                 formatted_args = (self.format_annotation(a) for a in args)
                 args_str = '[%s]' % ', '.join(formatted_args)
-            return '%s[%s, %s]' % (qualified_name,
+            return '%s[%s, %s]' % (qualname,
                                    args_str,
                                    self.format_annotation(annotation.__result__))
         elif (hasattr(typing, 'TupleMeta') and  # for py36 or below
@@ -592,10 +605,10 @@ class Signature(object):
                 param_strings = [self.format_annotation(p) for p in params]
                 if annotation.__tuple_use_ellipsis__:
                     param_strings.append('...')
-                return '%s[%s]' % (qualified_name,
+                return '%s[%s]' % (qualname,
                                    ', '.join(param_strings))
 
-        return qualified_name
+        return qualname
 
 
 if sys.version_info >= (3, 5):

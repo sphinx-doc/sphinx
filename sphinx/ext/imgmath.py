@@ -318,8 +318,7 @@ def html_visit_displaymath(self, node):
     if node['nowrap']:
         latex = node.astext()
     else:
-        latex = wrap_displaymath(node.astext(), None,
-                                 self.builder.config.math_number_all)
+        latex = wrap_displaymath(node.astext(), None, False)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
