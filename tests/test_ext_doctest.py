@@ -61,6 +61,51 @@ def cleanup_call():
     cleanup_called += 1
 
 
+recorded_calls = set()
+
+
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
+def test_skipif(app, status, warning):
+    """Tests for the :skipif: option
+
+    The tests are separated into a different test root directory since the
+    ``app`` object only evaluates options once in its lifetime. If these tests
+    were combined with the other doctest tests, the ``:skipif:`` evaluations
+    would be recorded only on the first ``app.builder.build_all()`` run, i.e.
+    in ``test_build`` above, and the assertion below would fail.
+
+    """
+    global recorded_calls
+    recorded_calls = set()
+    app.builder.build_all()
+    if app.statuscode != 0:
+        assert False, 'failures in doctests:' + status.getvalue()
+    # The `:skipif:` expressions are always run.
+    # Actual tests and setup/cleanup code is only run if the `:skipif:`
+    # expression evaluates to a False value.
+    assert recorded_calls == {('testsetup', ':skipif:', True),
+                              ('testsetup', ':skipif:', False),
+                              ('testsetup', 'body', False),
+                              ('doctest', ':skipif:', True),
+                              ('doctest', ':skipif:', False),
+                              ('doctest', 'body', False),
+                              ('testcode', ':skipif:', True),
+                              ('testcode', ':skipif:', False),
+                              ('testcode', 'body', False),
+                              ('testoutput-1', ':skipif:', True),
+                              ('testoutput-2', ':skipif:', True),
+                              ('testoutput-2', ':skipif:', False),
+                              ('testcleanup', ':skipif:', True),
+                              ('testcleanup', ':skipif:', False),
+                              ('testcleanup', 'body', False)}
+
+
+def record(directive, part, should_skip):
+    global recorded_calls
+    recorded_calls.add((directive, part, should_skip))
+    return 'Recorded {} {} {}'.format(directive, part, should_skip)
+
+
 @pytest.mark.xfail(
     PY2, reason='node.source points to document instead of filename',
 )
