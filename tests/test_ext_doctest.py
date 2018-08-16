@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import os
+from collections import Counter
 
 import pytest
 from packaging.specifiers import InvalidSpecifier
@@ -61,7 +62,7 @@ def cleanup_call():
     cleanup_called += 1
 
 
-recorded_calls = set()
+recorded_calls = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
@@ -76,33 +77,38 @@ def test_skipif(app, status, warning):
 
     """
     global recorded_calls
-    recorded_calls = set()
+    recorded_calls = Counter()
     app.builder.build_all()
     if app.statuscode != 0:
         assert False, 'failures in doctests:' + status.getvalue()
     # The `:skipif:` expressions are always run.
     # Actual tests and setup/cleanup code is only run if the `:skipif:`
     # expression evaluates to a False value.
-    assert recorded_calls == {('testsetup', ':skipif:', True),
-                              ('testsetup', ':skipif:', False),
-                              ('testsetup', 'body', False),
-                              ('doctest', ':skipif:', True),
-                              ('doctest', ':skipif:', False),
-                              ('doctest', 'body', False),
-                              ('testcode', ':skipif:', True),
-                              ('testcode', ':skipif:', False),
-                              ('testcode', 'body', False),
-                              ('testoutput-1', ':skipif:', True),
-                              ('testoutput-2', ':skipif:', True),
-                              ('testoutput-2', ':skipif:', False),
-                              ('testcleanup', ':skipif:', True),
-                              ('testcleanup', ':skipif:', False),
-                              ('testcleanup', 'body', False)}
+    # Global setup/cleanup are run before/after evaluating the `:skipif:`
+    # option in each directive - thus 11 additional invocations for each on top
+    # of the ones made for the whole test file.
+    assert recorded_calls == {('doctest_global_setup', 'body', True): 13,
+                              ('testsetup', ':skipif:', True): 1,
+                              ('testsetup', ':skipif:', False): 1,
+                              ('testsetup', 'body', False): 1,
+                              ('doctest', ':skipif:', True): 1,
+                              ('doctest', ':skipif:', False): 1,
+                              ('doctest', 'body', False): 1,
+                              ('testcode', ':skipif:', True): 1,
+                              ('testcode', ':skipif:', False): 1,
+                              ('testcode', 'body', False): 1,
+                              ('testoutput-1', ':skipif:', True): 1,
+                              ('testoutput-2', ':skipif:', True): 1,
+                              ('testoutput-2', ':skipif:', False): 1,
+                              ('testcleanup', ':skipif:', True): 1,
+                              ('testcleanup', ':skipif:', False): 1,
+                              ('testcleanup', 'body', False): 1,
+                              ('doctest_global_cleanup', 'body', True): 13}
 
 
 def record(directive, part, should_skip):
     global recorded_calls
-    recorded_calls.add((directive, part, should_skip))
+    recorded_calls[(directive, part, should_skip)] += 1
     return 'Recorded {} {} {}'.format(directive, part, should_skip)
 
 
