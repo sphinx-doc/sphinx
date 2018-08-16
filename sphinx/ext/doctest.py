@@ -92,7 +92,7 @@ class TestDirective(SphinxDirective):
         # type: () -> List[nodes.Node]
         if 'skipif' in self.options:
             condition = self.options['skipif']
-            context = {}
+            context = {}  # type: Dict[str, Any]
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)
             should_skip = eval(condition, context)
