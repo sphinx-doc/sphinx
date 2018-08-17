@@ -197,6 +197,7 @@ Features added
 * #5246: Add :confval:`singlehtml_sidebars` to configure sidebars for singlehtml
   builder
 * #5273: doctest: Skip doctest conditionally
+* #5306: autodoc: emit a warning for invalid typehints
 
 Bugs fixed
 ----------
