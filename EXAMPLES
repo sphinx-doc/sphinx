@@ -644,6 +644,7 @@ Homepages and other non-documentation sites
 * `Deep Learning Tutorials`__ (sphinxdoc)
 * `Loyola University Chicago COMP 339-439 Distributed Systems course`__ (sphinx_bootstrap_theme)
 * `Pylearn2`__ (sphinxdoc, customized)
+* `PyXLL`__ (sphinx_bootstrap_theme, customized)
 * `SciPy Cookbook`__ (sphinx_rtd_theme)
 * `The Wine Cellar Book`__ (sphinxdoc)
 * `Thomas Cokelaer's Python, Sphinx and reStructuredText tutorials`__ (standard)
@@ -655,6 +656,7 @@ __ https://lab.miletic.net/
 __ http://www.deeplearning.net/tutorial/
 __ http://books.cs.luc.edu/distributedsystems/
 __ http://www.deeplearning.net/software/pylearn2/
+__ https://www.pyxll.com/
 __ https://scipy-cookbook.readthedocs.io/
 __ https://www.thewinecellarbook.com/doc/en/
 __ http://thomas-cokelaer.info/tutorials/
