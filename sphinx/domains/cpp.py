@@ -1106,6 +1106,80 @@ class ASTNoexceptExpr(ASTBase):
         signode.append(nodes.Text(')'))
 
 
+class ASTNewExpr(ASTBase):
+    def __init__(self, rooted, isNewTypeId, typ, initList, initType):
+        # type: (bool, bool,  ASTType, List[Any], unicode) -> None
+        self.rooted = rooted
+        self.isNewTypeId = isNewTypeId
+        self.typ = typ
+        self.initList = initList
+        self.initType = initType
+        if self.initList is not None:
+            assert self.initType in ')}'
+
+    def _stringify(self, transform):
+        res = []
+        if self.rooted:
+            res.append('::')
+        res.append('new ')
+        # TODO: placement
+        if self.isNewTypeId:
+            res.append(transform(self.typ))
+        else:
+            assert False
+        if self.initList is not None:
+            if self.initType == ')':
+                res.append('(')
+            first = True
+            for e in self.initList:
+                if not first:
+                    res.append(', ')
+                first = False
+                res.append(transform(e))
+            res.append(self.initType)
+        return u''.join(res)
+
+    def get_id(self, version):
+        # the array part will be in the type mangling, so na is not used
+        res = ['nw']
+        # TODO: placement
+        res.append('_')
+        res.append(self.typ.get_id(version))
+        if self.initList is not None:
+            if self.initType == ')':
+                res.append('pi')
+                for e in self.initList:
+                    res.append(e.get_id(version))
+                res.append('E')
+            else:
+                assert False
+        else:
+            res.append('E')
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        if self.rooted:
+            signode.append(nodes.Text('::'))
+        signode.append(nodes.Text('new '))
+        # TODO: placement
+        if self.isNewTypeId:
+            self.typ.describe_signature(signode, mode, env, symbol)
+        else:
+            assert False
+        if self.initList is not None:
+            if self.initType == ')':
+                signode.append(nodes.Text('('))
+                first = True
+                for e in self.initList:
+                    if not first:
+                        signode.append(nodes.Text(', '))
+                    first = False
+                    e.describe_signature(signode, mode, env, symbol)
+                signode.append(nodes.Text(')'))
+            else:
+                assert False
+
+
 class ASTDeleteExpr(ASTBase):
     def __init__(self, rooted, array, expr):
         self.rooted = rooted
@@ -4381,6 +4455,36 @@ class DefinitionParser(object):
             return res
         return self._parse_nested_name()
 
+    def _parse_expression_list_or_braced_init_list(self):
+        # type: () -> Tuple[List[Any], unicode]
+        self.skip_ws()
+        if self.skip_string_and_ws('('):
+            close = ')'
+            name = 'parenthesized expression-list'
+        elif self.skip_string_and_ws('{'):
+            close = '}'
+            name = 'braced-init-list'
+            self.fail('Sorry, braced-init-list not yet supported.')
+        else:
+            return None, None
+        exprs = []
+        self.skip_ws()
+        if not self.skip_string(close):
+            while True:
+                self.skip_ws()
+                expr = self._parse_expression(inTemplate=False)
+                self.skip_ws()
+                if self.skip_string('...'):
+                    exprs.append(ASTPackExpansionExpr(expr))
+                else:
+                    exprs.append(expr)
+                self.skip_ws()
+                if self.skip_string(close):
+                    break
+                if not self.skip_string(','):
+                    self.fail("Error in %s, expected ',' or '%s'." % (name, close))
+        return exprs, close
+
     def _parse_postfix_expression(self):
         # -> primary
         #  | postfix "[" expression "]"
@@ -4523,25 +4627,13 @@ class DefinitionParser(object):
                 if self.skip_string('--'):
                     postFixes.append(ASTPostfixDec())  # type: ignore
                     continue
-            if self.skip_string_and_ws('('):
-                # TODO: handled braced init
-                exprs = []
-                self.skip_ws()
-                if not self.skip_string(')'):
-                    while True:
-                        self.skip_ws()
-                        expr = self._parse_expression(inTemplate=False)
-                        self.skip_ws()
-                        if self.skip_string('...'):
-                            exprs.append(ASTPackExpansionExpr(expr))
-                        else:
-                            exprs.append(expr)
-                        self.skip_ws()
-                        if self.skip_string(')'):
-                            break
-                        if not self.skip_string(','):
-                            self.fail("Error in cast or call, expected ',' or ')'.")
-                postFixes.append(ASTPostfixCallExpr(exprs))  # type: ignore
+            lst, typ = self._parse_expression_list_or_braced_init_list()
+            if lst is not None:
+                if typ == ')':
+                    postFixes.append(ASTPostfixCallExpr(lst))  # type: ignore
+                else:
+                    assert typ == '}'
+                    assert False
                 continue
             break
         if len(postFixes) == 0:
@@ -4610,7 +4702,24 @@ class DefinitionParser(object):
         if not self.skip_word_and_ws('new'):
             self.pos = pos
         else:
-            self.fail("Sorry, new-expressions not yet supported.")
+            # new-placement[opt] new-type-id new-initializer[opt]
+            # new-placement[opt] ( type-id ) new-initializer[opt]
+            isNewTypeId = True
+            if self.skip_string_and_ws('('):
+                # either this is a new-placement or it's the second production
+                # without placement, and it's actually the ( type-id ) part
+                self.fail("Sorry, neither new-placement nor parenthesised type-id "
+                          "in new-epression is supported yet.")
+                # set isNewTypeId = False if it's (type-id)
+            if isNewTypeId:
+                declSpecs = self._parse_decl_specs(outer=None)
+                decl = self._parse_declarator(named=False, paramMode="new")
+            else:
+                self.fail("Sorry, parenthesised type-id in new expression not yet supported.")
+            lst, typ = self._parse_expression_list_or_braced_init_list()
+            if lst:
+                assert typ in ")}"
+            return ASTNewExpr(rooted, isNewTypeId, ASTType(declSpecs, decl), lst, typ)
         # delete-expression
         pos = self.pos
         rooted = self.skip_string('::')
@@ -4972,6 +5081,8 @@ class DefinitionParser(object):
 
     def _parse_parameters_and_qualifiers(self, paramMode):
         # type: (unicode) -> ASTParametersQualifiers
+        if paramMode == 'new':
+            return None
         self.skip_ws()
         if not self.skip_string('('):
             if paramMode == 'function':
@@ -5213,7 +5324,7 @@ class DefinitionParser(object):
     def _parse_declarator(self, named, paramMode, typed=True):
         # type: (Union[bool, unicode], unicode, bool) -> Any
         # 'typed' here means 'parse return type stuff'
-        if paramMode not in ('type', 'function', 'operatorCast'):
+        if paramMode not in ('type', 'function', 'operatorCast', 'new'):
             raise Exception(
                 "Internal error, unknown paramMode '%s'." % paramMode)
         prevErrors = []

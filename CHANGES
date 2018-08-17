@@ -213,7 +213,7 @@ Bugs fixed
 * #5191: C++, prevent nested declarations in functions to avoid lookup problems.
 * #5126: C++, add missing isPack method for certain template parameter types.
 * #5187: C++, parse attributes on declerators as well.
-* C++, parse delete expressions as well.
+* C++, parse delete expressions and basic new expressions as well.
 * #5002: graphviz: SVGs do not adapt to the column width
 
 Testing
