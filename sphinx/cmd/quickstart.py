@@ -78,6 +78,12 @@ DEFAULTS = {
 
 PROMPT_PREFIX = '> '
 
+if sys.platform == 'win32':
+    # On Windows, show questions as bold because of color scheme of PowerShell (refs: #5294).
+    COLOR_QUESTION = 'bold'
+else:
+    COLOR_QUESTION = 'purple'
+
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
@@ -189,7 +195,7 @@ def do_prompt(text, default=None, validator=nonempty):
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
                         prompt = prompt.encode('latin1')
-        prompt = colorize('purple', prompt, input_mode=True)
+        prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
