@@ -1484,6 +1484,32 @@ def test_autodoc_default_flags__with_flags(app):
         assert '   .. py:attribute:: CustomIter.__weakref__' in actual
         assert '      list of weak references to the object (if defined)' in actual
 
+    # :exclude-members: None - has no effect. Unlike :members:,
+    # :special-members:, etc. where None == "include all", here None means
+    # "no/false/off".
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
+        assert '      list of weak references to the object (if defined)' in actual
+    assert '   .. py:method:: CustomIter.snafucate()' in actual
+    assert '      Makes this snafucated.' in actual
+
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_default_flags__with_values(app):
@@ -1509,3 +1535,29 @@ def test_autodoc_default_flags__with_values(app):
     if not IS_PYPY:
         assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
         assert '      list of weak references to the object (if defined)' not in actual
+
+    # with :exclude-members:
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'exclude-members': 'val1'
+    }
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' not in actual
+    assert '   .. py:attribute:: EnumCls.val2' in actual
+    assert '   .. py:attribute:: EnumCls.val3' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': '__weakref__,snafucate',
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
+        assert '      list of weak references to the object (if defined)' not in actual
+    assert '   .. py:method:: CustomIter.snafucate()' not in actual
+    assert '      Makes this snafucated.' not in actual
