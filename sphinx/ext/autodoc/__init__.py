@@ -33,7 +33,7 @@ from sphinx.util import rpartition, force_decode
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, isclassmethod, isstaticmethod, getdoc
+    isenumattribute, isclassmethod, isstaticmethod, isfunction, isbuiltin, ispartial, getdoc
 
 if False:
     # For type annotation
@@ -401,7 +401,9 @@ class Documenter(object):
             return True
 
         modname = self.get_attr(self.object, '__module__', None)
-        if modname and modname != self.modname:
+        if ispartial(self.object) and modname == '_functools':  # for pypy
+            return True
+        elif modname and modname != self.modname:
             return False
         return True
 
@@ -475,9 +477,8 @@ class Documenter(object):
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]
         """Decode and return lines of the docstring(s) for the object."""
-        docstring = self.get_attr(self.object, '__doc__', None)
-        if docstring is None and self.env.config.autodoc_inherit_docstrings:
-            docstring = getdoc(self.object)
+        docstring = getdoc(self.object, self.get_attr,
+                           self.env.config.autodoc_inherit_docstrings)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
         if isinstance(docstring, text_type):
@@ -601,9 +602,7 @@ class Documenter(object):
             # if isattr is True, the member is documented as an attribute
             isattr = False
 
-            doc = self.get_attr(member, '__doc__', None)
-            if doc is None and self.env.config.autodoc_inherit_docstrings:
-                doc = getdoc(member)
+            doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
 
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
@@ -1029,12 +1028,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return inspect.isfunction(member) or inspect.isbuiltin(member)
+        return isfunction(member) or isbuiltin(member)
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
+        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
             return None
         try:
@@ -1102,7 +1100,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # __init__ written in C?
         if initmeth is None or \
                 is_builtin_class_method(self.object, '__init__') or \
-                not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
+                not(inspect.ismethod(initmeth) or isfunction(initmeth)):
             return None
         try:
             return Signature(initmeth, bound_method=True, has_retval=False).format_args()
@@ -1317,8 +1315,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
+        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
         if isstaticmethod(self.object, cls=self.parent, name=self.object_name):
@@ -1350,7 +1347,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     @staticmethod
     def is_function_or_method(obj):
         # type: (Any) -> bool
-        return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
+        return isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):

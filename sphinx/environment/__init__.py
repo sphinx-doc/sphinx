@@ -333,8 +333,9 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-            if docname in other.included:
-                self.included.add(docname)
+
+        for docname in other.included:
+            self.included.add(docname)
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
