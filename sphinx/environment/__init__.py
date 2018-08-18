@@ -331,8 +331,9 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-            if docname in other.included:
-                self.included.add(docname)
+
+        for docname in other.included:
+            self.included.add(docname)
 
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
