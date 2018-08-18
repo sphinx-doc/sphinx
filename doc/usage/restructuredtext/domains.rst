@@ -1005,19 +1005,45 @@ These roles link to the given declaration types:
    When a custom title is not needed it may be useful to use the roles for inline expressions,
    :rst:role:`cpp:expr` and :rst:role:`cpp:texpr`, where angle brackets do not need escaping.
 
-.. admonition:: Note on References to Overloaded Functions
-
-   It is currently impossible to link to a specific version of an overloaded
-   function.  Currently the C++ domain is the first domain that has basic
-   support for overloaded functions and until there is more data for comparison
-   we don't want to select a bad syntax to reference a specific overload.
-   Currently Sphinx will link to the first overloaded version of the function.
-
 Declarations without template parameters and template arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For linking to non-templated declarations the name must be a nested name, e.g.,
 ``f`` or ``MyClass::f``.
+
+
+Overloaded (member) functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a (member) function is referenced using just its name, the reference
+will point to an arbitrary matching overload.
+The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles will an alternative
+format, which simply is a complete function declaration.
+This will resolve to the exact matching overload.
+As example, consider the following class declaration:
+
+.. cpp:namespace-push:: overload_example
+.. cpp:class:: C
+
+   .. cpp:function:: void f(double d) const
+   .. cpp:function:: void f(double d)
+   .. cpp:function:: void f(int i)
+   .. cpp:function:: void f()
+
+References using the :rst:role:`cpp:func` role:
+
+- Arbitrary overload: ``C::f``, :cpp:func:`C::f`
+- Also arbitrary overload: ``C::f()``, :cpp:func:`C::f()`
+- Specific overload: ``void C::f()``, :cpp:func:`void C::f()`
+- Specific overload: ``void C::f(int)``, :cpp:func:`void C::f(int)`
+- Specific overload: ``void C::f(double)``, :cpp:func:`void C::f(double)`
+- Specific overload: ``void C::f(double) const``, :cpp:func:`void C::f(double) const`
+
+Note that the :confval:`add_function_parentheses` configuration variable
+does not influence specific overload references.
+
+.. cpp:namespace-pop::
+
 
 Templated declarations
 ^^^^^^^^^^^^^^^^^^^^^^
