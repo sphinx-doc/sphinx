@@ -20,11 +20,14 @@ from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
+from sphinx.util import logging
 from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
+
+logger = logging.getLogger(__name__)
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
@@ -339,7 +342,8 @@ class Signature(object):
 
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
-        except Exception:
+        except Exception as exc:
+            logger.warning('Invalid type annotation found on %r. Ingored: %r', subject, exc)
             self.annotations = {}
 
         if bound_method:
