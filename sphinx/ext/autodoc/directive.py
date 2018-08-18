@@ -67,8 +67,8 @@ def process_documenter_options(documenter, config, options):
             continue
         else:
             negated = options.pop('no-' + name, True) is None
-            if name in config.autodoc_default_flags and not negated:
-                options[name] = config.autodoc_default_flags[name]
+            if name in config.autodoc_default_options and not negated:
+                options[name] = config.autodoc_default_options[name]
 
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 

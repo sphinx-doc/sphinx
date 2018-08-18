@@ -131,6 +131,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
 
+   * - :confval:`autodoc_default_flags`
+     - 1.8
+     - 4.0
+     - :confval:`autodoc_default_options`
+
    * - ``sphinx.directives.other.VersionChanges``
      - 1.8
      - 3.0

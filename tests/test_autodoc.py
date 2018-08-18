@@ -21,7 +21,7 @@ from six import PY3
 
 from sphinx.ext.autodoc import (
     AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL,
-    convert_autodoc_default_flags
+    merge_autodoc_default_flags
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
@@ -1418,35 +1418,26 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags__as_list__converted(app):
-    orig = [
-        'members',
-        'undoc-members',
-        ('skipped', 1, 2),
-        {'also': 'skipped'},
-    ]
-    expected = {
-        'members': None,
-        'undoc-members': None,
-    }
-    app.config.autodoc_default_flags = orig
-    convert_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_flags == expected
+def test_merge_autodoc_default_flags1(app):
+    app.config.autodoc_default_flags = ['members', 'undoc-members']
+    merge_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_options == {'members': None,
+                                                  'undoc-members': None}
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags__as_dict__no_conversion(app):
-    orig = {
-        'members': 'this,that,other',
-        'undoc-members': None,
-    }
-    app.config.autodoc_default_flags = orig
-    convert_autodoc_default_flags(app, app.config)
-    assert app.config.autodoc_default_flags == orig
+def test_merge_autodoc_default_flags2(app):
+    app.config.autodoc_default_flags = ['members', 'undoc-members']
+    app.config.autodoc_default_options = {'members': 'this,that,order',
+                                          'inherited-members': 'this'}
+    merge_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_options == {'members': None,
+                                                  'undoc-members': None,
+                                                  'inherited-members': 'this'}
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags__with_flags(app):
+def test_autodoc_default_options(app):
     # no settings
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
@@ -1455,13 +1446,13 @@ def test_autodoc_default_flags__with_flags(app):
     assert '   .. py:method:: target.CustomIter' not in actual
 
     # with :members:
-    app.config.autodoc_default_flags = {'members': None}
+    app.config.autodoc_default_options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
     # with :members: and :undoc-members:
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'undoc-members': None,
     }
@@ -1471,7 +1462,7 @@ def test_autodoc_default_flags__with_flags(app):
 
     # with :special-members:
     # Note that :members: must be *on* for :special-members: to work.
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'special-members': None
     }
@@ -1487,14 +1478,14 @@ def test_autodoc_default_flags__with_flags(app):
     # :exclude-members: None - has no effect. Unlike :members:,
     # :special-members:, etc. where None == "include all", here None means
     # "no/false/off".
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'exclude-members': None,
     }
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'special-members': None,
         'exclude-members': None,
@@ -1512,9 +1503,9 @@ def test_autodoc_default_flags__with_flags(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags__with_values(app):
+def test_autodoc_default_options_with_values(app):
     # with :members:
-    app.config.autodoc_default_flags = {'members': 'val1,val2'}
+    app.config.autodoc_default_options = {'members': 'val1,val2'}
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val2' in actual
@@ -1523,7 +1514,7 @@ def test_autodoc_default_flags__with_values(app):
 
     # with :special-members:
     # Note that :members: must be *on* for :special-members: to work.
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'special-members': '__init__,__iter__',
     }
@@ -1537,7 +1528,7 @@ def test_autodoc_default_flags__with_values(app):
         assert '      list of weak references to the object (if defined)' not in actual
 
     # with :exclude-members:
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'exclude-members': 'val1'
     }
@@ -1546,7 +1537,7 @@ def test_autodoc_default_flags__with_values(app):
     assert '   .. py:attribute:: EnumCls.val2' in actual
     assert '   .. py:attribute:: EnumCls.val3' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
-    app.config.autodoc_default_flags = {
+    app.config.autodoc_default_options = {
         'members': None,
         'special-members': None,
         'exclude-members': '__weakref__,snafucate',
