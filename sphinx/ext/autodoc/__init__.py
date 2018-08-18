@@ -15,6 +15,7 @@ import inspect
 import re
 import sys
 import warnings
+from typing import Any
 
 from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
@@ -41,6 +42,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc.directive import DocumenterBridge  # NOQA
 
@@ -679,8 +681,13 @@ class Documenter(object):
 
         # remove members given by exclude-members
         if self.options.exclude_members:
-            members = [(membername, member) for (membername, member) in members
-                       if membername not in self.options.exclude_members]
+            members = [
+                (membername, member) for (membername, member) in members
+                if (
+                    self.options.exclude_members is ALL or
+                    membername not in self.options.exclude_members
+                )
+            ]
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
@@ -1528,6 +1535,34 @@ def autodoc_attrgetter(app, obj, name, *defargs):
     return safe_getattr(obj, name, *defargs)
 
 
+def convert_autodoc_default_flags(app, config):
+    # type: (Sphinx, Config) -> None
+    """This converts the old list-of-flags (strings) to a dict of Nones."""
+    if isinstance(config.autodoc_default_flags, dict):
+        # Already new-style
+        return
+
+    elif not isinstance(config.autodoc_default_flags, list):
+        # Not old-style list
+        logger.error(
+            __("autodoc_default_flags is invalid type %r"),
+            config.autodoc_default_flags.__class__.__name__
+        )
+        return
+
+    autodoc_default_flags = {}  # type: Dict[unicode, Any]
+    for option in config.autodoc_default_flags:
+        if isinstance(option, string_types):
+            autodoc_default_flags[option] = None
+        else:
+            logger.warning(
+                __("Ignoring invalid option in autodoc_default_flags: %r"),
+                option
+            )
+
+    config.autodoc_default_flags = autodoc_default_flags  # type: ignore
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_autodocumenter(ModuleDocumenter)
@@ -1541,7 +1576,7 @@ def setup(app):
 
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
-    app.add_config_value('autodoc_default_flags', [], True)
+    app.add_config_value('autodoc_default_flags', {}, True, Any)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_warningiserror', True, True)
@@ -1549,5 +1584,7 @@ def setup(app):
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+    app.connect('config-inited', convert_autodoc_default_flags)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

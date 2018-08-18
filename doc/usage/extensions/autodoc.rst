@@ -341,7 +341,8 @@ There are also new config values that you can set:
    This value is a list of autodoc directive flags that should be automatically
    applied to all autodoc directives.  The supported flags are ``'members'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'`` and ``'ignore-module-all'``.
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``
+   and ``'exclude-members'``.
 
    If you set one of these flags in this config value, you can use a negated
    form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.
@@ -353,7 +354,25 @@ There are also new config values that you can set:
 
    the directive will be interpreted as if only ``:members:`` was given.
 
+   You can also set `autodoc_default_flags` to a dictionary, mapping option
+   names to the values which can used in .rst files. For example::
+
+     autodoc_default_flags = {
+        'members': 'var1, var2',
+        'member-order': 'bysource',
+        'special-members': '__init__',
+        'undoc-members': None,
+        'exclude-members': '__weakref__'
+    }
+
+    Setting ``None`` is equivalent to giving the option name in the list format
+    (i.e. it means "yes/true/on").
+
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.8
+
+      Specifying in dictionary format added.
 
 .. confval:: autodoc_docstring_signature
 

@@ -11,6 +11,7 @@
 """
 
 import re
+import platform
 import sys
 from warnings import catch_warnings
 
@@ -19,7 +20,8 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL
+    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL,
+    convert_autodoc_default_flags
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
@@ -33,8 +35,12 @@ if PY3:
 else:
     ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
 
+IS_PYPY = platform.python_implementation() == 'PyPy'
 
-def do_autodoc(app, objtype, name, options={}):
+
+def do_autodoc(app, objtype, name, options=None):
+    if options is None:
+        options = {}
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
@@ -1412,21 +1418,146 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags(app):
+def test_autodoc_default_flags__as_list__converted(app):
+    orig = [
+        'members',
+        'undoc-members',
+        ('skipped', 1, 2),
+        {'also': 'skipped'},
+    ]
+    expected = {
+        'members': None,
+        'undoc-members': None,
+    }
+    app.config.autodoc_default_flags = orig
+    convert_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_flags == expected
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_flags__as_dict__no_conversion(app):
+    orig = {
+        'members': 'this,that,other',
+        'undoc-members': None,
+    }
+    app.config.autodoc_default_flags = orig
+    convert_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_flags == orig
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_flags__with_flags(app):
     # no settings
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: target.CustomIter' not in actual
 
     # with :members:
-    app.config.autodoc_default_flags = ['members']
+    app.config.autodoc_default_flags = {'members': None}
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
     # with :members: and :undoc-members:
-    app.config.autodoc_default_flags = ['members',
-                                        'undoc-members']
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'undoc-members': None,
+    }
     actual = do_autodoc(app, 'class', 'target.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' in actual
+
+    # with :special-members:
+    # Note that :members: must be *on* for :special-members: to work.
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': None
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
+        assert '      list of weak references to the object (if defined)' in actual
+
+    # :exclude-members: None - has no effect. Unlike :members:,
+    # :special-members:, etc. where None == "include all", here None means
+    # "no/false/off".
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
+        assert '      list of weak references to the object (if defined)' in actual
+    assert '   .. py:method:: CustomIter.snafucate()' in actual
+    assert '      Makes this snafucated.' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_flags__with_values(app):
+    # with :members:
+    app.config.autodoc_default_flags = {'members': 'val1,val2'}
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val2' in actual
+    assert '   .. py:attribute:: EnumCls.val3' not in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :special-members:
+    # Note that :members: must be *on* for :special-members: to work.
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': '__init__,__iter__',
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
+        assert '      list of weak references to the object (if defined)' not in actual
+
+    # with :exclude-members:
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'exclude-members': 'val1'
+    }
+    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' not in actual
+    assert '   .. py:attribute:: EnumCls.val2' in actual
+    assert '   .. py:attribute:: EnumCls.val3' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_flags = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': '__weakref__,snafucate',
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
+        assert '      list of weak references to the object (if defined)' not in actual
+    assert '   .. py:method:: CustomIter.snafucate()' not in actual
+    assert '      Makes this snafucated.' not in actual
