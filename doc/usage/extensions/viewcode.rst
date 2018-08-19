@@ -25,7 +25,11 @@ from the source to the description will also be inserted.
 
    In addition, if you don't want to import the modules by ``viewcode``,
    you can tell the location of the location of source code to ``viewcode``
-   using :event:`viewcode-find-source` event.
+   using the :event:`viewcode-find-source` event.
+
+   If :confval:`viewcode_follow_imported_members` is enabled,
+   you will also need to resolve imported attributes
+   using the :event:`viewcode-follow-imported` event.
 
 This extension works only on HTML related builders like ``html``,
 ``applehelp``, ``devhelp``, ``htmlhelp``, ``qthelp`` and so on except
@@ -83,3 +87,13 @@ Configuration
 
    :param app: The Sphinx application object.
    :param modname: The name of the module to find source code for.
+
+.. event:: viewcode-follow-imported (app, modname, attribute)
+
+   .. versionadded:: 1.8
+
+   Find the name of the original module for an attribute.
+
+   :param app: The Sphinx application object.
+   :param modname: The name of the module that the attribute belongs to.
+   :param attribute: The name of the member to follow.

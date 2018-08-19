@@ -104,7 +104,12 @@ def doctree_read(app, doctree):
             fullname = signode.get('fullname')
             refname = modname
             if env.config.viewcode_follow_imported_members:
-                modname = _get_full_modname(app, modname, fullname)
+                new_modname = app.emit_firstresult(
+                    'viewcode-follow-imported', modname, fullname,
+                )
+                if not new_modname:
+                    new_modname = _get_full_modname(app, modname, fullname)
+                modname = new_modname
             if not modname:
                 continue
             fullname = signode.get('fullname')
@@ -262,6 +267,7 @@ def setup(app):
     # app.add_config_value('viewcode_include_modules', [], 'env')
     # app.add_config_value('viewcode_exclude_modules', [], 'env')
     app.add_event('viewcode-find-source')
+    app.add_event('viewcode-follow-imported')
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
