@@ -53,6 +53,13 @@ Incompatible changes
   before new build.
 * #5163: html: hlist items are now aligned to top
 * ``highlightlang`` directive is processed on resolving phase
+* #4000: latex: LaTeX template has been chaned.  Following elements are moved
+  into the template:
+
+  - ``\begin{document}``
+  - ``shorthandoff`` variable
+  - ``maketitle`` variable
+  - ``tableofcontents`` variable
 
 Deprecated
 ----------
