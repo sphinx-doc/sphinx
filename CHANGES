@@ -1,17 +1,5 @@
-Release 1.7.7 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.7.7 (released Aug 19, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -33,9 +21,6 @@ Bugs fixed
 * #5306: autodoc: ``getargspec()`` raises NameError for invalid typehints
 * #5298: imgmath: math_number_all causes equations to have two numbers in html
 * #5294: sphinx-quickstart blank prompts in PowerShell
-
-Testing
---------
 
 Release 1.7.6 (released Jul 17, 2018)
 =====================================
