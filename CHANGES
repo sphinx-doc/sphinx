@@ -237,7 +237,7 @@ Documentation
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
 
-Release 1.7.7 (in development)
+Release 1.7.8 (in development)
 ==============================
 
 Dependencies
@@ -251,6 +251,15 @@ Deprecated
 
 Features added
 --------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.7.7 (released Aug 19, 2018)
+=====================================
 
 Bugs fixed
 ----------
@@ -271,9 +280,7 @@ Bugs fixed
 * #5211: autodoc: No docs generated for functools.partial functions
 * #5306: autodoc: ``getargspec()`` raises NameError for invalid typehints
 * #5298: imgmath: math_number_all causes equations to have two numbers in html
-
-Testing
---------
+* #5294: sphinx-quickstart blank prompts in PowerShell
 
 Release 1.7.6 (released Jul 17, 2018)
 =====================================
