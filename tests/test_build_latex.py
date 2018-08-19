@@ -122,14 +122,6 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     compile_latex_document(app)
 
 
-@pytest.mark.sphinx('latex', testroot='build-multiple-latex-docs')
-def test_build_multiple_latex_docs(app, status, warning):
-    app.builder.build_all()
-
-    assert (app.outdir / 'file1.tex').isfile()
-    assert (app.outdir / 'file2.tex').isfile()
-
-
 @pytest.mark.sphinx('latex')
 def test_writer(app, status, warning):
     app.builder.build_all()
@@ -178,25 +170,9 @@ def test_latex_basic(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert r'\begin{document}' in result
-    assert r'\maketitle' in result
-    assert r'\sphinxtableofcontents' in result
     assert r'\title{The basic Sphinx documentation for testing}' in result
     assert r'\release{}' in result
     assert r'\renewcommand{\releasename}{}' in result
-
-
-@pytest.mark.sphinx('latex', testroot='basic', confoverrides={'language':'de'})
-def test_latex_shorthandoff(app, status, warning):
-    app.builder.build_all()
-    result = (app.outdir / 'test.tex').text(encoding='utf8')
-    print(result)
-    print(status.getvalue())
-    print(warning.getvalue())
-    assert ('\\ifdefined\\shorthandoff\n'
-            '  \\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi\n'
-            '  \\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi\n'
-            '\\fi\n' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
