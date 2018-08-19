@@ -170,7 +170,8 @@ Features added
 * Add ``Config.read()`` classmethod to create a new config object from
   configuration file
 * #4866: Wrap graphviz diagrams in ``<div>`` tag
-* Add :event:`viewcode-find-source` event to viewcode extension.
+* viewcode: Add :event:`viewcode-find-source` and
+  :event:`viewcode-follow-imported` to load source code without loading
 * #4785: napoleon: Add strings to translation file for localisation
 * #4927: Display a warning when invalid values are passed to linenothreshold
   option of highlight directive
