@@ -114,8 +114,17 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         .. autoclass:: Noodle
            :members: eat, slurp
 
-   * If you want to make the ``members`` option (or other flag options described
-     below) the default, see :confval:`autodoc_default_flags`.
+   * If you want to make the ``members`` option (or other options described
+     below) the default, see :confval:`autodoc_default_options`.
+
+     .. tip::
+
+        You can use a negated form, :samp:`'no-{flag}'`, as an option of
+        autodoc directive, to disable it temporarily.  For example::
+
+           .. automodule:: foo
+              :no-undoc-members:
+
 
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
@@ -344,35 +353,34 @@ There are also new config values that you can set:
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``
    and ``'exclude-members'``.
 
-   If you set one of these flags in this config value, you can use a negated
-   form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.
-   For example, if ``autodoc_default_flags`` is set to ``['members',
-   'undoc-members']``, and you write a directive like this::
-
-      .. automodule:: foo
-         :no-undoc-members:
-
-   the directive will be interpreted as if only ``:members:`` was given.
-
-   You can also set `autodoc_default_flags` to a dictionary, mapping option
-   names to the values which can used in .rst files. For example::
-
-     autodoc_default_flags = {
-        'members': 'var1, var2',
-        'member-order': 'bysource',
-        'special-members': '__init__',
-        'undoc-members': None,
-        'exclude-members': '__weakref__'
-    }
-
-    Setting ``None`` is equivalent to giving the option name in the list format
-    (i.e. it means "yes/true/on").
-
    .. versionadded:: 1.0
 
-   .. versionchanged:: 1.8
+   .. deprecated:: 1.8
 
-      Specifying in dictionary format added.
+      Integrated into :confval:`autodoc_default_options`.
+
+.. confval:: autodoc_default_options
+
+   The default options for autodoc directives.  They are applied to all autodoc
+   directives automatically.  It must be a dictionally which maps option names
+   to the values.  For example::
+
+       autodoc_default_options = {
+           'members': 'var1, var2',
+           'member-order': 'bysource',
+           'special-members': '__init__',
+           'undoc-members': None,
+           'exclude-members': '__weakref__'
+       }
+
+   Setting ``None`` is equivalent to giving the option name in the list format
+   (i.e. it means "yes/true/on").
+
+   The supported options are ``'members'``, ``'undoc-members'``,
+   ``'private-members'``, ``'special-members'``, ``'inherited-members'``,
+   ``'show-inheritance'``, ``'ignore-module-all'`` and ``'exclude-members'``.
+
+   .. versionadded:: 1.8
 
 .. confval:: autodoc_docstring_signature
 

@@ -1532,32 +1532,23 @@ def autodoc_attrgetter(app, obj, name, *defargs):
     return safe_getattr(obj, name, *defargs)
 
 
-def convert_autodoc_default_flags(app, config):
+def merge_autodoc_default_flags(app, config):
     # type: (Sphinx, Config) -> None
-    """This converts the old list-of-flags (strings) to a dict of Nones."""
-    if isinstance(config.autodoc_default_flags, dict):
-        # Already new-style
+    """This merges the autodoc_default_flags to autodoc_default_options."""
+    if not config.autodoc_default_flags:
         return
 
-    elif not isinstance(config.autodoc_default_flags, list):
-        # Not old-style list
-        logger.error(
-            __("autodoc_default_flags is invalid type %r"),
-            config.autodoc_default_flags.__class__.__name__
-        )
-        return
+    logger.warning(__('autodoc_default_flags is now deprecated. '
+                      'Please use autodoc_default_options instead.'))
 
-    autodoc_default_flags = {}  # type: Dict[unicode, Any]
     for option in config.autodoc_default_flags:
         if isinstance(option, string_types):
-            autodoc_default_flags[option] = None
+            config.autodoc_default_options[option] = None
         else:
             logger.warning(
                 __("Ignoring invalid option in autodoc_default_flags: %r"),
                 option
             )
-
-    config.autodoc_default_flags = autodoc_default_flags  # type: ignore
 
 
 def setup(app):
@@ -1573,7 +1564,8 @@ def setup(app):
 
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
-    app.add_config_value('autodoc_default_flags', {}, True, Any)
+    app.add_config_value('autodoc_default_flags', [], True)
+    app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_warningiserror', True, True)
@@ -1582,6 +1574,6 @@ def setup(app):
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
 
-    app.connect('config-inited', convert_autodoc_default_flags)
+    app.connect('config-inited', merge_autodoc_default_flags)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

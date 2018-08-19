@@ -65,6 +65,7 @@ Deprecated
 ----------
 
 * :confval:`source_parsers` is deprecated
+* :confval:`autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives.
@@ -210,7 +211,8 @@ Features added
   builder
 * #5273: doctest: Skip doctest conditionally
 * #5306: autodoc: emit a warning for invalid typehints
-* #5215: autodoc: :confval:`autodoc_default_flags` accepts option values as dict
+* #4075, #5215: autodoc: Add :confval:`autodoc_default_options` which accepts
+  option values as dict
 
 Bugs fixed
 ----------
