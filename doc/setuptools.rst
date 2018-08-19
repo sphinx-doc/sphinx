@@ -181,6 +181,14 @@ Options for setuptools integration
 
    .. versionadded:: 1.3
 
+.. confval:: nitpicky
+
+   Run in nit-picky mode.  Currently, this generates warnings for all missing
+   references.  See the config value :confval:`nitpick_ignore` for a way to
+   exclude some references as "known missing".
+
+   .. versionadded:: 1.8
+
 .. confval:: pdb
 
    A boolean to configure ``pdb`` on exception. Default is false.

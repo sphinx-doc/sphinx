@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 import os
+from collections import Counter
+
 import pytest
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
@@ -58,6 +60,56 @@ def test_is_allowed_version():
 def cleanup_call():
     global cleanup_called
     cleanup_called += 1
+
+
+recorded_calls = Counter()
+
+
+@pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
+def test_skipif(app, status, warning):
+    """Tests for the :skipif: option
+
+    The tests are separated into a different test root directory since the
+    ``app`` object only evaluates options once in its lifetime. If these tests
+    were combined with the other doctest tests, the ``:skipif:`` evaluations
+    would be recorded only on the first ``app.builder.build_all()`` run, i.e.
+    in ``test_build`` above, and the assertion below would fail.
+
+    """
+    global recorded_calls
+    recorded_calls = Counter()
+    app.builder.build_all()
+    if app.statuscode != 0:
+        assert False, 'failures in doctests:' + status.getvalue()
+    # The `:skipif:` expressions are always run.
+    # Actual tests and setup/cleanup code is only run if the `:skipif:`
+    # expression evaluates to a False value.
+    # Global setup/cleanup are run before/after evaluating the `:skipif:`
+    # option in each directive - thus 11 additional invocations for each on top
+    # of the ones made for the whole test file.
+    assert recorded_calls == {('doctest_global_setup', 'body', True): 13,
+                              ('testsetup', ':skipif:', True): 1,
+                              ('testsetup', ':skipif:', False): 1,
+                              ('testsetup', 'body', False): 1,
+                              ('doctest', ':skipif:', True): 1,
+                              ('doctest', ':skipif:', False): 1,
+                              ('doctest', 'body', False): 1,
+                              ('testcode', ':skipif:', True): 1,
+                              ('testcode', ':skipif:', False): 1,
+                              ('testcode', 'body', False): 1,
+                              ('testoutput-1', ':skipif:', True): 1,
+                              ('testoutput-2', ':skipif:', True): 1,
+                              ('testoutput-2', ':skipif:', False): 1,
+                              ('testcleanup', ':skipif:', True): 1,
+                              ('testcleanup', ':skipif:', False): 1,
+                              ('testcleanup', 'body', False): 1,
+                              ('doctest_global_cleanup', 'body', True): 13}
+
+
+def record(directive, part, should_skip):
+    global recorded_calls
+    recorded_calls[(directive, part, should_skip)] += 1
+    return 'Recorded {} {} {}'.format(directive, part, should_skip)
 
 
 @pytest.mark.xfail(

@@ -36,7 +36,7 @@ from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warnin
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import ThemeError
+from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
@@ -386,8 +386,7 @@ class StandaloneHTMLBuilder(Builder):
             style = self.theme.get_config('theme', 'pygments_style', 'none')
         else:
             style = 'sphinx'
-        self.highlighter = PygmentsBridge('html', style,
-                                          self.config.trim_doctest_flags)
+        self.highlighter = PygmentsBridge('html', style)
 
     def init_css_files(self):
         # type: () -> None
@@ -421,7 +420,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def add_js_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
-        if '://' not in filename:
+        if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
         self.script_files.append(JavaScript(filename, **kwargs))  # type: ignore
@@ -437,6 +436,27 @@ class StandaloneHTMLBuilder(Builder):
             return HTML5Translator
         else:
             return HTMLTranslator
+
+    @property
+    def math_renderer_name(self):
+        # type: () -> unicode
+        name = self.get_builder_config('math_renderer', 'html')
+        if name is not None:
+            # use given name
+            return name
+        else:
+            # not given: choose a math_renderer from registered ones as possible
+            renderers = list(self.app.registry.html_inline_math_renderers)
+            if len(renderers) == 1:
+                # only default math_renderer (mathjax) is registered
+                return renderers[0]
+            elif len(renderers) == 2:
+                # default and another math_renderer are registered; prior the another
+                renderers.remove('mathjax')
+                return renderers[0]
+            else:
+                # many math_renderers are registered. can't choose automatically!
+                return None
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
@@ -848,85 +868,94 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
-                except Exception as err:
+                except EnvironmentError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
     def copy_static_files(self):
         # type: () -> None
-        # copy static files
-        logger.info(bold(__('copying static files... ')), nonl=True)
-        ensuredir(path.join(self.outdir, '_static'))
-        # first, create pygments style file
-        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-            f.write(self.highlighter.get_stylesheet())  # type: ignore
-        # then, copy translations JavaScript file
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static',
-                                           'translations.js'))
+        try:
+            # copy static files
+            logger.info(bold(__('copying static files... ')), nonl=True)
+            ensuredir(path.join(self.outdir, '_static'))
+            # first, create pygments style file
+            with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+                f.write(self.highlighter.get_stylesheet())  # type: ignore
+            # then, copy translations JavaScript file
+            if self.config.language is not None:
+                jsfile = self._get_translations_js()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static',
+                                               'translations.js'))
 
-        # copy non-minified stemmer JavaScript file
-        if self.indexer is not None:
-            jsfile = self.indexer.get_js_stemmer_rawcode()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+            # copy non-minified stemmer JavaScript file
+            if self.indexer is not None:
+                jsfile = self.indexer.get_js_stemmer_rawcode()
+                if jsfile:
+                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
 
-        ctx = self.globalcontext.copy()
+            ctx = self.globalcontext.copy()
 
-        # add context items for search function used in searchtools.js_t
-        if self.indexer is not None:
-            ctx.update(self.indexer.context_for_searchtool())
+            # add context items for search function used in searchtools.js_t
+            if self.indexer is not None:
+                ctx.update(self.indexer.context_for_searchtool())
 
-        # then, copy over theme-supplied static files
-        if self.theme:
-            for theme_path in self.theme.get_theme_dirs()[::-1]:
-                entry = path.join(theme_path, 'static')
-                copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
+            # then, copy over theme-supplied static files
+            if self.theme:
+                for theme_path in self.theme.get_theme_dirs()[::-1]:
+                    entry = path.join(theme_path, 'static')
+                    copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
+                               context=ctx, renderer=self.templates)
+            # then, copy over all user-supplied static files
+            excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+            for static_path in self.config.html_static_path:
+                entry = path.join(self.confdir, static_path)
+                if not path.exists(entry):
+                    logger.warning(__('html_static_path entry %r does not exist'), entry)
+                    continue
+                copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                            context=ctx, renderer=self.templates)
-        # then, copy over all user-supplied static files
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
-        for static_path in self.config.html_static_path:
-            entry = path.join(self.confdir, static_path)
-            if not path.exists(entry):
-                logger.warning(__('html_static_path entry %r does not exist'), entry)
-                continue
-            copy_asset(entry, path.join(self.outdir, '_static'), excluded,
-                       context=ctx, renderer=self.templates)
-        # copy logo and favicon files if not already in static path
-        if self.config.html_logo:
-            logobase = path.basename(self.config.html_logo)
-            logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                logger.warning(__('logo file %r does not exist'), self.config.html_logo)
-            elif not path.isfile(logotarget):
-                copyfile(path.join(self.confdir, self.config.html_logo),
-                         logotarget)
-        if self.config.html_favicon:
-            iconbase = path.basename(self.config.html_favicon)
-            icontarget = path.join(self.outdir, '_static', iconbase)
-            if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                logger.warning(__('favicon file %r does not exist'), self.config.html_favicon)
-            elif not path.isfile(icontarget):
-                copyfile(path.join(self.confdir, self.config.html_favicon),
-                         icontarget)
-        logger.info('done')
+            # copy logo and favicon files if not already in static path
+            if self.config.html_logo:
+                logobase = path.basename(self.config.html_logo)
+                logotarget = path.join(self.outdir, '_static', logobase)
+                if not path.isfile(path.join(self.confdir, self.config.html_logo)):
+                    logger.warning(__('logo file %r does not exist'), self.config.html_logo)
+                elif not path.isfile(logotarget):
+                    copyfile(path.join(self.confdir, self.config.html_logo),
+                             logotarget)
+            if self.config.html_favicon:
+                iconbase = path.basename(self.config.html_favicon)
+                icontarget = path.join(self.outdir, '_static', iconbase)
+                if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
+                    logger.warning(__('favicon file %r does not exist'),
+                                   self.config.html_favicon)
+                elif not path.isfile(icontarget):
+                    copyfile(path.join(self.confdir, self.config.html_favicon),
+                             icontarget)
+            logger.info('done')
+        except EnvironmentError as err:
+            # TODO: In py3, EnvironmentError (and IOError) was merged into OSError.
+            # So it should be replaced by IOError on dropping py2 support
+            logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self):
         # type: () -> None
-        # copy html_extra_path files
-        logger.info(bold(__('copying extra files... ')), nonl=True)
-        excluded = Matcher(self.config.exclude_patterns)
+        try:
+            # copy html_extra_path files
+            logger.info(bold(__('copying extra files... ')), nonl=True)
+            excluded = Matcher(self.config.exclude_patterns)
 
-        for extra_path in self.config.html_extra_path:
-            entry = path.join(self.confdir, extra_path)
-            if not path.exists(entry):
-                logger.warning(__('html_extra_path entry %r does not exist'), entry)
-                continue
+            for extra_path in self.config.html_extra_path:
+                entry = path.join(self.confdir, extra_path)
+                if not path.exists(entry):
+                    logger.warning(__('html_extra_path entry %r does not exist'), entry)
+                    continue
 
-            copy_asset(entry, self.outdir, excluded)
-        logger.info(__('done'))
+                copy_asset(entry, self.outdir, excluded)
+            logger.info(__('done'))
+        except EnvironmentError as err:
+            logger.warning(__('cannot copy extra file %r'), err)
 
     def write_buildinfo(self):
         # type: () -> None
@@ -1037,7 +1066,8 @@ class StandaloneHTMLBuilder(Builder):
                 sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
-        for pattern, patsidebars in iteritems(self.config.html_sidebars):
+        html_sidebars = self.get_builder_config('sidebars', 'html')
+        for pattern, patsidebars in iteritems(html_sidebars):
             if patmatch(pagename, pattern):
                 if matched:
                     if has_wildcard(pattern):
@@ -1601,19 +1631,37 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
     def js_tag(js):
         # type: (JavaScript) -> unicode
         attrs = []
+        body = ''  # type: unicode
         if isinstance(js, JavaScript):
             for key in sorted(js.attributes):
                 value = js.attributes[key]
                 if value is not None:
-                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
-            attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                    if key == 'body':
+                        body = value
+                    else:
+                        attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+            if js.filename:
+                attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
             # str value (old styled)
             attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
-        return '<script %s></script>' % ' '.join(attrs)
+        return '<script %s>%s</script>' % (' '.join(attrs), body)
 
     context['js_tag'] = js_tag
+
+
+def validate_math_renderer(app):
+    # type: (Sphinx) -> None
+    if app.builder.format != 'html':
+        return
+
+    name = app.builder.math_renderer_name  # type: ignore
+    if name is None:
+        raise ConfigError(__('Many math_renderers are registered. '
+                             'But no math_renderer is selected.'))
+    elif name not in app.registry.html_inline_math_renderers:
+        raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
 def setup(app):
@@ -1665,11 +1713,18 @@ def setup(app):
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
+    app.add_config_value('html_math_renderer', None, 'env')
+
+    app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
     app.connect('config-inited', convert_html_js_files)
+    app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
+
+    # load default math renderer
+    app.setup_extension('sphinx.ext.mathjax')
 
     return {
         'version': 'builtin',

@@ -794,7 +794,7 @@ def test_xml_footnotes(app, warning):
     assert_elem(
         para0[0],
         ['I18N WITH FOOTNOTE', 'INCLUDE THIS CONTENTS',
-         '2', '[ref]', '1', '100', '.'],
+         '2', '[ref]', '1', '100', '*', '.'],
         ['i18n-with-footnote', 'ref'])
 
     footnote0 = secs[0].findall('footnote')
@@ -813,6 +813,11 @@ def test_xml_footnotes(app, warning):
         ['2', 'THIS IS A AUTO NUMBERED NAMED FOOTNOTE.'],
         None,
         ['named'])
+    assert_elem(
+        footnote0[3],
+        ['*', 'THIS IS A AUTO SYMBOL FOOTNOTE.'],
+        None,
+        None)
 
     citation0 = secs[0].findall('citation')
     assert_elem(

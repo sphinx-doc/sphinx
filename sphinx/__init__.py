@@ -71,16 +71,16 @@ if __version__.endswith('+'):
         pass
 
 
-def main(*args, **kwargs):
-    # type: (Any, Any) -> int
+def main(argv=sys.argv):  # type: ignore
+    # type: (List[unicode]) -> int
     from .cmd import build
     warnings.warn(
         '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
         RemovedInSphinx20Warning,
         stacklevel=2,
     )
-    args = args[1:]  # skip first argument to adjust arguments (refs: #4615)
-    return build.main(*args, **kwargs)
+    argv = argv[1:]  # skip first argument to adjust arguments (refs: #4615)
+    return build.main(argv)
 
 
 def build_main(argv=sys.argv):

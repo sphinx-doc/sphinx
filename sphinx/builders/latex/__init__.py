@@ -34,7 +34,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.latex import DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
 
 if False:
     # For type annotation
@@ -43,6 +43,67 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 
+
+XINDY_LANG_OPTIONS = {
+    # language codes from docutils.writers.latex2e.Babel
+    # ! xindy language names may differ from those in use by LaTeX/babel
+    # ! xindy does not support all Latin scripts as recognized by LaTeX/babel
+    # ! not all xindy-supported languages appear in Babel.language_codes
+    # cd /usr/local/texlive/2018/texmf-dist/xindy/modules/lang
+    # find . -name '*utf8.xdy'
+    # LATIN
+    'sq': '-L albanian -C utf8 ',
+    'hr': '-L croatian -C utf8 ',
+    'cs': '-L czech -C utf8 ',
+    'da': '-L danish -C utf8 ',
+    'nl': '-L dutch -C ij-as-ij-utf8 ',
+    'en': '-L english -C utf8 ',
+    'eo': '-L esperanto -C utf8 ',
+    'et': '-L estonian -C utf8 ',
+    'fi': '-L finnish -C utf8 ',
+    'fr': '-L french -C utf8 ',
+    'de': '-L german -C din5007-utf8 ',
+    'is': '-L icelandic -C utf8 ',
+    'it': '-L italian -C utf8 ',
+    'la': '-L latin -C utf8 ',
+    'lv': '-L latvian -C utf8 ',
+    'lt': '-L lithuanian -C utf8 ',
+    'dsb': '-L lower-sorbian -C utf8 ',
+    'ds': '-L lower-sorbian -C utf8 ',   # trick, no conflict
+    'nb': '-L norwegian -C utf8 ',
+    'no': '-L norwegian -C utf8 ',       # and what about nynorsk?
+    'pl': '-L polish -C utf8 ',
+    'pt': '-L portuguese -C utf8 ',
+    'ro': '-L romanian -C utf8 ',
+    'sk': '-L slovak -C small-utf8 ',    # there is also slovak-large
+    'sl': '-L slovenian -C utf8 ',
+    'es': '-L spanish -C modern-utf8 ',  # there is also spanish-traditional
+    'sv': '-L swedish -C utf8 ',
+    'tr': '-L turkish -C utf8 ',
+    'hsb': '-L upper-sorbian -C utf8 ',
+    'hs': '-L upper-sorbian -C utf8 ',   # trick, no conflict
+    'vi': '-L vietnamese -C utf8 ',
+    # CYRILLIC
+    # for usage with pdflatex, needs also cyrLICRutf8.xdy module
+    'be': '-L belarusian -C utf8 ',
+    'bg': '-L bulgarian -C utf8 ',
+    'mk': '-L macedonian -C utf8 ',
+    'mn': '-L mongolian -C cyrillic-utf8 ',
+    'ru': '-L russian -C utf8 ',
+    'sr': '-L serbian -C utf8 ',
+    'sh-cyrl': '-L serbian -C utf8 ',
+    'sh': '-L serbian -C utf8 ',         # trick, no conflict
+    'uk': '-L ukrainian -C utf8 ',
+    # GREEK
+    # can work only with xelatex/lualatex, not supported by texindy+pdflatex
+    'el': '-L greek -C utf8 ',
+    # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
+    'el-polyton': '-L greek -C polytonic-utf8 ',
+}  # type: Dict[unicode, unicode]
+
+XINDY_CYRILLIC_SCRIPTS = [
+    'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk',
+]  # type: List[unicode]
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +169,7 @@ class LaTeXBuilder(Builder):
 
     def write_stylesheet(self):
         # type: () -> None
-        highlighter = highlighting.PygmentsBridge(
-            'latex', self.config.pygments_style, self.config.trim_doctest_flags)
+        highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
@@ -232,7 +292,23 @@ class LaTeXBuilder(Builder):
         self.copy_image_files()
 
         # copy TeX support files from texinputs
-        context = {'latex_engine': self.config.latex_engine}
+        # configure usage of xindy (impacts Makefile and latexmkrc)
+        # FIXME: convert this rather to a confval with suitable default
+        #        according to language ? but would require extra documentation
+        if self.config.language:
+            xindy_lang_option = \
+                XINDY_LANG_OPTIONS.get(self.config.language[:2],
+                                       '-L general -C utf8 ')
+            xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
+        else:
+            xindy_lang_option = '-L english -C utf8 '
+            xindy_cyrillic = False
+        context = {
+            'latex_engine':      self.config.latex_engine,
+            'xindy_use':         self.config.latex_use_xindy,
+            'xindy_lang_option': xindy_lang_option,
+            'xindy_cyrillic':    xindy_cyrillic,
+        }
         logger.info(bold(__('copying TeX support files...')))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
@@ -297,6 +373,12 @@ def validate_config_values(app, config):
                    'Please use u"..." notation instead): %r') % (document,)
             )
 
+    for key in list(config.latex_elements):
+        if key not in DEFAULT_SETTINGS:
+            msg = __("Unknown configure key: latex_elements[%r]. ignored.")
+            logger.warning(msg % key)
+            config.latex_elements.pop(key)
+
 
 def default_latex_engine(config):
     # type: (Config) -> unicode
@@ -317,6 +399,12 @@ def default_latex_docclass(config):
         return {}
 
 
+def default_latex_use_xindy(config):
+    # type: (Config) -> bool
+    """ Better default latex_use_xindy settings for specific engines. """
+    return config.latex_engine in {'xelatex', 'lualatex'}
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
@@ -334,6 +422,7 @@ def setup(app):
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, None)
     app.add_config_value('latex_toplevel_sectioning', None, None,
                          ENUM(None, 'part', 'chapter', 'section'))
     app.add_config_value('latex_domain_indices', True, None, [list])

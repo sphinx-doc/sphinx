@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 # common option names for autodoc directives
 AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'show-inheritance', 'private-members', 'special-members',
-                           'ignore-module-all']
+                           'ignore-module-all', 'exclude-members']
 
 
 class DummyOptionSpec(object):
@@ -68,7 +68,7 @@ def process_documenter_options(documenter, config, options):
         else:
             negated = options.pop('no-' + name, True) is None
             if name in config.autodoc_default_flags and not negated:
-                options[name] = None
+                options[name] = config.autodoc_default_flags[name]
 
     return Options(assemble_option_dict(options.items(), documenter.option_spec))
 

@@ -233,3 +233,19 @@ class EnumCls(enum.Enum):
     val2 = 23  #: doc for val2
     val3 = 34
     """doc for val3"""
+    val4 = 34
+
+
+class CustomIter(object):
+    def __init__(self):
+        """Create a new `CustomIter`."""
+        self.values = range(10)
+
+    def __iter__(self):
+        """Iterate squares of each value."""
+        for i in self.values:
+            yield i ** 2
+
+    def snafucate(self):
+        """Makes this snafucated."""
+        print("snafucated")

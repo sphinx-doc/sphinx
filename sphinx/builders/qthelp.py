@@ -140,7 +140,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         else:
             nspace = 'org.sphinx.%s.%s' % (outname, self.config.version)
 
-        nspace = re.sub('[^a-zA-Z0-9.]', '', nspace)
+        nspace = re.sub(r'[^a-zA-Z0-9.\-]', '', nspace)
         nspace = re.sub(r'\.+', '.', nspace).strip('.')
         nspace = nspace.lower()
 

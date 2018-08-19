@@ -387,8 +387,6 @@ def extract_toc(path):
     coderoot='test-apidoc-subpackage-in-toc',
     options=['--separate']
 )
-
-
 def test_subpackage_in_toc(make_app, apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
        are not skipped (issue #4520)

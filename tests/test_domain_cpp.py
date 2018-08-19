@@ -127,7 +127,20 @@ def test_expressions():
         exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
-    # TODO: test the rest
+    # character literals
+    for p, t in [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]:
+        exprCheck(p + "'a'", t + "97")
+        exprCheck(p + "'\\n'", t + "10")
+        exprCheck(p + "'\\012'", t + "10")
+        exprCheck(p + "'\\0'", t + "0")
+        exprCheck(p + "'\\x0a'", t + "10")
+        exprCheck(p + "'\\x0A'", t + "10")
+        exprCheck(p + "'\\u0a42'", t + "2626")
+        exprCheck(p + "'\\u0A42'", t + "2626")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
+
+    # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')
@@ -158,6 +171,17 @@ def test_expressions():
     exprCheck('sizeof -42', 'szngL42E')
     exprCheck('alignof(T)', 'at1T')
     exprCheck('noexcept(-42)', 'nxngL42E')
+    # new-expression
+    exprCheck('new int', 'nw_iE')
+    exprCheck('new volatile int', 'nw_ViE')
+    exprCheck('new int[42]', 'nw_AL42E_iE')
+    exprCheck('new int()', 'nw_ipiE')
+    exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    # delete-expression
+    exprCheck('delete p', 'dl1p')
+    exprCheck('delete [] p', 'da1p')
+    exprCheck('::delete p', 'dl1p')
+    exprCheck('::delete [] p', 'da1p')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op
@@ -652,6 +676,12 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    # position: declarator
+    check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
+    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr]] volatile const i')
+    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
 
 
 # def test_print():
@@ -760,9 +790,9 @@ def test_xref_consistency(app, status, warning):
 
     def classes(role, tag):
         pattern = (r'{role}-role:.*?'
-                    '<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
-                    '.*'
-                    '</(?P=tag)>').format(role=role, tag=tag)
+                   r'<(?P<tag>{tag}) .*?class=["\'](?P<classes>.*?)["\'].*?>'
+                   r'.*'
+                   r'</(?P=tag)>').format(role=role, tag=tag)
         result = re.search(pattern, output)
         expect = '''\
 Pattern for role `{role}` with tag `{tag}`
@@ -783,17 +813,17 @@ not found in `{test}`
                 self.content_classes[tag] = classes(role, tag)
 
     # not actually used as a reference point
-    #code_role = RoleClasses('code', 'code', [])
+    # code_role = RoleClasses('code', 'code', [])
     any_role = RoleClasses('any', 'a', ['code'])
     cpp_any_role = RoleClasses('cpp-any', 'a', ['code'])
     # NYI: consistent looks
-    #texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
+    # texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'code'])
     expr_role = RoleClasses('cpp-expr', 'code', ['a'])
     texpr_role = RoleClasses('cpp-texpr', 'span', ['a', 'span'])
 
     # XRefRole-style classes
 
-    ## any and cpp:any do not put these classes at the root
+    # any and cpp:any do not put these classes at the root
 
     # n.b. the generic any machinery finds the specific 'cpp-class' object type
     expect = 'any uses XRefRole classes'

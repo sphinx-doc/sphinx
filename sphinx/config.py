@@ -49,10 +49,6 @@ ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('rebuild', Union[bool, unicode])])
 
 
-#: represents the config value accepts any type of value.
-Any = object()
-
-
 class ENUM(object):
     """represents the config value should be a one of candidates.
 
@@ -129,7 +125,7 @@ class Config(object):
         rst_epilog = (None, 'env', string_classes),
         rst_prolog = (None, 'env', string_classes),
         trim_doctest_flags = (True, 'env', []),
-        primary_domain = ('py', 'env', [NoneType]),
+        primary_domain = ('py', 'env', [NoneType]),   # type: ignore
         needs_sphinx = (None, None, string_classes),
         needs_extensions = ({}, None, []),
         manpages_url = (None, 'env', []),

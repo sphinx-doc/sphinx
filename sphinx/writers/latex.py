@@ -64,6 +64,14 @@ HYPERLINK_SUPPORT_NODES = (
     nodes.section,
     captioned_literal_block,
 )
+ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
+                                   {
+                                       'arabic': r'\arabic',
+                                       'loweralpha': r'\alph',
+                                       'upperalpha': r'\Alph',
+                                       'lowerroman': r'\roman',
+                                       'upperroman': r'\Roman',
+                                   })  # type: Dict[unicode, unicode]
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -115,28 +123,29 @@ DEFAULT_SETTINGS = {
     'tocdepth':        '',
     'secnumdepth':     '',
     'pageautorefname': '',
-    'literalblockpto': '',
+    'translatablestrings': '',
 }  # type: Dict[unicode, unicode]
 
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                        ' \\ifdefined\\DeclareUnicodeCharacterAsOptional\n'
-                        '  \\DeclareUnicodeCharacter{"00A0}{\\nobreakspace}\n'
-                        '  \\DeclareUnicodeCharacter{"2500}{\\sphinxunichar{2500}}\n'
-                        '  \\DeclareUnicodeCharacter{"2502}{\\sphinxunichar{2502}}\n'
-                        '  \\DeclareUnicodeCharacter{"2514}{\\sphinxunichar{2514}}\n'
-                        '  \\DeclareUnicodeCharacter{"251C}{\\sphinxunichar{251C}}\n'
-                        '  \\DeclareUnicodeCharacter{"2572}{\\textbackslash}\n'
-                        ' \\else\n'
-                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                        '  \\DeclareUnicodeCharacter{2500}{\\sphinxunichar{2500}}\n'
-                        '  \\DeclareUnicodeCharacter{2502}{\\sphinxunichar{2502}}\n'
-                        '  \\DeclareUnicodeCharacter{2514}{\\sphinxunichar{2514}}\n'
-                        '  \\DeclareUnicodeCharacter{251C}{\\sphinxunichar{251C}}\n'
-                        '  \\DeclareUnicodeCharacter{2572}{\\textbackslash}\n'
-                        ' \\fi\n'
+                        '% support both utf8 and utf8x syntaxes\n'
+                        '\\edef\\sphinxdqmaybe{'
+                        '\\ifdefined\\DeclareUnicodeCharacterAsOptional'
+                        '\\string"\\fi}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe00A0}'
+                        '{\\nobreakspace}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2500}'
+                        '{\\sphinxunichar{2500}}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2502}'
+                        '{\\sphinxunichar{2502}}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2514}'
+                        '{\\sphinxunichar{2514}}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe251C}'
+                        '{\\sphinxunichar{251C}}\n'
+                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2572}'
+                        '{\\textbackslash}\n'
                         '\\fi'),
     },
     'xelatex': {
@@ -161,6 +170,9 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
+        'babel':        '',
+        'classoptions': ',dvipdfmx',
+        'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
@@ -240,7 +252,7 @@ class ExtBabel(Babel):
 
     def get_mainlanguage_options(self):
         # type: () -> unicode
-        """Return options for polyglossia's ``\setmainlanguage``."""
+        """Return options for polyglossia's ``\\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None
         elif self.language == 'german':
@@ -470,8 +482,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # for xelatex+French, don't use polyglossia
+        if self.elements['latex_engine'] == 'xelatex':
+            if builder.config.language:
+                if builder.config.language[:2] == 'fr':
+                    self.elements.update({
+                        'polyglossia': '',
+                        'babel':       '\\usepackage{babel}',
+                    })
         # allow the user to override them all
-        self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
 
         # but some have other interface in config file
@@ -482,6 +501,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
+            'use_xindy':    builder.config.latex_use_xindy,
         })
         if not self.elements['releasename'] and self.elements['release']:
             self.elements.update({
@@ -546,8 +566,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
 
-        if builder.config.language \
-           and 'fncychap' not in builder.config.latex_elements:
+        if (builder.config.language and builder.config.language != 'ja' and
+                'fncychap' not in builder.config.latex_elements):
             # use Sonny style if any language specified
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
                                          '\\ChNameVar{\\Large\\normalfont'
@@ -562,13 +582,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             logger.warning(__('no Babel option known for language %r'),
                            builder.config.language)
 
-        # simply use babel.get_language() always, as get_language() returns
-        # 'english' even if language is invalid or empty
-        self.elements['classoptions'] += ',' + self.babel.get_language()
-
         # set up multilingual module...
         # 'babel' key is public and user setting must be obeyed
         if self.elements['babel']:
+            self.elements['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
@@ -578,18 +595,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if self.babel.uses_cyrillic() \
                    and 'fontpkg' not in builder.config.latex_elements:
                     self.elements['fontpkg'] = ''
-
-                # pTeX (Japanese TeX) for support
-                if builder.config.language == 'ja':
-                    # use dvipdfmx as default class option in Japanese
-                    self.elements['classoptions'] = ',dvipdfmx'
-                    # disable babel which has not publishing quality in Japanese
-                    self.elements['babel'] = ''
-                    self.elements['shorthandoff'] = ''
-                    self.elements['multilingual'] = ''
-                    # disable fncychap in Japanese documents
-                    self.elements['fncychap'] = ''
         elif self.elements['polyglossia']:
+            self.elements['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
             if options:
                 mainlanguage = r'\setmainlanguage[%s]{%s}' % (options,
@@ -652,31 +659,32 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['literalblockpto'] = (
+        self.elements['translatablestrings'] = (
             self.babel_renewcommand(
                 '\\literalblockcontinuedname', self.encode(_('continued from previous page'))
             ) +
             self.babel_renewcommand(
                 '\\literalblockcontinuesname', self.encode(_('continues on next page'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnonalphabeticalgroupname', self.encode(_('Non-alphabetical'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxsymbolsname', self.encode(_('Symbols'))
+            ) +
+            self.babel_renewcommand(
+                '\\sphinxnumbersname', self.encode(_('Numbers'))
             )
         )
         self.elements['pageautorefname'] = \
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
-        self.highlighter = highlighting.PygmentsBridge(
-            'latex',
-            builder.config.pygments_style, builder.config.trim_doctest_flags)
+        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
         self.context = []               # type: List[Any]
         self.descstack = []             # type: List[unicode]
         self.table = None               # type: Table
         self.next_table_colspec = None  # type: unicode
-        # stack of [language, linenothreshold] settings per file
-        # the first item here is the default and must not be changed
-        # the second item is the default for the master file and can be changed
-        # by .. highlight:: directive in the master file
-        self.hlsettingstack = 2 * [[builder.config.highlight_language,
-                                    sys.maxsize]]
         self.bodystack = []             # type: List[List[unicode]]
         self.footnote_restricted = False
         self.pending_footnotes = []     # type: List[nodes.footnote_reference]
@@ -693,13 +701,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
-
-    def check_latex_elements(self):
-        # type: () -> None
-        for key in self.builder.config.latex_elements:
-            if key not in self.elements:
-                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
-                logger.warning(msg % key)
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
@@ -721,13 +722,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 footnode['footnotetext'] = True
                 footnode.walkabout(self)
             self.pending_footnotes = []
-
-    @property
-    def footnotestack(self):
-        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
-        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning)
-        return []
 
     def format_docclass(self, docclass):
         # type: (unicode) -> unicode
@@ -841,8 +835,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
-            ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
-                       '\\nopagebreak\\vspace{1mm}}\n')
+            ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
                 if i > 0:
                     ret.append('\\indexspace\n')
@@ -851,7 +844,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item {\\sphinxstyleindexentry{%s}}' % self.encode(entry[0]))
+                    ret.append('\\item\\relax\\sphinxstyleindexentry{%s}' %
+                               self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
@@ -911,8 +905,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_start_of_file(self, node):
         # type: (nodes.Node) -> None
         self.curfilestack.append(node['docname'])
-        # use default highlight settings for new file
-        self.hlsettingstack.append(self.hlsettingstack[0])
 
     def collect_footnotes(self, node):
         # type: (nodes.Node) -> Dict[unicode, List[Union[collected_footnote, bool]]]
@@ -937,12 +929,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_start_of_file(self, node):
         # type: (nodes.Node) -> None
         self.curfilestack.pop()
-        self.hlsettingstack.pop()
-
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        self.hlsettingstack[-1] = [node['lang'], node['linenothreshold']]
-        raise nodes.SkipNode
 
     def visit_section(self, node):
         # type: (nodes.Node) -> None
@@ -1470,6 +1456,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_enumerated_list(self, node):
         # type: (nodes.Node) -> None
+        def get_enumtype(node):
+            # type: (nodes.Node) -> unicode
+            enumtype = node.get('enumtype', 'arabic')
+            if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
+                # fallback to arabic if alphabet counter overflows
+                enumtype = 'arabic'
+
+            return enumtype
+
         def get_nested_level(node):
             # type: (nodes.Node) -> int
             if node is None:
@@ -1479,10 +1474,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 return get_nested_level(node.parent)
 
+        enum = "enum%s" % toRoman(get_nested_level(node)).lower()
+        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
+        style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
+
         self.body.append('\\begin{enumerate}\n')
+        self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
+        self.body.append('\\def\\label%s{%s\\the%s %s}\n' %
+                         (enum, node['prefix'], enum, node['suffix']))
+        self.body.append('\\makeatletter\\def\\p@%s{\\p@%s %s\\the%s %s}\\makeatother\n' %
+                         (enumnext, enum, node['prefix'], enum, node['suffix']))
         if 'start' in node:
-            enum_depth = "enum%s" % toRoman(get_nested_level(node)).lower()
-            self.body.append('\\setcounter{%s}{%d}\n' % (enum_depth, node['start'] - 1))
+            self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
 
@@ -1886,8 +1889,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
-            value = value.replace(r'\{', r'{\sphinxleftcurlybrace}')
-            value = value.replace(r'\}', r'{\sphinxrightcurlybrace}')
+            value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
+            value = value.replace(r'\}', r'\sphinxrightcurlybrace{}')
+            value = value.replace('"', '""')
+            value = value.replace('@', '"@')
+            value = value.replace('!', '"!')
             return value
 
         if not node.get('inline', True):
@@ -2192,26 +2198,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if labels and not self.in_footnote:
                 self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + labels + '}')
 
-            code = node.astext()
-            lang = self.hlsettingstack[-1][0]
-            linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
+            lang = node.get('language', 'default')
+            linenos = node.get('linenos', False)
             highlight_args = node.get('highlight_args', {})
-            hllines = '\\fvset{hllines={, %s,}}%%' %\
-                      str(highlight_args.get('hl_lines', []))[1:-1]
-            if 'language' in node:
-                # code-block directives
-                lang = node['language']
-                highlight_args['force'] = True
-            if 'linenos' in node:
-                linenos = node['linenos']
-            if lang is self.hlsettingstack[0][0]:
+            highlight_args['force'] = node.get('force_highlighting', False)
+            if lang is self.builder.config.highlight_language:
                 # only pass highlighter options for original language
                 opts = self.builder.config.highlight_options
             else:
                 opts = {}
 
             hlcode = self.highlighter.highlight_block(
-                code, lang, opts=opts, linenos=linenos,
+                node.rawsource, lang, opts=opts, linenos=linenos,
                 location=(self.curfilestack[-1], node.line), **highlight_args
             )
             # workaround for Unicode issue
@@ -2236,6 +2234,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 hlcode += '\\end{sphinxVerbatimintable}'
             else:
                 hlcode += '\\end{sphinxVerbatim}'
+
+            hllines = '\\fvset{hllines={, %s,}}%%' %\
+                      str(highlight_args.get('hl_lines', []))[1:-1]
             self.body.append('\n' + hllines + '\n' + hlcode + '\n')
             raise nodes.SkipNode
 
@@ -2511,11 +2512,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append(r'\label{%s}' % label)
             self.body.append(node.astext())
         else:
-            def is_equation(part):
-                # type: (unicode) -> unicode
-                return part.strip()
-
-            from sphinx.ext.mathbase import wrap_displaymath
+            from sphinx.util.math import wrap_displaymath
             self.body.append(wrap_displaymath(node.astext(), label,
                                               self.builder.config.math_number_all))
         raise nodes.SkipNode
@@ -2544,6 +2541,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
     # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    @property
+    def footnotestack(self):
+        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
+        warnings.warn('LaTeXWriter.footnotestack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return []
 
     @property
     def bibitems(self):
@@ -2584,6 +2588,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
         warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
                       RemovedInSphinx30Warning)
         return set()
+
+    @property
+    def hlsettingstack(self):
+        # type: () -> List[List[Union[unicode, int]]]
+        warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
+                      RemovedInSphinx30Warning)
+        return [[self.builder.config.highlight_language, sys.maxsize]]
+
+    def check_latex_elements(self):
+        # type: () -> None
+        warnings.warn('check_latex_elements() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        for key in self.builder.config.latex_elements:
+            if key not in self.elements:
+                msg = __("Unknown configure key: latex_elements[%r] is ignored.")
+                logger.warning(msg % key)
 
 
 # Import old modules here for compatibility

@@ -39,6 +39,7 @@ if False:
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
@@ -90,6 +91,11 @@ class SphinxComponentRegistry(object):
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
         self.enumerable_nodes = {}      # type: Dict[nodes.Node, Tuple[unicode, TitleGetter]]
+
+        #: HTML inline and block math renderers
+        #: a dict of name -> tuple of visit function and depart function
+        self.html_inline_math_renderers = {}    # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
+        self.html_block_math_renderers = {}     # type: Dict[unicode, Tuple[Callable, Callable]]  # NOQA
 
         #: js_files; list of JS paths or URLs
         self.js_files = []              # type: List[Tuple[unicode, Dict[unicode, unicode]]]
@@ -270,7 +276,7 @@ class SphinxComponentRegistry(object):
         # type: (unicode, unicode, bool) -> None
         logger.debug('[app] adding source_suffix: %r, %r', suffix, filetype)
         if suffix in self.source_suffix and not override:
-            raise ExtensionError(__('source_parser for %r is already registered') % suffix)
+            raise ExtensionError(__('source_suffix %r is already registered') % suffix)
         else:
             self.source_suffix[suffix] = filetype
 
@@ -290,7 +296,7 @@ class SphinxComponentRegistry(object):
             parser = args[1]
 
         if suffix:
-            self.add_source_suffix(suffix, suffix)
+            self.add_source_suffix(suffix, suffix, override=True)
 
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
@@ -438,6 +444,16 @@ class SphinxComponentRegistry(object):
             raise ExtensionError(__('enumerable_node %r already registered') % node)
         self.enumerable_nodes[node] = (figtype, title_getter)
 
+    def add_html_math_renderer(self, name, inline_renderers, block_renderers):
+        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        logger.debug('[app] adding html_math_renderer: %s, %r, %r',
+                     name, inline_renderers, block_renderers)
+        if name in self.html_inline_math_renderers:
+            raise ExtensionError(__('math renderer %s is already registred') % name)
+
+        self.html_inline_math_renderers[name] = inline_renderers
+        self.html_block_math_renderers[name] = block_renderers
+
     def load_extension(self, app, extname):
         # type: (Sphinx, unicode) -> None
         """Load a Sphinx extension."""
@@ -493,8 +509,8 @@ class SphinxComponentRegistry(object):
         return envversion
 
 
-def merge_source_suffix(app):
-    # type: (Sphinx) -> None
+def merge_source_suffix(app, config):
+    # type: (Sphinx, Config) -> None
     """Merge source_suffix which specified by user and added by extensions."""
     for suffix, filetype in iteritems(app.registry.source_suffix):
         if suffix not in app.config.source_suffix:
@@ -510,7 +526,7 @@ def merge_source_suffix(app):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    app.connect('builder-inited', merge_source_suffix)
+    app.connect('config-inited', merge_source_suffix)
 
     return {
         'version': 'builtin',

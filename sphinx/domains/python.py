@@ -168,7 +168,15 @@ class PyXrefMixin(object):
 
 
 class PyField(PyXrefMixin, Field):
-    pass
+    def make_xref(self, rolename, domain, target,
+                  innernode=nodes.emphasis, contnode=None, env=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        if rolename == 'class' and target == 'None':
+            # None is not a type, so use obj role instead.
+            rolename = 'obj'
+
+        return super(PyField, self).make_xref(rolename, domain, target,
+                                              innernode, contnode, env)
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):

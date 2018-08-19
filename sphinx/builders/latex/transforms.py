@@ -561,7 +561,7 @@ class MathReferenceTransform(SphinxTransform):
 
         equations = self.env.get_domain('math').data['objects']
         for node in self.document.traverse(addnodes.pending_xref):
-            if node['refdomain'] == 'math' and node['reftype'] == 'eq':
+            if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
                 docname, _ = equations.get(node['reftarget'], (None, None))
                 if docname:
                     refnode = math_reference('', docname=docname, target=node['reftarget'])

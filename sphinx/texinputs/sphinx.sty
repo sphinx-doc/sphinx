@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/03/28 v1.8 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2018/07/18 v1.8 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -182,7 +182,10 @@
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}
-\RequirePackage{remreset}% provides \@removefromreset
+% LaTeX 2018-04-01 and later provides \@removefromreset
+\ltx@ifundefined{@removefromreset}
+    {\RequirePackage{remreset}}
+    {}% avoid warning
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
 \ifx\kanjiskip\@undefined
@@ -470,6 +473,11 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of \ltx@ifundefined
 
+% for usage with xindy: this string gets internationalized in preamble
+\newcommand*{\sphinxnonalphabeticalgroupname}{}
+% redefined in preamble, headings for makeindex produced index
+\newcommand*{\sphinxsymbolsname}{}
+\newcommand*{\sphinxnumbersname}{}
 
 %% COLOR (general)
 %
@@ -1591,10 +1599,13 @@
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
 % additional customizable styling
-% FIXME: convert this to package options ?
-\protected\def\sphinxstyleindexentry   #1{\texttt{#1}}
-\protected\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
-\protected\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexentry   #1{\texttt{#1}}
+\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexlettergroup #1%
+    {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+\def\sphinxstyleindexlettergroupDefault #1%
+    {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
 \protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
@@ -1611,6 +1622,23 @@
 \newcommand*\sphinxstylecodecontinues[1]{\footnotesize(#1)}%
 % figure legend comes after caption and may contain arbitrary body elements
 \newenvironment{sphinxlegend}{\par\small}{\par}
+% reduce hyperref "Token not allowed in a PDF string" warnings on PDF builds
+\AtBeginDocument{\pdfstringdefDisableCommands{%
+% all "protected" macros possibly ending up in section titles should be here
+    \let\sphinxstyleemphasis        \@firstofone
+    \let\sphinxstyleliteralemphasis \@firstofone
+    \let\sphinxstylestrong          \@firstofone
+    \let\sphinxstyleliteralstrong   \@firstofone
+    \let\sphinxstyleabbreviation    \@firstofone
+    \let\sphinxstyleliteralintitle  \@firstofone
+    \let\sphinxupquote  \@firstofone
+    \let\sphinxstrong   \@firstofone
+    \let\sphinxcode     \@firstofone
+    \let\sphinxbfcode   \@firstofone
+    \let\sphinxemail    \@firstofone
+    \let\sphinxcrossref \@firstofone
+    \let\sphinxtermref  \@firstofone
+}}
 
 % For curly braces inside \index macro
 \def\sphinxleftcurlybrace{\{}

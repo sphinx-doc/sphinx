@@ -14,6 +14,7 @@ Other co-maintainers:
 * Takeshi Komiya <@tk0miya>
 * Jean-François Burnol <@jfbu>
 * Yoshiki Shibukawa <@shibu_jp>
+* Timotheus Kampik - <@TimKam>
 
 Other contributors, listed alphabetically, are:
 
@@ -37,12 +38,12 @@ Other contributors, listed alphabetically, are:
 * Zac Hatfield-Dodds -- doctest reporting improvements
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
-* Timotheus Kampik - JS theme & search enhancements
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Chris Lamb -- reproducibility fixes
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
+* Martin Larralde -- additional napoleon admonitions
 * Ian Lee -- quickstart improvements
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes

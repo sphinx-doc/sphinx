@@ -120,11 +120,14 @@ class CheckExternalLinksBuilder(Builder):
 
     def check_thread(self):
         # type: () -> None
-        kwargs = {}
+        kwargs = {
+            'allow_redirects': True,
+            'headers': {
+                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8'
+            },
+        }
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
-
-        kwargs['allow_redirects'] = True
 
         def check_uri():
             # type: () -> Tuple[unicode, unicode, int]
@@ -160,7 +163,7 @@ class CheckExternalLinksBuilder(Builder):
                         # the server and the network
                         response = requests.head(req_url, config=self.app.config, **kwargs)
                         response.raise_for_status()
-                    except HTTPError as err:
+                    except HTTPError:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
                         response = requests.get(req_url, stream=True, config=self.app.config,

@@ -11,13 +11,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import json
+
 from docutils import nodes
 
 import sphinx
 from sphinx.errors import ExtensionError
-from sphinx.ext.mathbase import get_node_equation_number
-from sphinx.ext.mathbase import setup_math as mathbase_setup
 from sphinx.locale import _
+from sphinx.util.math import get_node_equation_number
 
 if False:
     # For type annotation
@@ -69,7 +70,9 @@ def html_visit_displaymath(self, node):
 
 def builder_inited(app):
     # type: (Sphinx) -> None
-    if not app.config.mathjax_path:
+    if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
+        pass
+    elif not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
     if app.builder.format == 'html':
@@ -78,13 +81,16 @@ def builder_inited(app):
             options.update(app.config.mathjax_options)
         app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
 
+        if app.config.mathjax_config:
+            body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
+            app.builder.add_js_file(None, type="text/x-mathjax-config", body=body)  # type: ignore  # NOQA
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    try:
-        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    except ExtensionError:
-        raise ExtensionError('sphinx.ext.mathjax: other math package is already loaded')
+    app.add_html_math_renderer('mathjax',
+                               (html_visit_math, None),
+                               (html_visit_displaymath, None))
 
     # more information for mathjax secure url is here:
     # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
@@ -94,6 +100,7 @@ def setup(app):
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
+    app.add_config_value('mathjax_config', None, 'html')
     app.connect('builder-inited', builder_inited)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

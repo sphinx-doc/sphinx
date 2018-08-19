@@ -22,7 +22,7 @@ from sphinx.testing.path import path
 @pytest.mark.sphinx(testroot='config', confoverrides={
     'master_doc': 'master',
     'nonexisting_value': 'True',
-    'latex_elements.docclass': 'scrartcl',
+    'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app, status, warning):
     cfg = app.config
@@ -34,7 +34,7 @@ def test_core_config(app, status, warning):
 
     # overrides
     assert cfg.master_doc == 'master'
-    assert cfg.latex_elements['docclass'] == 'scrartcl'
+    assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
@@ -172,20 +172,20 @@ def make_app_with_empty_project(make_app, tempdir):
 def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
-    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
-    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 

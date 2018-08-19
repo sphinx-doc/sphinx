@@ -197,7 +197,6 @@ def test_quickstart_all_answers(tempdir):
     assert ns['latex_documents'] == [
         ('contents', 'STASI.tex', u'STASI™ Documentation',
          u'Wolfgang Schäuble \\& G\'Beckstein', 'manual')]
-    assert ns['epub_author'] == u'Wolfgang Schäuble & G\'Beckstein'
     assert ns['man_pages'] == [
         ('contents', 'stasi', u'STASI™ Documentation',
          [u'Wolfgang Schäuble & G\'Beckstein'], 1)]

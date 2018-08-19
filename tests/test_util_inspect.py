@@ -228,10 +228,11 @@ def test_Signature_partialmethod():
     assert sig == '()'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 5),
-                    reason='type annotation test is available on py35 or above')
+@pytest.mark.skipif(sys.version_info < (3, 4),
+                    reason='type annotation test is available on py34 or above')
 def test_Signature_annotations():
-    from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11
+    from typing_test_data import (
+        f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, Node)
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -283,6 +284,21 @@ def test_Signature_annotations():
     # has_retval=False
     sig = inspect.Signature(f11, has_retval=False).format_args()
     assert sig == '(x: CustomAnnotation, y: 123)'
+
+    # tuple with more than two items
+    sig = inspect.Signature(f12).format_args()
+    assert sig == '() -> Tuple[int, str, int]'
+
+    # optional
+    sig = inspect.Signature(f13).format_args()
+    assert sig == '() -> Optional[str]'
+
+    # type hints by string
+    sig = inspect.Signature(Node.children).format_args()
+    assert sig == '(self) -> List[typing_test_data.Node]'
+
+    sig = inspect.Signature(Node.__init__).format_args()
+    assert sig == '(self, parent: Optional[Node]) -> None'
 
 
 def test_safe_getattr_with_default():

@@ -27,6 +27,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
@@ -155,7 +156,10 @@ class Graphviz(SphinxDirective):
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = {}
+        node['options'] = {
+            'docname': path.splitext(self.state.document.current_source)[0],
+        }
+
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
@@ -192,7 +196,9 @@ class GraphvizSimple(SphinxDirective):
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = {}
+        node['options'] = {
+            'docname': path.splitext(self.state.document.current_source)[0],
+        }
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
@@ -235,10 +241,14 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(['-T' + format, '-o' + outfn])
+
+    docname = options.get('docname', 'index')
+    cwd = path.dirname(path.join(self.builder.srcdir, docname))
+
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
     try:
-        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=cwd)
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
@@ -281,19 +291,23 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         logger.warning(__('dot code %r: %s'), code, text_type(exc))
         raise nodes.SkipNode
 
+    if imgcls:
+        imgcls += " graphviz"
+    else:
+        imgcls = "graphviz"
+
     if fname is None:
         self.body.append(self.encode(code))
     else:
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
-        imgcss = imgcls and 'class="%s"' % imgcls or ''
         if 'align' in node:
             self.body.append('<div align="%s" class="align-%s">' %
                              (node['align'], node['align']))
         if format == 'svg':
             self.body.append('<div class="graphviz">')
-            self.body.append('<object data="%s" type="image/svg+xml" %s>\n' %
-                             (fname, imgcss))
+            self.body.append('<object data="%s" type="image/svg+xml" class="%s">\n' %
+                             (fname, imgcls))
             self.body.append('<p class="warning">%s</p>' % alt)
             self.body.append('</object></div>\n')
         else:
@@ -302,15 +316,15 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 if imgmap.clickable:
                     # has a map
                     self.body.append('<div class="graphviz">')
-                    self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>' %
-                                     (fname, alt, imgmap.id, imgcss))
+                    self.body.append('<img src="%s" alt="%s" usemap="#%s" class="%s" />' %
+                                     (fname, alt, imgmap.id, imgcls))
                     self.body.append('</div>\n')
                     self.body.append(imgmap.generate_clickable_map())
                 else:
                     # nothing in image map
                     self.body.append('<div class="graphviz">')
-                    self.body.append('<img src="%s" alt="%s" %s/>' %
-                                     (fname, alt, imgcss))
+                    self.body.append('<img src="%s" alt="%s" class="%s" />' %
+                                     (fname, alt, imgcls))
                     self.body.append('</div>\n')
         if 'align' in node:
             self.body.append('</div>\n')
@@ -396,6 +410,14 @@ def man_visit_graphviz(self, node):
     raise nodes.SkipNode
 
 
+def on_build_finished(app, exc):
+    # type: (Sphinx, Exception) -> None
+    if exc is None:
+        src = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
+        dst = path.join(app.outdir, '_static')
+        copy_asset_file(src, dst)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_node(graphviz,
@@ -410,4 +432,6 @@ def setup(app):
     app.add_config_value('graphviz_dot', 'dot', 'html')
     app.add_config_value('graphviz_dot_args', [], 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
+    app.add_css_file('graphviz.css')
+    app.connect('build-finished', on_build_finished)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

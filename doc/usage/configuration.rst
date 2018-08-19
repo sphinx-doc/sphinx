@@ -65,8 +65,9 @@ General configuration
 
 .. confval:: extensions
 
-   A list of strings that are module names of :ref:`extensions`. These can be
-   extensions coming with Sphinx (named ``sphinx.ext.*``) or custom ones.
+   A list of strings that are module names of :doc:`extensions
+   <extensions/index>`. These can be extensions coming with Sphinx (named
+   ``sphinx.ext.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
    extensions live in another directory -- but make sure you use absolute paths.
@@ -142,7 +143,7 @@ General configuration
    .. versionadded:: 1.3
 
    .. deprecated:: 1.8
-      Now Sphinx provides an API :meth:`Sphinx.add_source_parser` to register
+      Now Sphinx provides an API :meth:`.Sphinx.add_source_parser` to register
       a source parser.  Please use it instead.
 
 .. confval:: master_doc
@@ -772,6 +773,35 @@ documentation on :ref:`intl` for details.
       Added ``{path}`` and ``{basename}`` tokens.
 
 
+.. _math-options:
+
+Options for Math
+----------------
+
+These options influence Math notations.
+
+.. confval:: math_number_all
+
+   Set this option to ``True`` if you want all displayed math to be numbered.
+   The default is ``False``.
+
+.. confval:: math_eqref_format
+
+   A string that are used for format of label of references to equations.
+   As a special character, ``{number}`` will be replaced to equaition number.
+
+   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
+
+.. confval:: math_numfig
+
+   If ``True``, displayed math equations are numbered across pages when
+   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
+   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
+   must be used to reference equation numbers.  Default is ``True``.
+
+   .. versionadded:: 1.7
+
+
 .. _html-options:
 
 Options for HTML output
@@ -1289,12 +1319,29 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.3
 
+.. confval:: html_math_renderer
+
+   The name of math_renderer extension for HTML output.  The default is
+   ``'mathjax'``.
+
+   .. versionadded:: 1.8
+
 .. confval:: html_experimental_html5_writer
 
    Output is processed with HTML5 writer.  This feature needs docutils 0.13 or
    newer.  Default is ``False``.
 
    .. versionadded:: 1.6
+
+Options for Single HTML output
+-------------------------------
+
+.. confval:: singlehtml_sidebars
+
+   Custom sidebar templates, must be a dictionary that maps document names to
+   template names.  And it only allows a key named `'index'`.  All other keys
+   are ignored.  For more information, refer to :confval:`html_sidebars`.  By
+   default, it is same as :confval:`html_sidebars`.
 
 
 .. _htmlhelp-options:
@@ -1748,15 +1795,33 @@ information.
    preamble.
 
    If your project uses such extra Unicode characters, switching the engine to
-   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
-   encoded sources and can (in fact, should) use OpenType fonts, either from
-   the system or the TeX install tree. Recent LaTeX releases will default with
-   these engines to the Latin Modern OpenType font, which has good coverage of
-   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
-   and Sphinx does not modify this default. Refer to the documentation of the
-   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
-   other OpenType font if Unicode coverage proves insufficient (or use
-   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+   XeLaTeX or LuaLaTeX and setting up the document to use an OpenType font
+   with wide-enough glyph coverage is often easier than sticking with PDFLaTeX
+   and trying to get it to work with the Unicode characters.
+
+   The :confval:`latex_elements` ``'fontpkg'`` key allows to set up the
+   document fonts, see :ref:`this example <latex-basic>`.  Currently, for
+   XeLaTeX and LuaLaTeX, Sphinx leaves this key empty and LaTeX then defaults
+   to the `Latin Modern`_ font family (from the TeX distribution fonts).  This
+   font family provides good coverage of Latin scripts (European languages,
+   Vietnamese) but Cyrillic requires some other OpenType font; for example
+   Computer Modern Unicode (see `babel-russian`_ documentation on how to load
+   it in the LaTeX document).  In future, it is planned Sphinx will provide
+   another default choice of OpenType font than `Latin Modern`_, perhaps
+   `Libertinus`_, which is included in recent TeX distributions and supports
+   Latin and Cyrillic and also has an accompanying math font.
+
+   With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
+   `polyglossia`_.  For some languages the `babel`_ support appears
+   preferable; Sphinx uses currently `babel`_ for French and perhaps will also
+   for some more languages in future.  One can use the
+   :confval:`latex_elements` ``'babel'`` key to override Sphinx's default.
+
+   .. _`Latin Modern`: http://www.gust.org.pl/projects/e-foundry/latin-modern
+   .. _`polyglossia`: https://ctan.org/pkg/polyglossia
+   .. _`babel`: https://ctan.org/pkg/babel
+   .. _`babel-russian`: https://ctan.org/pkg/babel-russian
+   .. _`Libertinus`: https://ctan.org/pkg/libertinus
 
 .. confval:: latex_documents
 
@@ -1764,32 +1829,39 @@ information.
    It must be a list of tuples ``(startdocname, targetname, title, author,
    documentclass, toctree_only)``, where the items are:
 
-   * *startdocname*: document name that is the "root" of the LaTeX file.  All
-     documents referenced by it in TOC trees will be included in the LaTeX file
-     too.  (If you want only one LaTeX file, use your :confval:`master_doc`
-     here.)
-   * *targetname*: file name of the LaTeX file in the output directory.
-   * *title*: LaTeX document title.  Can be empty to use the title of the
-     *startdoc*.  This is inserted as LaTeX markup, so special characters like a
+   *startdocname*
+     String that specifies the :term:`document name` of the LaTeX file's master
+     document.  All documents referenced by the *startdoc* document in TOC trees
+     will be included in the LaTeX file.  (If you want to use the default master
+     document for your LaTeX build, provide your :confval:`master_doc` here.)
+
+   *targetname*
+     File name of the LaTeX file in the output directory.
+
+   *title*
+     LaTeX document title.  Can be empty to use the title of the *startdoc*
+     document.  This is inserted as LaTeX markup, so special characters like a
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
-   * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
-     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach
-     LaTeX).
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
-     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
-     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
-     documents will not get appendices. Also they have a simpler title page.
-     Other document classes can be given. Independently of the document class,
-     the "sphinx" package is always loaded in order to define Sphinx's custom
-     LaTeX commands.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
-     document itself is not included in the output, only the documents
-     referenced by it via TOC trees.  With this option, you can put extra stuff
-     in the master document that shows up in the HTML, but not the LaTeX
-     output.
+   *author*
+     Author for the LaTeX document.  The same LaTeX markup caveat as for *title*
+     applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
+
+   *documentclass*
+     Normally, one of ``'manual'`` or ``'howto'`` (provided by Sphinx and based
+     on ``'report'``, resp. ``'article'``; Japanese documents use ``'jsbook'``,
+     resp. ``'jreport'``.) "howto" (non-Japanese) documents will not get
+     appendices. Also they have a simpler title page.  Other document classes
+     can be given. Independently of the document class, the "sphinx" package is
+     always loaded in order to define Sphinx's custom LaTeX commands.
+
+   *toctree_only*
+     Must be ``True`` or ``False``.  If true, the *startdoc* document itself is
+     not included in the output, only the documents referenced by it via TOC
+     trees.  With this option, you can put extra stuff in the master document
+     that shows up in the HTML, but not the LaTeX output.
 
    .. versionadded:: 1.2
       In the past including your own document class required you to prepend the
@@ -1871,6 +1943,37 @@ information.
 
    .. versionadded:: 1.6
 
+.. confval:: latex_use_xindy
+
+   If ``True``, the PDF build from the LaTeX files created by Sphinx
+   will use :program:`xindy` (doc__) rather than :program:`makeindex`
+   for preparing the index of general terms (from :rst:dir:`index`
+   usage).  This means that words with UTF-8 characters will get
+   ordered correctly for the :confval:`language`.
+
+   __ http://xindy.sourceforge.net/
+
+   - This option is ignored if :confval:`latex_engine` is ``'platex'``
+     (Japanese documents; :program:`mendex` replaces :program:`makeindex`
+     then).
+
+   - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
+     :program:`makeindex`, if any indexed term starts with a non-ascii
+     character, creates ``.ind`` files containing invalid bytes for
+     UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
+     build.
+
+   - The default is ``False`` for ``'pdflatex'`` but ``True`` is
+     recommended for non-English documents as soon as some indexed
+     terms use non-ascii characters from the language script.
+
+   Sphinx adds to :program:`xindy` base distribution some dedicated support
+   for using ``'pdflatex'`` engine with Cyrillic scripts.  And whether with
+   ``'pdflatex'`` or Unicode engines, Cyrillic documents handle correctly the
+   indexing of Latin names, even with diacritics.
+
+   .. versionadded:: 1.8
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
@@ -1925,18 +2028,13 @@ information.
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
         .. versionchanged:: 1.6
            ``'lualatex'`` uses same default setting as ``'xelatex'``
+        .. versionchanged:: 1.7.6
+           For French, ``xelatex`` and ``lualatex`` default to using
+           ``babel``, not ``polyglossia``.
 
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times for text, Helvetica for sans serif and Courier for code-blocks).
-
-        .. hint::
-
-           Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
-           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
-           preamble to not change font size in code-blocks.  Since ``1.8`` a
-           separate ``'fvset'`` key is provided for this.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -1945,8 +2043,7 @@ information.
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            Defaults to ``''`` also with ``'lualatex'``.
-        .. versionchanged:: 1.8
-           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
+
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -2114,13 +2211,18 @@ information.
         index is full of long entries.
 
      ``'fvset'``
-        Customization of ``fancyvrb`` LaTeX package. Defaults to
-        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
-        code-blocks is wider and taller than default text font (Times).
+        Customization of ``fancyvrb`` LaTeX package.  Currently, Sphinx uses
+        this key to set the fontsize in code-blocks according to the
+        :confval:`latex_engine`.
 
-        For ``'xelatex'`` and ``'lualatex'``, defaults to
-        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
-        one unified typeface family (Latin Modern OpenType).
+        - ``'pdflatex'`` uses ``'fvset': '\\fvset{fontsize=\\small}'``,
+          to mitigate the size difference between the default monospaced font
+          (Courier) and the default text font (Times).  You may need to modify
+          this if you use custom fonts.
+
+        - ``'xelatex'`` and ``'lualatex'`` use ``'\\fvset{fontsize=auto}'``,
+          as there is no size difference between the regular and the
+          monospaced fonts used by default by Sphinx with these engines.
 
         .. versionadded:: 1.8
 
@@ -2226,9 +2328,11 @@ These options influence manual page output.
    section)``, where the items are:
 
    *startdocname*
-     Document name that is the "root" of the manual page.  All documents
-     referenced by it in TOC trees will be included in the manual file too.
-     (If you want one master manual page, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the manual page's master
+     document. All documents referenced by the *startdoc* document in TOC trees
+     will be included in the manual file.  (If you want to use the default
+     master document for your manual pages build, use your :confval:`master_doc`
+     here.)
 
    *name*
      Name of the manual page.  This should be a short string without spaces or
@@ -2271,17 +2375,19 @@ These options influence Texinfo output.
    are:
 
    *startdocname*
-     Document name that is the "root" of the Texinfo file.  All documents
-     referenced by it in TOC trees will be included in the Texinfo file too.
-     (If you want only one Texinfo file, use your :confval:`master_doc` here.)
+     String that specifies the :term:`document name` of the the Texinfo file's
+     master document.  All documents referenced by the *startdoc* document in
+     TOC trees will be included in the Texinfo file.  (If you want to use the
+     default master document for your Texinfo build, provide your
+     :confval:`master_doc` here.)
 
    *targetname*
      File name (no extension) of the Texinfo file in the output directory.
 
    *title*
-     Texinfo document title.  Can be empty to use the title of the *startdoc*.
-     Inserted as Texinfo markup, so special characters like ``@`` and ``{}``
-     will need to be escaped to be inserted literally.
+     Texinfo document title.  Can be empty to use the title of the *startdoc*
+     document.  Inserted as Texinfo markup, so special characters like ``@`` and
+     ``{}`` will need to be escaped to be inserted literally.
 
    *author*
      Author for the Texinfo document.  Inserted as Texinfo markup.  Use ``@*``
@@ -2450,12 +2556,21 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors_ignore
 
-   A list of regular expressions that match URIs that should skip checking
-   the validity of anchors in links. This allows skipping entire sites, where
-   anchors are used to control dynamic pages, or just specific anchors within
-   a page, where JavaScript is used to add anchors dynamically, or use the
-   fragment as part of to trigger an internal REST request. Default is
-   ``["/#!"]``.
+   A list of regular expressions that match anchors Sphinx should skip when
+   checking the validity of anchors in links. This allows skipping anchors that
+   a website's JavaScript adds to control dynamic pages or when triggering an
+   internal REST request. Default is ``["^!"]``.
+
+   .. note::
+
+      If you want to ignore anchors of a specific page or of pages that match a
+      specific pattern (but still check occurrences of the same page(s) that
+      don't have anchors), use :confval:`linkcheck_ignore` instead, for example
+      as follows::
+
+         linkcheck_ignore = [
+            'http://www.sphinx-doc.org/en/1.7/intro.html#'
+         ]
 
    .. versionadded:: 1.5
 

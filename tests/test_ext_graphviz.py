@@ -30,7 +30,7 @@ def test_graphviz_png_html(app, status, warning):
     html = 'Hello <div class="graphviz"><img .*?/></div>\n graphviz world'
     assert re.search(html, content, re.S)
 
-    html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" />'
+    html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" class="graphviz" />'
     assert re.search(html, content, re.M)
 
     html = (r'<div class="figure align-right" .*?>\s*'
@@ -41,7 +41,7 @@ def test_graphviz_png_html(app, status, warning):
     html = (r'<div align=\"center\" class=\"align-center\">'
             r'<div class="graphviz"><img src=\".*\.png\" alt=\"digraph foo {\n'
             r'centered\n'
-            r'}\" /></div>\n</div>')
+            r'}\" class="graphviz" /></div>\n</div>')
     assert re.search(html, content, re.S)
 
 
@@ -117,7 +117,7 @@ def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" />'
+    html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" class="graphviz" />'
     assert re.search(html, content, re.M)
 
 
