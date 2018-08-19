@@ -32,6 +32,7 @@ Bugs fixed
 * #5211: autodoc: No docs generated for functools.partial functions
 * #5306: autodoc: ``getargspec()`` raises NameError for invalid typehints
 * #5298: imgmath: math_number_all causes equations to have two numbers in html
+* #5294: sphinx-quickstart blank prompts in PowerShell
 
 Testing
 --------
