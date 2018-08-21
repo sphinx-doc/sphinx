@@ -1,5 +1,5 @@
 from numbers import Integral
-from typing import List, TypeVar, Union, Callable, Tuple, Optional
+from typing import Any, List, TypeVar, Union, Callable, Tuple, Optional
 
 
 def f0(x: int, y: Integral) -> None:
@@ -69,6 +69,10 @@ def f12() -> Tuple[int, str, int]:
 
 
 def f13() -> Optional[str]:
+    pass
+
+
+def f14() -> Any:
     pass
 
 

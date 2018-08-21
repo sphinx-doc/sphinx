@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5322: autodoc: ``Any`` typehint causes formatting error
+
 Testing
 --------
 

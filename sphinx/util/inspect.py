@@ -531,8 +531,10 @@ class Signature(object):
                 qualname = annotation.__qualname__
             elif getattr(annotation, '__forward_arg__', None):
                 qualname = annotation.__forward_arg__
-            else:
+            elif getattr(annotation, '__origin__', None):
                 qualname = self.format_annotation(annotation.__origin__)  # ex. Union
+            else:
+                qualname = repr(annotation).replace('typing.', '')
         elif hasattr(annotation, '__qualname__'):
             qualname = '%s.%s' % (module, annotation.__qualname__)
         else:
