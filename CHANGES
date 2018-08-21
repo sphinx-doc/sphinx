@@ -10,6 +10,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()`` is deprecated
+* ``sphinx.io.SphinxI18nReader.line`` is deprecated
+
 Features added
 --------------
 
@@ -17,6 +20,7 @@ Bugs fixed
 ----------
 
 * html: search box overrides to other elements if scrolled
+* i18n: warnings for translation catalogs have wrong line numbers (refs: #5321)
 
 Testing
 --------

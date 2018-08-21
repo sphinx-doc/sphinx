@@ -10,6 +10,7 @@
 """
 import codecs
 import re
+import warnings
 
 from docutils.core import Publisher
 from docutils.io import FileInput, NullOutput
@@ -20,6 +21,7 @@ from docutils.writers import UnfilteredWriter
 from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import __
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
@@ -116,7 +118,6 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    lineno = None  # type: int
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
@@ -127,22 +128,15 @@ class SphinxI18nReader(SphinxBaseReader):
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
         """Stores the source line number of original text."""
-        self.lineno = lineno
+        warnings.warn('SphinxI18nReader.set_lineno_for_reporter() is deprecated.',
+                      RemovedInSphinx30Warning)
 
-    def new_document(self):
-        # type: () -> nodes.document
-        """Creates a new document object which having a special reporter object for
-        translation.
-        """
-        document = SphinxBaseReader.new_document(self)
-        reporter = document.reporter
-
-        def get_source_and_line(lineno=None):
-            # type: (int) -> Tuple[unicode, int]
-            return reporter.source, self.lineno
-
-        reporter.get_source_and_line = get_source_and_line
-        return document
+    @property
+    def line(self):
+        # type: () -> int
+        warnings.warn('SphinxI18nReader.line is deprecated.',
+                      RemovedInSphinx30Warning)
+        return 0
 
 
 class SphinxDummyWriter(UnfilteredWriter):
