@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5325: latex: cross references has been broken by multiply labeled objects
+
 Testing
 --------
 
