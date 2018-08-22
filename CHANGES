@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* #5326: manpage: crashed when invalid docname is specified as ``man_pages``
+
+
 Testing
 --------
 
