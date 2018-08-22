@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5320: intersphinx: crashed if invalid url given
+
 Testing
 --------
 
