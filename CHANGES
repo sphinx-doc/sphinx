@@ -23,6 +23,7 @@ Bugs fixed
 * #5322: autodoc: ``Any`` typehint causes formatting error
 * #5327: "document isn't included in any toctree" warning on rebuild with
   generated files
+* #5335: quickstart: escape sequence has been displayed with MacPorts' python
 
 Testing
 --------

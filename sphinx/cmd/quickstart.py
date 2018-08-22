@@ -25,10 +25,12 @@ try:
     import readline
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind("bind ^I rl_complete")
+        USE_LIBEDIT = True
     else:
         readline.parse_and_bind("tab: complete")
+        USE_LIBEDIT = False
 except ImportError:
-    pass
+    USE_LIBEDIT = False
 
 from docutils.utils import column_width
 from six import PY2, PY3, text_type, binary_type
@@ -195,7 +197,13 @@ def do_prompt(text, default=None, validator=nonempty):
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
                         prompt = prompt.encode('latin1')
-        prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
+        if USE_LIBEDIT:
+            # Note: libedit has a problem for combination of ``input()`` and escape
+            # sequence (see #5335).  To avoid the problem, all prompts are not colored
+            # on libedit.
+            pass
+        else:
+            prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
