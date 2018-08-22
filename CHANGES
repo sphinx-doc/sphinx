@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* The type of ``env.included`` has been changed to dict of set
+
 Deprecated
 ----------
 
@@ -19,6 +21,8 @@ Bugs fixed
 * #5320: intersphinx: crashed if invalid url given
 * #5326: manpage: crashed when invalid docname is specified as ``man_pages``
 * #5322: autodoc: ``Any`` typehint causes formatting error
+* #5327: "document isn't included in any toctree" warning on rebuild with
+  generated files
 
 Testing
 --------
