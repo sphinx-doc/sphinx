@@ -156,9 +156,7 @@ class Graphviz(SphinxDirective):
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = {
-            'docname': path.splitext(self.state.document.current_source)[0],
-        }
+        node['options'] = {'docname': self.env.docname}
 
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']

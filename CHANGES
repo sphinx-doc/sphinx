@@ -16,6 +16,7 @@ Features added
 Bugs fixed
 ----------
 
+* html: search box overrides to other elements if scrolled
 * #5325: latex: cross references has been broken by multiply labeled objects
 
 Testing
