@@ -362,7 +362,7 @@ There are also new config values that you can set:
 .. confval:: autodoc_default_options
 
    The default options for autodoc directives.  They are applied to all autodoc
-   directives automatically.  It must be a dictionally which maps option names
+   directives automatically.  It must be a dictionary which maps option names
    to the values.  For example::
 
        autodoc_default_options = {
