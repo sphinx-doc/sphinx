@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* html: search box overrides to other elements if scrolled
+
 Testing
 --------
 
