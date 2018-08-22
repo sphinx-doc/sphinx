@@ -232,7 +232,7 @@ def test_Signature_partialmethod():
                     reason='type annotation test is available on py34 or above')
 def test_Signature_annotations():
     from typing_test_data import (
-        f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, Node)
+        f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, Node)
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -292,6 +292,10 @@ def test_Signature_annotations():
     # optional
     sig = inspect.Signature(f13).format_args()
     assert sig == '() -> Optional[str]'
+
+    # Any
+    sig = inspect.Signature(f14).format_args()
+    assert sig == '() -> Any'
 
     # type hints by string
     sig = inspect.Signature(Node.children).format_args()
