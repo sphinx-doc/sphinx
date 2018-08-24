@@ -14,9 +14,12 @@ from __future__ import absolute_import
 import sys
 import warnings
 
+from docutils.utils import get_source_line
 from six import string_types, iteritems
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.transforms import SphinxTransform
 from sphinx.util import import_object
 
 if False:
@@ -52,8 +55,23 @@ def register_application_for_autosummary(app):
         autosummary._app = app
 
 
+class IndexEntriesMigrator(SphinxTransform):
+    """Migrating indexentries from old style (4columns) to new style (5columns)."""
+    default_priority = 700
+
+    def apply(self):
+        for node in self.document.traverse(addnodes.index):
+            for entries in node['entries']:
+                if len(entries) == 4:
+                    source, line = get_source_line(node)
+                    warnings.warn('An old styled index node found: %r at (%s:%s)' %
+                                  (node, source, line), RemovedInSphinx40Warning)
+                    entries.extend([None])
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
+    app.add_transform(IndexEntriesMigrator)
     app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)
 
