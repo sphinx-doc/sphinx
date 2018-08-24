@@ -4,6 +4,8 @@ Release 2.0.0 (in development)
 Dependencies
 ------------
 
+* LaTeX builder now depends on TeX Live 2015 or above
+
 Incompatible changes
 --------------------
 
