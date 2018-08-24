@@ -299,7 +299,10 @@ def test_Signature_annotations():
 
     # type hints by string
     sig = inspect.Signature(Node.children).format_args()
-    assert sig == '(self) -> List[typing_test_data.Node]'
+    if (3, 5, 0) <= sys.version_info < (3, 5, 3):
+        assert sig == '(self) -> List[Node]'
+    else:
+        assert sig == '(self) -> List[typing_test_data.Node]'
 
     sig = inspect.Signature(Node.__init__).format_args()
     assert sig == '(self, parent: Optional[Node]) -> None'
