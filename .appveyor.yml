@@ -5,8 +5,6 @@ environment:
     PYTHONWARNINGS: all
 
   matrix:
-    - PYTHON: 27
-      TEST_IGNORE: --ignore py35
     - PYTHON: 37
     - PYTHON: 37-x64
 
