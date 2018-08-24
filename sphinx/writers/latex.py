@@ -1858,8 +1858,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
+        next_node = node
+        while isinstance(next_node, nodes.target):
+            next_node = next_node.next_node(ascend=True)
+
         domain = self.builder.env.get_domain('std')
-        next_node = node.next_node(ascend=True)
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):

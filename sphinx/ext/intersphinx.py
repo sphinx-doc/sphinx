@@ -410,14 +410,19 @@ def inspect_main(argv):
             # type: (unicode) -> None
             print(msg, file=sys.stderr)
 
-    filename = argv[0]
-    invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
-    for key in sorted(invdata or {}):
-        print(key)
-        for entry, einfo in sorted(invdata[key].items()):
-            print('\t%-40s %s%s' % (entry,
-                                    einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
-                                    einfo[2]))
+    try:
+        filename = argv[0]
+        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
+        for key in sorted(invdata or {}):
+            print(key)
+            for entry, einfo in sorted(invdata[key].items()):
+                print('\t%-40s %s%s' % (entry,
+                                        einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                        einfo[2]))
+    except ValueError as exc:
+        print(exc.args[0] % exc.args[1:])
+    except Exception as exc:
+        print('Unknown error: %r' % exc)
 
 
 if __name__ == '__main__':
