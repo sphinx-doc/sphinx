@@ -73,6 +73,10 @@ class ManualPageBuilder(Builder):
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
+            if docname not in self.env.all_docs:
+                logger.warning(__('"man_pages" config value references unknown '
+                                  'document %s'), docname)
+                continue
             if isinstance(authors, string_types):
                 if authors:
                     authors = [authors]
