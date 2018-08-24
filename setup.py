@@ -19,7 +19,7 @@ install_requires = [
     'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.11',
+    'docutils>=0.12',
     'snowballstemmer>=1.1',
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',

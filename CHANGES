@@ -8,6 +8,7 @@ Incompatible changes
 --------------------
 
 * Drop python 2.7 and 3.4 support
+* Drop docutils 0.11 support
 
 Deprecated
 ----------
