@@ -22,6 +22,7 @@ Bugs fixed
 * html: search box overrides to other elements if scrolled
 * i18n: warnings for translation catalogs have wrong line numbers (refs: #5321)
 * #5325: latex: cross references has been broken by multiply labeled objects
+* #5348: download reference to remote file is not displayed
 
 Testing
 --------

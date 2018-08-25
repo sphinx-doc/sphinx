@@ -128,13 +128,16 @@ class DownloadFileCollector(EnvironmentCollector):
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
-            rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
-            app.env.dependencies[app.env.docname].add(rel_filename)
-            if not os.access(filename, os.R_OK):
-                logger.warning(__('download file not readable: %s') % filename,
-                               location=node, type='download', subtype='not_readable')
-                continue
-            node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
+            if '://' in targetname:
+                node['refuri'] = targetname
+            else:
+                rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
+                app.env.dependencies[app.env.docname].add(rel_filename)
+                if not os.access(filename, os.R_OK):
+                    logger.warning(__('download file not readable: %s') % filename,
+                                   location=node, type='download', subtype='not_readable')
+                    continue
+                node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
 
 
 def setup(app):
