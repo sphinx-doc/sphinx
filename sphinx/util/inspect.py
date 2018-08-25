@@ -360,8 +360,13 @@ class Signature(object):
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
         except Exception as exc:
-            logger.warning('Invalid type annotation found on %r. Ingored: %r', subject, exc)
-            self.annotations = {}
+            if (3, 5, 0) <= sys.version_info < (3, 5, 3) and isinstance(exc, AttributeError):
+                # python 3.5.2 raises ValueError for partial objects.
+                self.annotations = {}
+            else:
+                logger.warning('Invalid type annotation found on %r. Ingored: %r',
+                               subject, exc)
+                self.annotations = {}
 
         if bound_method:
             # client gives a hint that the subject is a bound method
@@ -546,8 +551,10 @@ class Signature(object):
                 qualname = annotation.__qualname__
             elif getattr(annotation, '__forward_arg__', None):
                 qualname = annotation.__forward_arg__
-            else:
+            elif getattr(annotation, '__origin__', None):
                 qualname = self.format_annotation(annotation.__origin__)  # ex. Union
+            else:
+                qualname = repr(annotation).replace('typing.', '')
         elif hasattr(annotation, '__qualname__'):
             qualname = '%s.%s' % (module, annotation.__qualname__)
         else:
