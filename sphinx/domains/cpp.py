@@ -6678,6 +6678,7 @@ class CPPDomain(Domain):
                                        matchSelf=True, recurseInAnon=True)
         else:
             decl = ast  # type: ASTDeclaration
+            name = decl.name
             s = parentSymbol.find_declaration(decl, typ,
                                               templateShorthand=True,
                                               matchSelf=True, recurseInAnon=True)
