@@ -360,8 +360,13 @@ class Signature(object):
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
         except Exception as exc:
-            logger.warning('Invalid type annotation found on %r. Ingored: %r', subject, exc)
-            self.annotations = {}
+            if (3, 5, 0) <= sys.version_info < (3, 5, 3) and isinstance(exc, AttributeError):
+                # python 3.5.2 raises ValueError for partial objects.
+                self.annotations = {}
+            else:
+                logger.warning('Invalid type annotation found on %r. Ingored: %r',
+                               subject, exc)
+                self.annotations = {}
 
         if bound_method:
             # client gives a hint that the subject is a bound method
