@@ -16,6 +16,7 @@ from sphinx.builders.latex.nodes import (
     captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
 )
 from sphinx.transforms import SphinxTransform
+from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
@@ -30,7 +31,7 @@ class FootnoteDocnameUpdater(SphinxTransform):
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
     def apply(self):
-        for node in self.document.traverse(lambda n: isinstance(n, self.TARGET_NODES)):
+        for node in self.document.traverse(NodeMatcher(*self.TARGET_NODES)):
             node['docname'] = self.env.docname
 
 
@@ -536,14 +537,14 @@ class CitationReferenceTransform(SphinxTransform):
         if self.app.builder.name != 'latex':
             return
 
+        matcher = NodeMatcher(addnodes.pending_xref, refdomain='std', reftype='citation')
         citations = self.env.get_domain('std').data['citations']
-        for node in self.document.traverse(addnodes.pending_xref):
-            if node['refdomain'] == 'std' and node['reftype'] == 'citation':
-                docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
-                if docname:
-                    citation_ref = nodes.citation_reference('', *node.children,
-                                                            docname=docname, refname=labelid)
-                    node.replace_self(citation_ref)
+        for node in self.document.traverse(matcher):
+            docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
+            if docname:
+                citation_ref = nodes.citation_reference('', *node.children,
+                                                        docname=docname, refname=labelid)
+                node.replace_self(citation_ref)
 
 
 class MathReferenceTransform(SphinxTransform):
@@ -577,10 +578,10 @@ class LiteralBlockTransform(SphinxTransform):
         if self.app.builder.name != 'latex':
             return
 
-        for node in self.document.traverse(nodes.container):
-            if node.get('literal_block') is True:
-                newnode = captioned_literal_block('', *node.children, **node.attributes)
-                node.replace_self(newnode)
+        matcher = NodeMatcher(nodes.container, literal_block=True)
+        for node in self.document.traverse(matcher):
+            newnode = captioned_literal_block('', *node.children, **node.attributes)
+            node.replace_self(newnode)
 
 
 class DocumentTargetTransform(SphinxTransform):

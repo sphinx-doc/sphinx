@@ -10,6 +10,7 @@
 """
 
 from os import path
+from typing import Any
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -22,14 +23,14 @@ from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import (
-    LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
+    LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
 from sphinx.util.pycompat import indent
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 
@@ -183,11 +184,8 @@ class Locale(SphinxTransform):
                         self.document.note_implicit_target(section_node)
 
                     # replace target's refname to new target name
-                    def is_named_target(node):
-                        # type: (nodes.Node) -> bool
-                        return isinstance(node, nodes.target) and  \
-                            node.get('refname') == old_name
-                    for old_target in self.document.traverse(is_named_target):
+                    matcher = NodeMatcher(nodes.target, refname=old_name)
+                    for old_target in self.document.traverse(matcher):
                         old_target['refname'] = new_name
 
                     processed = True
@@ -276,16 +274,14 @@ class Locale(SphinxTransform):
                 continue  # skip
 
             # auto-numbered foot note reference should use original 'ids'.
-            def is_autofootnote_ref(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.footnote_reference) and node.get('auto')
-
             def list_replace_or_append(lst, old, new):
                 # type: (List, Any, Any) -> None
                 if old in lst:
                     lst[lst.index(old)] = new
                 else:
                     lst.append(new)
+
+            is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
             old_foot_refs = node.traverse(is_autofootnote_ref)
             new_foot_refs = patch.traverse(is_autofootnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
@@ -328,10 +324,7 @@ class Locale(SphinxTransform):
             # * reference target ".. _Python: ..." is not translatable.
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
-            def is_refnamed_ref(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.reference) and  \
-                    'refname' in node
+            is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
             if len(old_refs) != len(new_refs):
@@ -358,10 +351,7 @@ class Locale(SphinxTransform):
                 self.document.note_refname(new)
 
             # refnamed footnote should use original 'ids'.
-            def is_refnamed_footnote_ref(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.footnote_reference) and \
-                    'refname' in node
+            is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
             old_foot_refs = node.traverse(is_refnamed_footnote_ref)
             new_foot_refs = patch.traverse(is_refnamed_footnote_ref)
             refname_ids_map = {}
@@ -380,10 +370,7 @@ class Locale(SphinxTransform):
                     new["ids"] = refname_ids_map[refname]
 
             # citation should use original 'ids'.
-            def is_citation_ref(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, nodes.citation_reference) and \
-                    'refname' in node
+            is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
             old_cite_refs = node.traverse(is_citation_ref)
             new_cite_refs = patch.traverse(is_citation_ref)
             refname_ids_map = {}
@@ -474,10 +461,7 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
         # remove translated attribute that is used for avoiding double translation.
-        def has_translatable(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, nodes.Element) and 'translated' in node
-        for node in self.document.traverse(has_translatable):
+        for node in self.document.traverse(NodeMatcher(translated=Any)):
             node.delattr('translated')
 
 
@@ -492,7 +476,8 @@ class RemoveTranslatableInline(SphinxTransform):
         from sphinx.builders.gettext import MessageCatalogBuilder
         if isinstance(self.app.builder, MessageCatalogBuilder):
             return
-        for inline in self.document.traverse(nodes.inline):
-            if 'translatable' in inline:
-                inline.parent.remove(inline)
-                inline.parent += inline.children
+
+        matcher = NodeMatcher(nodes.inline, translatable=Any)
+        for inline in self.document.traverse(matcher):
+            inline.parent.remove(inline)
+            inline.parent += inline.children

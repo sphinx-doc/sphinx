@@ -21,6 +21,7 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
+from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
@@ -63,16 +64,13 @@ class NestedInlineTransform(object):
 
     def apply(self):
         # type: () -> None
-        def is_inline(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, (nodes.literal, nodes.emphasis, nodes.strong))
-
-        for node in self.document.traverse(is_inline):
-            if any(is_inline(subnode) for subnode in node):
+        matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
+        for node in self.document.traverse(matcher):
+            if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(node[1:]):
                     node.remove(subnode)
-                    if is_inline(subnode):
+                    if matcher(subnode):
                         node.parent.insert(pos + 1, subnode)
                     else:
                         newnode = node.__class__('', subnode, **node.attributes)

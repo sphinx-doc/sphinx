@@ -293,11 +293,7 @@ def traverse_parent(node, cls=None):
 def traverse_translatable_index(doctree):
     # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[unicode]]]
     """Traverse translatable index node from a document tree."""
-    def is_block_index(node):
-        # type: (nodes.Node) -> bool
-        return isinstance(node, addnodes.index) and  \
-            node.get('inline') is False
-    for node in doctree.traverse(is_block_index):
+    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:
