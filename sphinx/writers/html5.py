@@ -510,10 +510,10 @@ class HTML5Translator(BaseTranslator):
 
     def visit_download_reference(self, node):
         # type: (nodes.Node) -> None
-        if self.builder.download_support and node.hasattr('filename'):
+        if self.builder.download_support and not node.get('invalid'):
             self.body.append(
                 '<a class="reference download internal" href="%s" download="">' %
-                posixpath.join(self.builder.dlpath, node['filename']))
+                posixpath.join(self.builder.dlpath, node['reftarget']))
             self.context.append('</a>')
         else:
             self.context.append('')

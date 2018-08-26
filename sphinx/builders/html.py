@@ -17,6 +17,7 @@ import types
 import warnings
 from hashlib import md5
 from os import path
+from typing import cast
 
 import docutils
 from docutils import nodes
@@ -33,6 +34,7 @@ from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
+from sphinx.domains.download import DownloadDomain
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -859,15 +861,18 @@ class StandaloneHTMLBuilder(Builder):
             # type: (unicode) -> unicode
             return relative_path(self.srcdir, f)
         # copy downloadable files
-        if self.env.dlfiles:
+        domain = cast(DownloadDomain, self.env.get_domain('download'))
+        download_files = domain.get_download_files()
+        if download_files:
             ensuredir(path.join(self.outdir, '_downloads'))
-            for src in status_iterator(self.env.dlfiles, __('copying downloadable files... '),
-                                       "brown", len(self.env.dlfiles), self.app.verbosity,
+            for src in status_iterator(download_files, __('copying downloadable files... '),
+                                       "brown", len(download_files), self.app.verbosity,
                                        stringify_func=to_relpath):
-                dest = self.env.dlfiles[src][1]
                 try:
-                    copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_downloads', dest))
+                    dest = path.join(self.outdir, '_downloads',
+                                     domain.get_destination_filename(src))
+                    ensuredir(path.dirname(dest))
+                    copyfile(path.join(self.srcdir, src), dest)
                 except EnvironmentError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)

@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* The URL of download files are changed
+
 Deprecated
 ----------
 
@@ -22,6 +24,8 @@ Bugs fixed
 * html: search box overrides to other elements if scrolled
 * i18n: warnings for translation catalogs have wrong line numbers (refs: #5321)
 * #5325: latex: cross references has been broken by multiply labeled objects
+* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
+  parallel builds
 
 Testing
 --------

@@ -140,7 +140,6 @@ class DownloadFileCollector(EnvironmentCollector):
 def setup(app):
     # type: (Sphinx) -> Dict
     app.add_env_collector(ImageCollector)
-    app.add_env_collector(DownloadFileCollector)
 
     return {
         'version': 'builtin',
