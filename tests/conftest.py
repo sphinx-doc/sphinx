@@ -11,8 +11,10 @@ import os
 import shutil
 import sys
 
+import docutils
 import pytest
 
+import sphinx
 from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
@@ -34,8 +36,8 @@ def rootdir():
 
 
 def pytest_report_header(config):
-    return 'Running Sphinx test suite (with Python %s)...' % (
-        sys.version.split()[0])
+    return ("libraries: Sphinx-%s, docutils-%s" %
+            (sphinx.__display_version__, docutils.__version__))
 
 
 def _initialize_test_directory(session):
