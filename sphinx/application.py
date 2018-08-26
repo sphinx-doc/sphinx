@@ -1040,6 +1040,8 @@ class Sphinx(object):
            And it allows keyword arguments as attributes of script tag.
         """
         self.registry.add_js_file(filename, **kwargs)
+        if hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename, **kwargs)  # type: ignore
 
     def add_css_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
@@ -1078,6 +1080,8 @@ class Sphinx(object):
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, **kwargs)
+        if hasattr(self.builder, 'add_css_file'):
+            self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
     def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
