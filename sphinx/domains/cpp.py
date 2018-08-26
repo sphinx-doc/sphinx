@@ -3603,6 +3603,8 @@ class SymbolLookupResult(object):
 
 
 class Symbol(object):
+    debug_lookup = False
+
     def _assert_invariants(self):
         # type: () -> None
         if not self.parent:
@@ -3648,43 +3650,9 @@ class Symbol(object):
             self.parent._children.append(self)
         if self.declaration:
             self.declaration.symbol = self
-        # add symbols for the template params
-        # (do it after self._children has been initialised
-        if self.templateParams:
-            for p in self.templateParams.params:
-                if not p.get_identifier():
-                    continue
-                # only add a declaration if we our selfs are from a declaration
-                if declaration:
-                    decl = ASTDeclaration('templateParam', None, None, p)
-                else:
-                    decl = None
-                nne = ASTNestedNameElement(p.get_identifier(), None)
-                nn = ASTNestedName([nne], [False], rooted=False)
-                self._add_symbols(nn, [], decl, docname)
-        # add symbols for function parameters, if any
-        if declaration is not None and declaration.function_params is not None:
-            for p in declaration.function_params:
-                if p.arg is None:
-                    continue
-                nn = p.arg.name
-                if nn is None:
-                    continue
-                # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, p)
-                assert not nn.rooted
-                assert len(nn.names) == 1
-                identOrOp = nn.names[0].identOrOp
-                Symbol(parent=self, identOrOp=identOrOp,
-                       templateParams=None, templateArgs=None,
-                       declaration=decl, docname=docname)
 
-    def remove(self):
-        if self.parent is None:
-            return
-        assert self in self.parent._children
-        self.parent._children.remove(self)
-        self.parent = None
+        # Do symbol addition after self._children has been initialised.
+        self._add_template_and_function_params()
 
     def _fill_empty(self, declaration, docname):
         # type: (ASTDeclaration, unicode) -> None
@@ -3697,6 +3665,46 @@ class Symbol(object):
         self.declaration.symbol = self
         self.docname = docname
         self._assert_invariants()
+        # and symbol addition should be done as well
+        self._add_template_and_function_params()
+
+    def _add_template_and_function_params(self):
+        # Note: we may be called from _fill_empty, so the symbols we want
+        #       to add may actually already be present (as empty symbols).
+
+        # add symbols for the template params
+        if self.templateParams:
+            for p in self.templateParams.params:
+                if not p.get_identifier():
+                    continue
+                # only add a declaration if we our self are from a declaration
+                if self.declaration:
+                    decl = ASTDeclaration('templateParam', None, None, p)
+                else:
+                    decl = None
+                nne = ASTNestedNameElement(p.get_identifier(), None)
+                nn = ASTNestedName([nne], [False], rooted=False)
+                self._add_symbols(nn, [], decl, self.docname)
+        # add symbols for function parameters, if any
+        if self.declaration is not None and self.declaration.function_params is not None:
+            for p in self.declaration.function_params:
+                if p.arg is None:
+                    continue
+                nn = p.arg.name
+                if nn is None:
+                    continue
+                # (comparing to the template params: we have checked that we are a declaration)
+                decl = ASTDeclaration('functionParam', None, None, p)
+                assert not nn.rooted
+                assert len(nn.names) == 1
+                self._add_symbols(nn, [], decl, self.docname)
+
+    def remove(self):
+        if self.parent is None:
+            return
+        assert self in self.parent._children
+        self.parent._children.remove(self)
+        self.parent = None
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
@@ -3948,8 +3956,20 @@ class Symbol(object):
         # Used for adding a whole path of symbols, where the last may or may not
         # be an actual declaration.
 
+        if Symbol.debug_lookup:
+            print("_add_symbols:")
+            print("   tdecls:", templateDecls)
+            print("   nn:    ", nestedName)
+            print("   decl:  ", declaration)
+            print("   doc:   ", docname)
+
         def onMissingQualifiedSymbol(parentSymbol, identOrOp, templateParams, templateArgs):
             # type: (Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> Symbol
+            if Symbol.debug_lookup:
+                print("   _add_symbols, onMissingQualifiedSymbol:")
+                print("      templateParams:", templateParams)
+                print("      identOrOp:     ", identOrOp)
+                print("      templateARgs:  ", templateArgs)
             return Symbol(parent=parentSymbol, identOrOp=identOrOp,
                           templateParams=templateParams,
                           templateArgs=templateArgs, declaration=None,
@@ -3964,54 +3984,119 @@ class Symbol(object):
                                            recurseInAnon=True,
                                            correctPrimaryTemplateArgs=True)
         assert lookupResult is not None  # we create symbols all the way, so that can't happen
-        # TODO: actually do the iteration over results, though let's find a test case first
-        try:
-            symbol = next(lookupResult.symbols)
-        except StopIteration:
-            symbol = None
-
-        if symbol:
-            if not declaration:
-                # good, just a scope creation
-                return symbol
-            if not symbol.declaration:
-                # If someone first opened the scope, and then later
-                # declares it, e.g,
-                # .. namespace:: Test
-                # .. namespace:: nullptr
-                # .. class:: Test
-                symbol._fill_empty(declaration, docname)
-                return symbol
-            # It may simply be a function overload, so let's compare ids.
-            isRedeclaration = True
-            candSymbol = Symbol(parent=lookupResult.parentSymbol,
-                                identOrOp=lookupResult.identOrOp,
-                                templateParams=lookupResult.templateParams,
-                                templateArgs=lookupResult.templateArgs,
-                                declaration=declaration,
-                                docname=docname)
-            if declaration.objectType == "function":
-                newId = declaration.get_newest_id()
-                oldId = symbol.declaration.get_newest_id()
-                if newId != oldId:
-                    # we already inserted the symbol, so return the new one
-                    symbol = candSymbol
-                    isRedeclaration = False
-            if isRedeclaration:
-                # Redeclaration of the same symbol.
-                # Let the new one be there, but raise an error to the client
-                # so it can use the real symbol as subscope.
-                # This will probably result in a duplicate id warning.
-                candSymbol.isRedeclaration = True
-                raise _DuplicateSymbolError(symbol, declaration)
-        else:
+        symbols = list(lookupResult.symbols)
+        if len(symbols) == 0:
+            if Symbol.debug_lookup:
+                print("   _add_symbols, result, no symbol:")
+                print("      templateParams:", lookupResult.templateParams)
+                print("      identOrOp:     ", lookupResult.identOrOp)
+                print("      templateArgs:  ", lookupResult.templateArgs)
+                print("      declaration:   ", declaration)
+                print("      docname:       ", docname)
             symbol = Symbol(parent=lookupResult.parentSymbol,
                             identOrOp=lookupResult.identOrOp,
                             templateParams=lookupResult.templateParams,
                             templateArgs=lookupResult.templateArgs,
                             declaration=declaration,
                             docname=docname)
-        return symbol
+            return symbol
+
+        if Symbol.debug_lookup:
+            print("   _add_symbols, result, symbols:")
+            print("      number symbols:", len(symbols))
+
+        if not declaration:
+            if Symbol.debug_lookup:
+                print("      no delcaration")
+            # good, just a scope creation
+            # TODO: what if we have more than one symbol?
+            return symbols[0]
+
+        noDecl = []
+        withDecl = []
+        for s in symbols:
+            if s.declaration is None:
+                noDecl.append(s)
+            else:
+                withDecl.append(s)
+        if Symbol.debug_lookup:
+            print("      #noDecl:  ", len(noDecl))
+            print("      #withDecl:", len(withDecl))
+        # assert len(noDecl) <= 1  # we should fill in symbols when they are there
+        # TODO: enable assertion when we at some point find out how to do cleanup
+        # With partial builds we may start with a large symbol tree stripped of declarations.
+
+        # First check if one of those with a declaration matches.
+        # If it's a function, we need to compare IDs,
+        # otherwise there should be only one symbol with a declaration.
+        def makeCandSymbol():
+            if Symbol.debug_lookup:
+                print("      begin: creating candidate symbol")
+            symbol = Symbol(parent=lookupResult.parentSymbol,
+                            identOrOp=lookupResult.identOrOp,
+                            templateParams=lookupResult.templateParams,
+                            templateArgs=lookupResult.templateArgs,
+                            declaration=declaration,
+                            docname=docname)
+            if Symbol.debug_lookup:
+                print("      end:   creating candidate symbol")
+            return symbol
+        if len(withDecl) == 0:
+            candSymbol = None
+        else:
+            candSymbol = makeCandSymbol()
+
+            def handleDuplicateDeclaration(symbol, candSymbol):
+                if Symbol.debug_lookup:
+                    print("      redeclaration")
+                # Redeclaration of the same symbol.
+                # Let the new one be there, but raise an error to the client
+                # so it can use the real symbol as subscope.
+                # This will probably result in a duplicate id warning.
+                candSymbol.isRedeclaration = True
+                raise _DuplicateSymbolError(symbol, declaration)
+
+            if declaration.objectType != "function":
+                assert len(withDecl) <= 1
+                handleDuplicateDeclaration(withDecl[0], candSymbol)
+                # (not reachable)
+
+            # a function, so compare IDs
+            candId = declaration.get_newest_id()
+            if Symbol.debug_lookup:
+                print("      candId:", candId)
+            for symbol in withDecl:
+                oldId = symbol.declaration.get_newest_id()
+                if Symbol.debug_lookup:
+                    print("      oldId: ", oldId)
+                if candId == oldId:
+                    handleDuplicateDeclaration(symbol, candSymbol)
+                    # (not reachable)
+            # no candidate symbol found with matching ID
+        # if there is an empty symbol, fill that one
+        if len(noDecl) == 0:
+            if Symbol.debug_lookup:
+                print("      no match, no empty, candSybmol is not None?:", candSymbol is not None)  # NOQA
+            if candSymbol is not None:
+                return candSymbol
+            else:
+                return makeCandSymbol()
+        else:
+            if Symbol.debug_lookup:
+                print("      no match, but fill an empty declaration, candSybmol is not None?:", candSymbol is not None)  # NOQA
+            if candSymbol is not None:
+                candSymbol.remove()
+            # assert len(noDecl) == 1
+            # TODO: enable assertion when we at some point find out how to do cleanup
+            # for now, just take the first one, it should work fine ... right?
+            symbol = noDecl[0]
+            # If someone first opened the scope, and then later
+            # declares it, e.g,
+            # .. namespace:: Test
+            # .. namespace:: nullptr
+            # .. class:: Test
+            symbol._fill_empty(declaration, docname)
+            return symbol
 
     def merge_with(self, other, docnames, env):
         # type: (Symbol, List[unicode], BuildEnvironment) -> None
@@ -6598,7 +6683,7 @@ class CPPDomain(Domain):
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         # just for debugging
-        # print(docname)
+        # print("process_doc:", docname)
         # print(self.data['root_symbol'].dump(0))
         pass
 
@@ -6608,6 +6693,12 @@ class CPPDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
+        # print("merge_domaindata:")
+        # print("self")
+        # print(self.data['root_symbol'].dump(0))
+        # print("other:")
+        # print(otherdata['root_symbol'].dump(0))
+
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)
         ourNames = self.data['names']
