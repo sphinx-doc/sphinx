@@ -22,11 +22,10 @@ from docutils import nodes
 from six import text_type
 
 import sphinx
-from sphinx.errors import SphinxError, ExtensionError
-from sphinx.ext.mathbase import get_node_equation_number
-from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
@@ -34,10 +33,10 @@ from sphinx.util.pycompat import sys_encoding
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.addnodes import displaymath  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.ext.mathbase import displaymath  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -315,12 +314,11 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, displaymath) -> None
+    # type: (nodes.NodeVisitor, nodes.math_block) -> None
     if node['nowrap']:
         latex = node.astext()
     else:
-        latex = wrap_displaymath(node.astext(), None,
-                                 self.builder.config.math_number_all)
+        latex = wrap_displaymath(node.astext(), None, False)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
@@ -349,10 +347,9 @@ def html_visit_displaymath(self, node):
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
-    try:
-        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    except ExtensionError:
-        raise ExtensionError('sphinx.ext.imgmath: other math package is already loaded')
+    app.add_html_math_renderer('imgmath',
+                               (html_visit_math, None),
+                               (html_visit_displaymath, None))
 
     app.add_config_value('imgmath_image_format', 'png', 'html')
     app.add_config_value('imgmath_dvipng', 'dvipng', 'html')

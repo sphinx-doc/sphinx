@@ -162,6 +162,7 @@ def test_math_eqref_format_html(app, status, warning):
 
     content = (app.outdir / 'math.html').text()
     html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">Eq.1</a> and <a class="reference internal" '
             'href="#equation-foo">Eq.1</a>.</p>')
     assert html in content
 
@@ -173,7 +174,8 @@ def test_math_eqref_format_latex(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'test.tex').text()
-    macro = r'Referencing equation Eq.\\ref{equation:math:foo}.'
+    macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
+             r'Eq.\\ref{equation:math:foo}.')
     assert re.search(macro, content, re.S)
 
 
@@ -189,7 +191,8 @@ def test_mathjax_numfig_html(app, status, warning):
             '<span class="eqno">(1.2)')
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
-            'href="#equation-foo">(1.1)</a>.</p>')
+            'href="#equation-foo">(1.1)</a> and '
+            '<a class="reference internal" href="#equation-foo">(1.1)</a>.</p>')
     assert html in content
 
 
@@ -205,7 +208,8 @@ def test_jsmath_numfig_html(app, status, warning):
     html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math-0"'
     assert html in content
     html = ('<p>Referencing equation <a class="reference internal" '
-            'href="#equation-foo">(1.1)</a>.</p>')
+            'href="#equation-foo">(1.1)</a> and '
+            '<a class="reference internal" href="#equation-foo">(1.1)</a>.</p>')
     assert html in content
 
 
@@ -249,3 +253,15 @@ def test_math_compat(app, status, warning):
                      [nodes.math_block, "e^{i\\pi}+1=0\n\n"],
                      [nodes.paragraph, "Multi math equations"],
                      [nodes.math_block, "E = mc^2"]))
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'mathjax_config': {'extensions': ['tex2jax.js']}})
+def test_mathjax_config(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert ('<script type="text/x-mathjax-config">'
+            'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
+            '</script>' in content)

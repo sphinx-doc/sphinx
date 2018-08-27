@@ -90,6 +90,16 @@ class TestDirective(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
+        if 'skipif' in self.options:
+            condition = self.options['skipif']
+            context = {}  # type: Dict[str, Any]
+            if self.config.doctest_global_setup:
+                exec(self.config.doctest_global_setup, context)
+            should_skip = eval(condition, context)
+            if self.config.doctest_global_cleanup:
+                exec(self.config.doctest_global_cleanup, context)
+            if should_skip:
+                return []
         # use ordinary docutils nodes for test code: they get special attributes
         # so that our builder recognizes them, and the other builders are happy.
         code = '\n'.join(self.content)
@@ -155,11 +165,11 @@ class TestDirective(SphinxDirective):
 
 
 class TestsetupDirective(TestDirective):
-    option_spec = {}  # type: Dict
+    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
 
 
 class TestcleanupDirective(TestDirective):
-    option_spec = {}  # type: Dict
+    option_spec = {'skipif': directives.unchanged_required}  # type: Dict
 
 
 class DoctestDirective(TestDirective):
@@ -167,6 +177,7 @@ class DoctestDirective(TestDirective):
         'hide': directives.flag,
         'options': directives.unchanged,
         'pyversion': directives.unchanged_required,
+        'skipif': directives.unchanged_required,
     }
 
 
@@ -174,6 +185,7 @@ class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'pyversion': directives.unchanged_required,
+        'skipif': directives.unchanged_required,
     }
 
 
@@ -182,6 +194,7 @@ class TestoutputDirective(TestDirective):
         'hide': directives.flag,
         'options': directives.unchanged,
         'pyversion': directives.unchanged_required,
+        'skipif': directives.unchanged_required,
     }
 
 

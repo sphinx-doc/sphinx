@@ -1,6 +1,6 @@
 ;; -*- coding: utf-8; mode: Lisp; -*-
 ;; style file for xindy
-;; filename: cyrLICRutf8.xdy
+;; filename: LICRcyr2utf8.xdy
 ;; description: style file for xindy which maps back LaTeX Internal
 ;;   Character Representation of Cyrillic to utf-8
 ;; usage: for use with pdflatex produced .idx files.

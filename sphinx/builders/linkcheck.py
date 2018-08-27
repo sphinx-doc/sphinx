@@ -120,11 +120,14 @@ class CheckExternalLinksBuilder(Builder):
 
     def check_thread(self):
         # type: () -> None
-        kwargs = {}
+        kwargs = {
+            'allow_redirects': True,
+            'headers': {
+                'Accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8'
+            },
+        }
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
-
-        kwargs['allow_redirects'] = True
 
         def check_uri():
             # type: () -> Tuple[unicode, unicode, int]

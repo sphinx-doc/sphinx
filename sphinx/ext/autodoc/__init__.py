@@ -15,6 +15,7 @@ import inspect
 import re
 import sys
 import warnings
+from typing import Any
 
 from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
@@ -32,7 +33,7 @@ from sphinx.util import rpartition, force_decode
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumattribute, isclassmethod, isstaticmethod, getdoc
+    isenumattribute, isclassmethod, isstaticmethod, isfunction, isbuiltin, ispartial, getdoc
 
 if False:
     # For type annotation
@@ -41,6 +42,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc.directive import DocumenterBridge  # NOQA
 
@@ -399,7 +401,9 @@ class Documenter(object):
             return True
 
         modname = self.get_attr(self.object, '__module__', None)
-        if modname and modname != self.modname:
+        if ispartial(self.object) and modname == '_functools':  # for pypy
+            return True
+        elif modname and modname != self.modname:
             return False
         return True
 
@@ -473,9 +477,8 @@ class Documenter(object):
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]
         """Decode and return lines of the docstring(s) for the object."""
-        docstring = self.get_attr(self.object, '__doc__', None)
-        if docstring is None and self.env.config.autodoc_inherit_docstrings:
-            docstring = getdoc(self.object)
+        docstring = getdoc(self.object, self.get_attr,
+                           self.env.config.autodoc_inherit_docstrings)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
         if isinstance(docstring, text_type):
@@ -599,9 +602,7 @@ class Documenter(object):
             # if isattr is True, the member is documented as an attribute
             isattr = False
 
-            doc = self.get_attr(member, '__doc__', None)
-            if doc is None and self.env.config.autodoc_inherit_docstrings:
-                doc = getdoc(member)
+            doc = getdoc(member, self.get_attr, self.env.config.autodoc_inherit_docstrings)
 
             # if the member __doc__ is the same as self's __doc__, it's just
             # inherited and therefore not the member's doc
@@ -679,8 +680,13 @@ class Documenter(object):
 
         # remove members given by exclude-members
         if self.options.exclude_members:
-            members = [(membername, member) for (membername, member) in members
-                       if membername not in self.options.exclude_members]
+            members = [
+                (membername, member) for (membername, member) in members
+                if (
+                    self.options.exclude_members is ALL or
+                    membername not in self.options.exclude_members
+                )
+            ]
 
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
@@ -1022,12 +1028,11 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return inspect.isfunction(member) or inspect.isbuiltin(member)
+        return isfunction(member) or isbuiltin(member)
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
+        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # cannot introspect arguments of a C function or method
             return None
         try:
@@ -1095,7 +1100,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # __init__ written in C?
         if initmeth is None or \
                 is_builtin_class_method(self.object, '__init__') or \
-                not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
+                not(inspect.ismethod(initmeth) or isfunction(initmeth)):
             return None
         try:
             return Signature(initmeth, bound_method=True, has_retval=False).format_args()
@@ -1265,6 +1270,11 @@ class DataDocumenter(ModuleLevelDocumenter):
         # type: (bool) -> None
         pass
 
+    def get_real_modname(self):
+        # type: () -> str
+        return self.get_attr(self.parent or self.object, '__module__', None) \
+            or self.modname
+
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
     """
@@ -1305,8 +1315,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def format_args(self):
         # type: () -> unicode
-        if inspect.isbuiltin(self.object) or \
-                inspect.ismethoddescriptor(self.object):
+        if isbuiltin(self.object) or inspect.ismethoddescriptor(self.object):
             # can never get arguments of a C function or method
             return None
         if isstaticmethod(self.object, cls=self.parent, name=self.object_name):
@@ -1338,7 +1347,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
     @staticmethod
     def is_function_or_method(obj):
         # type: (Any) -> bool
-        return inspect.isfunction(obj) or inspect.isbuiltin(obj) or inspect.ismethod(obj)
+        return isfunction(obj) or isbuiltin(obj) or inspect.ismethod(obj)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1523,6 +1532,25 @@ def autodoc_attrgetter(app, obj, name, *defargs):
     return safe_getattr(obj, name, *defargs)
 
 
+def merge_autodoc_default_flags(app, config):
+    # type: (Sphinx, Config) -> None
+    """This merges the autodoc_default_flags to autodoc_default_options."""
+    if not config.autodoc_default_flags:
+        return
+
+    logger.warning(__('autodoc_default_flags is now deprecated. '
+                      'Please use autodoc_default_options instead.'))
+
+    for option in config.autodoc_default_flags:
+        if isinstance(option, string_types):
+            config.autodoc_default_options[option] = None
+        else:
+            logger.warning(
+                __("Ignoring invalid option in autodoc_default_flags: %r"),
+                option
+            )
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_autodocumenter(ModuleDocumenter)
@@ -1537,6 +1565,7 @@ def setup(app):
     app.add_config_value('autoclass_content', 'class', True)
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
+    app.add_config_value('autodoc_default_options', {}, True)
     app.add_config_value('autodoc_docstring_signature', True, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_config_value('autodoc_warningiserror', True, True)
@@ -1544,5 +1573,7 @@ def setup(app):
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
+
+    app.connect('config-inited', merge_autodoc_default_flags)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -49,6 +49,10 @@
 \newcommand{\sphinxlogo}{<%= logo %>}
 \renewcommand{\releasename}{<%= releasename %>}
 <%= makeindex %>
+\begin{document}
+<%= shorthandoff %>
+<%= maketitle %>
+<%= tableofcontents %>
 <%= body %>
 <%= atendofbody %>
 <%= indices %>

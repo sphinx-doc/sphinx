@@ -25,7 +25,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.errors import SphinxError, BuildEnvironmentError, ExtensionError
+from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import get_matching_docs, FilenameUniqDict
@@ -186,9 +186,6 @@ class BuildEnvironment(object):
         self.indexentries = {}      # type: Dict[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]  # NOQA
                                     # docname -> list of
                                     # (type, unicode, target, aliasname)
-        self.versionchanges = {}    # type: Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
-                                    # version -> list of (type, docname,
-                                    # lineno, module, descname, content)
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
@@ -319,10 +316,7 @@ class BuildEnvironment(object):
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
-
-            for version, changes in self.versionchanges.items():
-                new = [change for change in changes if change[1] != docname]
-                changes[:] = new
+            self.included.discard(docname)
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
@@ -340,9 +334,8 @@ class BuildEnvironment(object):
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
+        for docname in other.included:
+            self.included.add(docname)
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
@@ -416,37 +409,40 @@ class BuildEnvironment(object):
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
-        matchers = compile_matchers(
-            config.exclude_patterns[:] +
-            config.templates_path +
-            builder.get_asset_paths() +
-            ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
-        )
-        self.found_docs = set()
-        for docname in get_matching_docs(self.srcdir, config.source_suffix,  # type: ignore
-                                         exclude_matchers=matchers):
-            if os.access(self.doc2path(docname), os.R_OK):
-                self.found_docs.add(docname)
-            else:
-                logger.warning(__("document not readable. Ignored."), location=docname)
+        try:
+            matchers = compile_matchers(
+                config.exclude_patterns[:] +
+                config.templates_path +
+                builder.get_asset_paths() +
+                ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
+            )
+            self.found_docs = set()
+            for docname in get_matching_docs(self.srcdir, config.source_suffix,  # type: ignore
+                                             exclude_matchers=matchers):
+                if os.access(self.doc2path(docname), os.R_OK):
+                    self.found_docs.add(docname)
+                else:
+                    logger.warning(__("document not readable. Ignored."), location=docname)
 
-        # Current implementation is applying translated messages in the reading
-        # phase.Therefore, in order to apply the updated message catalog, it is
-        # necessary to re-process from the reading phase. Here, if dependency
-        # is set for the doc source and the mo file, it is processed again from
-        # the reading phase when mo is updated. In the future, we would like to
-        # move i18n process into the writing phase, and remove these lines.
-        if builder.use_message_catalog:
-            # add catalog mo file dependency
-            for docname in self.found_docs:
-                catalog_files = find_catalog_files(
-                    docname,
-                    self.srcdir,
-                    self.config.locale_dirs,
-                    self.config.language,
-                    self.config.gettext_compact)
-                for filename in catalog_files:
-                    self.dependencies[docname].add(filename)
+            # Current implementation is applying translated messages in the reading
+            # phase.Therefore, in order to apply the updated message catalog, it is
+            # necessary to re-process from the reading phase. Here, if dependency
+            # is set for the doc source and the mo file, it is processed again from
+            # the reading phase when mo is updated. In the future, we would like to
+            # move i18n process into the writing phase, and remove these lines.
+            if builder.use_message_catalog:
+                # add catalog mo file dependency
+                for docname in self.found_docs:
+                    catalog_files = find_catalog_files(
+                        docname,
+                        self.srcdir,
+                        self.config.locale_dirs,
+                        self.config.language,
+                        self.config.gettext_compact)
+                    for filename in catalog_files:
+                        self.dependencies[docname].add(filename)
+        except EnvironmentError as exc:
+            raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 
     def get_outdated_files(self, config_changed):
         # type: (bool) -> Tuple[Set[unicode], Set[unicode], Set[unicode]]
@@ -564,13 +560,6 @@ class BuildEnvironment(object):
         automatically be re-read at the next build.
         """
         self.reread_always.add(self.docname)
-
-    def note_versionchange(self, type, version, node, lineno):
-        # type: (unicode, unicode, nodes.Node, int) -> None
-        self.versionchanges.setdefault(version, []).append(
-            (type, self.temp_data['docname'], lineno,
-             self.ref_context.get('py:module'),
-             self.temp_data.get('object'), node.astext()))
 
     def note_toctree(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None
@@ -851,3 +840,21 @@ class BuildEnvironment(object):
                       RemovedInSphinx30Warning)
         with open(filename, 'wb') as f:
             self.dump(self, f)
+
+    @property
+    def versionchanges(self):
+        # type: () -> Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
+        warnings.warn('env.versionchanges() is deprecated. '
+                      'Please use ChangeSetDomain instead.',
+                      RemovedInSphinx30Warning)
+        return self.domaindata['changeset']['changes']
+
+    def note_versionchange(self, type, version, node, lineno):
+        # type: (unicode, unicode, nodes.Node, int) -> None
+        warnings.warn('env.note_versionchange() is deprecated. '
+                      'Please use ChangeSetDomain.note_changeset() instead.',
+                      RemovedInSphinx30Warning)
+        node['type'] = type
+        node['version'] = version
+        node.line = lineno
+        self.get_domain('changeset').note_changeset(node)  # type: ignore

@@ -74,12 +74,17 @@ DEFAULTS = {
     'language': None,
     'suffix': '.rst',
     'master': 'index',
-    'epub': False,
     'makefile': True,
     'batchfile': True,
 }
 
 PROMPT_PREFIX = '> '
+
+if sys.platform == 'win32':
+    # On Windows, show questions as bold because of color scheme of PowerShell (refs: #5294).
+    COLOR_QUESTION = 'bold'
+else:
+    COLOR_QUESTION = 'purple'
 
 
 # function to get input from terminal -- overridden by the test suite
@@ -192,7 +197,7 @@ def do_prompt(text, default=None, validator=nonempty):
                         prompt = prompt.encode('utf-8')
                     except UnicodeEncodeError:
                         prompt = prompt.encode('latin1')
-        prompt = colorize('purple', prompt, input_mode=True)
+        prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
@@ -246,7 +251,6 @@ def ask_user(d):
     * language:  document language
     * suffix:    source file suffix
     * master:    master document name
-    * epub:      use epub (bool)
     * extensions:  extensions to use (list)
     * makefile:  make Makefile
     * batchfile: make command file
@@ -346,12 +350,6 @@ document is a custom template, you can also set this to another filename.'''))
         print()
         d['master'] = do_prompt(__('Please enter a new file name, or rename the '
                                    'existing file and press Enter'), d['master'])
-
-    if 'epub' not in d:
-        print(__('''
-Sphinx can also add configuration for epub output:'''))
-        d['epub'] = do_prompt(__('Do you want to use the epub builder (y/n)'),
-                              'n', boolean)
 
     if 'extensions' not in d:
         print(__('Indicate which of the following Sphinx extensions should be '

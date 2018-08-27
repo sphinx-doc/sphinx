@@ -131,15 +131,56 @@ The following is a list of deprecated interface.
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
 
+   * - :confval:`autodoc_default_flags`
+     - 1.8
+     - 4.0
+     - :confval:`autodoc_default_options`
+
+   * - ``sphinx.directives.other.VersionChanges``
+     - 1.8
+     - 3.0
+     - ``sphinx.domains.changeset.VersionChanges``
+
+   * - ``sphinx.highlighting.PygmentsBridge.unhighlight()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``trim_doctest_flags`` arguments of
+       ``sphinx.highlighting.PygmentsBridge``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.mathbase``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.ext.mathbase.MathDomain``
      - 1.8
      - 3.0
      - ``sphinx.domains.math.MathDomain``
 
+   * - ``sphinx.ext.mathbase.setup_math()``
+     - 1.8
+     - 3.0
+     - :meth:`~sphinx.application.Sphinx.add_html_math_renderer()`
+
    * - ``sphinx.ext.mathbase.is_in_section_title()``
      - 1.8
      - 3.0
      - N/A
+
+   * - ``sphinx.ext.mathbase.get_node_equation_number()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.math.get_node_equation_number()``
+
+   * - ``sphinx.ext.mathbase.wrap_displaymath()``
+     - 1.8
+     - 3.0
+     - ``sphinx.util.math.wrap_displaymath()``
 
    * - ``sphinx.ext.mathbase.math`` (node)
      - 1.8
@@ -216,10 +257,60 @@ The following is a list of deprecated interface.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.hlsettingstack``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.latex.ExtBabel.get_shorthandoff()``
      - 1.8
      - 3.0
      - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlang()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlang_base()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlangopts()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator.highlightlinenothreshold()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlang()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlang_base()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlangopts()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.html5.HTMLTranslator.highlightlinenothreshold()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.check_latex_elements()``
+     - 1.8
+     - 3.0
+     - Nothing
 
    * - ``sphinx.application.CONFIG_FILENAME``
      - 1.8
@@ -304,6 +395,11 @@ The following is a list of deprecated interface.
      - 3.0
      - :confval:`nitpick_ignore`
 
+   * - ``BuildEnvironment.versionchanges``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``BuildEnvironment.update()``
      - 1.8
      - 3.0
@@ -329,6 +425,11 @@ The following is a list of deprecated interface.
      - 3.0
      - ``Builder.write_doctree()``
 
+   * - ``BuildEnvironment.note_versionchange()``
+     - 1.8
+     - 3.0
+     - ``ChangesDomain.note_changeset()``
+
    * - ``warn()`` (template helper function)
      - 1.8
      - 3.0
@@ -348,6 +449,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``sphinx.cmd.build``
+
+   * - ``sphinx.make_mode``
+     - 1.8
+     - 3.0
+     - ``sphinx.cmd.make_mode``
 
    * - ``sphinx.locale.l_()``
      - 1.8

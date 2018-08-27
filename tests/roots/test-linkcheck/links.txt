@@ -9,3 +9,5 @@ Some additional anchors to exercise ignore code
 * `Example Bar invalid <http://example.com/#!bar>`_
 * `Example Bar invalid <http://example.com#!bar>`_ tests that default ignore anchor of #! does not need to be prefixed with /
 * `Example Bar invalid <http://example.com/#top>`_
+* `Example anchor invalid <http://www.sphinx-doc.org/en/1.7/intro.html#does-not-exist>`_
+* `Complete nonsense <https://localhost:7777/doesnotexist>`_

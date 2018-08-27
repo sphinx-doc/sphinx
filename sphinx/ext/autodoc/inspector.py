@@ -130,8 +130,11 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
         else:
             return value
 
-    introspected_hints = (typing.get_type_hints(function)  # type: ignore
-                          if typing and hasattr(function, '__code__') else {})
+    try:
+        introspected_hints = (typing.get_type_hints(function)  # type: ignore
+                              if typing and hasattr(function, '__code__') else {})
+    except Exception:
+        introspected_hints = {}
 
     fd = StringIO()
     fd.write('(')

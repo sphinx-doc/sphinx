@@ -34,7 +34,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+from sphinx.writers.latex import DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
 
 if False:
     # For type annotation
@@ -169,8 +169,7 @@ class LaTeXBuilder(Builder):
 
     def write_stylesheet(self):
         # type: () -> None
-        highlighter = highlighting.PygmentsBridge(
-            'latex', self.config.pygments_style, self.config.trim_doctest_flags)
+        highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
         with open(stylesheet, 'w') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
@@ -373,6 +372,12 @@ def validate_config_values(app, config):
                 __('Invalid latex_documents.author found (might contain non-ASCII chars. '
                    'Please use u"..." notation instead): %r') % (document,)
             )
+
+    for key in list(config.latex_elements):
+        if key not in DEFAULT_SETTINGS:
+            msg = __("Unknown configure key: latex_elements[%r]. ignored.")
+            logger.warning(msg % key)
+            config.latex_elements.pop(key)
 
 
 def default_latex_engine(config):

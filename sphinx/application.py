@@ -80,6 +80,7 @@ builtin_extensions = (
     'sphinx.builders.xml',
     'sphinx.config',
     'sphinx.domains.c',
+    'sphinx.domains.changeset',
     'sphinx.domains.cpp',
     'sphinx.domains.javascript',
     'sphinx.domains.math',
@@ -96,6 +97,7 @@ builtin_extensions = (
     'sphinx.registry',
     'sphinx.roles',
     'sphinx.transforms.post_transforms',
+    'sphinx.transforms.post_transforms.code',
     'sphinx.transforms.post_transforms.images',
     'sphinx.transforms.post_transforms.compat',
     'sphinx.util.compat',
@@ -128,8 +130,8 @@ class Sphinx(object):
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
-                 parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
+                 parallel=0, keep_going=False):
+        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int, bool) -> None  # NOQA
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
@@ -172,7 +174,11 @@ class Sphinx(object):
         else:
             self._warning = warning
         self._warncount = 0
-        self.warningiserror = warningiserror
+        self.keep_going = warningiserror and keep_going
+        if self.keep_going:
+            self.warningiserror = False
+        else:
+            self.warningiserror = warningiserror
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager()
@@ -333,6 +339,9 @@ class Sphinx(object):
             else:
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
+
+            if self._warncount and self.keep_going:
+                self.statuscode = 1
 
             status = (self.statuscode == 0 and
                       __('succeeded') or __('finished with problems'))
@@ -1219,6 +1228,20 @@ class Sphinx(object):
         """
         logger.debug('[app] adding HTML theme: %r, %r', name, theme_path)
         self.html_themes[name] = theme_path
+
+    def add_html_math_renderer(self, name, inline_renderers=None, block_renderers=None):
+        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        """Register a math renderer for HTML.
+
+        The *name* is a name of the math renderer.  Both *inline_renderers* and
+        *block_renderes* are used as visitor functions for HTML writer.
+        *inline_renderers* is used for inline math node (``nodes.math`)).  The
+        another is used for block math node (``nodes.math_block``).  About
+        visitor functions, see :meth:`add_node` for more details.
+
+        .. versionadded:: 1.8
+        """
+        self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
 
     def add_message_catalog(self, catalog, locale_dir):
         # type: (unicode, unicode) -> None

@@ -7,6 +7,7 @@ env:
   global:
     - PYTHONFAULTHANDLER=x
     - SKIP_LATEX_BUILD=1
+    - IS_PYTHON=true
 
 matrix:
   include:
@@ -24,8 +25,14 @@ matrix:
       env:
         - TOXENV=py36
         - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-    - python: 'nightly'
+    - python: '3.7'
       env: TOXENV=py37
+      dist: xenial
+      sudo: true
+    - python: 'nightly'
+      env: TOXENV=py38
+      dist: xenial
+      sudo: true
     - python: '3.6'
       env: TOXENV=docs
     - python: '3.6'
@@ -33,11 +40,21 @@ matrix:
     - python: '3.6'
       env: TOXENV=flake8
 
+    - language: node_js
+      node_js:
+        - 10.7
+      env: IS_PYTHON=false
+      before_script:
+        - export DISPLAY=:99.0
+        - sh -e /etc/init.d/xvfb start
+
 install:
-  - pip install -U tox codecov
+  - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
+  - if [ $IS_PYTHON = false ]; then npm install; fi
 
 script:
-  - tox -- -v
+  - if [ $IS_PYTHON = true ]; then tox -- -v; fi
+  - if [ $IS_PYTHON = false ]; then npm test; fi
 
 after_success:
   - if [[ -e .coverage ]]; then codecov -e $TOXENV; fi

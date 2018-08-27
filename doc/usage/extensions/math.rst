@@ -2,123 +2,20 @@
 
 .. _math-support:
 
-Math support in Sphinx
-======================
+Math support for HTML outputs in Sphinx
+=======================================
 
 .. module:: sphinx.ext.mathbase
    :synopsis: Common math support for imgmath and mathjax / jsmath.
 
 .. versionadded:: 0.5
+.. versionchanged:: 1.8
+
+   Math support for non-HTML builders is integrated to sphinx-core.
+   So mathbase extension is no longer needed.
 
 Since mathematical notation isn't natively supported by HTML in any way, Sphinx
-supports math in documentation with several extensions.
-
-The basic math support is contained in :mod:`sphinx.ext.mathbase`. Other math
-support extensions should, if possible, reuse that support too.
-
-.. note::
-
-   :mod:`.mathbase` is not meant to be added to the :confval:`extensions` config
-   value, instead, use either :mod:`sphinx.ext.imgmath` or
-   :mod:`sphinx.ext.mathjax` as described below.
-
-The input language for mathematics is LaTeX markup.  This is the de-facto
-standard for plain-text math notation and has the added advantage that no
-further translation is necessary when building LaTeX output.
-
-Keep in mind that when you put math markup in **Python docstrings** read by
-:mod:`autodoc <sphinx.ext.autodoc>`, you either have to double all backslashes,
-or use Python raw strings (``r"raw"``).
-
-:mod:`.mathbase` provides the following config values:
-
-.. confval:: math_number_all
-
-   Set this option to ``True`` if you want all displayed math to be numbered.
-   The default is ``False``.
-
-.. confval:: math_eqref_format
-
-   A string that are used for format of label of references to equations.
-   As a special character, ``{number}`` will be replaced to equaition number.
-
-   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
-
-.. confval:: math_numfig
-
-   If ``True``, displayed math equations are numbered across pages when
-   :confval:`numfig` is enabled.  The :confval:`numfig_secnum_depth` setting
-   is respected.  The :rst:role:`eq`, not :rst:role:`numref`, role
-   must be used to reference equation numbers.  Default is ``True``.
-
-   .. versionadded:: 1.7
-
-:mod:`.mathbase` defines these new markup elements:
-
-.. rst:role:: math
-
-   Role for inline math.  Use like this::
-
-      Since Pythagoras, we know that :math:`a^2 + b^2 = c^2`.
-
-.. rst:directive:: math
-
-   Directive for displayed math (math that takes the whole line for itself).
-
-   The directive supports multiple equations, which should be separated by a
-   blank line::
-
-      .. math::
-
-         (a + b)^2 = a^2 + 2ab + b^2
-
-         (a - b)^2 = a^2 - 2ab + b^2
-
-   In addition, each single equation is set within a ``split`` environment,
-   which means that you can have multiple aligned lines in an equation,
-   aligned at ``&`` and separated by ``\\``::
-
-      .. math::
-
-         (a + b)^2  &=  (a + b)(a + b) \\
-                    &=  a^2 + 2ab + b^2
-
-   For more details, look into the documentation of the `AmSMath LaTeX
-   package`_.
-
-   When the math is only one line of text, it can also be given as a directive
-   argument::
-
-      .. math:: (a + b)^2 = a^2 + 2ab + b^2
-
-   Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects an internal label
-   for the equation, by which it can be cross-referenced, and causes an equation
-   number to be issued.  See :rst:role:`eq` for an example.  The numbering
-   style depends on the output format.
-
-   There is also an option ``nowrap`` that prevents any wrapping of the given
-   math in a math environment.  When you give this option, you must make sure
-   yourself that the math is properly set up.  For example::
-
-      .. math::
-         :nowrap:
-
-         \begin{eqnarray}
-            y    & = & ax^2 + bx + c \\
-            f(x) & = & x^2 + 2xy + y^2
-         \end{eqnarray}
-
-.. rst:role:: eq
-
-   Role for cross-referencing equations via their label.  Example::
-
-      .. math:: e^{i\pi} + 1 = 0
-         :label: euler
-
-      Euler's identity, equation :eq:`euler`, was elected one of the most
-      beautiful mathematical formulas.
-
+gives a math support to HTML document with several extensions.
 
 :mod:`sphinx.ext.imgmath` -- Render math as images
 --------------------------------------------------
@@ -271,6 +168,23 @@ Sphinx.
 
    The default is empty (``{}``).
 
+.. confval:: mathjax_config
+
+   The inline configuration options for mathjax.  The value is used as a
+   parameter of ``MathJax.Hub.Config()``.  For more information, please
+   read `Using in-line configuration options`_.
+
+   For example::
+
+       mathjax_config = {
+           'extensions': ['tex2jax.js'],
+           'jax': ['input/TeX', 'output/HTML-CSS'],
+       }
+
+   The default is empty (not configured).
+
+.. _Using in-line configuration options: http://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
+
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------
 
@@ -299,4 +213,3 @@ package jsMath_.  It provides this config value:
 .. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: https://www.gnu.org/software/auctex/preview-latex.html
-.. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex

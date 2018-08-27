@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -20,6 +22,7 @@ from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 from six import text_type
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
@@ -65,7 +68,7 @@ class PygmentsBridge(object):
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=False):
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
         # type: (unicode, unicode, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
@@ -78,13 +81,17 @@ class PygmentsBridge(object):
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.trim_doctest_flags = trim_doctest_flags
         self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
+
+        self.trim_doctest_flags = trim_doctest_flags
+        if trim_doctest_flags is not None:
+            warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
+                          RemovedInSphinx30Warning)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
@@ -93,6 +100,8 @@ class PygmentsBridge(object):
 
     def unhighlighted(self, source):
         # type: (unicode) -> unicode
+        warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
+                      RemovedInSphinx30Warning)
         if self.dest == 'html':
             return '<pre>' + htmlescape(source) + '</pre>\n'
         else:
@@ -161,8 +170,6 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return hlsource
         else:
-            if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
-                hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):

@@ -17,8 +17,8 @@ from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from six.moves import range
 
-from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx import addnodes
+from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.docutils import SphinxDirective
@@ -31,19 +31,6 @@ if False:
     from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
-
-versionlabels = {
-    'versionadded':   _('New in version %s'),
-    'versionchanged': _('Changed in version %s'),
-    'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
-
-locale.versionlabels = DeprecatedDict(
-    versionlabels,
-    'sphinx.locale.versionlabels is deprecated. '
-    'Please use sphinx.directives.other.versionlabels instead.',
-    RemovedInSphinx30Warning
-)
 
 glob_re = re.compile(r'.*[*?\[].*')
 
@@ -216,54 +203,6 @@ class Index(SphinxDirective):
         for entry in arguments:
             indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
-
-
-class VersionChange(SphinxDirective):
-    """
-    Directive to describe a change/addition/deprecation in a specific version.
-    """
-    has_content = True
-    required_arguments = 1
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {}  # type: Dict
-
-    def run(self):
-        # type: () -> List[nodes.Node]
-        node = addnodes.versionmodified()
-        node.document = self.state.document
-        set_source_info(self, node)
-        node['type'] = self.name
-        node['version'] = self.arguments[0]
-        text = versionlabels[self.name] % self.arguments[0]
-        if len(self.arguments) == 2:
-            inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno + 1)
-            para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
-            set_source_info(self, para)
-            node.append(para)
-        else:
-            messages = []
-        if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
-                content = nodes.inline(node[0].rawsource, translatable=True)
-                content.source = node[0].source
-                content.line = node[0].line
-                content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
-        else:
-            para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']),
-                                   translatable=False)
-            node.append(para)
-        # XXX should record node.source as well
-        self.env.note_versionchange(node['type'], node['version'], node, node.line)
-        return [node] + messages
 
 
 class SeeAlso(BaseAdmonition):
@@ -475,9 +414,6 @@ def setup(app):
     directives.register_directive('moduleauthor', Author)
     directives.register_directive('codeauthor', Author)
     directives.register_directive('index', Index)
-    directives.register_directive('deprecated', VersionChange)
-    directives.register_directive('versionadded', VersionChange)
-    directives.register_directive('versionchanged', VersionChange)
     directives.register_directive('seealso', SeeAlso)
     directives.register_directive('tabularcolumns', TabularColumns)
     directives.register_directive('centered', Centered)
