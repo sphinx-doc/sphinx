@@ -1,19 +1,10 @@
-Release 1.7.8 (in development)
-==============================
-
-Dependencies
-------------
+Release 1.7.8 (released Aug 29, 2018)
+=====================================
 
 Incompatible changes
 --------------------
 
 * The type of ``env.included`` has been changed to dict of set
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -24,9 +15,6 @@ Bugs fixed
 * #5327: "document isn't included in any toctree" warning on rebuild with
   generated files
 * #5335: quickstart: escape sequence has been displayed with MacPorts' python
-
-Testing
---------
 
 Release 1.7.7 (released Aug 19, 2018)
 =====================================
