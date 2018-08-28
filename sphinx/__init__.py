@@ -31,13 +31,13 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '1.7.8'
-__released__ = '1.7.8'  # used when Sphinx builds its own docs
+__version__ = '1.7.9+'
+__released__ = '1.7.9'  # used when Sphinx builds its own docs
 
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 7, 8, 'final', 0)
+version_info = (1, 7, 9, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
