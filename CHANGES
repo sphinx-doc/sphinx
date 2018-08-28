@@ -12,6 +12,14 @@ Deprecated
 
 Features added
 --------------
+* #1618: The search results preview of generated HTML documentation is
+  reader-friendlier: instead of showing the snippets as raw reStructuredText
+  markup, Sphinx now renders the corresponding HTML.  This means the Sphinx
+  extension `Sphinx: pretty search results`__ is no longer necessary.  Note that
+  changes to the search function of your custom or 3rd-pary HTML template might
+  overwrite this improvement.
+
+__ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 
 Bugs fixed
 ----------
