@@ -277,7 +277,7 @@ Documentation
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
 
-Release 1.7.8 (in development)
+Release 1.7.9 (in development)
 ==============================
 
 Dependencies
@@ -295,12 +295,26 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 1.7.8 (released Aug 29, 2018)
+=====================================
+
+Incompatible changes
+--------------------
+
+* The type of ``env.included`` has been changed to dict of set
+
+Bugs fixed
+----------
+
 * #5320: intersphinx: crashed if invalid url given
 * #5326: manpage: crashed when invalid docname is specified as ``man_pages``
 * #5322: autodoc: ``Any`` typehint causes formatting error
-
-Testing
---------
+* #5327: "document isn't included in any toctree" warning on rebuild with
+  generated files
+* #5335: quickstart: escape sequence has been displayed with MacPorts' python
 
 Release 1.7.7 (released Aug 19, 2018)
 =====================================
