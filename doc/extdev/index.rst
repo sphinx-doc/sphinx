@@ -136,6 +136,16 @@ The following is a list of deprecated interface.
      - 4.0
      - :confval:`autodoc_default_options`
 
+   * - ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()``
+     - 1.8
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxI18nReader.line``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``sphinx.directives.other.VersionChanges``
      - 1.8
      - 3.0
