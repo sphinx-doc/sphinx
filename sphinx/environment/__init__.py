@@ -19,7 +19,7 @@ from os import path
 
 from docutils.utils import get_source_line
 from six import BytesIO, next
-from six.moves import cPickle as pickle
+from six.moves import cPickle as pickle, reduce
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
@@ -139,7 +139,8 @@ class BuildEnvironment(object):
         self.dependencies = defaultdict(set)    # type: Dict[unicode, Set[unicode]]
                                     # docname -> set of dependent file
                                     # names, relative to documentation root
-        self.included = set()       # type: Set[unicode]
+        self.included = defaultdict(set)        # type: Dict[unicode, Set[unicode]]
+                                    # docname -> set of included file
                                     # docnames included from other documents
         self.reread_always = set()  # type: Set[unicode]
                                     # docnames to re-read unconditionally on
@@ -315,8 +316,8 @@ class BuildEnvironment(object):
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
+            self.included.pop(docname, None)
             self.reread_always.discard(docname)
-            self.included.discard(docname)
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
@@ -331,11 +332,16 @@ class BuildEnvironment(object):
         docnames = set(docnames)  # type: ignore
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
+            self.included[docname] = other.included[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
         for docname in other.included:
             self.included.add(docname)
+
+        for version, changes in other.versionchanges.items():
+            self.versionchanges.setdefault(version, []).extend(
+                change for change in changes if change[1] in docnames)
 
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
@@ -552,7 +558,7 @@ class BuildEnvironment(object):
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.included.add(self.path2doc(filename))
+        self.included[self.docname].add(self.path2doc(filename))
 
     def note_reread(self):
         # type: () -> None
@@ -721,12 +727,13 @@ class BuildEnvironment(object):
     def check_consistency(self):
         # type: () -> None
         """Do consistency checks."""
+        included = reduce(lambda x, y: x | y, self.included.values(), set())  # type: Set[unicode]  # NOQA
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
                     continue
-                if docname in self.included:
+                if docname in included:
                     # the document is included from other documents
                     continue
                 if 'orphan' in self.metadata[docname]:

@@ -61,8 +61,7 @@ if __version__.endswith('+'):
     __version__ = __version__[:-1]  # remove '+' for PEP-440 version spec.
     try:
         import subprocess
-        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h',
-                              path.join(package_dir, '..')],
+        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h'],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
