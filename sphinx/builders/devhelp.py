@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import gzip
 import re
 from os import path
+from typing import Any
 
 from docutils import nodes
 
@@ -23,6 +24,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename
 
 try:
@@ -32,7 +34,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List  # NOQA
+    from typing import Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -100,12 +102,8 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 parent.attrib['link'] = node['refuri']
                 parent.attrib['name'] = node.astext()
 
-        def istoctree(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, addnodes.compact_paragraph) and \
-                'toctree' in node
-
-        for node in tocdoc.traverse(istoctree):
+        matcher = NodeMatcher(addnodes.compact_paragraph, toctree=Any)
+        for node in tocdoc.traverse(matcher):
             write_toc(node, chapters)
 
         # Index
