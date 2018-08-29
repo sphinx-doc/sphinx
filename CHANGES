@@ -24,6 +24,7 @@ Bugs fixed
 * #5325: latex: cross references has been broken by multiply labeled objects
 * C++, fixes for symbol addition and lookup. Lookup should no longer break
   in partial builds. See also #5337.
+* #5348: download reference to remote file is not displayed
 
 Testing
 --------

@@ -1387,3 +1387,22 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
         assert False
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
+
+
+@pytest.mark.sphinx('html', testroot='roles-download')
+def test_html_download_role(app, status, warning):
+    app.build()
+    assert (app.outdir / '_downloads' / 'dummy.dat').exists()
+
+    content = (app.outdir / 'index.html').text()
+    assert ('<li><a class="reference download internal" download="" '
+            'href="_downloads/dummy.dat">'
+            '<code class="xref download docutils literal notranslate">'
+            '<span class="pre">dummy.dat</span></code></a></li>' in content)
+    assert ('<li><code class="xref download docutils literal notranslate">'
+            '<span class="pre">not_found.dat</span></code></li>' in content)
+    assert ('<li><a class="reference download external" download="" '
+            'href="http://www.sphinx-doc.org/en/master/_static/sphinxheader.png">'
+            '<code class="xref download docutils literal notranslate">'
+            '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
+            '</code></a></li>' in content)

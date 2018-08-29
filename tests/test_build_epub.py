@@ -354,6 +354,22 @@ def test_epub_css_files(app):
             'href="https://example.com/custom.css" />' not in content)
 
 
+@pytest.mark.sphinx('epub', testroot='roles-download')
+def test_html_download_role(app, status, warning):
+    app.build()
+    assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
+
+    content = (app.outdir / 'index.xhtml').text()
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">dummy.dat</span></code></p></li>' in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">not_found.dat</span></code></p></li>' in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
+            '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
+            '/_static/sphinxheader.png]</span></p></li>' in content)
+
+
 @pytest.mark.sphinx('epub')
 def test_run_epubcheck(app):
     app.build()

@@ -564,10 +564,20 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_download_reference(self, node):
         # type: (nodes.Node) -> None
-        if self.builder.download_support and node.hasattr('filename'):
-            self.body.append(
-                '<a class="reference download internal" href="%s" download="">' %
-                posixpath.join(self.builder.dlpath, node['filename']))
+        atts = {'class': 'reference download',
+                'download': ''}
+
+        if not self.builder.download_support:
+            self.context.append('')
+        elif 'refuri' in node:
+            atts['class'] += ' external'
+            atts['href'] = node['refuri']
+            self.body.append(self.starttag(node, 'a', '', **atts))
+            self.context.append('</a>')
+        elif 'filename' in node:
+            atts['class'] += ' internal'
+            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
             self.context.append('')
