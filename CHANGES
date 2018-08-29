@@ -21,6 +21,8 @@ Features added
 
 __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 
+* #4182: autodoc: Support :confval:`suppress_warnings`
+
 Bugs fixed
 ----------
 

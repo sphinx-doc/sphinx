@@ -45,6 +45,10 @@ docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 .. _NumPy:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
+
+Directives
+----------
+
 :mod:`autodoc` provides several directives that are versions of the usual
 :rst:dir:`py:module`, :rst:dir:`py:class` and so forth.  On parsing time, they
 import the corresponding module and extract the docstring of the given objects,
@@ -306,6 +310,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       well-behaved decorating functions.
 
 
+Configuration
+-------------
+
 There are also new config values that you can set:
 
 .. confval:: autoclass_content
@@ -431,6 +438,16 @@ There are also new config values that you can set:
    The default is ``True``.
 
    .. versionadded:: 1.7
+
+.. confval:: suppress_warnings
+   :noindex:
+
+   :mod:`autodoc` supports to suppress warning messages via
+   :confval:`suppress_warnings`.  It allows following warnings types in
+   addition:
+
+   * autodoc
+   * autodoc.import_object
 
 
 Docstring preprocessing
