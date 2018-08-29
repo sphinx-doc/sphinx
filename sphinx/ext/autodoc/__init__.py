@@ -342,7 +342,8 @@ class Documenter(object):
             explicit_modname, path, base, args, retann = \
                 py_ext_sig_re.match(self.name).groups()  # type: ignore
         except AttributeError:
-            logger.warning(__('invalid signature for auto%s (%r)') % (self.objtype, self.name))
+            logger.warning(__('invalid signature for auto%s (%r)') % (self.objtype, self.name),
+                           type='autodoc')
             return False
 
         # support explicit module and class name separation via ::
@@ -379,7 +380,7 @@ class Documenter(object):
                 self.module, self.parent, self.object_name, self.object = ret
                 return True
             except ImportError as exc:
-                logger.warning(exc.args[0])
+                logger.warning(exc.args[0], type='autodoc', subtype='import_object')
                 self.env.note_reread()
                 return False
 
@@ -442,7 +443,7 @@ class Documenter(object):
                 args = self.format_args()
             except Exception as err:
                 logger.warning(__('error while formatting arguments for %s: %s') %
-                               (self.fullname, err))
+                               (self.fullname, err), type='autodoc')
                 args = None
 
         retann = self.retann
@@ -564,7 +565,7 @@ class Documenter(object):
                     selected.append((name, members[name].value))
                 else:
                     logger.warning(__('missing attribute %s in object %s') %
-                                   (name, self.fullname))
+                                   (name, self.fullname), type='autodoc')
             return False, sorted(selected)
         elif self.options.inherited_members:
             return False, sorted((m.name, m.value) for m in itervalues(members))
@@ -653,7 +654,7 @@ class Documenter(object):
                 except Exception as exc:
                     logger.warning(__('autodoc: failed to determine %r to be documented.'
                                       'the following exception was raised:\n%s'),
-                                   member, exc)
+                                   member, exc, type='autodoc')
                     keep = False
 
             if keep:
@@ -746,7 +747,7 @@ class Documenter(object):
                 __('don\'t know which module to import for autodocumenting '
                    '%r (try placing a "module" or "currentmodule" directive '
                    'in the document, or giving an explicit module name)') %
-                self.name)
+                self.name, type='autodoc')
             return
 
         # now, import the module and get object to document
@@ -832,7 +833,8 @@ class ModuleDocumenter(Documenter):
     def resolve_name(self, modname, parents, path, base):
         # type: (str, Any, str, Any) -> Tuple[str, List[unicode]]
         if modname is not None:
-            logger.warning(__('"::" in automodule name doesn\'t make sense'))
+            logger.warning(__('"::" in automodule name doesn\'t make sense'),
+                           type='autodoc')
         return (path or '') + base, []
 
     def parse_name(self):
@@ -840,7 +842,8 @@ class ModuleDocumenter(Documenter):
         ret = Documenter.parse_name(self)
         if self.args or self.retann:
             logger.warning(__('signature arguments or return annotation '
-                              'given for automodule %s') % self.fullname)
+                              'given for automodule %s') % self.fullname,
+                           type='autodoc')
         return ret
 
     def add_directive_header(self, sig):
@@ -875,7 +878,9 @@ class ModuleDocumenter(Documenter):
                     logger.warning(
                         __('__all__ should be a list of strings, not %r '
                            '(in module %s) -- ignoring __all__') %
-                        (memberlist, self.fullname))
+                        (memberlist, self.fullname),
+                        type='autodoc'
+                    )
                     # fall back to all members
                     return True, safe_getmembers(self.object)
         else:
@@ -888,7 +893,9 @@ class ModuleDocumenter(Documenter):
                 logger.warning(
                     __('missing attribute mentioned in :members: or __all__: '
                        'module %s, attribute %s') %
-                    (safe_getattr(self.object, '__name__', '???'), mname))
+                    (safe_getattr(self.object, '__name__', '???'), mname),
+                    type='autodoc'
+                )
         return False, ret
 
 
@@ -1539,7 +1546,8 @@ def merge_autodoc_default_flags(app, config):
         return
 
     logger.warning(__('autodoc_default_flags is now deprecated. '
-                      'Please use autodoc_default_options instead.'))
+                      'Please use autodoc_default_options instead.'),
+                   type='autodoc')
 
     for option in config.autodoc_default_flags:
         if isinstance(option, string_types):
@@ -1547,7 +1555,7 @@ def merge_autodoc_default_flags(app, config):
         else:
             logger.warning(
                 __("Ignoring invalid option in autodoc_default_flags: %r"),
-                option
+                option, type='autodoc'
             )
 
 
