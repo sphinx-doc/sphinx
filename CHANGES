@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #5359: Make generated texinfo files reproducible by sorting the anchors
+
 Bugs fixed
 ----------
 
