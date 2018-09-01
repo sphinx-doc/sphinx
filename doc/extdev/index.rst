@@ -116,6 +116,11 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.ext.doctest.doctest_encode()``
      - 2.0
      - 4.0

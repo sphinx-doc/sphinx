@@ -20,7 +20,7 @@ from six import BytesIO, next
 from six.moves import cPickle as pickle
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
@@ -339,6 +339,10 @@ class BuildEnvironment(object):
         If *base* is a path string, return absolute path under that.
         If *suffix* is not None, add it instead of config.source_suffix.
         """
+        if suffix:
+            warnings.warn('The suffix argument for doc2path() is deprecated.',
+                          RemovedInSphinx40Warning)
+
         docname = docname.replace(SEP, path.sep)
         if suffix is None:
             # Use first candidate if there is not a file for any suffix
@@ -438,8 +442,8 @@ class BuildEnvironment(object):
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
-                if not path.isfile(self.doc2path(docname, self.doctreedir,
-                                                 '.doctree')):
+                filename = path.join(self.doctreedir, docname + '.doctree')
+                if not path.isfile(filename):
                     changed.add(docname)
                     continue
                 # check the "reread always" list
@@ -553,8 +557,8 @@ class BuildEnvironment(object):
     def get_doctree(self, docname):
         # type: (unicode) -> nodes.Node
         """Read the doctree for a file from the pickle and return it."""
-        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        with open(doctree_filename, 'rb') as f:
+        filename = path.join(self.doctreedir, docname + '.doctree')
+        with open(filename, 'rb') as f:
             doctree = pickle.load(f)
         doctree.settings.env = self
         doctree.reporter = LoggingReporter(self.doc2path(docname))
