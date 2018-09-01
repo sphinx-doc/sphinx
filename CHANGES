@@ -18,6 +18,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5361: crashed on incremental build if document uses include directive
+
 Testing
 --------
 

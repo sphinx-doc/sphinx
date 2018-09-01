@@ -72,7 +72,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 52 + (sys.version_info[0] - 2)
+ENV_VERSION = 54 + (sys.version_info[0] - 2)
 
 
 versioning_conditions = {
