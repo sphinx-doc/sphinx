@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #5282: html theme: refer ``pygments_style`` settings of HTML themes
+  preferentially
+
 Deprecated
 ----------
 
@@ -25,6 +28,10 @@ Bugs fixed
 * C++, fixes for symbol addition and lookup. Lookup should no longer break
   in partial builds. See also #5337.
 * #5348: download reference to remote file is not displayed
+* #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
+  by default
+
+quickstart: set conf.py pygments_style value to None #5282
 
 Testing
 --------
