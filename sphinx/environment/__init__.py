@@ -10,20 +10,17 @@
 """
 
 import os
-import re
 import sys
 import warnings
 from collections import defaultdict
 from copy import copy
 from os import path
 
-from docutils.utils import get_source_line
 from six import BytesIO, next
 from six.moves import cPickle as pickle, reduce
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
-from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
@@ -124,9 +121,6 @@ class BuildEnvironment(object):
         # the docutils settings for building
         self.settings = default_settings.copy()
         self.settings['env'] = self
-
-        # the function to write warning messages with
-        self._warnfunc = None  # type: Callable
 
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
@@ -272,11 +266,6 @@ class BuildEnvironment(object):
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
 
-    def set_warnfunc(self, func):
-        # type: (Callable) -> None
-        warnings.warn('env.set_warnfunc() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-
     def set_versioning_method(self, method, compare):
         # type: (unicode, bool) -> None
         """This sets the doctree versioning method for this environment.
@@ -295,21 +284,6 @@ class BuildEnvironment(object):
                                  'doctree directory.'))
         self.versioning_condition = condition
         self.versioning_compare = compare
-
-    def warn(self, docname, msg, lineno=None, **kwargs):
-        # type: (unicode, unicode, int, Any) -> None
-        """Emit a warning.
-
-        This differs from using ``app.warn()`` in that the warning may not
-        be emitted instantly, but collected for emitting all warnings after
-        the update of the environment.
-        """
-        self.app.warn(msg, location=(docname, lineno), **kwargs)  # type: ignore
-
-    def warn_node(self, msg, node, **kwargs):
-        # type: (unicode, nodes.Node, Any) -> None
-        """Like :meth:`warn`, but with source information taken from *node*."""
-        self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
@@ -564,32 +538,6 @@ class BuildEnvironment(object):
         """
         self.reread_always.add(self.docname)
 
-    def note_toctree(self, docname, toctreenode):
-        # type: (unicode, addnodes.toctree) -> None
-        """Note a TOC tree directive in a document and gather information about
-        file relations from it.
-        """
-        warnings.warn('env.note_toctree() is deprecated. '
-                      'Use sphinx.environment.adapters.toctree.TocTree instead.',
-                      RemovedInSphinx20Warning)
-        TocTree(self).note(docname, toctreenode)
-
-    def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
-        """Return a TOC nodetree -- for use on the same page only!"""
-        warnings.warn('env.get_toc_for() is deprecated. '
-                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
-                      RemovedInSphinx20Warning)
-        return TocTree(self).get_toc_for(docname, builder)
-
-    def get_toctree_for(self, docname, builder, collapse, **kwds):
-        # type: (unicode, Builder, bool, Any) -> addnodes.toctree
-        """Return the global TOC nodetree."""
-        warnings.warn('env.get_toctree_for() is deprecated. '
-                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
-                      RemovedInSphinx20Warning)
-        return TocTree(self).get_toctree_for(docname, builder, collapse, **kwds)
-
     def get_domain(self, domainname):
         # type: (unicode) -> Domain
         """Return the domain instance with the specified name.
@@ -676,16 +624,6 @@ class BuildEnvironment(object):
 
         # allow custom references to be resolved
         self.app.emit('doctree-resolved', doctree, docname)
-
-    def create_index(self, builder, group_entries=True,
-                     _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA
-        warnings.warn('env.create_index() is deprecated. '
-                      'Use sphinx.environment.adapters.indexentreis.IndexEntries instead.',
-                      RemovedInSphinx20Warning)
-        return IndexEntries(self).create_index(builder,
-                                               group_entries=group_entries,
-                                               _fixre=_fixre)
 
     def collect_relations(self):
         # type: () -> Dict[unicode, List[unicode]]

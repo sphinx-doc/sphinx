@@ -18,9 +18,10 @@ import six
 from docutils.statemachine import ViewList
 from six import StringIO
 
-from sphinx.ext.autodoc import add_documenter, FunctionDocumenter, ALL  # NOQA
+from sphinx.ext.autodoc import FunctionDocumenter, ALL
 from sphinx.testing.util import SphinxTestApp, Struct
 from sphinx.util import logging
+from sphinx.util import save_traceback  # NOQA
 
 app = None
 
@@ -181,7 +182,7 @@ def test_generate():
                            'Class.meth', more_content=add_content)
 
     # test check_module
-    inst = FunctionDocumenter(directive, 'add_documenter')
+    inst = FunctionDocumenter(directive, 'save_traceback')
     inst.generate(check_module=True)
     assert len(directive.result) == 0
 

@@ -15,12 +15,10 @@
 from __future__ import absolute_import
 
 import os
-import sys
 import warnings
 from os import path
 
 from .deprecation import RemovedInNextVersionWarning
-from .deprecation import RemovedInSphinx20Warning
 
 if False:
     # For type annotation
@@ -68,47 +66,3 @@ if __version__.endswith('+'):
             __display_version__ += '/' + out.decode().strip()
     except Exception:
         pass
-
-
-def main(argv=sys.argv):  # type: ignore
-    # type: (List[unicode]) -> int
-    from .cmd import build
-    warnings.warn(
-        '`sphinx.main()` has moved to `sphinx.cmd.build.main()`.',
-        RemovedInSphinx20Warning,
-        stacklevel=2,
-    )
-    argv = argv[1:]  # skip first argument to adjust arguments (refs: #4615)
-    return build.main(argv)
-
-
-def build_main(argv=sys.argv):
-    """Sphinx build "main" command-line entry."""
-    from .cmd import build
-    warnings.warn(
-        '`sphinx.build_main()` has moved to `sphinx.cmd.build.build_main()`.',
-        RemovedInSphinx20Warning,
-        stacklevel=2,
-    )
-    return build.build_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
-
-
-def make_main(argv=sys.argv):
-    """Sphinx build "make mode" entry."""
-    from .cmd import build
-    warnings.warn(
-        '`sphinx.build_main()` has moved to `sphinx.cmd.build.make_main()`.',
-        RemovedInSphinx20Warning,
-        stacklevel=2,
-    )
-    return build.make_main(argv[1:])  # skip first argument to adjust arguments (refs: #4615)
-
-
-if __name__ == '__main__':
-    from .cmd import build
-    warnings.warn(
-        '`sphinx` has moved to `sphinx.build`.',
-        RemovedInSphinx20Warning,
-        stacklevel=2,
-    )
-    build.main()

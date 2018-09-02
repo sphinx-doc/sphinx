@@ -29,7 +29,7 @@ from sphinx import package_dir, locale
 from sphinx.config import Config, check_unicode
 from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
-    RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning
 )
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -368,72 +368,6 @@ class Sphinx(object):
         else:
             self.emit('build-finished', None)
         self.builder.cleanup()
-
-    # ---- logging handling ----------------------------------------------------
-    def warn(self, message, location=None, type=None, subtype=None):
-        # type: (unicode, unicode, unicode, unicode) -> None
-        """Emit a warning.
-
-        If *location* is given, it should either be a tuple of (*docname*,
-        *lineno*) or a string describing the location of the warning as well as
-        possible.
-
-        *type* and *subtype* are used to suppress warnings with
-        :confval:`suppress_warnings`.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.warning(message, type=type, subtype=subtype, location=location)
-
-    def info(self, message='', nonl=False):
-        # type: (unicode, bool) -> None
-        """Emit an informational message.
-
-        If *nonl* is true, don't emit a newline at the end (which implies that
-        more info output will follow soon.)
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.info(message, nonl=nonl)
-
-    def verbose(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a verbose informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.verbose(message, *args, **kwargs)
-
-    def debug(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
-
-    def debug2(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a lowlevel debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
 
     # ---- general extensibility interface -------------------------------------
 
@@ -912,21 +846,6 @@ class Sphinx(object):
         self.registry.add_object_type(directivename, rolename, indextemplate, parse_node,
                                       ref_nodeclass, objname, doc_field_types,
                                       override=override)
-
-    def add_description_unit(self, directivename, rolename, indextemplate='',
-                             parse_node=None, ref_nodeclass=None, objname='',
-                             doc_field_types=[]):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        """Deprecated alias for :meth:`add_object_type`.
-
-        .. deprecated:: 1.6
-           Use :meth:`add_object_type` instead.
-        """
-        warnings.warn('app.add_description_unit() is now deprecated. '
-                      'Use app.add_object_type() instead.',
-                      RemovedInSphinx20Warning)
-        self.add_object_type(directivename, rolename, indextemplate, parse_node,
-                             ref_nodeclass, objname, doc_field_types)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):

@@ -27,7 +27,6 @@ install_requires = [
     'requests>=2.0.0',
     'setuptools',
     'packaging',
-    'sphinxcontrib-websupport',
 ]
 
 extras_require = {

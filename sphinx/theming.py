@@ -12,16 +12,14 @@
 import os
 import shutil
 import tempfile
-import warnings
 from os import path
 from zipfile import ZipFile
 
 import pkg_resources
-from six import string_types, iteritems
+from six import iteritems
 from six.moves import configparser
 
 from sphinx import package_dir
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -228,25 +226,6 @@ class HTMLThemeFactory(object):
             return
         except StopIteration:
             pass
-
-        # look up for old styled entry_points
-        for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
-            target = entry_point.load()
-            if callable(target):
-                themedir = target()
-                if not isinstance(themedir, string_types):
-                    logger.warning(__('Theme extension %r does not respond correctly.') %
-                                   entry_point.module_name)
-            else:
-                themedir = target
-
-            themes = self.find_themes(themedir)
-            for entry, theme in iteritems(themes):
-                if name == entry:
-                    warnings.warn('``sphinx_themes`` entry point is now deprecated. '
-                                  'Please use ``sphinx.html_themes`` instead.',
-                                  RemovedInSphinx20Warning)
-                    self.themes[name] = theme
 
     def find_themes(self, theme_path):
         # type: (unicode) -> Dict[unicode, unicode]

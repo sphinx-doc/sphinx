@@ -14,18 +14,14 @@
 import inspect
 import re
 import sys
-import warnings
 from typing import Any
 
 from docutils.statemachine import ViewList
 from six import iteritems, itervalues, text_type, class_types, string_types
 
 import sphinx
-from sphinx.deprecation import RemovedInSphinx20Warning
-from sphinx.errors import ExtensionError
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
-from sphinx.ext.autodoc.inspector import format_annotation, formatargspec  # to keep compatibility  # NOQA
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
@@ -108,58 +104,6 @@ def bool_option(arg):
     directives.flag(), which returns None).
     """
     return True
-
-
-class AutodocReporter(object):
-    """
-    A reporter replacement that assigns the correct source name
-    and line number to a system message, as recorded in a ViewList.
-    """
-    def __init__(self, viewlist, reporter):
-        # type: (ViewList, Reporter) -> None
-        warnings.warn('AutodocReporter is now deprecated. '
-                      'Use sphinx.util.docutils.switch_source_input() instead.',
-                      RemovedInSphinx20Warning)
-        self.viewlist = viewlist
-        self.reporter = reporter
-
-    def __getattr__(self, name):
-        # type: (unicode) -> Any
-        return getattr(self.reporter, name)
-
-    def system_message(self, level, message, *children, **kwargs):
-        # type: (int, unicode, Any, Any) -> nodes.system_message
-        if 'line' in kwargs and 'source' not in kwargs:
-            try:
-                source, line = self.viewlist.items[kwargs['line']]
-            except IndexError:
-                pass
-            else:
-                kwargs['source'] = source
-                kwargs['line'] = line
-        return self.reporter.system_message(level, message,
-                                            *children, **kwargs)
-
-    def debug(self, *args, **kwargs):
-        # type: (Any, Any) -> nodes.system_message
-        if self.reporter.debug_flag:
-            return self.system_message(0, *args, **kwargs)
-
-    def info(self, *args, **kwargs):
-        # type: (Any, Any) -> nodes.system_message
-        return self.system_message(1, *args, **kwargs)
-
-    def warning(self, *args, **kwargs):
-        # type: (Any, Any) -> nodes.system_message
-        return self.system_message(2, *args, **kwargs)
-
-    def error(self, *args, **kwargs):
-        # type: (Any, Any) -> nodes.system_message
-        return self.system_message(3, *args, **kwargs)
-
-    def severe(self, *args, **kwargs):
-        # type: (Any, Any) -> nodes.system_message
-        return self.system_message(4, *args, **kwargs)
 
 
 # Some useful event listener factories for autodoc-process-docstring.
@@ -1452,87 +1396,16 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
         AttributeDocumenter.add_content(self, more_content, no_docstring=True)
 
 
-class DeprecatedDict(dict):
-    def __init__(self, message):
-        # type: (str) -> None
-        self.message = message
-        super(DeprecatedDict, self).__init__()
-
-    def __setitem__(self, key, value):
-        # type: (unicode, Any) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
-        super(DeprecatedDict, self).__setitem__(key, value)
-
-    def setdefault(self, key, default=None):
-        # type: (unicode, Any) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
-        super(DeprecatedDict, self).setdefault(key, default)
-
-    def update(self, other=None):  # type: ignore
-        # type: (Dict) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
-        super(DeprecatedDict, self).update(other)
-
-
-class AutodocRegistry(object):
-    """
-    A registry of Documenters and attrgetters.
-
-    Note: When importing an object, all items along the import chain are
-    accessed using the descendant's *_special_attrgetters*, thus this
-    dictionary should include all necessary functions for accessing
-    attributes of the parents.
-    """
-    # a registry of objtype -> documenter class (Deprecated)
-    _registry = DeprecatedDict(
-        'AutoDirective._registry has been deprecated. '
-        'Please use app.add_autodocumenter() instead.'
-    )  # type: Dict[unicode, Type[Documenter]]
-
-    # a registry of type -> getattr function
-    _special_attrgetters = DeprecatedDict(
-        'AutoDirective._special_attrgetters has been deprecated. '
-        'Please use app.add_autodoc_attrgetter() instead.'
-    )  # type: Dict[Type, Callable]
-
-
-AutoDirective = AutodocRegistry  # for backward compatibility
-
-
-def add_documenter(cls):
-    # type: (Type[Documenter]) -> None
-    """Register a new Documenter."""
-    warnings.warn('sphinx.ext.autodoc.add_documenter() has been deprecated. '
-                  'Please use app.add_autodocumenter() instead.',
-                  RemovedInSphinx20Warning)
-
-    if not issubclass(cls, Documenter):
-        raise ExtensionError('autodoc documenter %r must be a subclass '
-                             'of Documenter' % cls)
-    # actually, it should be possible to override Documenters
-    # if cls.objtype in AutoDirective._registry:
-    #    raise ExtensionError('autodoc documenter for %r is already '
-    #                         'registered' % cls.objtype)
-    AutoDirective._registry[cls.objtype] = cls
-
-
 def get_documenters(app):
     # type: (Sphinx) -> Dict[unicode, Type[Documenter]]
     """Returns registered Documenter classes"""
-    classes = dict(AutoDirective._registry)  # registered directly
-    if app:
-        classes.update(app.registry.documenters)  # registered by API
-    return classes
+    return app.registry.documenters
 
 
 def autodoc_attrgetter(app, obj, name, *defargs):
     # type: (Sphinx, Any, unicode, Any) -> Any
     """Alternative getattr() for types"""
-    candidates = dict(AutoDirective._special_attrgetters)
-    if app:
-        candidates.update(app.registry.autodoc_attrgettrs)
-
-    for typ, func in iteritems(candidates):
+    for typ, func in iteritems(app.registry.autodoc_attrgettrs):
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

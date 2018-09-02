@@ -20,7 +20,6 @@ from six import string_types
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
@@ -146,7 +145,6 @@ class SphinxTestApp(application.Sphinx):
 
     def cleanup(self, doctrees=False):
         # type: (bool) -> None
-        AutoDirective._registry.clear()
         ModuleAnalyzer.cache.clear()
         LaTeXBuilder.usepackages = []
         locale.translators.clear()

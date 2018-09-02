@@ -20,7 +20,7 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL,
+    ModuleLevelDocumenter, cut_lines, between, ALL,
     merge_autodoc_default_flags
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
@@ -112,7 +112,7 @@ def setup_test():
 
     yield
 
-    AutoDirective._special_attrgetters.clear()
+    app.registry.autodoc_attrgettrs.clear()
 
 
 processed_docstrings = []
@@ -566,7 +566,7 @@ def test_attrgetter_using():
                 getattr_spy.append((obj, name))
                 return None
             return getattr(obj, name, *defargs)
-        AutoDirective._special_attrgetters[type] = special_getattr
+        app.add_autodoc_attrgetter(type, special_getattr)
 
         del getattr_spy[:]
         inst = app.registry.documenters[objtype](directive, name)
@@ -752,7 +752,7 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: add_documenter(cls)' in actual
+    assert '.. py:function:: save_traceback(app)' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

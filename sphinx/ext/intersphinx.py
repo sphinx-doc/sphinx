@@ -30,7 +30,6 @@ import functools
 import posixpath
 import sys
 import time
-import warnings
 from os import path
 
 from docutils import nodes
@@ -40,7 +39,6 @@ from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
@@ -378,15 +376,6 @@ def setup(app):
         'env_version': 1,
         'parallel_read_safe': True
     }
-
-
-def debug(argv):
-    # type: (List[unicode]) -> None
-    """Debug functionality to print out an inventory"""
-    warnings.warn('sphinx.ext.intersphinx.debug() is deprecated. '
-                  'Please use inspect_main() instead',
-                  RemovedInSphinx20Warning)
-    inspect_main(argv[1:])
 
 
 def inspect_main(argv):

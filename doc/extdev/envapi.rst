@@ -39,10 +39,6 @@ Build environment API
 
    **Utility methods**
 
-   .. automethod:: warn
-
-   .. automethod:: warn_node
-
    .. automethod:: doc2path
 
    .. automethod:: relfn2path
