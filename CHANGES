@@ -31,8 +31,6 @@ Bugs fixed
 * #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
   by default
 
-quickstart: set conf.py pygments_style value to None #5282
-
 Testing
 --------
 
