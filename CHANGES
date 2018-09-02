@@ -9,6 +9,7 @@ Incompatible changes
 
 * #5282: html theme: refer ``pygments_style`` settings of HTML themes
   preferentially
+* #5127: quickstart: ``Makefile`` and ``make.bat`` are not overwritten if exists
 
 Deprecated
 ----------
