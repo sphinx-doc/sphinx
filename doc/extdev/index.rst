@@ -121,6 +121,11 @@ The following is a list of deprecated interface.
      - 4.0
      - N/A
 
+   * - string style ``base`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - ``os.path.join()``
+
    * - ``sphinx.ext.doctest.doctest_encode()``
      - 2.0
      - 4.0

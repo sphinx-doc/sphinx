@@ -16,6 +16,7 @@ Deprecated
 ----------
 
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
+* The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.testing.util.remove_unicode_literal()``
 
