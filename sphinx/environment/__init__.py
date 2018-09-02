@@ -22,7 +22,7 @@ from os import path
 from docutils.frontend import OptionParser
 from docutils.utils import Reporter, get_source_line
 from six import BytesIO, itervalues, class_types, next
-from six.moves import cPickle as pickle, reduce
+from six.moves import cPickle as pickle
 
 from sphinx import addnodes, versioning
 from sphinx.deprecation import RemovedInSphinx20Warning
@@ -914,7 +914,7 @@ class BuildEnvironment(object):
     def check_consistency(self):
         # type: () -> None
         """Do consistency checks."""
-        included = reduce(lambda x, y: x | y, self.included.values(), set())  # type: Set[unicode]  # NOQA
+        included = set().union(*self.included.values())  # type: ignore
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
