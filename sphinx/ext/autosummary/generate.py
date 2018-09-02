@@ -43,11 +43,12 @@ from sphinx.util.rst import escape as rst_escape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Tuple, List  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
     from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.ext.autodoc import Documenter  # NOQA
 
 
 class DummyApplication(object):
@@ -69,7 +70,7 @@ def setup_documenters(app):
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter
-    ]
+    ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
