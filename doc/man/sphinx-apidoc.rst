@@ -58,6 +58,10 @@ Options
 
    Maximum depth for the generated table of contents file.
 
+.. option:: --tocfile
+
+   Filename for a table of contents file. Defaults to ``modules``.
+
 .. option:: -T, --no-toc
 
    Do not create a table of contents file. Ignored when :option:`--full` is
