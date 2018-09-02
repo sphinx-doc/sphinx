@@ -14,7 +14,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import xml.etree.cElementTree as ElementTree
+from hashlib import md5
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
@@ -58,7 +60,7 @@ def cached_etree_parse():
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
-        (".//a[@href='../_downloads/img.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//img[@src='../_images/img.png']", ''),
         (".//p", 'This is an include file.'),
         (".//pre/span", 'line 1'),
@@ -66,8 +68,7 @@ def cached_etree_parse():
     ],
     'includes.html': [
         (".//pre", u'Max Strauß'),
-        (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
@@ -323,17 +324,45 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co',
+    'html_experimental_html5_writer': True})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_download(app):
+    app.build()
+
+    # subdir/includes.html
+    result = (app.outdir / 'subdir' / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="../(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    filename = matched.group(1)
+
+    # includes.html
+    result = (app.outdir / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    assert matched.group(1) == filename
+
+
 @pytest.mark.sphinx('html', testroot='roles-download',
                     confoverrides={'html_experimental_html5_writer': True})
 def test_html_download_role(app, status, warning):
     app.build()
-    assert (app.outdir / '_downloads' / 'dummy.dat').exists()
+    digest = md5((app.srcdir / 'dummy.dat').encode('utf-8')).hexdigest()
+    assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()
-    assert ('<li><p><a class="reference download internal" download="" '
-            'href="_downloads/dummy.dat">'
-            '<code class="xref download docutils literal notranslate">'
-            '<span class="pre">dummy.dat</span></code></a></p></li>' in content)
+    assert (('<li><p><a class="reference download internal" download="" '
+             'href="_downloads/%s/dummy.dat">'
+             '<code class="xref download docutils literal notranslate">'
+             '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
+            in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '

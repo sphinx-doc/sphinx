@@ -9,6 +9,7 @@ Incompatible changes
 
 * #5282: html theme: refer ``pygments_style`` settings of HTML themes
   preferentially
+* The URL of download files are changed
 
 Deprecated
 ----------
@@ -30,6 +31,8 @@ Bugs fixed
 * #5348: download reference to remote file is not displayed
 * #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
   by default
+* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
+  parallel builds
 
 Testing
 --------
