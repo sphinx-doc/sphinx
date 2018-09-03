@@ -30,6 +30,7 @@ Bugs fixed
 * #5348: download reference to remote file is not displayed
 * #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
   by default
+* autodoc: ImportError is replaced by AttributeError for deeper module
 
 Testing
 --------
