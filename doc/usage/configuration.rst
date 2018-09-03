@@ -1245,7 +1245,7 @@ that use Sphinx's HTMLWriter class.
 
       :'sphinx.search.ja.DefaultSplitter':
          TinySegmenter algorithm. This is default splitter.
-      :'sphinx.search.ja.MeCabSplitter':
+      :'sphinx.search.ja.MecabSplitter':
          MeCab binding. To use this splitter, 'mecab' python binding or dynamic
          link library ('libmecab.so' for linux, 'libmecab.dll' for windows) is
          required.
