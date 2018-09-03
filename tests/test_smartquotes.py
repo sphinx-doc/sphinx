@@ -41,7 +41,7 @@ def test_man_builder(app, status, warning):
 def test_latex_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'test.tex').text()
+    content = (app.outdir / 'python.tex').text()
     assert '\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 

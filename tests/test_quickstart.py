@@ -119,9 +119,6 @@ def test_quickstart_defaults(tempdir):
     assert ns['version'] == '0.1'
     assert ns['release'] == '0.1'
     assert ns['html_static_path'] == ['_static']
-    assert ns['latex_documents'] == [
-        ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',
-         'Georg Brandl', 'manual')]
 
     assert (tempdir / '_static').isdir()
     assert (tempdir / '_templates').isdir()
@@ -178,9 +175,6 @@ def test_quickstart_all_answers(tempdir):
     assert ns['release'] == '2.0.1'
     assert ns['todo_include_todos'] is True
     assert ns['html_static_path'] == ['.static']
-    assert ns['latex_documents'] == [
-        ('contents', 'STASI.tex', 'STASI™ Documentation',
-         'Wolfgang Schäuble \\& G\'Beckstein', 'manual')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
@@ -249,7 +243,6 @@ def test_default_filename(tempdir):
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)
-    assert ns['latex_documents'][0][1] == 'sphinx.tex'
 
 
 def test_extensions(tempdir):
