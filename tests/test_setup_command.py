@@ -94,7 +94,7 @@ def nonascii_srcdir(request, setup_command):
         ==========================
         """))
 
-    master_doc = srcdir / 'contents.txt'
+    master_doc = srcdir / 'index.txt'
     master_doc.write_bytes((master_doc.text() + dedent("""
                             .. toctree::
 

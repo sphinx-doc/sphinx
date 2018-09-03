@@ -149,7 +149,10 @@ General configuration
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
-   contains the root :rst:dir:`toctree` directive.  Default is ``'contents'``.
+   contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
+
+   .. versionchanged:: 2.0
+      The defualt is changed to ``'index'`` from ``'contents'``.
 
 .. confval:: exclude_patterns
 

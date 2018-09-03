@@ -18,7 +18,6 @@ jsmath_path = 'dummy.js'
 
 templates_path = ['_templates']
 
-master_doc = 'contents'
 source_suffix = ['.txt', '.add', '.foo']
 
 project = 'Sphinx <Tests>'
@@ -37,8 +36,7 @@ rst_epilog = '.. |subst| replace:: global substitution'
 
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],
-                 'contents': ['contentssb.html', 'localtoc.html',
-                              'globaltoc.html']}
+                 'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
 html_style = 'default.css'
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
@@ -49,19 +47,19 @@ applehelp_bundle_id = 'org.sphinx-doc.Sphinx.help'
 applehelp_disable_external_tools = True
 
 latex_documents = [
-    ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+    ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
      'Georg Brandl \\and someone else', 'manual'),
 ]
 
 latex_additional_files = ['svgimg.svg']
 
 texinfo_documents = [
-    ('contents', 'SphinxTests', 'Sphinx Tests',
+    ('index', 'SphinxTests', 'Sphinx Tests',
      'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
 ]
 
 man_pages = [
-    ('contents', 'SphinxTests', 'Sphinx Tests Documentation',
+    ('index', 'SphinxTests', 'Sphinx Tests Documentation',
      'Georg Brandl and someone else', 1),
 ]
 

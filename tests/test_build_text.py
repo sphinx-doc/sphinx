@@ -116,8 +116,8 @@ def test_list_items_in_admonition(app, status, warning):
 @with_text_app()
 def test_secnums(app, status, warning):
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* 1. Section A"
     assert lines[1] == ""
     assert lines[2] == "* 2. Section B"
@@ -142,8 +142,8 @@ def test_secnums(app, status, warning):
 
     app.config.text_secnumber_suffix = " "
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* 1 Section A"
     assert lines[1] == ""
     assert lines[2] == "* 2 Section B"
@@ -168,8 +168,8 @@ def test_secnums(app, status, warning):
 
     app.config.text_add_secnumbers = False
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* Section A"
     assert lines[1] == ""
     assert lines[2] == "* Section B"

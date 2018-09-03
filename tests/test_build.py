@@ -51,7 +51,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             =======================
             """))
 
-        master_doc = srcdir / 'contents.txt'
+        master_doc = srcdir / 'index.txt'
         master_doc.write_text(master_doc.text() + dedent(u"""
                               .. toctree::
 
@@ -93,10 +93,10 @@ def test_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
@@ -105,10 +105,10 @@ def test_numbered_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='dummy', testroot='images')

@@ -7,6 +7,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* The default setting for :confval:`master_doc` is changed to ``'index'`` which
+  has been longly used as default of sphinx-quickstart.
+
 Deprecated
 ----------
 
