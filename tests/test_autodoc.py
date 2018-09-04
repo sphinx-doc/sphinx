@@ -20,7 +20,7 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL,
+    AutoDirective, DataDocumenter, ModuleLevelDocumenter, cut_lines, between, ALL,
     merge_autodoc_default_flags
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
@@ -552,6 +552,35 @@ def test_new_documenter():
 
     options.members = ['integer']
     assert_result_contains('.. py:data:: integer', 'module', 'target')
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_data_documenter():
+    logging.setup(app, app._status, app._warning)
+    app.add_autodocumenter(DataDocumenter)
+    options.members = ['UNDOC_DATA']
+    options.undoc_members = True
+
+    def get_result(objtype, name):
+        app._warning.truncate(0)
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate()
+        ret = list(directive.result)
+        del directive.result[:]
+        assert app._warning.getvalue() == ''
+        return ret
+
+    app.env.config.autodoc_inherit_docstrings = False
+    inherit_false = get_result('module', 'target')
+    assert '.. py:data:: UNDOC_DATA' in inherit_false
+
+    app.env.config.autodoc_inherit_docstrings = True
+    inherit_true = get_result('module', 'target')
+    assert '.. py:data:: UNDOC_DATA' in inherit_true
+    assert len(inherit_true) > len(inherit_false)
+
+    options.undoc_members = False
+    assert '.. py:data:: UNDOC_DATA' not in get_result('module', 'target')
 
 
 @pytest.mark.usefixtures('setup_test')

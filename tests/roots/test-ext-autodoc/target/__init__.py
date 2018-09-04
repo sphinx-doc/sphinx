@@ -9,6 +9,9 @@ from sphinx.ext.autodoc import add_documenter  # NOQA
 
 __all__ = ['Class']
 
+# this should be documented when :undoc-members:
+UNDOC_DATA = []
+
 #: documentation for the integer
 integer = 1
 

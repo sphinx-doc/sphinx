@@ -1254,7 +1254,7 @@ class DataDocumenter(ModuleLevelDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(parent, ModuleDocumenter) and isattr
+        return isinstance(parent, ModuleDocumenter)
 
     def add_directive_header(self, sig):
         # type: (unicode) -> None
@@ -1281,6 +1281,15 @@ class DataDocumenter(ModuleLevelDocumenter):
         # type: () -> str
         return self.get_attr(self.parent or self.object, '__module__', None) \
             or self.modname
+
+    def get_doc(self, encoding=None, ignore=1):
+        # type: (unicode, int) -> List[List[unicode]]
+        # data objects wont be processed with DataDocumenter when documented
+        # hence, docs should be empty unless autodoc_inherit_docstrings is True
+        if not self.env.config.autodoc_inherit_docstrings:
+            return [prepare_docstring('', ignore)]
+
+        return super(DataDocumenter, self).get_doc(encoding=None, ignore=1)
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore
