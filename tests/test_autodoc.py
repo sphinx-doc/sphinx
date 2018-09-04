@@ -20,7 +20,7 @@ from docutils.statemachine import ViewList
 from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL,
+    AutoDirective, DataDocumenter, ModuleLevelDocumenter, cut_lines, between, ALL,
     merge_autodoc_default_flags
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
@@ -552,6 +552,26 @@ def test_new_documenter():
 
     options.members = ['integer']
     assert_result_contains('.. py:data:: integer', 'module', 'target')
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_data_documenter():
+    logging.setup(app, app._status, app._warning)
+    app.add_autodocumenter(DataDocumenter)
+
+    def assert_result(item, objtype, name, isin=True):
+        app._warning.truncate(0)
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate()
+        assert app._warning.getvalue() == ''
+        assert item in directive.result if isin else item not in directive.result
+        del directive.result[:]
+
+    options.members = ['UNDOC_DATA']
+    options.undoc_members = True
+    assert_result('.. py:data:: UNDOC_DATA', 'module', 'target')
+    options.undoc_members = False
+    assert_result('.. py:data:: UNDOC_DATA', 'module', 'target', False)
 
 
 @pytest.mark.usefixtures('setup_test')
