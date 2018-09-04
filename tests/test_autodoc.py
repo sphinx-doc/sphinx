@@ -558,20 +558,30 @@ def test_new_documenter():
 def test_data_documenter():
     logging.setup(app, app._status, app._warning)
     app.add_autodocumenter(DataDocumenter)
+    options.members = ['UNDOC_DATA']
+    options.undoc_members = True
 
-    def assert_result(item, objtype, name, isin=True):
+    def get_result(objtype, name):
         app._warning.truncate(0)
         inst = app.registry.documenters[objtype](directive, name)
         inst.generate()
-        assert app._warning.getvalue() == ''
-        assert item in directive.result if isin else item not in directive.result
+        ret = list(directive.result)
         del directive.result[:]
+        assert app._warning.getvalue() == ''
+        return ret
 
-    options.members = ['UNDOC_DATA']
-    options.undoc_members = True
-    assert_result('.. py:data:: UNDOC_DATA', 'module', 'target')
+    app.env.config.autodoc_inherit_docstrings = False
+    result = get_result('module', 'target')
+    assert '.. py:data:: UNDOC_DATA' in result
+    assert '   list() -> new empty list' not in result
+
+    app.env.config.autodoc_inherit_docstrings = True
+    result = get_result('module', 'target')
+    assert '.. py:data:: UNDOC_DATA' in result
+    assert '   list() -> new empty list' in result
+
     options.undoc_members = False
-    assert_result('.. py:data:: UNDOC_DATA', 'module', 'target', False)
+    assert '.. py:data:: UNDOC_DATA' not in get_result('module', 'target')
 
 
 @pytest.mark.usefixtures('setup_test')
