@@ -50,11 +50,7 @@ class IndexEntriesCollector(EnvironmentCollector):
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:
-                    if len(entry) == 5:
-                        # Since 1.4: new index structure including index_key (5th column)
-                        entries.append(entry)
-                    else:
-                        entries.append(entry + (None,))
+                    entries.append(entry)
 
 
 def setup(app):
