@@ -612,7 +612,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
-        for id in self.next_section_ids:
+        for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
         self.next_section_ids.clear()
