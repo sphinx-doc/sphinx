@@ -19,6 +19,8 @@ Deprecated
 Features added
 --------------
 
+* #5388: Ensure frozen object descriptions are reproducible
+
 Bugs fixed
 ----------
 
