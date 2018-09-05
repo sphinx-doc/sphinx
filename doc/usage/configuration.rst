@@ -1347,6 +1347,19 @@ Options for HTML help output
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+.. confval:: htmlhelp_file_suffix
+
+   This is the file name suffix for generated HTML help files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 2.0
+
+.. confval:: htmlhelp_link_suffix
+
+   Suffix for generated links to HTML files.  The default is ``".html"``.
+
+   .. versionadded:: 2.0
+
 
 .. _applehelp-options:
 
