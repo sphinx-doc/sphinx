@@ -30,6 +30,8 @@ Bugs fixed
 * #5348: download reference to remote file is not displayed
 * #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
   by default
+* #4379: toctree shows confusible warning when document is excluded
+* #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
 * autodoc: ImportError is replaced by AttributeError for deeper module
 
 Testing
@@ -284,8 +286,8 @@ Documentation
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
 
-Release 1.7.9 (in development)
-==============================
+Release 1.7.10 (in development)
+===============================
 
 Dependencies
 ------------
@@ -304,6 +306,19 @@ Bugs fixed
 
 Testing
 --------
+
+Release 1.7.9 (released Sep 05, 2018)
+=====================================
+
+Features added
+--------------
+
+* #5359: Make generated texinfo files reproducible by sorting the anchors
+
+Bugs fixed
+----------
+
+* #5361: crashed on incremental build if document uses include directive
 
 Release 1.7.8 (released Aug 29, 2018)
 =====================================

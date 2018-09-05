@@ -18,7 +18,7 @@ import six
 from docutils.statemachine import ViewList
 from six import StringIO
 
-from sphinx.ext.autodoc import add_documenter, FunctionDocumenter, ALL  # NOQA
+from sphinx.ext.autodoc import add_documenter, FunctionDocumenter, ALL, Options  # NOQA
 from sphinx.testing.util import SphinxTestApp, Struct
 from sphinx.util import logging
 
@@ -49,7 +49,7 @@ def setup_test():
     global options, directive
     global processed_docstrings, processed_signatures
 
-    options = Struct(
+    options = Options(
         inherited_members = False,
         undoc_members = False,
         private_members = False,
