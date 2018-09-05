@@ -321,3 +321,23 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='roles-download',
+                    confoverrides={'html_experimental_html5_writer': True})
+def test_html_download_role(app, status, warning):
+    app.build()
+    assert (app.outdir / '_downloads' / 'dummy.dat').exists()
+
+    content = (app.outdir / 'index.html').text()
+    assert ('<li><p><a class="reference download internal" download="" '
+            'href="_downloads/dummy.dat">'
+            '<code class="xref download docutils literal notranslate">'
+            '<span class="pre">dummy.dat</span></code></a></p></li>' in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">not_found.dat</span></code></p></li>' in content)
+    assert ('<li><p><a class="reference download external" download="" '
+            'href="http://www.sphinx-doc.org/en/master/_static/sphinxheader.png">'
+            '<code class="xref download docutils literal notranslate">'
+            '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
+            '</code></a></p></li>' in content)

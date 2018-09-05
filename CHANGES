@@ -43,6 +43,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #5282: html theme: refer ``pygments_style`` settings of HTML themes
+  preferentially
+
 Deprecated
 ----------
 
@@ -60,6 +63,10 @@ Bugs fixed
 * #5325: latex: cross references has been broken by multiply labeled objects
 * C++, fixes for symbol addition and lookup. Lookup should no longer break
   in partial builds. See also #5337.
+* #5348: download reference to remote file is not displayed
+* #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
+  by default
+* #4379: toctree shows confusible warning when document is excluded
 
 Testing
 --------
@@ -313,8 +320,8 @@ Documentation
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
 
-Release 1.7.9 (in development)
-==============================
+Release 1.7.10 (in development)
+===============================
 
 Dependencies
 ------------
@@ -333,6 +340,19 @@ Bugs fixed
 
 Testing
 --------
+
+Release 1.7.9 (released Sep 05, 2018)
+=====================================
+
+Features added
+--------------
+
+* #5359: Make generated texinfo files reproducible by sorting the anchors
+
+Bugs fixed
+----------
+
+* #5361: crashed on incremental build if document uses include directive
 
 Release 1.7.8 (released Aug 29, 2018)
 =====================================

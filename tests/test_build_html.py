@@ -1387,3 +1387,23 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
         assert False
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_pygments_style_default(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'Alabaster'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'pygments_style': 'sphinx'})
+def test_html_pygments_style_manually(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_theme': 'classic'})
+def test_html_pygments_for_classic_theme(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'

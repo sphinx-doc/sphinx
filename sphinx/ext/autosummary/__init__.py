@@ -79,6 +79,7 @@ from sphinx.util import import_object, rst, logging
 from sphinx.util.docutils import (
     NullReporter, SphinxDirective, new_document, switch_source_input
 )
+from sphinx.util.matching import Matcher
 
 if False:
     # For type annotation
@@ -249,12 +250,17 @@ class Autosummary(SphinxDirective):
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
+            excluded = Matcher(self.config.exclude_patterns)
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    self.warn('toctree references unknown document %r'
-                              % docname)
+                    if excluded(self.env.doc2path(docname, None)):
+                        self.warn('toctree references excluded document %r'
+                                  % docname)
+                    else:
+                        self.warn('toctree references unknown document %r'
+                                  % docname)
                 docnames.append(docname)
 
             tocnode = addnodes.toctree()
