@@ -34,6 +34,7 @@ Bugs fixed
   by default
 * #4379: toctree shows confusible warning when document is excluded
 * #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
+* autodoc: ImportError is replaced by AttributeError for deeper module
 
 Testing
 --------
