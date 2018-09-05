@@ -278,6 +278,15 @@ def object_description(object):
             template = "{%s}" if PY3 else "set([%s])"
             return template % ", ".join(object_description(x)
                                         for x in sorted_values)
+    if isinstance(object, frozenset):
+        try:
+            sorted_values = sorted(object)
+        except TypeError:
+            pass  # Cannot sort frozenset values, fall back to generic repr
+        else:
+            template = "frozenset({%s})" if PY3 else "frozenset([%s])"
+            return template % ", ".join(object_description(x)
+                                        for x in sorted_values)
     try:
         s = repr(object)
     except Exception:
