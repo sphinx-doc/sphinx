@@ -11,12 +11,10 @@
 
 from docutils import nodes
 from docutils.writers.manpage import (
-    MACRO_DEF,
     Writer,
     Translator as BaseTranslator
 )
 
-import sphinx.util.docutils
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
@@ -110,10 +108,6 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
-
-        # In docutils < 0.11 self.append_header() was never called
-        if sphinx.util.docutils.__version_info__ < (0, 11):
-            self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():

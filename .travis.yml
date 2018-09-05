@@ -11,16 +11,9 @@ env:
 
 matrix:
   include:
-    - python: 'pypy'
-      env: TOXENV=pypy
-    - python: '2.7'
+    - python: '3.5'
       env:
         - TOXENV=du13
-        - PYTEST_ADDOPTS="--cov ./ --cov-append --cov-config setup.cfg"
-    - python: '3.4'
-      env: TOXENV=py34
-    - python: '3.5'
-      env: TOXENV=py35
     - python: '3.6'
       env:
         - TOXENV=py36

@@ -11,15 +11,15 @@ import sphinx
 with open('README.rst') as f:
     long_desc = f.read()
 
-if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
-    print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
+if sys.version_info < (3, 5):
+    print('ERROR: Sphinx requires at least Python 3.5 to run.')
     sys.exit(1)
 
 install_requires = [
     'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.11',
+    'docutils>=0.12',
     'snowballstemmer>=1.1',
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
@@ -35,9 +35,6 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    ':python_version<"3.5"': [
-        'typing'
-    ],
     'websupport': [
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
@@ -49,11 +46,6 @@ extras_require = {
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
-    ],
-    'test:python_version<"3"': [
-        'enum34',
-    ],
-    'test:python_version>="3"': [
         'mypy',
         'typed_ast',
     ],
@@ -195,12 +187,11 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Setuptools Plugin',
@@ -235,7 +226,7 @@ setup(
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=3.5",
     install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,

@@ -4,8 +4,13 @@ Release 2.0.0 (in development)
 Dependencies
 ------------
 
+* LaTeX builder now depends on TeX Live 2015 or above
+
 Incompatible changes
 --------------------
+
+* Drop python 2.7 and 3.4 support
+* Drop docutils 0.11 support
 
 Deprecated
 ----------
