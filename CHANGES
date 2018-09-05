@@ -1,14 +1,5 @@
-Release 1.7.9 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 1.7.9 (released Sep 05, 2018)
+=====================================
 
 Features added
 --------------
@@ -19,9 +10,6 @@ Bugs fixed
 ----------
 
 * #5361: crashed on incremental build if document uses include directive
-
-Testing
---------
 
 Release 1.7.8 (released Aug 29, 2018)
 =====================================
