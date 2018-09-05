@@ -32,7 +32,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -90,53 +90,6 @@ def get_stable_hash(obj):
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
     return md5(text_type(obj).encode('utf8')).hexdigest()
-
-
-class CSSContainer(list):
-    """The container for stylesheets.
-
-    To support the extensions which access the container directly, this wraps
-    the entry with Stylesheet class.
-    """
-    def append(self, obj):
-        # type: (Union[unicode, Stylesheet]) -> None
-        if isinstance(obj, Stylesheet):
-            super(CSSContainer, self).append(obj)
-        else:
-            super(CSSContainer, self).append(Stylesheet(obj))
-
-    def insert(self, index, obj):
-        # type: (int, Union[unicode, Stylesheet]) -> None
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        if isinstance(obj, Stylesheet):
-            super(CSSContainer, self).insert(index, obj)
-        else:
-            super(CSSContainer, self).insert(index, Stylesheet(obj))
-
-    def extend(self, other):  # type: ignore
-        # type: (List[Union[unicode, Stylesheet]]) -> None
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        for item in other:
-            self.append(item)
-
-    def __iadd__(self, other):  # type: ignore
-        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        for item in other:
-            self.append(item)
-        return self
-
-    def __add__(self, other):
-        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
-        ret = CSSContainer(self)
-        ret += other
-        return ret
 
 
 class Stylesheet(text_type):
@@ -311,7 +264,7 @@ class StandaloneHTMLBuilder(Builder):
         super(StandaloneHTMLBuilder, self).__init__(app)
 
         # CSS files
-        self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
+        self.css_files = []  # type: List[Dict[unicode, unicode]]
 
         # JS files
         self.script_files = JSContainer()  # type: List[JavaScript]
@@ -341,9 +294,9 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
         if self.config.html_experimental_html5_writer and not html5_ready:
-            self.app.warn(('html_experimental_html5_writer is set, but current version '
-                           'is old. Docutils\' version should be 0.13 or newer, but %s.') %
-                          docutils.__version__)
+            logger.warning(__('html_experimental_html5_writer is set, but current version '
+                              'is old. Docutils\' version should be 0.13 or newer, but %s.'),
+                           docutils.__version__)
 
     def create_build_info(self):
         # type: () -> BuildInfo
@@ -1085,14 +1038,6 @@ class StandaloneHTMLBuilder(Builder):
         if sidebars is None:
             # keep defaults
             pass
-        elif isinstance(sidebars, string_types):
-            # 0.x compatible mode: insert custom sidebar before searchbox
-            customsidebar = sidebars
-            sidebars = None
-            warnings.warn('Now html_sidebars only allows list of sidebar '
-                          'templates as a value. Support for a string value '
-                          'will be removed at Sphinx-2.0.',
-                          RemovedInSphinx20Warning)
 
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
@@ -1162,7 +1107,7 @@ class StandaloneHTMLBuilder(Builder):
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',
                           RemovedInSphinx30Warning)
-            self.warn(*args, **kwargs)
+            logger.warning(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn
 

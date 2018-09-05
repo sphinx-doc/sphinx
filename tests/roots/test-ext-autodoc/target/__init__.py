@@ -4,7 +4,7 @@ import enum
 
 from six import StringIO, add_metaclass
 
-from sphinx.ext.autodoc import add_documenter  # NOQA
+from sphinx.util import save_traceback  # NOQA
 
 
 __all__ = ['Class']

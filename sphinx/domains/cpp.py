@@ -4578,7 +4578,7 @@ class DefinitionParser(object):
                 return ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
                 self.fail("Can not handle character literal. Internal error was: %s" % e)
-            except UnsupportedMultiCharacterCharLiteral as e:
+            except UnsupportedMultiCharacterCharLiteral:
                 self.fail("Can not handle character literal"
                           " resulting in multiple decoded characters.")
 

@@ -58,7 +58,6 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from types import ModuleType
 
 from docutils import nodes
@@ -70,7 +69,6 @@ from six import text_type
 
 import sphinx
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
@@ -175,8 +173,8 @@ class FakeDirective(DocumenterBridge):
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
-def get_documenter(*args):
-    # type: (Any) -> Type[Documenter]
+def get_documenter(app, obj, parent):
+    # type: (Sphinx, Any, Any) -> Type[Documenter]
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -185,16 +183,6 @@ def get_documenter(*args):
     belongs to.
     """
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
-    if len(args) == 3:
-        # new style arguments: (app, obj, parent)
-        app, obj, parent = args
-    else:
-        # old style arguments: (obj, parent)
-        app = _app
-        obj, parent = args
-        warnings.warn('the interface of get_documenter() has been changed. '
-                      'Please give application object as first argument.',
-                      RemovedInSphinx20Warning)
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False

@@ -10,13 +10,11 @@
 """
 
 import time
-import warnings
 from os import path
 
 from docutils import nodes
 from six.moves import cPickle as pickle
 
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -97,8 +95,6 @@ class Builder(object):
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
-        self.warn = app.warn        # type: Callable
-        self.info = app.info        # type: Callable
         self.config = app.config    # type: Config
         self.tags = app.tags        # type: Tags
         self.tags.add(self.format)
@@ -137,22 +133,6 @@ class Builder(object):
         Users can replace the translator class with ``app.set_translator()`` API.
         """
         return self.app.registry.create_translator(self, *args)
-
-    @property
-    def translator_class(self):
-        # type: () -> Callable[[Any], nodes.NodeVisitor]
-        """Return a class of translator.
-
-        .. deprecated:: 1.6
-        """
-        translator_class = self.app.registry.get_translator_class(self)
-        if translator_class is None and self.default_translator_class is None:
-            warnings.warn('builder.translator_class() is now deprecated. '
-                          'Please use builder.create_translator() and '
-                          'builder.default_translator_class instead.',
-                          RemovedInSphinx20Warning)
-            return None
-        return self.create_translator
 
     # helper methods
     def init(self):
