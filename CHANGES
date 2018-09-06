@@ -21,6 +21,7 @@ Features added
 --------------
 
 * #5388: Ensure frozen object descriptions are reproducible
+* #5362: apidoc: Add ``--tocfile`` option to change the filename of ToC
 
 Bugs fixed
 ----------
