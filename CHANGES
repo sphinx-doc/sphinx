@@ -38,6 +38,7 @@ Bugs fixed
 * autodoc: ImportError is replaced by AttributeError for deeper module
 * #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
   parallel builds
+* #5290: autodoc: failed to analyze source code in egg package
 
 Testing
 --------
