@@ -9,6 +9,7 @@ Incompatible changes
 
 * #5282: html theme: refer ``pygments_style`` settings of HTML themes
   preferentially
+* The URL of download files are changed
 
 Deprecated
 ----------
@@ -35,6 +36,8 @@ Bugs fixed
 * #4379: toctree shows confusible warning when document is excluded
 * #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
 * autodoc: ImportError is replaced by AttributeError for deeper module
+* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
+  parallel builds
 
 Testing
 --------
