@@ -11,6 +11,9 @@
 
 import pytest
 
+from sphinx.builders.htmlhelp import default_htmlhelp_basename
+from sphinx.config import Config
+
 
 @pytest.mark.sphinx('htmlhelp', testroot='basic')
 def test_default_htmlhelp_file_suffix(app, warning):
@@ -21,3 +24,9 @@ def test_default_htmlhelp_file_suffix(app, warning):
                     confoverrides={'htmlhelp_file_suffix': '.htm'})
 def test_htmlhelp_file_suffix(app, warning):
     assert app.builder.out_suffix == '.htm'
+
+
+def test_default_htmlhelp_basename():
+    config = Config({'project': u'Sphinx Documentation'})
+    config.init_values()
+    assert default_htmlhelp_basename(config) == 'sphinxdoc'
