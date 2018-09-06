@@ -19,7 +19,7 @@ from os import path
 
 from docutils.utils import get_source_line
 from six import BytesIO, next
-from six.moves import cPickle as pickle, reduce
+from six.moves import cPickle as pickle
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
@@ -28,7 +28,7 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import get_matching_docs, FilenameUniqDict
+from sphinx.util import get_matching_docs, DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
@@ -67,7 +67,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 53 + (sys.version_info[0] - 2)
+ENV_VERSION = 54 + (sys.version_info[0] - 2)
 
 # config status
 CONFIG_OK = 1
@@ -190,7 +190,8 @@ class BuildEnvironment(object):
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
-        self.dlfiles = FilenameUniqDict()   # type: FilenameUniqDict
+        self.dlfiles = DownloadFiles()      # type: DownloadFiles
+                                            # filename -> (set of docnames, destination)
 
         # the original URI for images
         self.original_image_uri = {}  # type: Dict[unicode, unicode]
@@ -724,7 +725,7 @@ class BuildEnvironment(object):
     def check_consistency(self):
         # type: () -> None
         """Do consistency checks."""
-        included = reduce(lambda x, y: x | y, self.included.values(), set())  # type: Set[unicode]  # NOQA
+        included = set().union(*self.included.values())  # type: ignore
         for docname in sorted(self.all_docs):
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:

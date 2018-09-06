@@ -208,6 +208,8 @@ The following variables available in the templates:
    List containing names of all inherited members of class.  Only available for
    classes.
 
+   .. versionadded:: 1.8.0
+
 .. data:: functions
 
    List containing names of "public" functions in the module.  Here, "public"

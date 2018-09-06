@@ -168,13 +168,15 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
 
     try:
         module = None
+        exc_on_importing = None
         objpath = list(objpath)
         while module is None:
             try:
                 module = import_module(modname, warningiserror=warningiserror)
                 logger.debug('[autodoc] import %s => %r', modname, module)
-            except ImportError:
+            except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
+                exc_on_importing = exc
                 if '.' in modname:
                     # retry with parent module
                     modname, name = modname.rsplit('.', 1)
@@ -193,6 +195,10 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
+        if isinstance(exc, AttributeError) and exc_on_importing:
+            # restore ImportError
+            exc = exc_on_importing
+
         if objpath:
             errmsg = ('autodoc: failed to import %s %r from module %r' %
                       (objtype, '.'.join(objpath), modname))
