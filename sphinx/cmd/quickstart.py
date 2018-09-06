@@ -678,7 +678,7 @@ def main(argv=sys.argv[1:]):
         except ValueError:
             print(__('Invalid template variable: %s') % variable)
 
-    generate(d, templatedir=args.templatedir)
+    generate(d, overwrite=False, templatedir=args.templatedir)
     return 0
 
 
