@@ -250,11 +250,6 @@ class Sphinx(object):
         self.config.init_values()
         self.emit('config-inited', self.config)
 
-        # check primary_domain if requested
-        primary_domain = self.config.primary_domain
-        if primary_domain and not self.registry.has_domain(primary_domain):
-            logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-
         # create the builder
         self.builder = self.create_builder(buildername)
         # set up the build environment
