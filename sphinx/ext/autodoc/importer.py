@@ -80,6 +80,7 @@ class _MockObject(object):
         return self
 
     def __repr__(self):
+        # type: () -> str
         return self.__display_name__
 
 
@@ -88,7 +89,7 @@ def _make_subclass(name, module, superclass=_MockObject, attributes=None):
     attrs = {'__module__': module, '__display_name__': module + '.' + name}
     attrs.update(attributes or {})
 
-    return type(name, (superclass,), attrs)  # type: ignore
+    return type(name, (superclass,), attrs)
 
 
 class _MockModule(ModuleType):
@@ -107,6 +108,7 @@ class _MockModule(ModuleType):
         return _make_subclass(name, self.__name__)()
 
     def __repr__(self):
+        # type: () -> str
         return self.__name__
 
 
