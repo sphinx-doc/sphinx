@@ -116,6 +116,16 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.doctest.doctest_encode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.testing.util.remove_unicode_literal()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - :rst:dir:`highlightlang`
      - 1.8
      - 4.0

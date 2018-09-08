@@ -12,8 +12,6 @@
 import os
 import sys
 
-from six import PY2
-
 import sphinx
 from sphinx.pycode import ModuleAnalyzer
 
@@ -24,20 +22,14 @@ def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
-    if PY2:
-        assert analyzer.encoding == 'ascii'
-    else:
-        assert analyzer.encoding is None
+    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_file():
     analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == '<string>'
-    if PY2:
-        assert analyzer.encoding == 'ascii'
-    else:
-        assert analyzer.encoding is None
+    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_module():
