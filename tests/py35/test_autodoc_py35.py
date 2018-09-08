@@ -10,11 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-# "raises" imported for usage by autodoc
-import sys
-
 import pytest
-import six
 from docutils.statemachine import ViewList
 from six import StringIO
 
@@ -207,11 +203,8 @@ def test_generate():
                    ('attribute', 'test_autodoc_py35.Class.inst_attr_inline'),
                    ('attribute', 'test_autodoc_py35.Class.inst_attr_string'),
                    ('method', 'test_autodoc_py35.Class.moore'),
+                   ('method', 'test_autodoc_py35.Class.do_coroutine'),
                    ])
-    if six.PY3 and sys.version_info[:2] >= (3, 5):
-        should.extend([
-            ('method', 'test_autodoc_py35.Class.do_coroutine'),
-        ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
@@ -280,9 +273,8 @@ class Base(object):
         """Inherited function."""
 
 
-if six.PY3 and sys.version_info[:2] >= (3, 5):
-    async def _other_coro_func():
-        return "run"
+async def _other_coro_func():
+    return "run"
 
 
 class Class(Base):
@@ -341,8 +333,6 @@ class Class(Base):
         # undocumented special method
         pass
 
-    if six.PY3 and sys.version_info[:2] >= (3, 5):
-
-        async def do_coroutine(self):
-            """A documented coroutine function"""
-            attr_coro_result = await _other_coro_func()  # NOQA
+    async def do_coroutine(self):
+        """A documented coroutine function"""
+        attr_coro_result = await _other_coro_func()  # NOQA

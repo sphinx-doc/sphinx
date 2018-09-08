@@ -1426,8 +1426,6 @@ def test_partialfunction():
     assert call_autodoc('module', 'target.partialfunction') == expected
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='functools.partialmethod is available on py34 or above')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
     expected = [

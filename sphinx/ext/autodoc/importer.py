@@ -234,12 +234,6 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    # Py34 doesn't have enum members in __dict__.
-    if sys.version_info[:2] == (3, 4) and isenumclass(subject):
-        obj_dict = dict(obj_dict)
-        for name, value in subject.__members__.items():
-            obj_dict[name] = value
-
     members = {}  # type: Dict[str, Attribute]
 
     # enum members

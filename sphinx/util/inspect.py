@@ -648,108 +648,6 @@ class Signature(object):
         return qualname
 
 
-if sys.version_info >= (3, 5):
-    _getdoc = inspect.getdoc
-else:
-    # code copied from the inspect.py module of the standard library
-    # of Python 3.5
-
-    def _findclass(func):
-        # type: (Any) -> Any
-        cls = sys.modules.get(func.__module__)
-        if cls is None:
-            return None
-        if hasattr(func, 'im_class'):
-            cls = func.im_class
-        else:
-            for name in func.__qualname__.split('.')[:-1]:
-                cls = getattr(cls, name)
-        if not inspect.isclass(cls):
-            return None
-        return cls
-
-    def _finddoc(obj):
-        # type: (Any) -> unicode
-        if inspect.isclass(obj):
-            for base in obj.__mro__:
-                if base is not object:
-                    try:
-                        doc = base.__doc__
-                    except AttributeError:
-                        continue
-                    if doc is not None:
-                        return doc
-            return None
-
-        if inspect.ismethod(obj) and getattr(obj, '__self__', None):
-            name = obj.__func__.__name__
-            self = obj.__self__
-            if (inspect.isclass(self) and
-                    getattr(getattr(self, name, None), '__func__')
-                    is obj.__func__):
-                # classmethod
-                cls = self
-            else:
-                cls = self.__class__
-        elif inspect.isfunction(obj) or inspect.ismethod(obj):
-            name = obj.__name__
-            cls = _findclass(obj)
-            if cls is None or getattr(cls, name) != obj:
-                return None
-        elif inspect.isbuiltin(obj):
-            name = obj.__name__
-            self = obj.__self__
-            if (inspect.isclass(self) and
-                    self.__qualname__ + '.' + name == obj.__qualname__):
-                # classmethod
-                cls = self
-            else:
-                cls = self.__class__
-        # Should be tested before isdatadescriptor().
-        elif isinstance(obj, property):
-            func = obj.fget
-            name = func.__name__
-            cls = _findclass(func)
-            if cls is None or getattr(cls, name) is not obj:
-                return None
-        elif inspect.ismethoddescriptor(obj) or inspect.isdatadescriptor(obj):
-            name = obj.__name__
-            cls = obj.__objclass__
-            if getattr(cls, name) is not obj:
-                return None
-        else:
-            return None
-
-        for base in cls.__mro__:
-            try:
-                doc = getattr(base, name).__doc__
-            except AttributeError:
-                continue
-            if doc is not None:
-                return doc
-        return None
-
-    def _getdoc(object):
-        # type: (Any) -> unicode
-        """Get the documentation string for an object.
-
-        All tabs are expanded to spaces.  To clean up docstrings that are
-        indented to line up with blocks of code, any whitespace than can be
-        uniformly removed from the second line onwards is removed."""
-        try:
-            doc = object.__doc__
-        except AttributeError:
-            return None
-        if doc is None:
-            try:
-                doc = _finddoc(object)
-            except (AttributeError, TypeError):
-                return None
-        if not isinstance(doc, str):
-            return None
-        return inspect.cleandoc(doc)
-
-
 def getdoc(obj, attrgetter=safe_getattr, allow_inherited=False):
     # type: (Any, Callable, bool) -> unicode
     """Get the docstring for the object.
@@ -763,6 +661,6 @@ def getdoc(obj, attrgetter=safe_getattr, allow_inherited=False):
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
-        doc = _getdoc(obj)
+        doc = inspect.getdoc(obj)
 
     return doc

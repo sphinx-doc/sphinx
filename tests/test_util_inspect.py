@@ -105,13 +105,8 @@ def test_getargspec_bound_methods():
         pass
 
     assert expected_unbound == inspect.getargspec(Foo.method)
-    if PY3 and sys.version_info >= (3, 4, 4):
-        # On py2, the inspect functions don't properly handle bound
-        # methods (they include a spurious 'self' argument)
-        assert expected_bound == inspect.getargspec(bound_method)
-        # On py2, the inspect functions can't properly handle wrapped
-        # functions (no __wrapped__ support)
-        assert expected_bound == inspect.getargspec(wrapped_bound_method)
+    assert expected_bound == inspect.getargspec(bound_method)
+    assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
 def test_Signature():
@@ -143,10 +138,7 @@ def test_Signature_partial():
     p = functools.partial(fun, 10, c=11)
 
     sig = inspect.Signature(p).format_args()
-    if sys.version_info < (3,):
-        assert sig == '(b, d=2)'
-    else:
-        assert sig == '(b, *, c=11, d=2)'
+    assert sig == '(b, *, c=11, d=2)'
 
 
 def test_Signature_methods():
@@ -193,16 +185,9 @@ def test_Signature_methods():
 
     # wrapped bound method
     sig = inspect.Signature(wrapped_bound_method).format_args()
-    if sys.version_info < (3,):
-        assert sig == '(*args, **kwargs)'
-    elif sys.version_info < (3, 4, 4):
-        assert sig == '(self, arg1, **kwargs)'
-    else:
-        assert sig == '(arg1, **kwargs)'
+    assert sig == '(arg1, **kwargs)'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='functools.partialmethod is available on py34 or above')
 def test_Signature_partialmethod():
     from functools import partialmethod
 
@@ -228,8 +213,6 @@ def test_Signature_partialmethod():
     assert sig == '()'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='type annotation test is available on py34 or above')
 def test_Signature_annotations():
     from typing_test_data import (
         f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, Node)
@@ -437,10 +420,5 @@ def test_isstaticmethod():
 
     assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
     assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
-
-    if sys.version_info < (3, 0):
-        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is False
-        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
-    else:
-        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
-        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
+    assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
