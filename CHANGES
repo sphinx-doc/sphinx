@@ -17,6 +17,8 @@ Deprecated
 
 * ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()`` is deprecated
 * ``sphinx.io.SphinxI18nReader.line`` is deprecated
+* ``sphinx.util.i18n.find_catalog_source_file()`` has changed; the
+  *gettext_compact* argument has been deprecated
 
 Features added
 --------------
@@ -41,6 +43,7 @@ Bugs fixed
 * #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
   parallel builds
 * #5290: autodoc: failed to analyze source code in egg package
+* #5399: Sphinx crashes if unknown po file exists
 
 Testing
 --------
