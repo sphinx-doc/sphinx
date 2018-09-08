@@ -78,7 +78,7 @@ def guess_mimetype_for_stream(stream, default=None):
 
 
 def guess_mimetype(filename='', content=None, default=None):
-    # type: (unicode, unicode, unicode) -> unicode
+    # type: (unicode, bytes, unicode) -> unicode
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -123,7 +123,7 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
-    # type: (unicode, IO) -> unicode
+    # type: (bytes, IO) -> unicode
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode('utf-8').lower():
