@@ -1584,3 +1584,26 @@ def test_autodoc_default_options_with_values(app):
         assert '      list of weak references to the object (if defined)' not in actual
     assert '   .. py:method:: CustomIter.snafucate()' not in actual
     assert '      Makes this snafucated.' not in actual
+
+
+@pytest.mark.sphinx('html', testroot='pycode-egg')
+def test_autodoc_for_egged_code(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'sample', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: sample',
+        '',
+        '',
+        '.. py:data:: CONSTANT',
+        '   :module: sample',
+        '   :annotation: = 1',
+        '',
+        '   constant on sample.py',
+        '   ',
+        '',
+        '.. py:function:: hello(s)',
+        '   :module: sample',
+        ''
+    ]

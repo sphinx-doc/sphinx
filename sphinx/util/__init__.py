@@ -314,6 +314,11 @@ def get_module_source(modname):
             filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
+    elif '.egg' in filename:
+        eggpath, _ = re.split('(?<=\\.egg)/', filename)
+        if path.isfile(eggpath):
+            return 'file', filename
+
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
