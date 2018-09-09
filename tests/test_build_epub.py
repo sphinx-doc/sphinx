@@ -326,6 +326,8 @@ def test_epub_anchor_id(app):
     assert 'see <a class="reference internal" href="#std-setting-STATICFILES_FINDERS">' in html
 
 
+@pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
+                    reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')
 def test_run_epubcheck(app):
     app.build()
