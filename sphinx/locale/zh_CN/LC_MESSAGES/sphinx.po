@@ -413,7 +413,7 @@ msgstr ""
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
-msgstr "自版本 %s 开始，扩展 %r 已合并至 Sphinx；该扩展被忽略。"
+msgstr ""
 
 #: sphinx/registry.py:474
 msgid "Original exception:\n"
@@ -3290,7 +3290,7 @@ msgstr ""
 #: sphinx/transforms/post_transforms/__init__.py:142
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
-msgstr "'any' 交叉引用的目标不唯一：可能是 %s"
+msgstr ""
 
 #: sphinx/transforms/post_transforms/__init__.py:172
 #, python-format
