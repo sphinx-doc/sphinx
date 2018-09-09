@@ -45,15 +45,22 @@ Incompatible changes
 
 * #5282: html theme: refer ``pygments_style`` settings of HTML themes
   preferentially
+* The URL of download files are changed
+* #5127: quickstart: ``Makefile`` and ``make.bat`` are not overwritten if exists
 
 Deprecated
 ----------
 
 * ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()`` is deprecated
 * ``sphinx.io.SphinxI18nReader.line`` is deprecated
+* ``sphinx.util.i18n.find_catalog_source_file()`` has changed; the
+  *gettext_compact* argument has been deprecated
 
 Features added
 --------------
+
+* #5388: Ensure frozen object descriptions are reproducible
+* #5362: apidoc: Add ``--tocfile`` option to change the filename of ToC
 
 Bugs fixed
 ----------
@@ -67,6 +74,12 @@ Bugs fixed
 * #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
   by default
 * #4379: toctree shows confusible warning when document is excluded
+* #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
+* autodoc: ImportError is replaced by AttributeError for deeper module
+* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
+  parallel builds
+* #5290: autodoc: failed to analyze source code in egg package
+* #5399: Sphinx crashes if unknown po file exists
 
 Testing
 --------

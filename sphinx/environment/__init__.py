@@ -25,7 +25,7 @@ from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import get_matching_docs, FilenameUniqDict
+from sphinx.util import get_matching_docs, DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
@@ -184,7 +184,8 @@ class BuildEnvironment(object):
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
-        self.dlfiles = FilenameUniqDict()   # type: FilenameUniqDict
+        self.dlfiles = DownloadFiles()      # type: DownloadFiles
+                                            # filename -> (set of docnames, destination)
 
         # the original URI for images
         self.original_image_uri = {}  # type: Dict[unicode, unicode]

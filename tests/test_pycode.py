@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 
 from six import PY2
 
@@ -45,6 +46,31 @@ def test_ModuleAnalyzer_for_module():
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
     assert analyzer.encoding == 'utf-8'
+
+
+def test_ModuleAnalyzer_for_file_in_egg(rootdir):
+    try:
+        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
+        sys.path.insert(0, path)
+
+        import sample
+        analyzer = ModuleAnalyzer.for_file(sample.__file__, 'sample')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
+    finally:
+        sys.path.pop(0)
+
+
+def test_ModuleAnalyzer_for_module_in_egg(rootdir):
+    try:
+        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
+        sys.path.insert(0, path)
+
+        analyzer = ModuleAnalyzer.for_module('sample')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
+    finally:
+        sys.path.pop(0)
 
 
 def test_ModuleAnalyzer_find_tags():

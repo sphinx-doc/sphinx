@@ -817,10 +817,10 @@ class StandaloneHTMLBuilder(Builder):
             for src in status_iterator(self.env.dlfiles, __('copying downloadable files... '),
                                        "brown", len(self.env.dlfiles), self.app.verbosity,
                                        stringify_func=to_relpath):
-                dest = self.env.dlfiles[src][1]
                 try:
-                    copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_downloads', dest))
+                    dest = path.join(self.outdir, '_downloads', self.env.dlfiles[src][1])
+                    ensuredir(path.dirname(dest))
+                    copyfile(path.join(self.srcdir, src), dest)
                 except EnvironmentError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)

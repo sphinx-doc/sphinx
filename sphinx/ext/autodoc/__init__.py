@@ -106,6 +106,20 @@ def bool_option(arg):
     return True
 
 
+def merge_special_members_option(options):
+    # type: (Dict) -> None
+    """Merge :special-members: option to :members: option."""
+    if 'special-members' in options and options['special-members'] is not ALL:
+        if options.get('members') is ALL:
+            pass
+        elif options.get('members'):
+            for member in options['special-members']:
+                if member not in options['members']:
+                    options['members'].append(member)
+        else:
+            options['members'] = options['special-members']
+
+
 # Some useful event listener factories for autodoc-process-docstring.
 
 def cut_lines(pre, post=0, what=None):
@@ -768,6 +782,11 @@ class ModuleDocumenter(Documenter):
         'imported-members': bool_option, 'ignore-module-all': bool_option
     }  # type: Dict[unicode, Callable]
 
+    def __init__(self, *args):
+        # type: (Any) -> None
+        super(ModuleDocumenter, self).__init__(*args)
+        merge_special_members_option(self.options)
+
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
@@ -1025,6 +1044,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
     }  # type: Dict[unicode, Callable]
+
+    def __init__(self, *args):
+        # type: (Any) -> None
+        super(ClassDocumenter, self).__init__(*args)
+        merge_special_members_option(self.options)
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):

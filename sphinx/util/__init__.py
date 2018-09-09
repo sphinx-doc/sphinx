@@ -22,6 +22,7 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
+from hashlib import md5
 from os import path
 from time import mktime, strptime
 
@@ -167,6 +168,37 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+class DownloadFiles(dict):
+    """A special dictionary for download files.
+
+    .. important:: This class would be refactored in nearly future.
+                   Hence don't hack this directly.
+    """
+
+    def add_file(self, docname, filename):
+        # type: (unicode, unicode) -> None
+        if filename not in self:
+            digest = md5(filename.encode('utf-8')).hexdigest()
+            dest = '%s/%s' % (digest, os.path.basename(filename))
+            self[filename] = (set(), dest)
+
+        self[filename][0].add(docname)
+        return self[filename][1]
+
+    def purge_doc(self, docname):
+        # type: (unicode) -> None
+        for filename, (docs, dest) in list(self.items()):
+            docs.discard(docname)
+            if not docs:
+                del self[filename]
+
+    def merge_other(self, docnames, other):
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        for filename, (docs, dest) in other.items():
+            for docname in docs & set(docnames):
+                self.add_file(docname, filename)
+
+
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
     # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
@@ -282,6 +314,11 @@ def get_module_source(modname):
             filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
+    elif '.egg' in filename:
+        eggpath, _ = re.split('(?<=\\.egg)/', filename)
+        if path.isfile(eggpath):
+            return 'file', filename
+
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
