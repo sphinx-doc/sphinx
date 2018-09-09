@@ -283,11 +283,14 @@ class StandaloneHTMLBuilder(Builder):
         self.init_highlighter()
         self.init_css_files()
         self.init_js_files()
-        if self.config.html_file_suffix is not None:
-            self.out_suffix = self.config.html_file_suffix
 
-        if self.config.html_link_suffix is not None:
-            self.link_suffix = self.config.html_link_suffix
+        html_file_suffix = self.get_builder_config('file_suffix', 'html')
+        if html_file_suffix is not None:
+            self.out_suffix = html_file_suffix
+
+        html_link_suffix = self.get_builder_config('link_suffix', 'html')
+        if html_link_suffix is not None:
+            self.link_suffix = html_link_suffix
         else:
             self.link_suffix = self.out_suffix
 
