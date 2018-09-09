@@ -370,6 +370,8 @@ def test_html_download_role(app, status, warning):
             '/_static/sphinxheader.png]</span></p></li>' in content)
 
 
+@pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
+                    reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')
 def test_run_epubcheck(app):
     app.build()
