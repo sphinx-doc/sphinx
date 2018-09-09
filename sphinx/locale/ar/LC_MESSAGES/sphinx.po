@@ -3,51 +3,51 @@
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
+# Mohammed Shannaq <sam@ms.per.jo>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-08-21 01:14+0900\n"
-"PO-Revision-Date: 2018-08-20 16:15+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
-"Language-Team: Finnish (http://www.transifex.com/sphinx-doc/sphinx-1/language/fi/)\n"
+"PO-Revision-Date: 2018-09-09 10:57+0000\n"
+"Last-Translator: Mohammed Shannaq <sam@ms.per.jo>\n"
+"Language-Team: Arabic (http://www.transifex.com/sphinx-doc/sphinx-1/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
-"Language: fi\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: sphinx/application.py:152
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
-msgstr ""
+msgstr "مجلد الاعدادات لا يحتوي على ملف conf.py (%s)"
 
 #: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
-msgstr ""
+msgstr "لا يمكن العثور على المجلد المصدر (%s)"
 
 #: sphinx/application.py:160
 msgid "Source directory and destination directory cannot be identical"
-msgstr ""
+msgstr "لا يمكن ان يكون المجلد المصدر والمجلد الهدف متطابقين"
 
 #: sphinx/application.py:191
 #, python-format
 msgid "Running Sphinx v%s"
-msgstr ""
+msgstr "تشغيل Sphinx v%s"
 
 #: sphinx/application.py:214
 #, python-format
 msgid ""
 "This project needs at least Sphinx v%s and therefore cannot be built with "
 "this version."
-msgstr ""
+msgstr "يحتاج هذا المشروع على الاقل الى الاصدار %s من Sphinx وبالتالي لا يمكن بناءه باستخدام الاصدار الحالي"
 
 #: sphinx/application.py:234
 msgid "making output directory..."
-msgstr ""
+msgstr "صناعة مجلد المخرجات ..."
 
 #: sphinx/application.py:244
 msgid ""
@@ -59,12 +59,12 @@ msgstr ""
 #: sphinx/application.py:256
 #, python-format
 msgid "primary_domain %r not found, ignored."
-msgstr ""
+msgstr "primary_domain %r لتم يتم العثور عليه، لهذا تم تجاهلة"
 
 #: sphinx/application.py:271
 #, python-format
 msgid "loading translations [%s]... "
-msgstr ""
+msgstr "تحميل الترجمات [ %s ]"
 
 #: sphinx/application.py:287 sphinx/application.py:304
 #: sphinx/builders/__init__.py:380 sphinx/builders/__init__.py:387
@@ -76,42 +76,42 @@ msgstr ""
 #: sphinx/builders/html.py:1412 sphinx/builders/html.py:1422
 #: sphinx/builders/latex/__init__.py:339 sphinx/builders/texinfo.py:188
 msgid "done"
-msgstr ""
+msgstr "تم"
 
 #: sphinx/application.py:289
 msgid "not available for built-in messages"
-msgstr ""
+msgstr "غير متوفرة للرسائل الافتراضية المدمجة"
 
 #: sphinx/application.py:300
 msgid "loading pickled environment... "
-msgstr ""
+msgstr "تحميل بيئة pickled ..."
 
 #: sphinx/application.py:306
 #, python-format
 msgid "failed: %s"
-msgstr ""
+msgstr "فشل: %s"
 
 #: sphinx/application.py:316
 msgid "No builder selected, using default: html"
-msgstr ""
+msgstr "لم يتم اختيار نوع البناء، تم استخدام نوع البناء الافتراضي: html"
 
 #: sphinx/application.py:347
 msgid "succeeded"
-msgstr ""
+msgstr "نجح"
 
 #: sphinx/application.py:347
 msgid "finished with problems"
-msgstr ""
+msgstr "انتهى مع وجود مشاكل"
 
 #: sphinx/application.py:349
 #, python-format
 msgid "build %s, %s warning."
-msgstr ""
+msgstr "بناء %s، %sتحذير."
 
 #: sphinx/application.py:353
 #, python-format
 msgid "build %s."
-msgstr ""
+msgstr "بناء %s."
 
 #: sphinx/application.py:626
 #, python-format
@@ -271,7 +271,7 @@ msgstr ""
 #: sphinx/events.py:64
 #, python-format
 msgid "Unknown event name: %s"
-msgstr ""
+msgstr "حدث غير معروف: %s"
 
 #: sphinx/extension.py:55
 #, python-format
@@ -442,7 +442,7 @@ msgstr ""
 #: sphinx/roles.py:202
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python Enhancement Proposals; PEP %s"
+msgstr ""
 
 #: sphinx/theming.py:83
 #, python-format
@@ -502,7 +502,7 @@ msgstr ""
 
 #: sphinx/builders/__init__.py:252
 msgid "building [mo]: "
-msgstr ""
+msgstr "بناء [mo]:"
 
 #: sphinx/builders/__init__.py:253 sphinx/builders/__init__.py:601
 #: sphinx/builders/__init__.py:629
@@ -711,7 +711,7 @@ msgstr ""
 
 #: sphinx/builders/changes.py:91
 msgid "Module level"
-msgstr "Moduulitaso"
+msgstr ""
 
 #: sphinx/builders/changes.py:136
 msgid "copying source files..."
@@ -797,7 +797,7 @@ msgstr ""
 #: sphinx/builders/gettext.py:243
 #, python-format
 msgid "building [%s]: "
-msgstr ""
+msgstr "بناء [%s]"
 
 #: sphinx/builders/gettext.py:244
 #, python-format
@@ -832,7 +832,7 @@ msgstr ""
 #: sphinx/writers/texinfo.py:240
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%d.%m.%Y"
+msgstr ""
 
 #: sphinx/builders/html.py:584
 msgid "html_use_opensearch config value must now be a string"
@@ -840,19 +840,19 @@ msgstr ""
 
 #: sphinx/builders/html.py:590 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
-msgstr "Yleinen sisällysluettelo"
+msgstr ""
 
 #: sphinx/builders/html.py:590
 msgid "index"
-msgstr "hakemisto"
+msgstr ""
 
 #: sphinx/builders/html.py:654
 msgid "next"
-msgstr ">"
+msgstr "التالي"
 
 #: sphinx/builders/html.py:663
 msgid "previous"
-msgstr "<"
+msgstr "السابق"
 
 #: sphinx/builders/html.py:761
 msgid "generating indices..."
@@ -1429,7 +1429,7 @@ msgstr ""
 
 #: sphinx/cmd/quickstart.py:123
 msgid "Please enter some text."
-msgstr ""
+msgstr "الرجاء ادخال بعض النصوص"
 
 #: sphinx/cmd/quickstart.py:132
 #, python-format
@@ -1861,11 +1861,11 @@ msgstr ""
 
 #: sphinx/directives/other.py:169
 msgid "Section author: "
-msgstr "Luvun kirjoittaja: "
+msgstr ""
 
 #: sphinx/directives/other.py:171
 msgid "Module author: "
-msgstr "Moduulin kirjoittaja: "
+msgstr ""
 
 #: sphinx/directives/other.py:173
 msgid "Code author: "
@@ -1873,7 +1873,7 @@ msgstr ""
 
 #: sphinx/directives/other.py:175
 msgid "Author: "
-msgstr "Tekijä: "
+msgstr ""
 
 #: sphinx/domains/__init__.py:336
 #, python-format
@@ -1944,17 +1944,17 @@ msgstr ""
 #: sphinx/domains/changeset.py:34
 #, python-format
 msgid "New in version %s"
-msgstr "Uusi versiossa %s"
+msgstr ""
 
 #: sphinx/domains/changeset.py:35
 #, python-format
 msgid "Changed in version %s"
-msgstr "Muutettu versiossa %s"
+msgstr ""
 
 #: sphinx/domains/changeset.py:36
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "Poistettu versiosta %s alkaen"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4037
 #, python-format
@@ -2071,7 +2071,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:266 sphinx/domains/python.py:611
 #, python-format
 msgid "%s (module)"
-msgstr "%s (moduuli)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:300 sphinx/domains/python.py:744
 msgid "method"
@@ -2088,7 +2088,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:304 sphinx/domains/python.py:50
 #: sphinx/domains/python.py:748
 msgid "module"
-msgstr "moduuli"
+msgstr ""
 
 #: sphinx/domains/math.py:88 sphinx/writers/latex.py:2529
 #, python-format
@@ -2194,11 +2194,11 @@ msgstr ""
 
 #: sphinx/domains/python.py:670
 msgid "modules"
-msgstr "moduulit"
+msgstr ""
 
 #: sphinx/domains/python.py:718
 msgid "Deprecated"
-msgstr "Poistettu"
+msgstr ""
 
 #: sphinx/domains/python.py:745
 msgid "class method"
@@ -2215,7 +2215,7 @@ msgstr ""
 
 #: sphinx/domains/python.py:918
 msgid " (deprecated)"
-msgstr " (poistettu)"
+msgstr ""
 
 #: sphinx/domains/rst.py:65
 #, python-format
@@ -2284,15 +2284,15 @@ msgstr ""
 #: sphinx/themes/basic/genindex.html:66 sphinx/themes/basic/layout.html:150
 #: sphinx/writers/latex.py:503 sphinx/writers/texinfo.py:516
 msgid "Index"
-msgstr "Sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/std.py:499
 msgid "Module Index"
-msgstr "Moduuli sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/std.py:500 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr "Etsi sivu"
+msgstr ""
 
 #: sphinx/domains/std.py:595
 #, python-format
@@ -2736,7 +2736,7 @@ msgstr ""
 
 #: sphinx/ext/todo.py:67
 msgid "Todo"
-msgstr "Tehtävä vielä"
+msgstr ""
 
 #: sphinx/ext/todo.py:105
 #, python-format
@@ -2758,7 +2758,7 @@ msgstr ""
 
 #: sphinx/ext/viewcode.py:196
 msgid "[docs]"
-msgstr ""
+msgstr "[المستندات]"
 
 #: sphinx/ext/viewcode.py:210
 msgid "Module code"
@@ -2938,43 +2938,43 @@ msgstr ""
 
 #: sphinx/locale/__init__.py:341
 msgid "Attention"
-msgstr "Huom"
+msgstr ""
 
 #: sphinx/locale/__init__.py:342
 msgid "Caution"
-msgstr "Varoitus"
+msgstr ""
 
 #: sphinx/locale/__init__.py:343
 msgid "Danger"
-msgstr "Vaara"
+msgstr ""
 
 #: sphinx/locale/__init__.py:344
 msgid "Error"
-msgstr "Virhe"
+msgstr ""
 
 #: sphinx/locale/__init__.py:345
 msgid "Hint"
-msgstr "Vihje"
+msgstr ""
 
 #: sphinx/locale/__init__.py:346
 msgid "Important"
-msgstr "Tärkeä"
+msgstr ""
 
 #: sphinx/locale/__init__.py:347
 msgid "Note"
-msgstr "Muista"
+msgstr ""
 
 #: sphinx/locale/__init__.py:348
 msgid "See also"
-msgstr "Katso myös"
+msgstr ""
 
 #: sphinx/locale/__init__.py:349
 msgid "Tip"
-msgstr "Vihje"
+msgstr ""
 
 #: sphinx/locale/__init__.py:350
 msgid "Warning"
-msgstr "Varoitus"
+msgstr ""
 
 #: sphinx/templates/latex/longtable.tex_t:22 sphinx/writers/latex.py:664
 msgid "continued from previous page"
@@ -2982,7 +2982,7 @@ msgstr ""
 
 #: sphinx/templates/latex/longtable.tex_t:28
 msgid "Continued on next page"
-msgstr ""
+msgstr "يتبع في الصفحة التالية"
 
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:41
@@ -2993,19 +2993,19 @@ msgstr ""
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:26
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
-msgstr "Etsi"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:16
 msgid "Go"
-msgstr "Siirry"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
-msgstr "Näytä lähdekoodina"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
-msgstr "Yhteenveto"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
@@ -3037,7 +3037,7 @@ msgstr ""
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
-msgstr "Yleinen moduulien sisällysluettelo"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
@@ -3057,28 +3057,28 @@ msgstr ""
 #: sphinx/themes/basic/genindex-split.html:38
 #: sphinx/themes/basic/genindex.html:72
 msgid "Full index on one page"
-msgstr "Hakemisto yhtenä luettelona"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "Hakemisto aakkostus sivuttain"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
-msgstr "voi olla iso"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:31
 msgid "Navigation"
-msgstr "Navikointi"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:138
 #, python-format
 msgid "Search within %(docstitle)s"
-msgstr ""
+msgstr "البحث ضمن %(docstitle)s"
 
 #: sphinx/themes/basic/layout.html:147
 msgid "About these documents"
-msgstr "Tietoja tästä documentistä"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:156
 msgid "Copyright"
@@ -3087,12 +3087,12 @@ msgstr ""
 #: sphinx/themes/basic/layout.html:201
 #, python-format
 msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr ""
+msgstr "&#169; <a href=\"%(path)s\"> حقوق النشر </a> %(copyright)s"
 
 #: sphinx/themes/basic/layout.html:203
 #, python-format
 msgid "&#169; Copyright %(copyright)s."
-msgstr ""
+msgstr "&#169;  حقوق النشر %(copyright)s"
 
 #: sphinx/themes/basic/layout.html:207
 #, python-format
@@ -3109,29 +3109,29 @@ msgstr ""
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
-msgstr ""
+msgstr "البحث %(docstitle)s"
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
-msgstr "<<"
+msgstr "الموضوع السابق"
 
 #: sphinx/themes/basic/relations.html:13
 msgid "previous chapter"
-msgstr "<<"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:16
 msgid "Next topic"
-msgstr ">>"
+msgstr "الموضوع التالي"
 
 #: sphinx/themes/basic/relations.html:18
 msgid "next chapter"
-msgstr ">>"
+msgstr "الفصل التالي"
 
 #: sphinx/themes/basic/search.html:30
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "Javascript pitää olla sallittu, jotta etsintä toimii."
+msgstr ""
 
 #: sphinx/themes/basic/search.html:35
 msgid ""
@@ -3139,18 +3139,18 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr "Anna hakusanat kokonaan, osasanoilla ei haeta."
+msgstr ""
 
 #: sphinx/themes/basic/search.html:42
 #: sphinx/themes/basic/searchresults.html:17
 msgid "search"
-msgstr "etsi"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:46
 #: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js:290
 msgid "Search Results"
-msgstr "Etsinnän tulos"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:48
 #: sphinx/themes/basic/searchresults.html:23
@@ -3162,11 +3162,11 @@ msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
-msgstr "Pikahaku"
+msgstr ""
 
 #: sphinx/themes/basic/sourcelink.html:12
 msgid "This Page"
-msgstr "Tämä sivu"
+msgstr ""
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
@@ -3182,7 +3182,7 @@ msgstr ""
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automaattisesti luotu muutoshistoria alkaen versiosta %(version)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
@@ -3210,7 +3210,7 @@ msgstr ""
 
 #: sphinx/themes/basic/static/doctools.js:234
 msgid "Hide Search Matches"
-msgstr "Piilota löydetyt"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js:121
 msgid "Searching"
@@ -3397,7 +3397,7 @@ msgstr ""
 
 #: sphinx/writers/latex.py:667
 msgid "continues on next page"
-msgstr ""
+msgstr "استمرار في الصفحة التالية"
 
 #: sphinx/writers/latex.py:670
 msgid "Non-alphabetical"

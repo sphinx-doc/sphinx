@@ -3,20 +3,19 @@
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-08-21 01:14+0900\n"
-"PO-Revision-Date: 2018-08-20 16:15+0000\n"
-"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
-"Language-Team: Finnish (http://www.transifex.com/sphinx-doc/sphinx-1/language/fi/)\n"
+"PO-Revision-Date: 2013-04-02 08:44+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Portuguese (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
-"Language: fi\n"
+"Language: pt\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/application.py:152
@@ -442,7 +441,7 @@ msgstr ""
 #: sphinx/roles.py:202
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Python Enhancement Proposals; PEP %s"
+msgstr ""
 
 #: sphinx/theming.py:83
 #, python-format
@@ -711,7 +710,7 @@ msgstr ""
 
 #: sphinx/builders/changes.py:91
 msgid "Module level"
-msgstr "Moduulitaso"
+msgstr ""
 
 #: sphinx/builders/changes.py:136
 msgid "copying source files..."
@@ -832,7 +831,7 @@ msgstr ""
 #: sphinx/writers/texinfo.py:240
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%d.%m.%Y"
+msgstr ""
 
 #: sphinx/builders/html.py:584
 msgid "html_use_opensearch config value must now be a string"
@@ -840,19 +839,19 @@ msgstr ""
 
 #: sphinx/builders/html.py:590 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
-msgstr "Yleinen sisällysluettelo"
+msgstr ""
 
 #: sphinx/builders/html.py:590
 msgid "index"
-msgstr "hakemisto"
+msgstr ""
 
 #: sphinx/builders/html.py:654
 msgid "next"
-msgstr ">"
+msgstr ""
 
 #: sphinx/builders/html.py:663
 msgid "previous"
-msgstr "<"
+msgstr ""
 
 #: sphinx/builders/html.py:761
 msgid "generating indices..."
@@ -1861,11 +1860,11 @@ msgstr ""
 
 #: sphinx/directives/other.py:169
 msgid "Section author: "
-msgstr "Luvun kirjoittaja: "
+msgstr ""
 
 #: sphinx/directives/other.py:171
 msgid "Module author: "
-msgstr "Moduulin kirjoittaja: "
+msgstr ""
 
 #: sphinx/directives/other.py:173
 msgid "Code author: "
@@ -1873,7 +1872,7 @@ msgstr ""
 
 #: sphinx/directives/other.py:175
 msgid "Author: "
-msgstr "Tekijä: "
+msgstr ""
 
 #: sphinx/domains/__init__.py:336
 #, python-format
@@ -1944,17 +1943,17 @@ msgstr ""
 #: sphinx/domains/changeset.py:34
 #, python-format
 msgid "New in version %s"
-msgstr "Uusi versiossa %s"
+msgstr ""
 
 #: sphinx/domains/changeset.py:35
 #, python-format
 msgid "Changed in version %s"
-msgstr "Muutettu versiossa %s"
+msgstr ""
 
 #: sphinx/domains/changeset.py:36
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "Poistettu versiosta %s alkaen"
+msgstr ""
 
 #: sphinx/domains/cpp.py:4037
 #, python-format
@@ -2071,7 +2070,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:266 sphinx/domains/python.py:611
 #, python-format
 msgid "%s (module)"
-msgstr "%s (moduuli)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:300 sphinx/domains/python.py:744
 msgid "method"
@@ -2088,7 +2087,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:304 sphinx/domains/python.py:50
 #: sphinx/domains/python.py:748
 msgid "module"
-msgstr "moduuli"
+msgstr ""
 
 #: sphinx/domains/math.py:88 sphinx/writers/latex.py:2529
 #, python-format
@@ -2194,11 +2193,11 @@ msgstr ""
 
 #: sphinx/domains/python.py:670
 msgid "modules"
-msgstr "moduulit"
+msgstr ""
 
 #: sphinx/domains/python.py:718
 msgid "Deprecated"
-msgstr "Poistettu"
+msgstr ""
 
 #: sphinx/domains/python.py:745
 msgid "class method"
@@ -2215,7 +2214,7 @@ msgstr ""
 
 #: sphinx/domains/python.py:918
 msgid " (deprecated)"
-msgstr " (poistettu)"
+msgstr ""
 
 #: sphinx/domains/rst.py:65
 #, python-format
@@ -2284,15 +2283,15 @@ msgstr ""
 #: sphinx/themes/basic/genindex.html:66 sphinx/themes/basic/layout.html:150
 #: sphinx/writers/latex.py:503 sphinx/writers/texinfo.py:516
 msgid "Index"
-msgstr "Sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/std.py:499
 msgid "Module Index"
-msgstr "Moduuli sisällysluettelo"
+msgstr ""
 
 #: sphinx/domains/std.py:500 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr "Etsi sivu"
+msgstr ""
 
 #: sphinx/domains/std.py:595
 #, python-format
@@ -2736,7 +2735,7 @@ msgstr ""
 
 #: sphinx/ext/todo.py:67
 msgid "Todo"
-msgstr "Tehtävä vielä"
+msgstr ""
 
 #: sphinx/ext/todo.py:105
 #, python-format
@@ -2938,43 +2937,43 @@ msgstr ""
 
 #: sphinx/locale/__init__.py:341
 msgid "Attention"
-msgstr "Huom"
+msgstr ""
 
 #: sphinx/locale/__init__.py:342
 msgid "Caution"
-msgstr "Varoitus"
+msgstr ""
 
 #: sphinx/locale/__init__.py:343
 msgid "Danger"
-msgstr "Vaara"
+msgstr ""
 
 #: sphinx/locale/__init__.py:344
 msgid "Error"
-msgstr "Virhe"
+msgstr ""
 
 #: sphinx/locale/__init__.py:345
 msgid "Hint"
-msgstr "Vihje"
+msgstr ""
 
 #: sphinx/locale/__init__.py:346
 msgid "Important"
-msgstr "Tärkeä"
+msgstr ""
 
 #: sphinx/locale/__init__.py:347
 msgid "Note"
-msgstr "Muista"
+msgstr ""
 
 #: sphinx/locale/__init__.py:348
 msgid "See also"
-msgstr "Katso myös"
+msgstr ""
 
 #: sphinx/locale/__init__.py:349
 msgid "Tip"
-msgstr "Vihje"
+msgstr ""
 
 #: sphinx/locale/__init__.py:350
 msgid "Warning"
-msgstr "Varoitus"
+msgstr ""
 
 #: sphinx/templates/latex/longtable.tex_t:22 sphinx/writers/latex.py:664
 msgid "continued from previous page"
@@ -2993,19 +2992,19 @@ msgstr ""
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:26
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
-msgstr "Etsi"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:16
 msgid "Go"
-msgstr "Siirry"
+msgstr ""
 
 #: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
-msgstr "Näytä lähdekoodina"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
-msgstr "Yhteenveto"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
@@ -3037,7 +3036,7 @@ msgstr ""
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
-msgstr "Yleinen moduulien sisällysluettelo"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
@@ -3057,19 +3056,19 @@ msgstr ""
 #: sphinx/themes/basic/genindex-split.html:38
 #: sphinx/themes/basic/genindex.html:72
 msgid "Full index on one page"
-msgstr "Hakemisto yhtenä luettelona"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "Hakemisto aakkostus sivuttain"
+msgstr ""
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
-msgstr "voi olla iso"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:31
 msgid "Navigation"
-msgstr "Navikointi"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:138
 #, python-format
@@ -3078,7 +3077,7 @@ msgstr ""
 
 #: sphinx/themes/basic/layout.html:147
 msgid "About these documents"
-msgstr "Tietoja tästä documentistä"
+msgstr ""
 
 #: sphinx/themes/basic/layout.html:156
 msgid "Copyright"
@@ -3113,25 +3112,25 @@ msgstr ""
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
-msgstr "<<"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:13
 msgid "previous chapter"
-msgstr "<<"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:16
 msgid "Next topic"
-msgstr ">>"
+msgstr ""
 
 #: sphinx/themes/basic/relations.html:18
 msgid "next chapter"
-msgstr ">>"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:30
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr "Javascript pitää olla sallittu, jotta etsintä toimii."
+msgstr ""
 
 #: sphinx/themes/basic/search.html:35
 msgid ""
@@ -3139,18 +3138,18 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr "Anna hakusanat kokonaan, osasanoilla ei haeta."
+msgstr ""
 
 #: sphinx/themes/basic/search.html:42
 #: sphinx/themes/basic/searchresults.html:17
 msgid "search"
-msgstr "etsi"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:46
 #: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js:290
 msgid "Search Results"
-msgstr "Etsinnän tulos"
+msgstr ""
 
 #: sphinx/themes/basic/search.html:48
 #: sphinx/themes/basic/searchresults.html:23
@@ -3162,11 +3161,11 @@ msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
-msgstr "Pikahaku"
+msgstr ""
 
 #: sphinx/themes/basic/sourcelink.html:12
 msgid "This Page"
-msgstr "Tämä sivu"
+msgstr ""
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
@@ -3182,7 +3181,7 @@ msgstr ""
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Automaattisesti luotu muutoshistoria alkaen versiosta %(version)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
@@ -3210,7 +3209,7 @@ msgstr ""
 
 #: sphinx/themes/basic/static/doctools.js:234
 msgid "Hide Search Matches"
-msgstr "Piilota löydetyt"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js:121
 msgid "Searching"
