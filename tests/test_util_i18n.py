@@ -154,7 +154,7 @@ def test_get_catalogs_with_compact(tempdir):
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', gettext_compact=True)
     domains = set(c.domain for c in catalogs)
-    assert domains == set(['test1', 'test2', 'sub'])
+    assert domains == set(['test1', 'test2', 'sub/test3', 'sub/test4'])
 
 
 def test_get_catalogs_excluded(tempdir):
