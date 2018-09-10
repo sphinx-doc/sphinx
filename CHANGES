@@ -19,6 +19,8 @@ Deprecated
 * ``sphinx.io.SphinxI18nReader.line`` is deprecated
 * ``sphinx.util.i18n.find_catalog_source_file()`` has changed; the
   *gettext_compact* argument has been deprecated
+* #5403: ``sphinx.util.images.guess_mimetype()`` has changed; the *content*
+  argument has been deprecated
 
 Features added
 --------------
