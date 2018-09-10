@@ -65,7 +65,7 @@ class _TranslationProxy(UserString, object):
     # for the encoding result
 
     def encode(self, encoding=None, errors=None):  # type: ignore
-        # type: (unicode, unicode) -> str
+        # type: (unicode, unicode) -> bytes
         if encoding:
             if errors:
                 return self.data.encode(encoding, errors)
