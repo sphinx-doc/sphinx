@@ -25,7 +25,7 @@ from os import path
 
 from six import PY2, PY3, text_type
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
 if False:
     # For type annotation
@@ -243,15 +243,16 @@ def abspath(pathdir):
 
 def getcwd():
     # type: () -> unicode
-    if hasattr(os, 'getcwdu'):
-        return os.getcwdu()
+    warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
+                  'Please use os.getcwd() instead.',
+                  RemovedInSphinx40Warning)
     return os.getcwd()
 
 
 @contextlib.contextmanager
 def cd(target_dir):
     # type: (unicode) -> Iterator[None]
-    cwd = getcwd()
+    cwd = os.getcwd()
     try:
         os.chdir(target_dir)
         yield
