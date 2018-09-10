@@ -483,12 +483,21 @@ def check_unicode(config):
                               'Please use Unicode strings, e.g. %r.'), name, u'Content')
 
 
+def check_primary_domain(app, config):
+    # type: (Sphinx, Config) -> None
+    primary_domain = config.primary_domain
+    if primary_domain and not app.registry.has_domain(primary_domain):
+        logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
+        config.primary_domain = None  # type: ignore
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)
     app.connect('config-inited', check_confval_types)
+    app.connect('config-inited', check_primary_domain)
 
     return {
         'version': 'builtin',
