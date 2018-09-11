@@ -13,6 +13,7 @@ from __future__ import print_function
 
 import codecs
 import os
+import warnings
 from os import path
 
 from docutils import nodes
@@ -20,6 +21,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
@@ -207,6 +209,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def open_file(self, outdir, basename, mode='w'):
         # type: (unicode, unicode, unicode) -> IO
+        if mode != 'w':
+            warnings.warn('The mode argument of HTMLHelpBuilder.open_file() is deprecated.',
+                          RemovedInSphinx40Warning)
         # open a file with the correct encoding for the selected language
         return codecs.open(path.join(outdir, basename), mode,  # type: ignore
                            self.encoding, 'xmlcharrefreplace')
