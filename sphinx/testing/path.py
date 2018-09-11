@@ -9,7 +9,6 @@
 import os
 import shutil
 import sys
-from io import open
 
 from six import PY2, text_type
 
@@ -161,7 +160,7 @@ class path(text_type):
         """
         if isinstance(text, bytes):
             text = text.decode(encoding)
-        with open(self, 'w', encoding=encoding, **kwargs) as f:
+        with open(self, 'w', encoding=encoding, **kwargs) as f:  # type: ignore
             f.write(text)
 
     def text(self, encoding='utf-8', **kwargs):
@@ -170,7 +169,7 @@ class path(text_type):
         Returns the text in the file.
         """
         mode = 'rU' if PY2 else 'r'
-        with open(self, mode=mode, encoding=encoding, **kwargs) as f:
+        with open(self, mode=mode, encoding=encoding, **kwargs) as f:  # type: ignore
             return f.read()
 
     def bytes(self):

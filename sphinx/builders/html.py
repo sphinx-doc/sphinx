@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import posixpath
 import re
 import sys
@@ -959,9 +958,9 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = codecs.open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
+                f = open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
             else:
-                f = open(searchindexfn, 'rb')  # type: ignore
+                f = open(searchindexfn, 'rb')
             with f:
                 self.indexer.load(f, self.indexer_format)
         except (IOError, OSError, ValueError):
@@ -1140,7 +1139,8 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', ctx['encoding'], 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
+            with open(outfilename, 'w',  # type: ignore
+                      encoding=ctx['encoding'], errors='xmlcharrefreplace') as f:
                 f.write(output)
         except (IOError, OSError) as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
@@ -1177,9 +1177,9 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
+            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(searchindexfn + '.tmp', 'wb')  # type: ignore
+            f = open(searchindexfn + '.tmp', 'wb')
         with f:
             self.indexer.dump(f, self.indexer_format)
         movefile(searchindexfn + '.tmp', searchindexfn)
@@ -1436,9 +1436,9 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            f = codecs.open(filename, 'w', encoding='utf-8')  # type: ignore
+            f = open(filename, 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(filename, 'wb')  # type: ignore
+            f = open(filename, 'wb')
         with f:
             self.implementation.dump(context, f, *self.additional_dump_args)
 
