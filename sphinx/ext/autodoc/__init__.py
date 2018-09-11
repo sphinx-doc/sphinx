@@ -17,7 +17,7 @@ import sys
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import iteritems, itervalues, text_type, string_types
 
 import sphinx
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
@@ -1053,7 +1053,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types)
+        return isinstance(member, type)
 
     def import_object(self):
         # type: () -> Any
@@ -1205,8 +1205,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types) and \
-            issubclass(member, BaseException)  # type: ignore
+        return isinstance(member, type) and issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1337,7 +1336,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         # exported anywhere by Python
         return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
                               not inspect.isroutine(member) and
-                              not isinstance(member, class_types))
+                              not isinstance(member, type))
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
