@@ -17,7 +17,7 @@ from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import PY3, BytesIO, iteritems
+from six import PY3, BytesIO
 
 try:
     from PIL import Image        # check for the Python Imaging Library
@@ -93,7 +93,7 @@ def guess_mimetype(filename='', content=None, default=None):
 
 def get_image_extension(mimetype):
     # type: (unicode) -> unicode
-    for ext, _mimetype in iteritems(mime_suffixes):
+    for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
 

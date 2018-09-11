@@ -11,7 +11,7 @@
 
 import sys
 
-from six import PY2, iteritems
+from six import PY2
 
 import sphinx
 from sphinx.application import Sphinx
@@ -274,9 +274,9 @@ class Config(object):
 
     def __init__(self, **settings):
         # type: (Any) -> None
-        for name, (default, rebuild) in iteritems(self._config_values):
+        for name, (default, rebuild) in self._config_values.items():
             setattr(self, name, default)
-        for name, value in iteritems(settings):
+        for name, value in settings.items():
             setattr(self, name, value)
 
 
@@ -312,7 +312,7 @@ def setup(app):
     app.connect('autodoc-process-docstring', _process_docstring)
     app.connect('autodoc-skip-member', _skip_member)
 
-    for name, (default, rebuild) in iteritems(Config._config_values):
+    for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 

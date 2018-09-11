@@ -15,8 +15,6 @@ import time
 import traceback
 from math import sqrt
 
-from six import iteritems
-
 try:
     import multiprocessing
 except ImportError:
@@ -115,7 +113,7 @@ class ParallelTasks(object):
 
     def _join_one(self):
         # type: () -> None
-        for tid, pipe in iteritems(self._precvs):
+        for tid, pipe in self._precvs.items():
             if pipe.poll():
                 exc, logs, result = pipe.recv()
                 if exc:

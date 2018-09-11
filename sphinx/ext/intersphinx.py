@@ -34,7 +34,7 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import PY3, iteritems, string_types
+from six import PY3, string_types
 from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
@@ -212,7 +212,7 @@ def load_mappings(app):
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     inventories = InventoryAdapter(app.builder.env)
     update = False
-    for key, value in iteritems(app.config.intersphinx_mapping):
+    for key, value in app.config.intersphinx_mapping.items():
         name = None  # type: unicode
         uri = None   # type: unicode
         inv = None   # type: Union[unicode, Tuple[unicode, ...]]
@@ -284,7 +284,7 @@ def load_mappings(app):
         for name, _x, invdata in named_vals + unnamed_vals:
             if name:
                 inventories.named_inventory[name] = invdata
-            for type, objects in iteritems(invdata):
+            for type, objects in invdata.items():
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 

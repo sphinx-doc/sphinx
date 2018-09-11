@@ -14,7 +14,7 @@ from copy import deepcopy
 
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
-from six import iteritems, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
@@ -604,7 +604,7 @@ class ASTBase(UnicodeMixin):
         if type(self) is not type(other):
             return False
         try:
-            for key, value in iteritems(self.__dict__):
+            for key, value in self.__dict__.items():
                 if value != getattr(other, key):
                     return False
         except AttributeError:

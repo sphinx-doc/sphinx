@@ -10,7 +10,6 @@
 """
 
 from docutils import nodes
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.environment.adapters.toctree import TocTree
@@ -295,7 +294,7 @@ class TocTreeCollector(EnvironmentCollector):
 
         if env.config.numfig:
             _walk_doc(env.config.master_doc, tuple())  # type: ignore
-            for docname, fignums in iteritems(env.toc_fignumbers):
+            for docname, fignums in env.toc_fignumbers.items():
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)
 

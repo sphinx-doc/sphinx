@@ -17,7 +17,7 @@ import sys
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import itervalues, text_type, class_types, string_types
 
 import sphinx
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
@@ -1429,7 +1429,7 @@ def get_documenters(app):
 def autodoc_attrgetter(app, obj, name, *defargs):
     # type: (Sphinx, Any, unicode, Any) -> Any
     """Alternative getattr() for types"""
-    for typ, func in iteritems(app.registry.autodoc_attrgettrs):
+    for typ, func in app.registry.autodoc_attrgettrs.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

@@ -13,7 +13,7 @@ from __future__ import print_function
 import re
 from zipfile import ZipFile
 
-from six import iteritems, BytesIO, StringIO
+from six import BytesIO, StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -111,7 +111,7 @@ class ModuleAnalyzer(object):
             parser.parse()
 
             self.attr_docs = {}
-            for (scope, comment) in iteritems(parser.comments):
+            for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
                 else:

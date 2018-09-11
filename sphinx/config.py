@@ -18,7 +18,7 @@ from os import path, getenv
 from typing import Any, NamedTuple, Union
 
 from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
+    PY2, PY3, string_types, binary_type, text_type, integer_types, class_types
 )
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -246,7 +246,7 @@ class Config(object):
     def init_values(self):
         # type: () -> None
         config = self._raw_config
-        for valname, value in iteritems(self.overrides):
+        for valname, value in self.overrides.items():
             try:
                 if '.' in valname:
                     realvalname, key = valname.split('.', 1)
@@ -295,7 +295,7 @@ class Config(object):
 
     def __iter__(self):
         # type: () -> Generator[ConfigValue, None, None]
-        for name, value in iteritems(self.values):
+        for name, value in self.values.items():
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
     def add(self, name, default, rebuild, types):
@@ -316,7 +316,7 @@ class Config(object):
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {}
-        for key, value in iteritems(self.__dict__):
+        for key, value in self.__dict__.items():
             if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
                 pass
             else:
@@ -324,7 +324,7 @@ class Config(object):
 
         # create a picklable copy of values list
         __dict__['values'] = {}
-        for key, value in iteritems(self.values):  # type: ignore
+        for key, value in self.values.items():  # type: ignore
             real_value = getattr(self, key)
             if isinstance(real_value, UNSERIALIZEABLE_TYPES):
                 # omit unserializable value
@@ -476,7 +476,7 @@ def check_unicode(config):
     """
     nonascii_re = re.compile(br'[\x80-\xff]')
 
-    for name, value in iteritems(config._raw_config):
+    for name, value in config._raw_config.items():
         if isinstance(value, binary_type) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '

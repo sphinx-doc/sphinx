@@ -17,7 +17,7 @@ from types import MethodType
 
 from docutils.parsers.rst import Directive
 from pkg_resources import iter_entry_points
-from six import iteritems, itervalues
+from six import itervalues
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import ObjType
@@ -177,7 +177,7 @@ class SphinxComponentRegistry(object):
             domain.directives.update(self.domain_directives.get(domain.name, {}))
             domain.roles.update(self.domain_roles.get(domain.name, {}))
             domain.indices.extend(self.domain_indices.get(domain.name, []))
-            for name, objtype in iteritems(self.domain_object_types.get(domain.name, {})):
+            for name, objtype in self.domain_object_types.get(domain.name, {}).items():
                 domain.add_object_type(name, objtype)
 
             yield domain
@@ -365,7 +365,7 @@ class SphinxComponentRegistry(object):
     def add_translation_handlers(self, node, **kwargs):
         # type: (nodes.Node, Any) -> None
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
-        for builder_name, handlers in iteritems(kwargs):
+        for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
             try:
                 visit, depart = handlers  # unpack once for assertion
@@ -391,7 +391,7 @@ class SphinxComponentRegistry(object):
             # retry with builder.format
             handlers = self.translation_handlers.get(builder.format, {})
 
-        for name, (visit, depart) in iteritems(handlers):
+        for name, (visit, depart) in handlers.items():
             setattr(translator, 'visit_' + name, MethodType(visit, translator))
             if depart:
                 setattr(translator, 'depart_' + name, MethodType(depart, translator))
@@ -512,7 +512,7 @@ class SphinxComponentRegistry(object):
 def merge_source_suffix(app, config):
     # type: (Sphinx, Config) -> None
     """Merge source_suffix which specified by user and added by extensions."""
-    for suffix, filetype in iteritems(app.registry.source_suffix):
+    for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:
             app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] is None:

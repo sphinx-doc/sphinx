@@ -11,8 +11,6 @@
 
 import re
 
-from six import iteritems
-
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
@@ -172,7 +170,7 @@ class ReSTDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        for (typ, name), docname in iteritems(self.data['objects']):
+        for (typ, name), docname in self.data['objects'].items():
             yield name, name, typ, docname, typ + '-' + name, 1
 
 

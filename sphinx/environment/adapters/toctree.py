@@ -10,7 +10,6 @@
 """
 
 from docutils import nodes
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -261,7 +260,7 @@ class TocTree(object):
     def get_toctree_ancestors(self, docname):
         # type: (unicode) -> List[unicode]
         parent = {}
-        for p, children in iteritems(self.env.toctree_includes):
+        for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
         ancestors = []  # type: List[unicode]

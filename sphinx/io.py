@@ -18,7 +18,7 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type, iteritems
+from six import text_type
 from typing import Any, Union  # NOQA
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -282,7 +282,7 @@ class FiletypeNotFoundError(Exception):
 
 def get_filetype(source_suffix, filename):
     # type: (Dict[unicode, unicode], unicode) -> unicode
-    for suffix, filetype in iteritems(source_suffix):
+    for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'

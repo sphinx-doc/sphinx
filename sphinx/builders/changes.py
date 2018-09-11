@@ -13,8 +13,6 @@ import codecs
 from os import path
 from typing import cast
 
-from six import iteritems
-
 from sphinx import package_dir
 from sphinx.builders import Builder
 from sphinx.domains.changeset import ChangeSetDomain
@@ -109,9 +107,9 @@ class ChangesBuilder(Builder):
             'version': version,
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
-            'libchanges': sorted(iteritems(libchanges)),
+            'libchanges': sorted(libchanges.items()),
             'apichanges': sorted(apichanges),
-            'otherchanges': sorted(iteritems(otherchanges)),
+            'otherchanges': sorted(otherchanges.items()),
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
@@ -152,7 +150,7 @@ class ChangesBuilder(Builder):
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = dict(('theme_' + key, val) for (key, val) in
-                        iteritems(self.theme.get_options({})))
+                        self.theme.get_options({}).items())
         copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
                         self.outdir, context=themectx, renderer=self.templates)
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),

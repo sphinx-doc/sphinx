@@ -12,8 +12,6 @@
 
 import copy
 
-from six import iteritems
-
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 
@@ -183,7 +181,7 @@ class Domain(object):
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
-        for name, obj in iteritems(self.object_types):
+        for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''

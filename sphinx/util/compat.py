@@ -15,7 +15,7 @@ import sys
 import warnings
 
 from docutils.utils import get_source_line
-from six import string_types, iteritems
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -35,7 +35,7 @@ def deprecate_source_parsers(app, config):
         warnings.warn('The config variable "source_parsers" is deprecated. '
                       'Please use app.add_source_parser() API instead.',
                       RemovedInSphinx30Warning)
-        for suffix, parser in iteritems(config.source_parsers):
+        for suffix, parser in config.source_parsers.items():
             if isinstance(parser, string_types):
                 parser = import_object(parser, 'source parser')  # type: ignore
             app.add_source_parser(suffix, parser)

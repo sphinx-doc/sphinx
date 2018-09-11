@@ -25,7 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
-from six import iteritems, text_type, string_types
+from six import text_type, string_types
 from six.moves import cPickle as pickle
 
 from sphinx import package_dir, __display_version__
@@ -589,7 +589,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
-                iteritems(self.theme.get_options(self.theme_options)))
+                self.theme.get_options(self.theme_options).items())
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
@@ -1023,7 +1023,7 @@ class StandaloneHTMLBuilder(Builder):
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
-        for pattern, patsidebars in iteritems(html_sidebars):
+        for pattern, patsidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
                 if matched:
                     if has_wildcard(pattern):
@@ -1294,8 +1294,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
         new_secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
-        for docname, secnums in iteritems(self.env.toc_secnumbers):
-            for id, secnum in iteritems(secnums):
+        for docname, secnums in self.env.toc_secnumbers.items():
+            for id, secnum in secnums.items():
                 alias = "%s/%s" % (docname, id)
                 new_secnumbers[alias] = secnum
 
@@ -1314,11 +1314,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #       HTMLTranslter#add_fignumber().
         new_fignumbers = {}  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]
         # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
-        for docname, fignumlist in iteritems(self.env.toc_fignumbers):
-            for figtype, fignums in iteritems(fignumlist):
+        for docname, fignumlist in self.env.toc_fignumbers.items():
+            for figtype, fignums in fignumlist.items():
                 alias = "%s/%s" % (docname, figtype)
                 new_fignumbers.setdefault(alias, {})
-                for id, fignum in iteritems(fignums):
+                for id, fignum in fignums.items():
                     new_fignumbers[alias][id] = fignum
 
         return {self.config.master_doc: new_fignumbers}
