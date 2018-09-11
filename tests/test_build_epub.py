@@ -28,7 +28,7 @@ def runnable(command):
         return p.returncode == 0
 
 
-class EPUBElementTree(object):
+class EPUBElementTree:
     """Test helper for content.opf and toc.ncx"""
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',

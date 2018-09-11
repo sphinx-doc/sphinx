@@ -28,7 +28,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class _MockObject(object):
+class _MockObject:
     """Used by autodoc_mock_imports."""
 
     def __new__(cls, *args, **kwargs):
@@ -93,7 +93,7 @@ class _MockModule(ModuleType):
         return o
 
 
-class _MockImporter(object):
+class _MockImporter:
     def __init__(self, names):
         # type: (List[str]) -> None
         self.names = names

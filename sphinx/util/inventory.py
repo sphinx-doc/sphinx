@@ -32,7 +32,7 @@ BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 
-class InventoryFileReader(object):
+class InventoryFileReader:
     """A file reader for inventory file.
 
     This reader supports mixture of texts and compressed texts.
@@ -94,7 +94,7 @@ class InventoryFileReader(object):
                 pos = buf.find(b'\n')
 
 
-class InventoryFile(object):
+class InventoryFile:
     @classmethod
     def load(cls, stream, uri, joinfunc):
         # type: (IO, unicode, Callable) -> Inventory

@@ -203,7 +203,7 @@ parser = doctest.DocTestParser()
 
 # helper classes
 
-class TestGroup(object):
+class TestGroup:
     def __init__(self, name):
         # type: (unicode) -> None
         self.name = name
@@ -236,7 +236,7 @@ class TestGroup(object):
             self.name, self.setup, self.cleanup, self.tests)
 
 
-class TestCode(object):
+class TestCode:
     def __init__(self, code, type, filename, lineno, options=None):
         # type: (unicode, unicode, Optional[str], int, Optional[Dict]) -> None
         self.code = code

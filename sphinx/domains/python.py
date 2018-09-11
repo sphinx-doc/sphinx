@@ -114,7 +114,7 @@ def _pseudo_parse_arglist(signode, arglist):
 
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
-class PyXrefMixin(object):
+class PyXrefMixin:
     def make_xref(self,
                   rolename,                  # type: unicode
                   domain,                    # type: unicode
@@ -536,7 +536,7 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyDecoratorMixin(object):
+class PyDecoratorMixin:
     """
     Mixin for decorator directives.
     """

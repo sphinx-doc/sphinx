@@ -24,7 +24,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Extension(object):
+class Extension:
     def __init__(self, name, module, **kwargs):
         # type: (unicode, Any, Any) -> None
         self.name = name

@@ -216,7 +216,7 @@ def test_format_signature():
     class D:
         pass
 
-    class E(object):
+    class E:
         pass
     # no signature for classes without __init__
     for C in (D, E):
@@ -226,7 +226,7 @@ def test_format_signature():
         def __init__(self, a, b=None):
             pass
 
-    class G(F, object):
+    class G(F):
         pass
     for C in (F, G):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
@@ -243,7 +243,7 @@ def test_format_signature():
 
             some docstring for __init__.
             '''
-    class G2(F2, object):
+    class G2(F2):
         pass
 
     assert formatsig('class', 'F2', F2, None, None) == \
@@ -399,7 +399,7 @@ def test_get_doc():
     assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
 
     # class does not have __init__ method
-    class F(object):
+    class F:
         """Class docstring"""
 
     # docstring in the __init__ method of base class will be discard
@@ -413,7 +413,7 @@ def test_get_doc():
         assert getdocl('class', F) == ['Class docstring']
 
     # class has __init__ method with no docstring
-    class G(object):
+    class G:
         """Class docstring"""
         def __init__(self):
             pass

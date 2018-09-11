@@ -45,7 +45,7 @@ core_events = {
 }  # type: Dict[unicode, unicode]
 
 
-class EventManager(object):
+class EventManager:
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()

@@ -58,7 +58,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class InventoryAdapter(object):
+class InventoryAdapter:
     """Inventory adapter for environment"""
 
     def __init__(self, env):
@@ -387,11 +387,11 @@ def inspect_main(argv):
               file=sys.stderr)
         sys.exit(1)
 
-    class MockConfig(object):
+    class MockConfig:
         intersphinx_timeout = None  # type: int
         tls_verify = False
 
-    class MockApp(object):
+    class MockApp:
         srcdir = ''
         config = MockConfig()
 

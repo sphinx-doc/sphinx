@@ -37,7 +37,7 @@ def __special_undoc__():
     pass
 
 
-class SampleClass(object):
+class SampleClass:
     def _private_doc(self):
         """SampleClass._private_doc.DOCSTRING"""
         pass

@@ -19,7 +19,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class EnvironmentCollector(object):
+class EnvironmentCollector:
     """An EnvironmentCollector is a specific data collector from each document.
 
     It gathers data and stores :py:class:`BuildEnvironment

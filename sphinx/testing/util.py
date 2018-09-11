@@ -92,7 +92,7 @@ def etree_parse(path):
         return ElementTree.parse(path)  # type: ignore
 
 
-class Struct(object):
+class Struct:
     def __init__(self, **kwds):
         # type: (Any) -> None
         self.__dict__.update(kwds)
@@ -163,7 +163,7 @@ class SphinxTestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-class SphinxTestAppWrapperForSkipBuilding(object):
+class SphinxTestAppWrapperForSkipBuilding:
     """
     This class is a wrapper for SphinxTestApp to speed up the test by skipping
     `app.build` process if it is already built and there is even one output

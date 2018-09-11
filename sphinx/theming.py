@@ -51,7 +51,7 @@ def extract_zip(filename, targetdir):
                 fp.write(archive.read(name))
 
 
-class Theme(object):
+class Theme:
     """A Theme is a set of HTML templates and configurations.
 
     This class supports both theme directory and theme archive (zipped theme)."""
@@ -159,7 +159,7 @@ def is_archived_theme(filename):
         return False
 
 
-class HTMLThemeFactory(object):
+class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
     def __init__(self, app):

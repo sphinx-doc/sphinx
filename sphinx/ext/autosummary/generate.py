@@ -51,7 +51,7 @@ if False:
     from sphinx.ext.autodoc import Documenter  # NOQA
 
 
-class DummyApplication(object):
+class DummyApplication:
     """Dummy Application class for sphinx-autogen command."""
 
     def __init__(self):

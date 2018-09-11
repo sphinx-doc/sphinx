@@ -22,7 +22,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
 
 
-class Config(object):
+class Config:
     """Sphinx napoleon extension settings in `conf.py`.
 
     Listed below are all the settings used by napoleon and their default

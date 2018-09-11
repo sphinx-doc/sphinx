@@ -199,7 +199,7 @@ class Options(dict):
             return None
 
 
-class Documenter(object):
+class Documenter:
     """
     A Documenter knows how to autodocument a single object type.  When
     registered with the AutoDirective, it will be used to document objects
@@ -916,7 +916,7 @@ class ClassLevelDocumenter(Documenter):
         return modname, parents + [base]
 
 
-class DocstringSignatureMixin(object):
+class DocstringSignatureMixin:
     """
     Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.

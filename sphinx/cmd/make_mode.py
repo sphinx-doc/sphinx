@@ -59,7 +59,7 @@ BUILDERS = [
 ]
 
 
-class Make(object):
+class Make:
 
     def __init__(self, srcdir, builddir, opts):
         # type: (unicode, unicode, List[unicode]) -> None

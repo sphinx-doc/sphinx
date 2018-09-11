@@ -29,7 +29,7 @@
 """
 
 
-class PorterStemmer(object):
+class PorterStemmer:
 
     def __init__(self):
         # type: () -> None

@@ -91,7 +91,7 @@ class NoUri(Exception):
     pass
 
 
-class BuildEnvironment(object):
+class BuildEnvironment:
     """
     The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree

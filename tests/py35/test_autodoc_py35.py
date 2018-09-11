@@ -247,7 +247,7 @@ class CustomEx(Exception):
         """Exception method."""
 
 
-class CustomDataDescriptor(object):
+class CustomDataDescriptor:
     """Descriptor class docstring."""
 
     def __init__(self, doc):
@@ -275,7 +275,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     return classmethod(function)
 
 
-class Base(object):
+class Base:
     def inheritedmeth(self):
         """Inherited function."""
 

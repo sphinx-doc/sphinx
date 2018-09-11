@@ -49,7 +49,7 @@ ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('rebuild', Union[bool, unicode])])
 
 
-class ENUM(object):
+class ENUM:
     """represents the config value should be a one of candidates.
 
     Example:
@@ -72,7 +72,7 @@ if PY2:
     string_classes.append(binary_type)  # => [str, unicode]
 
 
-class Config(object):
+class Config:
     """Configuration file abstraction.
 
     The config object makes the values of all config values available as

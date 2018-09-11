@@ -206,7 +206,7 @@ def test_Signature_methods():
 def test_Signature_partialmethod():
     from functools import partialmethod
 
-    class Foo(object):
+    class Foo:
         def meth1(self, arg1, arg2, arg3=None, arg4=None):
             pass
 
@@ -309,7 +309,7 @@ def test_Signature_annotations():
 
 
 def test_safe_getattr_with_default():
-    class Foo(object):
+    class Foo:
         def __getattr__(self, item):
             raise Exception
 
@@ -321,7 +321,7 @@ def test_safe_getattr_with_default():
 
 
 def test_safe_getattr_with_exception():
-    class Foo(object):
+    class Foo:
         def __getattr__(self, item):
             raise Exception
 
@@ -336,7 +336,7 @@ def test_safe_getattr_with_exception():
 
 
 def test_safe_getattr_with_property_exception():
-    class Foo(object):
+    class Foo:
         @property
         def bar(self):
             raise Exception
@@ -352,7 +352,7 @@ def test_safe_getattr_with_property_exception():
 
 
 def test_safe_getattr_with___dict___override():
-    class Foo(object):
+    class Foo:
         @property
         def __dict__(self):
             raise Exception
@@ -410,7 +410,7 @@ def test_frozenset_sorting_fallback():
 
 
 def test_dict_customtype():
-    class CustomType(object):
+    class CustomType:
         def __init__(self, value):
             self._value = value
 
