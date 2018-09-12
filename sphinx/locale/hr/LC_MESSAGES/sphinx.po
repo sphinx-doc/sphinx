@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-08-21 01:14+0900\n"
-"PO-Revision-Date: 2018-08-20 16:15+0000\n"
+"PO-Revision-Date: 2018-09-11 10:35+0000\n"
 "Last-Translator: Mario Šarić\n"
 "Language-Team: Croatian (http://www.transifex.com/sphinx-doc/sphinx-1/language/hr/)\n"
 "MIME-Version: 1.0\n"
@@ -22,21 +22,21 @@ msgstr ""
 #: sphinx/application.py:152
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
-msgstr ""
+msgstr "u konfiguracijskom direktoriju ne postoji datoteka conf.py (%s)"
 
 #: sphinx/application.py:156
 #, python-format
 msgid "Cannot find source directory (%s)"
-msgstr ""
+msgstr "Nema izvornog direktorija (%s)"
 
 #: sphinx/application.py:160
 msgid "Source directory and destination directory cannot be identical"
-msgstr ""
+msgstr "Izvorni i odredišni direktorij ne smiju biti jednaki"
 
 #: sphinx/application.py:191
 #, python-format
 msgid "Running Sphinx v%s"
-msgstr ""
+msgstr "Izrada pomoću Sphinx v%s"
 
 #: sphinx/application.py:214
 #, python-format
@@ -47,7 +47,7 @@ msgstr "Ovaj projekt se ne može izgraditi s instaliranom verzijom, potrebno je 
 
 #: sphinx/application.py:234
 msgid "making output directory..."
-msgstr ""
+msgstr "izrada odredišnog direktorija..."
 
 #: sphinx/application.py:244
 msgid ""
@@ -64,7 +64,7 @@ msgstr "primary_domain %r nije pronađen, zanemareno je."
 #: sphinx/application.py:271
 #, python-format
 msgid "loading translations [%s]... "
-msgstr ""
+msgstr "učitavanje prijevoda [%s]... "
 
 #: sphinx/application.py:287 sphinx/application.py:304
 #: sphinx/builders/__init__.py:380 sphinx/builders/__init__.py:387
