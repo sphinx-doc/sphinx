@@ -44,6 +44,7 @@ from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
 from sphinx.util.i18n import find_catalog_source_files
+from sphinx.util.logging import prefixed_warnings
 from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
 
@@ -135,7 +136,6 @@ class Sphinx:
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
-        self._setting_up_extension = ['?']      # type: List[unicode]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.project = None                     # type: Project
@@ -237,15 +237,16 @@ class Sphinx:
 
         # the config file itself can be an extension
         if self.config.setup:
-            self._setting_up_extension = ['conf.py']
-            if callable(self.config.setup):
-                self.config.setup(self)
-            else:
-                raise ConfigError(
-                    __("'setup' as currently defined in conf.py isn't a Python callable. "
-                       "Please modify its definition to make it a callable function. This is "
-                       "needed for conf.py to behave as a Sphinx extension.")
-                )
+            prefix = __('while setting up extension %s:') % "conf.py"
+            with prefixed_warnings(prefix):
+                if callable(self.config.setup):
+                    self.config.setup(self)
+                else:
+                    raise ConfigError(
+                        __("'setup' as currently defined in conf.py isn't a Python callable. "
+                           "Please modify its definition to make it a callable function. "
+                           "This is needed for conf.py to behave as a Sphinx extension.")
+                    )
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
@@ -555,10 +556,9 @@ class Sphinx:
         """
         logger.debug('[app] adding node: %r', (node, kwds))
         if not override and docutils.is_node_registered(node):
-            logger.warning(__('while setting up extension %s: node class %r is '
-                              'already registered, its visitors will be overridden'),
-                           self._setting_up_extension, node.__name__,
-                           type='app', subtype='add_node')
+            logger.warning(__('node class %r is already registered, '
+                              'its visitors will be overridden'),
+                           node.__name__, type='app', subtype='add_node')
         docutils.register_node(node)
         self.registry.add_translation_handlers(node, **kwds)
 
@@ -653,10 +653,8 @@ class Sphinx:
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
         if name in directives._directives and not override:
-            logger.warning(__('while setting up extension %s: directive %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_directive')
+            logger.warning(__('directive %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_directive')
 
         if not isclass(obj) or not issubclass(obj, Directive):
             directive = directive_helper(obj, content, arguments, **options)
@@ -678,10 +676,8 @@ class Sphinx:
         """
         logger.debug('[app] adding role: %r', (name, role))
         if name in roles._roles and not override:
-            logger.warning(__('while setting up extension %s: role %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_role')
+            logger.warning(__('role %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_role')
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass, override=False):
@@ -699,10 +695,8 @@ class Sphinx:
         # ``register_canonical_role``.
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
         if name in roles._roles and not override:
-            logger.warning(__('while setting up extension %s: role %r is '
-                              'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], name,
-                           type='app', subtype='add_generic_role')
+            logger.warning(__('role %r is already registered, it will be overridden'),
+                           name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
@@ -1209,6 +1203,13 @@ class Sphinx:
                 return False
 
         return True
+
+    @property
+    def _setting_up_extension(self):
+        # type: () -> List[unicode]
+        warnings.warn('app._setting_up_extension is deprecated.',
+                      RemovedInSphinx30Warning)
+        return ['?']
 
 
 class TemplateBridge:

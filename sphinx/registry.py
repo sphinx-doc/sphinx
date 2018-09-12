@@ -28,6 +28,7 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docutils import directive_helper
+from sphinx.util.logging import prefixed_warnings
 
 if False:
     # For type annotation
@@ -465,39 +466,38 @@ class SphinxComponentRegistry:
             return
 
         # update loading context
-        app._setting_up_extension.append(extname)
-
-        try:
-            mod = __import__(extname, None, None, ['setup'])
-        except ImportError as err:
-            logger.verbose(__('Original exception:\n') + traceback.format_exc())
-            raise ExtensionError(__('Could not import extension %s') % extname, err)
-
-        if not hasattr(mod, 'setup'):
-            logger.warning(__('extension %r has no setup() function; is it really '
-                              'a Sphinx extension module?'), extname)
-            metadata = {}  # type: Dict[unicode, Any]
-        else:
+        prefix = __('while setting up extension %s:') % extname
+        with prefixed_warnings(prefix):
             try:
-                metadata = mod.setup(app)
-            except VersionRequirementError as err:
-                # add the extension name to the version required
-                raise VersionRequirementError(
-                    __('The %s extension used by this project needs at least '
-                       'Sphinx v%s; it therefore cannot be built with this '
-                       'version.') % (extname, err)
-                )
+                mod = __import__(extname, None, None, ['setup'])
+            except ImportError as err:
+                logger.verbose(__('Original exception:\n') + traceback.format_exc())
+                raise ExtensionError(__('Could not import extension %s') % extname, err)
 
-        if metadata is None:
-            metadata = {}
-        elif not isinstance(metadata, dict):
-            logger.warning(__('extension %r returned an unsupported object from '
-                              'its setup() function; it should return None or a '
-                              'metadata dictionary'), extname)
-            metadata = {}
+            if not hasattr(mod, 'setup'):
+                logger.warning(__('extension %r has no setup() function; is it really '
+                                  'a Sphinx extension module?'), extname)
+                metadata = {}  # type: Dict[unicode, Any]
+            else:
+                try:
+                    metadata = mod.setup(app)
+                except VersionRequirementError as err:
+                    # add the extension name to the version required
+                    raise VersionRequirementError(
+                        __('The %s extension used by this project needs at least '
+                           'Sphinx v%s; it therefore cannot be built with this '
+                           'version.') % (extname, err)
+                    )
 
-        app.extensions[extname] = Extension(extname, mod, **metadata)
-        app._setting_up_extension.pop()
+            if metadata is None:
+                metadata = {}
+            elif not isinstance(metadata, dict):
+                logger.warning(__('extension %r returned an unsupported object from '
+                                  'its setup() function; it should return None or a '
+                                  'metadata dictionary'), extname)
+                metadata = {}
+
+            app.extensions[extname] = Extension(extname, mod, **metadata)
 
     def get_envversion(self, app):
         # type: (Sphinx) -> Dict[unicode, unicode]

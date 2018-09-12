@@ -153,6 +153,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.walk()``
 
+   * - ``sphinx.application.Sphinx._setting_up_extension``
+     - 2.0
+     - 3.0
+     - N/A
+
    * - :rst:dir:`highlightlang`
      - 1.8
      - 4.0
