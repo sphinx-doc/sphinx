@@ -20,7 +20,7 @@ from sphinx.errors import SphinxWarning
 from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 from sphinx.util.console import colorize
-from sphinx.util.logging import is_suppressed_warning
+from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
 
@@ -330,3 +330,22 @@ def test_skip_warningiserror(app, status, warning):
         with logging.pending_warnings():
             with logging.skip_warningiserror(False):
                 logger.warning('message')
+
+
+def test_prefixed_warnings(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message1')
+    with prefixed_warnings('PREFIX:'):
+        logger.warning('message2')
+        with prefixed_warnings('Another PREFIX:'):
+            logger.warning('message3')
+        logger.warning('message4')
+    logger.warning('message5')
+
+    assert 'WARNING: message1' in warning.getvalue()
+    assert 'WARNING: PREFIX: message2' in warning.getvalue()
+    assert 'WARNING: Another PREFIX: message3' in warning.getvalue()
+    assert 'WARNING: PREFIX: message4' in warning.getvalue()
+    assert 'WARNING: message5' in warning.getvalue()

@@ -62,3 +62,5 @@ Logging API
 .. autofunction:: pending_logging()
 
 .. autofunction:: pending_warnings()
+
+.. autofunction:: prefixed_warnings()
