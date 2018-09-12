@@ -263,6 +263,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``docutils.nodes.abbreviation``
 
+   * - ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
+     - 2.0
+     - 4.0
+     - ``open()``
+
    * - ``sphinx.cmd.quickstart.term_decode()``
      - 2.0
      - 4.0

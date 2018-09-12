@@ -70,6 +70,7 @@ Deprecated
   ``IndexBuilder.feed()`` method is deprecated.
 * ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
+* ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
 * ``sphinx.cmd.quickstart.term_decode()``
 * ``sphinx.cmd.quickstart.TERM_ENCODING``
 * ``sphinx.config.check_unicode()``
