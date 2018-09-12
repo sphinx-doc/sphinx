@@ -36,8 +36,8 @@ Bugs fixed
 Testing
 --------
 
-Release 1.8.0 beta2 (in development)
-====================================
+Release 1.8.1 (in development)
+==============================
 
 Dependencies
 ------------
@@ -45,52 +45,25 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #5282: html theme: refer ``pygments_style`` settings of HTML themes
-  preferentially
-* The URL of download files are changed
-* #5127: quickstart: ``Makefile`` and ``make.bat`` are not overwritten if exists
-
 Deprecated
 ----------
-
-* ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()`` is deprecated
-* ``sphinx.io.SphinxI18nReader.line`` is deprecated
-* ``sphinx.util.i18n.find_catalog_source_file()`` has changed; the
-  *gettext_compact* argument has been deprecated
 
 Features added
 --------------
 
-* #5388: Ensure frozen object descriptions are reproducible
-* #5362: apidoc: Add ``--tocfile`` option to change the filename of ToC
-
 Bugs fixed
 ----------
-
-* html: search box overrides to other elements if scrolled
-* i18n: warnings for translation catalogs have wrong line numbers (refs: #5321)
-* #5325: latex: cross references has been broken by multiply labeled objects
-* C++, fixes for symbol addition and lookup. Lookup should no longer break
-  in partial builds. See also #5337.
-* #5348: download reference to remote file is not displayed
-* #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
-  by default
-* #4379: toctree shows confusible warning when document is excluded
-* #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
-* autodoc: ImportError is replaced by AttributeError for deeper module
-* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
-  parallel builds
-* #5290: autodoc: failed to analyze source code in egg package
-* #5399: Sphinx crashes if unknown po file exists
 
 Testing
 --------
 
-Release 1.8.0 beta1 (in development)
-====================================
+Release 1.8.0 (released Sep 13, 2018)
+=====================================
 
 Dependencies
 ------------
+
+1.8.0b1
 
 * LaTeX: :confval:`latex_use_xindy`, if ``True`` (default for
   ``xelatex/lualatex``), instructs ``make latexpdf`` to use :program:`xindy`
@@ -99,6 +72,15 @@ Dependencies
 
 Incompatible changes
 --------------------
+
+1.8.0b2
+
+* #5282: html theme: refer ``pygments_style`` settings of HTML themes
+  preferentially
+* The URL of download files are changed
+* #5127: quickstart: ``Makefile`` and ``make.bat`` are not overwritten if exists
+
+1.8.0b1
 
 * #5156: the :py:mod:`sphinx.ext.graphviz: extension runs `dot` in the
   directory of the document being built instead of in the root directory of
@@ -151,6 +133,17 @@ Incompatible changes
 
 Deprecated
 ----------
+
+1.8.0b2
+
+* ``sphinx.io.SphinxI18nReader.set_lineno_for_reporter()`` is deprecated
+* ``sphinx.io.SphinxI18nReader.line`` is deprecated
+* ``sphinx.util.i18n.find_catalog_source_file()`` has changed; the
+  *gettext_compact* argument has been deprecated
+* #5403: ``sphinx.util.images.guess_mimetype()`` has changed; the *content*
+  argument has been deprecated
+
+1.8.0b1
 
 * :confval:`source_parsers` is deprecated
 * :confval:`autodoc_default_flags` is deprecated
@@ -231,6 +224,13 @@ For more details, see `deprecation APIs list
 Features added
 --------------
 
+1.8.0b2
+
+* #5388: Ensure frozen object descriptions are reproducible
+* #5362: apidoc: Add ``--tocfile`` option to change the filename of ToC
+
+1.8.0b1
+
 * Add :event:`config-inited` event
 * Add ``sphinx.config.Any`` to represent the config value accepts any type of
   value
@@ -305,6 +305,26 @@ Features added
 Bugs fixed
 ----------
 
+1.8.0b2
+
+* html: search box overrides to other elements if scrolled
+* i18n: warnings for translation catalogs have wrong line numbers (refs: #5321)
+* #5325: latex: cross references has been broken by multiply labeled objects
+* C++, fixes for symbol addition and lookup. Lookup should no longer break
+  in partial builds. See also #5337.
+* #5348: download reference to remote file is not displayed
+* #5282: html theme: ``pygments_style`` of theme was overrided by ``conf.py``
+  by default
+* #4379: toctree shows confusible warning when document is excluded
+* #2401: autodoc: ``:members:`` causes ``:special-members:`` not to be shown
+* autodoc: ImportError is replaced by AttributeError for deeper module
+* #2720, #4034: Incorrect links with ``:download:``, duplicate names, and
+  parallel builds
+* #5290: autodoc: failed to analyze source code in egg package
+* #5399: Sphinx crashes if unknown po file exists
+
+1.8.0b1
+
 * i18n: message catalogs were reset on each initialization
 * #4850: latex: footnote inside footnote was not rendered
 * #4945: i18n: fix lang_COUNTRY not fallback correctly for IndexBuilder. Thanks
@@ -321,16 +341,17 @@ Bugs fixed
 * C++, parse delete expressions and basic new expressions as well.
 * #5002: graphviz: SVGs do not adapt to the column width
 
-Testing
---------
-
 Features removed
 ----------------
+
+1.8.0b1
 
 * ``sphinx.ext.pngmath`` extension
 
 Documentation
 -------------
+
+1.8.0b1
 
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
