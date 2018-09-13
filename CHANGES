@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5418: Incorrect default path for sphinx-build -d/doctrees files
+
 Testing
 --------
 
