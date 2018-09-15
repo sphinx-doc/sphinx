@@ -12,7 +12,7 @@
 """
 from __future__ import absolute_import
 
-import gzip
+import codecs
 import re
 from os import path
 from typing import Any
@@ -75,11 +75,18 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         logger.info(__('dumping devhelp index...'))
 
         # Basic info
+        # TODO: Add language attribute
+        # TODO: Add online attribute
+        # TODO: Add author attribute
         root = etree.Element('book',
+                             xmlns='http://www.devhelp.net/book',
                              title=self.config.html_title,
                              name=self.config.project,
                              link="index.html",
-                             version=self.config.version)
+                             version=self.config.version,
+                             language='',
+                             online='',
+                             author='')
         tree = etree.ElementTree(root)
 
         # TOC
@@ -112,16 +119,17 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         def write_index(title, refs, subitems):
             # type: (unicode, List[Any], Any) -> None
+            # TODO: Add attribute type
             if len(refs) == 0:
                 pass
             elif len(refs) == 1:
-                etree.SubElement(functions, 'function',
-                                 name=title, link=refs[0][1])
+                etree.SubElement(functions, 'keyword',
+                                 name=title, link=refs[0][1], type='')
             else:
                 for i, ref in enumerate(refs):
-                    etree.SubElement(functions, 'function',
+                    etree.SubElement(functions, 'keyword',
                                      name="[%d] %s" % (i, title),
-                                     link=ref[1])
+                                     link=ref[1], type='None')
 
             if subitems:
                 parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)
@@ -134,9 +142,12 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 write_index(title, refs, subitems)
 
         # Dump the XML file
-        xmlfile = path.join(outdir, outname + '.devhelp.gz')
-        with gzip.open(xmlfile, 'w') as f:  # type: ignore
-            tree.write(f, 'utf-8')
+        xmlfile = path.join(outdir, outname + '.devhelp2')
+        with codecs.open(xmlfile, 'a', 'utf-8') as f:
+            xmlheader = '<?xml version="1.0" encoding="utf-8" standalone="no"?>'
+            xmltree = (etree.tostring(tree.getroot(), method='xml')).decode('utf-8')
+            xmlbody = xmlheader + xmltree
+            f.write(xmlbody)
 
 
 def setup(app):
