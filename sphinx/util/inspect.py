@@ -373,7 +373,7 @@ class Signature(object):
                 # python 3.5.2 raises ValueError for partial objects.
                 self.annotations = {}
             else:
-                logger.warning('Invalid type annotation found on %r. Ingored: %r',
+                logger.warning('Invalid type annotation found on %r. Ignored: %r',
                                subject, exc)
                 self.annotations = {}
 
