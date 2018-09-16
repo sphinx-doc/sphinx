@@ -11,7 +11,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import collections
+import collections.abc
 import inspect
 import re
 from functools import partial
@@ -120,7 +120,7 @@ class GoogleDocstring(UnicodeMixin):
                 what = 'class'
             elif inspect.ismodule(obj):
                 what = 'module'
-            elif isinstance(obj, collections.Callable):  # type: ignore
+            elif isinstance(obj, collections.abc.Callable):
                 what = 'function'
             else:
                 what = 'object'
