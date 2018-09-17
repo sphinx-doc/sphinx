@@ -1341,6 +1341,19 @@ def test_descriptor_class(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_callable(app):
+    actual = do_autodoc(app, 'function', 'target.callable.function')
+    assert list(actual) == [
+        '',
+        '.. py:function:: function(arg1, arg2, **kwargs)',
+        '   :module: target.callable',
+        '',
+        '   A callable object that behaves like a function.',
+        '   '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_mocked_module_imports(app):
     options = {"members": 'TestAutodoc,decoratedFunction'}

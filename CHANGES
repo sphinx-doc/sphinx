@@ -20,6 +20,7 @@ Bugs fixed
 * #5421: autodoc emits deprecation warning for :confval:`autodoc_default_flags`
 * #5422: lambda object causes PicklingError on storing environment
 * #5417: Sphinx fails to build with syntax error in Python 2.7.5
+* #5431: autodoc: ``autofunction`` emits a warning for callable objects
 
 Testing
 --------
