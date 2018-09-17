@@ -13,3 +13,7 @@ class EnumCls(enum.Enum):
     val3 = 34
     """doc for val3"""
     val4 = 34
+
+    def say_hello(self):
+        """a method says hello to you."""
+        pass
