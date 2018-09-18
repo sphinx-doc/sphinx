@@ -30,7 +30,7 @@ class path(text_type):
             # type: (unicode, unicode, unicode) -> path
             if isinstance(s, str):
                 s = s.decode(encoding, errors)
-                return text_type.__new__(cls, s)
+                return text_type.__new__(cls, s)  # type: ignore
             return text_type.__new__(cls, s)  # type: ignore
 
     @property

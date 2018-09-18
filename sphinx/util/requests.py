@@ -34,7 +34,7 @@ except ImportError:
         from urllib3.exceptions import InsecureRequestWarning  # type: ignore
     except ImportError:
         # for requests < 2.4.0
-        InsecureRequestWarning = None
+        InsecureRequestWarning = None  # type: ignore
 
 try:
     from requests.packages.urllib3.exceptions import InsecurePlatformWarning
@@ -44,7 +44,7 @@ except ImportError:
         from urllib3.exceptions import InsecurePlatformWarning  # type: ignore
     except ImportError:
         # for requests < 2.4.0
-        InsecurePlatformWarning = None
+        InsecurePlatformWarning = None  # type: ignore
 
 # try to load requests[security] (but only if SSL is available)
 try:
