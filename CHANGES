@@ -23,6 +23,7 @@ Bugs fixed
 * #4911: add latexpdf to make.bat for non make-mode
 * #5436: Autodoc does not work with enum subclasses with properties/methods
 * #5437: autodoc: crashed on modules importing eggs
+* #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
 
 Testing
 --------
