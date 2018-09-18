@@ -21,6 +21,7 @@ Bugs fixed
 * #5422: lambda object causes PicklingError on storing environment
 * #5417: Sphinx fails to build with syntax error in Python 2.7.5
 * #4911: add latexpdf to make.bat for non make-mode
+* #5436: Autodoc does not work with enum subclasses with properties/methods
 
 Testing
 --------
