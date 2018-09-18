@@ -16,7 +16,7 @@ import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 
-from six import PY2
+from six import PY2, iteritems
 
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
@@ -246,6 +246,11 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
     if isenumclass(subject):
         for name, value in subject.__members__.items():
             if name not in members:
+                members[name] = Attribute(name, True, value)
+
+        superclass = subject.__mro__[1]
+        for name, value in iteritems(obj_dict):
+            if name not in superclass.__dict__:
                 members[name] = Attribute(name, True, value)
 
     # other members
