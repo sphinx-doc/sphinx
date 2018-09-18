@@ -235,7 +235,7 @@ def abspath(pathdir):
         try:
             pathdir = pathdir.decode(fs_encoding)
         except UnicodeDecodeError:
-            raise UnicodeDecodeError('multibyte filename not supported on '
+            raise UnicodeDecodeError('multibyte filename not supported on '  # type: ignore
                                      'this filesystem encoding '
                                      '(%r)' % fs_encoding)
     return pathdir
