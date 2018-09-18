@@ -32,7 +32,7 @@ class ModuleAnalyzer(object):
     def for_string(cls, string, modname, srcname='<string>'):
         # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)
+            return cls(BytesIO(string), modname, srcname)  # type: ignore
         return cls(StringIO(string), modname, srcname, decoded=True)  # type: ignore
 
     @classmethod

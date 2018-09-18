@@ -73,7 +73,7 @@ def get_image_size(filename):
 
 def guess_mimetype_for_stream(stream, default=None):
     # type: (IO, unicode) -> unicode
-    imgtype = imghdr.what(stream)
+    imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
     else:
@@ -141,4 +141,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)
+imghdr.tests.append(test_svg)  # type: ignore
