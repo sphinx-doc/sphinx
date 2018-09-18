@@ -20,6 +20,10 @@ Bugs fixed
 * #5421: autodoc emits deprecation warning for :confval:`autodoc_default_flags`
 * #5422: lambda object causes PicklingError on storing environment
 * #5417: Sphinx fails to build with syntax error in Python 2.7.5
+* #4911: add latexpdf to make.bat for non make-mode
+* #5436: Autodoc does not work with enum subclasses with properties/methods
+* #5437: autodoc: crashed on modules importing eggs
+* #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
 * #5431: autodoc: ``autofunction`` emits a warning for callable objects
 
 Testing
@@ -37,6 +41,7 @@ Dependencies
   ``xelatex/lualatex``), instructs ``make latexpdf`` to use :program:`xindy`
   for general index.  Make sure your LaTeX distribution includes it.
   (refs: #5134)
+* LaTeX: ``latexmk`` is required for ``make latexpdf`` on Windows
 
 Incompatible changes
 --------------------
