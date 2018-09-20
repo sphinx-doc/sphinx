@@ -22,6 +22,10 @@ Bugs fixed
 * #5417: Sphinx fails to build with syntax error in Python 2.7.5
 * #4911: add latexpdf to make.bat for non make-mode
 * #5436: Autodoc does not work with enum subclasses with properties/methods
+* #5437: autodoc: crashed on modules importing eggs
+* #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
+* #5431: autodoc: ``autofunction`` emits a warning for callable objects
+* #5457: Fix TypeError in error message when override is prohibited
 
 Testing
 --------
