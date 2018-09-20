@@ -148,4 +148,6 @@ def setup(app):
     # workaround for RTD
     from sphinx.util import logging
     logger = logging.getLogger(__name__)
-    app.debug = lambda *args: logger.warning(*args)
+    app.info = lambda *args: logger.info(*args)
+    app.warn = lambda *args: logger.warning(*args)
+    app.debug = lambda *args: logger.debug(*args)
