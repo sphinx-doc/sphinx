@@ -25,6 +25,7 @@ Bugs fixed
 * #5437: autodoc: crashed on modules importing eggs
 * #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
 * #5431: autodoc: ``autofunction`` emits a warning for callable objects
+* #5457: Fix TypeError in error message when override is prohibited
 
 Testing
 --------
