@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2017/03/26 v1.6 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2018/09/18 v1.8.1 Document class (Sphinx HOWTO)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -66,12 +66,7 @@
   \vspace{12pt}
 }  
 
-\@ifundefined{fancyhf}{
-  \pagestyle{plain}}{
-  \pagestyle{normal}}		% start this way; change for
-\pagenumbering{arabic}		% ToC & chapters
-
-\thispagestyle{empty}
+\pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.
