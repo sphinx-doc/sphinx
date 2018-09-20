@@ -7,6 +7,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* LaTeX ``\pagestyle`` commands have been moved to the LaTeX template. No
+  changes in PDF, except possibly if ``\sphinxtableofcontents``, which
+  contained them, had been customized in :file:`conf.py`. (refs: #5455)
+
 Deprecated
 ----------
 
@@ -26,6 +30,7 @@ Bugs fixed
 * #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
 * #5431: autodoc: ``autofunction`` emits a warning for callable objects
 * #5457: Fix TypeError in error message when override is prohibited
+* #5453: PDF builds of 'howto' documents have no page numbers
 
 Testing
 --------
