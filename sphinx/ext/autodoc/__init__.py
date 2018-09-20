@@ -1008,7 +1008,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # cannot introspect arguments of a C function or method
             return None
         try:
-            args = Signature(self.object).format_args()
+            if (not isfunction(self.object) and
+                    not isbuiltin(self.object) and
+                    not inspect.isclass(self.object) and
+                    hasattr(self.object, '__call__')):
+                args = Signature(self.object.__call__).format_args()
+            else:
+                args = Signature(self.object).format_args()
         except TypeError:
             if (is_builtin_class_method(self.object, '__new__') and
                is_builtin_class_method(self.object, '__init__')):

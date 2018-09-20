@@ -223,19 +223,6 @@ class InstAttCls(object):
         """Docstring for instance attribute InstAttCls.ia2."""
 
 
-class EnumCls(enum.Enum):
-    """
-    this is enum class
-    """
-
-    #: doc for val1
-    val1 = 12
-    val2 = 23  #: doc for val2
-    val3 = 34
-    """doc for val3"""
-    val4 = 34
-
-
 class CustomIter(object):
     def __init__(self):
         """Create a new `CustomIter`."""
