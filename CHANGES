@@ -31,6 +31,7 @@ Bugs fixed
 * #5431: autodoc: ``autofunction`` emits a warning for callable objects
 * #5457: Fix TypeError in error message when override is prohibited
 * #5453: PDF builds of 'howto' documents have no page numbers
+* #5463: mathbase: math_role and MathDirective was disappeared in 1.8.0
 
 Testing
 --------
@@ -189,6 +190,8 @@ Deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
+* ``sphinx.ext.mathbase.MathDirective`` is deprecated
+* ``sphinx.ext.mathbase.math_role`` is deprecated
 * ``sphinx.ext.mathbase.setup_math()`` is deprecated
 * ``sphinx.directives.other.VersionChanges`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated
