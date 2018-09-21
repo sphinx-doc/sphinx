@@ -183,6 +183,16 @@ The following is a list of deprecated interface.
      - 3.0
      - ``sphinx.domains.math.MathDomain``
 
+   * - ``sphinx.ext.mathbase.MathDirective``
+     - 1.8
+     - 3.0
+     - ``sphinx.directives.patches.MathDirective``
+
+   * - ``sphinx.ext.mathbase.math_role()``
+     - 1.8
+     - 3.0
+     - ``docutils.parsers.rst.roles.math_role()``
+
    * - ``sphinx.ext.mathbase.setup_math()``
      - 1.8
      - 3.0
