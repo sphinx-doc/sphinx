@@ -17,9 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
-)
+from six import iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -41,12 +39,9 @@ CONFIG_FILENAME = 'conf.py'
 UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
-if PY3:
-    unicode = str  # special alias for static typing...
-
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', Union[bool, unicode])])
+                                         ('rebuild', Union[bool, text_type])])
 
 
 def is_serializable(obj):
@@ -83,8 +78,6 @@ class ENUM(object):
 
 
 string_classes = [text_type]  # type: List
-if PY2:
-    string_classes.append(binary_type)  # => [str, unicode]
 
 
 class Config(object):
@@ -367,9 +360,8 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s")
-            if PY3:
-                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n"
+                     "Did you change the syntax from 2.x to 3.x?")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "

@@ -16,7 +16,7 @@ import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 
-from six import PY2, iteritems
+from six import iteritems
 
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
@@ -219,8 +219,6 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         else:
             errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
 
-        if PY2:
-            errmsg = errmsg.decode('utf-8')  # type: ignore
         logger.debug(errmsg)
         raise ImportError(errmsg)
 

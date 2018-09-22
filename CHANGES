@@ -15,6 +15,12 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.doctest.doctest_encode()``
+* ``sphinx.testing.util.remove_unicode_literal()``
+
+For more details, see `deprecation APIs list
+<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
+
 Features added
 --------------
 * #1618: The search results preview of generated HTML documentation is

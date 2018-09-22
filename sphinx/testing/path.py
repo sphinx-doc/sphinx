@@ -11,7 +11,7 @@ import shutil
 import sys
 from io import open
 
-from six import PY2, text_type
+from six import text_type
 
 if False:
     # For type annotation
@@ -25,13 +25,6 @@ class path(text_type):
     """
     Represents a path which behaves like a string.
     """
-    if PY2:
-        def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
-            # type: (unicode, unicode, unicode) -> path
-            if isinstance(s, str):
-                s = s.decode(encoding, errors)
-                return text_type.__new__(cls, s)  # type: ignore
-            return text_type.__new__(cls, s)  # type: ignore
 
     @property
     def parent(self):
@@ -169,8 +162,7 @@ class path(text_type):
         """
         Returns the text in the file.
         """
-        mode = 'rU' if PY2 else 'r'
-        with open(self, mode=mode, encoding=encoding, **kwargs) as f:
+        with open(self, mode='r', encoding=encoding, **kwargs) as f:
             return f.read()
 
     def bytes(self):

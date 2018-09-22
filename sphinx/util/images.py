@@ -18,7 +18,7 @@ from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import PY3, BytesIO, iteritems
+from six import BytesIO, iteritems, text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
@@ -34,9 +34,6 @@ if False:
     # For type annotation
     from typing import Dict, IO, List, Tuple  # NOQA
 
-if PY3:
-    unicode = str  # special alias for static typing...
-
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
     ('.jpg', 'image/jpeg'),
@@ -46,8 +43,8 @@ mime_suffixes = OrderedDict([
     ('.svgz', 'image/svg+xml'),
 ])  # type: Dict[unicode, unicode]
 
-DataURI = NamedTuple('DataURI', [('mimetype', unicode),
-                                 ('charset', unicode),
+DataURI = NamedTuple('DataURI', [('mimetype', text_type),
+                                 ('charset', text_type),
                                  ('data', bytes)])
 
 

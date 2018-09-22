@@ -10,14 +10,14 @@
 """
 from __future__ import absolute_import
 
+import enum
 import inspect
 import re
 import sys
 import typing
-from collections import OrderedDict
 from functools import partial
 
-from six import PY2, PY3, StringIO, binary_type, string_types, itervalues
+from six import StringIO, binary_type, string_types, itervalues
 from six.moves import builtins
 
 from sphinx.util import force_decode
@@ -33,112 +33,73 @@ logger = logging.getLogger(__name__)
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 
-if PY3:
-    # Copied from the definition of inspect.getfullargspec from Python master,
-    # and modified to remove the use of special flags that break decorated
-    # callables and bound methods in the name of backwards compatibility. Used
-    # under the terms of PSF license v2, which requires the above statement
-    # and the following:
-    #
-    #   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-    #   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
-    #   Foundation; All Rights Reserved
-    def getargspec(func):
-        """Like inspect.getfullargspec but supports bound methods, and wrapped
-        methods."""
-        # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
-        # succeeds with a bogus signature. We want a TypeError uniformly, to
-        # match historical behavior.
-        if (isinstance(func, type) and
-                is_builtin_class_method(func, "__new__") and
-                is_builtin_class_method(func, "__init__")):
-            raise TypeError(
-                "can't compute signature for built-in type {}".format(func))
+# Copied from the definition of inspect.getfullargspec from Python master,
+# and modified to remove the use of special flags that break decorated
+# callables and bound methods in the name of backwards compatibility. Used
+# under the terms of PSF license v2, which requires the above statement
+# and the following:
+#
+#   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+#   2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Python Software
+#   Foundation; All Rights Reserved
+def getargspec(func):
+    """Like inspect.getfullargspec but supports bound methods, and wrapped
+    methods."""
+    # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
+    # succeeds with a bogus signature. We want a TypeError uniformly, to
+    # match historical behavior.
+    if (isinstance(func, type) and
+            is_builtin_class_method(func, "__new__") and
+            is_builtin_class_method(func, "__init__")):
+        raise TypeError(
+            "can't compute signature for built-in type {}".format(func))
 
-        sig = inspect.signature(func)
+    sig = inspect.signature(func)  # type: ignore
 
-        args = []
-        varargs = None
-        varkw = None
-        kwonlyargs = []
-        defaults = ()
-        annotations = {}
-        defaults = ()
-        kwdefaults = {}
+    args = []
+    varargs = None
+    varkw = None
+    kwonlyargs = []
+    defaults = ()
+    annotations = {}
+    defaults = ()
+    kwdefaults = {}
 
-        if sig.return_annotation is not sig.empty:
-            annotations['return'] = sig.return_annotation
+    if sig.return_annotation is not sig.empty:
+        annotations['return'] = sig.return_annotation
 
-        for param in sig.parameters.values():
-            kind = param.kind
-            name = param.name
+    for param in sig.parameters.values():
+        kind = param.kind
+        name = param.name
 
-            if kind is inspect.Parameter.POSITIONAL_ONLY:
-                args.append(name)
-            elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
-                args.append(name)
-                if param.default is not param.empty:
-                    defaults += (param.default,)
-            elif kind is inspect.Parameter.VAR_POSITIONAL:
-                varargs = name
-            elif kind is inspect.Parameter.KEYWORD_ONLY:
-                kwonlyargs.append(name)
-                if param.default is not param.empty:
-                    kwdefaults[name] = param.default
-            elif kind is inspect.Parameter.VAR_KEYWORD:
-                varkw = name
+        if kind is inspect.Parameter.POSITIONAL_ONLY:  # type: ignore
+            args.append(name)
+        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:  # type: ignore
+            args.append(name)
+            if param.default is not param.empty:
+                defaults += (param.default,)  # type: ignore
+        elif kind is inspect.Parameter.VAR_POSITIONAL:  # type: ignore
+            varargs = name
+        elif kind is inspect.Parameter.KEYWORD_ONLY:  # type: ignore
+            kwonlyargs.append(name)
+            if param.default is not param.empty:
+                kwdefaults[name] = param.default
+        elif kind is inspect.Parameter.VAR_KEYWORD:  # type: ignore
+            varkw = name
 
-            if param.annotation is not param.empty:
-                annotations[name] = param.annotation
+        if param.annotation is not param.empty:
+            annotations[name] = param.annotation
 
-        if not kwdefaults:
-            # compatibility with 'func.__kwdefaults__'
-            kwdefaults = None
+    if not kwdefaults:
+        # compatibility with 'func.__kwdefaults__'
+        kwdefaults = None
 
-        if not defaults:
-            # compatibility with 'func.__defaults__'
-            defaults = None
+    if not defaults:
+        # compatibility with 'func.__defaults__'
+        defaults = None
 
-        return inspect.FullArgSpec(args, varargs, varkw, defaults,
-                                   kwonlyargs, kwdefaults, annotations)
-
-else:  # 2.7
-    def getargspec(func):
-        # type: (Any) -> Any
-        """Like inspect.getargspec but supports functools.partial as well."""
-        if inspect.ismethod(func):
-            func = func.__func__
-        parts = 0, ()  # type: Tuple[int, Tuple[unicode, ...]]
-        if type(func) is partial:
-            keywords = func.keywords
-            if keywords is None:
-                keywords = {}
-            parts = len(func.args), keywords.keys()
-            func = func.func
-        if not inspect.isfunction(func):
-            raise TypeError('%r is not a Python function' % func)
-        args, varargs, varkw = inspect.getargs(func.__code__)
-        func_defaults = func.__defaults__
-        if func_defaults is None:
-            func_defaults = []
-        else:
-            func_defaults = list(func_defaults)
-        if parts[0]:
-            args = args[parts[0]:]
-        if parts[1]:
-            for arg in parts[1]:
-                i = args.index(arg) - len(args)  # type: ignore
-                del args[i]
-                try:
-                    del func_defaults[i]
-                except IndexError:
-                    pass
-        return inspect.ArgSpec(args, varargs, varkw, func_defaults)  # type: ignore
-
-try:
-    import enum
-except ImportError:
-    enum = None
+    return inspect.FullArgSpec(args, varargs, varkw, defaults,  # type: ignore
+                               kwonlyargs, kwdefaults, annotations)
 
 
 def isenumclass(x):
@@ -275,18 +236,15 @@ def object_description(object):
         except TypeError:
             pass  # Cannot sort set values, fall back to generic repr
         else:
-            template = "{%s}" if PY3 else "set([%s])"
-            return template % ", ".join(object_description(x)
-                                        for x in sorted_values)
+            return "{%s}" % ", ".join(object_description(x) for x in sorted_values)
     if isinstance(object, frozenset):
         try:
             sorted_values = sorted(object)
         except TypeError:
             pass  # Cannot sort frozenset values, fall back to generic repr
         else:
-            template = "frozenset({%s})" if PY3 else "frozenset([%s])"
-            return template % ", ".join(object_description(x)
-                                        for x in sorted_values)
+            return "frozenset({%s})" % ", ".join(object_description(x)
+                                                 for x in sorted_values)
     try:
         s = repr(object)
     except Exception:
@@ -351,20 +309,17 @@ class Signature(object):
         self.has_retval = has_retval
         self.partialmethod_with_noargs = False
 
-        if PY3:
-            try:
-                self.signature = inspect.signature(subject)
-            except IndexError:
-                # Until python 3.6.4, cpython has been crashed on inspection for
-                # partialmethods not having any arguments.
-                # https://bugs.python.org/issue33009
-                if hasattr(subject, '_partialmethod'):
-                    self.signature = None
-                    self.partialmethod_with_noargs = True
-                else:
-                    raise
-        else:
-            self.argspec = getargspec(subject)
+        try:
+            self.signature = inspect.signature(subject)  # type: ignore
+        except IndexError:
+            # Until python 3.6.4, cpython has been crashed on inspection for
+            # partialmethods not having any arguments.
+            # https://bugs.python.org/issue33009
+            if hasattr(subject, '_partialmethod'):
+                self.signature = None
+                self.partialmethod_with_noargs = True
+            else:
+                raise
 
         try:
             self.annotations = typing.get_type_hints(subject)  # type: ignore
@@ -380,53 +335,32 @@ class Signature(object):
         if bound_method:
             # client gives a hint that the subject is a bound method
 
-            if PY3 and inspect.ismethod(subject):
+            if inspect.ismethod(subject):
                 # inspect.signature already considers the subject is bound method.
                 # So it is not need to skip first argument.
                 self.skip_first_argument = False
             else:
                 self.skip_first_argument = True
         else:
-            if PY3:
-                # inspect.signature recognizes type of method properly without any hints
-                self.skip_first_argument = False
-            else:
-                # check the subject is bound method or not
-                self.skip_first_argument = inspect.ismethod(subject) and subject.__self__  # type: ignore  # NOQA
+            # inspect.signature recognizes type of method properly without any hints
+            self.skip_first_argument = False
 
     @property
     def parameters(self):
         # type: () -> Dict
-        if PY3:
-            if self.partialmethod_with_noargs:
-                return {}
-            else:
-                return self.signature.parameters
+        if self.partialmethod_with_noargs:
+            return {}
         else:
-            params = OrderedDict()  # type: Dict
-            positionals = len(self.argspec.args) - len(self.argspec.defaults)
-            for i, arg in enumerate(self.argspec.args):
-                if i < positionals:
-                    params[arg] = Parameter(arg)
-                else:
-                    default = self.argspec.defaults[i - positionals]
-                    params[arg] = Parameter(arg, default=default)
-            if self.argspec.varargs:
-                params[self.argspec.varargs] = Parameter(self.argspec.varargs,
-                                                         Parameter.VAR_POSITIONAL)
-            if self.argspec.keywords:
-                params[self.argspec.keywords] = Parameter(self.argspec.keywords,
-                                                          Parameter.VAR_KEYWORD)
-            return params
+            return self.signature.parameters
 
     @property
     def return_annotation(self):
         # type: () -> Any
-        if PY3 and self.signature:
+        if self.signature:
             if self.has_retval:
                 return self.signature.return_annotation
             else:
-                return inspect.Parameter.empty
+                return inspect.Parameter.empty  # type: ignore
         else:
             return None
 
@@ -477,7 +411,7 @@ class Signature(object):
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if PY2 or self.return_annotation is inspect.Parameter.empty:
+        if self.return_annotation is inspect.Parameter.empty:  # type: ignore
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
