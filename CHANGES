@@ -45,6 +45,10 @@ Dependencies
 Incompatible changes
 --------------------
 
+* LaTeX ``\pagestyle`` commands have been moved to the LaTeX template. No
+  changes in PDF, except possibly if ``\sphinxtableofcontents``, which
+  contained them, had been customized in :file:`conf.py`. (refs: #5455)
+
 Deprecated
 ----------
 
@@ -63,6 +67,12 @@ Bugs fixed
 * #5437: autodoc: crashed on modules importing eggs
 * #5433: latex: ImportError: cannot import name 'DEFAULT_SETTINGS'
 * #5431: autodoc: ``autofunction`` emits a warning for callable objects
+* #5457: Fix TypeError in error message when override is prohibited
+* #5453: PDF builds of 'howto' documents have no page numbers
+* #5463: mathbase: math_role and MathDirective was disappeared in 1.8.0
+* #5454: latex: Index has disappeared from PDF for Japanese documents
+* #5432: py domain: ``:type:`` field can't process ``:term:`` references
+* #5426: py domain: TypeError has been raised for class attribute
 
 Testing
 --------
@@ -221,6 +231,8 @@ Deprecated
 * ``sphinx.ext.mathbase.eqref`` node is deprecated
 * ``sphinx.ext.mathbase.is_in_section_title()`` is deprecated
 * ``sphinx.ext.mathbase.MathDomain`` is deprecated
+* ``sphinx.ext.mathbase.MathDirective`` is deprecated
+* ``sphinx.ext.mathbase.math_role`` is deprecated
 * ``sphinx.ext.mathbase.setup_math()`` is deprecated
 * ``sphinx.directives.other.VersionChanges`` is deprecated
 * ``sphinx.highlighting.PygmentsBridge.unhighlight()`` is deprecated

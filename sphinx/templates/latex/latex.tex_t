@@ -51,8 +51,11 @@
 <%= makeindex %>
 \begin{document}
 <%= shorthandoff %>
+\pagestyle{empty}
 <%= maketitle %>
+\pagestyle{plain}
 <%= tableofcontents %>
+\pagestyle{normal}
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
