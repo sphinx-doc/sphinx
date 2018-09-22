@@ -12,12 +12,15 @@ from __future__ import absolute_import
 
 import base64
 import imghdr
+import warnings
 from collections import OrderedDict
 from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import PY3, BytesIO
+from six import BytesIO, text_type
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
     from PIL import Image        # check for the Python Imaging Library
@@ -31,9 +34,6 @@ if False:
     # For type annotation
     from typing import Dict, IO, List, Tuple  # NOQA
 
-if PY3:
-    unicode = str  # special alias for static typing...
-
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
     ('.jpg', 'image/jpeg'),
@@ -43,8 +43,8 @@ mime_suffixes = OrderedDict([
     ('.svgz', 'image/svg+xml'),
 ])  # type: Dict[unicode, unicode]
 
-DataURI = NamedTuple('DataURI', [('mimetype', unicode),
-                                 ('charset', unicode),
+DataURI = NamedTuple('DataURI', [('mimetype', text_type),
+                                 ('charset', text_type),
                                  ('data', bytes)])
 
 
@@ -70,7 +70,7 @@ def get_image_size(filename):
 
 def guess_mimetype_for_stream(stream, default=None):
     # type: (IO, unicode) -> unicode
-    imgtype = imghdr.what(stream)
+    imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
     else:
@@ -83,6 +83,8 @@ def guess_mimetype(filename='', content=None, default=None):
     if ext in mime_suffixes:
         return mime_suffixes[ext]
     elif content:
+        warnings.warn('The content argument of guess_mimetype() is deprecated.',
+                      RemovedInSphinx30Warning)
         return guess_mimetype_for_stream(BytesIO(content), default=default)
     elif path.exists(filename):
         with open(filename, 'rb') as f:
@@ -136,4 +138,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)
+imghdr.tests.append(test_svg)  # type: ignore

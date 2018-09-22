@@ -9,10 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-
-from six import PY2
-
 import sphinx
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
@@ -435,34 +431,26 @@ def _skip_member(app, what, name, obj, skip, options):
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
-            if PY2:
-                cls = getattr(obj, 'im_class', getattr(obj, '__objclass__',
-                              None))
-                cls_is_owner = (cls and hasattr(cls, name) and
-                                name in cls.__dict__)
-            elif sys.version_info >= (3, 3):
-                qualname = getattr(obj, '__qualname__', '')
-                cls_path, _, _ = qualname.rpartition('.')
-                if cls_path:
-                    try:
-                        if '.' in cls_path:
-                            import importlib
-                            import functools
+            qualname = getattr(obj, '__qualname__', '')
+            cls_path, _, _ = qualname.rpartition('.')
+            if cls_path:
+                try:
+                    if '.' in cls_path:
+                        import importlib
+                        import functools
 
-                            mod = importlib.import_module(obj.__module__)
-                            mod_path = cls_path.split('.')
-                            cls = functools.reduce(getattr, mod_path, mod)
-                        else:
-                            cls = obj.__globals__[cls_path]
-                    except Exception:
-                        cls_is_owner = False
+                        mod = importlib.import_module(obj.__module__)
+                        mod_path = cls_path.split('.')
+                        cls = functools.reduce(getattr, mod_path, mod)
                     else:
-                        cls_is_owner = (cls and hasattr(cls, name) and
-                                        name in cls.__dict__)
-                else:
+                        cls = obj.__globals__[cls_path]
+                except Exception:
                     cls_is_owner = False
+                else:
+                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore
+                                    name in cls.__dict__)
             else:
-                cls_is_owner = True
+                cls_is_owner = False
 
         if what == 'module' or cls_is_owner:
             is_init = (name == '__init__')

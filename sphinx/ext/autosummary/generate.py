@@ -20,7 +20,6 @@
 from __future__ import print_function
 
 import argparse
-import codecs
 import locale
 import os
 import pydoc
@@ -249,8 +248,8 @@ def find_autosummary_in_files(filenames):
     """
     documented = []  # type: List[Tuple[unicode, unicode, unicode]]
     for filename in filenames:
-        with codecs.open(filename, 'r', encoding='utf-8',  # type: ignore
-                         errors='ignore') as f:
+        with open(filename, 'r', encoding='utf-8',  # type: ignore
+                  errors='ignore') as f:
             lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented

@@ -33,11 +33,6 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
-    # Windows with versions prior to 3.2 (I think) doesn't support unicode on system path
-    # so we force a non-unicode path in that case
-    if (sys.platform == "win32" and
-            not (sys.version_info.major >= 3 and sys.version_info.minor >= 2)):
-        return basedir / 'all'
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():

@@ -22,8 +22,6 @@ import re
 import sys
 import warnings
 
-from six import PY3
-
 try:
     import MeCab
     native_module = True
@@ -77,16 +75,12 @@ class MecabSplitter(BaseSplitter):
 
     def split(self, input):
         # type: (unicode) -> List[unicode]
-        input2 = input if PY3 else input.encode(self.dict_encode)
         if native_module:
-            result = self.native.parse(input2)
+            result = self.native.parse(input)
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
                 self.ctypes_mecab, input.encode(self.dict_encode))
-        if PY3:
-            return result.split(' ')
-        else:
-            return result.decode(self.dict_encode).split(' ')
+        return result.split(' ')
 
     def init_native(self, options):
         # type: (Dict) -> None

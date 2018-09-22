@@ -17,7 +17,6 @@ from contextlib import contextmanager
 
 from docutils import nodes
 from docutils.utils import get_source_line
-from six import PY2, StringIO
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
@@ -162,28 +161,7 @@ class WarningStreamHandler(logging.StreamHandler):
     pass
 
 
-class NewLineStreamHandlerPY2(logging.StreamHandler):
-    """StreamHandler which switches line terminator by record.nonl flag."""
-
-    def emit(self, record):
-        # type: (logging.LogRecord) -> None
-        try:
-            self.acquire()
-            stream = self.stream
-            if getattr(record, 'nonl', False):
-                # remove return code forcely when nonl=True
-                self.stream = StringIO()
-                super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])
-                stream.flush()
-            else:
-                super(NewLineStreamHandlerPY2, self).emit(record)
-        finally:
-            self.stream = stream
-            self.release()
-
-
-class NewLineStreamHandlerPY3(logging.StreamHandler):
+class NewLineStreamHandler(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record):
@@ -193,16 +171,10 @@ class NewLineStreamHandlerPY3(logging.StreamHandler):
             if getattr(record, 'nonl', False):
                 # skip appending terminator when nonl=True
                 self.terminator = ''
-            super(NewLineStreamHandlerPY3, self).emit(record)
+            super(NewLineStreamHandler, self).emit(record)
         finally:
             self.terminator = '\n'
             self.release()
-
-
-if PY2:
-    NewLineStreamHandler = NewLineStreamHandlerPY2
-else:
-    NewLineStreamHandler = NewLineStreamHandlerPY3
 
 
 class MemoryHandler(logging.handlers.BufferingHandler):

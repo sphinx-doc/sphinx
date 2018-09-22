@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 from os import path
 from typing import cast
 
@@ -113,9 +112,11 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with codecs.open(path.join(self.outdir, 'index.html'), 'w', 'utf8') as f:  # type: ignore  # NOQA
+        with open(path.join(self.outdir, 'index.html'), 'w',  # type: ignore
+                  encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with codecs.open(path.join(self.outdir, 'changes.html'), 'w', 'utf8') as f:  # type: ignore  # NOQA
+        with open(path.join(self.outdir, 'changes.html'), 'w',  # type: ignore
+                  encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = ['.. versionadded:: %s' % version,
@@ -133,8 +134,8 @@ class ChangesBuilder(Builder):
 
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
-            with codecs.open(self.env.doc2path(docname), 'r',  # type: ignore
-                             self.env.config.source_encoding) as f:
+            with open(self.env.doc2path(docname), 'r',  # type: ignore
+                      encoding=self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
                 except UnicodeDecodeError:
@@ -142,7 +143,7 @@ class ChangesBuilder(Builder):
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            with codecs.open(targetfn, 'w', 'utf-8') as f:  # type: ignore
+            with open(targetfn, 'w', encoding='utf-8') as f:  # type: ignore
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, None),

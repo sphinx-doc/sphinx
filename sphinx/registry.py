@@ -199,7 +199,7 @@ class SphinxComponentRegistry(object):
 
         directives = self.domain_directives.setdefault(domain, {})
         if name in directives and not override:
-            raise ExtensionError(__('The %r directive is already registered to %d domain') %
+            raise ExtensionError(__('The %r directive is already registered to domain %s') %
                                  (name, domain))
         if not isclass(obj) or not issubclass(obj, Directive):
             directives[name] = directive_helper(obj, has_content, argument_spec, **option_spec)
@@ -213,7 +213,7 @@ class SphinxComponentRegistry(object):
             raise ExtensionError(__('domain %s not yet registered') % domain)
         roles = self.domain_roles.setdefault(domain, {})
         if name in roles and not override:
-            raise ExtensionError(__('The %r role is already registered to %d domain') %
+            raise ExtensionError(__('The %r role is already registered to domain %s') %
                                  (name, domain))
         roles[name] = role
 
@@ -224,7 +224,7 @@ class SphinxComponentRegistry(object):
             raise ExtensionError(__('domain %s not yet registered') % domain)
         indices = self.domain_indices.setdefault(domain, [])
         if index in indices and not override:
-            raise ExtensionError(__('The %r index is already registered to %d domain') %
+            raise ExtensionError(__('The %r index is already registered to domain %s') %
                                  (index.name, domain))
         indices.append(index)
 

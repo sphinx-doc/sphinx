@@ -10,7 +10,6 @@
 """
 from __future__ import absolute_import
 
-import codecs
 import os
 import re
 import types
@@ -314,7 +313,7 @@ class SphinxFileOutput(FileOutput):
         # type: (unicode) -> unicode
         if (self.destination_path and self.autoclose and 'b' not in self.mode and
                 self.overwrite_if_changed and os.path.exists(self.destination_path)):
-            with codecs.open(self.destination_path, encoding=self.encoding) as f:
+            with open(self.destination_path, encoding=self.encoding) as f:  # type: ignore
                 # skip writing: content not changed
                 if f.read() == data:
                     return data

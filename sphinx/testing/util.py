@@ -20,6 +20,7 @@ from six import string_types
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
@@ -191,6 +192,8 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 def remove_unicode_literals(s):
     # type: (unicode) -> unicode
+    warnings.warn('remove_unicode_literals() is deprecated.',
+                  RemovedInSphinx40Warning)
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)  # type: ignore
 
 
