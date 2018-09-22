@@ -144,3 +144,10 @@ def setup(app):
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
                         doc_field_types=[fdesc])
+
+    # workaround for RTD
+    from sphinx.util import logging
+    logger = logging.getLogger(__name__)
+    app.info = lambda *args, **kwargs: logger.info(*args, **kwargs)
+    app.warn = lambda *args, **kwargs: logger.warning(*args, **kwargs)
+    app.debug = lambda *args, **kwargs: logger.debug(*args, **kwargs)

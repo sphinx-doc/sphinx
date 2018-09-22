@@ -17,9 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
-)
+from six import iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -38,15 +36,27 @@ if False:
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
-UNSERIALIZEABLE_TYPES = class_types + (types.ModuleType, types.FunctionType)
+UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
-
-if PY3:
-    unicode = str  # special alias for static typing...
 
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', Union[bool, unicode])])
+                                         ('rebuild', Union[bool, text_type])])
+
+
+def is_serializable(obj):
+    # type: (Any) -> bool
+    """Check if object is serializable or not."""
+    if isinstance(obj, UNSERIALIZABLE_TYPES):
+        return False
+    elif isinstance(obj, dict):
+        for key, value in iteritems(obj):
+            if not is_serializable(key) or not is_serializable(value):
+                return False
+    elif isinstance(obj, (list, tuple, set)):
+        return all(is_serializable(i) for i in obj)
+
+    return True
 
 
 class ENUM(object):
@@ -68,8 +78,6 @@ class ENUM(object):
 
 
 string_classes = [text_type]  # type: List
-if PY2:
-    string_classes.append(binary_type)  # => [str, unicode]
 
 
 class Config(object):
@@ -317,7 +325,7 @@ class Config(object):
         # remove potentially pickling-problematic values from config
         __dict__ = {}
         for key, value in iteritems(self.__dict__):
-            if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
+            if key.startswith('_') or not is_serializable(value):
                 pass
             else:
                 __dict__[key] = value
@@ -326,7 +334,7 @@ class Config(object):
         __dict__['values'] = {}
         for key, value in iteritems(self.values):  # type: ignore
             real_value = getattr(self, key)
-            if isinstance(real_value, UNSERIALIZEABLE_TYPES):
+            if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
 
@@ -352,9 +360,8 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s")
-            if PY3:
-                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n"
+                     "Did you change the syntax from 2.x to 3.x?")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "

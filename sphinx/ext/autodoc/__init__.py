@@ -14,12 +14,14 @@
 import inspect
 import re
 import sys
+import warnings
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import iteritems, itervalues, text_type, string_types
 
 import sphinx
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.locale import _, __
@@ -1006,7 +1008,13 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             # cannot introspect arguments of a C function or method
             return None
         try:
-            args = Signature(self.object).format_args()
+            if (not isfunction(self.object) and
+                    not isbuiltin(self.object) and
+                    not inspect.isclass(self.object) and
+                    hasattr(self.object, '__call__')):
+                args = Signature(self.object.__call__).format_args()
+            else:
+                args = Signature(self.object).format_args()
         except TypeError:
             if (is_builtin_class_method(self.object, '__new__') and
                is_builtin_class_method(self.object, '__init__')):
@@ -1053,7 +1061,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types)
+        return isinstance(member, type)
 
     def import_object(self):
         # type: () -> Any
@@ -1205,8 +1213,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types) and \
-            issubclass(member, BaseException)  # type: ignore
+        return isinstance(member, type) and issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1337,7 +1344,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         # exported anywhere by Python
         return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
                               not inspect.isroutine(member) and
-                              not isinstance(member, class_types))
+                              not isinstance(member, type))
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
@@ -1442,9 +1449,13 @@ def merge_autodoc_default_flags(app, config):
     if not config.autodoc_default_flags:
         return
 
-    logger.warning(__('autodoc_default_flags is now deprecated. '
-                      'Please use autodoc_default_options instead.'),
-                   type='autodoc')
+    # Note: this option will be removed in Sphinx-4.0.  But I marked this as
+    # RemovedInSphinx *30* Warning because we have to emit warnings for users
+    # who will be still in use with Sphinx-3.x.  So we should replace this by
+    # logger.warning() on 3.0.0 release.
+    warnings.warn('autodoc_default_flags is now deprecated. '
+                  'Please use autodoc_default_options instead.',
+                  RemovedInSphinx30Warning)
 
     for option in config.autodoc_default_flags:
         if isinstance(option, string_types):

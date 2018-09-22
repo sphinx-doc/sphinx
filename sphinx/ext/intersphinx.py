@@ -34,7 +34,7 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import PY3, iteritems, string_types
+from six import iteritems, string_types, text_type
 from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
@@ -50,10 +50,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
-    if PY3:
-        unicode = str
-
-    Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
+    Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -416,6 +413,6 @@ def inspect_main(argv):
 
 if __name__ == '__main__':
     import logging  # type: ignore
-    logging.basicConfig()
+    logging.basicConfig()  # type: ignore
 
     inspect_main(argv=sys.argv[1:])  # type: ignore

@@ -219,7 +219,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         args.confdir = args.sourcedir
 
     if not args.doctreedir:
-        args.doctreedir = os.path.join(args.sourcedir, '.doctrees')
+        args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
     # handle remaining filename arguments
     filenames = args.filenames

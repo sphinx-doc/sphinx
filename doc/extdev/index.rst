@@ -116,6 +116,16 @@ The following is a list of deprecated interface.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.doctest.doctest_encode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.testing.util.remove_unicode_literal()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - :rst:dir:`highlightlang`
      - 1.8
      - 4.0
@@ -135,6 +145,11 @@ The following is a list of deprecated interface.
      - 1.8
      - 4.0
      - :confval:`autodoc_default_options`
+
+   * - ``content`` arguments of ``sphinx.util.image.guess_mimetype()``
+     - 1.8
+     - 3.0
+     - N/A
 
    * - ``gettext_compact`` arguments of
        ``sphinx.util.i18n.find_catalog_source_files()``
@@ -177,6 +192,16 @@ The following is a list of deprecated interface.
      - 1.8
      - 3.0
      - ``sphinx.domains.math.MathDomain``
+
+   * - ``sphinx.ext.mathbase.MathDirective``
+     - 1.8
+     - 3.0
+     - ``sphinx.directives.patches.MathDirective``
+
+   * - ``sphinx.ext.mathbase.math_role()``
+     - 1.8
+     - 3.0
+     - ``docutils.parsers.rst.roles.math_role()``
 
    * - ``sphinx.ext.mathbase.setup_math()``
      - 1.8

@@ -14,7 +14,6 @@ from collections import Counter
 import pytest
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
-from six import PY2
 
 from sphinx.ext.doctest import is_allowed_version
 
@@ -112,9 +111,6 @@ def record(directive, part, should_skip):
     return 'Recorded {} {} {}'.format(directive, part, should_skip)
 
 
-@pytest.mark.xfail(
-    PY2, reason='node.source points to document instead of filename',
-)
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
 def test_reporting_with_autodoc(app, status, warning, capfd):
     # Patch builder to get a copy of the output
