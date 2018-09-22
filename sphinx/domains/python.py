@@ -13,7 +13,6 @@ import re
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from six import iteritems
 
 from sphinx import addnodes, locale
 from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
@@ -677,7 +676,7 @@ class PythonModuleIndex(Index):
         ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all modules, sorted by module name
-        modules = sorted(iteritems(self.domain.data['modules']),
+        modules = sorted(self.domain.data['modules'].items(),
                          key=lambda x: x[0].lower())
         # sort out collapsable modules
         prev_modname = ''
@@ -727,7 +726,7 @@ class PythonModuleIndex(Index):
         collapse = len(modules) - num_toplevels < num_toplevels
 
         # sort by first letter
-        sorted_content = sorted(iteritems(content))
+        sorted_content = sorted(content.items())
 
         return sorted_content, collapse
 
@@ -923,9 +922,9 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        for modname, info in iteritems(self.data['modules']):
+        for modname, info in self.data['modules'].items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in iteritems(self.data['objects']):
+        for refname, (docname, type) in self.data['objects'].items():
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
 

@@ -12,7 +12,6 @@
 import re
 
 from docutils import nodes, utils
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.errors import SphinxError
@@ -403,12 +402,12 @@ def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     from docutils.parsers.rst import roles
 
-    for rolename, nodeclass in iteritems(generic_docroles):
+    for rolename, nodeclass in generic_docroles.items():
         generic = roles.GenericRole(rolename, nodeclass)
         role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
         roles.register_local_role(rolename, role)
 
-    for rolename, func in iteritems(specific_docroles):
+    for rolename, func in specific_docroles.items():
         roles.register_local_role(rolename, func)
 
     return {

@@ -12,7 +12,7 @@ import os
 import re
 import zlib
 
-from six import PY3
+from six import text_type
 
 from sphinx.util import logging
 
@@ -22,10 +22,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
-    if PY3:
-        unicode = str
-
-    Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
+    Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
 
 
 BUFSIZE = 16 * 1024

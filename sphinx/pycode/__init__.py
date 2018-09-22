@@ -13,7 +13,7 @@ from __future__ import print_function
 import re
 from zipfile import ZipFile
 
-from six import iteritems, BytesIO, StringIO
+from six import BytesIO, StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -32,7 +32,7 @@ class ModuleAnalyzer:
     def for_string(cls, string, modname, srcname='<string>'):
         # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)
+            return cls(BytesIO(string), modname, srcname)  # type: ignore
         return cls(StringIO(string), modname, srcname, decoded=True)  # type: ignore
 
     @classmethod
@@ -111,7 +111,7 @@ class ModuleAnalyzer:
             parser.parse()
 
             self.attr_docs = {}
-            for (scope, comment) in iteritems(parser.comments):
+            for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
                 else:

@@ -62,9 +62,7 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-#
-# NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 54 + (sys.version_info[0] - 2)
+ENV_VERSION = 56
 
 # config status
 CONFIG_OK = 1

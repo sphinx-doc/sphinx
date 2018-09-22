@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
-
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -49,7 +47,7 @@ def verify_needs_extensions(app, config):
     if config.needs_extensions is None:
         return
 
-    for extname, reqversion in iteritems(config.needs_extensions):
+    for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
             logger.warning(__('The %s extension is required by needs_extensions settings, '

@@ -5,11 +5,9 @@ sub mendex {
   my ($source, $basename, $destination) = @_;
   my $dictfile = $basename . ".dic";
   unlink($destination);
-  if (-f $dictfile) {
-    system("mendex", "-U", "-f", "-d", $dictfile, "-s", "python.ist", $source);
-    if ($? > 0) {
-      print("mendex exited with error code $? (ignored)\n");
-    }
+  system("mendex", "-U", "-f", "-d", $dictfile, "-s", "python.ist", $source);
+  if ($? > 0) {
+    print("mendex exited with error code $? (ignored)\n");
   }
   if (!-e $destination) {
     # create an empty .ind file if nothing

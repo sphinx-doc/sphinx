@@ -17,7 +17,7 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
-from six import PY2, text_type
+from six import text_type
 
 if False:
     # For type annotation
@@ -59,10 +59,7 @@ def get_lvar_names(node, self=None):
         # => TypeError
     """
     if self:
-        if PY2:
-            self_id = self.id  # type: ignore
-        else:
-            self_id = self.arg
+        self_id = self.arg  # type: ignore
 
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):

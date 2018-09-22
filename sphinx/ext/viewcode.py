@@ -13,7 +13,7 @@ import traceback
 import warnings
 
 from docutils import nodes
-from six import iteritems, text_type
+from six import text_type
 
 import sphinx
 from sphinx import addnodes
@@ -163,7 +163,7 @@ def collect_pages(app):
 #                     len(env._viewcode_modules), nonl=1)
 
     for modname, entry in status_iterator(
-            sorted(iteritems(env._viewcode_modules)),  # type: ignore
+            sorted(env._viewcode_modules.items()),  # type: ignore
             'highlighting module code... ', "blue",
             len(env._viewcode_modules),  # type: ignore
             app.verbosity, lambda x: x[0]):
@@ -188,7 +188,7 @@ def collect_pages(app):
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
         maxindex = len(lines) - 1
-        for name, docname in iteritems(used):
+        for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (

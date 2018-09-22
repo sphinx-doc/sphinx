@@ -7,7 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import sys
 import warnings
 from difflib import unified_diff
@@ -213,7 +212,8 @@ class LiteralIncludeReader:
     def read_file(self, filename, location=None):
         # type: (unicode, Any) -> List[unicode]
         try:
-            with codecs.open(filename, 'r', self.encoding, errors='strict') as f:  # type: ignore  # NOQA
+            with open(filename, 'r',  # type: ignore
+                      encoding=self.encoding, errors='strict') as f:
                 text = f.read()  # type: unicode
                 if 'tab-width' in self.options:
                     text = text.expandtabs(self.options['tab-width'])
