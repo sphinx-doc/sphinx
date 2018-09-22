@@ -50,7 +50,7 @@ def is_serializable(obj):
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
     elif isinstance(obj, dict):
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             if not is_serializable(key) or not is_serializable(value):
                 return False
     elif isinstance(obj, (list, tuple, set)):
