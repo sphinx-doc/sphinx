@@ -20,6 +20,7 @@ from six import string_types
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.testing.path import path
 from sphinx.util.osutil import relpath
@@ -92,7 +93,7 @@ def etree_parse(path):
         return ElementTree.parse(path)  # type: ignore
 
 
-class Struct(object):
+class Struct:
     def __init__(self, **kwds):
         # type: (Any) -> None
         self.__dict__.update(kwds)
@@ -163,7 +164,7 @@ class SphinxTestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-class SphinxTestAppWrapperForSkipBuilding(object):
+class SphinxTestAppWrapperForSkipBuilding:
     """
     This class is a wrapper for SphinxTestApp to speed up the test by skipping
     `app.build` process if it is already built and there is even one output
@@ -191,6 +192,8 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 def remove_unicode_literals(s):
     # type: (unicode) -> unicode
+    warnings.warn('remove_unicode_literals() is deprecated.',
+                  RemovedInSphinx40Warning)
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)  # type: ignore
 
 

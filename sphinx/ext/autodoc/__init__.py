@@ -18,7 +18,7 @@ import warnings
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import itervalues, text_type, string_types
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -201,7 +201,7 @@ class Options(dict):
             return None
 
 
-class Documenter(object):
+class Documenter:
     """
     A Documenter knows how to autodocument a single object type.  When
     registered with the AutoDirective, it will be used to document objects
@@ -918,7 +918,7 @@ class ClassLevelDocumenter(Documenter):
         return modname, parents + [base]
 
 
-class DocstringSignatureMixin(object):
+class DocstringSignatureMixin:
     """
     Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
@@ -1061,7 +1061,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types)
+        return isinstance(member, type)
 
     def import_object(self):
         # type: () -> Any
@@ -1213,8 +1213,7 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types) and \
-            issubclass(member, BaseException)  # type: ignore
+        return isinstance(member, type) and issubclass(member, BaseException)
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1345,7 +1344,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         # exported anywhere by Python
         return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
                               not inspect.isroutine(member) and
-                              not isinstance(member, class_types))
+                              not isinstance(member, type))
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
@@ -1437,7 +1436,7 @@ def get_documenters(app):
 def autodoc_attrgetter(app, obj, name, *defargs):
     # type: (Sphinx, Any, unicode, Any) -> Any
     """Alternative getattr() for types"""
-    for typ, func in iteritems(app.registry.autodoc_attrgettrs):
+    for typ, func in app.registry.autodoc_attrgettrs.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

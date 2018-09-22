@@ -12,7 +12,6 @@
 from typing import NamedTuple
 
 from docutils import nodes
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx import locale
@@ -112,7 +111,7 @@ class ChangeSetDomain(Domain):
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
-        for version, changes in iteritems(self.data['changes']):
+        for version, changes in self.data['changes'].items():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)
@@ -120,7 +119,7 @@ class ChangeSetDomain(Domain):
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
         # XXX duplicates?
-        for version, otherchanges in iteritems(otherdata['changes']):
+        for version, otherchanges in otherdata['changes'].items():
             changes = self.data['changes'].setdefault(version, [])
             for changeset in otherchanges:
                 if changeset.docname in docnames:

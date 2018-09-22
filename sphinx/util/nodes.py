@@ -34,7 +34,7 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-class NodeMatcher(object):
+class NodeMatcher:
     """A helper class for Node.traverse().
 
     It checks that given node is an instance of specified node-classes and it has

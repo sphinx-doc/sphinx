@@ -45,7 +45,7 @@ class ManualPageWriter(Writer):
         self.output = visitor.astext()
 
 
-class NestedInlineTransform(object):
+class NestedInlineTransform:
     """
     Flatten nested inline nodes:
 

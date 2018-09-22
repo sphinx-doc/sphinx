@@ -15,7 +15,7 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import iteritems, itervalues
+from six import itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -108,7 +108,7 @@ class ImageCollector(EnvironmentCollector):
             except (OSError, IOError) as err:
                 logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
-        for key, files in iteritems(globbed):
+        for key, files in globbed.items():
             candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
 

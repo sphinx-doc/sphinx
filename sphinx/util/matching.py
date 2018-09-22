@@ -68,7 +68,7 @@ def compile_matchers(patterns):
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
-class Matcher(object):
+class Matcher:
     """A pattern matcher for Multiple shell-style glob patterns.
 
     Note: this modifies the patterns to work with copy_asset().

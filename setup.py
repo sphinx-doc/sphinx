@@ -56,7 +56,7 @@ extras_require = {
 cmdclass = {}
 
 
-class Tee(object):
+class Tee:
     def __init__(self, stream):
         self.stream = stream
         self.buffer = StringIO()

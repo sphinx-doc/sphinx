@@ -12,7 +12,6 @@
 import sys
 
 import pytest
-from six import PY2
 
 from sphinx.pycode.parser import Parser
 
@@ -135,7 +134,6 @@ def test_complex_assignment():
     assert parser.definitions == {}
 
 
-@pytest.mark.skipif(PY2, reason='tests for py3 syntax')
 def test_complex_assignment_py3():
     source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
               'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'

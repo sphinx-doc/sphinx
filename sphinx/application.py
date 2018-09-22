@@ -118,7 +118,7 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 logger = logging.getLogger(__name__)
 
 
-class Sphinx(object):
+class Sphinx:
     """The main application class and extensibility interface.
 
     :ivar srcdir: Directory containing source.
@@ -1208,7 +1208,7 @@ class Sphinx(object):
         return True
 
 
-class TemplateBridge(object):
+class TemplateBridge:
     """
     This class defines the interface for a "template bridge", that is, a class
     that renders templates given a template name and a context.

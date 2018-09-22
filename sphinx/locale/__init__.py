@@ -25,7 +25,7 @@ if False:
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
 
 
-class _TranslationProxy(UserString, object):
+class _TranslationProxy(UserString):
     """
     Class for proxy strings from gettext translations.  This is a helper for the
     lazy_* functions from this module.
@@ -36,7 +36,6 @@ class _TranslationProxy(UserString, object):
     This inherits from UserString because some docutils versions use UserString
     for their Text nodes, which then checks its argument for being either a
     basestring or UserString, otherwise calls str() -- not unicode() -- on it.
-    This also inherits from object to make the __new__ method work.
     """
     __slots__ = ('_func', '_args')
 

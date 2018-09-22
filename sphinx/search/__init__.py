@@ -11,7 +11,7 @@
 import re
 from os import path
 
-from six import iteritems, itervalues, text_type, string_types
+from six import itervalues, text_type, string_types
 from six.moves import cPickle as pickle
 
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
@@ -28,7 +28,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class SearchLanguage(object):
+class SearchLanguage:
     """
     This class is the base class for search natural language preprocessors.  If
     you want to add support for a new language, you should override the methods
@@ -155,7 +155,7 @@ languages = {
 }   # type: Dict[unicode, Any]
 
 
-class _JavaScriptIndex(object):
+class _JavaScriptIndex:
     """
     The search index as javascript file that calls a function
     on the documentation search object to register the index.
@@ -236,7 +236,7 @@ class WordCollector(NodeVisitor):
             self.found_words.extend(keywords)
 
 
-class IndexBuilder(object):
+class IndexBuilder:
     """
     Helper class that creates a searchindex based on the doctrees
     passed to the `feed` method.
@@ -305,7 +305,7 @@ class IndexBuilder(object):
         def load_terms(mapping):
             # type: (Dict[unicode, Any]) -> Dict[unicode, Set[unicode]]
             rv = {}
-            for k, v in iteritems(mapping):
+            for k, v in mapping.items():
                 if isinstance(v, int):
                     rv[k] = set([index2fn[v]])
                 else:
@@ -328,7 +328,7 @@ class IndexBuilder(object):
         rv = {}  # type: Dict[unicode, Dict[unicode, Tuple[int, int, int, unicode]]]
         otypes = self._objtypes
         onames = self._objnames
-        for domainname, domain in sorted(iteritems(self.env.domains)):
+        for domainname, domain in sorted(self.env.domains.items()):
             for fullname, dispname, type, docname, anchor, prio in \
                     sorted(domain.get_objects()):
                 if docname not in fn2index:
@@ -364,7 +364,7 @@ class IndexBuilder(object):
         # type: (Dict) -> Tuple[Dict[unicode, List[unicode]], Dict[unicode, List[unicode]]]
         rvs = {}, {}  # type: Tuple[Dict[unicode, List[unicode]], Dict[unicode, List[unicode]]]
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
-            for k, v in iteritems(mapping):
+            for k, v in mapping.items():
                 if len(v) == 1:
                     fn, = v
                     if fn in fn2index:
@@ -383,7 +383,7 @@ class IndexBuilder(object):
 
         objects = self.get_objects(fn2index)  # populates _objtypes
         objtypes = dict((v, k[0] + ':' + k[1])
-                        for (k, v) in iteritems(self._objtypes))
+                        for (k, v) in self._objtypes.items())
         objnames = self._objnames
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,

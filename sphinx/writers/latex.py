@@ -257,7 +257,7 @@ class ExtBabel(Babel):
             return None
 
 
-class Table(object):
+class Table:
     """A table data"""
 
     def __init__(self, node):
@@ -378,7 +378,7 @@ class Table(object):
             return None
 
 
-class TableCell(object):
+class TableCell:
     """A cell data of tables."""
 
     def __init__(self, table, row, col):

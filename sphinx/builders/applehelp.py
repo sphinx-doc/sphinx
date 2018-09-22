@@ -10,7 +10,6 @@
 """
 from __future__ import print_function
 
-import codecs
 import pipes
 import plistlib
 import shlex
@@ -193,7 +192,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         logger.info(bold(__('building access page...')), nonl=True)
-        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:  # type: ignore
+        with open(path.join(language_dir, '_access.html'), 'w') as f:
             f.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)

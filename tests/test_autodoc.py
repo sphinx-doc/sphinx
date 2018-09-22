@@ -17,7 +17,6 @@ from warnings import catch_warnings
 
 import pytest
 from docutils.statemachine import ViewList
-from six import PY3
 
 from sphinx.ext.autodoc import (
     ModuleLevelDocumenter, cut_lines, between, ALL,
@@ -29,11 +28,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 
 app = None
-
-if PY3:
-    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
-else:
-    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
@@ -216,7 +210,7 @@ def test_format_signature():
     class D:
         pass
 
-    class E(object):
+    class E:
         pass
     # no signature for classes without __init__
     for C in (D, E):
@@ -226,7 +220,7 @@ def test_format_signature():
         def __init__(self, a, b=None):
             pass
 
-    class G(F, object):
+    class G(F):
         pass
     for C in (F, G):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
@@ -243,7 +237,7 @@ def test_format_signature():
 
             some docstring for __init__.
             '''
-    class G2(F2, object):
+    class G2(F2):
         pass
 
     assert formatsig('class', 'F2', F2, None, None) == \
@@ -399,7 +393,7 @@ def test_get_doc():
     assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
 
     # class does not have __init__ method
-    class F(object):
+    class F:
         """Class docstring"""
 
     # docstring in the __init__ method of base class will be discard
@@ -413,7 +407,7 @@ def test_get_doc():
         assert getdocl('class', F) == ['Class docstring']
 
     # class has __init__ method with no docstring
-    class G(object):
+    class G:
         """Class docstring"""
         def __init__(self):
             pass
@@ -722,7 +716,7 @@ def test_autodoc_undoc_members(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -802,7 +796,7 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -875,11 +869,6 @@ def test_autodoc_subclass_of_builtin_class(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_inner_class(app):
-    if PY3:
-        builtins = '      alias of :class:`builtins.dict`'
-    else:
-        builtins = '      alias of :class:`__builtin__.dict`'
-
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.Outer', options)
     assert list(actual) == [
@@ -905,7 +894,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '   ',
-        builtins
+        '      alias of :class:`builtins.dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -974,7 +963,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -993,7 +982,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.excludemeth()',
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -1028,7 +1017,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',

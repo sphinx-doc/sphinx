@@ -16,7 +16,6 @@ from os import path
 from zipfile import ZipFile
 
 import pkg_resources
-from six import iteritems
 from six.moves import configparser
 
 from sphinx import package_dir
@@ -51,7 +50,7 @@ def extract_zip(filename, targetdir):
                 fp.write(archive.read(name))
 
 
-class Theme(object):
+class Theme:
     """A Theme is a set of HTML templates and configurations.
 
     This class supports both theme directory and theme archive (zipped theme)."""
@@ -129,7 +128,7 @@ class Theme(object):
         except configparser.NoSectionError:
             pass
 
-        for option, value in iteritems(overrides):
+        for option, value in overrides.items():
             if option not in options:
                 logger.warning(__('unsupported theme option %r given') % option)
             else:
@@ -159,7 +158,7 @@ def is_archived_theme(filename):
         return False
 
 
-class HTMLThemeFactory(object):
+class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
     def __init__(self, app):
@@ -174,7 +173,7 @@ class HTMLThemeFactory(object):
         # type: () -> None
         """Load built-in themes."""
         themes = self.find_themes(path.join(package_dir, 'themes'))
-        for name, theme in iteritems(themes):
+        for name, theme in themes.items():
             self.themes[name] = theme
 
     def load_additional_themes(self, theme_paths):
@@ -183,7 +182,7 @@ class HTMLThemeFactory(object):
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self.app.confdir, theme_path))
             themes = self.find_themes(abs_theme_path)
-            for name, theme in iteritems(themes):
+            for name, theme in themes.items():
                 self.themes[name] = theme
 
     def load_extra_theme(self, name):

@@ -15,10 +15,9 @@ import re
 from subprocess import Popen, PIPE
 
 import pytest
-from six import PY3
 from test_build_html import ENV_WARNINGS
 
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
@@ -29,9 +28,6 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
 \\['application/pdf', 'image/svg\\+xml'\\] \\(svgimg.\\*\\)
 """
-
-if PY3:
-    TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
 @pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)

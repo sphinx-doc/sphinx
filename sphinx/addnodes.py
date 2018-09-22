@@ -20,7 +20,7 @@ if False:
     from typing import List, Sequence  # NOQA
 
 
-class translatable(object):
+class translatable:
     """Node which supports translation.
 
     The translation goes forward with following steps:
@@ -53,7 +53,7 @@ class translatable(object):
         raise NotImplementedError
 
 
-class not_smartquotable(object):
+class not_smartquotable:
     """A node which does not support smart-quotes."""
     support_smartquotes = False
 

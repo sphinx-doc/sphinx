@@ -14,7 +14,7 @@ from copy import deepcopy
 
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
-from six import iteritems, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
@@ -604,7 +604,7 @@ class ASTBase(UnicodeMixin):
         if type(self) is not type(other):
             return False
         try:
-            for key, value in iteritems(self.__dict__):
+            for key, value in self.__dict__.items():
                 if value != getattr(other, key):
                     return False
         except AttributeError:
@@ -3592,7 +3592,7 @@ class ASTNamespace(ASTBase):
         self.templatePrefix = templatePrefix
 
 
-class SymbolLookupResult(object):
+class SymbolLookupResult:
     def __init__(self, symbols, parentSymbol, identOrOp, templateParams, templateArgs):
         # type: (Iterator[Symbol], Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> None  # NOQA
         self.symbols = symbols
@@ -3602,7 +3602,7 @@ class SymbolLookupResult(object):
         self.templateArgs = templateArgs
 
 
-class Symbol(object):
+class Symbol:
     debug_lookup = False
 
     def _assert_invariants(self):
@@ -4293,7 +4293,7 @@ class Symbol(object):
         return ''.join(res)
 
 
-class DefinitionParser(object):
+class DefinitionParser:
     # those without signedness and size modifiers
     # see http://en.cppreference.com/w/cpp/language/types
     _simple_fundemental_types = (
@@ -6585,7 +6585,7 @@ class CPPXRefRole(XRefRole):
         return title, target
 
 
-class CPPExprRole(object):
+class CPPExprRole:
     def __init__(self, asCode):
         if asCode:
             # render the expression as inline code
@@ -6597,7 +6597,7 @@ class CPPExprRole(object):
             self.node_type = nodes.inline
 
     def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        class Warner(object):
+        class Warner:
             def warn(self, msg):
                 inliner.reporter.warning(msg, line=lineno)
         text = utils.unescape(text).replace('\n', ' ')
@@ -6716,7 +6716,7 @@ class CPPDomain(Domain):
                             target, node, contnode, emitWarnings=True):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node, bool) -> nodes.Node  # NOQA
 
-        class Warner(object):
+        class Warner:
             def warn(self, msg):
                 if emitWarnings:
                     logger.warning(msg, location=node)

@@ -22,7 +22,7 @@ from sphinx.util import jsdump
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
 
-class DummyDomain(object):
+class DummyDomain:
     def __init__(self, data):
         self.data = data
         self.object_types = {}

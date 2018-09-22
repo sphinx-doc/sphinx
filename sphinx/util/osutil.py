@@ -13,7 +13,6 @@ from __future__ import print_function
 import contextlib
 import errno
 import filecmp
-import locale
 import os
 import re
 import shutil
@@ -23,7 +22,7 @@ import warnings
 from io import BytesIO, StringIO
 from os import path
 
-from six import PY2, PY3, text_type
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
@@ -36,9 +35,6 @@ EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
 EPIPE = getattr(errno, 'EPIPE', 0)
 EINVAL = getattr(errno, 'EINVAL', 0)
-
-if PY3:
-    unicode = str  # special alias for static typing...
 
 # SEP separates path elements in the canonical file names
 #
@@ -195,19 +191,13 @@ def ustrftime(format, *args):
         if source_date_epoch is not None:
             time_struct = time.gmtime(float(source_date_epoch))
             args = [time_struct]  # type: ignore
-    if PY2:
-        # if a locale is set, the time strings are encoded in the encoding
-        # given by LC_TIME; if that is available, use it
-        enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
-        return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-    else:  # Py3
-        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
-        # https://bugs.python.org/issue8304
-        try:
-            return time.strftime(format, *args)
-        except UnicodeEncodeError:
-            r = time.strftime(format.encode('unicode-escape').decode(), *args)
-            return r.encode().decode('unicode-escape')
+    # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+    # https://bugs.python.org/issue8304
+    try:
+        return time.strftime(format, *args)  # type: ignore
+    except UnicodeEncodeError:
+        r = time.strftime(format.encode('unicode-escape').decode(), *args)  # type: ignore
+        return r.encode().decode('unicode-escape')
 
 
 def relpath(path, start=os.curdir):
@@ -260,7 +250,7 @@ def cd(target_dir):
         os.chdir(cwd)
 
 
-class FileAvoidWrite(object):
+class FileAvoidWrite:
     """File-like object that buffers output and only writes if content changed.
 
     Use this class like when writing to a file to avoid touching the original

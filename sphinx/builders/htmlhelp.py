@@ -11,7 +11,6 @@
 """
 from __future__ import print_function
 
-import codecs
 import os
 from os import path
 
@@ -208,8 +207,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def open_file(self, outdir, basename, mode='w'):
         # type: (unicode, unicode, unicode) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
-                           self.encoding, 'xmlcharrefreplace')
+        return open(path.join(outdir, basename), mode,  # type: ignore
+                    encoding=self.encoding, errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
         # type: (unicode, unicode, Dict, unicode) -> None

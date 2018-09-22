@@ -15,7 +15,6 @@ import inspect
 import re
 from os import path
 
-from six import iteritems
 from six.moves import cPickle as pickle
 
 import sphinx
@@ -73,7 +72,7 @@ class CoverageBuilder(Builder):
                 logger.warning(__('invalid regex %r in coverage_c_regexes'), exp)
 
         self.c_ignorexps = {}  # type: Dict[unicode, List[Pattern]]
-        for (name, exps) in iteritems(self.config.coverage_ignore_c_items):
+        for (name, exps) in self.config.coverage_ignore_c_items.items():
             self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
                                                         exps)
         self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
@@ -127,7 +126,7 @@ class CoverageBuilder(Builder):
                 write_header(op, 'Undocumented C API elements', '=')
             op.write('\n')
 
-            for filename, undoc in iteritems(self.c_undoc):
+            for filename, undoc in self.c_undoc.items():
                 write_header(op, filename)
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
@@ -247,7 +246,7 @@ class CoverageBuilder(Builder):
                     if undoc['classes']:
                         op.write('Classes:\n')
                         for name, methods in sorted(
-                                iteritems(undoc['classes'])):
+                                undoc['classes'].items()):
                             if not methods:
                                 op.write(' * %s\n' % name)
                             else:

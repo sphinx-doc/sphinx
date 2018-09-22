@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 import gettext
-import io
 import os
 import re
 import warnings
@@ -69,14 +68,14 @@ class CatalogInfo(LocaleFileInfoBase):
 
     def write_mo(self, locale):
         # type: (unicode) -> None
-        with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
+        with open(self.po_path, 'rt', encoding=self.charset) as file_po:  # type: ignore
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
                 logger.warning(__('reading error: %s, %s'), self.po_path, exc)
                 return
 
-        with io.open(self.mo_path, 'wb') as file_mo:
+        with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:

@@ -52,7 +52,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Builder(object):
+class Builder:
     """
     Builds target formats from the reST sources.
     """
