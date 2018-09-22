@@ -305,7 +305,8 @@ class DocFieldTransformer(object):
                 entries.append(field)
 
                 # but if this has a type then we can at least link it
-                if typedesc and is_typefield and content:
+                if (typedesc and is_typefield and content and
+                        len(content) == 1 and isinstance(content[0], nodes.Text)):
                     target = content[0].astext()
                     xrefs = typedesc.make_xrefs(
                         typedesc.typerolename,

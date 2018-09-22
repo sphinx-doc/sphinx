@@ -33,6 +33,7 @@ Bugs fixed
 * #5453: PDF builds of 'howto' documents have no page numbers
 * #5463: mathbase: math_role and MathDirective was disappeared in 1.8.0
 * #5454: latex: Index has disappeared from PDF for Japanese documents
+* #5432: py domain: ``:type:`` field can't process ``:term:`` references
 * #5426: py domain: TypeError has been raised for class attribute
 
 Testing
