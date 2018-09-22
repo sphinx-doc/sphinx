@@ -18,7 +18,7 @@ from os import path, getenv
 from typing import Any, NamedTuple, Union
 
 from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
+    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 )
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -38,7 +38,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
-UNSERIALIZABLE_TYPES = class_types + (types.ModuleType, types.FunctionType)
+UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 if PY3:
