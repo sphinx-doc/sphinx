@@ -78,7 +78,7 @@ def function_with_types_in_docstring(param1, param2):
     """
 
 
-def function_with_pep484_type_annotations(param1: int, param2: str) -> bool:
+def function_with_pep484_type_annotations(param1: int, param2: str) -> bool:  # noqa: E999
     """Example function with PEP 484 type annotations.
 
     The return type must be duplicated in the docstring to comply

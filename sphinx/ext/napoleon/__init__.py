@@ -11,8 +11,7 @@
 
 from six import iteritems
 
-import sphinx
-from sphinx.application import Sphinx
+from sphinx import __display_version__ as __version__
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
 if False:
@@ -174,9 +173,9 @@ class Config(object):
 
             .. attribute:: attr1
 
-               *int*
-
                Description of `attr1`
+
+               :type: int
 
     napoleon_use_param : :obj:`bool` (Defaults to True)
         True to use a ``:param:`` role for each function parameter. False to
@@ -301,6 +300,7 @@ def setup(app):
     `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
 
     """
+    from sphinx.application import Sphinx
     if not isinstance(app, Sphinx):
         return  # probably called by tests
 
@@ -312,7 +312,7 @@ def setup(app):
 
     for name, (default, rebuild) in iteritems(Config._config_values):
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {'version': __version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain():
