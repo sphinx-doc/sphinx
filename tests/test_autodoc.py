@@ -1426,6 +1426,24 @@ def test_partialfunction():
     assert call_autodoc('module', 'target.partialfunction') == expected
 
 
+@pytest.mark.usefixtures('setup_test')
+def test_coroutine():
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: AsyncClass',
+        '   :module: target.coroutine',
+        '',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine()',
+        '      :module: target.coroutine',
+        '   ',
+        '      A documented coroutine function',
+        '      '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
     expected = [
