@@ -318,7 +318,8 @@ class DocFieldTransformer(object):
                         fieldbody.children[0].extend(xrefs)
                     else:
                         fieldbody.clear()
-                        fieldbody.extend(xrefs)
+                        fieldbody += nodes.paragraph()
+                        fieldbody[0].extend(xrefs)
 
                 continue
 
