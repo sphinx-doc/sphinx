@@ -11,7 +11,6 @@
 """
 from __future__ import absolute_import
 
-import codecs
 import doctest
 import re
 import sys
