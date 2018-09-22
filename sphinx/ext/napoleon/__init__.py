@@ -9,9 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
-
 from sphinx import __display_version__ as __version__
+from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
 if False:
@@ -300,9 +299,9 @@ def setup(app):
     `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
 
     """
-    from sphinx.application import Sphinx
     if not isinstance(app, Sphinx):
-        return  # probably called by tests
+        # probably called by tests
+        return {'version': __version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
