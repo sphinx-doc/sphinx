@@ -395,13 +395,6 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     d['project_doc_texescaped'] = (d['project'] + ' Documentation').\
         translate(texescape.tex_escape_map)
 
-    # escape backslashes and single quotes in strings that are put into
-    # a Python string literal
-    for key in ('project', 'project_doc', 'project_doc_texescaped',
-                'author', 'author_texescaped', 'copyright',
-                'version', 'release', 'master'):
-        d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
-
     ensuredir(d['path'])
 
     srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
