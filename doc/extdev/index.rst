@@ -136,6 +136,11 @@ The following is a list of deprecated interface.
      - 4.0
      - :confval:`autodoc_default_options`
 
+   * - ``content`` arguments of ``sphinx.util.image.guess_mimetype()``
+     - 1.8
+     - 3.0
+     - N/A
+
    * - ``gettext_compact`` arguments of
        ``sphinx.util.i18n.find_catalog_source_files()``
      - 1.8

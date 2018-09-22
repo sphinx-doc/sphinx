@@ -38,7 +38,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
-UNSERIALIZEABLE_TYPES = (type, types.ModuleType, types.FunctionType)
+UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 if PY3:
@@ -47,6 +47,21 @@ if PY3:
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
                                          ('rebuild', Union[bool, unicode])])
+
+
+def is_serializable(obj):
+    # type: (Any) -> bool
+    """Check if object is serializable or not."""
+    if isinstance(obj, UNSERIALIZABLE_TYPES):
+        return False
+    elif isinstance(obj, dict):
+        for key, value in iteritems(obj):
+            if not is_serializable(key) or not is_serializable(value):
+                return False
+    elif isinstance(obj, (list, tuple, set)):
+        return all(is_serializable(i) for i in obj)
+
+    return True
 
 
 class ENUM(object):
@@ -317,7 +332,7 @@ class Config(object):
         # remove potentially pickling-problematic values from config
         __dict__ = {}
         for key, value in iteritems(self.__dict__):
-            if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
+            if key.startswith('_') or not is_serializable(value):
                 pass
             else:
                 __dict__[key] = value
@@ -326,7 +341,7 @@ class Config(object):
         __dict__['values'] = {}
         for key, value in iteritems(self.values):  # type: ignore
             real_value = getattr(self, key)
-            if isinstance(real_value, UNSERIALIZEABLE_TYPES):
+            if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
 
