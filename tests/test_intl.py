@@ -18,7 +18,6 @@ import re
 import pytest
 from babel.messages import pofile, mofile
 from docutils import nodes
-from six import string_types
 
 from sphinx.testing.util import (
     path, etree_parse, strip_escseq,
@@ -78,20 +77,7 @@ def _info(app):
 
 
 def elem_gettexts(elem):
-    def itertext(self):
-        # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.6
-        tag = self.tag
-        if not isinstance(tag, string_types) and tag is not None:
-            return
-        if self.text:
-            yield self.text
-        for e in self:
-            for s in itertext(e):
-                yield s
-            if e.tail:
-                yield e.tail
-    return [_f for _f in [s.strip() for s in itertext(elem)] if _f]
+    return [_f for _f in [s.strip() for s in elem.itertext()] if _f]
 
 
 def elem_getref(elem):
