@@ -1,8 +1,5 @@
-Release 1.8.1 (in development)
-==============================
-
-Dependencies
-------------
+Release 1.8.1 (released Sep 22, 2018)
+=====================================
 
 Incompatible changes
 --------------------
@@ -10,12 +7,6 @@ Incompatible changes
 * LaTeX ``\pagestyle`` commands have been moved to the LaTeX template. No
   changes in PDF, except possibly if ``\sphinxtableofcontents``, which
   contained them, had been customized in :file:`conf.py`. (refs: #5455)
-
-Deprecated
-----------
-
-Features added
---------------
 
 Bugs fixed
 ----------
@@ -35,9 +26,6 @@ Bugs fixed
 * #5454: latex: Index has disappeared from PDF for Japanese documents
 * #5432: py domain: ``:type:`` field can't process ``:term:`` references
 * #5426: py domain: TypeError has been raised for class attribute
-
-Testing
---------
 
 Release 1.8.0 (released Sep 13, 2018)
 =====================================
