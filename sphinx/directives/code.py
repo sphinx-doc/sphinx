@@ -176,7 +176,7 @@ class CodeBlock(SphinxDirective):
         return [literal]
 
 
-class LiteralIncludeReader(object):
+class LiteralIncludeReader:
     INVALID_OPTIONS_PAIR = [
         ('lineno-match', 'lineno-start'),
         ('lineno-match', 'append'),

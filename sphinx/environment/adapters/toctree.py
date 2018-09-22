@@ -26,7 +26,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class TocTree(object):
+class TocTree:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env

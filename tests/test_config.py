@@ -204,7 +204,7 @@ def test_builtin_conf(app, status, warning):
 
 
 # example classes for type checking
-class A(object):
+class A:
     pass
 
 

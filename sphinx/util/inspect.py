@@ -275,7 +275,7 @@ def is_builtin_class_method(obj, attr_name):
     return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore
 
 
-class Parameter(object):
+class Parameter:
     """Fake parameter class for python2."""
     POSITIONAL_ONLY = 0
     POSITIONAL_OR_KEYWORD = 1
@@ -292,7 +292,7 @@ class Parameter(object):
         self.annotation = self.empty
 
 
-class Signature(object):
+class Signature:
     """The Signature object represents the call signature of a callable object and
     its return annotation.
     """

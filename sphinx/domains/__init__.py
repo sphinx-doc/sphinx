@@ -26,7 +26,7 @@ if False:
     from sphinx.util.typing import RoleFunction  # NOQA
 
 
-class ObjType(object):
+class ObjType:
     """
     An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
@@ -53,7 +53,7 @@ class ObjType(object):
         self.attrs.update(attrs)
 
 
-class Index(object):
+class Index:
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -111,7 +111,7 @@ class Index(object):
         raise NotImplementedError
 
 
-class Domain(object):
+class Domain:
     """
     A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to

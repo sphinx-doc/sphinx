@@ -104,7 +104,7 @@ def dedent_docstring(s):
     return docstring.lstrip("\r\n").rstrip("\r\n")
 
 
-class Token(object):
+class Token:
     """Better token wrapper for tokenize module."""
 
     def __init__(self, kind, value, start, end, source):
@@ -142,7 +142,7 @@ class Token(object):
                                              self.value.strip())
 
 
-class TokenProcessor(object):
+class TokenProcessor:
     def __init__(self, buffers):
         # type: (List[unicode]) -> None
         lines = iter(buffers)
@@ -461,7 +461,7 @@ class DefinitionFinder(TokenProcessor):
             self.context.pop()
 
 
-class Parser(object):
+class Parser:
     """Python source code parser to pick up variable comments.
 
     This is a better wrapper for ``VariableCommentPicker``.

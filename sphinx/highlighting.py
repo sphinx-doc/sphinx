@@ -62,7 +62,7 @@ _LATEX_ADD_STYLES = r'''
 '''
 
 
-class PygmentsBridge(object):
+class PygmentsBridge:
     # Set these attributes if you want to have different Pygments formatters
     # than the default ones.
     html_formatter = HtmlFormatter

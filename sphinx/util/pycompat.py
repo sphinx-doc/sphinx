@@ -60,8 +60,7 @@ def convert_with_2to3(filepath):
     return text_type(tree)
 
 
-# UnicodeMixin
-class UnicodeMixin(object):
+class UnicodeMixin:
     """Mixin class to handle defining the proper __str__/__unicode__
     methods in Python 2 or 3."""
 

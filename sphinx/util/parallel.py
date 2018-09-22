@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 parallel_available = multiprocessing and (os.name == 'posix')
 
 
-class SerialTasks(object):
+class SerialTasks:
     """Has the same interface as ParallelTasks, but executes tasks directly."""
 
     def __init__(self, nproc=1):
@@ -55,7 +55,7 @@ class SerialTasks(object):
         pass
 
 
-class ParallelTasks(object):
+class ParallelTasks:
     """Executes *nproc* tasks in parallel after forking."""
 
     def __init__(self, nproc):

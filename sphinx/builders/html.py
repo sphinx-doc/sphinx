@@ -168,7 +168,7 @@ class JavaScript(text_type):
         return self
 
 
-class BuildInfo(object):
+class BuildInfo:
     """buildinfo file manipulator.
 
     HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.

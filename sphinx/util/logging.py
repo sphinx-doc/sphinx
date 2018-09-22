@@ -287,7 +287,7 @@ def skip_warningiserror(skip=True):
                 handler.removeFilter(disabler)
 
 
-class LogCollector(object):
+class LogCollector:
     def __init__(self):
         # type: () -> None
         self.logs = []  # type: List[logging.LogRecord]
@@ -467,7 +467,7 @@ class ColorizeFormatter(logging.Formatter):
             return message
 
 
-class SafeEncodingWriter(object):
+class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
     def __init__(self, stream):
         # type: (IO) -> None
@@ -489,7 +489,7 @@ class SafeEncodingWriter(object):
             self.stream.flush()
 
 
-class LastMessagesWriter(object):
+class LastMessagesWriter:
     """Stream writer which memories last 10 messages to save trackback"""
     def __init__(self, app, stream):
         # type: (Sphinx, IO) -> None

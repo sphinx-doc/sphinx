@@ -62,7 +62,7 @@ msgstr ""
 """[1:]
 
 
-class Catalog(object):
+class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self):
@@ -84,7 +84,7 @@ class Catalog(object):
         self.metadata[msg].append((origin.source, origin.line, origin.uid))
 
 
-class MsgOrigin(object):
+class MsgOrigin:
     """
     Origin holder for Catalog message origin.
     """

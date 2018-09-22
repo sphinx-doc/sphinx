@@ -27,7 +27,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class IndexEntries(object):
+class IndexEntries:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env

@@ -54,7 +54,7 @@ EXTENSION_BLACKLIST = {
 }  # type: Dict[unicode, unicode]
 
 
-class SphinxComponentRegistry(object):
+class SphinxComponentRegistry:
     def __init__(self):
         # type: () -> None
         #: special attrgetter for autodoc; class object -> attrgetter

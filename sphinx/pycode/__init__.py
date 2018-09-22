@@ -24,7 +24,7 @@ if False:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 
-class ModuleAnalyzer(object):
+class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
     cache = {}  # type: Dict[Tuple[unicode, unicode], Any]
 

@@ -23,7 +23,7 @@ if False:
     from jinja2.loaders import BaseLoader  # NOQA
 
 
-class BaseRenderer(object):
+class BaseRenderer:
     def __init__(self, loader=None):
         # type: (BaseLoader) -> None
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])

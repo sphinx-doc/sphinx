@@ -250,7 +250,7 @@ def cd(target_dir):
         os.chdir(cwd)
 
 
-class FileAvoidWrite(object):
+class FileAvoidWrite:
     """File-like object that buffers output and only writes if content changed.
 
     Use this class like when writing to a file to avoid touching the original

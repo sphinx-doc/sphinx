@@ -404,7 +404,7 @@ def detect_encoding(readline):
 
 # Low-level utility functions and classes.
 
-class Tee(object):
+class Tee:
     """
     File-like object writing to two streams.
     """
@@ -536,7 +536,7 @@ def format_exception_cut_frames(x=1):
     return ''.join(res)
 
 
-class PeekableIterator(object):
+class PeekableIterator:
     """
     An iterator which wraps any iterable and makes it possible to peek to see
     what's the next item.

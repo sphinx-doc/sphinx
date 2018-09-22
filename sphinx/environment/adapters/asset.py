@@ -14,7 +14,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class ImageAdapter(object):
+class ImageAdapter:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env

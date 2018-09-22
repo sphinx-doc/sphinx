@@ -44,7 +44,7 @@ generic_docroles = {
 
 # -- generic cross-reference role ----------------------------------------------
 
-class XRefRole(object):
+class XRefRole:
     """
     A generic cross-referencing role.  To create a callable that can be used as
     a role function, create an instance of this class.

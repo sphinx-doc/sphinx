@@ -59,7 +59,7 @@ def is_serializable(obj):
     return True
 
 
-class ENUM(object):
+class ENUM:
     """represents the config value should be a one of candidates.
 
     Example:
@@ -80,7 +80,7 @@ class ENUM(object):
 string_classes = [text_type]  # type: List
 
 
-class Config(object):
+class Config:
     """Configuration file abstraction.
 
     The config object makes the values of all config values available as

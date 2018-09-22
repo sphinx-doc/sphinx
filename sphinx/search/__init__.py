@@ -28,7 +28,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class SearchLanguage(object):
+class SearchLanguage:
     """
     This class is the base class for search natural language preprocessors.  If
     you want to add support for a new language, you should override the methods
@@ -155,7 +155,7 @@ languages = {
 }   # type: Dict[unicode, Any]
 
 
-class _JavaScriptIndex(object):
+class _JavaScriptIndex:
     """
     The search index as javascript file that calls a function
     on the documentation search object to register the index.
@@ -236,7 +236,7 @@ class WordCollector(NodeVisitor):
             self.found_words.extend(keywords)
 
 
-class IndexBuilder(object):
+class IndexBuilder:
     """
     Helper class that creates a searchindex based on the doctrees
     passed to the `feed` method.

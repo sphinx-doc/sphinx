@@ -44,7 +44,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
 
 
-class BaseSplitter(object):
+class BaseSplitter:
 
     def __init__(self, options):
         # type: (Dict) -> None

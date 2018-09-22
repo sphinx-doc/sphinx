@@ -43,7 +43,7 @@ class GraphvizError(SphinxError):
     category = 'Graphviz error'
 
 
-class ClickableMapDefinition(object):
+class ClickableMapDefinition:
     """A manipulator for clickable map file of graphviz."""
     maptag_re = re.compile('<map id="(.*?)"')
     href_re = re.compile('href=".*?"')
