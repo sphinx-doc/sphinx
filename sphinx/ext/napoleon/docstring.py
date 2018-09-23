@@ -702,14 +702,14 @@ class GoogleDocstring(UnicodeMixin):
         # type: (unicode) -> List[unicode]
         fields = self._consume_fields(parse_type=False, prefer_type=True)
         lines = []  # type: List[unicode]
-        for _, _type, _desc in fields:
-            m = self._name_rgx.match(_type).groupdict()
+        for _name, _type, _desc in fields:
+            m = self._name_rgx.match(_type).groupdict()  # type: ignore
             if m['role']:
                 _type = m['name']
             _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
-            _desc = ' ' + '\n    '.join(_desc) if any(_desc) else ''
-            lines.append(':raises%s:%s' % (_type, _desc))
+            _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
+            lines.append(':raises%s:%s' % (_type, _descs))
         if lines:
             lines.append('')
         return lines
