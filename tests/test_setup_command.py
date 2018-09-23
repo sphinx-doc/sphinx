@@ -5,41 +5,36 @@
 
     Test setup_command for distutils.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-import sys
 import subprocess
+import sys
 from collections import namedtuple
-import sphinx
+from textwrap import dedent
 
 import pytest
 
+import sphinx
 from sphinx.util.osutil import cd
-from util import rootdir, tempdir
-from textwrap import dedent
-
-root = tempdir / 'test-setup'
-
-
-def setup_module():
-    if not root.exists():
-        (rootdir / 'roots' / 'test-setup').copytree(root)
 
 
 @pytest.fixture
-def setup_command(request, tempdir):
+def setup_command(request, tempdir, rootdir):
     """
     Run `setup.py build_sphinx` with args and kwargs,
     pass it to the test and clean up properly.
     """
-    marker = request.node.get_marker('setup_command')
+    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
+        marker = request.node.get_closest_marker('setup_command')
+    else:
+        marker = request.node.get_marker('setup_command')
     args = marker.args if marker else []
 
-    pkgrootdir = tempdir / 'root'
-    root.copytree(pkgrootdir)
+    pkgrootdir = tempdir / 'test-setup'
+    (rootdir / 'test-setup').copytree(pkgrootdir)
 
     with cd(pkgrootdir):
         pythonpath = os.path.dirname(os.path.dirname(sphinx.__file__))
@@ -89,7 +84,7 @@ def nonascii_srcdir(request, setup_command):
     try:
         (srcdir / mb_name).makedirs()
     except UnicodeEncodeError:
-        from path import FILESYSTEMENCODING
+        from sphinx.testing.path import FILESYSTEMENCODING
         pytest.skip(
             'non-ASCII filename not supported on this filesystem encoding: '
             '%s' % FILESYSTEMENCODING)

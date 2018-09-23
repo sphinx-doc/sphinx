@@ -5,21 +5,21 @@
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-from os import path
 from glob import glob
-
-from six import iteritems, itervalues
+from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
+from six import itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
@@ -59,14 +59,9 @@ class ImageCollector(EnvironmentCollector):
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
-                logger.warning('image data URI found. some builders might not support',
-                               location=node, type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                logger.warning('nonlocal image URI found: %s' % imguri,
-                               location=node,
-                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = app.env.relfn2path(imguri, docname)
@@ -95,7 +90,7 @@ class ImageCollector(EnvironmentCollector):
             for imgpath in itervalues(candidates):
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
-                    logger.warning('image file not readable: %s' % imgpath,
+                    logger.warning(__('image file not readable: %s') % imgpath,
                                    location=node, type='image', subtype='not_readable')
                     continue
                 app.env.images.add_file(docname, imgpath)
@@ -111,9 +106,9 @@ class ImageCollector(EnvironmentCollector):
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
             except (OSError, IOError) as err:
-                logger.warning('image file %s not readable: %s' % (filename, err),
+                logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
-        for key, files in iteritems(globbed):
+        for key, files in globbed.items():
             candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
 
@@ -133,13 +128,16 @@ class DownloadFileCollector(EnvironmentCollector):
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
-            rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
-            app.env.dependencies[app.env.docname].add(rel_filename)
-            if not os.access(filename, os.R_OK):
-                logger.warning('download file not readable: %s' % filename,
-                               location=node, type='download', subtype='not_readable')
-                continue
-            node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
+            if '://' in targetname:
+                node['refuri'] = targetname
+            else:
+                rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
+                app.env.dependencies[app.env.docname].add(rel_filename)
+                if not os.access(filename, os.R_OK):
+                    logger.warning(__('download file not readable: %s') % filename,
+                                   location=node, type='download', subtype='not_readable')
+                    continue
+                node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
 
 
 def setup(app):

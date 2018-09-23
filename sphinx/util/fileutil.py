@@ -5,15 +5,16 @@
 
     File utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
 import os
-import codecs
 import posixpath
+
 from docutils.utils import relative_path
+
 from sphinx.util.osutil import copyfile, ensuredir, walk
 
 if False:
@@ -47,11 +48,11 @@ def copy_asset_file(source, destination, context=None, renderer=None):
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
-        with codecs.open(source, 'r', encoding='utf-8') as fsrc:  # type: ignore
+        with open(source, 'r', encoding='utf-8') as fsrc:  # type: ignore
             if destination.lower().endswith('_t'):
                 destination = destination[:-2]
-            with codecs.open(destination, 'w', encoding='utf-8') as fdst:  # type: ignore
-                fdst.write(renderer.render_string(fsrc.read(), context))  # type: ignore
+            with open(destination, 'w', encoding='utf-8') as fdst:  # type: ignore
+                fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 
@@ -72,12 +73,16 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
     if not os.path.exists(source):
         return
 
+    if renderer is None:
+        from sphinx.util.template import SphinxRenderer
+        renderer = SphinxRenderer()
+
     ensuredir(destination)
     if os.path.isfile(source):
         copy_asset_file(source, destination, context, renderer)
         return
 
-    for root, dirs, files in walk(source):
+    for root, dirs, files in walk(source, followlinks=True):
         reldir = relative_path(source, root)
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):

@@ -5,25 +5,25 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from six import iteritems
-
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
-from sphinx import addnodes
-from sphinx.roles import XRefRole
-from sphinx.locale import l_, _
-from sphinx.domains import Domain, ObjType, Index
+from sphinx import addnodes, locale
+from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType, Index
+from sphinx.locale import _, __
+from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
@@ -39,10 +39,28 @@ logger = logging.getLogger(__name__)
 py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
-          (?: \((.*)\)           # optional: arguments
+          (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
+
+
+pairindextypes = {
+    'module':    _('module'),
+    'keyword':   _('keyword'),
+    'operator':  _('operator'),
+    'object':    _('object'),
+    'exception': _('exception'),
+    'statement': _('statement'),
+    'builtin':   _('built-in function'),
+}  # Dict[unicode, unicode]
+
+locale.pairindextypes = DeprecatedDict(
+    pairindextypes,
+    'sphinx.locale.pairindextypes is deprecated. '
+    'Please use sphinx.domains.python.pairindextypes instead.',
+    RemovedInSphinx30Warning
+)
 
 
 def _pseudo_parse_arglist(signode, arglist):
@@ -95,7 +113,7 @@ def _pseudo_parse_arglist(signode, arglist):
 
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
-class PyXrefMixin(object):
+class PyXrefMixin:
     def make_xref(self,
                   rolename,                  # type: unicode
                   domain,                    # type: unicode
@@ -135,7 +153,7 @@ class PyXrefMixin(object):
         split_contnode = bool(contnode and contnode.astext() == target)
 
         results = []
-        for sub_target in sub_targets:
+        for sub_target in filter(None, sub_targets):
             if split_contnode:
                 contnode = nodes.Text(sub_target)
 
@@ -149,7 +167,15 @@ class PyXrefMixin(object):
 
 
 class PyField(PyXrefMixin, Field):
-    pass
+    def make_xref(self, rolename, domain, target,
+                  innernode=nodes.emphasis, contnode=None, env=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        if rolename == 'class' and target == 'None':
+            # None is not a type, so use obj role instead.
+            rolename = 'obj'
+
+        return super(PyField, self).make_xref(rolename, domain, target,
+                                              innernode, contnode, env)
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -157,7 +183,15 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 
 
 class PyTypedField(PyXrefMixin, TypedField):
-    pass
+    def make_xref(self, rolename, domain, target,
+                  innernode=nodes.emphasis, contnode=None, env=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        if rolename == 'class' and target == 'None':
+            # None is not a type, so use obj role instead.
+            rolename = 'obj'
+
+        return super(PyTypedField, self).make_xref(rolename, domain, target,
+                                                   innernode, contnode, env)
 
 
 class PyObject(ObjectDescription):
@@ -174,22 +208,22 @@ class PyObject(ObjectDescription):
     }
 
     doc_field_types = [
-        PyTypedField('parameter', label=l_('Parameters'),
+        PyTypedField('parameter', label=_('Parameters'),
                      names=('param', 'parameter', 'arg', 'argument',
                             'keyword', 'kwarg', 'kwparam'),
-                     typerolename='obj', typenames=('paramtype', 'type'),
+                     typerolename='class', typenames=('paramtype', 'type'),
                      can_collapse=True),
-        PyTypedField('variable', label=l_('Variables'), rolename='obj',
+        PyTypedField('variable', label=_('Variables'), rolename='obj',
                      names=('var', 'ivar', 'cvar'),
-                     typerolename='obj', typenames=('vartype',),
+                     typerolename='class', typenames=('vartype',),
                      can_collapse=True),
-        PyGroupedField('exceptions', label=l_('Raises'), rolename='exc',
+        PyGroupedField('exceptions', label=_('Raises'), rolename='exc',
                        names=('raises', 'raise', 'exception', 'except'),
                        can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
+        Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
-        PyField('returntype', label=l_('Return type'), has_arg=False,
-                names=('rtype',), bodyrolename='obj'),
+        PyField('returntype', label=_('Return type'), has_arg=False,
+                names=('rtype',), bodyrolename='class'),
     ]
 
     allow_nesting = False
@@ -348,6 +382,10 @@ class PyObject(ObjectDescription):
             if self.allow_nesting:
                 classes = self.env.ref_context.setdefault('py:classes', [])
                 classes.append(prefix)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            modules.append(self.env.ref_context.get('py:module'))
+            self.env.ref_context['py:module'] = self.options['module']
 
     def after_content(self):
         # type: () -> None
@@ -368,6 +406,12 @@ class PyObject(ObjectDescription):
                 pass
         self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
                                             else None)
+        if 'module' in self.options:
+            modules = self.env.ref_context.setdefault('py:modules', [])
+            if modules:
+                self.env.ref_context['py:module'] = modules.pop()
+            else:
+                self.env.ref_context.pop('py:module')
 
 
 class PyModulelevel(PyObject):
@@ -491,7 +535,7 @@ class PyClassmember(PyObject):
             return ''
 
 
-class PyDecoratorMixin(object):
+class PyDecoratorMixin:
     """
     Mixin for decorator directives.
     """
@@ -527,7 +571,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
         return PyClassmember.run(self)
 
 
-class PyModule(Directive):
+class PyModule(SphinxDirective):
     """
     Directive to mark description of a new module.
     """
@@ -545,18 +589,18 @@ class PyModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.ref_context['py:module'] = modname
+        self.env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
-            env.domaindata['py']['modules'][modname] = \
-                (env.docname, self.options.get('synopsis', ''),
-                 self.options.get('platform', ''), 'deprecated' in self.options)
+            self.env.domaindata['py']['modules'][modname] = (self.env.docname,
+                                                             self.options.get('synopsis', ''),
+                                                             self.options.get('platform', ''),
+                                                             'deprecated' in self.options)
             # make a duplicate entry in 'objects' to facilitate searching for
             # the module in PythonDomain.find_obj()
-            env.domaindata['py']['objects'][modname] = (env.docname, 'module')
+            self.env.domaindata['py']['objects'][modname] = (self.env.docname, 'module')
             targetnode = nodes.target('', '', ids=['module-' + modname],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -570,7 +614,7 @@ class PyModule(Directive):
         return ret
 
 
-class PyCurrentModule(Directive):
+class PyCurrentModule(SphinxDirective):
     """
     This directive is just to tell Sphinx that we're documenting
     stuff in module foo, but links to module foo won't lead here.
@@ -584,12 +628,11 @@ class PyCurrentModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.ref_context.pop('py:module', None)
+            self.env.ref_context.pop('py:module', None)
         else:
-            env.ref_context['py:module'] = modname
+            self.env.ref_context['py:module'] = modname
         return []
 
 
@@ -622,8 +665,8 @@ class PythonModuleIndex(Index):
     """
 
     name = 'modindex'
-    localname = l_('Python Module Index')
-    shortname = l_('modules')
+    localname = _('Python Module Index')
+    shortname = _('modules')
 
     def generate(self, docnames=None):
         # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
@@ -633,7 +676,7 @@ class PythonModuleIndex(Index):
         ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all modules, sorted by module name
-        modules = sorted(iteritems(self.domain.data['modules']),
+        modules = sorted(self.domain.data['modules'].items(),
                          key=lambda x: x[0].lower())
         # sort out collapsable modules
         prev_modname = ''
@@ -683,7 +726,7 @@ class PythonModuleIndex(Index):
         collapse = len(modules) - num_toplevels < num_toplevels
 
         # sort by first letter
-        sorted_content = sorted(iteritems(content))
+        sorted_content = sorted(content.items())
 
         return sorted_content, collapse
 
@@ -693,15 +736,15 @@ class PythonDomain(Domain):
     name = 'py'
     label = 'Python'
     object_types = {
-        'function':     ObjType(l_('function'),      'func', 'obj'),
-        'data':         ObjType(l_('data'),          'data', 'obj'),
-        'class':        ObjType(l_('class'),         'class', 'exc', 'obj'),
-        'exception':    ObjType(l_('exception'),     'exc', 'class', 'obj'),
-        'method':       ObjType(l_('method'),        'meth', 'obj'),
-        'classmethod':  ObjType(l_('class method'),  'meth', 'obj'),
-        'staticmethod': ObjType(l_('static method'), 'meth', 'obj'),
-        'attribute':    ObjType(l_('attribute'),     'attr', 'obj'),
-        'module':       ObjType(l_('module'),        'mod', 'obj'),
+        'function':     ObjType(_('function'),      'func', 'obj'),
+        'data':         ObjType(_('data'),          'data', 'obj'),
+        'class':        ObjType(_('class'),         'class', 'exc', 'obj'),
+        'exception':    ObjType(_('exception'),     'exc', 'class', 'obj'),
+        'method':       ObjType(_('method'),        'meth', 'obj'),
+        'classmethod':  ObjType(_('class method'),  'meth', 'obj'),
+        'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
+        'attribute':    ObjType(_('attribute'),     'attr', 'obj'),
+        'module':       ObjType(_('module'),        'mod', 'obj'),
     }  # type: Dict[unicode, ObjType]
 
     directives = {
@@ -831,9 +874,9 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            logger.warning('more than one target found for cross-reference %r: %s',
+            logger.warning(__('more than one target found for cross-reference %r: %s'),
                            target, ', '.join(match[0] for match in matches),
-                           location=node)
+                           type='ref', subtype='python', location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':
@@ -879,11 +922,21 @@ class PythonDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        for modname, info in iteritems(self.data['modules']):
+        for modname, info in self.data['modules'].items():
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in iteritems(self.data['objects']):
+        for refname, (docname, type) in self.data['objects'].items():
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
+
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        modname = node.get('py:module')
+        clsname = node.get('py:class')
+        target = node.get('reftarget')
+        if target is None:
+            return None
+        else:
+            return '.'.join(filter(None, [modname, clsname, target]))
 
 
 def setup(app):
@@ -892,6 +945,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

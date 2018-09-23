@@ -1,6 +1,6 @@
 .. _storagebackends:
 
-.. currentmodule:: sphinx.websupport.storage
+.. currentmodule:: sphinxcontrib.websupport.storage
 
 Storage Backends
 ================
@@ -20,6 +20,11 @@ documentation of the :class:`StorageBackend` class below.
 .. class:: StorageBackend
 
    Defines an interface for storage backends.
+
+.. versionchanged:: 1.6
+
+   StorageBackend class is moved to sphinxcontrib.websupport.storage from
+   sphinx.websupport.storage.
 
 
 StorageBackend Methods

@@ -12,7 +12,7 @@ search indices, and node data that is used to track where comments and other
 things are in a document.  To do this you will need to create an instance of the
 :class:`~.WebSupport` class and call its :meth:`~.WebSupport.build` method::
 
-   from sphinx.websupport import WebSupport
+   from sphinxcontrib.websupport import WebSupport
 
    support = WebSupport(srcdir='/path/to/rst/sources/',
                         builddir='/path/to/build/outdir',
@@ -39,7 +39,7 @@ Integrating Sphinx Documents Into Your Webapp
 Now that the data is built, it's time to do something useful with it.  Start off
 by creating a :class:`~.WebSupport` object for your application::
 
-   from sphinx.websupport import WebSupport
+   from sphinxcontrib.websupport import WebSupport
 
    support = WebSupport(datadir='/path/to/the/data',
                         search='xapian')
@@ -115,7 +115,7 @@ The default value for *moderator* is ``False``.
 An example `Flask <http://flask.pocoo.org/>`_ function that checks whether a
 user is logged in and then retrieves a document is::
 
-   from sphinx.websupport.errors import *
+   from sphinxcontrib.websupport.errors import *
 
    @app.route('/<path:docname>')
    def doc(docname):
@@ -151,7 +151,7 @@ Performing Searches
 To use the search form built-in to the Sphinx sidebar, create a function to
 handle requests to the url 'search' relative to the documentation root.  The
 user's search query will be in the GET parameters, with the key `q`.  Then use
-the :meth:`~sphinx.websupport.WebSupport.get_search_results` method to retrieve
+the :meth:`~sphinxcontrib.websupport.WebSupport.get_search_results` method to retrieve
 search results. In `Flask <http://flask.pocoo.org/>`_ that would be like this::
 
    @app.route('/search')
@@ -191,7 +191,7 @@ request. If the comment is being attached directly to a node, `parent_id`
 will be empty. If the comment is a child of another comment, then `node_id`
 will be empty. Then next function handles the retrieval of comments for a
 specific node, and is aptly named
-:meth:`~sphinx.websupport.WebSupport.get_data`::
+:meth:`~sphinxcontrib.websupport.WebSupport.get_data`::
 
     @app.route('/docs/get_comments')
     def get_comments():

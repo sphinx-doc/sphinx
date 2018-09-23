@@ -5,14 +5,16 @@
 
     Test docutils.conf support for several writers.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 import pytest
-from util import path, SkipTest
+
+from sphinx.testing.path import path
+from sphinx.util.docutils import patch_docutils
 
 
 def regex_count(expr, result):
@@ -21,7 +23,9 @@ def regex_count(expr, result):
 
 @pytest.mark.sphinx('html', testroot='docutilsconf', freshenv=True, docutilsconf='')
 def test_html_with_default_docutilsconf(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
+
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
     assert regex_count(r'<th class="field-name">', result) == 1
@@ -37,7 +41,9 @@ def test_html_with_default_docutilsconf(app, status, warning):
     '\n')
 )
 def test_html_with_docutilsconf(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
+
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
     assert regex_count(r'<th class="field-name">', result) == 0
@@ -48,25 +54,29 @@ def test_html_with_docutilsconf(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='docutilsconf')
 def test_html(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
     assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('latex', testroot='docutilsconf')
 def test_latex(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
     assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('man', testroot='docutilsconf')
 def test_man(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
     assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('texinfo', testroot='docutilsconf')
 def test_texinfo(app, status, warning):
-    app.builder.build(['contents'])
+    with patch_docutils(app.confdir):
+        app.builder.build(['contents'])
 
 
 @pytest.mark.sphinx('html', testroot='docutilsconf',
@@ -77,9 +87,10 @@ def test_docutils_source_link_with_nonascii_file(app, status, warning):
     try:
         (srcdir / (mb_name + '.txt')).write_text('')
     except UnicodeEncodeError:
-        from path import FILESYSTEMENCODING
-        raise SkipTest(
+        from sphinx.testing.path import FILESYSTEMENCODING
+        raise pytest.skip.Exception(
             'nonascii filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
 
-    app.builder.build_all()
+    with patch_docutils(app.confdir):
+        app.builder.build_all()

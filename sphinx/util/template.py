@@ -5,11 +5,12 @@
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
+
 from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir
@@ -22,7 +23,7 @@ if False:
     from jinja2.loaders import BaseLoader  # NOQA
 
 
-class BaseRenderer(object):
+class BaseRenderer:
     def __init__(self, loader=None):
         # type: (BaseLoader) -> None
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])

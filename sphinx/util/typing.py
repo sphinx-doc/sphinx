@@ -5,20 +5,20 @@
 
     The composit types for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
 from typing import Callable, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
+from six import text_type
 
-
-if PY3:
-    unicode = str
 
 # common role functions
-RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
+RoleFunction = Callable[[text_type, text_type, text_type, int, Inliner, Dict, List[text_type]],
                         Tuple[List[nodes.Node], List[nodes.Node]]]
+
+# title getter functions for enumerable nodes (see sphinx.domains.std)
+TitleGetter = Callable[[nodes.Node], text_type]

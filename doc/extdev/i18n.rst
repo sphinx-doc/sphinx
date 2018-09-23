@@ -1,0 +1,17 @@
+.. _i18n-api:
+
+i18n API
+========
+
+.. currentmodule:: sphinx.locale
+
+.. autofunction:: init
+
+.. autofunction:: init_console
+
+.. autofunction:: get_translation
+
+.. autofunction:: _
+
+.. autofunction:: __
+

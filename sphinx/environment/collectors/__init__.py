@@ -5,7 +5,7 @@
 
     The data collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class EnvironmentCollector(object):
+class EnvironmentCollector:
     """An EnvironmentCollector is a specific data collector from each document.
 
     It gathers data and stores :py:class:`BuildEnvironment

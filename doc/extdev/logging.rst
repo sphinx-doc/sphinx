@@ -3,22 +3,15 @@
 Logging API
 ===========
 
-.. function:: sphinx.util.logging.getLogger(name)
+.. currentmodule:: sphinx.util.logging
 
-   Returns a logger wrapped by :class:`SphinxLoggerAdapter` with the specified *name*.
+.. autofunction:: getLogger(name)
 
-   Example usage::
+.. autoclass:: SphinxLoggerAdapter(logging.LoggerAdapter)
 
-     from sphinx.util import logging  # Load on top of python's logging module
-
-     logger = logging.getLogger(__name__)
-     logger.info('Hello, this is an extension!')
-
-.. class:: SphinxLoggerAdapter(logging.LoggerAdapter)
-
-   .. method:: SphinxLoggerAdapter.error(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.critical(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.warning(level, msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.error(msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.critical(msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.warning(msg, *args, **kwargs)
 
       Logs a message on this logger with the specified level.
       Basically, the arguments are as with python's logging module.
@@ -40,13 +33,14 @@ Logging API
           logger.warning('Warning happened!', location=some_node)
 
       **color**
-        The color of logs.  By default, warning level logs are
-        colored as ``"darkred"``.  The others are not colored.
+        The color of logs.  By default, error level logs are colored as
+        ``"darkred"``, critical level ones is not colored, and warning level
+        ones are colored as ``"red"``.
 
    .. method:: SphinxLoggerAdapter.log(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.info(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.verbose(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.debug(level, msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.info(msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.verbose(msg, *args, **kwargs)
+   .. method:: SphinxLoggerAdapter.debug(msg, *args, **kwargs)
 
       Logs a message to this logger with the specified level.
       Basically, the arguments are as with python's logging module.
@@ -57,21 +51,14 @@ Logging API
         If true, the logger does not fold lines at the end of the log message.
         The default is ``False``.
 
+      **location**
+        Where the message emitted.  For more detail, see
+        :meth:`SphinxLoggerAdapter.warning`.
+
       **color**
-        The color of logs.  By default, debug level logs are
-        colored as ``"darkgray"``, and debug2 level ones are ``"lightgray"``.
-        The others are not colored.
+        The color of logs.  By default, info and verbose level logs are not colored,
+        and deug level ones are colored as ``"darkgray"``.
 
-.. function:: pending_logging()
+.. autofunction:: pending_logging()
 
-   Marks all logs as pending::
-
-     with pending_logging():
-       logger.warning('Warning message!')  # not flushed yet
-       some_long_process()
-
-     # the warning is flushed here
-
-.. function:: pending_warnings()
-
-   Marks warning logs as pending.  Similar to :func:`pending_logging`.
+.. autofunction:: pending_warnings()

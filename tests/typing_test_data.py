@@ -1,6 +1,5 @@
-from typing import List, TypeVar, Union, Callable, Tuple
-
 from numbers import Integral
+from typing import Any, List, TypeVar, Union, Callable, Tuple, Optional
 
 
 def f0(x: int, y: Integral) -> None:
@@ -63,3 +62,30 @@ class CustomAnnotation:
 
 def f11(x: CustomAnnotation(), y: 123) -> None:
     pass
+
+
+def f12() -> Tuple[int, str, int]:
+    pass
+
+
+def f13() -> Optional[str]:
+    pass
+
+
+def f14() -> Any:
+    pass
+
+
+def f15(arg1, arg2, *, arg3=None, arg4=None):
+    pass
+
+def f16(*, arg3, arg4):
+    pass
+
+
+class Node:
+    def __init__(self, parent: Optional['Node']) -> None:
+        pass
+
+    def children(self) -> List['Node']:
+        pass

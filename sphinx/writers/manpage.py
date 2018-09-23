@@ -5,13 +5,12 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
 from docutils.writers.manpage import (
-    MACRO_DEF,
     Writer,
     Translator as BaseTranslator
 )
@@ -19,8 +18,8 @@ from docutils.writers.manpage import (
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
-import sphinx.util.docutils
 from sphinx.util.i18n import format_date
+from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
@@ -35,20 +34,18 @@ class ManualPageWriter(Writer):
         # type: (Builder) -> None
         Writer.__init__(self)
         self.builder = builder
-        self.translator_class = (
-            self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
         # type: () -> None
         transform = NestedInlineTransform(self.document)
         transform.apply()
-        visitor = self.translator_class(self.builder, self.document)
+        visitor = self.builder.create_translator(self.builder, self.document)
         self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = visitor.astext()
 
 
-class NestedInlineTransform(object):
+class NestedInlineTransform:
     """
     Flatten nested inline nodes:
 
@@ -65,16 +62,13 @@ class NestedInlineTransform(object):
 
     def apply(self):
         # type: () -> None
-        def is_inline(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, (nodes.literal, nodes.emphasis, nodes.strong))
-
-        for node in self.document.traverse(is_inline):
-            if any(is_inline(subnode) for subnode in node):
+        matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
+        for node in self.document.traverse(matcher):
+            if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(node[1:]):
                     node.remove(subnode)
-                    if is_inline(subnode):
+                    if matcher(subnode):
                         node.parent.insert(pos + 1, subnode)
                     else:
                         newnode = node.__class__('', subnode, **node.attributes)
@@ -114,10 +108,6 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
-
-        # In docutils < 0.11 self.append_header() was never called
-        if sphinx.util.docutils.__version_info__ < (0, 11):
-            self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
@@ -380,14 +370,6 @@ class ManualPageTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     def visit_download_reference(self, node):
         # type: (nodes.Node) -> None
         pass
@@ -515,12 +497,19 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
-        raise nodes.SkipNode
+        pass
 
-    visit_math_block = visit_math
+    def depart_math(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.visit_centered(node)
+
+    def depart_math_block(self, node):
+        # type: (nodes.Node) -> None
+        self.depart_centered(node)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

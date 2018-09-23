@@ -5,21 +5,22 @@
 
     The JavaScript domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.domains import Domain, ObjType
-from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
-from sphinx.roles import XRefRole
+from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist
-from sphinx.util.nodes import make_refnode
+from sphinx.locale import _
+from sphinx.roles import XRefRole
 from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docutils import SphinxDirective
+from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
@@ -201,15 +202,15 @@ class JSCallable(JSObject):
     has_arguments = True
 
     doc_field_types = [
-        TypedField('arguments', label=l_('Arguments'),
+        TypedField('arguments', label=_('Arguments'),
                    names=('argument', 'arg', 'parameter', 'param'),
                    typerolename='func', typenames=('paramtype', 'type')),
-        GroupedField('errors', label=l_('Throws'), rolename='err',
+        GroupedField('errors', label=_('Throws'), rolename='err',
                      names=('throws', ),
                      can_collapse=True),
-        Field('returnvalue', label=l_('Returns'), has_arg=False,
+        Field('returnvalue', label=_('Returns'), has_arg=False,
               names=('returns', 'return')),
-        Field('returntype', label=l_('Return type'), has_arg=False,
+        Field('returntype', label=_('Return type'), has_arg=False,
               names=('rtype',)),
     ]
 
@@ -220,7 +221,7 @@ class JSConstructor(JSCallable):
     allow_nesting = True
 
 
-class JSModule(Directive):
+class JSModule(SphinxDirective):
     """
     Directive to mark description of a new JavaScript module.
 
@@ -249,16 +250,15 @@ class JSModule(Directive):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
         mod_name = self.arguments[0].strip()
-        env.ref_context['js:module'] = mod_name
+        self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
         ret = []
         if not noindex:
-            env.domaindata['js']['modules'][mod_name] = env.docname
+            self.env.domaindata['js']['modules'][mod_name] = self.env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
-            env.domaindata['js']['objects'][mod_name] = (env.docname, 'module')
+            self.env.domaindata['js']['objects'][mod_name] = (self.env.docname, 'module')
             targetnode = nodes.target('', '', ids=['module-' + mod_name],
                                       ismod=True)
             self.state.document.note_explicit_target(targetnode)
@@ -296,12 +296,12 @@ class JavaScriptDomain(Domain):
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
-        'function':  ObjType(l_('function'),  'func'),
-        'method':    ObjType(l_('method'),    'meth'),
-        'class':     ObjType(l_('class'),     'class'),
-        'data':      ObjType(l_('data'),      'data'),
-        'attribute': ObjType(l_('attribute'), 'attr'),
-        'module':    ObjType(l_('module'),    'mod'),
+        'function':  ObjType(_('function'),  'func'),
+        'method':    ObjType(_('method'),    'meth'),
+        'class':     ObjType(_('class'),     'class'),
+        'data':      ObjType(_('data'),      'data'),
+        'attribute': ObjType(_('attribute'), 'attr'),
+        'module':    ObjType(_('module'),    'mod'),
     }
     directives = {
         'function':  JSCallable,
@@ -398,6 +398,16 @@ class JavaScriptDomain(Domain):
             yield refname, refname, type, docname, \
                 refname.replace('$', '_S_'), 1
 
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        modname = node.get('js:module')
+        prefix = node.get('js:object')
+        target = node.get('reftarget')
+        if target is None:
+            return None
+        else:
+            return '.'.join(filter(None, [modname, prefix, target]))
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
@@ -405,6 +415,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

@@ -2,8 +2,10 @@ Test Math
 =========
 
 .. toctree::
+   :numbered: 1
 
    math
+   page
 
 .. math:: a^2+b^2=c^2
 

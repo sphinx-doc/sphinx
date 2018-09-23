@@ -5,15 +5,14 @@
 
     Test the only directive with the test root.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from docutils import nodes
-from sphinx.util.nodes import process_only_nodes
 import pytest
+from docutils import nodes
 
 
 @pytest.mark.sphinx('text', testroot='directive-only')
@@ -46,7 +45,7 @@ def test_sectioning(app, status, warning):
 
     app.builder.build(['only'])
     doctree = app.env.get_doctree('only')
-    process_only_nodes(doctree, app.builder.tags)
+    app.env.apply_post_transforms(doctree, 'only')
 
     parts = [getsects(n)
              for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]]

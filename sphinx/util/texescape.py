@@ -5,7 +5,7 @@
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -40,12 +40,9 @@ tex_replacements = [
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
-    ('─', r'-'),
     ('⎽', r'\_'),
-    ('╲', r'\textbackslash{}'),
     ('–', r'\textendash{}'),
     ('|', r'\textbar{}'),
-    ('│', r'\textbar{}'),
     ('ℯ', r'e'),
     ('ⅈ', r'i'),
     ('⁰', r'\(\sp{\text{0}}\)'),

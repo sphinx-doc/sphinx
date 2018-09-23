@@ -5,18 +5,16 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from six import iteritems
-
 from sphinx import addnodes
-from sphinx.domains import Domain, ObjType
-from sphinx.locale import l_, _
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType
+from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
@@ -116,8 +114,8 @@ class ReSTDomain(Domain):
     label = 'reStructuredText'
 
     object_types = {
-        'directive': ObjType(l_('directive'), 'dir'),
-        'role':      ObjType(l_('role'),      'role'),
+        'directive': ObjType(_('directive'), 'dir'),
+        'role':      ObjType(_('role'),      'role'),
     }
     directives = {
         'directive': ReSTDirective,
@@ -172,7 +170,7 @@ class ReSTDomain(Domain):
 
     def get_objects(self):
         # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
-        for (typ, name), docname in iteritems(self.data['objects']):
+        for (typ, name), docname in self.data['objects'].items():
             yield name, name, typ, docname, typ + '-' + name, 1
 
 
@@ -182,6 +180,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
+        'env_version': 1,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

@@ -5,33 +5,39 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
+import fnmatch
 import os
+import posixpath
 import re
 import sys
-import fnmatch
 import tempfile
-import posixpath
 import traceback
 import unicodedata
-from os import path
+import warnings
 from codecs import BOM_UTF8
 from collections import deque
+from datetime import datetime
+from hashlib import md5
+from os import path
+from time import mktime, strptime
 
+from docutils.utils import relative_path
 from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
-from docutils.utils import relative_path
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
+from sphinx.util import smartypants  # noqa
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
@@ -162,6 +168,37 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+class DownloadFiles(dict):
+    """A special dictionary for download files.
+
+    .. important:: This class would be refactored in nearly future.
+                   Hence don't hack this directly.
+    """
+
+    def add_file(self, docname, filename):
+        # type: (unicode, unicode) -> None
+        if filename not in self:
+            digest = md5(filename.encode('utf-8')).hexdigest()
+            dest = '%s/%s' % (digest, os.path.basename(filename))
+            self[filename] = (set(), dest)
+
+        self[filename][0].add(docname)
+        return self[filename][1]
+
+    def purge_doc(self, docname):
+        # type: (unicode) -> None
+        for filename, (docs, dest) in list(self.items()):
+            docs.discard(docname)
+            if not docs:
+                del self[filename]
+
+    def merge_other(self, docnames, other):
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        for filename, (docs, dest) in other.items():
+            for docname in docs & set(docnames):
+                self.add_file(docname, filename)
+
+
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
     # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
@@ -169,6 +206,9 @@ def copy_static_entry(source, targetdir, builder, context={},
 
     Handles all possible cases of files, directories and subdirectories.
     """
+    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
+                  RemovedInSphinx30Warning)
+
     if exclude_matchers:
         relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
@@ -274,6 +314,12 @@ def get_module_source(modname):
             filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
+    elif ('.egg' + os.path.sep) in filename:
+        pat = '(?<=\\.egg)' + re.escape(os.path.sep)
+        eggpath, _ = re.split(pat, filename, 1)
+        if path.isfile(eggpath):
+            return 'file', filename
+
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
@@ -358,7 +404,7 @@ def detect_encoding(readline):
 
 # Low-level utility functions and classes.
 
-class Tee(object):
+class Tee:
     """
     File-like object writing to two streams.
     """
@@ -395,10 +441,8 @@ def parselinenos(spec, total):
             elif len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
-                start = int(begend[0] or 1)     # type: ignore
-                                                # left half open (cf. -10)
-                end = int(begend[1] or max(start, total))   # type: ignore
-                                                            # right half open (cf. 10-)
+                start = int(begend[0] or 1)  # left half open (cf. -10)
+                end = int(begend[1] or max(start, total))  # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
@@ -492,7 +536,7 @@ def format_exception_cut_frames(x=1):
     return ''.join(res)
 
 
-class PeekableIterator(object):
+class PeekableIterator:
     """
     An iterator which wraps any iterable and makes it possible to peek to see
     what's the next item.
@@ -525,7 +569,7 @@ class PeekableIterator(object):
     def peek(self):
         # type: () -> Any
         """Return the next item without changing the state of the iterator."""
-        item = next(self)  # type: ignore
+        item = next(self)
         self.push(item)
         return item
 
@@ -559,16 +603,6 @@ def encode_uri(uri):
                  for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query).decode('ascii')
     return urlunsplit(split)
-
-
-def split_docinfo(text):
-    # type: (unicode) -> Sequence[unicode]
-    docinfo_re = re.compile('\\A((?:\\s*:\\w+:.*?\n(?:[ \\t]+.*?\n)*)+)', re.M)
-    result = docinfo_re.split(text, 1)  # type: ignore
-    if len(result) == 1:
-        return '', result[0]
-    else:
-        return result[1:]
 
 
 def display_chunk(chunk):
@@ -615,3 +649,52 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
         yield item
     if l > 0:
         logger.info('')
+
+
+def epoch_to_rfc1123(epoch):
+    # type: (float) -> unicode
+    """Convert datetime format epoch to RFC1123."""
+    from babel.dates import format_datetime
+
+    dt = datetime.fromtimestamp(epoch)
+    fmt = 'EEE, dd LLL yyyy hh:mm:ss'
+    return format_datetime(dt, fmt, locale='en') + ' GMT'
+
+
+def rfc1123_to_epoch(rfc1123):
+    # type: (str) -> float
+    return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
+
+
+def xmlname_checker():
+    # type: () -> Pattern
+    # https://www.w3.org/TR/REC-xml/#NT-Name
+    # Only Python 3.3 or newer support character code in regular expression
+    name_start_chars = [
+        u':', [u'A', u'Z'], u'_',  [u'a', u'z'], [u'\u00C0', u'\u00D6'],
+        [u'\u00D8', u'\u00F6'], [u'\u00F8', u'\u02FF'], [u'\u0370', u'\u037D'],
+        [u'\u037F', u'\u1FFF'], [u'\u200C', u'\u200D'], [u'\u2070', u'\u218F'],
+        [u'\u2C00', u'\u2FEF'], [u'\u3001', u'\uD7FF'], [u'\uF900', u'\uFDCF'],
+        [u'\uFDF0', u'\uFFFD']]
+
+    name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
+
+    name_chars = [
+        u"\\-", u"\\.", [u'0', u'9'], u'\u00B7', [u'\u0300', u'\u036F'],
+        [u'\u203F', u'\u2040']
+    ]
+
+    def convert(entries, splitter=u'|'):
+        # type: (Any, unicode) -> unicode
+        results = []
+        for entry in entries:
+            if isinstance(entry, list):
+                results.append(u'[%s]' % convert(entry, u'-'))
+            else:
+                results.append(entry)
+        return splitter.join(results)
+
+    start_chars_regex = convert(name_start_chars)
+    name_chars_regex = convert(name_chars)
+    return re.compile(u'(%s)(%s|%s)*' % (
+        start_chars_regex, start_chars_regex, name_chars_regex))

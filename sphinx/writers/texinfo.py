@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,14 +13,13 @@ import re
 import textwrap
 from os import path
 
+from docutils import nodes, writers
 from six import itervalues
 from six.moves import range
 
-from docutils import nodes, writers
-
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
@@ -133,13 +132,10 @@ class TexinfoWriter(writers.Writer):
         # type: (TexinfoBuilder) -> None
         writers.Writer.__init__(self)
         self.builder = builder
-        self.translator_class = (
-            self.builder.translator_class or TexinfoTranslator)
 
     def translate(self):
         # type: () -> None
-        self.visitor = visitor = self.translator_class(
-            self.document, self.builder)
+        self.visitor = visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         visitor.finish()
         for attr in self.visitor_attributes:
@@ -616,7 +612,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
-        for id in self.next_section_ids:
+        for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
         self.next_section_ids.clear()
@@ -652,8 +648,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
         elif not isinstance(parent, nodes.section):
-            logger.warning('encountered title node not in section, topic, table, '
-                           'admonition or sidebar',
+            logger.warning(__('encountered title node not in section, topic, table, '
+                              'admonition or sidebar'),
                            location=(self.curfilestack[-1], node.line))
             self.visit_rubric(node)
         else:
@@ -1322,7 +1318,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 node.parent.get('literal_block'))):
             self.body.append('\n@caption{')
         else:
-            logger.warning('caption not inside a figure.',
+            logger.warning(__('caption not inside a figure.'),
                            location=(self.curfilestack[-1], node.line))
 
     def depart_caption(self, node):
@@ -1389,18 +1385,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
-
     def visit_system_message(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\n@verbatim\n'
@@ -1425,12 +1409,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def unimplemented_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unimplemented node type: %r", node,
+        logger.warning(__("unimplemented node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unknown node type: %r", node,
+        logger.warning(__("unknown node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_departure(self, node):
@@ -1548,14 +1532,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                    for n in node.children[0].children) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
-
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
 
     # -- Desc
 
@@ -1747,9 +1723,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
+        self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
         raise nodes.SkipNode
 
-    visit_math_block = visit_math
+    def visit_math_block(self, node):
+        # type: (nodes.Node) -> None
+        if node.get('label'):
+            self.add_anchor(node['label'], node)
+        self.body.append('\n\n@example\n%s\n@end example\n\n' %
+                         self.escape_arg(node.astext()))
+        raise nodes.SkipNode

@@ -3,14 +3,14 @@
     sphinx.util.tags
     ~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 # (ab)use the Jinja parser for parsing our boolean expressions
 from jinja2 import nodes
-from jinja2.parser import Parser
 from jinja2.environment import Environment
+from jinja2.parser import Parser
 
 env = Environment()
 
@@ -46,7 +46,7 @@ class BooleanParser(Parser):
         return node
 
 
-class Tags(object):
+class Tags:
     def __init__(self, tags=None):
         # type: (List[unicode]) -> None
         self.tags = dict.fromkeys(tags or [], True)

@@ -1,0 +1,24 @@
+var DOCUMENTATION_OPTIONS = {
+    URL_ROOT: document.getElementById("documentation_options").getAttribute('data-url_root'),
+    VERSION: '{{ release|e }}',
+    LANGUAGE: '{{ language }}',
+    COLLAPSE_INDEX: false,
+    FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
+    HAS_SOURCE: {{ has_source|lower }},
+    SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}',
+    NAVIGATION_WITH_KEYS: {{ 'true' if theme_navigation_with_keys|tobool else 'false'}},
+    SEARCH_LANGUAGE_STOP_WORDS: {{ search_language_stop_words }}
+};
+
+
+{% if search_language_stemming_code %}
+/* Non-minified version JS is _stemmer.js if file is provided */ {% endif -%}
+{{ search_language_stemming_code|safe }}
+
+{% if search_scorer_tool %}
+{{ search_scorer_tool|safe }}
+{% endif -%}
+
+{% if search_word_splitter_code %}
+{{ search_word_splitter_code }}
+{% endif -%}

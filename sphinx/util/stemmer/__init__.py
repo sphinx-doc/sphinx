@@ -5,7 +5,7 @@
 
     Word stemming utilities for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,10 +18,10 @@ except ImportError:
     PYSTEMMER = False
 
 
-class BaseStemmer(object):
+class BaseStemmer:
     def stem(self, word):
         # type: (unicode) -> unicode
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class PyStemmer(BaseStemmer):

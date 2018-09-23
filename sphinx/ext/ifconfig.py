@@ -16,14 +16,14 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 
 import sphinx
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
@@ -36,7 +36,7 @@ class ifconfig(nodes.Element):
     pass
 
 
-class IfConfig(Directive):
+class IfConfig(SphinxDirective):
 
     has_content = True
     required_arguments = 1
@@ -57,7 +57,7 @@ class IfConfig(Directive):
 
 def process_ifconfig_nodes(app, doctree, docname):
     # type: (Sphinx, nodes.Node, unicode) -> None
-    ns = dict((confval.name, confval.value) for confval in app.config)  # type: ignore
+    ns = dict((confval.name, confval.value) for confval in app.config)
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):
@@ -66,7 +66,7 @@ def process_ifconfig_nodes(app, doctree, docname):
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
-            msg = ''.join(format_exception_only(err.__class__, err))  # type: ignore
+            msg = ''.join(format_exception_only(err.__class__, err))
             newnode = doctree.reporter.error('Exception occured in '
                                              'ifconfig expression: \n%s' %
                                              msg, base_node=node)

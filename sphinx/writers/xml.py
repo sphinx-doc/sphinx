@@ -5,7 +5,7 @@
 
     Docutils-native XML and pseudo-XML writers.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,8 +24,7 @@ class XMLWriter(BaseXMLWriter):
         # type: (Builder) -> None
         BaseXMLWriter.__init__(self)
         self.builder = builder
-        if self.builder.translator_class:
-            self.translator_class = self.builder.translator_class
+        self.translator_class = self.builder.get_translator_class()
 
     def translate(self, *args, **kwargs):
         # type: (Any, Any) -> None

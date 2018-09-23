@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -17,7 +17,7 @@ from collections import OrderedDict, defaultdict
 from six import itervalues
 
 from sphinx.errors import ExtensionError
-from sphinx.locale import _
+from sphinx.locale import __
 
 if False:
     # For type annotation
@@ -27,10 +27,12 @@ if False:
 # List of all known core events. Maps name to arguments description.
 core_events = {
     'builder-inited': '',
+    'config-inited': 'config',
     'env-get-outdated': 'env, added, changed, removed',
     'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
+    'env-check-consistency': 'env',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
@@ -43,7 +45,7 @@ core_events = {
 }  # type: Dict[unicode, unicode]
 
 
-class EventManager(object):
+class EventManager:
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()
@@ -53,13 +55,13 @@ class EventManager(object):
     def add(self, name):
         # type: (unicode) -> None
         if name in self.events:
-            raise ExtensionError(_('Event %r already present') % name)
+            raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
     def connect(self, name, callback):
         # type: (unicode, Callable) -> int
         if name not in self.events:
-            raise ExtensionError(_('Unknown event name: %s') % name)
+            raise ExtensionError(__('Unknown event name: %s') % name)
 
         listener_id = self.next_listener_id
         self.next_listener_id += 1

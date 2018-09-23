@@ -5,18 +5,20 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pickle
-from docutils import nodes
+import sys
+from textwrap import dedent
+
 import mock
 import pytest
-from textwrap import dedent
-from sphinx.errors import SphinxError
+from docutils import nodes
 
-from util import rootdir, tempdir, path
+from sphinx.errors import SphinxError
+from sphinx.testing.path import path
 
 
 def request_session_head(url, **kwargs):
@@ -27,14 +29,14 @@ def request_session_head(url, **kwargs):
 
 
 @pytest.fixture
-def nonascii_srcdir(request):
+def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
-    basedir = tempdir / request.node.originalname
+    basedir = sphinx_test_tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
-            (rootdir / 'root').copytree(srcdir)
+            (rootdir / 'test-root').copytree(srcdir)
     except UnicodeEncodeError:
         srcdir = basedir / 'all'
     else:
@@ -53,17 +55,19 @@ def nonascii_srcdir(request):
     return srcdir
 
 
+# note: this test skips building docs for some builders because they have independent testcase.
+#       (html, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
-        'pseudoxml', 'man', 'linkcheck',
+        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
+        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
+@pytest.mark.xfail(sys.platform == 'win32', reason="Not working on windows")
 def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app = make_app(buildername, srcdir=nonascii_srcdir)
     app.build()
@@ -102,7 +106,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='images')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 

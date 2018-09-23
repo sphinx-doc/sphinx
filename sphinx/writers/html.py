@@ -5,24 +5,25 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-import posixpath
-import os
 import copy
+import os
+import posixpath
+import sys
+import warnings
 
-from six import string_types
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
+from six import string_types
 
 from sphinx import addnodes
-from sphinx.locale import admonitionlabels, _
+from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
-from sphinx.util.smartypants import sphinx_smarty_pants
 
 if False:
     # For type annotation
@@ -52,8 +53,8 @@ class HTMLWriter(Writer):
     def translate(self):
         # type: () -> None
         # sadly, this is mostly copied from parent class
-        self.visitor = visitor = self.builder.translator_class(self.builder,
-                                                               self.document)
+        self.visitor = visitor = self.builder.create_translator(self.builder,
+                                                                self.document)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
         for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',
@@ -74,13 +75,9 @@ class HTMLTranslator(BaseTranslator):
         # type: (StandaloneHTMLBuilder, Any, Any) -> None
         BaseTranslator.__init__(self, *args, **kwds)
         self.highlighter = builder.highlighter
-        self.no_smarty = 0
         self.builder = builder
-        self.highlightlang = self.highlightlang_base = \
-            builder.config.highlight_language
-        self.highlightopts = builder.config.highlight_options
-        self.highlightlinenothreshold = sys.maxsize
         self.docnames = [builder.current_docname]  # for singlehtml builder
+        self.manpages_url = builder.config.manpages_url
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -91,6 +88,7 @@ class HTMLTranslator(BaseTranslator):
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_index = 0
+        self._fieldlist_row_index = 0
         self.required_params_left = 0
 
     def visit_start_of_file(self, node):
@@ -335,17 +333,17 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
-                    msg = 'numfig_format is not defined for %s' % figtype
+                    msg = __('numfig_format is not defined for %s') % figtype
                     logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_figtype(node)  # type: ignore
+        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assigned for %s node' % node.tagname
+                msg = __('Any IDs not assigned for %s node') % node.tagname
                 logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
@@ -423,19 +421,14 @@ class HTMLTranslator(BaseTranslator):
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
             return BaseTranslator.visit_literal_block(self, node)
-        lang = self.highlightlang
-        linenos = node.rawsource.count('\n') >= \
-            self.highlightlinenothreshold - 1
+
+        lang = node.get('language', 'default')
+        linenos = node.get('linenos', False)
         highlight_args = node.get('highlight_args', {})
-        if 'language' in node:
-            # code-block directives
-            lang = node['language']
-            highlight_args['force'] = True
-        if 'linenos' in node:
-            linenos = node['linenos']
-        if lang is self.highlightlang_base:
+        highlight_args['force'] = node.get('force_highlighting', False)
+        if lang is self.builder.config.highlight_language:
             # only pass highlighter options for original language
-            opts = self.highlightopts
+            opts = self.builder.config.highlight_options
         else:
             opts = {}
 
@@ -444,7 +437,7 @@ class HTMLTranslator(BaseTranslator):
             location=(self.builder.current_docname, node.line), **highlight_args
         )
         starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s' % lang)
+                                 CLASS='highlight-%s notranslate' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -492,14 +485,21 @@ class HTMLTranslator(BaseTranslator):
     # overwritten
     def visit_literal(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(self.starttag(node, 'code', '',
-                                       CLASS='docutils literal'))
-        self.protect_literal_text += 1
+        if 'kbd' in node['classes']:
+            self.body.append(self.starttag(node, 'kbd', '',
+                                           CLASS='docutils literal notranslate'))
+        else:
+            self.body.append(self.starttag(node, 'code', '',
+                                           CLASS='docutils literal notranslate'))
+            self.protect_literal_text += 1
 
     def depart_literal(self, node):
         # type: (nodes.Node) -> None
-        self.protect_literal_text -= 1
-        self.body.append('</code>')
+        if 'kbd' in node['classes']:
+            self.body.append('</kbd>')
+        else:
+            self.protect_literal_text -= 1
+            self.body.append('</code>')
 
     def visit_productionlist(self, node):
         # type: (nodes.Node) -> None
@@ -562,21 +562,22 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         pass
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        self.highlightlang = node['lang']
-        self.highlightlinenothreshold = node['linenothreshold']
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     def visit_download_reference(self, node):
         # type: (nodes.Node) -> None
-        if self.builder.download_support and node.hasattr('filename'):
-            self.body.append(
-                '<a class="reference download internal" href="%s" download="">' %
-                posixpath.join(self.builder.dlpath, node['filename']))
+        atts = {'class': 'reference download',
+                'download': ''}
+
+        if not self.builder.download_support:
+            self.context.append('')
+        elif 'refuri' in node:
+            atts['class'] += ' external'
+            atts['href'] = node['refuri']
+            self.body.append(self.starttag(node, 'a', '', **atts))
+            self.context.append('</a>')
+        elif 'filename' in node:
+            atts['class'] += ' internal'
+            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
             self.context.append('')
@@ -618,7 +619,7 @@ class HTMLTranslator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                    logger.warning(__('Could not obtain image size. :scale: option is ignored.'),  # NOQA
                                    location=node)
                 else:
                     if 'width' not in node:
@@ -682,12 +683,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</td>')
 
     def visit_option_group(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_option_group(self, node)
         self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
-
-    def bulk_text_processor(self, text):
-        # type: (unicode) -> unicode
-        return text
 
     # overwritten
     def visit_Text(self, node):
@@ -710,8 +708,6 @@ class HTMLTranslator(BaseTranslator):
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
-            else:
-                encoded = self.bulk_text_processor(encoded)
             self.body.append(encoded)
 
     def visit_note(self, node):
@@ -786,7 +782,6 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         self.depart_admonition(node)
 
-    # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
         return self.visit_emphasis(node)
@@ -817,9 +812,14 @@ class HTMLTranslator(BaseTranslator):
     def visit_manpage(self, node):
         # type: (nodes.Node) -> None
         self.visit_literal_emphasis(node)
+        if self.manpages_url:
+            node['refuri'] = self.manpages_url.format(**node.attributes)
+            self.visit_reference(node)
 
     def depart_manpage(self, node):
         # type: (nodes.Node) -> None
+        if self.manpages_url:
+            self.depart_reference(node)
         self.depart_literal_emphasis(node)
 
     # overwritten to add even/odd classes
@@ -840,6 +840,7 @@ class HTMLTranslator(BaseTranslator):
         node.column = 0
 
     def visit_entry(self, node):
+        # type: (nodes.Node) -> None
         BaseTranslator.visit_entry(self, node)
         if self.body[-1] == '&nbsp;':
             self.body[-1] = '&#160;'
@@ -859,6 +860,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
     def visit_field_name(self, node):
+        # type: (nodes.Node) -> None
         context_count = len(self.context)
         BaseTranslator.visit_field_name(self, node)
         if context_count != len(self.context):
@@ -866,103 +868,60 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html',
-                       location=(self.builder.current_docname, node.line))
-        raise nodes.SkipNode
+        name = self.builder.math_renderer_name
+        visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
+        visit(self, node)
+
+    def depart_math(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        _, depart = self.builder.app.registry.html_inline_math_renderers[name]
+        if depart:
+            depart(self, node)
+
+    def visit_math_block(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        visit, _ = self.builder.app.registry.html_block_math_renderers[name]
+        visit(self, node)
+
+    def depart_math_block(self, node, math_env=''):
+        # type: (nodes.Node, unicode) -> None
+        name = self.builder.math_renderer_name
+        _, depart = self.builder.app.registry.html_block_math_renderers[name]
+        if depart:
+            depart(self, node)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
+    # --------- METHODS FOR COMPATIBILITY --------------------------------------
 
-class SmartyPantsHTMLTranslator(HTMLTranslator):
-    """
-    Handle ordinary text via smartypants, converting quotes and dashes
-    to the correct entities.
-    """
+    @property
+    def highlightlang(self):
+        # type: () -> unicode
+        warnings.warn('HTMLTranslator.highlightlang is deprecated.',
+                      RemovedInSphinx30Warning)
+        return self.builder.config.highlight_language
 
-    def __init__(self, *args, **kwds):
-        # type: (Any, Any) -> None
-        self.no_smarty = 0
-        HTMLTranslator.__init__(self, *args, **kwds)
+    @property
+    def highlightlang_base(self):
+        # type: () -> unicode
+        warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
+                      RemovedInSphinx30Warning)
+        return self.builder.config.highlight_language
 
-    def visit_literal(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            # this raises SkipNode
-            HTMLTranslator.visit_literal(self, node)
-        finally:
-            self.no_smarty -= 1
+    @property
+    def highlightopts(self):
+        # type: () -> unicode
+        warnings.warn('HTMLTranslator.highlightopts is deprecated.',
+                      RemovedInSphinx30Warning)
+        return self.builder.config.highlight_options
 
-    def visit_literal_block(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            HTMLTranslator.visit_literal_block(self, node)
-        except nodes.SkipNode:
-            # HTMLTranslator raises SkipNode for simple literal blocks,
-            # but not for parsed literal blocks
-            self.no_smarty -= 1
-            raise
-
-    def depart_literal_block(self, node):
-        # type: (nodes.Node) -> None
-        HTMLTranslator.depart_literal_block(self, node)
-        self.no_smarty -= 1
-
-    def visit_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        self.visit_emphasis(node)
-
-    def depart_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
-        self.depart_emphasis(node)
-        self.no_smarty -= 1
-
-    def visit_literal_strong(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        self.visit_strong(node)
-
-    def depart_literal_strong(self, node):
-        # type: (nodes.Node) -> None
-        self.depart_strong(node)
-        self.no_smarty -= 1
-
-    def visit_desc_signature(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        HTMLTranslator.visit_desc_signature(self, node)
-
-    def depart_desc_signature(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty -= 1
-        HTMLTranslator.depart_desc_signature(self, node)
-
-    def visit_productionlist(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            HTMLTranslator.visit_productionlist(self, node)
-        finally:
-            self.no_smarty -= 1
-
-    def visit_option(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        HTMLTranslator.visit_option(self, node)
-
-    def depart_option(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty -= 1
-        HTMLTranslator.depart_option(self, node)
-
-    def bulk_text_processor(self, text):
-        # type: (unicode) -> unicode
-        if self.no_smarty <= 0:
-            return sphinx_smarty_pants(text)
-        return text
+    @property
+    def highlightlinenothreshold(self):
+        # type: () -> int
+        warnings.warn('HTMLTranslator.highlightlinenothreshold is deprecated.',
+                      RemovedInSphinx30Warning)
+        return sys.maxsize

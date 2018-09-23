@@ -3,16 +3,15 @@
     sphinx.util.websupport
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-if False:
-    # For type annotation
+try:
+    from sphinxcontrib.websupport.utils import is_commentable  # NOQA
+except ImportError:
     from docutils import nodes  # NOQA
 
-
-def is_commentable(node):
-    # type: (nodes.Node) -> bool
-    # return node.__class__.__name__ in ('paragraph', 'literal_block')
-    return node.__class__.__name__ == 'paragraph'
+    def is_commentable(node):
+        # type: (nodes.Node) -> bool
+        raise RuntimeError

@@ -5,25 +5,42 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import unittest
+from io import BytesIO
 
-from docutils import nodes
 import mock
 import pytest
 import requests
-from io import BytesIO
+from docutils import nodes
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
-    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
 )
-from test_util_inventory import inventory_v2
+from sphinx.ext.intersphinx import setup as intersphinx_setup
+
+
+def fake_node(domain, type, target, content, **attrs):
+    contnode = nodes.emphasis(content, content)
+    node = addnodes.pending_xref('')
+    node['reftarget'] = target
+    node['reftype'] = type
+    node['refdomain'] = domain
+    node.attributes.update(attrs)
+    node += contnode
+    return node, contnode
+
+
+def reference_check(app, *args, **kwds):
+    node, contnode = fake_node(*args, **kwds)
+    return missing_reference(app, app.env, node, contnode)
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -70,6 +87,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status,
     assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
 
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
 def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -88,46 +106,30 @@ def test_missing_reference(tempdir, app, status, warning):
     assert inv['py:module']['module2'] == \
         ('foo', '2.0', 'https://docs.python.org/foo.html#module-module2', '-')
 
-    # create fake nodes and check referencing
-
-    def fake_node(domain, type, target, content, **attrs):
-        contnode = nodes.emphasis(content, content)
-        node = addnodes.pending_xref('')
-        node['reftarget'] = target
-        node['reftype'] = type
-        node['refdomain'] = domain
-        node.attributes.update(attrs)
-        node += contnode
-        return node, contnode
-
-    def reference_check(*args, **kwds):
-        node, contnode = fake_node(*args, **kwds)
-        return missing_reference(app, app.env, node, contnode)
-
     # check resolution when a target is found
-    rn = reference_check('py', 'func', 'module1.func', 'foo')
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
     assert rn['refuri'] == 'https://docs.python.org/sub/foo.html#module1.func'
     assert rn['reftitle'] == '(in foo v2.0)'
     assert rn[0].astext() == 'foo'
 
     # create unresolvable nodes and check None return value
-    assert reference_check('py', 'foo', 'module1.func', 'foo') is None
-    assert reference_check('py', 'func', 'foo', 'foo') is None
-    assert reference_check('py', 'func', 'foo', 'foo') is None
+    assert reference_check(app, 'py', 'foo', 'module1.func', 'foo') is None
+    assert reference_check(app, 'py', 'func', 'foo', 'foo') is None
+    assert reference_check(app, 'py', 'func', 'foo', 'foo') is None
 
     # check handling of prefixes
 
     # prefix given, target found: prefix is stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2')
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'py3k:module2')
     assert rn[0].astext() == 'module2'
 
     # prefix given, but not in title: nothing stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'module2')
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'module2')
     assert rn[0].astext() == 'module2'
 
     # prefix given, but explicit: nothing stripped
-    rn = reference_check('py', 'mod', 'py3k:module2', 'py3k:module2',
+    rn = reference_check(app, 'py', 'mod', 'py3k:module2', 'py3k:module2',
                          refexplicit=True)
     assert rn[0].astext() == 'py3k:module2'
 
@@ -146,21 +148,146 @@ def test_missing_reference(tempdir, app, status, warning):
     assert contnode[0].astext() == 'py3k:unknown'
 
     # check relative paths
-    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
+    rn = reference_check(app, 'py', 'mod', 'py3krel:module1', 'foo')
     assert rn['refuri'] == 'py3k/foo.html#module-module1'
 
-    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo')
+    rn = reference_check(app, 'py', 'mod', 'py3krelparent:module1', 'foo')
     assert rn['refuri'] == '../../py3k/foo.html#module-module1'
 
-    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
+    rn = reference_check(app, 'py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
     assert rn['refuri'] == '../../py3k/foo.html#module-module1'
 
-    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
+    rn = reference_check(app, 'py', 'mod', 'py3krelparent:module1', 'foo',
+                         refdoc='sub/dir/test')
     assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
 
     # check refs of standard domain
-    rn = reference_check('std', 'doc', 'docname', 'docname')
+    rn = reference_check(app, 'std', 'doc', 'docname', 'docname')
     assert rn['refuri'] == 'https://docs.python.org/docname.html'
+
+
+def test_missing_reference_pydomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # py:module context helps to search objects
+    kwargs = {'py:module': 'module1'}
+    node, contnode = fake_node('py', 'func', 'func', 'func()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'func()'
+
+
+def test_missing_reference_stddomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'cmd': ('https://docs.python.org/', inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('std', 'option', '-l', '-l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # std:program context helps to search objects
+    kwargs = {'std:program': 'ls'}
+    node, contnode = fake_node('std', 'option', '-l', 'ls -l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'ls -l'
+
+    # refers inventory by name
+    kwargs = {}
+    node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == '-l'
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
+def test_missing_reference_cppdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    app.build()
+    html = (app.outdir / 'index.html').text()
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#cpp_foo_bar"'
+            ' title="(in foo v2.0)">'
+            '<code class="xref cpp cpp-class docutils literal notranslate">'
+            '<span class="pre">Bar</span></code></a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#foons"'
+            ' title="(in foo v2.0)">foons</a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#foons_bartype"'
+            ' title="(in foo v2.0)">bartype</a>' in html)
+
+
+def test_missing_reference_jsdomain(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    # no context data
+    kwargs = {}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn is None
+
+    # js:module and js:object context helps to search objects
+    kwargs = {'js:module': 'foo', 'js:object': 'bar'}
+    node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == 'baz()'
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
+def test_inventory_not_having_version(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2_not_having_version)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    load_mappings(app)
+
+    rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
+    assert rn['reftitle'] == '(in foo)'
+    assert rn[0].astext() == 'Long Module desc'
 
 
 def test_load_mappings_warnings(tempdir, app, status, warning):
@@ -183,6 +310,38 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     # load the inventory and check if it's done correctly
     load_mappings(app)
     assert warning.getvalue().count('\n') == 1
+
+
+def test_load_mappings_fallback(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_cache_limit = 0
+
+    # connect to invalid path
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
+    }
+    load_mappings(app)
+    assert "failed to reach any of the inventories" in warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert rn is None
+
+    # clear messages
+    status.truncate(0)
+    warning.truncate(0)
+
+    # add fallbacks to mapping
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
+                                                       inv_file)),
+    }
+    load_mappings(app)
+    assert "encountered some issues with some of the inventories" in status.getvalue()
+    assert "" == warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert isinstance(rn, nodes.reference)
 
 
 class TestStripBasicAuth(unittest.TestCase):
@@ -234,10 +393,10 @@ def test_getsafeurl_unauthed():
     assert expected == actual
 
 
-def test_debug_noargs(capsys):
-    """debug interface, without arguments"""
+def test_inspect_main_noargs(capsys):
+    """inspect_main interface, without arguments"""
     with pytest.raises(SystemExit):
-        debug(['sphinx/ext/intersphinx.py'])
+        inspect_main([])
 
     expected = (
         "Print out an inventory file.\n"
@@ -248,12 +407,12 @@ def test_debug_noargs(capsys):
     assert stderr == expected + "\n"
 
 
-def test_debug_file(capsys, tempdir):
-    """debug interface, with file argument"""
+def test_inspect_main_file(capsys, tempdir):
+    """inspect_main interface, with file argument"""
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
 
-    debug(['sphinx/ext/intersphinx.py', str(inv_file)])
+    inspect_main([str(inv_file)])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
@@ -261,8 +420,8 @@ def test_debug_file(capsys, tempdir):
 
 
 @mock.patch('requests.get')
-def test_debug_url(fake_get, capsys):
-    """debug interface, with url argument"""
+def test_inspect_main_url(fake_get, capsys):
+    """inspect_main interface, with url argument"""
     raw = BytesIO(inventory_v2)
     real_read = raw.read
 
@@ -277,7 +436,7 @@ def test_debug_url(fake_get, capsys):
     resp.raw = raw
     fake_get.return_value = resp
 
-    debug(['sphinx/ext/intersphinx.py', url])
+    inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")

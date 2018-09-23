@@ -5,36 +5,26 @@
 
     Utilities for Sphinx extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import traceback
-
-from six import iteritems
-
-from sphinx.errors import ExtensionError, VersionRequirementError
-from sphinx.locale import _
+from sphinx.errors import VersionRequirementError
+from sphinx.locale import __
 from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-
+    from sphinx.config import Config  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-# list of deprecated extensions. Keys are extension name.
-# Values are Sphinx version that merge the extension.
-EXTENSION_BLACKLIST = {
-    "sphinxjp.themecore": "1.2"
-}  # type: Dict[unicode, unicode]
-
-
-class Extension(object):
+class Extension:
     def __init__(self, name, module, **kwargs):
+        # type: (unicode, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -48,73 +38,35 @@ class Extension(object):
         # The extension supports parallel write or not.  The default value
         # is ``True``.  Sphinx writes parallelly documents even if
         # the extension does not tell its status.
-        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
+        self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
-def load_extension(app, extname):
-    # type: (Sphinx, unicode) -> None
-    """Load a Sphinx extension."""
-    if extname in app.extensions:  # alread loaded
-        return
-    if extname in EXTENSION_BLACKLIST:
-        logger.warning(_('the extension %r was already merged with Sphinx since '
-                         'version %s; this extension is ignored.'),
-                       extname, EXTENSION_BLACKLIST[extname])
-        return
-
-    # update loading context
-    app._setting_up_extension.append(extname)
-
-    try:
-        mod = __import__(extname, None, None, ['setup'])
-    except ImportError as err:
-        logger.verbose(_('Original exception:\n') + traceback.format_exc())
-        raise ExtensionError(_('Could not import extension %s') % extname, err)
-
-    if not hasattr(mod, 'setup'):
-        logger.warning(_('extension %r has no setup() function; is it really '
-                         'a Sphinx extension module?'), extname)
-        metadata = {}  # type: Dict[unicode, Any]
-    else:
-        try:
-            metadata = mod.setup(app)
-        except VersionRequirementError as err:
-            # add the extension name to the version required
-            raise VersionRequirementError(
-                _('The %s extension used by this project needs at least '
-                  'Sphinx v%s; it therefore cannot be built with this '
-                  'version.') % (extname, err)
-            )
-
-    if metadata is None:
-        metadata = {}
-        if extname == 'rst2pdf.pdfbuilder':
-            metadata['parallel_read_safe'] = True
-    elif not isinstance(metadata, dict):
-        logger.warning(_('extension %r returned an unsupported object from '
-                         'its setup() function; it should return None or a '
-                         'metadata dictionary'), extname)
-
-    app.extensions[extname] = Extension(extname, mod, **metadata)
-    app._setting_up_extension.pop()
-
-
-def verify_required_extensions(app, requirements):
-    # type: (Sphinx, Dict[unicode, unicode]) -> None
+def verify_needs_extensions(app, config):
+    # type: (Sphinx, Config) -> None
     """Verify the required Sphinx extensions are loaded."""
-    if requirements is None:
+    if config.needs_extensions is None:
         return
 
-    for extname, reqversion in iteritems(requirements):
+    for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(_('needs_extensions config value specifies a '
-                             'version requirement for extension %s, but it is '
-                             'not loaded'), extname)
+            logger.warning(__('The %s extension is required by needs_extensions settings, '
+                              'but it is not loaded.'), extname)
             continue
 
         if extension.version == 'unknown version' or reqversion > extension.version:
-            raise VersionRequirementError(_('This project needs the extension %s at least in '
-                                            'version %s and therefore cannot be built with '
-                                            'the loaded version (%s).') %
+            raise VersionRequirementError(__('This project needs the extension %s at least in '
+                                             'version %s and therefore cannot be built with '
+                                             'the loaded version (%s).') %
                                           (extname, reqversion, extension.version))
+
+
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.connect('config-inited', verify_needs_extensions)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

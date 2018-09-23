@@ -12,7 +12,7 @@ Sphinx Developer's Guide
 .. contents::
    :local:
 
-The Sphinx source code is managed using Git and is hosted on Github.
+The Sphinx source code is managed using Git and is hosted on GitHub.
 
     git clone git://github.com/sphinx-doc/sphinx
 
@@ -32,11 +32,11 @@ Bug Reports and Feature Requests
 --------------------------------
 
 If you have encountered a problem with Sphinx or have an idea for a new
-feature, please submit it to the `issue tracker`_ on Github or discuss it
-on the sphinx-dev mailing list.
+feature, please submit it to the `issue tracker`_ on GitHub or discuss it
+on the `sphinx-dev`_ mailing list.
 
 For bug reports, please include the output produced during the build process
-and also the log file Sphinx creates after it encounters an un-handled
+and also the log file Sphinx creates after it encounters an unhandled
 exception.  The location of this file should be shown towards the end of the
 error message.
 
@@ -45,23 +45,24 @@ issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
 .. _`issue tracker`: https://github.com/sphinx-doc/sphinx/issues
+.. _`sphinx-dev`: mailto:sphinx-dev@googlegroups.com
 
 
 Contributing to Sphinx
 ----------------------
 
 The recommended way for new contributors to submit code to Sphinx is to fork
-the repository on Github and then submit a pull request after
+the repository on GitHub and then submit a pull request after
 committing the changes.  The pull request will then need to be approved by one
 of the core developers before it is merged into the main repository.
 
 #. Check for open issues or open a fresh issue to start a discussion around a
    feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
-#. Fork `the repository`_ on Github to start making your changes to the
-   **master** branch for next major version, or **stable** branch for next
-   minor version.
+   free to email the *sphinx-dev* mailing list.
+#. Fork `the repository`_ on GitHub to start making your changes to the
+   ``master`` branch for next major version, or ``X.Y`` branch for next
+   minor version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
@@ -78,10 +79,10 @@ Getting Started
 
 These are the basic steps needed to start developing on Sphinx.
 
-#. Create an account on Github.
+#. Create an account on GitHub.
 
 #. Fork the main Sphinx repository (`sphinx-doc/sphinx
-   <https://github.com/sphinx-doc/sphinx>`_) using the Github interface.
+   <https://github.com/sphinx-doc/sphinx>`_) using the GitHub interface.
 
 #. Clone the forked repository to your machine. ::
 
@@ -91,17 +92,22 @@ These are the basic steps needed to start developing on Sphinx.
 #. Checkout the appropriate branch.
 
    For changes that should be included in the next minor release (namely bug
-   fixes), use the ``stable`` branch. ::
+   fixes), use the ``X.Y`` branch. ::
 
-       git checkout stable
+       git checkout X.Y
 
    For new features or other substantial changes that should wait until the
-   next major release, use the ``master`` branch.
+   next major release, use the ``master`` branch  (see `Branch Model`_ for
+   detail).
 
-#. Optional: setup a virtual environment. ::
+#. Setup a virtual environment.
 
-       virtualenv ~/sphinxenv
-       . ~/sphinxenv/bin/activate
+   This is not necessary for unit testing, thanks to ``tox``, but it is
+   necessary if you wish to run ``sphinx-build`` locally or run unit tests
+   without the help of ``tox``. ::
+
+       virtualenv ~/.venv
+       . ~/.venv/bin/activate
        pip install -e .
 
 #. Create a new working branch.  Choose any name you like. ::
@@ -112,40 +118,59 @@ These are the basic steps needed to start developing on Sphinx.
 
    For tips on working with the code, see the `Coding Guide`_.
 
-#. Test, test, test.  Possible steps:
+#. Test, test, test.
 
-   * Run the unit tests::
+   Testing is best done through ``tox``, which provides a number of targets and
+   allows testing against multiple different Python environments:
 
-       pip install -r test-reqs.txt
-       make test
+   * To list all possible targets::
 
-   * Again, it's useful to turn on deprecation warnings on so they're shown in
-     the test output::
+         tox -av
 
-       PYTHONWARNINGS=all make test
+   * To run unit tests for a specific Python version, such as 3.6::
 
-   * Build the documentation and check the output for different builders::
+         tox -e py36
 
-       cd doc
-       make clean html latexpdf
+   * To run unit tests for a specific Python version and turn on deprecation
+     warnings on so they're shown in the test output::
 
-   * Run code style checks and type checks (type checks require mypy)::
+         PYTHONWARNINGS=all tox -e py36
 
-       make style-check
-       make type-check
+   * To run code style and type checks::
 
-   * Run the unit tests under different Python environments using
-     :program:`tox`::
+         tox -e mypy
+         tox -e flake8
 
-       pip install tox
-       tox -v
+   * Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
+     particular test::
 
-   * Add a new unit test in the ``tests`` directory if you can.
+       tox -e py36 tests/test_module.py::test_new_feature
+
+   * To build the documentation::
+
+         tox -e docs
+
+   * To build the documentation in multiple formats::
+
+         tox -e docs -- -b html,latexpdf
+
+   * To run JavaScript tests with `Karma <https://karma-runner.github.io>`_,
+     execute the following commands (requires `Node.js <https://nodejs.org>`_)::
+
+      npm install
+      npm run test
+
+   You can also test by installing dependencies in your local environment. ::
+
+       pip install .[test]
+
+   New unit tests should be included in the ``tests`` directory where
+   necessary:
 
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
-   * Tests that need a sphinx-build run should be integrated in one of the
+   * Tests that need a ``sphinx-build`` run should be integrated in one of the
      existing test modules if possible.  New tests that to ``@with_app`` and
      then ``build_all`` for a few assertions are not good since *the test suite
      should not take more than a minute to run*.
@@ -155,7 +180,7 @@ These are the basic steps needed to start developing on Sphinx.
 
        git commit -m '#42: Add useful new feature that does this.'
 
-   Github recognizes certain phrases that can be used to automatically
+   GitHub recognizes certain phrases that can be used to automatically
    update the issue tracker.
 
    For example::
@@ -164,12 +189,12 @@ These are the basic steps needed to start developing on Sphinx.
 
    would close issue #42.
 
-#. Push changes in the branch to your forked repository on Github. ::
+#. Push changes in the branch to your forked repository on GitHub. ::
 
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``stable``) on ``sphinx-doc/sphinx`` using the Github interface.
+   or ``X.Y``).
 
 #. Wait for a core developer to review your changes.
 
@@ -205,8 +230,8 @@ The parts of messages in Sphinx that go into builds are translated into several
 locales.  The translations are kept as gettext ``.po`` files translated from the
 master template ``sphinx/locale/sphinx.pot``.
 
-Sphinx uses `Babel <http://babel.edgewall.org>`_ to extract messages and
-maintain the catalog files.  It is integrated in ``setup.py``:
+Sphinx uses `Babel <http://babel.pocoo.org/en/latest/>`_ to extract messages
+and maintain the catalog files.  It is integrated in ``setup.py``:
 
 * Use ``python setup.py extract_messages`` to update the ``.pot`` template.
 * Use ``python setup.py update_catalog`` to update all existing language
@@ -262,7 +287,7 @@ Debugging Tips
   code by running the command ``make clean`` or using the
   :option:`sphinx-build -E` option.
 
-* Use the :option:`sphinx-build -P` option to run Pdb on exceptions.
+* Use the :option:`sphinx-build -P` option to run ``pdb`` on exceptions.
 
 * Use ``node.pformat()`` and ``node.asdom().toxml()`` to generate a printable
   representation of the document structure.
@@ -279,12 +304,30 @@ Debugging Tips
 * JavaScript stemming algorithms in ``sphinx/search/*.py`` (except ``en.py``) are
   generated by this
   `modified snowballcode generator <https://github.com/shibukawa/snowball>`_.
-  Generated `JSX <http://jsx.github.io/>`_ files are
+  Generated `JSX <https://jsx.github.io/>`_ files are
   in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
   You can get the resulting JavaScript files using the following command::
 
-     $ npm install
-     $ node_modules/.bin/grunt build # -> dest/*.global.js
+     npm install
+     node_modules/.bin/grunt build # -> dest/*.global.js
+
+
+Branch Model
+------------
+
+Sphinx project uses following branches for developing.
+
+``master``
+    Used for main development.  All improvement and refactoring, bug fixes
+    are allowed.
+
+``X.Y``
+    Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
+    stable release.  Only bug fixes and stable changes are allowed.  Only the
+    most recent stable release is currently retained. When a new version is
+    released, the old release branch will be deleted and replaced by an
+    equivalent tag.
+
 
 Deprecating a feature
 ---------------------
@@ -299,14 +342,17 @@ There are a couple reasons that code in Sphinx might be deprecated:
   no longer needs to support the older version of Python that doesn't include
   the library, the library will be deprecated in Sphinx.
 
-As the :ref:`deprecation-policy` describes,
-the first release of Sphinx that deprecates a feature (``A.B``) should raise a
-``RemovedInSphinxXXWarning`` (where XX is the Sphinx version where the feature
-will be removed) when the deprecated feature is invoked. Assuming we have good
-test coverage, these warnings are converted to errors when running the test
-suite with warnings enabled: ``python -Wall tests/run.py``. Thus, when adding
-a ``RemovedInSphinxXXWarning`` you need to eliminate or silence any warnings
-generated when running the tests.
+As the :ref:`deprecation-policy` describes, the first release of Sphinx that
+deprecates a feature (``A.B``) should raise a ``RemovedInSphinxXXWarning``
+(where ``XX`` is the Sphinx version where the feature will be removed) when the
+deprecated feature is invoked. Assuming we have good test coverage, these
+warnings are converted to errors when running the test suite with warnings
+enabled::
+
+    pytest -Wall
+
+Thus, when adding a ``RemovedInSphinxXXWarning`` you need to eliminate or
+silence any warnings generated when running the tests.
 
 .. _deprecation-policy:
 
@@ -337,3 +383,31 @@ warnings with:
 * ``PYTHONWARNINGS= make html`` (Linux/Mac)
 * ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
 * ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
+
+Unit Testing
+------------
+
+Sphinx has been tested with pytest runner. Sphinx developers write unit tests
+using pytest notation. Utility functions and pytest fixtures for testing are
+provided in ``sphinx.testing``. If you are a developer of Sphinx extensions,
+you can write unit tests with using pytest. At this time, ``sphinx.testing``
+will help your test implementation.
+
+How to use pytest fixtures that are provided by ``sphinx.testing``?
+You can require ``'sphinx.testing.fixtures'`` in your test modules or
+``conftest.py`` files like this::
+
+   pytest_plugins = 'sphinx.testing.fixtures'
+
+If you want to know more detailed usage, please refer to ``tests/conftest.py``
+and other ``test_*.py`` files under ``tests`` directory.
+
+.. note::
+
+   Prior to Sphinx - 1.5.2, Sphinx was running the test with nose.
+
+.. versionadded:: 1.6
+   ``sphinx.testing`` as a experimental.
+
+.. versionadded:: 1.8
+   Sphinx also runs JavaScript tests.

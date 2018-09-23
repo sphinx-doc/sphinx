@@ -13,25 +13,39 @@ ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 ALLIMGS = $(wildcard *.png *.gif *.jpg *.jpeg)
 
 # Prefix for archive names
-ARCHIVEPRREFIX =
-# Additional LaTeX options
-LATEXOPTS =
-# format: pdf or dvi
+ARCHIVEPREFIX =
+# Additional LaTeX options (passed via variables in latexmkrc/latexmkjarc file)
+export LATEXOPTS =
+# Additional latexmk options
+{% if latex_engine == 'xelatex' -%}
+# with latexmk version 4.52b or higher set LATEXMKOPTS to -xelatex either here
+# or on command line for faster builds.
+{% endif -%}
+LATEXMKOPTS =
+{% if xindy_use -%}
+export XINDYOPTS = {{ xindy_lang_option }} -M sphinx.xdy
+{% if latex_engine == 'pdflatex' -%}
+XINDYOPTS += -M LICRlatin2utf8.xdy
+{% if xindy_cyrillic -%}
+XINDYOPTS += -M LICRcyr2utf8.xdy
+{% endif -%}
+{% endif -%}
+{% if xindy_cyrillic -%}
+XINDYOPTS += -M LatinRules.xdy
+{% endif -%}
+# also with pdflatex as LICRlatin2utf8.xdy replaces xindy's /tex/inputenc/utf8.xdy
+XINDYOPTS += -I xelatex
+{% endif -%}
+# format: pdf or dvi (used only by archive targets)
 FMT = pdf
 
 {% if latex_engine == 'platex' -%}
 # latexmkrc is read then overridden by latexmkjarc
 LATEX = latexmk -r latexmkjarc -dvi
 PDFLATEX = latexmk -r latexmkjarc -pdfdvi -dvi- -ps-
-{% elif latex_engine == 'pdflatex' -%}
+{% else -%}
 LATEX = latexmk -dvi
 PDFLATEX = latexmk -pdf -dvi- -ps-
-{% elif latex_engine == 'lualatex' -%}
-LATEX = latexmk -lualatex
-PDFLATEX = latexmk -pdflua -dvi- -ps-
-{% elif latex_engine == 'xelatex' -%}
-LATEX = latexmk -pdfxe -dvi- -ps-
-PDFLATEX = $(LATEX)
 {% endif %}
 
 %.png %.gif %.jpg %.jpeg: FORCE_MAKE
@@ -40,11 +54,11 @@ PDFLATEX = $(LATEX)
 {% if latex_engine == 'platex' -%}
 %.dvi: %.tex $(ALLIMGS) FORCE_MAKE
 	for f in *.pdf; do extractbb "$$f"; done
-	$(LATEX) $(LATEXOPTS) '$<'
+	$(LATEX) $(LATEXMKOPTS) '$<'
 
 {% elif latex_engine != 'xelatex' -%}
 %.dvi: %.tex FORCE_MAKE
-	$(LATEX) $(LATEXOPTS) '$<'
+	$(LATEX) $(LATEXMKOPTS) '$<'
 
 {% endif -%}
 %.ps: %.dvi
@@ -56,15 +70,15 @@ PDFLATEX = $(LATEX)
 {%- else -%}
 %.pdf: %.tex FORCE_MAKE
 {%- endif %}
-	$(PDFLATEX) $(LATEXOPTS) '$<'
+	$(PDFLATEX) $(LATEXMKOPTS) '$<'
+
+all: $(ALLPDF)
 
 all-dvi: $(ALLDVI)
 
 all-ps: $(ALLPS)
 
 all-pdf: $(ALLPDF)
-
-all: $(ALLPDF)
 
 zip: all-$(FMT)
 	mkdir $(ARCHIVEPREFIX)docs-$(FMT)

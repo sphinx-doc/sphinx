@@ -5,18 +5,15 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import codecs
-
+import pytest
 from docutils import nodes
 
-from sphinx.application import ExtensionError
-from sphinx.domains import Domain
-
-from util import strip_escseq
-import pytest
+from sphinx.errors import ExtensionError
+from sphinx.testing.util import strip_escseq
+from sphinx.util import logging
 
 
 def test_events(app, status, warning):
@@ -60,38 +57,57 @@ def test_extension_in_blacklist(app, status, warning):
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
-def test_domain_override(app, status, warning):
-    class A(Domain):
-        name = 'foo'
-
-    class B(A):
-        name = 'foo'
-
-    class C(Domain):
-        name = 'foo'
-
-    # No domain know named foo.
-    with pytest.raises(ExtensionError) as excinfo:
-        app.override_domain(A)
-    assert 'domain foo not yet registered' in str(excinfo.value)
-
-    assert app.add_domain(A) is None
-    assert app.override_domain(B) is None
-    with pytest.raises(ExtensionError) as excinfo:
-        app.override_domain(C)
-    assert 'new domain not a subclass of registered foo domain' in str(excinfo.value)
-
-
 @pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
-    assert set(app.config.source_parsers.keys()) == set(['.md', '.test'])
-    assert app.config.source_parsers['.md'].__name__ == 'DummyMarkdownParser'
-    assert app.config.source_parsers['.test'].__name__ == 'TestSourceParser'
+
+    # .rst; only in :confval:`source_suffix`
+    assert '.rst' not in app.registry.get_source_parsers()
+    assert app.registry.source_suffix['.rst'] is None
+
+    # .md; configured by :confval:`source_suffix` and :confval:`source_parsers`
+    assert '.md' in app.registry.get_source_parsers()
+    assert app.registry.source_suffix['.md'] == '.md'
+    assert app.registry.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
+
+    # .test; configured by API
+    assert app.registry.source_suffix['.test'] == 'test'
+    assert 'test' in app.registry.get_source_parsers()
+    assert app.registry.get_source_parsers()['test'].__name__ == 'TestSourceParser'
 
 
-@pytest.mark.sphinx(testroot='add_source_parser-conflicts-with-users-setting')
-def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
-    assert set(app.config.source_suffix) == set(['.rst', '.test'])
-    assert set(app.config.source_parsers.keys()) == set(['.test'])
-    assert app.config.source_parsers['.test'].__name__ == 'DummyTestParser'
+@pytest.mark.sphinx(testroot='extensions')
+def test_add_is_parallel_allowed(app, status, warning):
+    logging.setup(app, status, warning)
+
+    assert app.is_parallel_allowed('read') is True
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+
+    app.setup_extension('read_parallel')
+    assert app.is_parallel_allowed('read') is True
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+    app.extensions.pop('read_parallel')
+
+    app.setup_extension('write_parallel')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is True
+    assert ("the write_parallel extension does not declare if it is safe "
+            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
+    app.extensions.pop('write_parallel')
+    warning.truncate(0)  # reset warnings
+
+    app.setup_extension('read_serial')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is True
+    assert warning.getvalue() == ''
+    app.extensions.pop('read_serial')
+
+    app.setup_extension('write_serial')
+    assert app.is_parallel_allowed('read') is False
+    assert app.is_parallel_allowed('write') is False
+    assert ("the write_serial extension does not declare if it is safe "
+            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
+    app.extensions.pop('write_serial')
+    warning.truncate(0)  # reset warnings

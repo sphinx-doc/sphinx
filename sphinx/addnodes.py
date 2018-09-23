@@ -5,18 +5,22 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
+
+from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
     from typing import List, Sequence  # NOQA
 
 
-class translatable(object):
+class translatable:
     """Node which supports translation.
 
     The translation goes forward with following steps:
@@ -47,6 +51,11 @@ class translatable(object):
         :returns: list of extracted messages or messages generator
         """
         raise NotImplementedError
+
+
+class not_smartquotable:
+    """A node which does not support smart-quotes."""
+    support_smartquotes = False
 
 
 class toctree(nodes.General, nodes.Element, translatable):
@@ -91,7 +100,7 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     """
 
 
-class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a line in a multi-line object signatures.
 
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
@@ -101,7 +110,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
 
 # nodes to use within a desc_signature or desc_signature_line
 
-class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_addname(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for additional name parts (module name, class name)."""
 
 
@@ -109,7 +118,7 @@ class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
 desc_classname = desc_addname
 
 
-class desc_type(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for return types or object type names."""
 
 
@@ -120,20 +129,20 @@ class desc_returns(desc_type):
         return ' -> ' + nodes.TextElement.astext(self)
 
 
-class desc_name(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for the main object name."""
 
 
-class desc_parameterlist(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a general parameter list."""
     child_text_separator = ', '
 
 
-class desc_parameter(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
-class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
     child_text_separator = ', '
 
@@ -142,7 +151,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
         return '[' + nodes.TextElement.astext(self) + ']'
 
 
-class desc_annotation(nodes.Part, nodes.Inline, nodes.TextElement):
+class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for signature annotations (not Python 3-style annotations)."""
 
 
@@ -174,8 +183,61 @@ class productionlist(nodes.Admonition, nodes.Element):
     """
 
 
-class production(nodes.Part, nodes.Inline, nodes.TextElement):
+class production(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single grammar production rule."""
+
+
+# math nodes
+
+
+class math(nodes.math):
+    """Node for inline equations.
+
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
+
+    .. deprecated:: 1.8
+       Use ``docutils.nodes.math`` instead.
+    """
+
+    def __getitem__(self, key):
+        """Special accessor for supporting ``node['latex']``."""
+        if key == 'latex' and 'latex' not in self.attributes:
+            warnings.warn("math node for Sphinx was replaced by docutils'. "
+                          "Therefore please use ``node.astext()`` to get an equation instead.",
+                          RemovedInSphinx30Warning)
+            return self.astext()
+        else:
+            return nodes.math.__getitem__(self, key)
+
+
+class math_block(nodes.math_block):
+    """Node for block level equations.
+
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
+
+    .. deprecated:: 1.8
+    """
+
+    def __getitem__(self, key):
+        if key == 'latex' and 'latex' not in self.attributes:
+            warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
+                          "Therefore please use ``node.astext()`` to get an equation instead.",
+                          RemovedInSphinx30Warning)
+            return self.astext()
+        else:
+            return nodes.math_block.__getitem__(self, key)
+
+
+class displaymath(math_block):
+    """Node for block level equations.
+
+    .. warning:: This node is provided to keep compatibility only.
+                 It will be removed in nearly future.  Don't use this from your extension.
+
+    .. deprecated:: 1.8
+    """
 
 
 # other directive-level nodes
@@ -266,13 +328,13 @@ class download_reference(nodes.reference):
     """Node for download references, similar to pending_xref."""
 
 
-class literal_emphasis(nodes.emphasis):
+class literal_emphasis(nodes.emphasis, not_smartquotable):
     """Node that behaves like `emphasis`, but further text processors are not
     applied (e.g. smartypants for HTML output).
     """
 
 
-class literal_strong(nodes.strong):
+class literal_strong(nodes.strong, not_smartquotable):
     """Node that behaves like `strong`, but further text processors are not
     applied (e.g. smartypants for HTML output).
     """
@@ -282,7 +344,7 @@ class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
 
 
-class manpage(nodes.Inline, nodes.TextElement):
+class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 

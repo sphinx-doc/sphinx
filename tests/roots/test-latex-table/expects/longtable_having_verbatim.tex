@@ -1,0 +1,48 @@
+\label{\detokenize{longtable:longtable-having-verbatim}}
+
+\begin{savenotes}\sphinxatlongtablestart\begin{longtable}{|*{2}{\X{1}{2}|}}
+\hline
+\sphinxstyletheadfamily 
+header1
+&\sphinxstyletheadfamily 
+header2
+\\
+\hline
+\endfirsthead
+
+\multicolumn{2}{c}%
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} -- continued from previous page}}}\\
+\hline
+\sphinxstyletheadfamily 
+header1
+&\sphinxstyletheadfamily 
+header2
+\\
+\hline
+\endhead
+
+\hline
+\multicolumn{2}{r}{\makebox[0pt][r]{\sphinxtablecontinued{Continued on next page}}}\\
+\endfoot
+
+\endlastfoot
+
+\fvset{hllines={, ,}}%
+\begin{sphinxVerbatimintable}[commandchars=\\\{\}]
+\PYG{n}{hello} \PYG{n}{world}
+\end{sphinxVerbatimintable}
+&
+cell1-2
+\\
+\hline
+cell2-1
+&
+cell2-2
+\\
+\hline
+cell3-1
+&
+cell3-2
+\\
+\hline
+\end{longtable}\sphinxatlongtableend\end{savenotes}

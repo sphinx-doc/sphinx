@@ -1,0 +1,47 @@
+\label{\detokenize{longtable:longtable-having-widths-option}}
+
+\begin{savenotes}\sphinxatlongtablestart\begin{longtable}{|\X{30}{100}|\X{70}{100}|}
+\hline\noalign{\phantomsection\label{\detokenize{longtable:namedlongtable}}\label{\detokenize{longtable:mylongtable}}}%
+\sphinxstyletheadfamily 
+header1
+&\sphinxstyletheadfamily 
+header2
+\\
+\hline
+\endfirsthead
+
+\multicolumn{2}{c}%
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} -- continued from previous page}}}\\
+\hline
+\sphinxstyletheadfamily 
+header1
+&\sphinxstyletheadfamily 
+header2
+\\
+\hline
+\endhead
+
+\hline
+\multicolumn{2}{r}{\makebox[0pt][r]{\sphinxtablecontinued{Continued on next page}}}\\
+\endfoot
+
+\endlastfoot
+
+cell1-1
+&
+cell1-2
+\\
+\hline
+cell2-1
+&
+cell2-2
+\\
+\hline
+cell3-1
+&
+cell3-2
+\\
+\hline
+\end{longtable}\sphinxatlongtableend\end{savenotes}
+
+See {\hyperref[\detokenize{longtable:mylongtable}]{\sphinxcrossref{mylongtable}}}, same as {\hyperref[\detokenize{longtable:namedlongtable}]{\sphinxcrossref{\DUrole{std,std-ref}{this one}}}}.

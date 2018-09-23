@@ -1,6 +1,6 @@
 .. _searchadapters:
 
-.. currentmodule:: sphinx.websupport.search
+.. currentmodule:: sphinxcontrib.websupport.search
 
 Search Adapters
 ===============
@@ -21,6 +21,10 @@ documentation of the :class:`BaseSearch` class below.
 
    Defines an interface for search adapters.
 
+.. versionchanged:: 1.6
+
+   BaseSearch class is moved to sphinxcontrib.websupport.search from
+   sphinx.websupport.search.
 
 BaseSearch Methods
 ~~~~~~~~~~~~~~~~~~

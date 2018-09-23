@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -36,7 +36,7 @@ def _is_single_paragraph(node):
     return False
 
 
-class Field(object):
+class Field:
     """A doc field that is never grouped.  It can have an argument or not, the
     argument can be linked using a specified *rolename*.  Field should be used
     for doc fields that usually don't occur more than once.
@@ -235,7 +235,7 @@ class TypedField(GroupedField):
         return nodes.field('', fieldname, fieldbody)
 
 
-class DocFieldTransformer(object):
+class DocFieldTransformer:
     """
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
@@ -288,6 +288,12 @@ class DocFieldTransformer(object):
                 fieldtype, fieldarg = fieldname.astext(), ''
             typedesc, is_typefield = typemap.get(fieldtype, (None, None))
 
+            # collect the content, trying not to keep unnecessary paragraphs
+            if _is_single_paragraph(fieldbody):
+                content = fieldbody.children[0].children
+            else:
+                content = fieldbody.children
+
             # sort out unknown fields
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
@@ -297,15 +303,28 @@ class DocFieldTransformer(object):
                     new_fieldname += ' ' + fieldarg
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
+
+                # but if this has a type then we can at least link it
+                if (typedesc and is_typefield and content and
+                        len(content) == 1 and isinstance(content[0], nodes.Text)):
+                    target = content[0].astext()
+                    xrefs = typedesc.make_xrefs(
+                        typedesc.typerolename,
+                        self.directive.domain,
+                        target,
+                        contnode=content[0],
+                    )
+                    if _is_single_paragraph(fieldbody):
+                        fieldbody.children[0].clear()
+                        fieldbody.children[0].extend(xrefs)
+                    else:
+                        fieldbody.clear()
+                        fieldbody += nodes.paragraph()
+                        fieldbody[0].extend(xrefs)
+
                 continue
 
             typename = typedesc.name
-
-            # collect the content, trying not to keep unnecessary paragraphs
-            if _is_single_paragraph(fieldbody):
-                content = fieldbody.children[0].children
-            else:
-                content = fieldbody.children
 
             # if the field specifies a type, put it in the types collection
             if is_typefield:
@@ -359,7 +378,8 @@ class DocFieldTransformer(object):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
+                env = self.directive.state.document.settings.env
                 new_list += fieldtype.make_field(fieldtypes, self.directive.domain,
-                                                 content, env=self.directive.env)
+                                                 content, env=env)
 
         node.replace_self(new_list)

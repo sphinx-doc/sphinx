@@ -1,0 +1,7 @@
+Extension API tests
+===================
+
+Testing directives:
+
+.. clsdir::
+   :opt: Bar

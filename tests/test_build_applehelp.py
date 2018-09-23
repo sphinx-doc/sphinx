@@ -7,14 +7,15 @@
     test the HTML itself; that's already handled by
     :file:`test_build_html.py`.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import plistlib
 
 import pytest
-from path import path
+
+from sphinx.testing.path import path
 
 # Use plistlib.load in 3.4 and above
 try:

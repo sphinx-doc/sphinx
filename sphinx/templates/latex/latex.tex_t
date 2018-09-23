@@ -13,7 +13,13 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
+<% if use_xindy -%>
+%% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
+%% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility
+\PassOptionsToPackage{hyperindex=false}{hyperref}
+<% endif -%>
 <%= passoptionstopackages %>
+\PassOptionsToPackage{warn}{textcomp}
 <%= inputenc %>
 <%= utf8extra %>
 <%= cmappkg %>
@@ -24,21 +30,13 @@
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
+<%= fvset %>
 <%= geometry %>
-\usepackage{multirow}
-\let\originalmutirow\multirow\protected\def\multirow{%
-  \sphinxdeprecationwarning{\multirow}{1.6}{1.7}
-  {Sphinx does not use package multirow. Its loading will be removed at 1.7.}%
-  \originalmultirow}%
-\usepackage{eqparbox}
-\let\originaleqparbox\eqparbox\protected\def\eqparbox{%
-  \sphinxdeprecationwarning{\eqparbox}{1.6}{1.7}
-  {Sphinx does not use package eqparbox. Its loading will be removed at 1.7.}%
-  \originaleqparbox}%
 <%= usepackages %>
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>
+<%= translatablestrings %>
 <%= pageautorefname %>
 <%= tocdepth %>
 <%= secnumdepth %>
@@ -51,6 +49,13 @@
 \newcommand{\sphinxlogo}{<%= logo %>}
 \renewcommand{\releasename}{<%= releasename %>}
 <%= makeindex %>
+\begin{document}
+<%= shorthandoff %>
+\pagestyle{empty}
+<%= maketitle %>
+\pagestyle{plain}
+<%= tableofcontents %>
+\pagestyle{normal}
 <%= body %>
 <%= atendofbody %>
 <%= indices %>

@@ -1,6 +1,6 @@
 .. _websupportapi:
 
-.. currentmodule:: sphinx.websupport
+.. currentmodule:: sphinxcontrib.websupport
 
 The WebSupport Class
 ====================
@@ -40,26 +40,41 @@ The WebSupport Class
        comment that was added.
 
    staticdir
-       If static files are served from a location besides ``'/static'``, this
-       should be a string with the name of that location
-       (e.g. ``'/static_files'``).
+       If the static files should be created in a different location
+       **and not in** ``'/static'``, this should be a string with the name of
+       that location (e.g. ``builddir + '/static_files'``).
+
+       .. note::
+           If you specify ``staticdir``, you will typically want to adjust
+           ``staticroot`` accordingly.
+
+   staticroot
+       If the static files are not served from ``'/static'``, this should be a
+       string with the name of that location (e.g. ``'/static_files'``).
 
    docroot
        If the documentation is not served from the base path of a URL, this
        should be a string specifying that path (e.g. ``'docs'``).
 
 
+.. versionchanged:: 1.6
+
+   WebSupport class is moved to sphinxcontrib.websupport from sphinx.websupport.
+   Please add ``sphinxcontrib-websupport`` package in your dependency and use
+   moved class instead.
+
+
 Methods
 ~~~~~~~
 
-.. automethod:: sphinx.websupport.WebSupport.build
+.. automethod:: sphinxcontrib.websupport.WebSupport.build
 
-.. automethod:: sphinx.websupport.WebSupport.get_document
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_document
 
-.. automethod:: sphinx.websupport.WebSupport.get_data
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_data
 
-.. automethod:: sphinx.websupport.WebSupport.add_comment
+.. automethod:: sphinxcontrib.websupport.WebSupport.add_comment
 
-.. automethod:: sphinx.websupport.WebSupport.process_vote
+.. automethod:: sphinxcontrib.websupport.WebSupport.process_vote
 
-.. automethod:: sphinx.websupport.WebSupport.get_search_results
+.. automethod:: sphinxcontrib.websupport.WebSupport.get_search_results

@@ -10,9 +10,10 @@ How do I...
 -----------
 
 ... create PDF files without LaTeX?
-   You can use `rst2pdf <https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or
-   greater which comes with built-in Sphinx integration.  See the
-   :ref:`builders` section for details.
+   `rinohtype`_ provides a PDF builder that can be used as a drop-in
+   replacement for the LaTeX builder.
+
+   .. _rinohtype: https://github.com/brechtm/rinohtype
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
@@ -22,7 +23,7 @@ How do I...
    Use themes, see :doc:`theming`.
 
 ... add global substitutions or includes?
-   Add them in the :confval:`rst_epilog` config value.
+   Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
 
 ... display the whole TOC tree in the sidebar?
    Use the :data:`toctree` callable in a custom layout template, probably in the
@@ -54,7 +55,7 @@ Read the Docs
     Sphinx. They will host sphinx documentation, along with supporting a number
     of other features including version support, PDF generation, and more. The
     `Getting Started
-    <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
+    <https://read-the-docs.readthedocs.io/en/latest/getting_started.html>`_
     guide is a good place to start.
 
 Epydoc
@@ -71,9 +72,9 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   <https://pypi.org/project/Sphinx-PyPI-upload/>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
-   http://pythonhosted.org/.
+   https://pythonhosted.org/.
 
 GitHub Pages
    Directories starting with underscores are ignored by default which breaks
@@ -102,7 +103,7 @@ Google Analytics
 
       {% block footer %}
       {{ super() }}
-      <div class="footer">This page uses <a href="http://analytics.google.com/">
+      <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
       <script type="text/javascript">
@@ -118,7 +119,7 @@ Google Analytics
       {% endblock %}
 
 
-.. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
+.. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 
 
@@ -140,7 +141,7 @@ The following list gives some hints for the creation of epub files:
   are often cut at the right margin.  The default Courier font (or variant) is
   quite wide and you can only display up to 60 characters on a line.  If you
   replace it with a narrower font, you can get more characters on a line.  You
-  may even use `FontForge <http://fontforge.github.io/>`_ and create
+  may even use `FontForge <https://fontforge.github.io/>`_ and create
   narrow variants of some free font.  In my case I get up to 70 characters on a
   line.
 
@@ -148,7 +149,7 @@ The following list gives some hints for the creation of epub files:
 
 * Test the created epubs. You can use several alternatives.  The ones I am aware
   of are Epubcheck_, Calibre_, FBreader_ (although it does not render the CSS),
-  and Bookworm_.  For bookworm you can download the source from
+  and Bookworm_.  For Bookworm, you can download the source from
   https://code.google.com/archive/p/threepress and run your own local server.
 
 * Large floating divs are not displayed properly.
@@ -176,7 +177,7 @@ The following list gives some hints for the creation of epub files:
      $ make epub
      $ kindlegen _build/epub/yourdoc.epub
 
-  kindlegen commands doesn't accept documents that have section
+  The kindlegen command doesn't accept documents that have section
   titles surrounding ``toctree`` directive:
 
   .. code-block:: rst
@@ -191,18 +192,18 @@ The following list gives some hints for the creation of epub files:
      Section After Toc Tree
      ======================
 
-  kindlegen assumes all documents order in line, but resulting document
-  has complecated order for kindlegen::
+  kindlegen assumes all documents order in line, but the resulting document
+  has complicated order for kindlegen::
 
      ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
 
-  If you got the following error, fix document structure::
+  If you get the following error, fix your document structure::
 
      Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
      Error(prcgen):E24001: The table of content could not be built.
 
 .. _Epubcheck: https://github.com/IDPF/epubcheck
-.. _Calibre: http://calibre-ebook.com/
+.. _Calibre: https://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
 .. _Bookworm: http://www.oreilly.com/bookworm/index.html
 .. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
@@ -239,7 +240,7 @@ The exact behavior of how Emacs displays references is dependent on the variable
 both the ``*note:`` part and the ``target-id``.  This is generally the best way
 to view Sphinx-based documents since they often make frequent use of links and
 do not take this limitation into account.  However, changing this variable
-affects how all Info documents are displayed and most due take this behavior
+affects how all Info documents are displayed and most do take this behavior
 into account.
 
 If you want Emacs to display Info files produced by Sphinx using the value

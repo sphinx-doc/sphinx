@@ -6,13 +6,11 @@
     Support for domains, which are groupings of description directives
     and roles describing e.g. constructs of one programming language.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import copy
-
-from six import iteritems
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -28,7 +26,7 @@ if False:
     from sphinx.util.typing import RoleFunction  # NOQA
 
 
-class ObjType(object):
+class ObjType:
     """
     An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
@@ -55,7 +53,7 @@ class ObjType(object):
         self.attrs.update(attrs)
 
 
-class Index(object):
+class Index:
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -113,7 +111,7 @@ class Index(object):
         raise NotImplementedError
 
 
-class Domain(object):
+class Domain:
     """
     A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
@@ -141,7 +139,7 @@ class Domain(object):
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types = {}       # type: Dict[unicode, Any]
+    object_types = {}       # type: Dict[unicode, ObjType]
     #: directive name -> directive class
     directives = {}         # type: Dict[unicode, Any]
     #: role name -> role callable
@@ -150,6 +148,8 @@ class Domain(object):
     indices = []            # type: List[Type[Index]]
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[unicode, unicode]
+    #: node_class -> (enum_node_type, title_getter)
+    enumerable_nodes = {}   # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -161,6 +161,17 @@ class Domain(object):
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env              # type: BuildEnvironment
+        self._role_cache = {}       # type: Dict[unicode, Callable]
+        self._directive_cache = {}  # type: Dict[unicode, Callable]
+        self._role2type = {}        # type: Dict[unicode, List[unicode]]
+        self._type2role = {}        # type: Dict[unicode, unicode]
+
+        # convert class variables to instance one (to enhance through API)
+        self.object_types = dict(self.object_types)
+        self.directives = dict(self.directives)
+        self.roles = dict(self.roles)
+        self.indices = list(self.indices)
+
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
@@ -170,16 +181,24 @@ class Domain(object):
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
-        self._role_cache = {}       # type: Dict[unicode, Callable]
-        self._directive_cache = {}  # type: Dict[unicode, Callable]
-        self._role2type = {}        # type: Dict[unicode, List[unicode]]
-        self._type2role = {}        # type: Dict[unicode, unicode]
-        for name, obj in iteritems(self.object_types):
+        for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''
         self.objtypes_for_role = self._role2type.get    # type: Callable[[unicode], List[unicode]]  # NOQA
         self.role_for_objtype = self._type2role.get     # type: Callable[[unicode], unicode]
+
+    def add_object_type(self, name, objtype):
+        # type: (unicode, ObjType) -> None
+        """Add an object type."""
+        self.object_types[name] = objtype
+        if objtype.roles:
+            self._type2role[name] = objtype.roles[0]
+        else:
+            self._type2role[name] = ''
+
+        for role in objtype.roles:
+            self._role2type.setdefault(role, []).append(name)
 
     def role(self, name):
         # type: (unicode) -> Callable
@@ -240,6 +259,11 @@ class Domain(object):
         """Process a document after it is read by the environment."""
         pass
 
+    def check_consistency(self):
+        # type: () -> None
+        """Do consistency checks (**experimental**)."""
+        pass
+
     def process_field_xref(self, pnode):
         # type: (nodes.Node) -> None
         """Process a pending xref created in a doc field.
@@ -257,11 +281,11 @@ class Domain(object):
         cross-reference.
 
         If no resolution can be found, None can be returned; the xref node will
-        then given to the 'missing-reference' event, and if that yields no
+        then given to the :event:`missing-reference` event, and if that yields no
         resolution, replaced by *contnode*.
 
         The method can also raise :exc:`sphinx.environment.NoUri` to suppress
-        the 'missing-reference' event being emitted.
+        the :event:`missing-reference` event being emitted.
         """
         pass
 
@@ -308,3 +332,14 @@ class Domain(object):
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
+
+    def get_enumerable_node_type(self, node):
+        # type: (nodes.Node) -> unicode
+        """Get type of enumerable nodes (experimental)."""
+        enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
+        return enum_node_type
+
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        """Return full qualified name for given node."""
+        return None

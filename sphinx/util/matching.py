@@ -5,7 +5,7 @@
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -68,7 +68,7 @@ def compile_matchers(patterns):
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
-class Matcher(object):
+class Matcher:
     """A pattern matcher for Multiple shell-style glob patterns.
 
     Note: this modifies the patterns to work with copy_asset().
@@ -96,7 +96,7 @@ _pat_cache = {}  # type: Dict[unicode, Pattern]
 
 
 def patmatch(name, pat):
-    # type: (unicode, unicode) -> re.Match
+    # type: (unicode, unicode) -> Match[unicode]
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))

@@ -18,9 +18,12 @@ longtable
 longtable having :widths: option
 --------------------------------
 
+.. _mylongtable:
+
 .. table::
    :class: longtable
    :widths: 30,70
+   :name: namedlongtable
 
    ======= =======
    header1 header2
@@ -29,6 +32,8 @@ longtable having :widths: option
    cell2-1 cell2-2
    cell3-1 cell3-2
    ======= =======
+
+See mylongtable_, same as :ref:`this one <namedlongtable>`.
 
 longtable having :align: option
 -------------------------------
@@ -130,3 +135,22 @@ longtable having problematic cell
      - cell2-2
    * - cell3-1
      - cell3-2
+
+longtable having both stub columns and problematic cell
+-------------------------------------------------------
+
+.. list-table::
+   :class: longtable
+   :header-rows: 1
+   :stub-columns: 2
+
+   * - header1
+     - header2
+     - header3
+   * - + instub1-1a
+       + instub1-1b
+     - instub1-2
+     - notinstub1-3
+   * - cell2-1
+     - cell2-2
+     - cell2-3

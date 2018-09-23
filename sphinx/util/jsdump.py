@@ -6,13 +6,13 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from six import iteritems, integer_types, string_types
+from six import integer_types, string_types
 
 from sphinx.util.pycompat import u
 
@@ -102,7 +102,7 @@ def dumps(obj, key=False):
         return '{%s}' % ','.join(sorted('%s:%s' % (
             dumps(key, True),
             dumps(value)
-        ) for key, value in iteritems(obj)))
+        ) for key, value in obj.items()))
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):

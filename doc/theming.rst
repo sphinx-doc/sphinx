@@ -1,4 +1,4 @@
-.. highlightlang:: python
+.. highlight:: python
 
 HTML theming support
 ====================
@@ -46,34 +46,16 @@ file :file:`blue.zip`, you can put it right in the directory containing
     html_theme = "blue"
     html_theme_path = ["."]
 
-The third form provides your theme path dynamically to Sphinx if the
-``setuptools`` package is installed.  You can provide an entry point section
-called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
-that has to return the directory with themes in it::
+The third form is a python package.  If a theme you want to use is distributed
+as a python package, you can use it after installing
 
-    # 'setup.py'
+.. code-block:: bash
 
-    setup(
-        ...
-        entry_points = {
-            'sphinx_themes': [
-                'path = your_package:get_path',
-            ]
-        },
-        ...
-    )
+    # installing theme package
+    $ pip install sphinxjp.themes.dotted
 
-    # 'your_package.py'
-
-    from os import path
-    package_dir = path.abspath(path.dirname(__file__))
-    template_path = path.join(package_dir, 'themes')
-
-    def get_path():
-        return template_path
-
-.. versionadded:: 1.2
-   'sphinx_themes' entry_points feature.
+    # use it in your conf.py
+    html_theme = "dotted"
 
 
 .. _builtin-themes:
@@ -132,15 +114,28 @@ These themes are:
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
     ``False``.
 
-  - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
-    include ``px`` in the value.)  Defaults to 230 pixels.
+  - **sidebarwidth** (int or str): Width of the sidebar in pixels.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'.  Defaults to 230 pixels.
+
+  - **body_min_width** (int or str): Minimal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 0 if you don't want
+    a width limit. Defaults may depend on the theme (often 450px).
+
+  - **body_max_width** (int or str): Maximal width of the document body.
+    This can be an int, which is interpreted as pixels or a valid CSS
+    dimension string such as '70em' or '50%'. Use 'none' if you don't
+    want a width limit. Defaults may depend on the theme (often 800px).
 
 * **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
   (especially as used in his Requests project), which was itself originally based on
-  @mitsuhiko's theme used for Flask & related projects. You can get options information
-  at `Alabaster theme`_ page.
+  @mitsuhiko's theme used for Flask & related projects.
+  Check out at its `installation page`_ how to set up properly
+  :confval:`html_sidebars` for its use.
 
-  .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
+  .. _Alabaster theme: https://pypi.org/project/alabaster/
+  .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via
@@ -155,7 +150,7 @@ These themes are:
 
   - **collapsiblesidebar** (true or false): Add an *experimental* JavaScript
     snippet that makes the sidebar collapsible via a button on its side.
-    *Doesn't work with "stickysidebar".* Defaults to ``False``.
+    Defaults to ``False``.
 
   - **externalrefs** (true or false): Display external links differently from
     internal links.  Defaults to ``False``.
@@ -187,9 +182,15 @@ These themes are:
   - **bodyfont** (CSS font-family): Font for normal text.
   - **headfont** (CSS font-family): Font for headings.
 
-* **sphinxdoc** -- The theme used for this documentation.  It features a sidebar
-  on the right side.  There are currently no options beyond *nosidebar* and
-  *sidebarwidth*.
+* **sphinxdoc** -- The theme originally used by this documentation. It features
+  a sidebar on the right side. There are currently no options beyond
+  *nosidebar* and *sidebarwidth*.
+
+  .. note::
+
+    The Sphinx documentation now uses
+    `an adjusted version of the sphinxdoc theme
+    <https://github.com/sphinx-doc/sphinx/tree/master/doc/_themes/sphinx13>`_.
 
 * **scrolls** -- A more lightweight theme, based on `the Jinja documentation
   <http://jinja.pocoo.org/>`_.  The following color options are available:
@@ -286,6 +287,7 @@ Python :mod:`ConfigParser` module) and has the following structure:
     inherit = base theme
     stylesheet = main CSS name
     pygments_style = stylename
+    sidebars = localtoc.html, relations.html, sourcelink.html, searchbox.html
 
     [options]
     variable = default value
@@ -305,10 +307,58 @@ Python :mod:`ConfigParser` module) and has the following structure:
   highlighting.  This can be overridden by the user in the
   :confval:`pygments_style` config value.
 
+* The **sidebars** setting gives the comma separated list of sidebar templates
+  for constructing sidebars.  This can be overridden by the user in the
+  :confval:`html_sidebars` config value.
+
 * The **options** section contains pairs of variable names and default values.
   These options can be overridden by the user in :confval:`html_theme_options`
   and are accessible from all templates as ``theme_<name>``.
 
+.. versionadded:: 1.7
+   sidebar settings
+
+.. _distribute-your-theme:
+
+Distribute your theme as a python package
+-----------------------------------------
+
+As a way to distribute your theme, you can use python package.  Python package
+brings to users easy setting up ways.
+
+To distribute your theme as a python package, please define an entry point
+called ``sphinx.html_themes`` in your setup.py file, and write a ``setup()``
+function to register your themes using ``add_html_theme()`` API in it::
+
+    # 'setup.py'
+    setup(
+        ...
+        entry_points = {
+            'sphinx.html_themes': [
+                'name_of_theme = your_package',
+            ]
+        },
+        ...
+    )
+
+    # 'your_package.py'
+    from os import path
+
+    def setup(app):
+        app.add_html_theme('name_of_theme', path.abspath(path.dirname(__file__)))
+
+
+If your theme package contains two or more themes, please call ``add_html_theme()``
+twice or more.
+
+.. versionadded:: 1.2
+   'sphinx_themes' entry_points feature.
+
+.. deprecated:: 1.6
+   ``sphinx_themes`` entry_points has been deprecated.
+
+.. versionadded:: 1.6
+   ``sphinx.html_themes`` entry_points feature.
 
 Templating
 ~~~~~~~~~~
@@ -368,7 +418,15 @@ Third Party Themes
   View a working demo over on readthedocs.org. You can get install and options
   information at `Read the Docs Sphinx Theme`_ page.
 
-  .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
+  .. _Read the Docs Sphinx Theme: https://pypi.org/project/sphinx_rtd_theme/
 
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.
+
+
+Besides this, there are a lot of third party themes.  You can find them on
+PyPI__, GitHub__, sphinx-themes.org__ and so on.
+
+.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
+.. __: https://sphinx-themes.org/

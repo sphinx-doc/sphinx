@@ -9,4 +9,3 @@ exclude_patterns = ['_build']
 
 extensions = ['sphinx.ext.autosummary']
 autosummary_generate = ['autosummary_templating']
-

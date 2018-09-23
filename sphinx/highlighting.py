@@ -5,27 +5,30 @@
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
+from pygments import highlight
+from pygments.filters import ErrorToken
+from pygments.formatters import HtmlFormatter, LatexFormatter
+from pygments.lexer import Lexer  # NOQA
+from pygments.lexers import get_lexer_by_name, guess_lexer
+from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
+    CLexer, TextLexer, RstLexer
+from pygments.styles import get_style_by_name
+from pygments.util import ClassNotFound
 from six import text_type
 
+from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.ext import doctest
+from sphinx.locale import __
+from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
-from sphinx.ext import doctest
-
-from pygments import highlight
-from pygments.lexer import Lexer  # NOQA
-from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
-    CLexer, TextLexer, RstLexer
-from pygments.lexers import get_lexer_by_name, guess_lexer
-from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.filters import ErrorToken
-from pygments.styles import get_style_by_name
-from pygments.util import ClassNotFound
-from sphinx.pygments_styles import SphinxStyle, NoneStyle
 
 if False:
     # For type annotation
@@ -59,13 +62,13 @@ _LATEX_ADD_STYLES = r'''
 '''
 
 
-class PygmentsBridge(object):
+class PygmentsBridge:
     # Set these attributes if you want to have different Pygments formatters
     # than the default ones.
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=False):
+    def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
         # type: (unicode, unicode, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
@@ -78,13 +81,17 @@ class PygmentsBridge(object):
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.trim_doctest_flags = trim_doctest_flags
         self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
+
+        self.trim_doctest_flags = trim_doctest_flags
+        if trim_doctest_flags is not None:
+            warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
+                          RemovedInSphinx30Warning)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
@@ -93,6 +100,8 @@ class PygmentsBridge(object):
 
     def unhighlighted(self, source):
         # type: (unicode) -> unicode
+        warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
+                      RemovedInSphinx30Warning)
         if self.dest == 'html':
             return '<pre>' + htmlescape(source) + '</pre>\n'
         else:
@@ -132,7 +141,7 @@ class PygmentsBridge(object):
                 try:
                     lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
                 except ClassNotFound:
-                    logger.warning('Pygments lexer name %r is not known', lang,
+                    logger.warning(__('Pygments lexer name %r is not known'), lang,
                                    location=location)
                     lexer = lexers['none']
                 else:
@@ -153,16 +162,14 @@ class PygmentsBridge(object):
             if lang == 'default':
                 pass  # automatic highlighting failed.
             else:
-                logger.warning('Could not lex literal_block as "%s". '
-                               'Highlighting skipped.', lang,
+                logger.warning(__('Could not lex literal_block as "%s". '
+                                  'Highlighting skipped.'), lang,
                                type='misc', subtype='highlighting_failure',
                                location=location)
             hlsource = highlight(source, lexers['none'], formatter)
         if self.dest == 'html':
             return hlsource
         else:
-            if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
-                hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):

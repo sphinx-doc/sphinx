@@ -5,16 +5,18 @@
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
+from docutils import nodes
+from mock import Mock
 from six import text_type
-from sphinx import addnodes
-from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist
 
-from util import assert_node
+from sphinx import addnodes
+from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
+from sphinx.testing.util import assert_node
 
 
 def parse(sig):
@@ -28,7 +30,6 @@ def parse(sig):
 
 
 def test_function_signatures():
-
     rv = parse('func(a=1) -> int object')
     assert text_type(rv) == u'a=1'
 
@@ -107,7 +108,24 @@ def test_domain_py_xrefs(app, status, warning):
                    'ModTopLevel', 'class')
     assert_refnode(refnodes[6], 'module_b.submodule', 'ModTopLevel',
                    'ModNoModule', 'class')
-    assert len(refnodes) == 7
+    assert_refnode(refnodes[7], False, False, 'int', 'class')
+    assert_refnode(refnodes[8], False, False, 'tuple', 'class')
+    assert_refnode(refnodes[9], False, False, 'str', 'class')
+    assert_refnode(refnodes[10], False, False, 'float', 'class')
+    assert_refnode(refnodes[11], False, False, 'list', 'class')
+    assert_refnode(refnodes[11], False, False, 'list', 'class')
+    assert_refnode(refnodes[12], False, False, 'ModTopLevel', 'class')
+    assert_refnode(refnodes[13], False, False, 'index', 'doc', domain='std')
+    assert len(refnodes) == 14
+
+    doctree = app.env.get_doctree('module_option')
+    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    print(refnodes)
+    print(refnodes[0])
+    print(refnodes[1])
+    assert_refnode(refnodes[0], 'test.extra', 'B', 'foo', 'meth')
+    assert_refnode(refnodes[1], 'test.extra', 'B', 'foo', 'meth')
+    assert len(refnodes) == 2
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -165,3 +183,31 @@ def test_domain_py_find_obj(app, status, warning):
             [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
     assert (find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'meth') ==
             [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
+
+
+def test_get_full_qualified_name():
+    env = Mock(domaindata={})
+    domain = PythonDomain(env)
+
+    # non-python references
+    node = nodes.reference()
+    assert domain.get_full_qualified_name(node) is None
+
+    # simple reference
+    node = nodes.reference(reftarget='func')
+    assert domain.get_full_qualified_name(node) == 'func'
+
+    # with py:module context
+    kwargs = {'py:module': 'module1'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.func'
+
+    # with py:class context
+    kwargs = {'py:class': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'Class.func'
+
+    # with both py:module and py:class context
+    kwargs = {'py:module': 'module1', 'py:class': 'Class'}
+    node = nodes.reference(reftarget='func', **kwargs)
+    assert domain.get_full_qualified_name(node) == 'module1.Class.func'

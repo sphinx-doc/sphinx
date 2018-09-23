@@ -19,10 +19,6 @@ Build environment API
 
       Source directory.
 
-   .. attribute:: confdir
-
-      Directory containing ``conf.py``.
-
    .. attribute:: doctreedir
 
       Directory for storing pickled doctrees.
@@ -42,10 +38,6 @@ Build environment API
    .. autoattribute:: docname
 
    **Utility methods**
-
-   .. automethod:: warn
-
-   .. automethod:: warn_node
 
    .. automethod:: doc2path
 

@@ -5,24 +5,24 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from collections import namedtuple
 
-from six import BytesIO
+import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
+from six import BytesIO
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
-import pytest
 
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
 
-class DummyDomain(object):
+class DummyDomain:
     def __init__(self, data):
         self.data = data
         self.object_types = {}
@@ -161,7 +161,7 @@ def test_IndexBuilder():
         'docnames': ('docname', 'docname2'),
         'envversion': '1.0',
         'filenames': ['filename', 'filename2'],
-        'objects': {'': {'objname': (0, 0, 1, '#anchor')}},
+        'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
         'terms': {'comment': [0, 1],
@@ -228,3 +228,15 @@ def test_IndexBuilder():
     }
     assert index._objtypes == {('dummy', 'objtype'): 0}
     assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+
+def test_IndexBuilder_lookup():
+    env = DummyEnvironment('1.0', {})
+
+    # zh
+    index = IndexBuilder(env, 'zh', {}, None)
+    assert index.lang.lang == 'zh'
+
+    # zh_CN
+    index = IndexBuilder(env, 'zh_CN', {}, None)
+    assert index.lang.lang == 'zh'

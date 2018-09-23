@@ -5,19 +5,18 @@
 
     Tests util functions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 from mock import patch
 
-from sphinx.util import logging
+from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator
+    display_chunk, encode_uri, parselinenos, status_iterator, xmlname_checker
 )
-
-from util import strip_escseq
+from sphinx.util import logging
 
 
 def test_encode_uri():
@@ -33,28 +32,6 @@ def test_encode_uri():
     uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
            u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
     assert expected, encode_uri(uri)
-
-
-def test_splitdocinfo():
-    source = "Hello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ''
-    assert content == 'Hello world.\n'
-
-    source = ":orphan:\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ':orphan:\n'
-    assert content == '\nHello world.\n'
-
-    source = ":author: Georg Brandl\n:title: Manual of Sphinx\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ':author: Georg Brandl\n:title: Manual of Sphinx\n'
-    assert content == '\nHello world.\n'
-
-    source = ":multiline: one\n\ttwo\n\tthree\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ":multiline: one\n\ttwo\n\tthree\n"
-    assert content == '\nHello world.\n'
 
 
 def test_display_chunk():
@@ -115,3 +92,10 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+
+
+def test_xmlname_check():
+    checker = xmlname_checker()
+    assert checker.match('id-pub')
+    assert checker.match('webpage')
+    assert not checker.match('1bfda21')

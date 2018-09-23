@@ -5,21 +5,59 @@
 
     Sphinx deprecation classes and utilities.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 
-class RemovedInSphinx17Warning(DeprecationWarning):
+if False:
+    # For type annotation
+    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
+    from typing import Any, Dict, Type  # NOQA
+
+
+class RemovedInSphinx30Warning(PendingDeprecationWarning):
     pass
 
 
-class RemovedInSphinx18Warning(PendingDeprecationWarning):
+class RemovedInSphinx40Warning(PendingDeprecationWarning):
     pass
 
 
-class RemovedInSphinx20Warning(PendingDeprecationWarning):
-    pass
+RemovedInNextVersionWarning = RemovedInSphinx30Warning
 
 
-RemovedInNextVersionWarning = RemovedInSphinx17Warning
+class DeprecatedDict(dict):
+    """A deprecated dict which warns on each access."""
+
+    def __init__(self, data, message, warning):
+        # type: (Dict, str, Type[Warning]) -> None
+        self.message = message
+        self.warning = warning
+        super(DeprecatedDict, self).__init__(data)
+
+    def __setitem__(self, key, value):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        super(DeprecatedDict, self).__setitem__(key, value)
+
+    def setdefault(self, key, default=None):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).setdefault(key, default)
+
+    def __getitem__(self, key):
+        # type: (unicode) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).__getitem__(key)
+
+    def get(self, key, default=None):
+        # type: (unicode, Any) -> None
+        warnings.warn(self.message, self.warning)
+        return super(DeprecatedDict, self).get(key, default)
+
+    def update(self, other=None):  # type: ignore
+        # type: (Dict) -> None
+        warnings.warn(self.message, self.warning)
+        super(DeprecatedDict, self).update(other)

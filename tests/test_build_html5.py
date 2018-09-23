@@ -10,24 +10,19 @@
 
     https://github.com/sphinx-doc/sphinx/pull/2805/files
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
-from itertools import cycle, chain
 import xml.etree.cElementTree as ElementTree
+from hashlib import md5
 
-from six import PY3
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
-
-from sphinx import __display_version__
-from sphinx.util.docutils import is_html5_writer_available
-
-from util import remove_unicode_literals, strip_escseq, skip_unless
 from test_build_html import flat_dict, tail_check, check_xpath
+
+from sphinx.util.docutils import is_html5_writer_available
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
@@ -35,7 +30,8 @@ HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 etree_cache = {}
 
-@skip_unless(is_html5_writer_available())
+
+@pytest.mark.skipif(not is_html5_writer_available(), reason='HTML5 writer is not available')
 @pytest.fixture(scope='module')
 def cached_etree_parse():
     def parse(fname):
@@ -50,7 +46,7 @@ def cached_etree_parse():
     etree_cache.clear()
 
 
-@skip_unless(is_html5_writer_available())
+@pytest.mark.skipif(not is_html5_writer_available(), reason='HTML5 writer is not available')
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
@@ -64,7 +60,7 @@ def cached_etree_parse():
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
-        (".//a[@href='../_downloads/img.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//img[@src='../_images/img.png']", ''),
         (".//p", 'This is an include file.'),
         (".//pre/span", 'line 1'),
@@ -72,35 +68,33 @@ def cached_etree_parse():
     ],
     'includes.html': [
         (".//pre", u'Max Strauß'),
-        (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
-        (".//div[@class='inc-pyobj1 highlight-text']//pre",
+        (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
-        (".//div[@class='inc-pyobj2 highlight-text']//pre",
+        (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
          r'^    def baz\(\):\n        pass\n\s*$'),
-        (".//div[@class='inc-lines highlight-text']//pre",
+        (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
-        (".//div[@class='inc-startend highlight-text']//pre",
+        (".//div[@class='inc-startend highlight-text notranslate']//pre",
          u'^foo = "Including Unicode characters: üöä"\\n$'),
-        (".//div[@class='inc-preappend highlight-text']//pre",
+        (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
-        (".//div[@class='inc-pyobj-dedent highlight-python']//span",
+        (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
          r'def'),
-        (".//div[@class='inc-tab3 highlight-text']//pre",
+        (".//div[@class='inc-tab3 highlight-text notranslate']//pre",
          r'-| |-'),
-        (".//div[@class='inc-tab8 highlight-python']//pre/span",
+        (".//div[@class='inc-tab8 highlight-python notranslate']//pre/span",
          r'-|      |-'),
     ],
     'autodoc.html': [
-        (".//dt[@id='test_autodoc.Class']", ''),
-        (".//dt[@id='test_autodoc.function']/em", r'\*\*kwds'),
+        (".//dt[@id='autodoc_target.Class']", ''),
+        (".//dt[@id='autodoc_target.function']/em", r'\*\*kwds'),
         (".//dd/p", r'Return spam\.'),
     ],
     'extapi.html': [
-        (".//strong", 'from function: Foo'),
         (".//strong", 'from class: Bar'),
     ],
     'markup.html': [
@@ -124,7 +118,7 @@ def cached_etree_parse():
         (".//li/p/strong", r'^command\\n$'),
         (".//li/p/strong", r'^program\\n$'),
         (".//li/p/em", r'^dfn\\n$'),
-        (".//li/p/code/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/p/kbd", r'^kbd\\n$'),
         (".//li/p/span", u'File \N{TRIANGULAR BULLET} Close'),
         (".//li/p/code/span[@class='pre']", '^a/$'),
         (".//li/p/code/em/span[@class='pre']", '^varpart$'),
@@ -142,7 +136,7 @@ def cached_etree_parse():
          "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
          "[@class='reference internal']/code/span[@class='pre']", '^with$'),
-        (".//a[@href='#grammar-token-try_stmt']"
+        (".//a[@href='#grammar-token-try-stmt']"
          "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
@@ -174,7 +168,7 @@ def cached_etree_parse():
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1-stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -183,6 +177,8 @@ def cached_etree_parse():
         # tests for ``any`` role
         (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
+        # tests for numeric labels
+        (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
@@ -256,7 +252,6 @@ def cached_etree_parse():
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
-        (".//meta[@name='testopt'][@content='testoverride']", ''),
         (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
         (".//dt[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
@@ -289,9 +284,6 @@ def cached_etree_parse():
         (".//a[@href='http://bugs.python.org/issue1000']", "issue 1000"),
         (".//a[@href='http://bugs.python.org/issue1042']", "explicit caption"),
     ],
-    '_static/statictmpl.html': [
-        (".//project", 'Sphinx <Tests>'),
-    ],
     'genindex.html': [
         # index entries
         (".//a/strong", "Main"),
@@ -301,19 +293,21 @@ def cached_etree_parse():
         (".//li/a", "double"),
     ],
     'footnote.html': [
-        (".//a[@class='footnote-reference brackets'][@href='#id8'][@id='id1']", r"1"),
-        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id2']", r"2"),
+        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id1']", r"1"),
+        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id2']", r"2"),
         (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
         (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id5']", r"4"),
-        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"5"),
+        (".//a[@class='reference internal'][@href='#baz-qux'][@id='id5']", r"\[baz_qux\]"),
+        (".//a[@class='footnote-reference brackets'][@href='#id11'][@id='id6']", r"4"),
+        (".//a[@class='footnote-reference brackets'][@href='#id12'][@id='id7']", r"5"),
         (".//a[@class='fn-backref'][@href='#id1']", r"1"),
         (".//a[@class='fn-backref'][@href='#id2']", r"2"),
         (".//a[@class='fn-backref'][@href='#id3']", r"3"),
         (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"4"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"5"),
-        (".//a[@class='fn-backref'][@href='#id7']", r"6"),
+        (".//a[@class='fn-backref'][@href='#id5']", r"baz_qux"),
+        (".//a[@class='fn-backref'][@href='#id6']", r"4"),
+        (".//a[@class='fn-backref'][@href='#id7']", r"5"),
+        (".//a[@class='fn-backref'][@href='#id8']", r"6"),
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
@@ -328,3 +322,51 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     app.build()
     print(app.outdir / fname)
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co',
+    'html_experimental_html5_writer': True})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_download(app):
+    app.build()
+
+    # subdir/includes.html
+    result = (app.outdir / 'subdir' / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="../(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    filename = matched.group(1)
+
+    # includes.html
+    result = (app.outdir / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    assert matched.group(1) == filename
+
+
+@pytest.mark.sphinx('html', testroot='roles-download',
+                    confoverrides={'html_experimental_html5_writer': True})
+def test_html_download_role(app, status, warning):
+    app.build()
+    digest = md5((app.srcdir / 'dummy.dat').encode('utf-8')).hexdigest()
+    assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
+
+    content = (app.outdir / 'index.html').text()
+    assert (('<li><p><a class="reference download internal" download="" '
+             'href="_downloads/%s/dummy.dat">'
+             '<code class="xref download docutils literal notranslate">'
+             '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
+            in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">not_found.dat</span></code></p></li>' in content)
+    assert ('<li><p><a class="reference download external" download="" '
+            'href="http://www.sphinx-doc.org/en/master/_static/sphinxheader.png">'
+            '<code class="xref download docutils literal notranslate">'
+            '<span class="pre">Sphinx</span> <span class="pre">logo</span>'
+            '</code></a></p></li>' in content)
