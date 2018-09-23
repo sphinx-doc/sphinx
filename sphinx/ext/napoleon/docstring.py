@@ -43,18 +43,6 @@ _enumerated_list_regex = re.compile(
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
 
 
-def _qualify_name(attr_name, klass):
-    if klass and '.' not in attr_name:
-        if attr_name.startswith('~'):
-            attr_name = attr_name[1:]
-        try:
-            q = klass.__qualname__
-        except AttributeError:
-            q = klass.__name__
-        return '~%s.%s' % (q, attr_name)
-    return attr_name
-
-
 class GoogleDocstring(UnicodeMixin):
     """Convert Google style docstrings to reStructuredText.
 
@@ -609,7 +597,7 @@ class GoogleDocstring(UnicodeMixin):
         lines = []
         for _name, _type, _desc in self._consume_fields():
             if self._config.napoleon_use_ivar:
-                _name = _qualify_name(_name, self._obj)
+                _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name  # type: unicode
                 lines.extend(self._format_block(field, _desc))
                 if _type:
@@ -808,6 +796,18 @@ class GoogleDocstring(UnicodeMixin):
         return ("".join(before_colon).strip(),
                 colon,
                 "".join(after_colon).strip())
+
+    def _qualify_name(self, attr_name, klass):
+        # type: (unicode, type) -> unicode
+        if klass and '.' not in attr_name:
+            if attr_name.startswith('~'):
+                attr_name = attr_name[1:]
+            try:
+                q = klass.__qualname__
+            except AttributeError:
+                q = klass.__name__
+            return '~%s.%s' % (q, attr_name)
+        return attr_name
 
     def _strip_empty(self, lines):
         # type: (List[unicode]) -> List[unicode]
