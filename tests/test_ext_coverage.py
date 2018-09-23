@@ -35,7 +35,7 @@ def test_build(app, status, warning):
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
-    undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').bytes())
+    undoc_py, undoc_c, py_undocumented, py_documented = pickle.loads((app.outdir / 'undoc.pickle').bytes())
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
     assert list(undoc_c.values())[0] == set([('function', 'Py_SphinxTest')])
