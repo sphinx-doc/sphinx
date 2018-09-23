@@ -13,6 +13,7 @@
 import glob
 import inspect
 import re
+import sys
 from os import path
 
 from six.moves import cPickle as pickle
@@ -47,6 +48,30 @@ def compile_regex_list(name, exps):
         except Exception:
             logger.warning(__('invalid regex %r in %s'), exp, name)
     return lst
+
+
+def _write_table(f, table):
+    sizes = [max([len(x[column]) for x in table]) + 1 for column in range(len(table[0]))]
+
+    def _add_line(separator):
+        s = '+'
+        for i, size in enumerate(sizes):
+            s += (separator * (size + 1)) + '+'
+        return s + '\n'
+
+    def _add_row(columns, separator):
+        s = ''
+        for i, column in enumerate(columns):
+            s += '| %s%s' % (column, ' ' * (sizes[i] - len(column) - (i == len(columns) - 1)))
+        s += ' |\n'
+        s += _add_line(separator)
+        return s
+
+    f.write(_add_line('-'))
+    f.write(_add_row(table[0], '='))
+
+    for row in table[1:]:
+        f.write(_add_row(row, '-'))
 
 
 class CoverageBuilder(Builder):
@@ -89,6 +114,8 @@ class CoverageBuilder(Builder):
     def write(self, *ignored):
         # type: (Any) -> None
         self.py_undoc = {}  # type: Dict[unicode, Dict[unicode, Any]]
+        self.py_undocumented = {}  # type: Dict[unicode, set[unicode]]
+        self.py_documented = {}  # type: Dict[unicode, set[unicode]]
         self.build_py_coverage()
         self.write_py_coverage()
 
@@ -155,6 +182,9 @@ class CoverageBuilder(Builder):
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
+            documented_objects = set()
+            undocumented_objects = set()
+
             funcs = []
             classes = {}  # type: Dict[unicode, List[unicode]]
 
@@ -181,6 +211,9 @@ class CoverageBuilder(Builder):
                             if skip_undoc and not obj.__doc__:
                                 continue
                             funcs.append(name)
+                            undocumented_objects.add(full_name)
+                    else:
+                        documented_objects.add(full_name)
                 elif inspect.isclass(obj):
                     for exp in self.cls_ignorexps:
                         if exp.match(name):
@@ -215,12 +248,49 @@ class CoverageBuilder(Builder):
                             full_attr_name = '%s.%s' % (full_name, attr_name)
                             if full_attr_name not in objects:
                                 attrs.append(attr_name)
+                                undocumented_objects.add(full_attr_name)
+                            else:
+                                documented_objects.add(full_attr_name)
 
                         if attrs:
                             # some attributes are undocumented
                             classes[name] = attrs
 
             self.py_undoc[mod_name] = {'funcs': funcs, 'classes': classes}
+            self.py_undocumented[mod_name] = undocumented_objects
+            self.py_documented[mod_name] = documented_objects
+
+    def _write_py_statistics(self, op):
+        """
+        Outputs the table of
+        :param op:
+        :return:
+        """
+        all_modules = set(self.py_documented.keys()).union(set(self.py_undocumented.keys()))
+        all_objects = set()
+        all_documented_objects = set()
+        for module in all_modules:
+            all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
+            all_objects = all_objects.union(all_module_objects)
+            all_documented_objects = all_documented_objects.union(self.py_documented[module])
+
+        # prepare tabular
+        table = [['Module', 'Coverage', 'Undocumented']]
+        for module in all_modules:
+            module_objects = self.py_documented[module].union(self.py_undocumented[module])
+            if len(module_objects):
+                value = 100 * len(self.py_documented[module]) / len(module_objects)
+            else:
+                value = 100.0
+
+            table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
+        table.append([
+            'TOTAL',
+            '%.2f%%' % (100 * len(all_documented_objects) / len(all_objects)),
+            '%d' % (len(all_objects) - len(all_documented_objects))
+        ])
+
+        _write_table(op, table)
 
     def write_py_coverage(self):
         # type: () -> None
@@ -229,6 +299,15 @@ class CoverageBuilder(Builder):
         with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
+
+            if self.config.coverage_statistics_to_stdout:
+                self._write_py_statistics(sys.stdout)
+
+            if self.config.coverage_statistics_to_report:
+                write_header(op, 'Statistics')
+                self._write_py_statistics(op)
+                op.write('\n')
+
             keys = sorted(self.py_undoc.keys())
             for name in keys:
                 undoc = self.py_undoc[name]
@@ -263,7 +342,7 @@ class CoverageBuilder(Builder):
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
-            pickle.dump((self.py_undoc, self.c_undoc), dumpfile)
+            pickle.dump((self.py_undoc, self.c_undoc, self.py_undocumented, self.py_documented), dumpfile)
 
 
 def setup(app):
@@ -276,5 +355,7 @@ def setup(app):
     app.add_config_value('coverage_c_regexes', {}, False)
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
+    app.add_config_value('coverage_statistics_to_report', False, False)
+    app.add_config_value('coverage_statistics_to_stdout', False, False)
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
