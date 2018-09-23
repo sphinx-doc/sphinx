@@ -216,7 +216,7 @@ Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
 name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rinohtype manual: http://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rinohtype manual: https://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder

@@ -133,8 +133,9 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split()
 
-# The following list includes only languages supported by Sphinx.
-# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+# The following list includes only languages supported by Sphinx. See
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
+# for more.
 chm_locales = {
     # lang:   LCID,  encoding
     'ca':    (0x403, 'cp1252'),

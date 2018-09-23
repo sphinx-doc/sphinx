@@ -72,7 +72,7 @@ logger = logging.getLogger(__name__)
     Grammar
     ----------------------------------------------------------------------------
 
-    See http://www.nongnu.org/hcb/ for the grammar,
+    See https://www.nongnu.org/hcb/ for the grammar,
     and https://github.com/cplusplus/draft/blob/master/source/grammar.tex,
     and https://github.com/cplusplus/concepts-ts
     for the newest grammar.
@@ -336,7 +336,7 @@ _fold_operator_re = re.compile(r'''(?x)
     |   !=
     |   [<>=/*%+|&^~-]=?
 ''')
-# see http://en.cppreference.com/w/cpp/keyword
+# see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
     'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
@@ -4295,7 +4295,7 @@ class Symbol:
 
 class DefinitionParser:
     # those without signedness and size modifiers
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     _simple_fundemental_types = (
         'void', 'bool', 'char', 'wchar_t', 'char16_t', 'char32_t', 'int',
         'float', 'double', 'auto'

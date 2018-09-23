@@ -2136,7 +2136,7 @@ Incompatible changes
   parsing is attempted to distinguish valid code.  To get the old behavior back,
   add ``highlight_language = "python"`` to conf.py.
 * `Locale Date Markup Language
-  <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
+  <https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
