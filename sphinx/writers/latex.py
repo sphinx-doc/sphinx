@@ -20,7 +20,7 @@ from os import path
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
-from six import itervalues, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
@@ -849,7 +849,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # latex_domain_indices can be False/True or a list of index names
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):

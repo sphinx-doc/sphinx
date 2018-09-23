@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import itervalues
-
 if False:
     # For type annotation
     from typing import Dict, List, Set  # NOQA
@@ -44,7 +42,7 @@ class EnvironmentCollector:
     def disable(self, app):
         # type: (Sphinx) -> None
         assert self.listener_ids is not None
-        for listener_id in itervalues(self.listener_ids):
+        for listener_id in self.listener_ids.values():
             app.disconnect(listener_id)
         self.listener_ids = None
 

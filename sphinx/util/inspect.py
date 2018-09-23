@@ -18,7 +18,7 @@ import sys
 import typing
 from functools import partial
 
-from six import StringIO, binary_type, string_types, itervalues
+from six import StringIO, binary_type, string_types
 
 from sphinx.util import force_decode
 from sphinx.util import logging
@@ -368,7 +368,7 @@ class Signature:
         # type: () -> unicode
         args = []
         last_kind = None
-        for i, param in enumerate(itervalues(self.parameters)):
+        for i, param in enumerate(self.parameters.values()):
             # skip first argument if subject is bound method
             if self.skip_first_argument and i == 0:
                 continue

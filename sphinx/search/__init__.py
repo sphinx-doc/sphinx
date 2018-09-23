@@ -12,7 +12,7 @@ import pickle
 import re
 from os import path
 
-from six import itervalues, text_type, string_types
+from six import text_type, string_types
 
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
@@ -404,9 +404,9 @@ class IndexBuilder:
                 new_filenames[docname] = self._filenames[docname]
         self._titles = new_titles
         self._filenames = new_filenames
-        for wordnames in itervalues(self._mapping):
+        for wordnames in self._mapping.values():
             wordnames.intersection_update(docnames)
-        for wordnames in itervalues(self._title_mapping):
+        for wordnames in self._title_mapping.values():
             wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):

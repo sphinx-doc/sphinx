@@ -14,7 +14,6 @@ import textwrap
 from os import path
 
 from docutils import nodes, writers
-from six import itervalues
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
@@ -497,7 +496,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
         indices_config = self.builder.config.texinfo_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
