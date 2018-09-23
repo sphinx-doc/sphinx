@@ -11,9 +11,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import collections.abc
 import inspect
 import re
+from collections.abc import Callable
 from functools import partial
 
 from six import string_types, u
@@ -25,7 +25,7 @@ from sphinx.util.pycompat import UnicodeMixin
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA
 
@@ -124,7 +124,7 @@ class GoogleDocstring(UnicodeMixin):
                 what = 'class'
             elif inspect.ismodule(obj):
                 what = 'module'
-            elif isinstance(obj, collections.abc.Callable):
+            elif isinstance(obj, Callable):
                 what = 'function'
             else:
                 what = 'object'
@@ -787,7 +787,7 @@ class GoogleDocstring(UnicodeMixin):
                 "".join(after_colon).strip())
 
     def _qualify_name(self, attr_name, klass):
-        # type: (unicode, type) -> unicode
+        # type: (unicode, Type) -> unicode
         if klass and '.' not in attr_name:
             if attr_name.startswith('~'):
                 attr_name = attr_name[1:]
