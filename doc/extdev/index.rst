@@ -133,6 +133,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.path.join()``
 
+   * - ``sphinx.ext.config.check_unicode()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.ext.doctest.doctest_encode()``
      - 2.0
      - 4.0

@@ -18,9 +18,8 @@ import sys
 import typing
 from functools import partial
 
-from six import StringIO, binary_type, string_types
+from six import StringIO, string_types
 
-from sphinx.util import force_decode
 from sphinx.util import logging
 from sphinx.util.pycompat import NoneType
 
@@ -249,8 +248,6 @@ def object_description(object):
         s = repr(object)
     except Exception:
         raise ValueError
-    if isinstance(s, binary_type):
-        s = force_decode(s, None)  # type: ignore
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)
