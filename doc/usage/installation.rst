@@ -12,8 +12,7 @@ Installing Sphinx
 Overview
 --------
 
-Sphinx is written in `Python`__ and supports both Python 2.7 and Python 3.3+.
-We recommend the latter.
+Sphinx is written in `Python`__ and supports Python 3.5+.
 
 __ http://docs.python-guide.org/en/latest/
 
