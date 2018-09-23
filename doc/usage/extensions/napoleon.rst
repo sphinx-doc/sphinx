@@ -409,9 +409,9 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
        .. attribute:: attr1
 
-          *int*
-
           Description of `attr1`
+
+          :type: int
 
 .. confval:: napoleon_use_param
 

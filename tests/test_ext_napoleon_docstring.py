@@ -77,6 +77,34 @@ Sample namedtuple subclass
         self.assertEqual(expected, actual)
 
 
+class InlineAttributeTest(BaseDocstringTest):
+
+    def test_class_data_member(self):
+        config = Config()
+        docstring = """data member description:
+
+- a: b
+"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data member description:
+
+- a: b"""
+
+        self.assertEqual(expected, actual)
+
+    def test_class_data_member_inline(self):
+        config = Config()
+        docstring = """b: data member description with :ref:`reference`"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data member description with :ref:`reference`
+
+:type: b"""
+
+        self.assertEqual(expected, actual)
+
+
 class GoogleDocstringTest(BaseDocstringTest):
     docstrings = [(
         """Single line summary""",

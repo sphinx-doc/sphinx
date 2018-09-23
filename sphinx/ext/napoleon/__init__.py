@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sphinx
+from sphinx import __display_version__ as __version__
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
@@ -172,9 +172,9 @@ class Config:
 
             .. attribute:: attr1
 
-               *int*
-
                Description of `attr1`
+
+               :type: int
 
     napoleon_use_param : :obj:`bool` (Defaults to True)
         True to use a ``:param:`` role for each function parameter. False to
@@ -300,7 +300,8 @@ def setup(app):
 
     """
     if not isinstance(app, Sphinx):
-        return  # probably called by tests
+        # probably called by tests
+        return {'version': __version__, 'parallel_read_safe': True}
 
     _patch_python_domain()
 
@@ -310,7 +311,7 @@ def setup(app):
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {'version': __version__, 'parallel_read_safe': True}
 
 
 def _patch_python_domain():
