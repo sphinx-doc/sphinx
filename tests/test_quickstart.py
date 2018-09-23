@@ -14,7 +14,6 @@ import time
 
 import pytest
 from six import text_type, StringIO
-from six.moves import input
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs

@@ -13,6 +13,7 @@
 from __future__ import print_function
 
 import os
+import pickle
 import sys
 import warnings
 from collections import deque
@@ -21,7 +22,6 @@ from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
 from six import itervalues
-from six.moves import cPickle as pickle
 from six.moves import cStringIO
 
 import sphinx

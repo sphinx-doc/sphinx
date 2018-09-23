@@ -15,7 +15,6 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
-from six.moves import range
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility

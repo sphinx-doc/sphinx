@@ -35,7 +35,6 @@ except ImportError:
 
 from docutils.utils import column_width
 from six import text_type, binary_type
-from six.moves import input
 from six.moves.urllib.parse import quote as urlquote
 
 import sphinx.locale

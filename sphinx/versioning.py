@@ -9,12 +9,12 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pickle
 import warnings
 from itertools import product
 from operator import itemgetter
 from uuid import uuid4
 
-from six.moves import cPickle as pickle
 from six.moves import range, zip_longest
 
 from sphinx.deprecation import RemovedInSphinx30Warning

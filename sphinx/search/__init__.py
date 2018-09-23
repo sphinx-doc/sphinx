@@ -8,11 +8,11 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pickle
 import re
 from os import path
 
 from six import itervalues, text_type, string_types
-from six.moves import cPickle as pickle
 
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
