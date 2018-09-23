@@ -12,6 +12,7 @@
 import warnings
 from itertools import product
 from operator import itemgetter
+from os import path
 from uuid import uuid4
 
 from six.moves import cPickle as pickle
@@ -168,7 +169,7 @@ class UIDTransform(SphinxTransform):
         if env.versioning_compare:
             # get old doctree
             try:
-                filename = env.doc2path(env.docname, env.doctreedir, '.doctree')
+                filename = path.join(env.doctreedir, env.docname + '.doctree')
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)
             except EnvironmentError:
