@@ -90,39 +90,12 @@ def ensuredir(path):
             raise
 
 
-# This function is same as os.walk of Python2.7 except a customization
-# that check UnicodeError.
-# The customization obstacle to replace the function with the os.walk.
 def walk(top, topdown=True, followlinks=False):
     # type: (unicode, bool, bool) -> Iterator[Tuple[unicode, List[unicode], List[unicode]]]
-    """Backport of os.walk from 2.6, where the *followlinks* argument was
-    added.
-    """
-    names = os.listdir(top)
-
-    dirs, nondirs = [], []
-    for name in names:
-        try:
-            fullpath = path.join(top, name)
-        except UnicodeError:
-            print('%s:: ERROR: non-ASCII filename not supported on this '
-                  'filesystem encoding %r, skipped.' % (name, fs_encoding),
-                  file=sys.stderr)
-            continue
-        if path.isdir(fullpath):
-            dirs.append(name)
-        else:
-            nondirs.append(name)
-
-    if topdown:
-        yield top, dirs, nondirs
-    for name in dirs:
-        fullpath = path.join(top, name)
-        if followlinks or not path.islink(fullpath):
-            for x in walk(fullpath, topdown, followlinks):
-                yield x
-    if not topdown:
-        yield top, dirs, nondirs
+    warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
+                  'Please use os.walk() instead.',
+                  RemovedInSphinx40Warning)
+    return os.walk(top, topdown=topdown, followlinks=followlinks)
 
 
 def mtimes_of_files(dirnames, suffix):

@@ -15,7 +15,7 @@ import posixpath
 
 from docutils.utils import relative_path
 
-from sphinx.util.osutil import copyfile, ensuredir, walk
+from sphinx.util.osutil import copyfile, ensuredir
 
 if False:
     # For type annotation
@@ -82,7 +82,7 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
         copy_asset_file(source, destination, context, renderer)
         return
 
-    for root, dirs, files in walk(source, followlinks=True):
+    for root, dirs, files in os.walk(source, followlinks=True):
         reldir = relative_path(source, root)
         for dir in dirs[:]:
             if excluded(posixpath.join(reldir, dir)):
