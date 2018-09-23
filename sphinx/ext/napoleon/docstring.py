@@ -105,6 +105,10 @@ class GoogleDocstring(UnicodeMixin):
     <BLANKLINE>
 
     """
+
+    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+
     def __init__(self, docstring, config=None, app=None, what='', name='',
                  obj=None, options=None):
         # type: (Union[unicode, List[unicode]], SphinxConfig, Sphinx, unicode, unicode, Any, Any) -> None  # NOQA
@@ -697,39 +701,16 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_raises_section(self, section):
         # type: (unicode) -> List[unicode]
         fields = self._consume_fields(parse_type=False, prefer_type=True)
-        field_type = ':raises:'
-        padding = ' ' * len(field_type)
-        multi = len(fields) > 1
         lines = []  # type: List[unicode]
-        for _name, _type, _desc in fields:
+        for _, _type, _desc in fields:
+            m = self._name_rgx.match(_type).groupdict()
+            if m['role']:
+                _type = m['name']
+            _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
-            has_desc = any(_desc)
-            separator = has_desc and ' -- ' or ''
-            if _type:
-                has_refs = '`' in _type or ':' in _type
-                has_space = any(c in ' \t\n\v\f ' for c in _type)
-
-                if not has_refs and not has_space:
-                    _type = ':exc:`%s`%s' % (_type, separator)
-                elif has_desc and has_space:
-                    _type = '*%s*%s' % (_type, separator)
-                else:
-                    _type = '%s%s' % (_type, separator)
-
-                if has_desc:
-                    field = [_type + _desc[0]] + _desc[1:]
-                else:
-                    field = [_type]
-            else:
-                field = _desc
-            if multi:
-                if lines:
-                    lines.extend(self._format_block(padding + ' * ', field))
-                else:
-                    lines.extend(self._format_block(field_type + ' * ', field))
-            else:
-                lines.extend(self._format_block(field_type + ' ', field))
-        if lines and lines[-1]:
+            _desc = ' ' + '\n    '.join(_desc) if any(_desc) else ''
+            lines.append(':raises%s:%s' % (_type, _desc))
+        if lines:
             lines.append('')
         return lines
 
@@ -975,9 +956,6 @@ class NumpyDocstring(GoogleDocstring):
                     if section.startswith(directive_section):
                         return True
         return False
-
-    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def _parse_see_also_section(self, section):
         # type: (unicode) -> List[unicode]
