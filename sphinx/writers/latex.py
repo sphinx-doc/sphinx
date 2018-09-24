@@ -1469,13 +1469,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         enum = "enum%s" % toRoman(get_nested_level(node)).lower()
         enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
+        prefix = node.get('prefix', '')
+        suffix = node.get('suffix', '.')
 
         self.body.append('\\begin{enumerate}\n')
         self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
         self.body.append('\\def\\label%s{%s\\the%s %s}\n' %
-                         (enum, node['prefix'], enum, node['suffix']))
+                         (enum, prefix, enum, suffix))
         self.body.append('\\makeatletter\\def\\p@%s{\\p@%s %s\\the%s %s}\\makeatother\n' %
-                         (enumnext, enum, node['prefix'], enum, node['suffix']))
+                         (enumnext, enum, prefix, enum, suffix))
         if 'start' in node:
             self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
