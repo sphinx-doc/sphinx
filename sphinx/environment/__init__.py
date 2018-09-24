@@ -17,7 +17,7 @@ from collections import defaultdict
 from copy import copy
 from os import path
 
-from six import BytesIO, next
+from six import BytesIO
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
