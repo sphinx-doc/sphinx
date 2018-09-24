@@ -16,7 +16,7 @@ import pytest
 from sphinx.project import Project
 
 
-def test_project_discovery(rootdir):
+def test_project_discover(rootdir):
     project = Project(rootdir / 'test-root', {})
 
     docnames = {'autodoc', 'bom', 'extapi', 'extensions', 'footnote', 'images',
@@ -26,29 +26,29 @@ def test_project_discovery(rootdir):
 
     # basic case
     project.source_suffix = ['.txt']
-    assert project.discovery() == docnames
+    assert project.discover() == docnames
 
     # exclude_paths option
-    assert project.discovery(['subdir/*']) == docnames - subdir_docnames
+    assert project.discover(['subdir/*']) == docnames - subdir_docnames
 
     # exclude_patterns
-    assert project.discovery(['.txt', 'subdir/*']) == docnames - subdir_docnames
+    assert project.discover(['.txt', 'subdir/*']) == docnames - subdir_docnames
 
     # multiple source_suffixes
     project.source_suffix = ['.txt', '.foo']
-    assert project.discovery() == docnames | {'otherext'}
+    assert project.discover() == docnames | {'otherext'}
 
     # complicated source_suffix
     project.source_suffix = ['.foo.png']
-    assert project.discovery() == {'img'}
+    assert project.discover() == {'img'}
 
     # templates_path
     project.source_suffix = ['.html']
-    assert project.discovery() == {'_templates/layout',
-                                   '_templates/customsb',
-                                   '_templates/contentssb'}
+    assert project.discover() == {'_templates/layout',
+                                  '_templates/customsb',
+                                  '_templates/contentssb'}
 
-    assert project.discovery(['_templates']) == set()
+    assert project.discover(['_templates']) == set()
 
 
 @pytest.mark.sphinx(testroot='basic')

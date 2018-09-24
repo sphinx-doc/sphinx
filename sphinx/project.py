@@ -44,7 +44,7 @@ class Project(object):
         """Take over a result of last build."""
         self.docnames = other.docnames
 
-    def discovery(self, exclude_paths=[]):
+    def discover(self, exclude_paths=[]):
         # type: (List[unicode]) -> Set[unicode]
         """Find all document files in the source directory and put them in
         :attr:`docnames`.
