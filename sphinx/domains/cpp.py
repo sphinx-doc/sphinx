@@ -611,10 +611,6 @@ class ASTBase(UnicodeMixin):
             return False
         return True
 
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return not self.__eq__(other)
-
     __hash__ = None  # type: Callable[[], int]
 
     def clone(self):

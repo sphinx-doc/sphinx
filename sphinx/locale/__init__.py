@@ -138,10 +138,6 @@ class _TranslationProxy(UserString):
         # type: (Any) -> bool
         return self.data == other
 
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return self.data != other
-
     def __gt__(self, other):
         # type: (unicode) -> bool
         return self.data > other
