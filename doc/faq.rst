@@ -205,7 +205,7 @@ The following list gives some hints for the creation of epub files:
 .. _Epubcheck: https://github.com/IDPF/epubcheck
 .. _Calibre: https://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
-.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+.. _Bookworm: https://www.oreilly.com/bookworm/index.html
 .. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:

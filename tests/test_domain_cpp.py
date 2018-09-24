@@ -86,7 +86,7 @@ def check(name, input, idDict, output=None):
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':

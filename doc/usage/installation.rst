@@ -14,7 +14,7 @@ Overview
 
 Sphinx is written in `Python`__ and supports Python 3.5+.
 
-__ http://docs.python-guide.org/en/latest/
+__ https://docs.python-guide.org/
 
 
 Linux
@@ -72,7 +72,7 @@ Homebrew
 
 For more information, refer to the `package overview`__.
 
-__ http://formulae.brew.sh/formula/sphinx-doc
+__ https://formulae.brew.sh/formula/sphinx-doc
 
 MacPorts
 ~~~~~~~~
@@ -120,9 +120,9 @@ Once Python is installed, you can install Sphinx using :command:`pip`.  Refer
 to the :ref:`pip installation instructions <install-pypi>` below for more
 information.
 
-__ http://docs.python-guide.org/en/latest/
-__ http://docs.python-guide.org/en/latest/starting/install3/win/
-__ http://docs.python-guide.org/en/latest/starting/install/win/
+__ https://docs.python-guide.org/
+__ https://docs.python-guide.org/starting/install3/win/
+__ https://docs.python-guide.org/starting/install/win/
 
 
 .. _install-pypi:
