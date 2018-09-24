@@ -359,7 +359,7 @@ class SphinxComponentRegistry(object):
         # type: (unicode, Type[nodes.NodeVisitor], bool) -> None
         logger.debug('[app] Change of translator for the %s builder.' % name)
         if name in self.translators and not override:
-            raise ExtensionError(__('Translatoro for %r already exists') % name)
+            raise ExtensionError(__('Translator for %r already exists') % name)
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
