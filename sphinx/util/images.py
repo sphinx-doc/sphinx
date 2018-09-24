@@ -14,11 +14,12 @@ import base64
 import imghdr
 import warnings
 from collections import OrderedDict
+from io import BytesIO
 from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import BytesIO, text_type
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 

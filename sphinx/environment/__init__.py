@@ -15,9 +15,10 @@ import sys
 import warnings
 from collections import defaultdict
 from copy import copy
+from io import BytesIO
 from os import path
 
-from six import BytesIO, next
+from six import next
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -747,7 +748,7 @@ class BuildEnvironment:
 
     @classmethod
     def loads(cls, string, app=None):
-        # type: (unicode, Sphinx) -> BuildEnvironment
+        # type: (bytes, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.loads() is deprecated. '
                       'Please use pickle.loads() instead.',
                       RemovedInSphinx30Warning)
