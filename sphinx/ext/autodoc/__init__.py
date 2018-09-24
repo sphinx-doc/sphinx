@@ -18,7 +18,7 @@ import warnings
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import itervalues, text_type, string_types
+from six import text_type, string_types
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -528,9 +528,9 @@ class Documenter:
                                    (name, self.fullname), type='autodoc')
             return False, sorted(selected)
         elif self.options.inherited_members:
-            return False, sorted((m.name, m.value) for m in itervalues(members))
+            return False, sorted((m.name, m.value) for m in members.values())
         else:
-            return False, sorted((m.name, m.value) for m in itervalues(members)
+            return False, sorted((m.name, m.value) for m in members.values()
                                  if m.directly_defined)
 
     def filter_members(self, members, want_all):
@@ -652,7 +652,7 @@ class Documenter:
         # document non-skipped members
         memberdocumenters = []  # type: List[Tuple[Documenter, bool]]
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in itervalues(self.documenters)
+            classes = [cls for cls in self.documenters.values()
                        if cls.can_document_member(member, mname, isattr, self)]
             if not classes:
                 # don't know how to document this member

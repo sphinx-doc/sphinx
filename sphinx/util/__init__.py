@@ -27,7 +27,7 @@ from os import path
 from time import mktime, strptime
 
 from docutils.utils import relative_path
-from six import text_type, binary_type, itervalues
+from six import text_type, binary_type
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -266,7 +266,7 @@ def save_traceback(app):
                    jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
-        for ext in itervalues(app.extensions):
+        for ext in app.extensions.values():
             modfile = getattr(ext.module, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')

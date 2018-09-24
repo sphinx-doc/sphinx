@@ -17,7 +17,6 @@ from types import MethodType
 
 from docutils.parsers.rst import Directive
 from pkg_resources import iter_entry_points
-from six import itervalues
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.domains import ObjType
@@ -170,7 +169,7 @@ class SphinxComponentRegistry:
 
     def create_domains(self, env):
         # type: (BuildEnvironment) -> Iterator[Domain]
-        for DomainClass in itervalues(self.domains):
+        for DomainClass in self.domains.values():
             domain = DomainClass(env)
 
             # transplant components added by extensions

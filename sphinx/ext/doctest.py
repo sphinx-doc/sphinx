@@ -22,7 +22,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
-from six import itervalues, StringIO, binary_type
+from six import StringIO, binary_type
 
 import sphinx
 from sphinx.builders import Builder
@@ -449,24 +449,24 @@ Doctest summary
                     groups[groupname] = TestGroup(groupname)
                 groups[groupname].add_code(code)
         for code in add_to_all_groups:
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
                             'testsetup', filename=None, lineno=0)
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
                             'testcleanup', filename=None, lineno=0)
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code)
         if not groups:
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-' * len(docname)))
-        for group in itervalues(groups):
+        for group in groups.values():
             self.test_group(group)
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)

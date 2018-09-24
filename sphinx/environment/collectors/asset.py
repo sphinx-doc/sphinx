@@ -15,7 +15,6 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -87,7 +86,7 @@ class ImageCollector(EnvironmentCollector):
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)
-            for imgpath in itervalues(candidates):
+            for imgpath in candidates.values():
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(__('image file not readable: %s') % imgpath,

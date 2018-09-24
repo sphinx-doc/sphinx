@@ -21,7 +21,6 @@ from inspect import isclass
 from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
-from six import itervalues
 from six.moves import cStringIO
 
 import sphinx
@@ -1196,7 +1195,7 @@ class Sphinx:
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
-        for ext in itervalues(self.extensions):
+        for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
             if allowed is None:
                 logger.warning(message, ext.name)
