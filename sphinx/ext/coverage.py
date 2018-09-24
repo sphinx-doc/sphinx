@@ -12,10 +12,9 @@
 
 import glob
 import inspect
+import pickle
 import re
 from os import path
-
-from six.moves import cPickle as pickle
 
 import sphinx
 from sphinx.builders import Builder

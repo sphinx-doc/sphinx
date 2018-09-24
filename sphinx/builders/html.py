@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pickle
 import posixpath
 import re
 import sys
@@ -25,7 +26,6 @@ from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
 from six import text_type, string_types
-from six.moves import cPickle as pickle
 
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME

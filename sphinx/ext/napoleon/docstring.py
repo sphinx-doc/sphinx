@@ -17,7 +17,6 @@ from collections.abc import Callable
 from functools import partial
 
 from six import string_types, u
-from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _

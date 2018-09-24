@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import configparser
 import os
 import shutil
 import tempfile
@@ -16,7 +17,6 @@ from os import path
 from zipfile import ZipFile
 
 import pkg_resources
-from six.moves import configparser
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -72,7 +72,7 @@ class Theme:
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF))  # type: ignore
+        self.config.read(path.join(self.themedir, THEMECONF))
 
         try:
             inherit = self.config.get('theme', 'inherit')
@@ -104,7 +104,7 @@ class Theme:
         base theme chain.
         """
         try:
-            return self.config.get(section, name)  # type: ignore
+            return self.config.get(section, name)
         except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base:
                 return self.base.get_config(section, name, default)

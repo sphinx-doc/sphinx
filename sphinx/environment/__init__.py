@@ -10,6 +10,7 @@
 """
 
 import os
+import pickle
 import sys
 import warnings
 from collections import defaultdict
@@ -17,7 +18,6 @@ from copy import copy
 from os import path
 
 from six import BytesIO, next
-from six.moves import cPickle as pickle
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning

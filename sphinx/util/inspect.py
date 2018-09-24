@@ -10,6 +10,7 @@
 """
 from __future__ import absolute_import
 
+import builtins
 import enum
 import inspect
 import re
@@ -18,7 +19,6 @@ import typing
 from functools import partial
 
 from six import StringIO, binary_type, string_types, itervalues
-from six.moves import builtins
 
 from sphinx.util import force_decode
 from sphinx.util import logging

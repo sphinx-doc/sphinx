@@ -9,11 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pickle
 import time
 from os import path
 
 from docutils import nodes
-from six.moves import cPickle as pickle
 
 from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter

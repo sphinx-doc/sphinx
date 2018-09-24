@@ -28,7 +28,6 @@ from time import mktime, strptime
 
 from docutils.utils import relative_path
 from six import text_type, binary_type, itervalues
-from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx30Warning
