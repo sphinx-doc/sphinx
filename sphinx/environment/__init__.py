@@ -18,8 +18,6 @@ from copy import copy
 from io import BytesIO
 from os import path
 
-from six import next
-
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
