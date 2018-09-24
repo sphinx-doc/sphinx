@@ -128,10 +128,6 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return not (self == other)
-
     def match(self, *conditions):
         # type: (Any) -> bool
         return any(self == candidate for candidate in conditions)
