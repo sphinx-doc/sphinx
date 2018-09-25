@@ -114,8 +114,8 @@ class CoverageBuilder(Builder):
     def write(self, *ignored):
         # type: (Any) -> None
         self.py_undoc = {}  # type: Dict[unicode, Dict[unicode, Any]]
-        self.py_undocumented = {}  # type: Dict[unicode, set[unicode]]
-        self.py_documented = {}  # type: Dict[unicode, set[unicode]]
+        self.py_undocumented = {}  # type: Dict[unicode, Set[unicode]]
+        self.py_documented = {}  # type: Dict[unicode, Set[unicode]]
         self.build_py_coverage()
         self.write_py_coverage()
 
@@ -182,8 +182,8 @@ class CoverageBuilder(Builder):
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
-            documented_objects = set()
-            undocumented_objects = set()
+            documented_objects = set()  # type: Set[unicode]
+            undocumented_objects = set()  # type: Set[unicode]
 
             funcs = []
             classes = {}  # type: Dict[unicode, List[unicode]]
@@ -266,8 +266,9 @@ class CoverageBuilder(Builder):
         :param op:
         :return:
         """
-        all_modules = set(self.py_documented.keys()).union(set(self.py_undocumented.keys()))
-        all_objects = set()
+        all_modules = set(self.py_documented.keys()).union(
+            set(self.py_undocumented.keys()))  # type: Set[unicode]
+        all_objects = set()  # type: Set[unicode]
         all_documented_objects = set()
         for module in all_modules:
             all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
@@ -279,7 +280,7 @@ class CoverageBuilder(Builder):
         for module in all_modules:
             module_objects = self.py_documented[module].union(self.py_undocumented[module])
             if len(module_objects):
-                value = 100 * len(self.py_documented[module]) / len(module_objects)
+                value = 100.0 * len(self.py_documented[module]) / len(module_objects)
             else:
                 value = 100.0
 
@@ -342,7 +343,8 @@ class CoverageBuilder(Builder):
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
-            pickle.dump((self.py_undoc, self.c_undoc, self.py_undocumented, self.py_documented), dumpfile)
+            pickle.dump((self.py_undoc, self.c_undoc,
+                         self.py_undocumented, self.py_documented), dumpfile)
 
 
 def setup(app):
