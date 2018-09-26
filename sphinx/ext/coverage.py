@@ -269,14 +269,14 @@ class CoverageBuilder(Builder):
         all_modules = set(self.py_documented.keys()).union(
             set(self.py_undocumented.keys()))  # type: Set[unicode]
         all_objects = set()  # type: Set[unicode]
-        all_documented_objects = set()
+        all_documented_objects = set()  # type: Set[unicode]
         for module in all_modules:
             all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
             all_objects = all_objects.union(all_module_objects)
             all_documented_objects = all_documented_objects.union(self.py_documented[module])
 
         # prepare tabular
-        table = [['Module', 'Coverage', 'Undocumented']]
+        table = [['Module', 'Coverage', 'Undocumented']]  # type: List[List[unicode]]
         for module in all_modules:
             module_objects = self.py_documented[module].union(self.py_undocumented[module])
             if len(module_objects):
