@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 from os import path
 
 from docutils.io import StringOutput
@@ -51,8 +50,7 @@ class TextBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = path.join(self.outdir, docname + self.out_suffix)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -82,7 +80,7 @@ class TextBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', 'utf-8') as f:  # type: ignore
+            with open(outfilename, 'w', encoding='utf-8') as f:  # type: ignore
                 f.write(self.writer.output)
         except (IOError, OSError) as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)

@@ -15,14 +15,13 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
-from six.moves import range
 
 from sphinx import addnodes
 from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.matching import patfilter
+from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 
@@ -96,6 +95,7 @@ class TocTree(SphinxDirective):
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret = []
+        excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
                 continue
@@ -131,9 +131,13 @@ class TocTree(SphinxDirective):
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree contains reference to nonexisting '
-                        'document %r' % docname, line=self.lineno))
+                    if excluded(self.env.doc2path(docname, None)):
+                        message = 'toctree contains reference to excluded document %r'
+                    else:
+                        message = 'toctree contains reference to nonexisting document %r'
+
+                    ret.append(self.state.document.reporter.warning(message % docname,
+                                                                    line=self.lineno))
                     self.env.note_reread()
                 else:
                     all_docnames.discard(docname)

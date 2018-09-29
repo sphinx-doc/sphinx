@@ -55,6 +55,7 @@ class ExtensionError(SphinxError):
     def __init__(self, message, orig_exc=None):
         # type: (unicode, Exception) -> None
         SphinxError.__init__(self, message)
+        self.message = message
         self.orig_exc = orig_exc
 
     def __repr__(self):

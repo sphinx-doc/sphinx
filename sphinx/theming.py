@@ -9,19 +9,16 @@
     :license: BSD, see LICENSE for details.
 """
 
+import configparser
 import os
 import shutil
 import tempfile
-import warnings
 from os import path
 from zipfile import ZipFile
 
 import pkg_resources
-from six import string_types, iteritems
-from six.moves import configparser
 
 from sphinx import package_dir
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -53,7 +50,7 @@ def extract_zip(filename, targetdir):
                 fp.write(archive.read(name))
 
 
-class Theme(object):
+class Theme:
     """A Theme is a set of HTML templates and configurations.
 
     This class supports both theme directory and theme archive (zipped theme)."""
@@ -75,7 +72,7 @@ class Theme(object):
             extract_zip(theme_path, self.themedir)
 
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(self.themedir, THEMECONF))  # type: ignore
+        self.config.read(path.join(self.themedir, THEMECONF))
 
         try:
             inherit = self.config.get('theme', 'inherit')
@@ -107,7 +104,7 @@ class Theme(object):
         base theme chain.
         """
         try:
-            return self.config.get(section, name)  # type: ignore
+            return self.config.get(section, name)
         except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base:
                 return self.base.get_config(section, name, default)
@@ -131,7 +128,7 @@ class Theme(object):
         except configparser.NoSectionError:
             pass
 
-        for option, value in iteritems(overrides):
+        for option, value in overrides.items():
             if option not in options:
                 logger.warning(__('unsupported theme option %r given') % option)
             else:
@@ -161,7 +158,7 @@ def is_archived_theme(filename):
         return False
 
 
-class HTMLThemeFactory(object):
+class HTMLThemeFactory:
     """A factory class for HTML Themes."""
 
     def __init__(self, app):
@@ -176,7 +173,7 @@ class HTMLThemeFactory(object):
         # type: () -> None
         """Load built-in themes."""
         themes = self.find_themes(path.join(package_dir, 'themes'))
-        for name, theme in iteritems(themes):
+        for name, theme in themes.items():
             self.themes[name] = theme
 
     def load_additional_themes(self, theme_paths):
@@ -185,7 +182,7 @@ class HTMLThemeFactory(object):
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self.app.confdir, theme_path))
             themes = self.find_themes(abs_theme_path)
-            for name, theme in iteritems(themes):
+            for name, theme in themes.items():
                 self.themes[name] = theme
 
     def load_extra_theme(self, name):
@@ -228,25 +225,6 @@ class HTMLThemeFactory(object):
             return
         except StopIteration:
             pass
-
-        # look up for old styled entry_points
-        for entry_point in pkg_resources.iter_entry_points('sphinx_themes'):
-            target = entry_point.load()
-            if callable(target):
-                themedir = target()
-                if not isinstance(themedir, string_types):
-                    logger.warning(__('Theme extension %r does not respond correctly.') %
-                                   entry_point.module_name)
-            else:
-                themedir = target
-
-            themes = self.find_themes(themedir)
-            for entry, theme in iteritems(themes):
-                if name == entry:
-                    warnings.warn('``sphinx_themes`` entry point is now deprecated. '
-                                  'Please use ``sphinx.html_themes`` instead.',
-                                  RemovedInSphinx20Warning)
-                    self.themes[name] = theme
 
     def find_themes(self, theme_path):
         # type: (unicode) -> Dict[unicode, unicode]

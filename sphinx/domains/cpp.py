@@ -14,7 +14,7 @@ from copy import deepcopy
 
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
-from six import iteritems, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
@@ -72,7 +72,7 @@ logger = logging.getLogger(__name__)
     Grammar
     ----------------------------------------------------------------------------
 
-    See http://www.nongnu.org/hcb/ for the grammar,
+    See https://www.nongnu.org/hcb/ for the grammar,
     and https://github.com/cplusplus/draft/blob/master/source/grammar.tex,
     and https://github.com/cplusplus/concepts-ts
     for the newest grammar.
@@ -336,7 +336,7 @@ _fold_operator_re = re.compile(r'''(?x)
     |   !=
     |   [<>=/*%+|&^~-]=?
 ''')
-# see http://en.cppreference.com/w/cpp/keyword
+# see https://en.cppreference.com/w/cpp/keyword
 _keywords = [
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
     'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
@@ -604,16 +604,12 @@ class ASTBase(UnicodeMixin):
         if type(self) is not type(other):
             return False
         try:
-            for key, value in iteritems(self.__dict__):
+            for key, value in self.__dict__.items():
                 if value != getattr(other, key):
                     return False
         except AttributeError:
             return False
         return True
-
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return not self.__eq__(other)
 
     __hash__ = None  # type: Callable[[], int]
 
@@ -3592,7 +3588,7 @@ class ASTNamespace(ASTBase):
         self.templatePrefix = templatePrefix
 
 
-class SymbolLookupResult(object):
+class SymbolLookupResult:
     def __init__(self, symbols, parentSymbol, identOrOp, templateParams, templateArgs):
         # type: (Iterator[Symbol], Symbol, Union[ASTIdentifier, ASTOperator], Any, ASTTemplateArgs) -> None  # NOQA
         self.symbols = symbols
@@ -3602,7 +3598,7 @@ class SymbolLookupResult(object):
         self.templateArgs = templateArgs
 
 
-class Symbol(object):
+class Symbol:
     debug_lookup = False
 
     def _assert_invariants(self):
@@ -4293,9 +4289,9 @@ class Symbol(object):
         return ''.join(res)
 
 
-class DefinitionParser(object):
+class DefinitionParser:
     # those without signedness and size modifiers
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     _simple_fundemental_types = (
         'void', 'bool', 'char', 'wchar_t', 'char16_t', 'char32_t', 'int',
         'float', 'double', 'auto'
@@ -4578,7 +4574,7 @@ class DefinitionParser(object):
                 return ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
                 self.fail("Can not handle character literal. Internal error was: %s" % e)
-            except UnsupportedMultiCharacterCharLiteral as e:
+            except UnsupportedMultiCharacterCharLiteral:
                 self.fail("Can not handle character literal"
                           " resulting in multiple decoded characters.")
 
@@ -6585,7 +6581,7 @@ class CPPXRefRole(XRefRole):
         return title, target
 
 
-class CPPExprRole(object):
+class CPPExprRole:
     def __init__(self, asCode):
         if asCode:
             # render the expression as inline code
@@ -6597,7 +6593,7 @@ class CPPExprRole(object):
             self.node_type = nodes.inline
 
     def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        class Warner(object):
+        class Warner:
             def warn(self, msg):
                 inliner.reporter.warning(msg, line=lineno)
         text = utils.unescape(text).replace('\n', ' ')
@@ -6716,7 +6712,7 @@ class CPPDomain(Domain):
                             target, node, contnode, emitWarnings=True):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node, bool) -> nodes.Node  # NOQA
 
-        class Warner(object):
+        class Warner:
             def warn(self, msg):
                 if emitWarnings:
                     logger.warning(msg, location=node)

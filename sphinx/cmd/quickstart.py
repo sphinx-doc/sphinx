@@ -17,8 +17,8 @@ import os
 import re
 import sys
 import time
+import warnings
 from collections import OrderedDict
-from io import open
 from os import path
 
 # try to import readline, unix specific enhancement
@@ -34,12 +34,12 @@ except ImportError:
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
-from six import PY2, PY3, text_type, binary_type
-from six.moves import input
+from six import text_type, binary_type
 from six.moves.urllib.parse import quote as urlquote
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
@@ -185,20 +185,6 @@ def do_prompt(text, default=None, validator=nonempty):
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)  # type: unicode
         else:
             prompt = PROMPT_PREFIX + text + ': '
-        if PY2:
-            # for Python 2.x, try to get a Unicode string out of it
-            if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
-                    != prompt:
-                if TERM_ENCODING:
-                    prompt = prompt.encode(TERM_ENCODING)
-                else:
-                    print(turquoise(__('* Note: non-ASCII default value provided '
-                                       'and terminal encoding unknown -- assuming '
-                                       'UTF-8 or Latin-1.')))
-                    try:
-                        prompt = prompt.encode('utf-8')
-                    except UnicodeEncodeError:
-                        prompt = prompt.encode('latin1')
         if USE_LIBEDIT:
             # Note: libedit has a problem for combination of ``input()`` and escape
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
@@ -222,10 +208,9 @@ def do_prompt(text, default=None, validator=nonempty):
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
     # type: (unicode, Pattern) -> unicode
     # remove Unicode literal prefixes
-    if PY3:
-        return rex.sub('\\1', source)
-    else:
-        return source
+    warnings.warn('convert_python_source() is deprecated.',
+                  RemovedInSphinx40Warning)
+    return rex.sub('\\1', source)
 
 
 class QuickstartRenderer(SphinxRenderer):
@@ -399,7 +384,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
-    d['PY3'] = PY3
+    d['PY3'] = True
     d['project_fn'] = make_filename(d['project'])
     d['project_url'] = urlquote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
@@ -445,7 +430,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
-            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
+            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:  # type: ignore
                 f.write(content)
         else:
             if 'quiet' not in d:
@@ -455,7 +440,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if not conf_path or not path.isfile(conf_path):
         conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
     with open(conf_path) as f:
-        conf_text = convert_python_source(f.read())
+        conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
@@ -678,7 +663,7 @@ def main(argv=sys.argv[1:]):
         except ValueError:
             print(__('Invalid template variable: %s') % variable)
 
-    generate(d, templatedir=args.templatedir)
+    generate(d, overwrite=False, templatedir=args.templatedir)
     return 0
 
 

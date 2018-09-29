@@ -9,10 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-try:
-    from enum import IntEnum
-except ImportError:  # py27
-    IntEnum = object  # type: ignore
+from enum import IntEnum
 
 
 class BuildPhase(IntEnum):

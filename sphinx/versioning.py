@@ -9,13 +9,13 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pickle
 import warnings
 from itertools import product
 from operator import itemgetter
+from os import path
 from uuid import uuid4
 
-from six import iteritems
-from six.moves import cPickle as pickle
 from six.moves import range, zip_longest
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -102,7 +102,7 @@ def merge_doctrees(old, new, condition):
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(iteritems(ratios), key=itemgetter(1))  # type: ignore
+    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue
@@ -169,7 +169,7 @@ class UIDTransform(SphinxTransform):
         if env.versioning_compare:
             # get old doctree
             try:
-                filename = env.doc2path(env.docname, env.doctreedir, '.doctree')
+                filename = path.join(env.doctreedir, env.docname + '.doctree')
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)
             except EnvironmentError:

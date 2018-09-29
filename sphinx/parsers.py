@@ -55,8 +55,6 @@ class Parser(docutils.parsers.Parser):
         self.app = app
         self.config = app.config
         self.env = app.env
-        self.warn = app.warn
-        self.info = app.info
 
 
 class RSTParser(docutils.parsers.rst.Parser):

@@ -76,6 +76,13 @@ def f14() -> Any:
     pass
 
 
+def f15(arg1, arg2, *, arg3=None, arg4=None):
+    pass
+
+def f16(*, arg3, arg4):
+    pass
+
+
 class Node:
     def __init__(self, parent: Optional['Node']) -> None:
         pass

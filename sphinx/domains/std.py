@@ -17,7 +17,6 @@ from copy import copy
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -529,7 +528,7 @@ class StandardDomain(Domain):
 
         # set up enumerable nodes
         self.enumerable_nodes = copy(self.enumerable_nodes)  # create a copy for this instance
-        for node, settings in iteritems(env.app.registry.enumerable_nodes):
+        for node, settings in env.app.registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
     def clear_doc(self, docname):
@@ -607,7 +606,7 @@ class StandardDomain(Domain):
     def note_labels(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
-        for name, explicit in iteritems(document.nametypes):
+        for name, explicit in document.nametypes.items():
             if not explicit:
                 continue
             labelid = document.nameids[name]
@@ -647,7 +646,7 @@ class StandardDomain(Domain):
 
     def check_consistency(self):
         # type: () -> None
-        for name, (docname, labelid, lineno) in iteritems(self.data['citations']):
+        for name, (docname, labelid, lineno) in self.data['citations'].items():
             if name not in self.data['citation_refs']:
                 logger.warning(__('Citation [%s] is not referenced.'), name,
                                type='ref', subtype='citation',
@@ -887,20 +886,20 @@ class StandardDomain(Domain):
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
-        for (prog, option), info in iteritems(self.data['progoptions']):
+        for (prog, option), info in self.data['progoptions'].items():
             if prog:
                 fullname = ".".join([prog, option])
                 yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
             else:
                 yield (option, option, 'cmdoption', info[0], info[1], 1)
-        for (type, name), info in iteritems(self.data['objects']):
+        for (type, name), info in self.data['objects'].items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
-        for name, info in iteritems(self.data['labels']):
+        for name, info in self.data['labels'].items():
             yield (name, info[2], 'label', info[0], info[1], -1)
         # add anonymous-only labels as well
         non_anon_labels = set(self.data['labels'])
-        for name, info in iteritems(self.data['anonlabels']):
+        for name, info in self.data['anonlabels'].items():
             if name not in non_anon_labels:
                 yield (name, name, 'label', info[0], info[1], -1)
 

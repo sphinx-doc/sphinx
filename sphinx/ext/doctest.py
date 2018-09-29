@@ -11,27 +11,28 @@
 """
 from __future__ import absolute_import
 
-import codecs
 import doctest
 import re
 import sys
 import time
+import warnings
 from os import path
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
-from six import itervalues, StringIO, binary_type, text_type, PY2
+from six import StringIO, binary_type
 
 import sphinx
 from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import force_decode, logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import fs_encoding, relpath
+from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
@@ -43,18 +44,12 @@ logger = logging.getLogger(__name__)
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
 
-if PY2:
-    def doctest_encode(text, encoding):
-        # type: (str, unicode) -> unicode
-        if isinstance(text, text_type):
-            text = text.encode(encoding)
-            if text.startswith(codecs.BOM_UTF8):
-                text = text[len(codecs.BOM_UTF8):]
-        return text
-else:
-    def doctest_encode(text, encoding):
-        # type: (unicode, unicode) -> unicode
-        return text
+
+def doctest_encode(text, encoding):
+    # type: (unicode, unicode) -> unicode
+    warnings.warn('doctest_encode() is deprecated.',
+                  RemovedInSphinx40Warning)
+    return text
 
 
 def is_allowed_version(spec, version):
@@ -153,7 +148,7 @@ class TestDirective(SphinxDirective):
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 spec = self.options['pyversion']
-                python_version = '.'.join(str(v) for v in sys.version_info[:3])
+                python_version = '.'.join([str(v) for v in sys.version_info[:3]])
                 if not is_allowed_version(spec, python_version):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
@@ -203,7 +198,7 @@ parser = doctest.DocTestParser()
 
 # helper classes
 
-class TestGroup(object):
+class TestGroup:
     def __init__(self, name):
         # type: (unicode) -> None
         self.name = name
@@ -236,7 +231,7 @@ class TestGroup(object):
             self.name, self.setup, self.cleanup, self.tests)
 
 
-class TestCode(object):
+class TestCode:
     def __init__(self, code, type, filename, lineno, options=None):
         # type: (unicode, unicode, Optional[str], int, Optional[Dict]) -> None
         self.code = code
@@ -318,8 +313,8 @@ class DocTestBuilder(Builder):
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
         self.outfile = None  # type: IO
-        self.outfile = codecs.open(path.join(self.outdir, 'output.txt'),  # type: ignore
-                                   'w', encoding='utf-8')
+        self.outfile = open(path.join(self.outdir, 'output.txt'),  # type: ignore
+                            'w', encoding='utf-8')
         self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))
@@ -382,7 +377,7 @@ Doctest summary
             self.test_doc(docname, doctree)
 
     def get_filename_for_node(self, node, docname):
-        # type: (nodes.Node, unicode) -> str
+        # type: (nodes.Node, unicode) -> unicode
         """Try to get the file which actually contains the doctest, not the
         filename of the document it's included in."""
         try:
@@ -390,8 +385,6 @@ Doctest summary
                 .rsplit(':docstring of ', maxsplit=1)[0]
         except Exception:
             filename = self.env.doc2path(docname, base=None)
-        if PY2:
-            return filename.encode(fs_encoding)
         return filename
 
     @staticmethod
@@ -444,7 +437,7 @@ Doctest summary
                 logger.warning(__('no code/output in %s block at %s:%s'),
                                node.get('testnodetype', 'doctest'),
                                filename, line_number)
-            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),  # type: ignore
                             filename=filename, lineno=line_number,
                             options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -456,24 +449,24 @@ Doctest summary
                     groups[groupname] = TestGroup(groupname)
                 groups[groupname].add_code(code)
         for code in add_to_all_groups:
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
                             'testsetup', filename=None, lineno=0)
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
                             'testcleanup', filename=None, lineno=0)
-            for group in itervalues(groups):
+            for group in groups.values():
                 group.add_code(code)
         if not groups:
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-' * len(docname)))
-        for group in itervalues(groups):
+        for group in groups.values():
             self.test_group(group)
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)
@@ -501,9 +494,9 @@ Doctest summary
             # type: (Any, List[TestCode], Any) -> bool
             examples = []
             for testcode in testcodes:
-                examples.append(doctest.Example(  # type: ignore
-                    doctest_encode(testcode.code, self.env.config.source_encoding), '',  # type: ignore  # NOQA
-                    lineno=testcode.lineno))
+                example = doctest.Example(testcode.code, '',  # type: ignore
+                                          lineno=testcode.lineno)
+                examples.append(example)
             if not examples:
                 return True
             # simulate a doctest with the code
@@ -528,9 +521,8 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(  # type: ignore
-                        doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
-                        group.name, code[0].filename, code[0].lineno)
+                    test = parser.get_doctest(code[0].code, {}, group.name,  # type: ignore
+                                              code[0].filename, code[0].lineno)
                 except Exception:
                     logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
                                    location=(code[0].filename, code[0].lineno))
@@ -555,11 +547,10 @@ Doctest summary
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(  # type: ignore
-                    doctest_encode(code[0].code, self.env.config.source_encoding), output,  # type: ignore  # NOQA
-                    exc_msg=exc_msg,
-                    lineno=code[0].lineno,
-                    options=options)
+                example = doctest.Example(code[0].code, output,  # type: ignore
+                                          exc_msg=exc_msg,
+                                          lineno=code[0].lineno,
+                                          options=options)
                 test = doctest.DocTest([example], {}, group.name,  # type: ignore
                                        code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again

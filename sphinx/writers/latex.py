@@ -20,11 +20,10 @@ from os import path
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
-from six import itervalues, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.nodes import captioned_literal_block, footnotetext
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -57,13 +56,6 @@ SHORTHANDOFF = r'''
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
-HYPERLINK_SUPPORT_NODES = (
-    nodes.figure,
-    nodes.literal_block,
-    nodes.table,
-    nodes.section,
-    captioned_literal_block,
-)
 ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                    {
                                        'arabic': r'\arabic',
@@ -265,7 +257,7 @@ class ExtBabel(Babel):
             return None
 
 
-class Table(object):
+class Table:
     """A table data"""
 
     def __init__(self, node):
@@ -386,7 +378,7 @@ class Table(object):
             return None
 
 
-class TableCell(object):
+class TableCell:
     """A cell data of tables."""
 
     def __init__(self, table, row, col):
@@ -857,7 +849,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # latex_domain_indices can be False/True or a list of index names
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -2615,3 +2607,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 #
 # refs: https://github.com/sphinx-doc/sphinx/issues/4889
 from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
+
+# FIXME: Workaround to avoid circular import
+# refs: https://github.com/sphinx-doc/sphinx/issues/5433
+from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA

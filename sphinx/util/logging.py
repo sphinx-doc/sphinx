@@ -17,7 +17,6 @@ from contextlib import contextmanager
 
 from docutils import nodes
 from docutils.utils import get_source_line
-from six import PY2, StringIO
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
@@ -162,28 +161,7 @@ class WarningStreamHandler(logging.StreamHandler):
     pass
 
 
-class NewLineStreamHandlerPY2(logging.StreamHandler):
-    """StreamHandler which switches line terminator by record.nonl flag."""
-
-    def emit(self, record):
-        # type: (logging.LogRecord) -> None
-        try:
-            self.acquire()
-            stream = self.stream
-            if getattr(record, 'nonl', False):
-                # remove return code forcely when nonl=True
-                self.stream = StringIO()
-                super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])
-                stream.flush()
-            else:
-                super(NewLineStreamHandlerPY2, self).emit(record)
-        finally:
-            self.stream = stream
-            self.release()
-
-
-class NewLineStreamHandlerPY3(logging.StreamHandler):
+class NewLineStreamHandler(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record):
@@ -193,16 +171,10 @@ class NewLineStreamHandlerPY3(logging.StreamHandler):
             if getattr(record, 'nonl', False):
                 # skip appending terminator when nonl=True
                 self.terminator = ''
-            super(NewLineStreamHandlerPY3, self).emit(record)
+            super(NewLineStreamHandler, self).emit(record)
         finally:
             self.terminator = '\n'
             self.release()
-
-
-if PY2:
-    NewLineStreamHandler = NewLineStreamHandlerPY2
-else:
-    NewLineStreamHandler = NewLineStreamHandlerPY3
 
 
 class MemoryHandler(logging.handlers.BufferingHandler):
@@ -315,7 +287,7 @@ def skip_warningiserror(skip=True):
                 handler.removeFilter(disabler)
 
 
-class LogCollector(object):
+class LogCollector:
     def __init__(self):
         # type: () -> None
         self.logs = []  # type: List[logging.LogRecord]
@@ -495,7 +467,7 @@ class ColorizeFormatter(logging.Formatter):
             return message
 
 
-class SafeEncodingWriter(object):
+class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
     def __init__(self, stream):
         # type: (IO) -> None
@@ -517,7 +489,7 @@ class SafeEncodingWriter(object):
             self.stream.flush()
 
 
-class LastMessagesWriter(object):
+class LastMessagesWriter:
     """Stream writer which memories last 10 messages to save trackback"""
     def __init__(self, app, stream):
         # type: (Sphinx, IO) -> None

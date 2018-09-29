@@ -1248,7 +1248,7 @@ that use Sphinx's HTMLWriter class.
 
       :'sphinx.search.ja.DefaultSplitter':
          TinySegmenter algorithm. This is default splitter.
-      :'sphinx.search.ja.MeCabSplitter':
+      :'sphinx.search.ja.MecabSplitter':
          MeCab binding. To use this splitter, 'mecab' python binding or dynamic
          link library ('libmecab.so' for linux, 'libmecab.dll' for windows) is
          required.
@@ -1349,6 +1349,19 @@ Options for HTML help output
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
+
+.. confval:: htmlhelp_file_suffix
+
+   This is the file name suffix for generated HTML help files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 2.0
+
+.. confval:: htmlhelp_link_suffix
+
+   Suffix for generated links to HTML files.  The default is ``".html"``.
+
+   .. versionadded:: 2.0
 
 
 .. _applehelp-options:

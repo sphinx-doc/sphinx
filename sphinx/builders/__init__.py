@@ -9,14 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pickle
 import time
-import warnings
 from os import path
 
 from docutils import nodes
-from six.moves import cPickle as pickle
 
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -54,7 +52,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Builder(object):
+class Builder:
     """
     Builds target formats from the reST sources.
     """
@@ -97,8 +95,6 @@ class Builder(object):
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
-        self.warn = app.warn        # type: Callable
-        self.info = app.info        # type: Callable
         self.config = app.config    # type: Config
         self.tags = app.tags        # type: Tags
         self.tags.add(self.format)
@@ -137,22 +133,6 @@ class Builder(object):
         Users can replace the translator class with ``app.set_translator()`` API.
         """
         return self.app.registry.create_translator(self, *args)
-
-    @property
-    def translator_class(self):
-        # type: () -> Callable[[Any], nodes.NodeVisitor]
-        """Return a class of translator.
-
-        .. deprecated:: 1.6
-        """
-        translator_class = self.app.registry.get_translator_class(self)
-        if translator_class is None and self.default_translator_class is None:
-            warnings.warn('builder.translator_class() is now deprecated. '
-                          'Please use builder.create_translator() and '
-                          'builder.default_translator_class instead.',
-                          RemovedInSphinx20Warning)
-            return None
-        return self.create_translator
 
     # helper methods
     def init(self):
@@ -261,7 +241,6 @@ class Builder(object):
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             charset=self.config.source_encoding,
-            gettext_compact=self.config.gettext_compact,
             force_all=True,
             excluded=Matcher(['**/.?**']))
         message = __('all of %d po files') % len(catalogs)
@@ -284,7 +263,6 @@ class Builder(object):
             self.config.language,
             domains=list(specified_domains),
             charset=self.config.source_encoding,
-            gettext_compact=self.config.gettext_compact,
             excluded=Matcher(['**/.?**']))
         message = __('targets for %d po files that are specified') % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -295,7 +273,6 @@ class Builder(object):
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             charset=self.config.source_encoding,
-            gettext_compact=self.config.gettext_compact,
             excluded=Matcher(['**/.?**']))
         message = __('targets for %d po files that are out of date') % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -559,7 +536,7 @@ class Builder(object):
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = self.env.doc2path(docname, self.env.doctreedir, '.doctree')
+        doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)

@@ -22,12 +22,12 @@ import warnings
 from codecs import BOM_UTF8
 from collections import deque
 from datetime import datetime
+from hashlib import md5
 from os import path
 from time import mktime, strptime
 
 from docutils.utils import relative_path
-from six import text_type, binary_type, itervalues
-from six.moves import range
+from six import text_type, binary_type
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -167,6 +167,37 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+class DownloadFiles(dict):
+    """A special dictionary for download files.
+
+    .. important:: This class would be refactored in nearly future.
+                   Hence don't hack this directly.
+    """
+
+    def add_file(self, docname, filename):
+        # type: (unicode, unicode) -> None
+        if filename not in self:
+            digest = md5(filename.encode('utf-8')).hexdigest()
+            dest = '%s/%s' % (digest, os.path.basename(filename))
+            self[filename] = (set(), dest)
+
+        self[filename][0].add(docname)
+        return self[filename][1]
+
+    def purge_doc(self, docname):
+        # type: (unicode) -> None
+        for filename, (docs, dest) in list(self.items()):
+            docs.discard(docname)
+            if not docs:
+                del self[filename]
+
+    def merge_other(self, docnames, other):
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        for filename, (docs, dest) in other.items():
+            for docname in docs & set(docnames):
+                self.add_file(docname, filename)
+
+
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
     # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
@@ -235,7 +266,7 @@ def save_traceback(app):
                    jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
-        for ext in itervalues(app.extensions):
+        for ext in app.extensions.values():
             modfile = getattr(ext.module, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
@@ -282,6 +313,12 @@ def get_module_source(modname):
             filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
+    elif ('.egg' + os.path.sep) in filename:
+        pat = '(?<=\\.egg)' + re.escape(os.path.sep)
+        eggpath, _ = re.split(pat, filename, 1)
+        if path.isfile(eggpath):
+            return 'file', filename
+
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
@@ -366,7 +403,7 @@ def detect_encoding(readline):
 
 # Low-level utility functions and classes.
 
-class Tee(object):
+class Tee:
     """
     File-like object writing to two streams.
     """
@@ -498,7 +535,7 @@ def format_exception_cut_frames(x=1):
     return ''.join(res)
 
 
-class PeekableIterator(object):
+class PeekableIterator:
     """
     An iterator which wraps any iterable and makes it possible to peek to see
     what's the next item.
@@ -639,8 +676,7 @@ def xmlname_checker():
         [u'\u2C00', u'\u2FEF'], [u'\u3001', u'\uD7FF'], [u'\uF900', u'\uFDCF'],
         [u'\uFDF0', u'\uFFFD']]
 
-    if sys.version_info.major == 3:
-        name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
+    name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
 
     name_chars = [
         u"\\-", u"\\.", [u'0', u'9'], u'\u00B7', [u'\u0300', u'\u036F'],

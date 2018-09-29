@@ -340,7 +340,9 @@ Note: By default this script will not overwrite already created files."""))
     parser.add_argument('-P', '--private', action='store_true',
                         dest='includeprivate',
                         help=__('include "_private" modules'))
-    parser.add_argument('-T', '--no-toc', action='store_true', dest='notoc',
+    parser.add_argument('--tocfile', action='store', dest='tocfile', default='modules',
+                        help=__("don't create a table of contents file"))
+    parser.add_argument('-T', '--no-toc', action='store_false', dest='tocfile',
                         help=__("don't create a table of contents file"))
     parser.add_argument('-E', '--no-headings', action='store_true',
                         dest='noheadings',
@@ -453,8 +455,8 @@ def main(argv=sys.argv[1:]):
 
         if not args.dryrun:
             qs.generate(d, silent=True, overwrite=args.force)
-    elif not args.notoc:
-        create_modules_toc_file(modules, args)
+    elif args.tocfile:
+        create_modules_toc_file(modules, args, args.tocfile)
 
     return 0
 

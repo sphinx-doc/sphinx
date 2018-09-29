@@ -11,7 +11,6 @@
 """
 import mock
 import pytest
-from six import PY3
 
 import sphinx
 from sphinx.config import Config, ENUM, string_classes, check_confval_types
@@ -136,19 +135,6 @@ def test_errors_warnings(logger, tempdir):
     assert cfg.project == u'Jägermeister'
     assert logger.called is False
 
-    # test the warning for bytestrings with non-ascii content
-    # bytestrings with non-ascii content are a syntax error in python3 so we
-    # skip the test there
-    if PY3:
-        return
-    (tempdir / 'conf.py').write_text(
-        u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config.read(tempdir, {}, None)
-
-    assert logger.warning.called is False
-    cfg.check_unicode()
-    assert logger.warning.called is True
-
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
@@ -218,7 +204,7 @@ def test_builtin_conf(app, status, warning):
 
 
 # example classes for type checking
-class A(object):
+class A:
     pass
 
 
@@ -242,7 +228,7 @@ TYPECHECK_WARNINGS = [
     ('value8', B(), None, C(), False),                          # sibling type
     ('value9', None, None, 'foo', False),                       # no default or no annotations
     ('value10', None, None, 123, False),                        # no default or no annotations
-    ('value11', None, [str], u'bar', False if PY3 else True),   # str vs unicode
+    ('value11', None, [str], u'bar', False),                    # str vs unicode
     ('value12', 'string', None, u'bar', False),                 # str vs unicode
     ('value13', None, string_classes, 'bar', False),            # string_classes
     ('value14', None, string_classes, u'bar', False),           # string_classes

@@ -34,7 +34,7 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'ignore-module-all', 'exclude-members']
 
 
-class DummyOptionSpec(object):
+class DummyOptionSpec:
     """An option_spec allows any options."""
 
     def __getitem__(self, key):
@@ -42,7 +42,7 @@ class DummyOptionSpec(object):
         return lambda x: x
 
 
-class DocumenterBridge(object):
+class DocumenterBridge:
     """A parameters container for Documenters."""
 
     def __init__(self, env, reporter, options, lineno):

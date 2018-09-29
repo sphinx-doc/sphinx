@@ -9,9 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 import gettext
-import io
 import os
 import re
+import warnings
 from collections import namedtuple
 from datetime import datetime
 from os import path
@@ -20,6 +20,7 @@ import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -67,14 +68,14 @@ class CatalogInfo(LocaleFileInfoBase):
 
     def write_mo(self, locale):
         # type: (unicode) -> None
-        with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
+        with open(self.po_path, 'rt', encoding=self.charset) as file_po:  # type: ignore
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
                 logger.warning(__('reading error: %s, %s'), self.po_path, exc)
                 return
 
-        with io.open(self.mo_path, 'wb') as file_mo:
+        with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:
@@ -103,7 +104,7 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
     return files  # type: ignore
 
 
-def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
+def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,
                               charset='utf-8', force_all=False,
                               excluded=Matcher([])):
     # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Matcher) -> Set[CatalogInfo]  # NOQA
@@ -115,14 +116,15 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
     :param str locale: a language as `'en'`
     :param list domains: list of domain names to get. If empty list or None
        is specified, get all domain names. default is None.
-    :param boolean gettext_compact:
-       * False: keep domains directory structure (default).
-       * True: domains in the sub directory will be merged into 1 file.
     :param boolean force_all:
        Set True if you want to get all catalogs rather than updated catalogs.
        default is False.
     :return: [CatalogInfo(), ...]
     """
+    if gettext_compact is not None:
+        warnings.warn('gettext_compact argument for find_catalog_source_files() '
+                      'is deprecated.', RemovedInSphinx30Warning)
+
     catalogs = set()  # type: Set[CatalogInfo]
 
     if not locale:
@@ -143,10 +145,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
                 if excluded(path.join(relpath(dirpath, base_dir), filename)):
                     continue
                 base = path.splitext(filename)[0]
-                domain = relpath(path.join(dirpath, base), base_dir)
-                if gettext_compact and path.sep in domain:
-                    domain = path.split(domain)[0]
-                domain = domain.replace(path.sep, SEP)
+                domain = relpath(path.join(dirpath, base), base_dir).replace(path.sep, SEP)
                 if domains and domain not in domains:
                     continue
                 cat = CatalogInfo(base_dir, domain, charset)

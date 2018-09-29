@@ -14,8 +14,6 @@ import textwrap
 from os import path
 
 from docutils import nodes, writers
-from six import itervalues
-from six.moves import range
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
@@ -498,7 +496,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
         indices_config = self.builder.config.texinfo_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -612,7 +610,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
-        for id in self.next_section_ids:
+        for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
         self.next_section_ids.clear()

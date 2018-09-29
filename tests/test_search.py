@@ -9,12 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+from io import BytesIO
 from collections import namedtuple
 
 import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
-from six import BytesIO
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
@@ -22,7 +22,7 @@ from sphinx.util import jsdump
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
 
-class DummyDomain(object):
+class DummyDomain:
     def __init__(self, data):
         self.data = data
         self.object_types = {}

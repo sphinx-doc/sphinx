@@ -22,7 +22,7 @@ from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
 
 
 def parse(name, string):
-    class Config(object):
+    class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
@@ -86,7 +86,7 @@ def check(name, input, idDict, output=None):
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':
@@ -804,7 +804,7 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-    class RoleClasses(object):
+    class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
         def __init__(self, role, root, contents):

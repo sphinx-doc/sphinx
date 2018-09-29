@@ -17,9 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
-)
+from six import string_types, binary_type, text_type, integer_types
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -38,18 +36,30 @@ if False:
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
-UNSERIALIZEABLE_TYPES = class_types + (types.ModuleType, types.FunctionType)
+UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
-
-if PY3:
-    unicode = str  # special alias for static typing...
 
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', Union[bool, unicode])])
+                                         ('rebuild', Union[bool, text_type])])
 
 
-class ENUM(object):
+def is_serializable(obj):
+    # type: (Any) -> bool
+    """Check if object is serializable or not."""
+    if isinstance(obj, UNSERIALIZABLE_TYPES):
+        return False
+    elif isinstance(obj, dict):
+        for key, value in obj.items():
+            if not is_serializable(key) or not is_serializable(value):
+                return False
+    elif isinstance(obj, (list, tuple, set)):
+        return all(is_serializable(i) for i in obj)
+
+    return True
+
+
+class ENUM:
     """represents the config value should be a one of candidates.
 
     Example:
@@ -68,11 +78,9 @@ class ENUM(object):
 
 
 string_classes = [text_type]  # type: List
-if PY2:
-    string_classes.append(binary_type)  # => [str, unicode]
 
 
-class Config(object):
+class Config:
     """Configuration file abstraction.
 
     The config object makes the values of all config values available as
@@ -246,7 +254,7 @@ class Config(object):
     def init_values(self):
         # type: () -> None
         config = self._raw_config
-        for valname, value in iteritems(self.overrides):
+        for valname, value in self.overrides.items():
             try:
                 if '.' in valname:
                     realvalname, key = valname.split('.', 1)
@@ -295,7 +303,7 @@ class Config(object):
 
     def __iter__(self):
         # type: () -> Generator[ConfigValue, None, None]
-        for name, value in iteritems(self.values):
+        for name, value in self.values.items():
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
     def add(self, name, default, rebuild, types):
@@ -316,17 +324,17 @@ class Config(object):
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {}
-        for key, value in iteritems(self.__dict__):
-            if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
+        for key, value in self.__dict__.items():
+            if key.startswith('_') or not is_serializable(value):
                 pass
             else:
                 __dict__[key] = value
 
         # create a picklable copy of values list
         __dict__['values'] = {}
-        for key, value in iteritems(self.values):  # type: ignore
+        for key, value in self.values.items():  # type: ignore
             real_value = getattr(self, key)
-            if isinstance(real_value, UNSERIALIZEABLE_TYPES):
+            if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
 
@@ -352,9 +360,8 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s")
-            if PY3:
-                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n"
+                     "Did you change the syntax from 2.x to 3.x?")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "
@@ -476,11 +483,19 @@ def check_unicode(config):
     """
     nonascii_re = re.compile(br'[\x80-\xff]')
 
-    for name, value in iteritems(config._raw_config):
+    for name, value in config._raw_config.items():
         if isinstance(value, binary_type) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '
                               'Please use Unicode strings, e.g. %r.'), name, u'Content')
+
+
+def check_primary_domain(app, config):
+    # type: (Sphinx, Config) -> None
+    primary_domain = config.primary_domain
+    if primary_domain and not app.registry.has_domain(primary_domain):
+        logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
+        config.primary_domain = None  # type: ignore
 
 
 def setup(app):
@@ -489,6 +504,7 @@ def setup(app):
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)
     app.connect('config-inited', check_confval_types)
+    app.connect('config-inited', check_primary_domain)
 
     return {
         'version': 'builtin',

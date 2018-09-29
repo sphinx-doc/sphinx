@@ -98,7 +98,7 @@ def accesskey(context, key):
     return ''
 
 
-class idgen(object):
+class idgen:
     def __init__(self):
         # type: () -> None
         self.id = 0
