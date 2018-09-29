@@ -112,7 +112,7 @@ class Config:
         locale_dirs = (['locales'], 'env', []),
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
-        master_doc = ('contents', 'env', []),
+        master_doc = ('index', 'env', []),
         source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
         source_encoding = ('utf-8-sig', 'env', []),
         source_parsers = ({}, 'env', []),

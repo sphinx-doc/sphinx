@@ -22,7 +22,7 @@ def test_incremental_reading(app):
 
     # before second reading, add, modify and remove source files
     (app.srcdir / 'new.txt').write_text('New file\n========\n')
-    app.env.all_docs['contents'] = 0  # mark as modified
+    app.env.all_docs['index'] = 0  # mark as modified
     (app.srcdir / 'autodoc.txt').unlink()
 
     # second reading
@@ -31,7 +31,7 @@ def test_incremental_reading(app):
     # "includes" and "images" are in there because they contain references
     # to nonexisting downloadable or image files, which are given another
     # chance to exist
-    assert set(updated) == set(['contents', 'new', 'includes', 'images'])
+    assert set(updated) == set(['index', 'new', 'includes', 'images'])
     assert 'autodoc' not in app.env.all_docs
     assert 'autodoc' not in app.env.found_docs
 

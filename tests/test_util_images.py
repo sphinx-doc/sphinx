@@ -19,7 +19,7 @@ from sphinx.util.images import (
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
 PDF_FILENAME = 'img.pdf'
-TXT_FILENAME = 'contents.txt'
+TXT_FILENAME = 'index.txt'
 
 
 @pytest.fixture(scope='module')

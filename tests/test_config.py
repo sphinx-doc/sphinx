@@ -77,7 +77,7 @@ def test_extension_values():
     config = Config()
 
     # check standard settings
-    assert config.master_doc == 'contents'
+    assert config.master_doc == 'index'
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
