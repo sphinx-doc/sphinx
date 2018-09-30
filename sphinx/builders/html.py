@@ -1564,11 +1564,22 @@ def convert_html_js_files(app, config):
     config.html_js_files = html_js_files  # type: ignore
 
 
+def add_documentation_options_js(app, config):
+    # type: (Sphinx, Config) -> None
+    """Adds path of ``add_documentation_options.js_t`` to the ``html_js_files``
+    variable. This avoids issues with older templates that use a custom
+    layout file."""
+    config.html_js_files.append('documentation_options.js')
+
+
 def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
     # type: (Sphinx, unicode, unicode, Dict, nodes.Node) -> None
-    """Set up js_tag() template helper.
+    """Set up js_tag() template helper and add special handling for
+    ``add_documentation_options``.
 
-    .. note:: This set up function is added to keep compatibility with webhelper.
+    .. note:: This set up function is added to keep compatibility with
+    webhelper, as well as with older templates that use a custom
+    layout file.
     """
     pathto = context.get('pathto')
 
@@ -1590,6 +1601,10 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
             # str value (old styled)
             attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
+        # special handling of 'documentation_options.js'
+        if 'documentation_options.js' in js.filename:
+            attrs.append('id="documentation_options"')
+            attrs.append('data-url_root="%s"' % pathto('', 1))
         return '<script %s>%s</script>' % (' '.join(attrs), body)
 
     context['js_tag'] = js_tag
@@ -1663,6 +1678,7 @@ def setup(app):
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)
+    app.connect('config-inited', add_documentation_options_js)
     app.connect('config-inited', convert_html_js_files)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_js_tag_helper)
