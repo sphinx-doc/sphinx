@@ -1597,14 +1597,14 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
                         attrs.append('%s="%s"' % (key, htmlescape(value, True)))
             if js.filename:
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
+                # special handling of 'documentation_options.js'
+                if 'documentation_options.js' in js.filename:
+                    attrs.append('id="documentation_options"')
+                    attrs.append('data-url_root="%s"' % pathto('', 1))
         else:
             # str value (old styled)
             attrs.append('type="text/javascript"')
             attrs.append('src="%s"' % pathto(js, resource=True))
-        # special handling of 'documentation_options.js'
-        if 'documentation_options.js' in js.filename:
-            attrs.append('id="documentation_options"')
-            attrs.append('data-url_root="%s"' % pathto('', 1))
         return '<script %s>%s</script>' % (' '.join(attrs), body)
 
     context['js_tag'] = js_tag
