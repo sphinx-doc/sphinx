@@ -16,6 +16,8 @@ Features added
 Bugs fixed
 ----------
 
+* #5490: latex: enumerated list causes a crash with recommonmark
+
 Testing
 --------
 
