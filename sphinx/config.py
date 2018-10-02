@@ -395,8 +395,8 @@ def convert_source_suffix(app, config):
         # if dict, convert it to OrderedDict
         config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
     else:
-        logger.warning(__("The config value `source_suffix' expected to "
-                          "a string, list of strings or dictionary. "
+        logger.warning(__("The config value `source_suffix' expects "
+                          "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))
 
 
@@ -463,11 +463,16 @@ def check_confval_types(app, config):
                 continue  # at least we share a non-trivial base class
 
             if annotations:
-                msg = __("The config value `{name}' has type `{current.__name__}', "
-                         "expected to {permitted}.")
+                msg = __("The config value `{name}' has type `{current.__name__}'; "
+                         "expected {permitted}.")
+                wrapped_annotations = ["`{}'".format(c.__name__) for c in annotations]
+                if len(wrapped_annotations) > 2:
+                    permitted = ", ".join(wrapped_annotations[:-1]) + ", or " + wrapped_annotations[-1]
+                else:
+                    permitted = " or ".join(wrapped_annotations)
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
-                                          permitted=str([c.__name__ for c in annotations])))
+                                          permitted=permitted))
             else:
                 msg = __("The config value `{name}' has type `{current.__name__}', "
                          "defaults to `{default.__name__}'.")
