@@ -182,7 +182,7 @@ Sphinx.
        }
 
    The default is to enable single ``$`` signs as delimiters (which are disabled
-   in the MathJax default settings).
+   in the MathJax default settings) and to only operate on the "math" CSS class.
 
 .. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
 

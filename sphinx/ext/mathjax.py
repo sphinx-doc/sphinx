@@ -115,6 +115,8 @@ def setup(app):
                              'tex2jax': {
                                  'inlineMath': [['$', '$'], ['\\(', '\\)']],
                                  'processEscapes': True,
+                                 'ignoreClass': '.*',
+                                 'processClass': 'math',
                              },
                          }, 'html')
     app.connect('env-check-consistency', install_mathjax)
