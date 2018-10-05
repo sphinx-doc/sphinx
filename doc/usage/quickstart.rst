@@ -320,7 +320,7 @@ More topics to be covered
 
 - :doc:`Other extensions </usage/extensions/index>`:
 - Static files
-- :doc:`Selecting a theme </theming>`
+- :doc:`Selecting a theme </usage/theming>`
 - :doc:`/usage/advanced/setuptools`
 - :ref:`Templating <templating>`
 - Using extensions

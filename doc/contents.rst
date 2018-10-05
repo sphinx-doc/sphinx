@@ -14,6 +14,7 @@ Sphinx documentation contents
    usage/configuration
    usage/builders/index
    usage/extensions/index
+   usage/theming
    usage/advanced/intl
    usage/advanced/setuptools
    usage/advanced/websupport/index

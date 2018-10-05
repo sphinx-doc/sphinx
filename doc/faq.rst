@@ -20,7 +20,7 @@ How do I...
    the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
-   Use themes, see :doc:`theming`.
+   Use themes, see :doc:`/usage/theming`.
 
 ... add global substitutions or includes?
    Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
