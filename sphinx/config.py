@@ -467,7 +467,9 @@ def check_confval_types(app, config):
                          "expected {permitted}.")
                 wrapped_annotations = ["`{}'".format(c.__name__) for c in annotations]
                 if len(wrapped_annotations) > 2:
-                    permitted = ", ".join(wrapped_annotations[:-1]) + ", or " + wrapped_annotations[-1]
+                    permitted = "{}, or {}".format(
+                        ", ".join(wrapped_annotations[:-1]),
+                        wrapped_annotations[-1])
                 else:
                     permitted = " or ".join(wrapped_annotations)
                 logger.warning(msg.format(name=confval.name,
