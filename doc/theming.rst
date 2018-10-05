@@ -18,36 +18,39 @@ projects without change.
 Using a theme
 -------------
 
-Using an existing theme is easy.  If the theme is builtin to Sphinx, you only
-need to set the :confval:`html_theme` config value.  With the
-:confval:`html_theme_options` config value you can set theme-specific options
-that change the look and feel.  For example, you could have the following in
-your :file:`conf.py`::
+Using a :ref:`theme provided with Sphinx <builtin-themes>` is easy. Since these
+do not need to be installed, you only need to set the :confval:`html_theme`
+config value. For example, to enable the ``classic`` theme, add the following
+to :file:`conf.py`::
 
     html_theme = "classic"
+
+You can also set theme-specific options using the :confval:`html_theme_options`
+config value.  These options are generally used to change the look and feel of
+the theme. For example, to place the sidebar on the right side and a black
+background for the relation bar (the bar with the navigation links at the
+page's top and bottom), add the following :file:`conf.py`::
+
     html_theme_options = {
         "rightsidebar": "true",
         "relbarbgcolor": "black"
     }
 
-That would give you the classic theme, but with a sidebar on the right side and
-a black background for the relation bar (the bar with the navigation links at
-the page's top and bottom).
-
-If the theme does not come with Sphinx, it can be in two static forms: either a
-directory (containing :file:`theme.conf` and other needed files), or a zip file
-with the same contents.  Either of them must be put where Sphinx can find it;
-for this there is the config value :confval:`html_theme_path`.  It gives a list
-of directories, relative to the directory containing :file:`conf.py`, that can
-contain theme directories or zip files.  For example, if you have a theme in the
-file :file:`blue.zip`, you can put it right in the directory containing
-:file:`conf.py` and use this configuration::
+If the theme does not come with Sphinx, it can be in two static forms or as a
+Python package. For the static forms, either a directory (containing
+:file:`theme.conf` and other needed files), or a zip file with the same
+contents is supported. The directory or zipfile must be put where Sphinx can
+find it; for this there is the config value :confval:`html_theme_path`. This
+can be a list of directories, relative to the directory containing
+:file:`conf.py`, that can contain theme directories or zip files.  For example,
+if you have a theme in the file :file:`blue.zip`, you can put it right in the
+directory containing :file:`conf.py` and use this configuration::
 
     html_theme = "blue"
     html_theme_path = ["."]
 
-The third form is a python package.  If a theme you want to use is distributed
-as a python package, you can use it after installing
+The third form is a Python package.  If a theme you want to use is distributed
+as a Python package, you can use it after installing
 
 .. code-block:: bash
 
@@ -106,7 +109,8 @@ Sphinx comes with a selection of themes to choose from.
 
 These themes are:
 
-* **basic** -- This is a basically unstyled layout used as the base for the
+**basic**
+  This is a basically unstyled layout used as the base for the
   other themes, and usable as the base for custom themes as well.  The HTML
   contains all important elements like sidebar and relation bar.  There are
   these options (which are inherited by the other themes):
@@ -128,16 +132,18 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
-* **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
-  (especially as used in his Requests project), which was itself originally based on
-  @mitsuhiko's theme used for Flask & related projects.
-  Check out at its `installation page`_ how to set up properly
+**alabaster**
+  `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
+  (especially as used in his Requests project), which was itself originally
+  based on @mitsuhiko's theme used for Flask & related projects.  Refer to its
+  `installation page`_ for information on how to configure
   :confval:`html_sidebars` for its use.
 
   .. _Alabaster theme: https://pypi.org/project/alabaster/
   .. _installation page: https://alabaster.readthedocs.io/en/latest/installation.html
 
-* **classic** -- This is the classic theme, which looks like `the Python 2
+**classic**
+  This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via
   these options:
 
@@ -182,7 +188,8 @@ These themes are:
   - **bodyfont** (CSS font-family): Font for normal text.
   - **headfont** (CSS font-family): Font for headings.
 
-* **sphinxdoc** -- The theme originally used by this documentation. It features
+**sphinxdoc**
+  The theme originally used by this documentation. It features
   a sidebar on the right side. There are currently no options beyond
   *nosidebar* and *sidebarwidth*.
 
@@ -192,7 +199,8 @@ These themes are:
     `an adjusted version of the sphinxdoc theme
     <https://github.com/sphinx-doc/sphinx/tree/master/doc/_themes/sphinx13>`_.
 
-* **scrolls** -- A more lightweight theme, based on `the Jinja documentation
+**scrolls**
+  A more lightweight theme, based on `the Jinja documentation
   <http://jinja.pocoo.org/>`_.  The following color options are available:
 
   - **headerbordercolor**
@@ -201,8 +209,8 @@ These themes are:
   - **visitedlinkcolor**
   - **admonitioncolor**
 
-* **agogo** -- A theme created by Andi Albrecht.  The following options are
-  supported:
+**agogo**
+  A theme created by Andi Albrecht.  The following options are supported:
 
   - **bodyfont** (CSS font family): Font for normal text.
   - **headerfont** (CSS font family): Font for headings.
@@ -223,14 +231,16 @@ These themes are:
   - **textalign** (CSS *text-align* value): Text alignment for the body, default
     is ``justify``.
 
-* **nature** -- A greenish theme.  There are currently no options beyond
+**nature**
+  A greenish theme.  There are currently no options beyond
   *nosidebar* and *sidebarwidth*.
 
-* **pyramid** -- A theme from the Pyramid web framework project, designed by
-  Blaise Laflamme.  There are currently no options beyond *nosidebar* and
-  *sidebarwidth*.
+**pyramid**
+  A theme from the Pyramid web framework project, designed by Blaise Laflamme.
+  There are currently no options beyond *nosidebar* and *sidebarwidth*.
 
-* **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
+**haiku**
+  A theme without sidebar inspired by the `Haiku OS user guide
   <https://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
   options are supported:
 
@@ -238,22 +248,27 @@ These themes are:
     header will only show the :confval:`html_logo`.  Use this for large logos.
     If this is false, the logo (if present) will be shown floating right, and
     the documentation title will be put in the header.
+
   - **textcolor**, **headingcolor**, **linkcolor**, **visitedlinkcolor**,
     **hoverlinkcolor** (CSS colors): Colors for various body elements.
 
-* **traditional** -- A theme resembling the old Python documentation.  There are
+**traditional**
+  A theme resembling the old Python documentation.  There are
   currently no options beyond *nosidebar* and *sidebarwidth*.
 
-* **epub** -- A theme for the epub builder.  This theme tries to save visual
+**epub**
+  A theme for the epub builder.  This theme tries to save visual
   space which is a sparse resource on ebook readers.  The following options
   are supported:
 
   - **relbar1** (true or false, default ``True``): If this is true, the
     `relbar1` block is inserted in the epub output, otherwise it is omitted.
+
   - **footer**  (true or false, default ``True``): If this is true, the
     `footer` block is inserted in the epub output, otherwise it is omitted.
 
-- **bizstyle** -- A simple bluish theme. The following options are supported
+**bizstyle**
+  A simple bluish theme. The following options are supported
   beyond *nosidebar* and *sidebarwidth*:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.
@@ -267,13 +282,14 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+
 Creating themes
 ---------------
 
-As said, themes are either a directory or a zipfile (whose name is the theme
-name), containing the following:
+Themes take the form of either a directory or a zipfile (whose name is the
+theme name), containing the following:
 
-* A :file:`theme.conf` file, see below.
+* A :file:`theme.conf` file.
 * HTML templates, if needed.
 * A ``static/`` directory containing any static files that will be copied to the
   output static directory on build.  These can be images, styles, script files.
@@ -318,16 +334,17 @@ Python :mod:`ConfigParser` module) and has the following structure:
 .. versionadded:: 1.7
    sidebar settings
 
+
 .. _distribute-your-theme:
 
-Distribute your theme as a python package
+Distribute your theme as a Python package
 -----------------------------------------
 
-As a way to distribute your theme, you can use python package.  Python package
+As a way to distribute your theme, you can use Python package.  Python package
 brings to users easy setting up ways.
 
-To distribute your theme as a python package, please define an entry point
-called ``sphinx.html_themes`` in your setup.py file, and write a ``setup()``
+To distribute your theme as a Python package, please define an entry point
+called ``sphinx.html_themes`` in your ``setup.py`` file, and write a ``setup()``
 function to register your themes using ``add_html_theme()`` API in it::
 
     # 'setup.py'
@@ -347,9 +364,8 @@ function to register your themes using ``add_html_theme()`` API in it::
     def setup(app):
         app.add_html_theme('name_of_theme', path.abspath(path.dirname(__file__)))
 
-
-If your theme package contains two or more themes, please call ``add_html_theme()``
-twice or more.
+If your theme package contains two or more themes, please call
+``add_html_theme()`` twice or more.
 
 .. versionadded:: 1.2
    'sphinx_themes' entry_points feature.
@@ -360,8 +376,9 @@ twice or more.
 .. versionadded:: 1.6
    ``sphinx.html_themes`` entry_points feature.
 
+
 Templating
-~~~~~~~~~~
+----------
 
 The :doc:`guide to templating <templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
@@ -375,7 +392,6 @@ When extending a template in the base theme with the same name, use the theme
 name as an explicit directory: ``{% extends "basic/layout.html" %}``.  From a
 user ``templates_path`` template, you can still use the "exclamation mark"
 syntax as described in the templating document.
-
 
 Static templates
 ~~~~~~~~~~~~~~~~
@@ -393,10 +409,10 @@ templating to put the color options into the stylesheet.  When a documentation
 is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
 
-
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
        because that would pose an unnecessary security risk if themes are
        shared.
+
 
 Third Party Themes
 ------------------
@@ -413,7 +429,15 @@ Third Party Themes
 
 .. |sphinx_rtd_theme| image:: themes/sphinx_rtd_theme.png
 
-* **sphinx_rtd_theme** -- `Read the Docs Sphinx Theme`_.
+There are many third-party themes available. Some of these are general use,
+while others are specific to an individual project. A section of third-party
+themes is listed below. Many more can be found on PyPI__, GitHub__ and
+sphinx-themes.org__.
+
+.. cssclass:: clear
+
+**sphinx_rtd_theme**
+  `Read the Docs Sphinx Theme`_.
   This is a mobile-friendly sphinx theme that was made for readthedocs.org.
   View a working demo over on readthedocs.org. You can get install and options
   information at `Read the Docs Sphinx Theme`_ page.
@@ -422,10 +446,6 @@ Third Party Themes
 
   .. versionchanged:: 1.4
      **sphinx_rtd_theme** has become optional.
-
-
-Besides this, there are a lot of third party themes.  You can find them on
-PyPI__, GitHub__, sphinx-themes.org__ and so on.
 
 .. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 .. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
