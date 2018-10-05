@@ -2,6 +2,7 @@
 
 .. _templating:
 
+==========
 Templating
 ==========
 
@@ -69,9 +70,10 @@ following contents::
 By prefixing the name of the overridden template with an exclamation mark,
 Sphinx will load the layout template from the underlying HTML theme.
 
-**Important**: If you override a block, call ``{{ super() }}`` somewhere to
-render the block's original content in the extended template -- unless you
-don't want that content to show up.
+.. important::
+   If you override a block, call ``{{ super() }}`` somewhere to render the
+   block's original content in the extended template -- unless you don't want
+   that content to show up.
 
 
 Working with the builtin templates
@@ -85,72 +87,68 @@ Blocks
 
 The following blocks exist in the ``layout.html`` template:
 
-`doctype`
+``doctype``
     The doctype of the output format.  By default this is XHTML 1.0 Transitional
     as this is the closest to what Sphinx and Docutils generate and it's a good
     idea not to change it unless you want to switch to HTML 5 or a different but
     compatible XHTML doctype.
 
-`linktags`
+``linktags``
     This block adds a couple of ``<link>`` tags to the head section of the
     template.
 
-`extrahead`
+``extrahead``
     This block is empty by default and can be used to add extra contents into
     the ``<head>`` tag of the generated HTML file.  This is the right place to
     add references to JavaScript or extra CSS files.
 
-`relbar1` / `relbar2`
+``relbar1``, ``relbar2``
     This block contains the *relation bar*, the list of related links (the
     parent documents on the left, and the links to index, modules etc. on the
-    right).  `relbar1` appears before the document, `relbar2` after the
+    right).  ``relbar1`` appears before the document, ``relbar2`` after the
     document.  By default, both blocks are filled; to show the relbar only
     before the document, you would override `relbar2` like this::
 
        {% block relbar2 %}{% endblock %}
 
-`rootrellink` / `relbaritems`
-    Inside the relbar there are three sections: The `rootrellink`, the links
-    from the documentation and the custom `relbaritems`.  The `rootrellink` is a
-    block that by default contains a list item pointing to the master document
-    by default, the `relbaritems` is an empty block.  If you override them to
-    add extra links into the bar make sure that they are list items and end with
-    the :data:`reldelim1`.
+``rootrellink``, ``relbaritems``
+    Inside the relbar there are three sections: The ``rootrellink``, the links
+    from the documentation and the custom ``relbaritems``.  The ``rootrellink``
+    is a block that by default contains a list item pointing to the master
+    document by default, the ``relbaritems`` is an empty block.  If you
+    override them to add extra links into the bar make sure that they are list
+    items and end with the :data:`reldelim1`.
 
-`document`
-    The contents of the document itself.  It contains the block "body" where the
-    individual content is put by subtemplates like ``page.html``.
+``document``
+    The contents of the document itself.  It contains the block "body" where
+    the individual content is put by subtemplates like ``page.html``.
 
     .. note::
         In order for the built-in JavaScript search to show a page preview on
         the results page, the document or body content should be wrapped in an
-        HTML element containing the ``role="main"`` attribute. For example:
-
-        .. sourcecode:: html+jinja
+        HTML element containing the ``role="main"`` attribute. For example::
 
             <div role="main">
               {% block document %}{% endblock %}
             </div>
 
-`sidebar1` / `sidebar2`
-    A possible location for a sidebar.  `sidebar1` appears before the document
-    and is empty by default, `sidebar2` after the document and contains the
+``sidebar1``, ``sidebar2``
+    A possible location for a sidebar.  ``sidebar1`` appears before the document
+    and is empty by default, ``sidebar2`` after the document and contains the
     default sidebar.  If you want to swap the sidebar location override this and
-    call the `sidebar` helper:
-
-    .. sourcecode:: html+jinja
+    call the ``sidebar`` helper::
 
         {% block sidebar1 %}{{ sidebar() }}{% endblock %}
         {% block sidebar2 %}{% endblock %}
 
-    (The `sidebar2` location for the sidebar is needed by the ``sphinxdoc.css``
+    (The ``sidebar2`` location for the sidebar is needed by the ``sphinxdoc.css``
     stylesheet, for example.)
 
-`sidebarlogo`
+``sidebarlogo``
     The logo location within the sidebar.  Override this if you want to place
     some content at the top of the sidebar.
 
-`footer`
+``footer``
     The block for the footer div.  If you want a custom footer or markup before
     or after it, override this one.
 
@@ -159,23 +157,23 @@ list of custom sidebars in the :confval:`html_sidebars` config value.  Their use
 is deprecated in favor of separate sidebar templates, which can be included via
 :confval:`html_sidebars`.
 
-`sidebartoc`
+``sidebartoc``
     The table of contents within the sidebar.
 
     .. deprecated:: 1.0
 
-`sidebarrel`
+``sidebarrel``
     The relation links (previous, next document) within the sidebar.
 
     .. deprecated:: 1.0
 
-`sidebarsourcelink`
+``sidebarsourcelink``
     The "Show source" link within the sidebar (normally only shown if this is
     enabled by :confval:`html_show_sourcelink`).
 
     .. deprecated:: 1.0
 
-`sidebarsearch`
+``sidebarsearch``
     The search box within the sidebar.  Override this if you want to place some
     content at the bottom of the sidebar.
 
@@ -392,7 +390,6 @@ are in HTML form), these variables are also available:
       <a href="{{ next.link|e }}">{{ next.title }}</a>
       {% endif %}
 
-
 .. data:: page_source_suffix
 
    The suffix of the file that was rendered. Since we support a list of
@@ -424,14 +421,19 @@ are in HTML form), these variables are also available:
    A callable yielding the global TOC tree containing the current page, rendered
    as HTML bullet lists.  Optional keyword arguments:
 
-   * ``collapse`` (``True`` by default): if true, all TOC entries that are not
-     ancestors of the current page are collapsed
+   ``collapse``
+     If true, all TOC entries that are not ancestors of the current page are
+     collapsed.
+     ``True`` by default.
 
-   * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
-     the maximum depth of the tree; set it to ``-1`` to allow unlimited depth
+   ``maxdepth``
+     The maximum depth of the tree. Set it to ``-1`` to allow unlimited depth.
+     Defaults to the max depth selected in the toctree directive.
 
-   * ``titles_only`` (``False`` by default): if true, put only toplevel document
-     titles in the tree
+   ``titles_only``
+     If true, put only top-level document titles in the tree.
+     ``False`` by default.
 
-   * ``includehidden`` (``False`` by default): if true, the TOC tree will also
-     contain hidden entries.
+   ``includehidden``
+     If true, the ToC tree will also contain hidden entries.
+     ``False`` by default.
