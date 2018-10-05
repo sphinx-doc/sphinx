@@ -416,16 +416,18 @@ are in HTML form), these variables are also available:
    A callable yielding the global TOC tree containing the current page, rendered
    as HTML bullet lists.  Optional keyword arguments:
 
-   * ``collapse`` (``True`` by default): if true, all TOC entries that are not
-     ancestors of the current page are collapsed
+   ``collapse``
+     If true, all TOC entries that are not ancestors of the current page are
+     collapsed. ``True`` by default.
 
-   * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
-     the maximum depth of the tree; set it to ``-1`` to allow unlimited depth
+   ``maxdepth``
+     The maximum depth of the tree; set it to ``-1`` to allow unlimited depth.
+     Defaults to the max depth selected in the toctree directive.
 
-   * ``titles_only`` (``False`` by default): if true, put only toplevel document
-     titles in the tree
+   ``titles_only``
+     If true, put only toplevel document titles in the tree. ``False`` by
+     default.
 
-   * ``includehidden`` (``False`` by default): if true, the TOC tree will also
-     contain hidden entries.
-
-
+   ``includehidden``
+     If true, the TOC tree will also contain hidden entries. ``False`` by
+     default.
