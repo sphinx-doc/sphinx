@@ -136,6 +136,11 @@ The following is a list of deprecated interface.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.osutil.walk()``
+     - 2.0
+     - 4.0
+     - ``os.walk()``
+
    * - :rst:dir:`highlightlang`
      - 1.8
      - 4.0

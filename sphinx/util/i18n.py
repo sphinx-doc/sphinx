@@ -25,7 +25,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import Matcher
-from sphinx.util.osutil import SEP, relpath, walk
+from sphinx.util.osutil import SEP, relpath
 
 
 logger = logging.getLogger(__name__)
@@ -139,7 +139,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
         if not path.exists(base_dir):
             continue  # locale path is not found
 
-        for dirpath, dirnames, filenames in walk(base_dir, followlinks=True):
+        for dirpath, dirnames, filenames in os.walk(base_dir, followlinks=True):
             filenames = [f for f in filenames if f.endswith('.po')]
             for filename in filenames:
                 if excluded(path.join(relpath(dirpath, base_dir), filename)):

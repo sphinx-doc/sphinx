@@ -32,7 +32,7 @@ from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.locale import __
 from sphinx.util import rst
-from sphinx.util.osutil import FileAvoidWrite, ensuredir, walk
+from sphinx.util.osutil import FileAvoidWrite, ensuredir
 
 if False:
     # For type annotation
@@ -235,7 +235,7 @@ def recurse_tree(rootpath, excludes, opts):
         root_package = None
 
     toplevels = []
-    for root, subs, files in walk(rootpath, followlinks=followlinks):
+    for root, subs, files in os.walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
                           if path.splitext(f)[1] in PY_SUFFIXES and

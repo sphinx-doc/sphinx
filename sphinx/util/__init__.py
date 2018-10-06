@@ -87,7 +87,7 @@ def get_matching_files(dirname, exclude_matchers=()):
     dirname = path.normpath(path.abspath(dirname))
     dirlen = len(dirname) + 1    # exclude final os.path.sep
 
-    for root, dirs, files in walk(dirname, followlinks=True):
+    for root, dirs, files in os.walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
