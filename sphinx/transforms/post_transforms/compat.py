@@ -10,7 +10,6 @@
 """
 
 import warnings
-from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.writers.docutils_xml import XMLTranslator
@@ -20,7 +19,8 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging
 
-if TYPE_CHECKING:
+if False:
+    # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA

@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #5490: latex: enumerated list causes a crash with recommonmark
+* #5492: sphinx-build fails to build docs w/ Python < 3.5.2
 
 Testing
 --------
