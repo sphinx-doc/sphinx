@@ -247,6 +247,27 @@ def test_check_types(logger, name, default, annotation, actual, warned):
     assert logger.warning.called == warned
 
 
+TYPECHECK_WARNING_MESSAGES = [
+    ('value1', 'string', [str], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str'."),
+    ('value1', 'string', [str, int], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str' or `int'."),
+    ('value1', 'string', [str, int, tuple], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str', `int', or `tuple'."),
+]
+
+
+@mock.patch("sphinx.config.logger")
+@pytest.mark.parametrize("name,default,annotation,actual,message", TYPECHECK_WARNING_MESSAGES)
+def test_conf_warning_message(logger, name, default, annotation, actual, message):
+    config = Config({name: actual})
+    config.add(name, default, False, annotation or ())
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_called()
+    assert logger.warning.call_args[0][0] == message
+
+
 @mock.patch("sphinx.config.logger")
 def test_check_enum(logger):
     config = Config()
