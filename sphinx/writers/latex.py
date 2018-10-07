@@ -20,11 +20,10 @@ from os import path
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
-from six import itervalues, text_type
+from six import text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.nodes import captioned_literal_block, footnotetext
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -47,13 +46,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-BEGIN_DOC = r'''
-\begin{document}
-%(shorthandoff)s
-%(maketitle)s
-%(tableofcontents)s
-'''
-
 SHORTHANDOFF = r'''
 \ifdefined\shorthandoff
   \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
@@ -64,13 +56,6 @@ SHORTHANDOFF = r'''
 MAX_CITATION_LABEL_LENGTH = 8
 LATEXSECTIONNAMES = ["part", "chapter", "section", "subsection",
                      "subsubsection", "paragraph", "subparagraph"]
-HYPERLINK_SUPPORT_NODES = (
-    nodes.figure,
-    nodes.literal_block,
-    nodes.table,
-    nodes.section,
-    captioned_literal_block,
-)
 ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                    {
                                        'arabic': r'\arabic',
@@ -272,7 +257,7 @@ class ExtBabel(Babel):
             return None
 
 
-class Table(object):
+class Table:
     """A table data"""
 
     def __init__(self, node):
@@ -393,7 +378,7 @@ class Table(object):
             return None
 
 
-class TableCell(object):
+class TableCell:
     """A cell data of tables."""
 
     def __init__(self, table, row, col):
@@ -841,7 +826,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # latex_domain_indices can be False/True or a list of index names
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -872,7 +857,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.curfilestack.append(node.get('docname', ''))
         if self.first_document == 1:
             # the first document is all the regular content ...
-            self.body.append(BEGIN_DOC % self.elements)
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
@@ -1462,13 +1446,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         enum = "enum%s" % toRoman(get_nested_level(node)).lower()
         enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
+        prefix = node.get('prefix', '')
+        suffix = node.get('suffix', '.')
 
         self.body.append('\\begin{enumerate}\n')
         self.body.append('\\def\\the%s{%s{%s}}\n' % (enum, style, enum))
         self.body.append('\\def\\label%s{%s\\the%s %s}\n' %
-                         (enum, node['prefix'], enum, node['suffix']))
+                         (enum, prefix, enum, suffix))
         self.body.append('\\makeatletter\\def\\p@%s{\\p@%s %s\\the%s %s}\\makeatother\n' %
-                         (enumnext, enum, node['prefix'], enum, node['suffix']))
+                         (enumnext, enum, prefix, enum, suffix))
         if 'start' in node:
             self.body.append('\\setcounter{%s}{%d}\n' % (enum, node['start'] - 1))
         if self.table:
@@ -1843,8 +1829,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
+        next_node = node
+        while isinstance(next_node, nodes.target):
+            next_node = next_node.next_node(ascend=True)
+
         domain = self.builder.env.get_domain('std')
-        next_node = node.next_node(ascend=True)
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
@@ -2597,3 +2586,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 #
 # refs: https://github.com/sphinx-doc/sphinx/issues/4889
 from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
+
+# FIXME: Workaround to avoid circular import
+# refs: https://github.com/sphinx-doc/sphinx/issues/5433
+from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA

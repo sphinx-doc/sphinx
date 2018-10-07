@@ -46,7 +46,7 @@ class BooleanParser(Parser):
         return node
 
 
-class Tags(object):
+class Tags:
     def __init__(self, tags=None):
         # type: (List[unicode]) -> None
         self.tags = dict.fromkeys(tags or [], True)

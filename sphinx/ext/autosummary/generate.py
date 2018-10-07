@@ -20,7 +20,6 @@
 from __future__ import print_function
 
 import argparse
-import codecs
 import locale
 import os
 import pydoc
@@ -43,14 +42,15 @@ from sphinx.util.rst import escape as rst_escape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Tuple, List  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
     from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.ext.autodoc import Documenter  # NOQA
 
 
-class DummyApplication(object):
+class DummyApplication:
     """Dummy Application class for sphinx-autogen command."""
 
     def __init__(self):
@@ -69,7 +69,7 @@ def setup_documenters(app):
         ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter,
         FunctionDocumenter, MethodDocumenter, AttributeDocumenter,
         InstanceAttributeDocumenter
-    ]
+    ]  # type: List[Type[Documenter]]
     for documenter in documenters:
         app.registry.add_documenter(documenter.objtype, documenter)
 
@@ -248,8 +248,8 @@ def find_autosummary_in_files(filenames):
     """
     documented = []  # type: List[Tuple[unicode, unicode, unicode]]
     for filename in filenames:
-        with codecs.open(filename, 'r', encoding='utf-8',  # type: ignore
-                         errors='ignore') as f:
+        with open(filename, 'r', encoding='utf-8',  # type: ignore
+                  errors='ignore') as f:
             lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented

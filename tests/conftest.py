@@ -9,23 +9,17 @@
 
 import os
 import shutil
-import sys
 
+import docutils
 import pytest
 
+import sphinx
 from sphinx.testing.path import path
 
 pytest_plugins = 'sphinx.testing.fixtures'
 
 # Exclude 'roots' dirs for pytest test collector
 collect_ignore = ['roots']
-
-# Disable Python version-specific
-if sys.version_info < (3,):
-    collect_ignore += ['py3']
-
-if sys.version_info < (3, 5):
-    collect_ignore += ['py35']
 
 
 @pytest.fixture(scope='session')
@@ -34,8 +28,8 @@ def rootdir():
 
 
 def pytest_report_header(config):
-    return 'Running Sphinx test suite (with Python %s)...' % (
-        sys.version.split()[0])
+    return ("libraries: Sphinx-%s, docutils-%s" %
+            (sphinx.__display_version__, docutils.__version__))
 
 
 def _initialize_test_directory(session):

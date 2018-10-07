@@ -173,7 +173,7 @@ def make_app(test_params, monkeypatch):
         app_.cleanup()
 
 
-class SharedResult(object):
+class SharedResult:
     cache = {}  # type: Dict[str, Dict[str, str]]
 
     def store(self, key, app_):

@@ -21,7 +21,7 @@ def test_layout_overloading(make_app, app_params):
     setup_documenters(app)
     app.builder.build_update()
 
-    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text(encoding='utf-8')
 
     assert '<!-- layout overloading -->' in result
 

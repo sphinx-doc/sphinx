@@ -16,10 +16,9 @@ from itertools import cycle, chain
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
-from six import PY3
 
 from sphinx.errors import ConfigError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
 
@@ -30,10 +29,10 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
-file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
@@ -44,10 +43,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
-    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
 etree_cache = {}
@@ -151,7 +146,7 @@ def test_html_warnings(app, warning):
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
-        (".//a[@href='../_downloads/img.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//img[@src='../_images/img.png']", ''),
         (".//p", 'This is an include file.'),
         (".//pre/span", 'line 1'),
@@ -159,8 +154,7 @@ def test_html_warnings(app, warning):
     ],
     'includes.html': [
         (".//pre", u'Max Strauß'),
-        (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
@@ -249,7 +243,7 @@ def test_html_warnings(app, warning):
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -348,7 +342,7 @@ def test_html_warnings(app, warning):
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),
@@ -419,6 +413,31 @@ def test_html_warnings(app, warning):
 def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_download(app):
+    app.build()
+
+    # subdir/includes.html
+    result = (app.outdir / 'subdir' / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="../(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    filename = matched.group(1)
+
+    # includes.html
+    result = (app.outdir / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    assert matched.group(1) == filename
 
 
 @pytest.mark.sphinx('html', testroot='build-html-translator')
@@ -1387,3 +1406,23 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
         assert False
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_pygments_style_default(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'Alabaster'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'pygments_style': 'sphinx'})
+def test_html_pygments_style_manually(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_theme': 'classic'})
+def test_html_pygments_for_classic_theme(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'

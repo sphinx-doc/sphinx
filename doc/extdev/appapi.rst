@@ -115,32 +115,6 @@ Emitting events
    .. automethod:: emit_firstresult(event, \*arguments)
 
 
-Producing messages / logging
-----------------------------
-
-The application object also provides support for emitting leveled messages.
-
-.. note::
-
-   There is no "error" call: in Sphinx, errors are defined as things that stop
-   the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
-   custom subclass) to do that.
-
-.. deprecated:: 1.6
-
-   Please use :ref:`logging-api` instead.
-
-.. automethod:: Sphinx.warn
-
-.. automethod:: Sphinx.info
-
-.. automethod:: Sphinx.verbose
-
-.. automethod:: Sphinx.debug
-
-.. automethod:: Sphinx.debug2
-
-
 Sphinx runtime information
 --------------------------
 

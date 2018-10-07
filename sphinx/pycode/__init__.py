@@ -10,7 +10,11 @@
 """
 from __future__ import print_function
 
-from six import iteritems, BytesIO, StringIO
+import re
+from io import BytesIO
+from zipfile import ZipFile
+
+from six import StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
@@ -21,7 +25,7 @@ if False:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
 
-class ModuleAnalyzer(object):
+class ModuleAnalyzer:
     # cache for analyzer objects -- caches both by module and file name
     cache = {}  # type: Dict[Tuple[unicode, unicode], Any]
 
@@ -29,7 +33,7 @@ class ModuleAnalyzer(object):
     def for_string(cls, string, modname, srcname='<string>'):
         # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)
+            return cls(BytesIO(string), modname, srcname)  # type: ignore
         return cls(StringIO(string), modname, srcname, decoded=True)  # type: ignore
 
     @classmethod
@@ -42,8 +46,22 @@ class ModuleAnalyzer(object):
                 obj = cls(f, modname, filename)  # type: ignore
                 cls.cache['file', filename] = obj
         except Exception as err:
-            raise PycodeError('error opening %r' % filename, err)
+            if '.egg/' in filename:
+                obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
+            else:
+                raise PycodeError('error opening %r' % filename, err)
         return obj
+
+    @classmethod
+    def for_egg(cls, filename, modname):
+        # type: (unicode, unicode) -> ModuleAnalyzer
+        eggpath, relpath = re.split('(?<=\\.egg)/', filename)
+        try:
+            with ZipFile(eggpath) as egg:
+                code = egg.read(relpath).decode('utf-8')
+                return cls.for_string(code, modname, filename)
+        except Exception as exc:
+            raise PycodeError('error opening %r' % filename, exc)
 
     @classmethod
     def for_module(cls, modname):
@@ -94,7 +112,7 @@ class ModuleAnalyzer(object):
             parser.parse()
 
             self.attr_docs = {}
-            for (scope, comment) in iteritems(parser.comments):
+            for (scope, comment) in parser.comments.items():
                 if comment:
                     self.attr_docs[scope] = comment.splitlines() + ['']
                 else:

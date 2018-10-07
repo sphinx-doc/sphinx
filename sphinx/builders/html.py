@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
+import pickle
 import posixpath
 import re
 import sys
@@ -25,14 +25,13 @@ from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
-from six import iteritems, text_type, string_types
-from six.moves import cPickle as pickle
+from six import text_type, string_types
 
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx20Warning, RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -90,53 +89,6 @@ def get_stable_hash(obj):
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
     return md5(text_type(obj).encode('utf8')).hexdigest()
-
-
-class CSSContainer(list):
-    """The container for stylesheets.
-
-    To support the extensions which access the container directly, this wraps
-    the entry with Stylesheet class.
-    """
-    def append(self, obj):
-        # type: (Union[unicode, Stylesheet]) -> None
-        if isinstance(obj, Stylesheet):
-            super(CSSContainer, self).append(obj)
-        else:
-            super(CSSContainer, self).append(Stylesheet(obj))
-
-    def insert(self, index, obj):
-        # type: (int, Union[unicode, Stylesheet]) -> None
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        if isinstance(obj, Stylesheet):
-            super(CSSContainer, self).insert(index, obj)
-        else:
-            super(CSSContainer, self).insert(index, Stylesheet(obj))
-
-    def extend(self, other):  # type: ignore
-        # type: (List[Union[unicode, Stylesheet]]) -> None
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        for item in other:
-            self.append(item)
-
-    def __iadd__(self, other):  # type: ignore
-        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
-        warnings.warn('builder.css_files is deprecated. '
-                      'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
-        for item in other:
-            self.append(item)
-        return self
-
-    def __add__(self, other):
-        # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
-        ret = CSSContainer(self)
-        ret += other
-        return ret
 
 
 class Stylesheet(text_type):
@@ -216,7 +168,7 @@ class JavaScript(text_type):
         return self
 
 
-class BuildInfo(object):
+class BuildInfo:
     """buildinfo file manipulator.
 
     HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.
@@ -255,10 +207,6 @@ class BuildInfo(object):
         # type: (BuildInfo) -> bool
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
-
-    def __ne__(self, other):  # type: ignore
-        # type: (BuildInfo) -> bool
-        return not (self == other)  # for py27
 
     def dump(self, f):
         # type: (IO) -> None
@@ -311,7 +259,7 @@ class StandaloneHTMLBuilder(Builder):
         super(StandaloneHTMLBuilder, self).__init__(app)
 
         # CSS files
-        self.css_files = CSSContainer()  # type: List[Dict[unicode, unicode]]
+        self.css_files = []  # type: List[Dict[unicode, unicode]]
 
         # JS files
         self.script_files = JSContainer()  # type: List[JavaScript]
@@ -330,20 +278,23 @@ class StandaloneHTMLBuilder(Builder):
         self.init_highlighter()
         self.init_css_files()
         self.init_js_files()
-        if self.config.html_file_suffix is not None:
-            self.out_suffix = self.config.html_file_suffix
 
-        if self.config.html_link_suffix is not None:
-            self.link_suffix = self.config.html_link_suffix
+        html_file_suffix = self.get_builder_config('file_suffix', 'html')
+        if html_file_suffix is not None:
+            self.out_suffix = html_file_suffix
+
+        html_link_suffix = self.get_builder_config('link_suffix', 'html')
+        if html_link_suffix is not None:
+            self.link_suffix = html_link_suffix
         else:
             self.link_suffix = self.out_suffix
 
         self.use_index = self.get_builder_config('use_index', 'html')
 
         if self.config.html_experimental_html5_writer and not html5_ready:
-            self.app.warn(('html_experimental_html5_writer is set, but current version '
-                           'is old. Docutils\' version should be 0.13 or newer, but %s.') %
-                          docutils.__version__)
+            logger.warning(__('html_experimental_html5_writer is set, but current version '
+                              'is old. Docutils\' version should be 0.13 or newer, but %s.'),
+                           docutils.__version__)
 
     def create_build_info(self):
         # type: () -> BuildInfo
@@ -633,7 +584,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
-                iteritems(self.theme.get_options(self.theme_options)))
+                self.theme.get_options(self.theme_options).items())
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
@@ -864,10 +815,10 @@ class StandaloneHTMLBuilder(Builder):
             for src in status_iterator(self.env.dlfiles, __('copying downloadable files... '),
                                        "brown", len(self.env.dlfiles), self.app.verbosity,
                                        stringify_func=to_relpath):
-                dest = self.env.dlfiles[src][1]
                 try:
-                    copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_downloads', dest))
+                    dest = path.join(self.outdir, '_downloads', self.env.dlfiles[src][1])
+                    ensuredir(path.dirname(dest))
+                    copyfile(path.join(self.srcdir, src), dest)
                 except EnvironmentError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
@@ -1003,9 +954,9 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = codecs.open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
+                f = open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
             else:
-                f = open(searchindexfn, 'rb')  # type: ignore
+                f = open(searchindexfn, 'rb')
             with f:
                 self.indexer.load(f, self.indexer_format)
         except (IOError, OSError, ValueError):
@@ -1066,7 +1017,8 @@ class StandaloneHTMLBuilder(Builder):
                 sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
 
         # user sidebar settings
-        for pattern, patsidebars in iteritems(self.config.html_sidebars):
+        html_sidebars = self.get_builder_config('sidebars', 'html')
+        for pattern, patsidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
                 if matched:
                     if has_wildcard(pattern):
@@ -1084,14 +1036,6 @@ class StandaloneHTMLBuilder(Builder):
         if sidebars is None:
             # keep defaults
             pass
-        elif isinstance(sidebars, string_types):
-            # 0.x compatible mode: insert custom sidebar before searchbox
-            customsidebar = sidebars
-            sidebars = None
-            warnings.warn('Now html_sidebars only allows list of sidebar '
-                          'templates as a value. Support for a string value '
-                          'will be removed at Sphinx-2.0.',
-                          RemovedInSphinx20Warning)
 
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
@@ -1161,7 +1105,7 @@ class StandaloneHTMLBuilder(Builder):
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',
                           RemovedInSphinx30Warning)
-            self.warn(*args, **kwargs)
+            logger.warning(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn
 
@@ -1191,7 +1135,8 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', ctx['encoding'], 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
+            with open(outfilename, 'w',  # type: ignore
+                      encoding=ctx['encoding'], errors='xmlcharrefreplace') as f:
                 f.write(output)
         except (IOError, OSError) as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
@@ -1228,9 +1173,9 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
+            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(searchindexfn + '.tmp', 'wb')  # type: ignore
+            f = open(searchindexfn + '.tmp', 'wb')
         with f:
             self.indexer.dump(f, self.indexer_format)
         movefile(searchindexfn + '.tmp', searchindexfn)
@@ -1345,8 +1290,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
         new_secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
-        for docname, secnums in iteritems(self.env.toc_secnumbers):
-            for id, secnum in iteritems(secnums):
+        for docname, secnums in self.env.toc_secnumbers.items():
+            for id, secnum in secnums.items():
                 alias = "%s/%s" % (docname, id)
                 new_secnumbers[alias] = secnum
 
@@ -1365,11 +1310,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #       HTMLTranslter#add_fignumber().
         new_fignumbers = {}  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]
         # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
-        for docname, fignumlist in iteritems(self.env.toc_fignumbers):
-            for figtype, fignums in iteritems(fignumlist):
+        for docname, fignumlist in self.env.toc_fignumbers.items():
+            for figtype, fignums in fignumlist.items():
                 alias = "%s/%s" % (docname, figtype)
                 new_fignumbers.setdefault(alias, {})
-                for id, fignum in iteritems(fignums):
+                for id, fignum in fignums.items():
                     new_fignumbers[alias][id] = fignum
 
         return {self.config.master_doc: new_fignumbers}
@@ -1487,9 +1432,9 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            f = codecs.open(filename, 'w', encoding='utf-8')  # type: ignore
+            f = open(filename, 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(filename, 'wb')  # type: ignore
+            f = open(filename, 'wb')
         with f:
             self.implementation.dump(context, f, *self.additional_dump_args)
 
@@ -1713,6 +1658,8 @@ def setup(app):
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_math_renderer', None, 'env')
+
+    app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)

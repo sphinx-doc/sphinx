@@ -149,7 +149,10 @@ General configuration
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
-   contains the root :rst:dir:`toctree` directive.  Default is ``'contents'``.
+   contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
+
+   .. versionchanged:: 2.0
+      The defualt is changed to ``'index'`` from ``'contents'``.
 
 .. confval:: exclude_patterns
 
@@ -1108,12 +1111,6 @@ that use Sphinx's HTMLWriter class.
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.  The default is ``True``.
 
-   .. warning::
-
-      If this config value is set to ``False``, the JavaScript search function
-      will only display the titles of matching documents, and no excerpt from
-      the matching contents.
-
 .. confval:: html_show_sourcelink
 
    If true (and :confval:`html_copy_source` is true as well), links to the
@@ -1251,7 +1248,7 @@ that use Sphinx's HTMLWriter class.
 
       :'sphinx.search.ja.DefaultSplitter':
          TinySegmenter algorithm. This is default splitter.
-      :'sphinx.search.ja.MeCabSplitter':
+      :'sphinx.search.ja.MecabSplitter':
          MeCab binding. To use this splitter, 'mecab' python binding or dynamic
          link library ('libmecab.so' for linux, 'libmecab.dll' for windows) is
          required.
@@ -1333,6 +1330,16 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+Options for Single HTML output
+-------------------------------
+
+.. confval:: singlehtml_sidebars
+
+   Custom sidebar templates, must be a dictionary that maps document names to
+   template names.  And it only allows a key named `'index'`.  All other keys
+   are ignored.  For more information, refer to :confval:`html_sidebars`.  By
+   default, it is same as :confval:`html_sidebars`.
+
 
 .. _htmlhelp-options:
 
@@ -1342,6 +1349,19 @@ Options for HTML help output
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
+
+.. confval:: htmlhelp_file_suffix
+
+   This is the file name suffix for generated HTML help files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 2.0
+
+.. confval:: htmlhelp_link_suffix
+
+   Suffix for generated links to HTML files.  The default is ``".html"``.
+
+   .. versionadded:: 2.0
 
 
 .. _applehelp-options:

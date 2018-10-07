@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import posixpath
 import re
 import shutil
@@ -123,7 +122,7 @@ def compile_math(latex, builder):
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
-    with codecs.open(filename, 'w', 'utf-8') as f:  # type: ignore
+    with open(filename, 'w', encoding='utf-8') as f:  # type: ignore
         f.write(latex)
 
     # build latex command; old versions of latex don't have the
@@ -318,8 +317,7 @@ def html_visit_displaymath(self, node):
     if node['nowrap']:
         latex = node.astext()
     else:
-        latex = wrap_displaymath(node.astext(), None,
-                                 self.builder.config.math_number_all)
+        latex = wrap_displaymath(node.astext(), None, False)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:

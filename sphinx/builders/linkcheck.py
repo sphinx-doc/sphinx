@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import re
 import socket
 import threading
@@ -308,7 +307,8 @@ class CheckExternalLinksBuilder(Builder):
 
     def write_entry(self, what, docname, line, uri):
         # type: (unicode, unicode, int, unicode) -> None
-        with codecs.open(path.join(self.outdir, 'output.txt'), 'a', 'utf-8') as output:  # type: ignore  # NOQA
+        with open(path.join(self.outdir, 'output.txt'), 'a',  # type: ignore
+                  encoding='utf-8') as output:
             output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                                line, what, uri))
 

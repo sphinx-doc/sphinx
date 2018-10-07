@@ -10,7 +10,7 @@ CONTENTS
    :numbered:
    :caption: Table of Contents
 
-   subdir/contents
+   subdir/index
    bom
    warnings
    footnote

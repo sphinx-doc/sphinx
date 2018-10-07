@@ -16,8 +16,6 @@ import warnings
 from collections import namedtuple
 from types import FunctionType, MethodType, ModuleType
 
-from six import PY2
-
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
 
@@ -28,7 +26,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class _MockObject(object):
+class _MockObject:
     """Used by autodoc_mock_imports."""
 
     def __new__(cls, *args, **kwargs):
@@ -93,7 +91,7 @@ class _MockModule(ModuleType):
         return o
 
 
-class _MockImporter(object):
+class _MockImporter:
     def __init__(self, names):
         # type: (List[str]) -> None
         self.names = names
@@ -168,13 +166,15 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
 
     try:
         module = None
+        exc_on_importing = None
         objpath = list(objpath)
         while module is None:
             try:
                 module = import_module(modname, warningiserror=warningiserror)
                 logger.debug('[autodoc] import %s => %r', modname, module)
-            except ImportError:
+            except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
+                exc_on_importing = exc
                 if '.' in modname:
                     # retry with parent module
                     modname, name = modname.rsplit('.', 1)
@@ -193,6 +193,10 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
             object_name = attrname
         return [module, parent, object_name, obj]
     except (AttributeError, ImportError) as exc:
+        if isinstance(exc, AttributeError) and exc_on_importing:
+            # restore ImportError
+            exc = exc_on_importing
+
         if objpath:
             errmsg = ('autodoc: failed to import %s %r from module %r' %
                       (objtype, '.'.join(objpath), modname))
@@ -213,8 +217,6 @@ def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warning
         else:
             errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
 
-        if PY2:
-            errmsg = errmsg.decode('utf-8')  # type: ignore
         logger.debug(errmsg)
         raise ImportError(errmsg)
 
@@ -228,18 +230,17 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
 
-    # Py34 doesn't have enum members in __dict__.
-    if sys.version_info[:2] == (3, 4) and isenumclass(subject):
-        obj_dict = dict(obj_dict)
-        for name, value in subject.__members__.items():
-            obj_dict[name] = value
-
     members = {}  # type: Dict[str, Attribute]
 
     # enum members
     if isenumclass(subject):
         for name, value in subject.__members__.items():
             if name not in members:
+                members[name] = Attribute(name, True, value)
+
+        superclass = subject.__mro__[1]
+        for name, value in obj_dict.items():
+            if name not in superclass.__dict__:
                 members[name] = Attribute(name, True, value)
 
     # other members

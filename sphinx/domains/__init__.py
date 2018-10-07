@@ -12,8 +12,6 @@
 
 import copy
 
-from six import iteritems
-
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 
@@ -28,7 +26,7 @@ if False:
     from sphinx.util.typing import RoleFunction  # NOQA
 
 
-class ObjType(object):
+class ObjType:
     """
     An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
@@ -55,7 +53,7 @@ class ObjType(object):
         self.attrs.update(attrs)
 
 
-class Index(object):
+class Index:
     """
     An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
@@ -113,7 +111,7 @@ class Index(object):
         raise NotImplementedError
 
 
-class Domain(object):
+class Domain:
     """
     A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
@@ -183,7 +181,7 @@ class Domain(object):
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
                 raise IOError('data of %r domain out of date' % self.label)
-        for name, obj in iteritems(self.object_types):
+        for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
             self._type2role[name] = obj.roles[0] if obj.roles else ''

@@ -58,7 +58,6 @@ import os
 import posixpath
 import re
 import sys
-import warnings
 from types import ModuleType
 
 from docutils import nodes
@@ -70,7 +69,6 @@ from six import text_type
 
 import sphinx
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
@@ -81,6 +79,7 @@ from sphinx.util import import_object, rst, logging
 from sphinx.util.docutils import (
     NullReporter, SphinxDirective, new_document, switch_source_input
 )
+from sphinx.util.matching import Matcher
 
 if False:
     # For type annotation
@@ -175,8 +174,8 @@ class FakeDirective(DocumenterBridge):
         super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
 
 
-def get_documenter(*args):
-    # type: (Any) -> Type[Documenter]
+def get_documenter(app, obj, parent):
+    # type: (Sphinx, Any, Any) -> Type[Documenter]
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -185,16 +184,6 @@ def get_documenter(*args):
     belongs to.
     """
     from sphinx.ext.autodoc import DataDocumenter, ModuleDocumenter
-    if len(args) == 3:
-        # new style arguments: (app, obj, parent)
-        app, obj, parent = args
-    else:
-        # old style arguments: (obj, parent)
-        app = _app
-        obj, parent = args
-        warnings.warn('the interface of get_documenter() has been changed. '
-                      'Please give application object as first argument.',
-                      RemovedInSphinx20Warning)
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False
@@ -261,12 +250,17 @@ class Autosummary(SphinxDirective):
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
+            excluded = Matcher(self.config.exclude_patterns)
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    self.warn('toctree references unknown document %r'
-                              % docname)
+                    if excluded(self.env.doc2path(docname, None)):
+                        self.warn('toctree references excluded document %r'
+                                  % docname)
+                    else:
+                        self.warn('toctree references unknown document %r'
+                                  % docname)
                 docnames.append(docname)
 
             tocnode = addnodes.toctree()

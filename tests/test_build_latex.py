@@ -17,11 +17,10 @@ from shutil import copyfile
 from subprocess import Popen, PIPE
 
 import pytest
-from six import PY3
 from test_build_html import ENV_WARNINGS
 
 from sphinx.errors import SphinxError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
@@ -39,9 +38,6 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
 # only run latex if all needed packages are there

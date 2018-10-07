@@ -12,7 +12,7 @@ import os
 import re
 import zlib
 
-from six import PY3
+from six import text_type
 
 from sphinx.util import logging
 
@@ -22,17 +22,14 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
-    if PY3:
-        unicode = str
-
-    Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
+    Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
 
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 
-class InventoryFileReader(object):
+class InventoryFileReader:
     """A file reader for inventory file.
 
     This reader supports mixture of texts and compressed texts.
@@ -94,7 +91,7 @@ class InventoryFileReader(object):
                 pos = buf.find(b'\n')
 
 
-class InventoryFile(object):
+class InventoryFile:
     @classmethod
     def load(cls, stream, uri, joinfunc):
         # type: (IO, unicode, Callable) -> Inventory

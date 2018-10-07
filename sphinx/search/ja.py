@@ -22,8 +22,6 @@ import re
 import sys
 import warnings
 
-from six import iteritems, PY3
-
 try:
     import MeCab
     native_module = True
@@ -46,7 +44,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
 
 
-class BaseSplitter(object):
+class BaseSplitter:
 
     def __init__(self, options):
         # type: (Dict) -> None
@@ -77,16 +75,12 @@ class MecabSplitter(BaseSplitter):
 
     def split(self, input):
         # type: (unicode) -> List[unicode]
-        input2 = input if PY3 else input.encode(self.dict_encode)
         if native_module:
-            result = self.native.parse(input2)
+            result = self.native.parse(input)
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
                 self.ctypes_mecab, input.encode(self.dict_encode))
-        if PY3:
-            return result.split(' ')
-        else:
-            return result.decode(self.dict_encode).split(' ')
+        return result.split(' ')
 
     def init_native(self, options):
         # type: (Dict) -> None
@@ -162,14 +156,14 @@ class JanomeSplitter(BaseSplitter):
 
 
 class DefaultSplitter(BaseSplitter):
-    patterns_ = dict([(re.compile(pattern), value) for pattern, value in iteritems({
+    patterns_ = dict([(re.compile(pattern), value) for pattern, value in {
         u'[一二三四五六七八九十百千万億兆]': u'M',
         u'[一-龠々〆ヵヶ]': u'H',
         u'[ぁ-ん]': u'I',
         u'[ァ-ヴーｱ-ﾝﾞｰ]': u'K',
         u'[a-zA-Zａ-ｚＡ-Ｚ]': u'A',
         u'[0-9０-９]': u'N',
-    })])
+    }.items()])
     BIAS__ = -332
     BC1__ = {u'HH': 6, u'II': 2461, u'KH': 406, u'OH': -1378}
     BC2__ = {u'AA': -3267, u'AI': 2744, u'AN': -878, u'HH': -4070, u'HM': -1711,
@@ -434,7 +428,7 @@ class DefaultSplitter(BaseSplitter):
     # ctype_
     def ctype_(self, char):
         # type: (unicode) -> unicode
-        for pattern, value in iteritems(self.patterns_):
+        for pattern, value in self.patterns_.items():
             if pattern.match(char):
                 return value
         return u'O'

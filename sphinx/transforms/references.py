@@ -11,7 +11,6 @@
 
 from docutils import nodes
 from docutils.transforms.references import Substitutions
-from six import itervalues
 
 from sphinx.transforms import SphinxTransform
 
@@ -34,5 +33,5 @@ class SphinxDomains(SphinxTransform):
 
     def apply(self):
         # type: () -> None
-        for domain in itervalues(self.env.domains):
+        for domain in self.env.domains.values():
             domain.process_doc(self.env, self.env.docname, self.document)

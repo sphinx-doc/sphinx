@@ -17,7 +17,7 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
-from six import PY2, text_type
+from six import text_type
 
 if False:
     # For type annotation
@@ -59,10 +59,7 @@ def get_lvar_names(node, self=None):
         # => TypeError
     """
     if self:
-        if PY2:
-            self_id = self.id  # type: ignore
-        else:
-            self_id = self.arg
+        self_id = self.arg  # type: ignore
 
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
@@ -107,7 +104,7 @@ def dedent_docstring(s):
     return docstring.lstrip("\r\n").rstrip("\r\n")
 
 
-class Token(object):
+class Token:
     """Better token wrapper for tokenize module."""
 
     def __init__(self, kind, value, start, end, source):
@@ -131,10 +128,6 @@ class Token(object):
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return not (self == other)
-
     def match(self, *conditions):
         # type: (Any) -> bool
         return any(self == candidate for candidate in conditions)
@@ -145,7 +138,7 @@ class Token(object):
                                              self.value.strip())
 
 
-class TokenProcessor(object):
+class TokenProcessor:
     def __init__(self, buffers):
         # type: (List[unicode]) -> None
         lines = iter(buffers)
@@ -464,7 +457,7 @@ class DefinitionFinder(TokenProcessor):
             self.context.pop()
 
 
-class Parser(object):
+class Parser:
     """Python source code parser to pick up variable comments.
 
     This is a better wrapper for ``VariableCommentPicker``.

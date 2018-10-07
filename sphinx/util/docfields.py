@@ -36,7 +36,7 @@ def _is_single_paragraph(node):
     return False
 
 
-class Field(object):
+class Field:
     """A doc field that is never grouped.  It can have an argument or not, the
     argument can be linked using a specified *rolename*.  Field should be used
     for doc fields that usually don't occur more than once.
@@ -235,7 +235,7 @@ class TypedField(GroupedField):
         return nodes.field('', fieldname, fieldbody)
 
 
-class DocFieldTransformer(object):
+class DocFieldTransformer:
     """
     Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
@@ -305,7 +305,8 @@ class DocFieldTransformer(object):
                 entries.append(field)
 
                 # but if this has a type then we can at least link it
-                if typedesc and is_typefield and content:
+                if (typedesc and is_typefield and content and
+                        len(content) == 1 and isinstance(content[0], nodes.Text)):
                     target = content[0].astext()
                     xrefs = typedesc.make_xrefs(
                         typedesc.typerolename,
@@ -318,7 +319,8 @@ class DocFieldTransformer(object):
                         fieldbody.children[0].extend(xrefs)
                     else:
                         fieldbody.clear()
-                        fieldbody.extend(xrefs)
+                        fieldbody += nodes.paragraph()
+                        fieldbody[0].extend(xrefs)
 
                 continue
 

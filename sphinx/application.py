@@ -13,6 +13,7 @@
 from __future__ import print_function
 
 import os
+import pickle
 import sys
 import warnings
 from collections import deque
@@ -20,8 +21,6 @@ from inspect import isclass
 from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
-from six import itervalues
-from six.moves import cPickle as pickle
 from six.moves import cStringIO
 
 import sphinx
@@ -29,7 +28,7 @@ from sphinx import package_dir, locale
 from sphinx.config import Config, check_unicode
 from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
-    RemovedInSphinx20Warning, RemovedInSphinx30Warning, RemovedInSphinx40Warning
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning
 )
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -118,7 +117,7 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 logger = logging.getLogger(__name__)
 
 
-class Sphinx(object):
+class Sphinx:
     """The main application class and extensibility interface.
 
     :ivar srcdir: Directory containing source.
@@ -250,11 +249,6 @@ class Sphinx(object):
         self.config.init_values()
         self.emit('config-inited', self.config)
 
-        # check primary_domain if requested
-        primary_domain = self.config.primary_domain
-        if primary_domain and not self.registry.has_domain(primary_domain):
-            logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-
         # create the builder
         self.builder = self.create_builder(buildername)
         # set up the build environment
@@ -368,72 +362,6 @@ class Sphinx(object):
         else:
             self.emit('build-finished', None)
         self.builder.cleanup()
-
-    # ---- logging handling ----------------------------------------------------
-    def warn(self, message, location=None, type=None, subtype=None):
-        # type: (unicode, unicode, unicode, unicode) -> None
-        """Emit a warning.
-
-        If *location* is given, it should either be a tuple of (*docname*,
-        *lineno*) or a string describing the location of the warning as well as
-        possible.
-
-        *type* and *subtype* are used to suppress warnings with
-        :confval:`suppress_warnings`.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.warning(message, type=type, subtype=subtype, location=location)
-
-    def info(self, message='', nonl=False):
-        # type: (unicode, bool) -> None
-        """Emit an informational message.
-
-        If *nonl* is true, don't emit a newline at the end (which implies that
-        more info output will follow soon.)
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.info(message, nonl=nonl)
-
-    def verbose(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a verbose informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.verbose(message, *args, **kwargs)
-
-    def debug(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
-
-    def debug2(self, message, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        """Emit a lowlevel debug-level informational message.
-
-        .. deprecated:: 1.6
-           Use :mod:`sphinx.util.logging` instead.
-        """
-        warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
-                      RemovedInSphinx20Warning)
-        logger.debug(message, *args, **kwargs)
 
     # ---- general extensibility interface -------------------------------------
 
@@ -913,21 +841,6 @@ class Sphinx(object):
                                       ref_nodeclass, objname, doc_field_types,
                                       override=override)
 
-    def add_description_unit(self, directivename, rolename, indextemplate='',
-                             parse_node=None, ref_nodeclass=None, objname='',
-                             doc_field_types=[]):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        """Deprecated alias for :meth:`add_object_type`.
-
-        .. deprecated:: 1.6
-           Use :meth:`add_object_type` instead.
-        """
-        warnings.warn('app.add_description_unit() is now deprecated. '
-                      'Use app.add_object_type() instead.',
-                      RemovedInSphinx20Warning)
-        self.add_object_type(directivename, rolename, indextemplate, parse_node,
-                             ref_nodeclass, objname, doc_field_types)
-
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
         # type: (unicode, unicode, unicode, nodes.Node, unicode, bool) -> None
@@ -1040,6 +953,8 @@ class Sphinx(object):
            And it allows keyword arguments as attributes of script tag.
         """
         self.registry.add_js_file(filename, **kwargs)
+        if hasattr(self.builder, 'add_js_file'):
+            self.builder.add_js_file(filename, **kwargs)  # type: ignore
 
     def add_css_file(self, filename, **kwargs):
         # type: (unicode, **unicode) -> None
@@ -1078,6 +993,8 @@ class Sphinx(object):
         """
         logger.debug('[app] adding stylesheet: %r', filename)
         self.registry.add_css_files(filename, **kwargs)
+        if hasattr(self.builder, 'add_css_file'):
+            self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
     def add_stylesheet(self, filename, alternate=False, title=None):
         # type: (unicode, bool, unicode) -> None
@@ -1278,7 +1195,7 @@ class Sphinx(object):
         else:
             raise ValueError('parallel type %s is not supported' % typ)
 
-        for ext in itervalues(self.extensions):
+        for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
             if allowed is None:
                 logger.warning(message, ext.name)
@@ -1290,7 +1207,7 @@ class Sphinx(object):
         return True
 
 
-class TemplateBridge(object):
+class TemplateBridge:
     """
     This class defines the interface for a "template bridge", that is, a class
     that renders templates given a template name and a context.

@@ -11,7 +11,6 @@
 """
 from __future__ import print_function
 
-import codecs
 import os
 from os import path
 
@@ -19,6 +18,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
@@ -133,8 +133,9 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split()
 
-# The following list includes only languages supported by Sphinx.
-# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+# The following list includes only languages supported by Sphinx. See
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
+# for more.
 chm_locales = {
     # lang:   LCID,  encoding
     'ca':    (0x403, 'cp1252'),
@@ -195,10 +196,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
-        # the output files for HTML help must be .html only
+        # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
+        StandaloneHTMLBuilder.init(self)
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
@@ -207,8 +208,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def open_file(self, outdir, basename, mode='w'):
         # type: (unicode, unicode, unicode) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
-                           self.encoding, 'xmlcharrefreplace')
+        return open(path.join(outdir, basename), mode,  # type: ignore
+                    encoding=self.encoding, errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
         # type: (unicode, unicode, Dict, unicode) -> None
@@ -341,6 +342,8 @@ def setup(app):
     app.add_builder(HTMLHelpBuilder)
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_file_suffix', None, 'html', string_classes)
+    app.add_config_value('htmlhelp_link_suffix', None, 'html', string_classes)
 
     return {
         'version': 'builtin',

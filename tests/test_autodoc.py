@@ -11,15 +11,16 @@
 """
 
 import re
+import platform
 import sys
 from warnings import catch_warnings
 
 import pytest
 from docutils.statemachine import ViewList
-from six import PY3
 
 from sphinx.ext.autodoc import (
-    AutoDirective, ModuleLevelDocumenter, cut_lines, between, ALL
+    ModuleLevelDocumenter, cut_lines, between, ALL,
+    merge_autodoc_default_flags, Options
 )
 from sphinx.ext.autodoc.directive import DocumenterBridge, process_documenter_options
 from sphinx.testing.util import SphinxTestApp, Struct  # NOQA
@@ -28,13 +29,12 @@ from sphinx.util.docutils import LoggingReporter
 
 app = None
 
-if PY3:
-    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
-else:
-    ROGER_METHOD = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
+IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
-def do_autodoc(app, objtype, name, options={}):
+def do_autodoc(app, objtype, name, options=None):
+    if options is None:
+        options = {}
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
@@ -73,7 +73,7 @@ def setup_test():
     global options, directive
     global processed_docstrings, processed_signatures
 
-    options = Struct(
+    options = Options(
         inherited_members = False,
         undoc_members = False,
         private_members = False,
@@ -106,7 +106,7 @@ def setup_test():
 
     yield
 
-    AutoDirective._special_attrgetters.clear()
+    app.registry.autodoc_attrgettrs.clear()
 
 
 processed_docstrings = []
@@ -210,7 +210,7 @@ def test_format_signature():
     class D:
         pass
 
-    class E(object):
+    class E:
         pass
     # no signature for classes without __init__
     for C in (D, E):
@@ -220,7 +220,7 @@ def test_format_signature():
         def __init__(self, a, b=None):
             pass
 
-    class G(F, object):
+    class G(F):
         pass
     for C in (F, G):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
@@ -237,7 +237,7 @@ def test_format_signature():
 
             some docstring for __init__.
             '''
-    class G2(F2, object):
+    class G2(F2):
         pass
 
     assert formatsig('class', 'F2', F2, None, None) == \
@@ -393,7 +393,7 @@ def test_get_doc():
     assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
 
     # class does not have __init__ method
-    class F(object):
+    class F:
         """Class docstring"""
 
     # docstring in the __init__ method of base class will be discard
@@ -407,7 +407,7 @@ def test_get_doc():
         assert getdocl('class', F) == ['Class docstring']
 
     # class has __init__ method with no docstring
-    class G(object):
+    class G:
         """Class docstring"""
         def __init__(self):
             pass
@@ -560,7 +560,7 @@ def test_attrgetter_using():
                 getattr_spy.append((obj, name))
                 return None
             return getattr(obj, name, *defargs)
-        AutoDirective._special_attrgetters[type] = special_getattr
+        app.add_autodoc_attrgetter(type, special_getattr)
 
         del getattr_spy[:]
         inst = app.registry.documenters[objtype](directive, name)
@@ -716,7 +716,7 @@ def test_autodoc_undoc_members(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -746,11 +746,34 @@ def test_autodoc_imported_members(app):
                "imported-members": None,
                "ignore-module-all": None}
     actual = do_autodoc(app, 'module', 'target', options)
-    assert '.. py:function:: add_documenter(cls)' in actual
+    assert '.. py:function:: save_traceback(app)' in actual
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_special_members(app):
+    # specific special methods
+    options = {"undoc-members": None,
+               "special-members": "__init__,__special1__"}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:method:: Class.__special1__()',
+    ]
+
+    # combination with specific members
+    options = {"members": "attr,docattr",
+               "undoc-members": None,
+               "special-members": "__init__,__special1__"}
+    actual = do_autodoc(app, 'class', 'target.Class', options)
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.__init__(arg)',
+        '   .. py:method:: Class.__special1__()',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.docattr',
+    ]
+
     # all special methods
     options = {"members": None,
                "undoc-members": None,
@@ -773,34 +796,7 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
-        '   .. py:attribute:: Class.skipattr',
-        '   .. py:method:: Class.skipmeth()',
-        '   .. py:attribute:: Class.udocattr',
-        '   .. py:method:: Class.undocmeth()'
-    ]
-
-    # specific special methods
-    options = {"members": None,
-               "undoc-members": None,
-               "special-members": "__init__,__special1__"}
-    actual = do_autodoc(app, 'class', 'target.Class', options)
-    assert list(filter(lambda l: '::' in l, actual)) == [
-        '.. py:class:: Class(arg)',
-        '   .. py:method:: Class.__init__(arg)',
-        '   .. py:method:: Class.__special1__()',
-        '   .. py:attribute:: Class.attr',
-        '   .. py:attribute:: Class.descr',
-        '   .. py:attribute:: Class.docattr',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:attribute:: Class.inst_attr_comment',
-        '   .. py:attribute:: Class.inst_attr_inline',
-        '   .. py:attribute:: Class.inst_attr_string',
-        '   .. py:attribute:: Class.mdocattr',
-        '   .. py:method:: Class.meth()',
-        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
-        '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -827,7 +823,6 @@ def test_autodoc_ignore_module_all(app):
         '.. py:class:: CustomDataDescriptor2(doc)',
         '.. py:class:: CustomDataDescriptorMeta',
         '.. py:class:: CustomDict',
-        '.. py:class:: EnumCls',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
         '   .. py:class:: Outer.Inner',
@@ -874,11 +869,6 @@ def test_autodoc_subclass_of_builtin_class(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_inner_class(app):
-    if PY3:
-        builtins = '      alias of :class:`builtins.dict`'
-    else:
-        builtins = '      alias of :class:`__builtin__.dict`'
-
     options = {"members": None}
     actual = do_autodoc(app, 'class', 'target.Outer', options)
     assert list(actual) == [
@@ -904,7 +894,7 @@ def test_autodoc_inner_class(app):
         '   .. py:attribute:: Outer.factory',
         '      :module: target',
         '   ',
-        builtins
+        '      alias of :class:`builtins.dict`'
     ]
 
     actual = do_autodoc(app, 'class', 'target.Outer.Inner', options)
@@ -973,7 +963,7 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.docattr',
         '   .. py:attribute:: Class.udocattr',
         '   .. py:attribute:: Class.mdocattr',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -992,7 +982,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.excludemeth()',
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -1027,7 +1017,7 @@ def test_autodoc_member_order(app):
         '   .. py:method:: Class.meth()',
         '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
         '   .. py:attribute:: Class.prop',
-        ROGER_METHOD,
+        '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:attribute:: Class.skipattr',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:attribute:: Class.udocattr',
@@ -1261,48 +1251,54 @@ def test_instance_attributes(app):
 def test_enum_class(app):
     options = {"members": None,
                "undoc-members": True}
-    actual = do_autodoc(app, 'class', 'target.EnumCls', options)
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls', options)
     assert list(actual) == [
         '',
         '.. py:class:: EnumCls',
-        '   :module: target',
+        '   :module: target.enum',
         '',
         '   this is enum class',
         '   ',
         '   ',
+        '   .. py:method:: EnumCls.say_hello()',
+        '      :module: target.enum',
+        '   ',
+        '      a method says hello to you.',
+        '      ',
+        '   ',
         '   .. py:attribute:: EnumCls.val1',
-        '      :module: target',
+        '      :module: target.enum',
         '      :annotation: = 12',
         '   ',
         '      doc for val1',
         '      ',
         '   ',
         '   .. py:attribute:: EnumCls.val2',
-        '      :module: target',
+        '      :module: target.enum',
         '      :annotation: = 23',
         '   ',
         '      doc for val2',
         '      ',
         '   ',
         '   .. py:attribute:: EnumCls.val3',
-        '      :module: target',
+        '      :module: target.enum',
         '      :annotation: = 34',
         '   ',
         '      doc for val3',
         '      ',
         '   ',
         '   .. py:attribute:: EnumCls.val4',
-        '      :module: target',
+        '      :module: target.enum',
         '      :annotation: = 34',
         '   '
     ]
 
     # checks for an attribute of EnumClass
-    actual = do_autodoc(app, 'attribute', 'target.EnumCls.val1')
+    actual = do_autodoc(app, 'attribute', 'target.enum.EnumCls.val1')
     assert list(actual) == [
         '',
         '.. py:attribute:: EnumCls.val1',
-        '   :module: target',
+        '   :module: target.enum',
         '   :annotation: = 12',
         '',
         '   doc for val1',
@@ -1339,6 +1335,19 @@ def test_descriptor_class(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_callable(app):
+    actual = do_autodoc(app, 'function', 'target.callable.function')
+    assert list(actual) == [
+        '',
+        '.. py:function:: function(arg1, arg2, **kwargs)',
+        '   :module: target.callable',
+        '',
+        '   A callable object that behaves like a function.',
+        '   '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_mocked_module_imports(app):
     options = {"members": 'TestAutodoc,decoratedFunction'}
@@ -1368,8 +1377,62 @@ def test_mocked_module_imports(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='functools.partialmethod is available on py34 or above')
+@pytest.mark.usefixtures('setup_test')
+def test_partialfunction():
+    def call_autodoc(objtype, name):
+        inst = app.registry.documenters[objtype](directive, name)
+        inst.generate()
+        result = list(directive.result)
+        del directive.result[:]
+        return result
+
+    options.members = ALL
+    #options.undoc_members = True
+    expected = [
+        '',
+        '.. py:module:: target.partialfunction',
+        '',
+        '',
+        '.. py:function:: func1()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func1',
+        '   ',
+        '',
+        '.. py:function:: func2()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func1',
+        '   ',
+        '',
+        '.. py:function:: func3()',
+        '   :module: target.partialfunction',
+        '',
+        '   docstring of func3',
+        '   '
+    ]
+
+    assert call_autodoc('module', 'target.partialfunction') == expected
+
+
+@pytest.mark.usefixtures('setup_test')
+def test_coroutine():
+    options = {"members": None}
+    actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: AsyncClass',
+        '   :module: target.coroutine',
+        '',
+        '   ',
+        '   .. py:method:: AsyncClass.do_coroutine()',
+        '      :module: target.coroutine',
+        '   ',
+        '      A documented coroutine function',
+        '      '
+    ]
+
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_partialmethod(app):
     expected = [
@@ -1412,21 +1475,158 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_default_flags(app):
+def test_merge_autodoc_default_flags1(app):
+    app.config.autodoc_default_flags = ['members', 'undoc-members']
+    merge_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_options == {'members': None,
+                                                  'undoc-members': None}
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_merge_autodoc_default_flags2(app):
+    app.config.autodoc_default_flags = ['members', 'undoc-members']
+    app.config.autodoc_default_options = {'members': 'this,that,order',
+                                          'inherited-members': 'this'}
+    merge_autodoc_default_flags(app, app.config)
+    assert app.config.autodoc_default_options == {'members': None,
+                                                  'undoc-members': None,
+                                                  'inherited-members': 'this'}
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_options(app):
     # no settings
-    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' not in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: target.CustomIter' not in actual
 
     # with :members:
-    app.config.autodoc_default_flags = ['members']
-    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    app.config.autodoc_default_options = {'members': None}
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
     # with :members: and :undoc-members:
-    app.config.autodoc_default_flags = ['members',
-                                        'undoc-members']
-    actual = do_autodoc(app, 'class', 'target.EnumCls')
+    app.config.autodoc_default_options = {
+        'members': None,
+        'undoc-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' in actual
+
+    # with :special-members:
+    # Note that :members: must be *on* for :special-members: to work.
+    app.config.autodoc_default_options = {
+        'members': None,
+        'special-members': None
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
+        assert '      list of weak references to the object (if defined)' in actual
+
+    # :exclude-members: None - has no effect. Unlike :members:,
+    # :special-members:, etc. where None == "include all", here None means
+    # "no/false/off".
+    app.config.autodoc_default_options = {
+        'members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_options = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': None,
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' in actual
+        assert '      list of weak references to the object (if defined)' in actual
+    assert '   .. py:method:: CustomIter.snafucate()' in actual
+    assert '      Makes this snafucated.' in actual
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_default_options_with_values(app):
+    # with :members:
+    app.config.autodoc_default_options = {'members': 'val1,val2'}
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val2' in actual
+    assert '   .. py:attribute:: EnumCls.val3' not in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :special-members:
+    app.config.autodoc_default_options = {
+        'special-members': '__init__,__iter__',
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
+        assert '      list of weak references to the object (if defined)' not in actual
+
+    # with :exclude-members:
+    app.config.autodoc_default_options = {
+        'members': None,
+        'exclude-members': 'val1'
+    }
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' not in actual
+    assert '   .. py:attribute:: EnumCls.val2' in actual
+    assert '   .. py:attribute:: EnumCls.val3' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+    app.config.autodoc_default_options = {
+        'members': None,
+        'special-members': None,
+        'exclude-members': '__weakref__,snafucate',
+    }
+    actual = do_autodoc(app, 'class', 'target.CustomIter')
+    assert '   .. py:method:: CustomIter.__init__()' in actual
+    assert '      Create a new `CustomIter`.' in actual
+    assert '   .. py:method:: CustomIter.__iter__()' in actual
+    assert '      Iterate squares of each value.' in actual
+    if not IS_PYPY:
+        assert '   .. py:attribute:: CustomIter.__weakref__' not in actual
+        assert '      list of weak references to the object (if defined)' not in actual
+    assert '   .. py:method:: CustomIter.snafucate()' not in actual
+    assert '      Makes this snafucated.' not in actual
+
+
+@pytest.mark.sphinx('html', testroot='pycode-egg')
+def test_autodoc_for_egged_code(app):
+    options = {"members": None,
+               "undoc-members": None}
+    actual = do_autodoc(app, 'module', 'sample', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: sample',
+        '',
+        '',
+        '.. py:data:: CONSTANT',
+        '   :module: sample',
+        '   :annotation: = 1',
+        '',
+        '   constant on sample.py',
+        '   ',
+        '',
+        '.. py:function:: hello(s)',
+        '   :module: sample',
+        ''
+    ]

@@ -326,4 +326,4 @@ There is `sphinx translation page`_ for Sphinx (master) documentation.
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://www.transifex.com/
 .. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
-.. _`Transifex Client documentation`: http://docs.transifex.com/developer/client/
+.. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/

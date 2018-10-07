@@ -15,10 +15,9 @@ import re
 from subprocess import Popen, PIPE
 
 import pytest
-from six import PY3
 from test_build_html import ENV_WARNINGS
 
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
@@ -29,9 +28,6 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
 \\['application/pdf', 'image/svg\\+xml'\\] \\(svgimg.\\*\\)
 """
-
-if PY3:
-    TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
 @pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
@@ -50,6 +46,10 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.texi').text(encoding='utf8')
+    assert ('@anchor{markup doc}@anchor{12}'
+            '@anchor{markup id1}@anchor{13}'
+            '@anchor{markup testing-various-markup}@anchor{14}' in result)
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)

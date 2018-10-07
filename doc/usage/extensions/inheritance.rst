@@ -54,7 +54,7 @@ It adds this directive:
            E   D   F
         """
 
-        class A(object):
+        class A:
             pass
 
         class B(A):

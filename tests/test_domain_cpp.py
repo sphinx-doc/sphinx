@@ -10,6 +10,7 @@
 """
 
 import re
+import sys
 
 import pytest
 from six import text_type
@@ -21,7 +22,7 @@ from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
 
 
 def parse(name, string):
-    class Config(object):
+    class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
@@ -85,7 +86,7 @@ def check(name, input, idDict, output=None):
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':
@@ -137,8 +138,9 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        exprCheck(p + "'\\U0001f34c'", t + "127820")
-        exprCheck(p + "'\\U0001F34C'", t + "127820")
+        if sys.maxunicode > 65535:
+            exprCheck(p + "'\\U0001f34c'", t + "127820")
+            exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)')
@@ -171,6 +173,17 @@ def test_expressions():
     exprCheck('sizeof -42', 'szngL42E')
     exprCheck('alignof(T)', 'at1T')
     exprCheck('noexcept(-42)', 'nxngL42E')
+    # new-expression
+    exprCheck('new int', 'nw_iE')
+    exprCheck('new volatile int', 'nw_ViE')
+    exprCheck('new int[42]', 'nw_AL42E_iE')
+    exprCheck('new int()', 'nw_ipiE')
+    exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    # delete-expression
+    exprCheck('delete p', 'dl1p')
+    exprCheck('delete [] p', 'da1p')
+    exprCheck('::delete p', 'dl1p')
+    exprCheck('::delete [] p', 'da1p')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op
@@ -791,7 +804,7 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-    class RoleClasses(object):
+    class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
         def __init__(self, role, root, contents):

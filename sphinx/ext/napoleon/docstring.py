@@ -11,13 +11,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-import collections
 import inspect
 import re
+from collections.abc import Callable
 from functools import partial
 
 from six import string_types, u
-from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
@@ -25,7 +24,7 @@ from sphinx.util.pycompat import UnicodeMixin
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA
 
@@ -105,6 +104,10 @@ class GoogleDocstring(UnicodeMixin):
     <BLANKLINE>
 
     """
+
+    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
+                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
+
     def __init__(self, docstring, config=None, app=None, what='', name='',
                  obj=None, options=None):
         # type: (Union[unicode, List[unicode]], SphinxConfig, Sphinx, unicode, unicode, Any, Any) -> None  # NOQA
@@ -120,7 +123,7 @@ class GoogleDocstring(UnicodeMixin):
                 what = 'class'
             elif inspect.ismodule(obj):
                 what = 'module'
-            elif isinstance(obj, collections.Callable):  # type: ignore
+            elif isinstance(obj, Callable):
                 what = 'function'
             else:
                 what = 'object'
@@ -264,8 +267,9 @@ class GoogleDocstring(UnicodeMixin):
         # type: () -> Tuple[unicode, List[unicode]]
         line = next(self._line_iter)
         _type, colon, _desc = self._partition_field_on_colon(line)
-        if not colon:
+        if not colon or not _desc:
             _type, _desc = _desc, _type
+            _desc += colon
         _descs = [_desc] + self._dedent(self._consume_to_end())
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
@@ -604,6 +608,7 @@ class GoogleDocstring(UnicodeMixin):
         lines = []
         for _name, _type, _desc in self._consume_fields():
             if self._config.napoleon_use_ivar:
+                _name = self._qualify_name(_name, self._obj)
                 field = ':ivar %s: ' % _name  # type: unicode
                 lines.extend(self._format_block(field, _desc))
                 if _type:
@@ -697,39 +702,16 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_raises_section(self, section):
         # type: (unicode) -> List[unicode]
         fields = self._consume_fields(parse_type=False, prefer_type=True)
-        field_type = ':raises:'
-        padding = ' ' * len(field_type)
-        multi = len(fields) > 1
         lines = []  # type: List[unicode]
         for _name, _type, _desc in fields:
+            m = self._name_rgx.match(_type).groupdict()  # type: ignore
+            if m['role']:
+                _type = m['name']
+            _type = ' ' + _type if _type else ''
             _desc = self._strip_empty(_desc)
-            has_desc = any(_desc)
-            separator = has_desc and ' -- ' or ''
-            if _type:
-                has_refs = '`' in _type or ':' in _type
-                has_space = any(c in ' \t\n\v\f ' for c in _type)
-
-                if not has_refs and not has_space:
-                    _type = ':exc:`%s`%s' % (_type, separator)
-                elif has_desc and has_space:
-                    _type = '*%s*%s' % (_type, separator)
-                else:
-                    _type = '%s%s' % (_type, separator)
-
-                if has_desc:
-                    field = [_type + _desc[0]] + _desc[1:]
-                else:
-                    field = [_type]
-            else:
-                field = _desc
-            if multi:
-                if lines:
-                    lines.extend(self._format_block(padding + ' * ', field))
-                else:
-                    lines.extend(self._format_block(field_type + ' * ', field))
-            else:
-                lines.extend(self._format_block(field_type + ' ', field))
-        if lines and lines[-1]:
+            _descs = ' ' + '\n    '.join(_desc) if any(_desc) else ''
+            lines.append(':raises%s:%s' % (_type, _descs))
+        if lines:
             lines.append('')
         return lines
 
@@ -802,6 +784,18 @@ class GoogleDocstring(UnicodeMixin):
         return ("".join(before_colon).strip(),
                 colon,
                 "".join(after_colon).strip())
+
+    def _qualify_name(self, attr_name, klass):
+        # type: (unicode, Type) -> unicode
+        if klass and '.' not in attr_name:
+            if attr_name.startswith('~'):
+                attr_name = attr_name[1:]
+            try:
+                q = klass.__qualname__
+            except AttributeError:
+                q = klass.__name__
+            return '~%s.%s' % (q, attr_name)
+        return attr_name
 
     def _strip_empty(self, lines):
         # type: (List[unicode]) -> List[unicode]
@@ -975,9 +969,6 @@ class NumpyDocstring(GoogleDocstring):
                     if section.startswith(directive_section):
                         return True
         return False
-
-    _name_rgx = re.compile(r"^\s*(:(?P<role>\w+):`(?P<name>[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>[a-zA-Z0-9_.-]+))\s*", re.X)
 
     def _parse_see_also_section(self, section):
         # type: (unicode) -> List[unicode]

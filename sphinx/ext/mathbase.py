@@ -12,10 +12,12 @@
 import warnings
 
 from docutils import nodes
+from docutils.parsers.rst.roles import math_role as math_role_base
 
 from sphinx.addnodes import math, math_block as displaymath  # NOQA  # to keep compatibility
 from sphinx.builders.latex.nodes import math_reference as eqref  # NOQA  # to keep compatibility
 from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.directives.patches import MathDirective as MathDirectiveBase
 from sphinx.domains.math import MathDomain  # NOQA  # to keep compatibility
 from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to keep compatibility
 
@@ -24,6 +26,21 @@ if False:
     from typing import Any, Callable, List, Tuple  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+class MathDirective(MathDirectiveBase):
+    def run(self):
+        warnings.warn('sphinx.ext.mathbase.MathDirective is moved to '
+                      'sphinx.directives.patches package.',
+                      RemovedInSphinx30Warning)
+        return super(MathDirective, self).run()
+
+
+def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
+    warnings.warn('sphinx.ext.mathbase.math_role() is deprecated. '
+                  'Please use docutils.parsers.rst.roles.math_role() instead.',
+                  RemovedInSphinx30Warning)
+    return math_role_base(role, rawtext, text, lineno, inliner, options, content)
 
 
 def get_node_equation_number(writer, node):

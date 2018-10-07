@@ -15,7 +15,6 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import iteritems, itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -87,7 +86,7 @@ class ImageCollector(EnvironmentCollector):
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)
-            for imgpath in itervalues(candidates):
+            for imgpath in candidates.values():
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(__('image file not readable: %s') % imgpath,
@@ -108,7 +107,7 @@ class ImageCollector(EnvironmentCollector):
             except (OSError, IOError) as err:
                 logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
-        for key, files in iteritems(globbed):
+        for key, files in globbed.items():
             candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
 
@@ -128,13 +127,16 @@ class DownloadFileCollector(EnvironmentCollector):
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
-            rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
-            app.env.dependencies[app.env.docname].add(rel_filename)
-            if not os.access(filename, os.R_OK):
-                logger.warning(__('download file not readable: %s') % filename,
-                               location=node, type='download', subtype='not_readable')
-                continue
-            node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
+            if '://' in targetname:
+                node['refuri'] = targetname
+            else:
+                rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
+                app.env.dependencies[app.env.docname].add(rel_filename)
+                if not os.access(filename, os.R_OK):
+                    logger.warning(__('download file not readable: %s') % filename,
+                                   location=node, type='download', subtype='not_readable')
+                    continue
+                node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
 
 
 def setup(app):

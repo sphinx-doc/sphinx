@@ -18,7 +18,6 @@ import re
 import pytest
 from babel.messages import pofile, mofile
 from docutils import nodes
-from six import string_types
 
 from sphinx.testing.util import (
     path, etree_parse, strip_escseq,
@@ -78,20 +77,7 @@ def _info(app):
 
 
 def elem_gettexts(elem):
-    def itertext(self):
-        # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.6
-        tag = self.tag
-        if not isinstance(tag, string_types) and tag is not None:
-            return
-        if self.text:
-            yield self.text
-        for e in self:
-            for s in itertext(e):
-                yield s
-            if e.tail:
-                yield e.tail
-    return [_f for _f in [s.strip() for s in itertext(elem)] if _f]
+    return [_f for _f in [s.strip() for s in elem.itertext()] if _f]
 
 
 def elem_getref(elem):
@@ -120,7 +106,7 @@ def assert_count(expected_expr, result, count):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_toctree(app):
     app.build()
-    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+    result = (app.outdir / 'index.txt').text(encoding='utf-8')
     assert_startswith(result, u"CONTENTS\n********\n\nTABLE OF CONTENTS\n")
 
 
@@ -131,8 +117,8 @@ def test_text_emit_warnings(app, warning):
     app.build()
     # test warnings in translation
     warnings = getwarning(warning)
-    warning_expr = u'.*/warnings.txt:4: ' \
-                   u'WARNING: Inline literal start-string without end-string.\n'
+    warning_expr = ('.*/warnings.txt:4:<translated>:1: '
+                   'WARNING: Inline literal start-string without end-string.\n')
     assert_re_search(warning_expr, warnings)
 
 
@@ -169,7 +155,7 @@ def test_text_title_underline(app):
 def test_text_subdirs(app):
     app.build()
     # --- check translation in subdirs
-    result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
+    result = (app.outdir / 'subdir' / 'index.txt').text(encoding='utf-8')
     assert_startswith(result, u"1. subdir contents\n******************\n")
 
 
@@ -462,8 +448,8 @@ def test_text_admonitions(app):
 def test_gettext_toctree(app):
     app.build()
     # --- toctree
-    expect = read_po(app.srcdir / 'contents.po')
-    actual = read_po(app.outdir / 'contents.pot')
+    expect = read_po(app.srcdir / 'index.po')
+    actual = read_po(app.outdir / 'index.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
 
@@ -629,7 +615,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
 def test_html_meta(app):
     app.build()
     # --- test for meta
-    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text(encoding='utf-8')
     expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
@@ -758,7 +744,7 @@ def test_html_docfields(app):
 def test_html_template(app):
     app.build()
     # --- gettext template
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'contents.html').text(encoding='utf-8')
     assert "WELCOME" in result
     assert "SPHINX 2013.120" in result
 
@@ -941,7 +927,7 @@ def test_xml_role_xref(app):
         para1,
         ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
          'SOME NEW TERM', '.'],
-        ['i18n-role-xref', 'contents',
+        ['i18n-role-xref', 'index',
          'glossary_terms#term-some-term'])
 
     para2 = sec2.findall('paragraph')
@@ -958,7 +944,7 @@ def test_xml_role_xref(app):
     assert_elem(
         para2[2],
         ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
-        ['glossary_terms', 'contents'])
+        ['glossary_terms', 'index'])
     assert_elem(
         para2[3],
         ['LINK TO', '--module', 'AND', '-m', '.'],

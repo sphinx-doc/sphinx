@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import os
 import posixpath
 import re
@@ -145,7 +144,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+        with open(path.join(outdir, outname + '.qhp'), 'w',  # type: ignore
+                  encoding='utf-8') as f:
             body = render_file('project.qhp', outname=outname,
                                title=self.config.html_title, version=self.config.version,
                                project=self.config.project, namespace=nspace,
@@ -159,7 +159,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
         logger.info(__('writing collection project file...'))
-        with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+        with open(path.join(outdir, outname + '.qhcp'), 'w',  # type: ignore
+                  encoding='utf-8') as f:
             body = render_file('project.qhcp', outname=outname,
                                title=self.config.html_short_title,
                                homepage=homepage, startpage=startpage)

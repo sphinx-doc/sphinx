@@ -18,7 +18,7 @@ from os import path, walk, getenv
 from time import time
 from uuid import uuid4
 
-from six import iteritems, StringIO
+from six import StringIO
 
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
@@ -62,7 +62,7 @@ msgstr ""
 """[1:]
 
 
-class Catalog(object):
+class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self):
@@ -84,7 +84,7 @@ class Catalog(object):
         self.metadata[msg].append((origin.source, origin.line, origin.uid))
 
 
-class MsgOrigin(object):
+class MsgOrigin:
     """
     Origin holder for Catalog message origin.
     """
@@ -268,7 +268,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ctime = datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
+        for textdomain, catalog in status_iterator(self.catalogs.items(),  # type: ignore
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,

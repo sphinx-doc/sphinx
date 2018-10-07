@@ -4,7 +4,7 @@ import enum
 
 from six import StringIO, add_metaclass
 
-from sphinx.ext.autodoc import add_documenter  # NOQA
+from sphinx.util import save_traceback  # NOQA
 
 
 __all__ = ['Class']
@@ -223,14 +223,16 @@ class InstAttCls(object):
         """Docstring for instance attribute InstAttCls.ia2."""
 
 
-class EnumCls(enum.Enum):
-    """
-    this is enum class
-    """
+class CustomIter(object):
+    def __init__(self):
+        """Create a new `CustomIter`."""
+        self.values = range(10)
 
-    #: doc for val1
-    val1 = 12
-    val2 = 23  #: doc for val2
-    val3 = 34
-    """doc for val3"""
-    val4 = 34
+    def __iter__(self):
+        """Iterate squares of each value."""
+        for i in self.values:
+            yield i ** 2
+
+    def snafucate(self):
+        """Makes this snafucated."""
+        print("snafucated")

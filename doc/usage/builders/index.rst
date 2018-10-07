@@ -165,15 +165,16 @@ The builder's "name" must be given to the **-b** command-line option of
    * ``texlive-fonts-recommended``
    * ``texlive-latex-extra``
    * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
-   * ``latex-xcolor`` (old Ubuntu)
    * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
 
-   The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
-   mentioned packages, which are from a TeXLive 2013 snapshot dated
-   February 2014.
+   The testing of Sphinx LaTeX is done on Ubuntu xenial with the above mentioned
+   packages, which are from a TeXLive 2015 snapshot dated March 2016.
 
    .. versionchanged:: 1.6
       Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
+
+   .. versionchanged:: 2.0
+      Formerly, testing had been done on Ubuntu trusty (TeXLive 2013).
 
    .. note::
 
@@ -215,7 +216,7 @@ Note that a direct PDF builder is being provided by `rinohtype`_. The builder's
 name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
 .. _rinohtype: https://github.com/brechtm/rinohtype
-.. _rinohtype manual: http://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
+.. _rinohtype manual: https://www.mos6581.org/rinohtype/quickstart.html#sphinx-builder
 
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
