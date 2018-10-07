@@ -100,6 +100,7 @@ Deprecated
 * ``sphinx.util.PeekableIterator``
 * ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.u``
+* ``sphinx.writers.latex.ExtBabel``
 * ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
 * ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
 * ``sphinx.writers.latex.LaTeXTranslator.collect_footnotes()``

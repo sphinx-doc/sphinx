@@ -19,7 +19,6 @@ from os import path
 from typing import Iterable, cast
 
 from docutils import nodes, writers
-from docutils.writers.latex2e import Babel
 
 from sphinx import addnodes
 from sphinx import highlighting
@@ -258,58 +257,6 @@ class LaTeXWriter(writers.Writer):
 
 
 # Helper classes
-
-class ExtBabel(Babel):
-    cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
-
-    def __init__(self, language_code, use_polyglossia=False):
-        # type: (str, bool) -> None
-        self.language_code = language_code
-        self.use_polyglossia = use_polyglossia
-        self.supported = True
-        super().__init__(language_code or '')
-
-    def get_shorthandoff(self):
-        # type: () -> str
-        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return SHORTHANDOFF
-
-    def uses_cyrillic(self):
-        # type: () -> bool
-        return self.language in self.cyrillic_languages
-
-    def is_supported_language(self):
-        # type: () -> bool
-        return self.supported
-
-    def language_name(self, language_code):
-        # type: (str) -> str
-        language = super().language_name(language_code)
-        if language == 'ngerman' and self.use_polyglossia:
-            # polyglossia calls new orthography (Neue Rechtschreibung) as
-            # german (with new spelling option).
-            return 'german'
-        elif not language:
-            self.supported = False
-            return 'english'  # fallback to english
-        else:
-            return language
-
-    def get_mainlanguage_options(self):
-        # type: () -> str
-        """Return options for polyglossia's ``\\setmainlanguage``."""
-        if self.use_polyglossia is False:
-            return None
-        elif self.language == 'german':
-            language = super().language_name(self.language_code)
-            if language == 'ngerman':
-                return 'spelling=new'
-            else:
-                return 'spelling=old'
-        else:
-            return None
-
 
 class Table:
     """A table data"""
@@ -586,8 +533,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(self.config.language,
-                              not self.elements['babel'])
+        self.babel = self.builder.babel
         if self.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
