@@ -11,6 +11,10 @@
 
 from __future__ import unicode_literals
 
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
+
 tex_replacements = [
     # map TeX special chars
     ('$', r'\$'),
@@ -117,9 +121,14 @@ tex_replacements = [
     ('Ω', r'\(\Omega\)'),
 ]
 
-tex_escape_map = {}
+tex_escape_map = {}  # type: Dict[int, unicode]
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
+
+
+def escape(s):
+    # type: (unicode) -> unicode
+    return s.translate(tex_escape_map)
 
 
 def init():

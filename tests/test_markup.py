@@ -18,6 +18,7 @@ from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -87,6 +88,9 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
+        app.builder = LaTeXBuilder(app)
+        app.builder.set_environment(app.env)
+        app.builder.init_context()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
