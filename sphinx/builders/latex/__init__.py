@@ -394,7 +394,7 @@ class LaTeXBuilder(Builder):
 
     def write_message_catalog(self):
         # type: () -> None
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessage.sty_t')
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
         copy_asset_file(filename, self.outdir, context={}, renderer=LaTeXRenderer())
 
 
