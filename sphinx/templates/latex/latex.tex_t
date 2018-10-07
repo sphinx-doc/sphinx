@@ -48,7 +48,7 @@
 \author{<%= author %>}
 \newcommand{\sphinxlogo}{<%= logo %>}
 <%- if releasename or release %>
-\renewcommand{\releasename}{<%= releasename or _('Release') %>}
+\renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
 <%- else %>
 \renewcommand{\releasename}{}
 <%- endif %>
@@ -63,6 +63,6 @@
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
-\renewcommand{\indexname}{<%= _('Index') %>}
+\renewcommand{\indexname}{<%= _('Index') | e %>}
 <%= printindex %>
 \end{document}

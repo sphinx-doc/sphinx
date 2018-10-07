@@ -16,6 +16,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
+from sphinx.util import texescape
 
 if False:
     # For type annotation
@@ -71,6 +72,10 @@ class LaTeXRenderer(SphinxRenderer):
         # type: () -> None
         template_path = os.path.join(package_dir, 'templates', 'latex')
         super(LaTeXRenderer, self).__init__(template_path)
+
+        # use texescape as escape filter
+        self.env.filters['e'] = texescape.escape
+        self.env.filters['escape'] = texescape.escape
 
         # use JSP/eRuby like tagging instead because curly bracket; the default
         # tagging of jinja2 is not good for LaTeX sources.
