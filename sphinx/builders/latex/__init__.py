@@ -34,6 +34,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
+from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import (
     ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
 )
@@ -327,6 +328,7 @@ class LaTeXBuilder(Builder):
     def finish(self):
         # type: () -> None
         self.copy_image_files()
+        self.write_message_catalog()
 
         # copy TeX support files from texinputs
         # configure usage of xindy (impacts Makefile and latexmkrc)
@@ -389,6 +391,11 @@ class LaTeXBuilder(Builder):
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
+
+    def write_message_catalog(self):
+        # type: () -> None
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessage.sty_t')
+        copy_asset_file(filename, self.outdir, context={}, renderer=LaTeXRenderer())
 
 
 def validate_config_values(app, config):
