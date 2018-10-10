@@ -22,6 +22,7 @@ from six import iteritems, StringIO
 
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes
+from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
@@ -247,11 +248,14 @@ class MessageCatalogBuilder(I18nBuilder):
 
         for template in status_iterator(files, __('reading templates... '), "purple",  # type: ignore  # NOQA
                                         len(files), self.app.verbosity):
-            with open(template, 'r', encoding='utf-8') as f:  # type: ignore
-                context = f.read()
-            for line, meth, msg in extract_translations(context):
-                origin = MsgOrigin(template, line)
-                self.catalogs['sphinx'].add(msg, origin)
+            try:
+                with open(template, 'r', encoding='utf-8') as f:  # type: ignore
+                    context = f.read()
+                for line, meth, msg in extract_translations(context):
+                    origin = MsgOrigin(template, line)
+                    self.catalogs['sphinx'].add(msg, origin)
+            except Exception as exc:
+                raise ThemeError('%s: %r' % (template, exc))
 
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[unicode], unicode, unicode) -> None
