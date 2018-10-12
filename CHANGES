@@ -20,6 +20,7 @@ Bugs fixed
 * #5492: sphinx-build fails to build docs w/ Python < 3.5.2
 * #3704: latex: wrong ``\label`` positioning for figures with a legend
 * #5496: C++, fix assertion when a symbol is declared more than twice.
+* #5493: gettext: crashed with broken template
 
 Testing
 --------
