@@ -43,25 +43,25 @@ class DeprecatedDict(dict):
 
     def __setitem__(self, key, value):
         # type: (unicode, Any) -> None
-        warnings.warn(self.message, self.warning)
+        warnings.warn(self.message, self.warning, stacklevel=2)
         super(DeprecatedDict, self).__setitem__(key, value)
 
     def setdefault(self, key, default=None):
         # type: (unicode, Any) -> None
-        warnings.warn(self.message, self.warning)
+        warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).setdefault(key, default)
 
     def __getitem__(self, key):
         # type: (unicode) -> None
-        warnings.warn(self.message, self.warning)
+        warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).__getitem__(key)
 
     def get(self, key, default=None):
         # type: (unicode, Any) -> None
-        warnings.warn(self.message, self.warning)
+        warnings.warn(self.message, self.warning, stacklevel=2)
         return super(DeprecatedDict, self).get(key, default)
 
     def update(self, other=None):  # type: ignore
         # type: (Dict) -> None
-        warnings.warn(self.message, self.warning)
+        warnings.warn(self.message, self.warning, stacklevel=2)
         super(DeprecatedDict, self).update(other)

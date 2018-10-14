@@ -953,7 +953,7 @@ class StandardDomain(Domain):
         """
         warnings.warn('StandardDomain.get_figtype() is deprecated. '
                       'Please use get_enumerable_node_type() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.get_enumerable_node_type(node)
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):

@@ -109,7 +109,7 @@ class CSSContainer(list):
         # type: (int, Union[unicode, Stylesheet]) -> None
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         if isinstance(obj, Stylesheet):
             super(CSSContainer, self).insert(index, obj)
         else:
@@ -119,7 +119,7 @@ class CSSContainer(list):
         # type: (List[Union[unicode, Stylesheet]]) -> None
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         for item in other:
             self.append(item)
 
@@ -127,7 +127,7 @@ class CSSContainer(list):
         # type: (List[Union[unicode, Stylesheet]]) -> CSSContainer
         warnings.warn('builder.css_files is deprecated. '
                       'Please use app.add_stylesheet() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         for item in other:
             self.append(item)
         return self
@@ -169,14 +169,14 @@ class JSContainer(list):
         # type: (int, unicode) -> None
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         super(JSContainer, self).insert(index, obj)
 
     def extend(self, other):  # type: ignore
         # type: (List[unicode]) -> None
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         for item in other:
             self.append(item)
 
@@ -184,7 +184,7 @@ class JSContainer(list):
         # type: (List[unicode]) -> JSContainer
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         for item in other:
             self.append(item)
         return self
@@ -1092,7 +1092,7 @@ class StandaloneHTMLBuilder(Builder):
             warnings.warn('Now html_sidebars only allows list of sidebar '
                           'templates as a value. Support for a string value '
                           'will be removed at Sphinx-2.0.',
-                          RemovedInSphinx20Warning)
+                          RemovedInSphinx20Warning, stacklevel=2)
 
         ctx['sidebars'] = sidebars
         ctx['customsidebar'] = customsidebar
@@ -1161,7 +1161,7 @@ class StandaloneHTMLBuilder(Builder):
             """Simple warn() wrapper for themes."""
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             self.warn(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn

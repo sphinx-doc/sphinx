@@ -186,6 +186,6 @@ def prepare(document):
     # type: (nodes.Node) -> None
     """Simple wrapper for UIDTransform."""
     warnings.warn('versioning.prepare() is deprecated. Use UIDTransform instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     transform = UIDTransform(document)
     transform.apply()

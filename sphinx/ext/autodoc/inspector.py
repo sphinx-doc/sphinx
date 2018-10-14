@@ -33,7 +33,7 @@ def format_annotation(annotation):
     """
     warnings.warn('format_annotation() is now deprecated.  '
                   'Please use sphinx.util.inspect.Signature instead.',
-                  RemovedInSphinx20Warning)
+                  RemovedInSphinx20Warning, stacklevel=2)
     if isinstance(annotation, typing.TypeVar):  # type: ignore
         return annotation.__name__
     if annotation == Ellipsis:
@@ -114,7 +114,7 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
     """
     warnings.warn('formatargspec() is now deprecated.  '
                   'Please use sphinx.util.inspect.Signature instead.',
-                  RemovedInSphinx20Warning)
+                  RemovedInSphinx20Warning, stacklevel=2)
 
     def format_arg_with_annotation(name):
         # type: (str) -> str

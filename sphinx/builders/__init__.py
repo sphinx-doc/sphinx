@@ -150,7 +150,7 @@ class Builder(object):
             warnings.warn('builder.translator_class() is now deprecated. '
                           'Please use builder.create_translator() and '
                           'builder.default_translator_class instead.',
-                          RemovedInSphinx20Warning)
+                          RemovedInSphinx20Warning, stacklevel=2)
             return None
         return self.create_translator
 
