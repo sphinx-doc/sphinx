@@ -21,6 +21,8 @@ Bugs fixed
 * #3704: latex: wrong ``\label`` positioning for figures with a legend
 * #5496: C++, fix assertion when a symbol is declared more than twice.
 * #5493: gettext: crashed with broken template
+* #5495: csv-table directive with file option in included file is broken (refs:
+  #4821)
 
 Testing
 --------
