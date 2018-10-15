@@ -68,6 +68,7 @@ Other contributors, listed alphabetically, are:
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* Eric N. Vander Weele -- autodoc improvements
 * Stefan van der Walt -- autosummary extension
 * Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
