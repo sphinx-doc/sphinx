@@ -323,10 +323,11 @@ class Only(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}  # type: Dict
+    only_node_class = addnodes.only
 
     def run(self):
         # type: () -> List[nodes.Node]
-        node = addnodes.only()
+        node = self.only_node_class()
         node.document = self.state.document
         set_source_info(self, node)
         node['expr'] = self.arguments[0]
