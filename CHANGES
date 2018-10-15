@@ -24,6 +24,7 @@ Bugs fixed
 * #5495: csv-table directive with file option in included file is broken (refs:
   #4821)
 * #5498: autodoc: unable to find type hints for a ``functools.partial``
+* #5480: autodoc: unable to find type hints for unresolvable Forward references
 
 Testing
 --------
