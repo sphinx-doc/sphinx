@@ -154,7 +154,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
     def handle(self, record):
         # type: (logging.LogRecord) -> None
-        self.logger.handle(record)  # type: ignore
+        self.logger.handle(record)
 
 
 class WarningStreamHandler(logging.StreamHandler):
@@ -439,7 +439,8 @@ class SphinxLogRecordTranslator(logging.Filter):
     def filter(self, record):  # type: ignore
         # type: (SphinxWarningLogRecord) -> bool
         if isinstance(record, logging.LogRecord):
-            record.__class__ = self.LogRecordClass  # force subclassing to handle location
+            # force subclassing to handle location
+            record.__class__ = self.LogRecordClass  # type: ignore
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):

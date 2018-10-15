@@ -261,7 +261,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     if typ == 'menuselection':
         text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
-    spans = _amp_re.split(text)  # type: ignore
+    spans = _amp_re.split(text)
 
     node = nodes.inline(rawtext=rawtext)
     for i, span in enumerate(spans):
@@ -343,7 +343,7 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     text = utils.unescape(text)
-    m = _abbr_re.search(text)  # type: ignore
+    m = _abbr_re.search(text)
     if m is None:
         return [addnodes.abbreviation(text, text, **options)], []
     abbr = text[:m.start()].strip()

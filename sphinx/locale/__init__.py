@@ -45,7 +45,7 @@ class _TranslationProxy(UserString, object):
         if not args:
             # not called with "function" and "arguments", but a plain string
             return text_type(func)
-        return object.__new__(cls)  # type: ignore
+        return object.__new__(cls)
 
     def __getnewargs__(self):
         # type: () -> Tuple

@@ -149,8 +149,8 @@ class PygmentsBridge(object):
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
-            source = doctest.blankline_re.sub('', source)  # type: ignore
-            source = doctest.doctestopt_re.sub('', source)  # type: ignore
+            source = doctest.blankline_re.sub('', source)
+            source = doctest.doctestopt_re.sub('', source)
 
         # highlight via Pygments
         formatter = self.get_formatter(**kwargs)
