@@ -383,9 +383,10 @@ There are also new config values that you can set:
    Setting ``None`` is equivalent to giving the option name in the list format
    (i.e. it means "yes/true/on").
 
-   The supported options are ``'members'``, ``'undoc-members'``,
-   ``'private-members'``, ``'special-members'``, ``'inherited-members'``,
-   ``'show-inheritance'``, ``'ignore-module-all'`` and ``'exclude-members'``.
+   The supported options are ``'members'``, ``'member-order'``,
+   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'`` and
+   ``'exclude-members'``.
 
    .. versionadded:: 1.8
 
