@@ -1569,6 +1569,29 @@ def test_autodoc_default_options_with_values(app):
     assert '   .. py:attribute:: EnumCls.val3' not in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
+    # with :member-order:
+    app.config.autodoc_default_options = {
+        'members': None,
+        'member-order': 'bysource',
+    }
+    actual = do_autodoc(app, 'class', 'target.Class')
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: Class(arg)',
+        '   .. py:attribute:: Class.descr',
+        '   .. py:method:: Class.meth()',
+        '   .. py:method:: Class.skipmeth()',
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:attribute:: Class.attr',
+        '   .. py:attribute:: Class.prop',
+        '   .. py:attribute:: Class.docattr',
+        '   .. py:attribute:: Class.udocattr',
+        '   .. py:attribute:: Class.mdocattr',
+        '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
+        '   .. py:attribute:: Class.inst_attr_inline',
+        '   .. py:attribute:: Class.inst_attr_comment',
+        '   .. py:attribute:: Class.inst_attr_string',
+    ]
+
     # with :special-members:
     app.config.autodoc_default_options = {
         'special-members': '__init__,__iter__',
