@@ -358,10 +358,14 @@ class Signature(object):
             self.argspec = getargspec(subject)
 
         try:
-            self.annotations = typing.get_type_hints(subject)  # type: ignore
+            if ispartial(subject):
+                # get_type_hints() does not support partial objects
+                self.annotations = {}  # type: Dict[str, Any]
+            else:
+                self.annotations = typing.get_type_hints(subject)  # type: ignore
         except Exception as exc:
             if (3, 5, 0) <= sys.version_info < (3, 5, 3) and isinstance(exc, AttributeError):
-                # python 3.5.2 raises ValueError for partial objects.
+                # python 3.5.2 raises ValueError for classmethod-ized partial objects.
                 self.annotations = {}
             else:
                 logger.warning('Invalid type annotation found on %r. Ignored: %r',

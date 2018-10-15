@@ -112,6 +112,7 @@ def test_generate():
         assert len(directive.result) == 0, directive.result
         assert warn_str in app._warning.getvalue()
         app._warning.truncate(0)
+        app._warning.seek(0)
 
     def assert_works(objtype, name, **kw):
         inst = app.registry.documenters[objtype](directive, name)
