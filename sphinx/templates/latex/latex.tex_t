@@ -36,7 +36,7 @@
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>
-\input{sphinxmessage.sty}
+\input{sphinxmessages.sty}
 <%= pageautorefname %>
 <%= tocdepth %>
 <%= secnumdepth %>

@@ -1,3 +1,8 @@
+%
+% sphinxmessages.sty
+%
+% message resources for Sphinx
+%
 \renewcommand{\literalblockcontinuedname}{<%= _('continued from previous page') | e %>}
 \renewcommand{\literalblockcontinuesname}{<%= _('continues on next page') | e %>}
 \renewcommand{\sphinxnonalphabeticalgroupname}{<%= _('Non-alphabetical') | e %>}
