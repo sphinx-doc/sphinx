@@ -21,6 +21,7 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 def html_visit_math(self, node):
@@ -58,14 +59,16 @@ def html_visit_displaymath(self, node):
     raise nodes.SkipNode
 
 
-def builder_inited(app):
-    # type: (Sphinx) -> None
+def install_jsmath(app, env):
+    # type: (Sphinx, BuildEnvironment) -> None
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'jsmath':  # type: ignore  # NOQA
-        pass
-    elif not app.config.jsmath_path:
+        return
+    if not app.config.jsmath_path:
         raise ExtensionError('jsmath_path config value must be set for the '
                              'jsmath extension to work')
-    if app.builder.format == 'html':
+
+    if env.get_domain('math').has_equations():  # type: ignore
+        # Enable jsmath only if equations exists
         app.builder.add_js_file(app.config.jsmath_path)  # type: ignore
 
 
@@ -76,5 +79,5 @@ def setup(app):
                                (html_visit_displaymath, None))
 
     app.add_config_value('jsmath_path', '', False)
-    app.connect('builder-inited', builder_inited)
+    app.connect('env-check-consistency', install_jsmath)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
