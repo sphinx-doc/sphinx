@@ -59,7 +59,7 @@ class ClickableMapDefinition:
 
     def parse(self, dot=None):
         # type: (unicode) -> None
-        matched = self.maptag_re.match(self.content[0])   # type: ignore
+        matched = self.maptag_re.match(self.content[0])
         if not matched:
             raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
 
@@ -72,7 +72,7 @@ class ClickableMapDefinition:
             self.content[0] = self.content[0].replace('%3', self.id)
 
         for line in self.content:
-            if self.href_re.search(line):  # type: ignore
+            if self.href_re.search(line):
                 self.clickable.append(line)
 
     def generate_clickable_map(self):

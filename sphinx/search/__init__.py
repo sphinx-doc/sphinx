@@ -85,7 +85,7 @@ var Stemmer = function() {
         at white spaces, which should be enough for most languages except CJK
         languages.
         """
-        return self._word_re.findall(input)  # type: ignore
+        return self._word_re.findall(input)
 
     def stem(self, word):
         # type: (unicode) -> unicode

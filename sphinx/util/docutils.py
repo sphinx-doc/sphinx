@@ -225,13 +225,13 @@ class sphinx_domains:
 class WarningStream:
     def write(self, text):
         # type: (unicode) -> None
-        matched = report_re.search(text)  # type: ignore
+        matched = report_re.search(text)
         if not matched:
             logger.warning(text.rstrip("\r\n"))
         else:
             location, type, level = matched.groups()
-            message = report_re.sub('', text).rstrip()  # type: ignore
-            logger.log(type, message, location=location)
+            message = report_re.sub('', text).rstrip()
+            logger.log(type, message, location=location)  # type: ignore
 
 
 class LoggingReporter(Reporter):

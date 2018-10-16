@@ -214,7 +214,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def keyword_item(self, name, ref):
         # type: (unicode, Any) -> unicode
-        matchobj = _idpattern.match(name)  # type: ignore
+        matchobj = _idpattern.match(name)
         if matchobj:
             groupdict = matchobj.groupdict()
             shortname = groupdict['title']

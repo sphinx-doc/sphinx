@@ -239,7 +239,7 @@ class GoogleDocstring(UnicodeMixin):
         _name, _type, _desc = before, '', after  # type: unicode, unicode, unicode
 
         if parse_type:
-            match = _google_typed_arg_regex.match(before)  # type: ignore
+            match = _google_typed_arg_regex.match(before)
             if match:
                 _name = match.group(1)
                 _type = match.group(2)
@@ -500,9 +500,9 @@ class GoogleDocstring(UnicodeMixin):
         # type: (List[unicode]) -> bool
         if not lines:
             return False
-        if _bullet_list_regex.match(lines[0]):  # type: ignore
+        if _bullet_list_regex.match(lines[0]):
             return True
-        if _enumerated_list_regex.match(lines[0]):  # type: ignore
+        if _enumerated_list_regex.match(lines[0]):
             return True
         if len(lines) < 2 or lines[0].endswith('::'):
             return False
@@ -576,7 +576,7 @@ class GoogleDocstring(UnicodeMixin):
                     section = self._consume_section_header()
                     self._is_in_section = True
                     self._section_indent = self._get_current_indent()
-                    if _directive_regex.match(section):  # type: ignore
+                    if _directive_regex.match(section):
                         lines = [section] + self._consume_to_next_section()
                     else:
                         lines = self._sections[section.lower()](section)
@@ -766,9 +766,9 @@ class GoogleDocstring(UnicodeMixin):
         # type: (unicode) -> Tuple[unicode, unicode, unicode]
         before_colon = []
         after_colon = []
-        colon = ''
+        colon = ''  # type: unicode
         found_colon = False
-        for i, source in enumerate(_xref_regex.split(line)):  # type: ignore
+        for i, source in enumerate(_xref_regex.split(line)):
             if found_colon:
                 after_colon.append(source)
             else:
@@ -962,7 +962,7 @@ class NumpyDocstring(GoogleDocstring):
         section, underline = self._line_iter.peek(2)
         section = section.lower()
         if section in self._sections and isinstance(underline, string_types):
-            return bool(_numpy_section_regex.match(underline))  # type: ignore
+            return bool(_numpy_section_regex.match(underline))
         elif self._directive_sections:
             if _directive_regex.match(section):
                 for directive_section in self._directive_sections:
@@ -996,7 +996,7 @@ class NumpyDocstring(GoogleDocstring):
         def parse_item_name(text):
             # type: (unicode) -> Tuple[unicode, unicode]
             """Match ':role:`name`' or 'name'"""
-            m = self._name_rgx.match(text)  # type: ignore
+            m = self._name_rgx.match(text)
             if m:
                 g = m.groups()
                 if g[1] is None:
@@ -1020,7 +1020,7 @@ class NumpyDocstring(GoogleDocstring):
             if not line.strip():
                 continue
 
-            m = self._name_rgx.match(line)  # type: ignore
+            m = self._name_rgx.match(line)
             if m and line[m.end():].strip().startswith(':'):
                 push_item(current_func, rest)
                 current_func, line = line[:m.end()], line[m.end():]

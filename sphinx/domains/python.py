@@ -157,7 +157,7 @@ class PyXrefMixin:
             if split_contnode:
                 contnode = nodes.Text(sub_target)
 
-            if delims_re.match(sub_target):  # type: ignore
+            if delims_re.match(sub_target):
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
@@ -252,7 +252,7 @@ class PyObject(ObjectDescription):
         * it is stripped from the displayed name if present
         * it is added to the full name (return value) if not present
         """
-        m = py_sig_re.match(sig)  # type: ignore
+        m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
         name_prefix, name, arglist, retann = m.groups()
