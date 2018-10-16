@@ -378,7 +378,7 @@ def detect_encoding(readline):
         except UnicodeDecodeError:
             return None
 
-        matches = _coding_re.findall(line_string)  # type: ignore
+        matches = _coding_re.findall(line_string)
         if not matches:
             return None
         return get_normal_name(matches[0])

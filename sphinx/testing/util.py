@@ -193,7 +193,7 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 def remove_unicode_literals(s):
     # type: (unicode) -> unicode
-    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)  # type: ignore
+    return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 
 def find_files(root, suffix=None):

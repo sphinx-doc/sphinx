@@ -156,10 +156,10 @@ class Cmdoption(ObjectDescription):
         # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform an option description into RST nodes."""
         count = 0
-        firstname = ''
+        firstname = ''  # type: unicode
         for potential_option in sig.split(', '):
             potential_option = potential_option.strip()
-            m = option_desc_re.match(potential_option)  # type: ignore
+            m = option_desc_re.match(potential_option)
             if not m:
                 logger.warning(__('Malformed option description %r, should '
                                   'look like "opt", "-opt args", "--opt args", '
@@ -388,7 +388,7 @@ def token_xrefs(text):
     # type: (unicode) -> List[nodes.Node]
     retnodes = []
     pos = 0
-    for m in token_re.finditer(text):  # type: ignore
+    for m in token_re.finditer(text):
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
