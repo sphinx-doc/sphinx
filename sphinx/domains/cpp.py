@@ -4010,14 +4010,20 @@ class Symbol:
 
         noDecl = []
         withDecl = []
+        dupDecl = []
         for s in symbols:
             if s.declaration is None:
                 noDecl.append(s)
+            elif s.isRedeclaration:
+                dupDecl.append(s)
             else:
                 withDecl.append(s)
         if Symbol.debug_lookup:
             print("      #noDecl:  ", len(noDecl))
             print("      #withDecl:", len(withDecl))
+            print("      #dupDecl: ", len(dupDecl))
+        if len(dupDecl) > 0:
+            assert len(withDecl) > 0
         # assert len(noDecl) <= 1  # we should fill in symbols when they are there
         # TODO: enable assertion when we at some point find out how to do cleanup
         # With partial builds we may start with a large symbol tree stripped of declarations.

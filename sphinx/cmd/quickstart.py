@@ -492,7 +492,7 @@ def valid_dir(d):
     if not path.isdir(dir):
         return False
 
-    if set(['Makefile', 'make.bat']) & set(os.listdir(dir)):  # type: ignore
+    if set(['Makefile', 'make.bat']) & set(os.listdir(dir)):
         return False
 
     if d['sep']:
@@ -508,7 +508,7 @@ def valid_dir(d):
         d['dot'] + 'templates',
         d['master'] + d['suffix'],
     ]
-    if set(reserved_names) & set(os.listdir(dir)):  # type: ignore
+    if set(reserved_names) & set(os.listdir(dir)):
         return False
 
     return True

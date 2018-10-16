@@ -189,7 +189,7 @@ def convert_dvi_to_png(dvipath, builder):
     depth = None
     if builder.config.imgmath_use_preview:
         for line in stdout.splitlines():
-            matched = depth_re.match(line)  # type: ignore
+            matched = depth_re.match(line)
             if matched:
                 depth = int(matched.group(1))
                 write_png_depth(filename, depth)

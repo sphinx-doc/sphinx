@@ -424,7 +424,7 @@ def correct_copyright_year(app, config):
         for k in ('copyright', 'epub_copyright'):
             if k in config:
                 replace = r'\g<1>%s' % format_date('%Y')
-                config[k] = copyright_year_re.sub(replace, config[k])  # type: ignore
+                config[k] = copyright_year_re.sub(replace, config[k])
 
 
 def check_confval_types(app, config):

@@ -83,7 +83,7 @@ class CObject(ObjectDescription):
     def _parse_type(self, node, ctype):
         # type: (nodes.Node, unicode) -> None
         # add cross-ref nodes for all words
-        for part in [_f for _f in wsplit_re.split(ctype) if _f]:  # type: ignore
+        for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
             if part[0] in string.ascii_letters + '_' and \
                part not in self.stopwords:
@@ -98,10 +98,10 @@ class CObject(ObjectDescription):
     def _parse_arglist(self, arglist):
         # type: (unicode) -> Iterator[unicode]
         while True:
-            m = c_funcptr_arg_sig_re.match(arglist)  # type: ignore
+            m = c_funcptr_arg_sig_re.match(arglist)
             if m:
                 yield m.group()
-                arglist = c_funcptr_arg_sig_re.sub('', arglist)  # type: ignore
+                arglist = c_funcptr_arg_sig_re.sub('', arglist)
                 if ',' in arglist:
                     _, arglist = arglist.split(',', 1)
                 else:
@@ -118,9 +118,9 @@ class CObject(ObjectDescription):
         # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform a C signature into RST nodes."""
         # first try the function pointer signature regex, it's more specific
-        m = c_funcptr_sig_re.match(sig)  # type: ignore
+        m = c_funcptr_sig_re.match(sig)
         if m is None:
-            m = c_sig_re.match(sig)  # type: ignore
+            m = c_sig_re.match(sig)
         if m is None:
             raise ValueError('no match')
         rettype, name, arglist, const = m.groups()
@@ -162,7 +162,7 @@ class CObject(ObjectDescription):
             arg = arg.strip()
             param = addnodes.desc_parameter('', '', noemph=True)
             try:
-                m = c_funcptr_arg_sig_re.match(arg)  # type: ignore
+                m = c_funcptr_arg_sig_re.match(arg)
                 if m:
                     self._parse_type(param, m.group(1) + '(')
                     param += nodes.emphasis(m.group(2), m.group(2))

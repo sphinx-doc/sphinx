@@ -104,7 +104,13 @@ But, sometimes, the change of interface are needed for some reasons.  In such
 cases, we've marked them as deprecated. And they are kept during the two
 major versions (for more details, please see :ref:`deprecation-policy`).
 
-The following is a list of deprecated interface.
+The following is a list of deprecated interfaces.
+
+.. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
+
+.. |LaTeXHyphenate| raw:: latex
+
+                    \hspace{0pt}
 
 .. list-table:: deprecated APIs
    :header-rows: 1
@@ -112,8 +118,8 @@ The following is a list of deprecated interface.
    :widths: 40, 10, 10, 40
 
    * - Target
-     - Deprecated
-     - (will be) Removed
+     - |LaTeXHyphenate|\ Deprecated
+     - (will be) Removed
      - Alternatives
 
    * - ``suffix`` argument of ``BuildEnvironment.doc2path()``

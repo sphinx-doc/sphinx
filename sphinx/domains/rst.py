@@ -77,7 +77,7 @@ def parse_directive(d):
     if not dir.startswith('.'):
         # Assume it is a directive without syntax
         return (dir, '')
-    m = dir_sig_re.match(dir)  # type: ignore
+    m = dir_sig_re.match(dir)
     if not m:
         return (dir, '')
     parsed_dir, parsed_args = m.groups()

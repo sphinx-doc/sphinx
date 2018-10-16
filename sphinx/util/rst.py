@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 def escape(text):
     # type: (unicode) -> unicode
-    text = symbols_re.sub(r'\\\1', text)  # type: ignore
+    text = symbols_re.sub(r'\\\1', text)
     text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
     return text
 

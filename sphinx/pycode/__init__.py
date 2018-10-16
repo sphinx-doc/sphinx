@@ -33,8 +33,8 @@ class ModuleAnalyzer:
     def for_string(cls, string, modname, srcname='<string>'):
         # type: (unicode, unicode, unicode) -> ModuleAnalyzer
         if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)  # type: ignore
-        return cls(StringIO(string), modname, srcname, decoded=True)  # type: ignore
+            return cls(BytesIO(string), modname, srcname)
+        return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):
@@ -43,7 +43,7 @@ class ModuleAnalyzer:
             return cls.cache['file', filename]
         try:
             with open(filename, 'rb') as f:
-                obj = cls(f, modname, filename)  # type: ignore
+                obj = cls(f, modname, filename)
                 cls.cache['file', filename] = obj
         except Exception as err:
             if '.egg/' in filename:

@@ -1679,7 +1679,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_figure(self, node):
         # type: (nodes.Node) -> None
-        labels = self.hypertarget_to(node)
         if self.table:
             # TODO: support align option
             if 'width' in node:
@@ -1691,7 +1690,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append(labels + '\\end{sphinxfigure-in-table}\\relax\n')
+            self.context.append('\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             length = None
             if 'width' in node:
@@ -1700,7 +1699,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
-            self.context.append(labels + '\\end{wrapfigure}\n')
+            self.context.append('\\end{wrapfigure}\n')
         elif self.in_minipage:
             self.body.append('\n\\begin{center}')
             self.context.append('\\end{center}\n')
@@ -1709,7 +1708,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              self.elements['figure_align'])
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
-            self.context.append(labels + '\\end{figure}\n')
+            self.context.append('\\end{figure}\n')
 
     def depart_figure(self, node):
         # type: (nodes.Node) -> None
@@ -1730,6 +1729,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_caption(self, node):
         # type: (nodes.Node) -> None
         self.body.append('}')
+        if isinstance(node.parent, nodes.figure):
+            labels = self.hypertarget_to(node.parent)
+            self.body.append(labels)
         self.in_caption -= 1
 
     def visit_legend(self, node):

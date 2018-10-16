@@ -8,7 +8,6 @@
 """
 
 import re
-from contextlib import contextmanager
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -380,7 +379,6 @@ class Include(BaseInclude, SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        current_filename = self.env.doc2path(self.env.docname)
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
@@ -388,27 +386,7 @@ class Include(BaseInclude, SphinxDirective):
         rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
         self.env.note_included(filename)
-        with patched_warnings(self, current_filename):
-            return BaseInclude.run(self)
-
-
-@contextmanager
-def patched_warnings(directive, parent_filename):
-    # type: (BaseInclude, unicode) -> Generator[None, None, None]
-    """Add includee filename to the warnings during inclusion."""
-    try:
-        original = directive.state_machine.insert_input
-
-        def insert_input(input_lines, source):
-            # type: (Any, unicode) -> None
-            source += ' <included from %s>' % parent_filename
-            original(input_lines, source)
-
-        # patch insert_input() temporarily
-        directive.state_machine.insert_input = insert_input
-        yield
-    finally:
-        directive.state_machine.insert_input = original
+        return BaseInclude.run(self)
 
 
 def setup(app):

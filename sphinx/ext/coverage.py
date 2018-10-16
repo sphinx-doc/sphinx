@@ -100,7 +100,7 @@ class CoverageBuilder(Builder):
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
-            undoc = set()
+            undoc = set()  # type: Set[Tuple[unicode, unicode]]
             with open(filename, 'r') as f:
                 for line in f:
                     for key, regex in self.c_regexes:
