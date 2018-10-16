@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class TocTreeCollector(EnvironmentCollector):
     only_node_class = addnodes.only  # can be extended in subclasses of TocTreeCollector
+    toc_tree_adapter_class = TocTree
 
     def clear_doc(self, app, env, docname):
         # type: (Sphinx, BuildEnvironment, unicode) -> None
@@ -99,7 +100,7 @@ class TocTreeCollector(EnvironmentCollector):
                         item = toctreenode.copy()
                         entries.append(item)
                         # important: do the inventory stuff
-                        TocTree(app.env).note(docname, toctreenode)
+                        self.toc_tree_adapter_class(app.env).note(docname, toctreenode)
                     continue
                 title = sectionnode[0]
                 # copy the contents of the section title, but without references

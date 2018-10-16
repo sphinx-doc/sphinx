@@ -311,7 +311,7 @@ class TocTree:
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        process_only_nodes(toc, builder.tags)
+        self.process_nodes_with_builder_tags(toc, builder.tags)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
