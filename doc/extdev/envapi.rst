@@ -15,6 +15,10 @@ Build environment API
 
       Reference to the :class:`.Config` object.
 
+   .. attribute:: project
+
+      Target project.  See :class:`.Project`.
+
    .. attribute:: srcdir
 
       Source directory.
