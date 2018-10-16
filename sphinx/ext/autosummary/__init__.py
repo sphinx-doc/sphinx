@@ -435,7 +435,7 @@ def mangle_signature(sig, max_chars=30):
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
     while s:
-        m = opt_re.search(s)  # type: ignore
+        m = opt_re.search(s)
         if not m:
             # The rest are arguments
             args = s.split(', ')
@@ -493,7 +493,7 @@ def extract_summary(doc, document):
         summary = doc[0].strip()
     else:
         # Try to find the "first sentence", which may span multiple lines
-        sentences = periods_re.split(" ".join(doc))  # type: ignore
+        sentences = periods_re.split(" ".join(doc))
         if len(sentences) == 1:
             summary = sentences[0].strip()
         else:

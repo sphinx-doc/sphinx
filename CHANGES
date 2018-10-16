@@ -24,6 +24,7 @@ Bugs fixed
 * #5495: csv-table directive with file option in included file is broken (refs:
   #4821)
 * #5498: autodoc: unable to find type hints for a ``functools.partial``
+* #5480: autodoc: unable to find type hints for unresolvable Forward references
 * #5419: incompatible math_block node has been generated
 
 Testing
@@ -151,7 +152,7 @@ Deprecated
 * :confval:`autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
-  based directives.
+  based directives (see :class:`~Directive`)
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
 * ``sphinx.make_mode`` is deprecated

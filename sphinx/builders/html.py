@@ -423,7 +423,7 @@ class StandaloneHTMLBuilder(Builder):
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.script_files.append(JavaScript(filename, **kwargs))  # type: ignore
+        self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
     def default_translator_class(self):

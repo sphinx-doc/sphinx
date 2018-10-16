@@ -303,11 +303,11 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
     template = None
     current_module = module
     in_autosummary = False
-    base_indent = ""
+    base_indent = ""  # type: unicode
 
     for line in lines:
         if in_autosummary:
-            m = toctree_arg_re.match(line)  # type: ignore
+            m = toctree_arg_re.match(line)
             if m:
                 toctree = m.group(1)
                 if filename:
@@ -315,7 +315,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                                            toctree)
                 continue
 
-            m = template_arg_re.match(line)  # type: ignore
+            m = template_arg_re.match(line)
             if m:
                 template = m.group(1).strip()
                 continue
@@ -323,7 +323,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
             if line.strip().startswith(':'):
                 continue  # skip options
 
-            m = autosummary_item_re.match(line)  # type: ignore
+            m = autosummary_item_re.match(line)
             if m:
                 name = m.group(1).strip()
                 if name.startswith('~'):
@@ -339,7 +339,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
 
             in_autosummary = False
 
-        m = autosummary_re.match(line)  # type: ignore
+        m = autosummary_re.match(line)
         if m:
             in_autosummary = True
             base_indent = m.group(1)
@@ -347,7 +347,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
             template = None
             continue
 
-        m = automodule_re.search(line)  # type: ignore
+        m = automodule_re.search(line)
         if m:
             current_module = m.group(1).strip()
             # recurse into the automodule docstring
@@ -355,7 +355,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                 current_module, filename=filename))
             continue
 
-        m = module_re.match(line)  # type: ignore
+        m = module_re.match(line)
         if m:
             current_module = m.group(2)
             continue

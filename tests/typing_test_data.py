@@ -76,6 +76,10 @@ def f14() -> Any:
     pass
 
 
+def f15(x: "Unknown", y: "int") -> Any:
+    pass
+
+
 class Node:
     def __init__(self, parent: Optional['Node']) -> None:
         pass
