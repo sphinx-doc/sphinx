@@ -85,8 +85,9 @@ def ensuredir(path):
     try:
         os.makedirs(path)
     except OSError as err:
-        # 0 for Jython/Win32
-        if err.errno not in [0, EEXIST]:
+        # If the path is already an existing directory (not a file!),
+        # that is OK.
+        if not os.path.isdir(path):
             raise
 
 
