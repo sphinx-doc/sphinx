@@ -704,7 +704,7 @@ class GoogleDocstring(UnicodeMixin):
         fields = self._consume_fields(parse_type=False, prefer_type=True)
         lines = []  # type: List[unicode]
         for _name, _type, _desc in fields:
-            m = self._name_rgx.match(_type).groupdict()  # type: ignore
+            m = self._name_rgx.match(_type).groupdict()
             if m['role']:
                 _type = m['name']
             _type = ' ' + _type if _type else ''
