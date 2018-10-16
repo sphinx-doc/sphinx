@@ -358,19 +358,12 @@ class Signature(object):
             self.argspec = getargspec(subject)
 
         try:
-            if ispartial(subject):
-                # get_type_hints() does not support partial objects
-                self.annotations = {}  # type: Dict[str, Any]
-            else:
-                self.annotations = typing.get_type_hints(subject)  # type: ignore
-        except Exception as exc:
-            if (3, 5, 0) <= sys.version_info < (3, 5, 3) and isinstance(exc, AttributeError):
-                # python 3.5.2 raises ValueError for classmethod-ized partial objects.
-                self.annotations = {}
-            else:
-                logger.warning('Invalid type annotation found on %r. Ignored: %r',
-                               subject, exc)
-                self.annotations = {}
+            self.annotations = typing.get_type_hints(subject)  # type: ignore
+        except Exception:
+            # get_type_hints() does not support some kind of objects like partial,
+            # ForwardRef and so on.  For them, it raises an exception. In that case,
+            # we try to build annotations from argspec.
+            self.annotations = {}
 
         if bound_method:
             # client gives a hint that the subject is a bound method
