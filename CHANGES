@@ -42,6 +42,7 @@ Features added
 __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 
 * #4182: autodoc: Support :confval:`suppress_warnings`
+* #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
   :confval:`htmlhelp_link_suffix`
 
