@@ -95,6 +95,7 @@ class BuildEnvironment:
     """
 
     domains = None  # type: Dict[unicode, Domain]
+    toc_tree_adapter_class = TocTree
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -566,7 +567,7 @@ class BuildEnvironment:
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
-            result = TocTree(self).resolve(docname, builder, toctreenode,
+            result = self.toc_tree_adapter_class(self).resolve(docname, builder, toctreenode,
                                            prune=prune_toctrees,
                                            includehidden=includehidden)
             if result is None:
@@ -590,9 +591,9 @@ class BuildEnvironment:
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return TocTree(self).resolve(docname, builder, toctree, prune,
-                                     maxdepth, titles_only, collapse,
-                                     includehidden)
+        return self.toc_tree_adapter_class(self).resolve(docname, builder, toctree, prune,
+                                                         maxdepth, titles_only, collapse,
+                                                         includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None

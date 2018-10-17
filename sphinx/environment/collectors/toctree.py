@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 
 
 class TocTreeCollector(EnvironmentCollector):
+    only_node_class = addnodes.only  # can be extended in subclasses of TocTreeCollector
+    toc_tree_adapter_class = TocTree
+
     def clear_doc(self, app, env, docname):
         # type: (Sphinx, BuildEnvironment, unicode) -> None
         env.tocs.pop(docname, None)
@@ -84,8 +87,8 @@ class TocTreeCollector(EnvironmentCollector):
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
                 # resolved in self.get_and_resolve_doctree)
-                if isinstance(sectionnode, addnodes.only):
-                    onlynode = addnodes.only(expr=sectionnode['expr'])
+                if isinstance(sectionnode, self.only_node_class):
+                    onlynode = self.only_node_class(expr=sectionnode['expr'])
                     blist = build_toc(sectionnode, depth)
                     if blist:
                         onlynode += blist.children  # type: ignore
@@ -97,7 +100,7 @@ class TocTreeCollector(EnvironmentCollector):
                         item = toctreenode.copy()
                         entries.append(item)
                         # important: do the inventory stuff
-                        TocTree(app.env).note(docname, toctreenode)
+                        self.toc_tree_adapter_class(app.env).note(docname, toctreenode)
                     continue
                 title = sectionnode[0]
                 # copy the contents of the section title, but without references
@@ -159,7 +162,7 @@ class TocTreeCollector(EnvironmentCollector):
                 elif isinstance(subnode, nodes.list_item):
                     _walk_toc(subnode, secnums, depth, titlenode)
                     titlenode = None
-                elif isinstance(subnode, addnodes.only):
+                elif isinstance(subnode, self.only_node_class):
                     # at this stage we don't know yet which sections are going
                     # to be included; just include all of them, even if it leads
                     # to gaps in the numbering

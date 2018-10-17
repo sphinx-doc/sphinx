@@ -127,6 +127,8 @@ class Sphinx:
     :ivar outdir: Directory for storing build documents.
     """
 
+    build_environment_class = BuildEnvironment  # make this extensible
+
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
@@ -290,7 +292,10 @@ class Sphinx:
         # type: (bool) -> None
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
         if freshenv or not os.path.exists(filename):
-            self.env = BuildEnvironment()
+            if self.env is None:
+                # TODO: make this extensible through events
+                self.env = self.build_environment_class()
+
             self.env.setup(self)
             self.env.find_files(self.config, self.builder)
         else:

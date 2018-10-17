@@ -31,6 +31,14 @@ class TocTree:
         # type: (BuildEnvironment) -> None
         self.env = env
 
+    def process_nodes_with_builder_tags(self, toc, tags):
+        """proxy function to :py:func:`sphinx.util.nodes.process_only_nodes`.
+
+        Provides extensibility to custom extensions that need to
+        reproduce the behavior of ``.. only::`` directives.
+        """
+        return process_only_nodes(toc, tags)
+
     def note(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about
@@ -159,7 +167,7 @@ class TocTree:
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        process_only_nodes(toc, builder.tags)
+                        self.process_nodes_with_builder_tags(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -303,7 +311,7 @@ class TocTree:
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        process_only_nodes(toc, builder.tags)
+        self.process_nodes_with_builder_tags(toc, builder.tags)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc

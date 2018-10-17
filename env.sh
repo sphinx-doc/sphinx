@@ -1,0 +1,3 @@
+export PYTHONFAULTHANDLER=x
+export SKIP_LATEX_BUILD=1
+export IS_PYTHON=true
