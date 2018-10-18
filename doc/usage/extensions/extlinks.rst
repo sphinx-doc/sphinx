@@ -47,6 +47,20 @@ The extension adds one new config value:
    that generate links, i.e. ``:issue:`this issue <123>```.  In this case, the
    *prefix* is not relevant.
 
+   One or either of the base URL and prefix can also be callables. In this
+   case, they are called with the role as the lone argument and are fully
+   responsible for turning the role target into the final URL and/or title,
+   respectively. Using the following example, ``:pydoc:`about.html``` would
+   produce a link titled ``About`` to ``about.html`` in the docsset for the
+   same major version of Python that builds the documentation::
+
+       one, two = sys.version_info[0:2]
+
+       extlinks = {'pydoc': (
+           lambda pg: "https://docs.python.org/{}.{}/{}".format(one, two, pg),
+           lambda pg: pg.split(".")[0].title()
+       )}
+
 .. note::
 
    Since links are generated from the role in the reading stage, they appear as

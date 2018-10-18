@@ -66,8 +66,15 @@ man_pages = [
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
+one, two = sys.version_info[0:2]
+
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
-            'pyurl': ('http://python.org/%s', None)}
+            'pyurl': ('http://python.org/%s', None),
+            "pydoc": (
+                lambda pg: "https://docs.python.org/{}.{}/{}".format(one, two, pg),
+                lambda pg: pg.split(".")[0].title()
+            )}
+
 
 autodoc_mock_imports = [
     'missing_module',
