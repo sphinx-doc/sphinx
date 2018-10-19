@@ -31,29 +31,37 @@ from sphinx.util.nodes import split_explicit_title
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import RoleFunction  # NOQA
 
 
 def make_link_role(base_url, prefix):
-    # type: (unicode, unicode) -> RoleFunction
+    # type: (Union[unicode, Callable[[unicode], unicode]], Union[unicode, Callable[[unicode], unicode]]) -> RoleFunction  # NOQA
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:
-            full_url = base_url % part
+            if callable(base_url):
+                full_url = base_url(part)
+            else:
+                full_url = base_url % part
         except (TypeError, ValueError):
             inliner.reporter.warning(
                 'unable to expand %s extlink with base URL %r, please make '
                 'sure the base contains \'%%s\' exactly once'
                 % (typ, base_url), line=lineno)
-            full_url = base_url + part
+            if callable(base_url):
+                full_url = base_url(part)
+            else:
+                full_url = base_url + part
         if not has_explicit_title:
             if prefix is None:
                 title = full_url
+            elif callable(prefix):
+                title = prefix(part)
             else:
                 title = prefix + part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)

@@ -1,0 +1,5 @@
+extlinks
+--------
+
+Test diverse links: :issue:`1000` and :pyurl:`dev/`, also with
+:issue:`explicit caption <1042>` and :pydoc:`about.html`.
