@@ -102,6 +102,63 @@ def test_table_with_empty_cell(app, status, warning):
 
 
 @with_text_app()
+def test_table_with_rowspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_rowspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXXXXXXXX     |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "|       | XXX   |"
+    assert lines[4] == "+-------+-------+"
+    assert lines[5] == "| XXX   |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXX   | XXX   |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "|       | XXX   |"
+    assert lines[4] == "+-------+       |"
+    assert lines[5] == "| XXX   |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan_left(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan_left.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXX   | XXX   |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "| XXX   | XXX   |"
+    assert lines[4] == "|       +-------+"
+    assert lines[5] == "|       |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan_and_rowspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan_and_rowspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert result
+    assert lines[0] == "+-------+-------+-------+"
+    assert lines[1] == "| AAA           | BBB   |"
+    assert lines[2] == "+-------+-------+       |"
+    assert lines[3] == "| DDD   | XXX   |       |"
+    assert lines[4] == "|       +-------+-------+"
+    assert lines[5] == "|       | CCC           |"
+    assert lines[6] == "+-------+-------+-------+"
+
+
+@with_text_app()
 def test_list_items_in_admonition(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'listitems.txt').text(encoding='utf-8')
