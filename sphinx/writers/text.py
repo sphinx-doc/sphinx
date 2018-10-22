@@ -32,6 +32,9 @@ logger = logging.getLogger(__name__)
 
 
 class Cell:
+    """Represents a cell in a table.
+    It can span on multiple columns or on multiple lines.
+    """
     def __init__(self, text="", rowspan=1, colspan=1):
         self.text = text
         self.wrapped = []
@@ -53,21 +56,76 @@ class Cell:
 
 
 class Table:
-    def __init__(self):
+    """Represents a table, handling cells that can span on multiple lines
+    or rows, like:
+    +-----------+-----+
+    | AAA       | BBB |
+    +-----+-----+     |
+    |     | XXX |     |
+    |     +-----+-----+
+    | DDD | CCC       |
+    +-----+-----------+
+
+    This class can be used in two ways:
+
+    - Either with absolute positions: call table[line, col] = Cell(...),
+      this overwrite an existing cell if any.
+
+    - Either with relative positions: call the add_row() and
+      add_cell(Cell(...)) as needed.
+
+    Cell spanning on multiple rows or multiple columns (having a
+    colspan or rowspan greater than one) are automatically referenced
+    by all the table cells they covers. This is a usefull
+    representation as we can simply check `if self[x, y] is self[x,
+    y+1]` to recognize a rowspan.
+
+    Colwidth is not automatically computed, it has to be given, either
+    at construction time, either during the table construction.
+
+    Example usage:
+    table = Table([6, 6])
+    table.add_cell(Cell("foo"))
+    table.add_cell(Cell("bar"))
+    table.set_separator()
+    table.add_row()
+    table.add_cell(Cell("FOO"))
+    table.add_cell(Cell("BAR"))
+    print(str(table))
+    +--------+--------+
+    | foo    | bar    |
+    |========|========|
+    | FOO    | BAR    |
+    +--------+--------+
+
+    """
+    def __init__(self, colwidth=None):
         self.lines = []
         self.separator = 0
-        self.colwidth = []
+        if colwidth is None:
+            self.colwidth = []
+        else:
+            self.colwidth = colwidth
         self.current_line = 0
         self.current_col = 0
 
     def add_row(self):
+        """Add a row to the table, to use with add_cell().  It is not needed
+        to call add_row() before the first add_cell().
+        """
         self.current_line += 1
         self.current_col = 0
 
     def set_separator(self):
+        """Sets the separator below the current line.
+        """
         self.separator = len(self.lines)
 
     def add_cell(self, cell):
+        """Add a cell to the current line, to use with add_row().  To add a
+        cell spanning on multiple lines or rows, simply set the
+        cell.colspan or cell.rowspan BEFORE inserting it to the table.
+        """
         while self[self.current_line, self.current_col]:
             self.current_col += 1
         self[self.current_line, self.current_col] = cell
@@ -105,6 +163,10 @@ class Table:
         return "\n".join(out)
 
     def cell_width(self, cell, source):
+        """Give the cell width, according to the given source (either
+        self.colwidth or self.measured_widths).
+        This take into account cells spanning on multiple columns.
+        """
         width = 0
         for i in range(self[cell.row, cell.col].colspan):
             width += source[cell.col + i]
@@ -120,6 +182,9 @@ class Table:
                     seen.add(cell)
 
     def rewrap(self):
+        """Call cell.wrap() on all cells, and measure each column width after
+        wrapping (result written in self.measured_widths).
+        """
         self.measured_widths = self.colwidth[:]
         for cell in self.cells:
             cell.wrap(width=self.cell_width(cell, self.colwidth))
