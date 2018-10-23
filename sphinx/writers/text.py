@@ -25,7 +25,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class Cell:
     """
     def __init__(self, text="", rowspan=1, colspan=1):
         self.text = text
-        self.wrapped = []
+        self.wrapped = []  # type: List[unicode]
         self.rowspan = rowspan
         self.colspan = colspan
         self.col = None
@@ -100,12 +100,10 @@ class Table:
 
     """
     def __init__(self, colwidth=None):
-        self.lines = []
+        self.lines = []  # type: List[List[Cell]]
         self.separator = 0
-        if colwidth is None:
-            self.colwidth = []
-        else:
-            self.colwidth = colwidth
+        self.colwidth = (colwidth if colwidth is not None
+                         else [])  # type: List[int]
         self.current_line = 0
         self.current_col = 0
 
@@ -174,7 +172,7 @@ class Table:
 
     @property
     def cells(self):
-        seen = set()
+        seen = set()  # type: Set[Cell]
         for lineno, line in enumerate(self.lines):
             for colno, cell in enumerate(line):
                 if cell and cell not in seen:
@@ -420,7 +418,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.list_counter = []  # type: List[int]
         self.sectionlevel = 0
         self.lineblocklevel = 0
-        self.table = None       # type: List[Union[unicode, List[int]]]
+        self.table = None       # type: Table
 
     def add_text(self, text):
         # type: (unicode) -> None
@@ -813,7 +811,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_colspec(self, node):
         # type: (nodes.Node) -> None
-        self.table.colwidth.append(node["colwidth"])  # type: ignore
+        self.table.colwidth.append(node["colwidth"])
         raise nodes.SkipNode
 
     def visit_tgroup(self, node):
