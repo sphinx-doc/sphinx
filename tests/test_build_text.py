@@ -12,7 +12,7 @@
 import pytest
 from docutils.utils import column_width
 
-from sphinx.writers.text import MAXWIDTH
+from sphinx.writers.text import MAXWIDTH, Table, Cell
 
 
 def with_text_app(*args, **kw):
@@ -85,6 +85,41 @@ def test_nonascii_maxwidth(app, status, warning):
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert max(line_widths) < MAXWIDTH
+
+
+def test_table_builder():
+    table = Table([6, 6])
+    table.add_cell(Cell("foo"))
+    table.add_cell(Cell("bar"))
+    table_str = str(table).split("\n")
+    assert table_str[0] == "+--------+--------+"
+    assert table_str[1] == "| foo    | bar    |"
+    assert table_str[2] == "+--------+--------+"
+    assert repr(table).count("<Cell ") == 2
+
+
+def test_table_separator():
+    table = Table([6, 6])
+    table.add_cell(Cell("foo"))
+    table.add_cell(Cell("bar"))
+    table.set_separator()
+    table.add_row()
+    table.add_cell(Cell("FOO"))
+    table.add_cell(Cell("BAR"))
+    table_str = str(table).split("\n")
+    assert table_str[0] == "+--------+--------+"
+    assert table_str[1] == "| foo    | bar    |"
+    assert table_str[2] == "|========|========|"
+    assert table_str[3] == "| FOO    | BAR    |"
+    assert table_str[4] == "+--------+--------+"
+    assert repr(table).count("<Cell ") == 4
+
+
+def test_table_cell():
+    cell = Cell("Foo bar baz")
+    cell.wrap(3)
+    assert "Cell" in repr(cell)
+    assert cell.wrapped == ["Foo", "bar", "baz"]
 
 
 @with_text_app()
