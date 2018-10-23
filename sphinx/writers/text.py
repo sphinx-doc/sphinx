@@ -156,10 +156,7 @@ class Table:
                 line.append(None)
 
     def __repr__(self):
-        out = []
-        for line in self.lines:
-            out.append(repr(line))
-        return "\n".join(out)
+        return "\n".join(repr(line) for line in self.lines)
 
     def cell_width(self, cell, source):
         """Give the cell width, according to the given source (either
