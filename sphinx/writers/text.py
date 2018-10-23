@@ -8,16 +8,14 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from collections import namedtuple
+import math
 import os
 import re
-import math
 import textwrap
 from itertools import groupby, chain
 
 from docutils import nodes, writers
 from docutils.utils import column_width
-from six.moves import zip_longest
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
@@ -213,9 +211,9 @@ class Table:
             out = []  # type: List[unicode]
             for colno, width in enumerate(self.measured_widths):
                 if (
-                    lineno is not None
-                    and lineno > 0
-                    and self[lineno, colno] is self[lineno - 1, colno]
+                    lineno is not None and
+                    lineno > 0 and
+                    self[lineno, colno] is self[lineno - 1, colno]
                 ):
                     out.append(" " * (width + 2))
                 else:
@@ -247,11 +245,10 @@ class Table:
                         physical_text = cell.wrapped[physical_line]
                     adjust_len = len(physical_text) - column_width(physical_text)
                     linestr.append(
-                        " "
-                        + physical_text.ljust(
+                        " " +
+                        physical_text.ljust(
                             self.cell_width(cell, self.measured_widths) + 1 + adjust_len
-                        )
-                        + "|"
+                        ) + "|"
                     )
                 out.append("".join(linestr))
         out.append(writesep("-"))
