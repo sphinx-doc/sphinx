@@ -851,7 +851,7 @@ compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
 Inline Expressions and Types
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
               cpp:texpr
