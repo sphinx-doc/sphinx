@@ -98,7 +98,7 @@ General configuration
           '.md': 'markdown',
       }
 
-   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   By default, Sphinx only supports ``'restructuredtext'`` file type.  You can
    add a new file type using source parser extensions.  Please read a document
    of the extension to know what file type the extension supports.
 
