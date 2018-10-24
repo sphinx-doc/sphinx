@@ -152,7 +152,7 @@ General configuration
    contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
 
    .. versionchanged:: 2.0
-      The defualt is changed to ``'index'`` from ``'contents'``.
+      The default is changed to ``'index'`` from ``'contents'``.
 
 .. confval:: exclude_patterns
 
