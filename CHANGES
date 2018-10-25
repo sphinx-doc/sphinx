@@ -27,6 +27,7 @@ Bugs fixed
   #4821)
 * #5498: autodoc: unable to find type hints for a ``functools.partial``
 * #5480: autodoc: unable to find type hints for unresolvable Forward references
+* #5419: incompatible math_block node has been generated
 
 Testing
 --------
