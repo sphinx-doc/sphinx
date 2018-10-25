@@ -287,6 +287,53 @@ def skip_warningiserror(skip=True):
                 handler.removeFilter(disabler)
 
 
+@contextmanager
+def prefixed_warnings(prefix):
+    # type: (unicode) -> Generator
+    """Prepend prefix to all records for a while.
+
+    For example::
+
+        >>> with prefixed_warnings("prefix:"):
+        >>>     logger.warning('Warning message!')  # => prefix: Warning message!
+
+    .. versionadded:: 2.0
+    """
+    logger = logging.getLogger(NAMESPACE)
+    warning_handler = None
+    for handler in logger.handlers:
+        if isinstance(handler, WarningStreamHandler):
+            warning_handler = handler
+            break
+    else:
+        # warning stream not found
+        yield
+        return
+
+    prefix_filter = None
+    for _filter in warning_handler.filters:
+        if isinstance(_filter, MessagePrefixFilter):
+            prefix_filter = _filter
+            break
+
+    if prefix_filter:
+        # already prefixed
+        try:
+            previous = prefix_filter.prefix
+            prefix_filter.prefix = prefix
+            yield
+        finally:
+            prefix_filter.prefix = previous
+    else:
+        # not prefixed yet
+        try:
+            prefix_filter = MessagePrefixFilter(prefix)
+            warning_handler.addFilter(prefix_filter)
+            yield
+        finally:
+            warning_handler.removeFilter(prefix_filter)
+
+
 class LogCollector:
     def __init__(self):
         # type: () -> None
@@ -392,6 +439,21 @@ class DisableWarningIsErrorFilter(logging.Filter):
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
         record.skip_warningsiserror = True  # type: ignore
+        return True
+
+
+class MessagePrefixFilter(logging.Filter):
+    """Prepend prefix to all records."""
+
+    def __init__(self, prefix):
+        # type: (unicode) -> None
+        self.prefix = prefix
+        super(MessagePrefixFilter, self).__init__()
+
+    def filter(self, record):
+        # type: (logging.LogRecord) -> bool
+        if self.prefix:
+            record.msg = self.prefix + ' ' + record.msg  # type: ignore
         return True
 
 
