@@ -207,7 +207,7 @@ def copy_static_entry(source, targetdir, builder, context={},
     Handles all possible cases of files, directories and subdirectories.
     """
     warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     if exclude_matchers:
         relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)

@@ -91,7 +91,7 @@ class PygmentsBridge(object):
         self.trim_doctest_flags = trim_doctest_flags
         if trim_doctest_flags is not None:
             warnings.warn('trim_doctest_flags option for PygmentsBridge is now deprecated.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
@@ -101,7 +101,7 @@ class PygmentsBridge(object):
     def unhighlighted(self, source):
         # type: (unicode) -> unicode
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
             return '<pre>' + htmlescape(source) + '</pre>\n'
         else:

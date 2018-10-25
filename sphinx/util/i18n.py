@@ -124,7 +124,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
     """
     if gettext_compact is not None:
         warnings.warn('gettext_compact argument for find_catalog_source_files() '
-                      'is deprecated.', RemovedInSphinx30Warning)
+                      'is deprecated.', RemovedInSphinx30Warning, stacklevel=2)
 
     catalogs = set()  # type: Set[CatalogInfo]
 

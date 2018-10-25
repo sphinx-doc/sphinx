@@ -276,7 +276,7 @@ class BuildEnvironment(object):
     def set_warnfunc(self, func):
         # type: (Callable) -> None
         warnings.warn('env.set_warnfunc() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
 
     def set_versioning_method(self, method, compare):
         # type: (unicode, bool) -> None
@@ -572,7 +572,7 @@ class BuildEnvironment(object):
         """
         warnings.warn('env.note_toctree() is deprecated. '
                       'Use sphinx.environment.adapters.toctree.TocTree instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         TocTree(self).note(docname, toctreenode)
 
     def get_toc_for(self, docname, builder):
@@ -580,7 +580,7 @@ class BuildEnvironment(object):
         """Return a TOC nodetree -- for use on the same page only!"""
         warnings.warn('env.get_toc_for() is deprecated. '
                       'Use sphinx.environment.adapters.toctre.TocTree instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         return TocTree(self).get_toc_for(docname, builder)
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
@@ -588,7 +588,7 @@ class BuildEnvironment(object):
         """Return the global TOC nodetree."""
         warnings.warn('env.get_toctree_for() is deprecated. '
                       'Use sphinx.environment.adapters.toctre.TocTree instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         return TocTree(self).get_toctree_for(docname, builder, collapse, **kwds)
 
     def get_domain(self, domainname):
@@ -683,7 +683,7 @@ class BuildEnvironment(object):
         # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA
         warnings.warn('env.create_index() is deprecated. '
                       'Use sphinx.environment.adapters.indexentreis.IndexEntries instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         return IndexEntries(self).create_index(builder,
                                                group_entries=group_entries,
                                                _fixre=_fixre)
@@ -749,32 +749,32 @@ class BuildEnvironment(object):
     def update(self, config, srcdir, doctreedir):
         # type: (Config, unicode, unicode) -> List[unicode]
         warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder.read()
 
     def _read_serial(self, docnames, app):
         # type: (List[unicode], Sphinx) -> None
         warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_serial(docnames)
 
     def _read_parallel(self, docnames, app, nproc):
         # type: (List[unicode], Sphinx, int) -> None
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_parallel(docnames, nproc)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None
         warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.app.builder.read_doc(docname)
 
     def write_doctree(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         warnings.warn('env.write_doctree() is deprecated. '
                       'Please use builder.write_doctree() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.app.builder.write_doctree(docname, doctree)
 
     @property
@@ -782,7 +782,7 @@ class BuildEnvironment(object):
         # type: () -> List[unicode]
         warnings.warn('env._nitpick_ignore is deprecated. '
                       'Please use config.nitpick_ignore instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.config.nitpick_ignore
 
     @staticmethod
@@ -790,7 +790,7 @@ class BuildEnvironment(object):
         # type: (IO, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.load() is deprecated. '
                       'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         try:
             env = pickle.load(f)
         except Exception as exc:
@@ -807,7 +807,7 @@ class BuildEnvironment(object):
         # type: (unicode, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.loads() is deprecated. '
                       'Please use pickle.loads() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         io = BytesIO(string)
         return cls.load(io, app)
 
@@ -816,7 +816,7 @@ class BuildEnvironment(object):
         # type: (unicode, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.frompickle() is deprecated. '
                       'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         with open(filename, 'rb') as f:
             return cls.load(f, app)
 
@@ -825,7 +825,7 @@ class BuildEnvironment(object):
         # type: (BuildEnvironment, IO) -> None
         warnings.warn('BuildEnvironment.dump() is deprecated. '
                       'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
 
     @classmethod
@@ -833,7 +833,7 @@ class BuildEnvironment(object):
         # type: (BuildEnvironment) -> unicode
         warnings.warn('BuildEnvironment.dumps() is deprecated. '
                       'Please use pickle.dumps() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         io = BytesIO()
         cls.dump(env, io)
         return io.getvalue()
@@ -842,7 +842,7 @@ class BuildEnvironment(object):
         # type: (unicode) -> None
         warnings.warn('env.topickle() is deprecated. '
                       'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         with open(filename, 'wb') as f:
             self.dump(self, f)
 
@@ -851,14 +851,14 @@ class BuildEnvironment(object):
         # type: () -> Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
         warnings.warn('env.versionchanges() is deprecated. '
                       'Please use ChangeSetDomain instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.domaindata['changeset']['changes']
 
     def note_versionchange(self, type, version, node, lineno):
         # type: (unicode, unicode, nodes.Node, int) -> None
         warnings.warn('env.note_versionchange() is deprecated. '
                       'Please use ChangeSetDomain.note_changeset() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         node['type'] = type
         node['version'] = version
         node.line = lineno

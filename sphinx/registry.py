@@ -186,7 +186,7 @@ class SphinxComponentRegistry(object):
         # type: (Type[Domain]) -> None
         warnings.warn('registry.override_domain() is deprecated. '
                       'Use app.add_domain(domain, override=True) instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.add_domain(domain, override=True)
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
@@ -291,7 +291,7 @@ class SphinxComponentRegistry(object):
             # old style arguments: (suffix, source_parser)
             warnings.warn('app.add_source_parser() does not support suffix argument. '
                           'Use app.add_source_suffix() instead.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=3)
             suffix = args[0]
             parser = args[1]
 
@@ -301,7 +301,7 @@ class SphinxComponentRegistry(object):
         if len(parser.supported) == 0:
             warnings.warn('Old source_parser has been detected. Please fill Parser.supported '
                           'attribute: %s' % parser.__name__,
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=3)
 
         # create a map from filetype to parser
         for filetype in parser.supported:

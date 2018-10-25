@@ -195,7 +195,7 @@ def get_documenter(*args):
         obj, parent = args
         warnings.warn('the interface of get_documenter() has been changed. '
                       'Please give application object as first argument.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False

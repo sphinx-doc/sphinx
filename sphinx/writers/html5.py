@@ -853,26 +853,26 @@ class HTML5Translator(BaseTranslator):
     def highlightlang(self):
         # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightlang is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_language
 
     @property
     def highlightlang_base(self):
         # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_language
 
     @property
     def highlightopts(self):
         # type: () -> unicode
         warnings.warn('HTMLTranslator.highlightopts is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_options
 
     @property
     def highlightlinenothreshold(self):
         # type: () -> int
         warnings.warn('HTMLTranslator.highlightlinenothreshold is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return sys.maxsize

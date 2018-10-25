@@ -385,7 +385,7 @@ def debug(argv):
     """Debug functionality to print out an inventory"""
     warnings.warn('sphinx.ext.intersphinx.debug() is deprecated. '
                   'Please use inspect_main() instead',
-                  RemovedInSphinx20Warning)
+                  RemovedInSphinx20Warning, stacklevel=2)
     inspect_main(argv[1:])
 
 

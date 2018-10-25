@@ -129,13 +129,13 @@ class SphinxI18nReader(SphinxBaseReader):
         # type: (int) -> None
         """Stores the source line number of original text."""
         warnings.warn('SphinxI18nReader.set_lineno_for_reporter() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
     @property
     def line(self):
         # type: () -> int
         warnings.warn('SphinxI18nReader.line is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return 0
 
 

@@ -133,7 +133,7 @@ class AutodocReporter(object):
         # type: (ViewList, Reporter) -> None
         warnings.warn('AutodocReporter is now deprecated. '
                       'Use sphinx.util.docutils.switch_source_input() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         self.viewlist = viewlist
         self.reporter = reporter
 
@@ -1483,17 +1483,17 @@ class DeprecatedDict(dict):
 
     def __setitem__(self, key, value):
         # type: (unicode, Any) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
+        warnings.warn(self.message, RemovedInSphinx20Warning, stacklevel=2)
         super(DeprecatedDict, self).__setitem__(key, value)
 
     def setdefault(self, key, default=None):
         # type: (unicode, Any) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
+        warnings.warn(self.message, RemovedInSphinx20Warning, stacklevel=2)
         super(DeprecatedDict, self).setdefault(key, default)
 
     def update(self, other=None):  # type: ignore
         # type: (Dict) -> None
-        warnings.warn(self.message, RemovedInSphinx20Warning)
+        warnings.warn(self.message, RemovedInSphinx20Warning, stacklevel=2)
         super(DeprecatedDict, self).update(other)
 
 
@@ -1527,7 +1527,7 @@ def add_documenter(cls):
     """Register a new Documenter."""
     warnings.warn('sphinx.ext.autodoc.add_documenter() has been deprecated. '
                   'Please use app.add_autodocumenter() instead.',
-                  RemovedInSphinx20Warning)
+                  RemovedInSphinx20Warning, stacklevel=2)
 
     if not issubclass(cls, Documenter):
         raise ExtensionError('autodoc documenter %r must be a subclass '
@@ -1574,7 +1574,7 @@ def merge_autodoc_default_flags(app, config):
     # logger.warning() on 3.0.0 release.
     warnings.warn('autodoc_default_flags is now deprecated. '
                   'Please use autodoc_default_options instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     for option in config.autodoc_default_flags:
         if isinstance(option, string_types):

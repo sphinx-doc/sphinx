@@ -385,7 +385,7 @@ class Sphinx(object):
            Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         logger.warning(message, type=type, subtype=subtype, location=location)
 
     def info(self, message='', nonl=False):
@@ -399,7 +399,7 @@ class Sphinx(object):
            Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         logger.info(message, nonl=nonl)
 
     def verbose(self, message, *args, **kwargs):
@@ -410,7 +410,7 @@ class Sphinx(object):
            Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         logger.verbose(message, *args, **kwargs)
 
     def debug(self, message, *args, **kwargs):
@@ -421,7 +421,7 @@ class Sphinx(object):
            Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         logger.debug(message, *args, **kwargs)
 
     def debug2(self, message, *args, **kwargs):
@@ -432,7 +432,7 @@ class Sphinx(object):
            Use :mod:`sphinx.util.logging` instead.
         """
         warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         logger.debug(message, *args, **kwargs)
 
     # ---- general extensibility interface -------------------------------------
@@ -470,7 +470,7 @@ class Sphinx(object):
         """
         warnings.warn('app.import_object() is deprecated. '
                       'Use sphinx.util.add_object_type() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return import_object(objname, source=None)
 
     # event interface
@@ -663,7 +663,7 @@ class Sphinx(object):
         # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.registry.enumerable_nodes
 
     def add_directive(self, name, obj, content=None, arguments=None, override=False, **options):  # NOQA
@@ -801,7 +801,7 @@ class Sphinx(object):
         """
         warnings.warn('app.override_domain() is deprecated. '
                       'Use app.add_domain() with override option instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.registry.add_domain(domain, override=True)
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
@@ -924,7 +924,7 @@ class Sphinx(object):
         """
         warnings.warn('app.add_description_unit() is now deprecated. '
                       'Use app.add_object_type() instead.',
-                      RemovedInSphinx20Warning)
+                      RemovedInSphinx20Warning, stacklevel=2)
         self.add_object_type(directivename, rolename, indextemplate, parse_node,
                              ref_nodeclass, objname, doc_field_types)
 
@@ -1013,7 +1013,7 @@ class Sphinx(object):
         """An alias of :meth:`add_js_file`."""
         warnings.warn('The app.add_javascript() is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         self.add_js_file(filename, **kwargs)
 
     def add_js_file(self, filename, **kwargs):
@@ -1088,7 +1088,7 @@ class Sphinx(object):
         """An alias of :meth:`add_css_file`."""
         warnings.warn('The app.add_stylesheet() is deprecated. '
                       'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         attributes = {}  # type: Dict[unicode, unicode]
         if alternate:

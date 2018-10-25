@@ -186,7 +186,7 @@ def ustrftime(format, *args):
     # type: (unicode, Any) -> unicode
     """[DEPRECATED] strftime for unicode strings."""
     warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable

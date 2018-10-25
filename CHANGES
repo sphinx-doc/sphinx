@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #5471: Show appropriate deprecation warnings
+
 Bugs fixed
 ----------
 

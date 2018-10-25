@@ -32,14 +32,14 @@ class MathDirective(MathDirectiveBase):
     def run(self):
         warnings.warn('sphinx.ext.mathbase.MathDirective is moved to '
                       'sphinx.directives.patches package.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return super(MathDirective, self).run()
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     warnings.warn('sphinx.ext.mathbase.math_role() is deprecated. '
                   'Please use docutils.parsers.rst.roles.math_role() instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return math_role_base(role, rawtext, text, lineno, inliner, options, content)
 
 
@@ -47,7 +47,7 @@ def get_node_equation_number(writer, node):
     # type: (Writer, nodes.Node) -> unicode
     warnings.warn('sphinx.ext.mathbase.get_node_equation_number() is moved to '
                   'sphinx.util.math package.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     from sphinx.util.math import get_node_equation_number
     return get_node_equation_number(writer, node)
 
@@ -56,7 +56,7 @@ def wrap_displaymath(text, label, numbering):
     # type: (unicode, unicode, bool) -> unicode
     warnings.warn('sphinx.ext.mathbase.wrap_displaymath() is moved to '
                   'sphinx.util.math package.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     from sphinx.util.math import wrap_displaymath
     return wrap_displaymath(text, label, numbering)
 
@@ -67,7 +67,7 @@ def is_in_section_title(node):
     from sphinx.util.nodes import traverse_parent
 
     warnings.warn('is_in_section_title() is deprecated.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     for ancestor in traverse_parent(node):
         if isinstance(ancestor, nodes.title) and \
@@ -80,6 +80,6 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     # type: (Sphinx, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
     warnings.warn('setup_math() is deprecated. '
                   'Please use app.add_html_math_renderer() instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     app.add_html_math_renderer('unknown', htmlinlinevisitors, htmldisplayvisitors)
