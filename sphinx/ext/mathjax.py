@@ -24,6 +24,7 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 def html_visit_math(self, node):
@@ -68,14 +69,16 @@ def html_visit_displaymath(self, node):
     raise nodes.SkipNode
 
 
-def builder_inited(app):
-    # type: (Sphinx) -> None
+def install_mathjax(app, env):
+    # type: (Sphinx, BuildEnvironment) -> None
     if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
-        pass
-    elif not app.config.mathjax_path:
+        return
+    if not app.config.mathjax_path:
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
-    if app.builder.format == 'html':
+
+    if env.get_domain('math').has_equations():  # type: ignore
+        # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
@@ -101,6 +104,6 @@ def setup(app):
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.add_config_value('mathjax_config', None, 'html')
-    app.connect('builder-inited', builder_inited)
+    app.connect('env-check-consistency', install_mathjax)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

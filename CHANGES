@@ -7,6 +7,8 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #5497: Do not include MathJax.js and jsmath.js unless it is really needed
+
 Deprecated
 ----------
 
