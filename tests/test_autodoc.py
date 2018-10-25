@@ -35,6 +35,7 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 def do_autodoc(app, objtype, name, options=None):
     if options is None:
         options = {}
+    app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
     bridge = DocumenterBridge(app.env, LoggingReporter(''), docoptions, 1)
@@ -1348,33 +1349,49 @@ def test_autofunction_for_callable(app):
     ]
 
 
-@pytest.mark.sphinx('html', testroot='root')
-def test_mocked_module_imports(app):
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_mocked_module_imports(app, warning):
+    # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction'}
-    actual = do_autodoc(app, 'module', 'autodoc_missing_imports', options)
+    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
+    assert list(actual) == []
+    assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
+
+    # with autodoc_mock_imports
+    app.config.autodoc_mock_imports = [
+        'missing_module',
+        'missing_package1',
+        'missing_package2',
+        'missing_package3',
+        'sphinx.missing_module4',
+    ]
+
+    warning.truncate(0)
+    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == [
         '',
-        '.. py:module:: autodoc_missing_imports',
+        '.. py:module:: target.need_mocks',
         '',
         '',
         '.. py:class:: TestAutodoc',
-        '   :module: autodoc_missing_imports',
+        '   :module: target.need_mocks',
         '',
         '   TestAutodoc docstring.',
         '   ',
         '   ',
         '   .. py:method:: TestAutodoc.decoratedMethod()',
-        '      :module: autodoc_missing_imports',
+        '      :module: target.need_mocks',
         '   ',
         '      TestAutodoc::decoratedMethod docstring',
         '      ',
         '',
         '.. py:function:: decoratedFunction()',
-        '   :module: autodoc_missing_imports',
+        '   :module: target.need_mocks',
         '',
         '   decoratedFunction docstring',
         '   '
     ]
+    assert warning.getvalue() == ''
 
 
 @pytest.mark.usefixtures('setup_test')

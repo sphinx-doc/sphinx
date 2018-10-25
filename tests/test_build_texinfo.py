@@ -47,9 +47,9 @@ def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.texi').text(encoding='utf8')
-    assert ('@anchor{markup doc}@anchor{12}'
-            '@anchor{markup id1}@anchor{13}'
-            '@anchor{markup testing-various-markup}@anchor{14}' in result)
+    assert ('@anchor{markup doc}@anchor{11}'
+            '@anchor{markup id1}@anchor{12}'
+            '@anchor{markup testing-various-markup}@anchor{13}' in result)
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)
