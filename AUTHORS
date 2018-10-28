@@ -57,6 +57,7 @@ Other contributors, listed alphabetically, are:
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Bruce Mitchener -- Minor epub improvement
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
+* Julien Palard -- Colspan and rowspan in text builder
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * \T. Powers -- HTML output improvements
