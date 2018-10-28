@@ -31,6 +31,7 @@ Bugs fixed
 * #5480: autodoc: unable to find type hints for unresolvable Forward references
 * #5419: incompatible math_block node has been generated
 * #5548: Fix ensuredir() in case of pre-existing file
+* #5549: graphviz Correctly deal with non-existing static dir
 
 Testing
 --------
