@@ -88,7 +88,7 @@ def ensuredir(path):
     """Ensure that a path exists."""
     try:
         os.makedirs(path)
-    except OSError as err:
+    except OSError:
         # If the path is already an existing directory (not a file!),
         # that is OK.
         if not os.path.isdir(path):
