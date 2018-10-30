@@ -1299,7 +1299,7 @@ def test_latex_labels(app, status, warning):
             r'\label{\detokenize{index:figure1}}'
             r'\end{figure}' in result)
     assert (r'\caption{labeled figure}'
-            '\\label{\detokenize{index:figure3}}\n'
+            '\\label{\\detokenize{index:figure3}}\n'
             '\\begin{sphinxlegend}\nwith a legend\n\\end{sphinxlegend}\n'
             r'\end{figure}' in result)
 
