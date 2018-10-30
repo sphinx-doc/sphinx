@@ -1884,7 +1884,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node, scre=re.compile(r';\s*')):
+    def visit_index(self, node, scre=re.compile(r'(?<!^);\s*')):
         # type: (nodes.Node, Pattern) -> None
         def escape(value):
             value = self.encode(value)
