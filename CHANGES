@@ -34,6 +34,7 @@ Bugs fixed
 * #5549: graphviz Correctly deal with non-existing static dir
 * #3002: i18n: multiple footnote_references referring same footnote causes
   duplicated node_ids
+* #5561: make all-pdf fails with old xindy version
 
 Testing
 --------
