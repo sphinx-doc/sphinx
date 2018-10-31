@@ -1623,8 +1623,11 @@
 
 % additional customizable styling
 \def\sphinxstyleindexentry   #1{\texttt{#1}}
-\def\sphinxstyleindexextra   #1{ \emph{(#1)}}
+\def\sphinxstyleindexextra   #1{ (\emph{#1})}
 \def\sphinxstyleindexpageref #1{, \pageref{#1}}
+\def\sphinxstyleindexpagemain#1{\textbf{#1}}
+\protected\def\spxentry#1{#1}% will get \let to \sphinxstyleindexentry in index
+\protected\def\spxextra#1{#1}% will get \let to \sphinxstyleindexextra in index
 \def\sphinxstyleindexlettergroup #1%
     {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \def\sphinxstyleindexlettergroupDefault #1%
