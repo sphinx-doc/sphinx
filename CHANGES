@@ -63,11 +63,15 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #5497: Do not include MathJax.js and jsmath.js unless it is really needed
+
 Deprecated
 ----------
 
 Features added
 --------------
+
+* #5471: Show appropriate deprecation warnings
 
 Bugs fixed
 ----------
@@ -80,6 +84,10 @@ Bugs fixed
 * #5495: csv-table directive with file option in included file is broken (refs:
   #4821)
 * #5498: autodoc: unable to find type hints for a ``functools.partial``
+* #5480: autodoc: unable to find type hints for unresolvable Forward references
+* #5419: incompatible math_block node has been generated
+* #5548: Fix ensuredir() in case of pre-existing file
+* #5549: graphviz Correctly deal with non-existing static dir
 
 Testing
 --------
@@ -206,7 +214,7 @@ Deprecated
 * :confval:`autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
-  based directives.
+  based directives (see :class:`~Directive`)
 * ``sphinx.util.docutils.directive_helper()`` is deprecated
 * ``sphinx.cmdline`` is deprecated
 * ``sphinx.make_mode`` is deprecated

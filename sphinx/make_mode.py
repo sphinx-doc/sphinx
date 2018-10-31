@@ -28,12 +28,12 @@ class Make(make_mode.Make):
     def __init__(self, *args):
         warnings.warn('sphinx.make_mode.Make is deprecated. '
                       'Please use sphinx.cmd.make_mode.Make instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         super(Make, self).__init__(*args)
 
 
 def run_make_mode(args):
     warnings.warn('sphinx.make_mode.run_make_mode() is deprecated. '
                   'Please use sphinx.cmd.make_mode.run_make_mode() instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return make_mode.run_make_mode(args)

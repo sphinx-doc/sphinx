@@ -193,7 +193,7 @@ def test_Signature_partialmethod():
 
 def test_Signature_annotations():
     from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                                  f11, f12, f13, f14, f15, f16, Node)
+                                  f11, f12, f13, f14, f15, f16, f17, Node)
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -258,12 +258,16 @@ def test_Signature_annotations():
     sig = inspect.Signature(f14).format_args()
     assert sig == '() -> Any'
 
-    # keyword only arguments (1)
+    # ForwardRef
     sig = inspect.Signature(f15).format_args()
+    assert sig == '(x: Unknown, y: int) -> Any'
+
+    # keyword only arguments (1)
+    sig = inspect.Signature(f16).format_args()
     assert sig == '(arg1, arg2, *, arg3=None, arg4=None)'
 
     # keyword only arguments (2)
-    sig = inspect.Signature(f16).format_args()
+    sig = inspect.Signature(f17).format_args()
     assert sig == '(*, arg3, arg4)'
 
     # type hints by string

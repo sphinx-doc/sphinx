@@ -76,10 +76,15 @@ def f14() -> Any:
     pass
 
 
-def f15(arg1, arg2, *, arg3=None, arg4=None):
+def f15(x: "Unknown", y: "int") -> Any:
     pass
 
-def f16(*, arg3, arg4):
+
+def f16(arg1, arg2, *, arg3=None, arg4=None):
+    pass
+
+
+def f17(*, arg3, arg4):
     pass
 
 

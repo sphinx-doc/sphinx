@@ -61,7 +61,7 @@ class HighlightLang(Highlight):
         # type: () -> List[nodes.Node]
         warnings.warn('highlightlang directive is deprecated. '
                       'Please use highlight directive instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         return Highlight.run(self)
 
 

@@ -121,14 +121,14 @@ class JSContainer(list):
         # type: (int, unicode) -> None
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         super(JSContainer, self).insert(index, obj)
 
     def extend(self, other):  # type: ignore
         # type: (List[unicode]) -> None
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         for item in other:
             self.append(item)
 
@@ -136,7 +136,7 @@ class JSContainer(list):
         # type: (List[unicode]) -> JSContainer
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         for item in other:
             self.append(item)
         return self
@@ -1104,7 +1104,7 @@ class StandaloneHTMLBuilder(Builder):
             """Simple warn() wrapper for themes."""
             warnings.warn('The template function warn() was deprecated. '
                           'Use warning() instead.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             logger.warning(*args, **kwargs)
             return ''  # return empty string
         ctx['warn'] = warn

@@ -44,6 +44,7 @@ class MathDomain(Domain):
 
     initial_data = {
         'objects': {},  # labelid -> (docname, eqno)
+        'has_equations': {},  # docname -> bool
     }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
@@ -56,17 +57,29 @@ class MathDomain(Domain):
         'numref': MathReferenceRole(),
     }
 
+    def process_doc(self, env, docname, document):
+        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        def math_node(node):
+            return isinstance(node, (nodes.math, nodes.math_block))
+
+        self.data['has_equations'][docname] = any(document.traverse(math_node))
+
     def clear_doc(self, docname):
         # type: (unicode) -> None
         for equation_id, (doc, eqno) in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][equation_id]
 
+        self.data['has_equations'].pop(docname, None)
+
     def merge_domaindata(self, docnames, otherdata):
         # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.data['objects'][labelid] = (doc, eqno)
+
+        for docname in docnames:
+            self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
@@ -122,6 +135,10 @@ class MathDomain(Domain):
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
 
+    def has_equations(self):
+        # type: () -> bool
+        return any(self.data['has_equations'].values())
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
@@ -130,7 +147,7 @@ def setup(app):
 
     return {
         'version': 'builtin',
-        'env_version': 1,
+        'env_version': 2,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

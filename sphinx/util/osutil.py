@@ -84,9 +84,10 @@ def ensuredir(path):
     """Ensure that a path exists."""
     try:
         os.makedirs(path)
-    except OSError as err:
-        # 0 for Jython/Win32
-        if err.errno not in [0, EEXIST]:
+    except OSError:
+        # If the path is already an existing directory (not a file!),
+        # that is OK.
+        if not os.path.isdir(path):
             raise
 
 
@@ -155,7 +156,7 @@ def ustrftime(format, *args):
     # type: (unicode, Any) -> unicode
     """[DEPRECATED] strftime for unicode strings."""
     warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable

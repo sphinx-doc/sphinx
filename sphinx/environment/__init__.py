@@ -677,32 +677,32 @@ class BuildEnvironment:
     def update(self, config, srcdir, doctreedir):
         # type: (Config, unicode, unicode) -> List[unicode]
         warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder.read()
 
     def _read_serial(self, docnames, app):
         # type: (List[unicode], Sphinx) -> None
         warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_serial(docnames)
 
     def _read_parallel(self, docnames, app, nproc):
         # type: (List[unicode], Sphinx, int) -> None
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_parallel(docnames, nproc)
 
     def read_doc(self, docname, app=None):
         # type: (unicode, Sphinx) -> None
         warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.app.builder.read_doc(docname)
 
     def write_doctree(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         warnings.warn('env.write_doctree() is deprecated. '
                       'Please use builder.write_doctree() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.app.builder.write_doctree(docname, doctree)
 
     @property
@@ -710,7 +710,7 @@ class BuildEnvironment:
         # type: () -> List[unicode]
         warnings.warn('env._nitpick_ignore is deprecated. '
                       'Please use config.nitpick_ignore instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.config.nitpick_ignore
 
     @staticmethod
@@ -718,7 +718,7 @@ class BuildEnvironment:
         # type: (IO, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.load() is deprecated. '
                       'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         try:
             env = pickle.load(f)
         except Exception as exc:
@@ -735,7 +735,7 @@ class BuildEnvironment:
         # type: (bytes, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.loads() is deprecated. '
                       'Please use pickle.loads() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         io = BytesIO(string)
         return cls.load(io, app)
 
@@ -744,7 +744,7 @@ class BuildEnvironment:
         # type: (unicode, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.frompickle() is deprecated. '
                       'Please use pickle.load() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         with open(filename, 'rb') as f:
             return cls.load(f, app)
 
@@ -753,7 +753,7 @@ class BuildEnvironment:
         # type: (BuildEnvironment, IO) -> None
         warnings.warn('BuildEnvironment.dump() is deprecated. '
                       'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
 
     @classmethod
@@ -761,7 +761,7 @@ class BuildEnvironment:
         # type: (BuildEnvironment) -> unicode
         warnings.warn('BuildEnvironment.dumps() is deprecated. '
                       'Please use pickle.dumps() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         io = BytesIO()
         cls.dump(env, io)
         return io.getvalue()
@@ -770,7 +770,7 @@ class BuildEnvironment:
         # type: (unicode) -> None
         warnings.warn('env.topickle() is deprecated. '
                       'Please use pickle.dump() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         with open(filename, 'wb') as f:
             self.dump(self, f)
 
@@ -779,14 +779,14 @@ class BuildEnvironment:
         # type: () -> Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
         warnings.warn('env.versionchanges() is deprecated. '
                       'Please use ChangeSetDomain instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.domaindata['changeset']['changes']
 
     def note_versionchange(self, type, version, node, lineno):
         # type: (unicode, unicode, nodes.Node, int) -> None
         warnings.warn('env.note_versionchange() is deprecated. '
                       'Please use ChangeSetDomain.note_changeset() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         node['type'] = type
         node['version'] = version
         node.line = lineno

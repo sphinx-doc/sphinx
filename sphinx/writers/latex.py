@@ -217,7 +217,7 @@ class ExtBabel(Babel):
     def get_shorthandoff(self):
         # type: () -> unicode
         warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return SHORTHANDOFF
 
     def uses_cyrillic(self):
@@ -288,14 +288,14 @@ class Table:
     def caption_footnotetexts(self):
         # type: () -> List[unicode]
         warnings.warn('table.caption_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     @property
     def header_footnotetexts(self):
         # type: () -> List[unicode]
         warnings.warn('table.header_footnotetexts is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     def is_longtable(self):
@@ -656,7 +656,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
         warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
         if self.footnote_restricted is False:
             self.footnote_restricted = node
@@ -665,7 +665,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def unrestrict_footnote(self, node):
         # type: (nodes.Node) -> None
         warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
         if self.footnote_restricted == node:
             self.footnote_restricted = False
@@ -2504,60 +2504,60 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def footnotestack(self):
         # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
         warnings.warn('LaTeXWriter.footnotestack is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     @property
     def bibitems(self):
         # type: () -> List[List[unicode]]
         warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     @property
     def in_container_literal_block(self):
         # type: () -> int
         warnings.warn('LaTeXTranslator.in_container_literal_block is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return 0
 
     @property
     def next_section_ids(self):
         # type: () -> Set[unicode]
         warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return set()
 
     @property
     def next_hyperlink_ids(self):
         # type: () -> Dict
         warnings.warn('LaTeXTranslator.next_hyperlink_ids is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return {}
 
     def push_hyperlink_ids(self, figtype, ids):
         # type: (unicode, Set[unicode]) -> None
         warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         pass
 
     def pop_hyperlink_ids(self, figtype):
         # type: (unicode) -> Set[unicode]
         warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return set()
 
     @property
     def hlsettingstack(self):
         # type: () -> List[List[Union[unicode, int]]]
         warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return [[self.builder.config.highlight_language, sys.maxsize]]
 
     def check_latex_elements(self):
         # type: () -> None
         warnings.warn('check_latex_elements() is deprecated.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
         for key in self.builder.config.latex_elements:
             if key not in self.elements:

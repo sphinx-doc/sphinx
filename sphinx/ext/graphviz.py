@@ -26,7 +26,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
@@ -412,7 +412,7 @@ def on_build_finished(app, exc):
     if exc is None:
         src = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
         dst = path.join(app.outdir, '_static')
-        copy_asset_file(src, dst)
+        copy_asset(src, dst)
 
 
 def setup(app):

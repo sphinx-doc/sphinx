@@ -1455,7 +1455,7 @@ def merge_autodoc_default_flags(app, config):
     # logger.warning() on 3.0.0 release.
     warnings.warn('autodoc_default_flags is now deprecated. '
                   'Please use autodoc_default_options instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
 
     for option in config.autodoc_default_flags:
         if isinstance(option, string_types):

@@ -205,7 +205,7 @@ class math(nodes.math):
         if key == 'latex' and 'latex' not in self.attributes:
             warnings.warn("math node for Sphinx was replaced by docutils'. "
                           "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
             return nodes.math.__getitem__(self, key)
@@ -224,7 +224,7 @@ class math_block(nodes.math_block):
         if key == 'latex' and 'latex' not in self.attributes:
             warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
                           "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
             return nodes.math_block.__getitem__(self, key)

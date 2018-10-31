@@ -252,7 +252,7 @@ def migrate_viewcode_import(app, config):
     if config.viewcode_import is not None:
         warnings.warn('viewcode_import was renamed to viewcode_follow_imported_members. '
                       'Please update your configuration.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 def setup(app):

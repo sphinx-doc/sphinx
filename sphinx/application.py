@@ -403,7 +403,7 @@ class Sphinx:
         """
         warnings.warn('app.import_object() is deprecated. '
                       'Use sphinx.util.add_object_type() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return import_object(objname, source=None)
 
     # event interface
@@ -595,7 +595,7 @@ class Sphinx:
         # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         return self.registry.enumerable_nodes
 
     def add_directive(self, name, obj, content=None, arguments=None, override=False, **options):  # NOQA
@@ -727,7 +727,7 @@ class Sphinx:
         """
         warnings.warn('app.override_domain() is deprecated. '
                       'Use app.add_domain() with override option instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         self.registry.add_domain(domain, override=True)
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
@@ -924,7 +924,7 @@ class Sphinx:
         """An alias of :meth:`add_js_file`."""
         warnings.warn('The app.add_javascript() is deprecated. '
                       'Please use app.add_js_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
         self.add_js_file(filename, **kwargs)
 
     def add_js_file(self, filename, **kwargs):
@@ -999,7 +999,7 @@ class Sphinx:
         """An alias of :meth:`add_css_file`."""
         warnings.warn('The app.add_stylesheet() is deprecated. '
                       'Please use app.add_css_file() instead.',
-                      RemovedInSphinx40Warning)
+                      RemovedInSphinx40Warning, stacklevel=2)
 
         attributes = {}  # type: Dict[unicode, unicode]
         if alternate:

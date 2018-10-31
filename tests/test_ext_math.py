@@ -255,7 +255,7 @@ def test_math_compat(app, status, warning):
                      [nodes.math_block, "E = mc^2"]))
 
 
-@pytest.mark.sphinx('html', testroot='basic',
+@pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax_config(app, status, warning):
@@ -265,3 +265,22 @@ def test_mathjax_config(app, status, warning):
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_not_installed_if_no_equations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert 'MathJax.js' not in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath'],
+                                   'jsmath_path': 'jsmath.js'})
+def test_jsmath_is_not_installed_if_no_equations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert 'jsmath.js' not in content

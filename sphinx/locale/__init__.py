@@ -182,7 +182,7 @@ def mygettext(string):
     not bound yet at that time.
     """
     warnings.warn('sphinx.locale.mygettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return _(string)
 
 
@@ -192,7 +192,7 @@ def lazy_gettext(string):
     # if isinstance(string, _TranslationProxy):
     #     return string
     warnings.warn('sphinx.locale.laxy_gettext() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return _TranslationProxy(mygettext, string)  # type: ignore
 
 
@@ -327,7 +327,7 @@ __ = get_translation('sphinx', 'console')
 
 def l_(*args):
     warnings.warn('sphinx.locale.l_() is deprecated.  Please use `_()` instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return _(*args)
 
 

@@ -161,7 +161,7 @@ class Config:
             # old style arguments: (dirname, filename, overrides, tags)
             warnings.warn('The argument of Config() class has been changed. '
                           'Use Config.read() to read configuration from conf.py.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             dirname, filename, overrides, tags = args
             if dirname is None:
                 config = {}  # type: Dict[unicode, Any]
@@ -199,13 +199,13 @@ class Config:
     def check_types(self):
         # type: () -> None
         warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         check_confval_types(None, self)
 
     def check_unicode(self):
         # type: () -> None
         warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         check_unicode(self)
 
     def convert_overrides(self, name, value):

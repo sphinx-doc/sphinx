@@ -557,7 +557,7 @@ class SearchJapanese(SearchLanguage):
             dotted_path = self.splitters[type]
             warnings.warn('html_search_options["type"]: %s is deprecated. '
                           'Please give "%s" instead.' % (type, dotted_path),
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
         else:
             dotted_path = type
         try:
