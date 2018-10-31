@@ -32,6 +32,7 @@ Bugs fixed
 * #5419: incompatible math_block node has been generated
 * #5548: Fix ensuredir() in case of pre-existing file
 * #5549: graphviz Correctly deal with non-existing static dir
+* #5557: quickstart: --no-batchfile isn't honored
 
 Testing
 --------
