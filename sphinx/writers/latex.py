@@ -1926,12 +1926,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                      (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
                 elif type == 'triple':
                     p1, p2, p3 = [escape(x) for x in split_into(3, 'triple', string)]
+                    P1, P2, P3 = style(p1), style(p2), style(p3)
                     self.body.append(
-                        r'\index{%s@\spxentry{%s}!%s %s@\spxentry{%s %s}%s}'
-                        r'\index{%s@\spxentry{%s}!%s, %s@\spxentry{%s, %s}%s}'
-                        r'\index{%s@\spxentry{%s}!%s %s@\spxentry{%s %s}%s}' %
-                        (p1, p1, p2, p3, p2, p3, m, p2, p2, p3, p1, p3, p1, m,
-                         p3, p3, p1, p2, p1, p2, m))
+                        r'\index{%s@%s!%s %s@%s %s%s}'
+                        r'\index{%s@%s!%s, %s@%s, %s%s}'
+                        r'\index{%s@%s!%s %s@%s %s%s}' %
+                        (p1, P1, p2, p3, P2, P3, m,
+                         p2, P2, p3, p1, P3, P1, m,
+                         p3, P3, p1, p2, P1, P2, m))
                 elif type == 'see':
                     p1, p2 = [escape(x) for x in split_into(2, 'see', string)]
                     P1 = style(p1)
