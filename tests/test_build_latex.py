@@ -420,8 +420,12 @@ def test_babel_with_no_language_settings(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx(
@@ -441,8 +445,12 @@ def test_babel_with_language_de(app, status, warning):
             in result)
     assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasngerman{\\def\\pageautorefname{Seite}}\n' in result
     assert '\\shorthandoff{"}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{Seite}' in result
 
 
 @pytest.mark.sphinx(
@@ -462,9 +470,12 @@ def test_babel_with_language_ru(app, status, warning):
             in result)
     assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
-            u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
     assert '\\shorthandoff{"}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{страница}' in result
 
 
 @pytest.mark.sphinx(
@@ -484,8 +495,12 @@ def test_babel_with_language_tr(app, status, warning):
             in result)
     assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasturkish{\\def\\pageautorefname{sayfa}}\n' in result
     assert '\\shorthandoff{=}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{sayfa}' in result
 
 
 @pytest.mark.sphinx(
@@ -504,8 +519,12 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\renewcommand{\\figurename}{Fig.}\n' in result
     assert '\\renewcommand{\\tablename}{Table.}\n' in result
-    assert u'\\def\\pageautorefname{ページ}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{ページ}' in result
 
 
 @pytest.mark.sphinx(
@@ -525,10 +544,14 @@ def test_babel_with_unknown_language(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx(
@@ -549,8 +572,12 @@ def test_polyglossia_with_language_de(app, status, warning):
             in result)
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\def\\pageautorefname{Seite}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{Seite}' in result
 
 
 @pytest.mark.sphinx(
@@ -571,8 +598,12 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
             in result)
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\def\\pageautorefname{page}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx('latex')
