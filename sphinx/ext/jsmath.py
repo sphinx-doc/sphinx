@@ -22,6 +22,7 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 
 def html_visit_math(self, node):
@@ -32,7 +33,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.Node) -> None
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
         self.body.append(self.encode(node.astext()))
