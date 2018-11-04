@@ -169,6 +169,8 @@ ADDITIONAL_SETTINGS = {
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 
+EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
+
 
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
@@ -1884,8 +1886,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node, extrare=re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')):
-        # type: (nodes.Node, Pattern) -> None
+    def visit_index(self, node, scre = None):
+        # type: (nodes.Node, None) -> None
         def escape(value):
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
@@ -1896,12 +1898,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return value
 
         def style(string):
-            match = extrare.match(string)
+            match = EXTRA_RE.match(string)
             if match:
                 return match.expand(r'\\spxentry{\1}\\spxextra{\2}')
             else:
                 return '\\spxentry{%s}' % string
 
+        if scre:
+            warnings.warn(('LaTeXTranslator.visit_index() optional argument '
+                           '"scre" is deprecated. It is ignored.'),
+                          RemovedInSphinx30Warning, stacklevel=2)
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
