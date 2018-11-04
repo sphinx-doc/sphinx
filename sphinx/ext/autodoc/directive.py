@@ -8,7 +8,7 @@
 """
 
 from docutils import nodes
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from docutils.utils import assemble_option_dict
 
 from sphinx.ext.autodoc import Options, get_documenters
@@ -18,7 +18,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Set, Type  # NOQA
+    from typing import Any, Callable, Dict, List, Set, Type  # NOQA
     from docutils.statemachine import State, StateMachine, StringList  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.config import Config  # NOQA
@@ -35,11 +35,16 @@ AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'ignore-module-all', 'exclude-members', 'member-order']
 
 
-class DummyOptionSpec:
+class DummyOptionSpec(dict):
     """An option_spec allows any options."""
 
+    def __bool__(self):
+        # type: () -> bool
+        """Behaves like some options are defined."""
+        return True
+
     def __getitem__(self, key):
-        # type: (Any) -> Any
+        # type: (str) -> Callable[[str], str]
         return lambda x: x
 
 
@@ -53,7 +58,7 @@ class DocumenterBridge:
         self.genopt = options
         self.lineno = lineno
         self.filename_set = set()  # type: Set[unicode]
-        self.result = ViewList()
+        self.result = StringList()
 
     def warn(self, msg):
         # type: (unicode) -> None
@@ -79,7 +84,7 @@ def parse_generated_content(state, content, documenter):
     """Parse a generated content by Documenter."""
     with switch_source_input(state, content):
         if documenter.titles_allowed:
-            node = nodes.section()
+            node = nodes.section()  # type: nodes.Element
             # necessary so that the child nodes get the right source/line set
             node.document = state.document
             nested_parse_with_titles(state, content, node)
