@@ -41,7 +41,7 @@ from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -69,7 +69,7 @@ class SphinxBaseReader(standalone.Reader):
         standalone.Reader.__init__(self, *args, **kwargs)
 
     def get_transforms(self):
-        # type: () -> List[Transform]
+        # type: () -> List[Type[Transform]]
         return standalone.Reader.get_transforms(self) + self.transforms
 
     def new_document(self):
@@ -101,7 +101,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
                   SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
                   UIDTransform,
-                  ]  # type: List[Transform]
+                  ]  # type: List[Type[Transform]]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
@@ -123,7 +123,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover]
+                  SubstitutionDefinitionsRemover]  # type: List[Type[Transform]]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
