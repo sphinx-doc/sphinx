@@ -775,7 +775,7 @@ class Sphinx:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List, bool) -> None
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.Node], unicode, List, bool) -> None  # NOQA
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type
