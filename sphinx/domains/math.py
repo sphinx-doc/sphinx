@@ -21,11 +21,10 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +51,7 @@ class MathDomain(Domain):
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
         displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
-    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
     roles = {
         'numref': MathReferenceRole(),
     }
