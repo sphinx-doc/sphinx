@@ -196,12 +196,18 @@ class Cmdoption(ObjectDescription):
         for optname in signode.get('allnames', []):
             self.env.domaindata['std']['progoptions'][currprogram, optname] = \
                 self.env.docname, signode['ids'][0]
+            if currprogram:
+                descr = _('%s command line option') % currprogram
+            else:
+                descr = _('command line option')
             # create only one index entry for the whole option
             if optname == firstname:
                 self.indexnode['entries'].append(
-                    ('pair', _('%scommand line option; %s') %
-                     ((currprogram and currprogram + ' ' or ''), sig),
+                    ('single', '%s; %s' % (descr, sig),
                      signode['ids'][0], '', None))
+            self.indexnode['entries'].append(
+                ('single', '%s; %s' % (optname, descr),
+                 signode['ids'][0], '', None))
 
 
 class Program(SphinxDirective):
