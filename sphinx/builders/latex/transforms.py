@@ -27,7 +27,7 @@ URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
 class FootnoteDocnameUpdater(SphinxTransform):
     """Add docname to footnote and footnote_reference nodes."""
-    default_priority = 200
+    default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
     def apply(self):

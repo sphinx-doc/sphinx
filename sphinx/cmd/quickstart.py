@@ -528,7 +528,7 @@ Makefile to be used with sphinx-build.
 """))
 
     parser.add_argument('-q', '--quiet', action='store_true', dest='quiet',
-                        default=False,
+                        default=None,
                         help=__('quiet mode'))
     parser.add_argument('--version', action='version', dest='show_version',
                         version='%%(prog)s %s' % __display_version__)
@@ -537,7 +537,7 @@ Makefile to be used with sphinx-build.
                         help=__('output path'))
 
     group = parser.add_argument_group(__('Structure options'))
-    group.add_argument('--sep', action='store_true',
+    group.add_argument('--sep', action='store_true', default=None,
                        help=__('if specified, separate source and build dirs'))
     group.add_argument('--dot', metavar='DOT',
                        help=__('replacement for dot in _templates etc.'))
@@ -569,11 +569,11 @@ Makefile to be used with sphinx-build.
                        action='append', help=__('enable arbitrary extensions'))
 
     group = parser.add_argument_group(__('Makefile and Batchfile creation'))
-    group.add_argument('--makefile', action='store_true', dest='makefile',
+    group.add_argument('--makefile', action='store_true', dest='makefile', default=None,
                        help=__('create makefile'))
     group.add_argument('--no-makefile', action='store_false', dest='makefile',
                        help=__('do not create makefile'))
-    group.add_argument('--batchfile', action='store_true', dest='batchfile',
+    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=None,
                        help=__('create batchfile'))
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
@@ -613,7 +613,7 @@ def main(argv=sys.argv[1:]):
 
     d = vars(args)
     # delete None or False value
-    d = dict((k, v) for k, v in d.items() if not (v is None or v is False))
+    d = dict((k, v) for k, v in d.items() if v is not None)
 
     try:
         if 'quiet' in d:

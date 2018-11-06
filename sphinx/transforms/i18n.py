@@ -354,7 +354,7 @@ class Locale(SphinxTransform):
             is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
             old_foot_refs = node.traverse(is_refnamed_footnote_ref)
             new_foot_refs = patch.traverse(is_refnamed_footnote_ref)
-            refname_ids_map = {}
+            refname_ids_map = {}  # type: Dict[unicode, List[unicode]]
             if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
@@ -363,11 +363,11 @@ class Locale(SphinxTransform):
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
             for old in old_foot_refs:
-                refname_ids_map[old["refname"]] = old["ids"]
+                refname_ids_map.setdefault(old["refname"], []).append(old["ids"])
             for new in new_foot_refs:
                 refname = new["refname"]
-                if refname in refname_ids_map:
-                    new["ids"] = refname_ids_map[refname]
+                if refname_ids_map.get(refname):
+                    new["ids"] = refname_ids_map[refname].pop(0)
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
@@ -382,11 +382,11 @@ class Locale(SphinxTransform):
                                .format(old_cite_ref_rawsources, new_cite_ref_rawsources),
                                location=node)
             for old in old_cite_refs:
-                refname_ids_map[old["refname"]] = old["ids"]
+                refname_ids_map.setdefault(old["refname"], []).append(old["ids"])
             for new in new_cite_refs:
                 refname = new["refname"]
-                if refname in refname_ids_map:
-                    new["ids"] = refname_ids_map[refname]
+                if refname_ids_map.get(refname):
+                    new["ids"] = refname_ids_map[refname].pop()
 
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.

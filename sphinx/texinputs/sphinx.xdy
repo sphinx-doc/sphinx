@@ -3,11 +3,12 @@
 ;; Unfortunately xindy is out-of-the-box hyperref-incompatible.  This
 ;; configuration is a workaround, which requires to pass option
 ;; hyperindex=false to hyperref.
-;; textit and emph not currently used by Sphinx LaTeX writer.
-(define-attributes (("textbf" "textit" "emph" "default")))
+;; textit and emph not currently used, spxpagem replaces former textbf
+(define-attributes (("textbf" "textit" "emph" "spxpagem" "default")))
 (markup-locref :open "\textbf{\hyperpage{" :close "}}" :attr "textbf")
 (markup-locref :open "\textit{\hyperpage{" :close "}}" :attr "textit")
 (markup-locref :open "\emph{\hyperpage{" :close "}}" :attr "emph")
+(markup-locref :open "\spxpagem{\hyperpage{" :close "}}" :attr "spxpagem")
 (markup-locref :open "\hyperpage{" :close "}" :attr "default")
 
 (require "numeric-sort.xdy")
@@ -193,6 +194,9 @@
 (markup-index :open  "\begin{sphinxtheindex}
 \let\lettergroup\sphinxstyleindexlettergroup
 \let\lettergroupDefault\sphinxstyleindexlettergroupDefault
+\let\spxpagem\sphinxstyleindexpagemain
+\let\spxentry\sphinxstyleindexentry
+\let\spxextra\sphinxstyleindexextra
 
 "
 	      :close "
