@@ -116,7 +116,7 @@ class SphinxComponentRegistry:
         self.source_suffix = {}         # type: Dict[unicode, unicode]
 
         #: custom translators; builder name -> translator class
-        self.translators = {}           # type: Dict[unicode, nodes.NodeVisitor]
+        self.translators = {}           # type: Dict[unicode, Type[nodes.NodeVisitor]]
 
         #: custom handlers for translators
         #: a dict of builder name -> dict of node name -> visitor and departure functions
@@ -231,7 +231,7 @@ class SphinxComponentRegistry:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List, bool) -> None
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.Node], unicode, List, bool) -> None  # NOQA
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))

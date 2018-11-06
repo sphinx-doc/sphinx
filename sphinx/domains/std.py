@@ -16,7 +16,7 @@ from copy import copy
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -127,7 +127,7 @@ class Target(SphinxDirective):
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]
+        ret = [node]  # type: List[nodes.Node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -294,7 +294,7 @@ class Glossary(SphinxDirective):
         # be* a definition list.
 
         # first, collect single entries
-        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], ViewList]]
+        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], StringList]]
         in_definition = True
         was_empty = True
         messages = []
@@ -316,7 +316,7 @@ class Glossary(SphinxDirective):
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary term must be preceded by empty line',
                             source=source, line=lineno))
-                    entries.append(([(line, source, lineno)], ViewList()))
+                    entries.append(([(line, source, lineno)], StringList()))
                     in_definition = False
                 # second term and following
                 else:
@@ -346,9 +346,9 @@ class Glossary(SphinxDirective):
         # now, parse all the entries into a big definition list
         items = []
         for terms, definition in entries:
-            termtexts = []
-            termnodes = []
-            system_messages = []  # type: List[unicode]
+            termtexts = []          # type: List[unicode]
+            termnodes = []          # type: List[nodes.Node]
+            system_messages = []    # type: List[nodes.Node]
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -385,7 +385,7 @@ class Glossary(SphinxDirective):
 
 def token_xrefs(text):
     # type: (unicode) -> List[nodes.Node]
-    retnodes = []
+    retnodes = []  # type: List[nodes.Node]
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
@@ -415,7 +415,7 @@ class ProductionList(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         objects = self.env.domaindata['std']['objects']
-        node = addnodes.productionlist()
+        node = addnodes.productionlist()  # type: nodes.Node
         messages = []  # type: List[nodes.Node]
         i = 0
 
@@ -520,7 +520,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None

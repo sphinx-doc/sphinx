@@ -120,7 +120,7 @@ class TocTree:
             # type: (addnodes.toctree, List[nodes.Node], bool, bool) -> List[nodes.Node]
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries = []
+            entries = []  # type: List[nodes.Node]
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -293,7 +293,7 @@ class TocTree:
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
     def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
+        # type: (unicode, Builder) -> nodes.Node
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
