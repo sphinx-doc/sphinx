@@ -449,3 +449,32 @@ def test_inspect_main_url(fake_get, capsys):
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
     assert stderr == ""
+
+
+def test_missing_reference_role_any_custom_type(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_mapping = {
+        'sphinx': ('http://www.sphinx-doc.org/en/stable/', inv_file),
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+    inv = app.env.intersphinx_inventory
+    assert inv['std:confval']['gettext_uuid'] == \
+           ('foo', '2.0', 'http://www.sphinx-doc.org/en/stable/usage/configuration.html', '-')
+    assert 'confval' not in app.env.get_domain('std').object_types
+
+    rn = reference_check(app, '', 'any', 'gettext_uuid', 'gettext_uuid')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'http://www.sphinx-doc.org/en/stable/usage/configuration.html'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn[0].astext() == 'gettext_uuid'
+
+    rn = reference_check(app, '', 'any', 'sphinx:gettext_uuid', 'sphinx:gettext_uuid')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'http://www.sphinx-doc.org/en/stable/usage/configuration.html'
+    assert rn['reftitle'] == '(in foo v2.0)'
+    assert rn[0].astext() == 'gettext_uuid'
