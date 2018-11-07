@@ -68,19 +68,14 @@ class XRefRole:
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref  # type: Type[nodes.Node]
-    innernodeclass = nodes.literal
-
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None, warn_dangling=False):
-        # type: (bool, bool, Type[nodes.Node], Type[nodes.Node], bool) -> None
+        # type: (bool, bool, Type[nodes.reference], Type[nodes.TextElement], bool) -> None
         self.fix_parens = fix_parens
         self.lowercase = lowercase
         self.warn_dangling = warn_dangling
-        if nodeclass is not None:
-            self.nodeclass = nodeclass
-        if innernodeclass is not None:
-            self.innernodeclass = innernodeclass
+        self.nodeclass = nodeclass or addnodes.pending_xref
+        self.innernodeclass = innernodeclass or nodes.literal
 
     def _fix_parens(self, env, has_explicit_title, title, target):
         # type: (BuildEnvironment, bool, unicode, unicode) -> Tuple[unicode, unicode]
