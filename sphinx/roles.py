@@ -69,13 +69,14 @@ class XRefRole:
     """
 
     def __init__(self, fix_parens=False, lowercase=False,
-                 nodeclass=None, innernodeclass=None, warn_dangling=False):
+                 nodeclass=addnodes.pending_xref, innernodeclass=nodes.literal,
+                 warn_dangling=False):
         # type: (bool, bool, Type[nodes.reference], Type[nodes.TextElement], bool) -> None
         self.fix_parens = fix_parens
         self.lowercase = lowercase
         self.warn_dangling = warn_dangling
-        self.nodeclass = nodeclass or addnodes.pending_xref
-        self.innernodeclass = innernodeclass or nodes.literal
+        self.nodeclass = nodeclass
+        self.innernodeclass = innernodeclass
 
     def _fix_parens(self, env, has_explicit_title, title, target):
         # type: (BuildEnvironment, bool, unicode, unicode) -> Tuple[unicode, unicode]
