@@ -673,9 +673,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         except IndexError:
             rubric = self.rubrics[-1]
         self.body.append('\n%s ' % rubric)
+        self.escape_newlines += 1
 
     def depart_rubric(self, node):
         # type: (nodes.Node) -> None
+        self.escape_newlines -= 1
         self.body.append('\n\n')
 
     def visit_subtitle(self, node):

@@ -72,3 +72,12 @@ def test_texinfo(app, status, warning):
                 assert False, 'makeinfo exited with return code %s' % retcode
     finally:
         os.chdir(cwd)
+
+
+@pytest.mark.sphinx('texinfo', testroot='markup-rubric')
+def test_texinfo_rubric(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'python.texi').text()
+    assert '@heading This is a rubric' in output
+    assert '@heading This is a multiline rubric' in output
