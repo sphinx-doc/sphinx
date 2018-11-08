@@ -39,6 +39,7 @@ Bugs fixed
 * #5561: make all-pdf fails with old xindy version
 * #5557: quickstart: --no-batchfile isn't honored
 * #3080: texinfo: multiline rubrics are broken
+* #3080: texinfo: multiline citations are broken
 
 Testing
 --------

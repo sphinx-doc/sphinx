@@ -922,12 +922,14 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # type: (nodes.Node) -> None
+        self.body.append('\n')
         for id in node.get('ids'):
             self.add_anchor(id, node)
+        self.escape_newlines += 1
 
     def depart_citation(self, node):
         # type: (nodes.Node) -> None
-        pass
+        self.escape_newlines -= 1
 
     def visit_citation_reference(self, node):
         # type: (nodes.Node) -> None
