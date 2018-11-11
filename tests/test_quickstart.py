@@ -194,10 +194,6 @@ def test_quickstart_all_answers(tempdir):
     assert ns['man_pages'] == [
         ('contents', 'stasi', u'STASI™ Documentation',
          [u'Wolfgang Schäuble & G\'Beckstein'], 1)]
-    assert ns['texinfo_documents'] == [
-        ('contents', 'STASI', u'STASI™ Documentation',
-         u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
-         'One line description of project.', 'Miscellaneous')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
@@ -268,7 +264,6 @@ def test_default_filename(tempdir):
     execfile_(conffile, ns)
     assert ns['latex_documents'][0][1] == 'sphinx.tex'
     assert ns['man_pages'][0][1] == 'sphinx'
-    assert ns['texinfo_documents'][0][1] == 'sphinx'
 
 
 def test_extensions(tempdir):

@@ -53,11 +53,6 @@ latex_documents = [
 
 latex_additional_files = ['svgimg.svg']
 
-texinfo_documents = [
-    ('index', 'SphinxTests', 'Sphinx Tests',
-     'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
-]
-
 man_pages = [
     ('index', 'SphinxTests', 'Sphinx Tests Documentation',
      'Georg Brandl and someone else', 1),

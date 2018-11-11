@@ -46,7 +46,7 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'SphinxTests.texi').text(encoding='utf8')
+    result = (app.outdir / 'sphinxtests.texi').text(encoding='utf8')
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
@@ -55,7 +55,7 @@ def test_texinfo(app, status, warning):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
+            p = Popen(['makeinfo', '--no-split', 'sphinxtests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
             raise pytest.skip.Exception  # most likely makeinfo was not found

@@ -28,12 +28,13 @@ from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename
+from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoWriter, TexinfoTranslator
 
 if False:
     # For type annotation
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
 
 
@@ -209,17 +210,19 @@ class TexinfoBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
 
+def default_texinfo_documents(config):
+    # type: (Config) -> List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode]]  # NOQA
+    """ Better default texinfo_documents settings. """
+    filename = make_filename_from_project(config.project)
+    return [(config.master_doc, filename, config.project, config.author, filename,
+             'One line description of project', 'Miscellaneous')]
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents',
-                         lambda self: [(self.master_doc, make_filename(self.project).lower(),
-                                        self.project, '', make_filename(self.project),
-                                        'The %s reference manual.' %
-                                        make_filename(self.project),
-                                        'Python')],
-                         None)
+    app.add_config_value('texinfo_documents', default_texinfo_documents, None)
     app.add_config_value('texinfo_appendices', [], None)
     app.add_config_value('texinfo_elements', {}, None)
     app.add_config_value('texinfo_domain_indices', True, None, [list])

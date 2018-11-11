@@ -145,11 +145,17 @@ def copyfile(source, dest):
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
+project_suffix_re = re.compile(' Documentation$')
 
 
 def make_filename(string):
     # type: (str) -> unicode
     return no_fn_re.sub('', string) or 'sphinx'
+
+
+def make_filename_from_project(project):
+    # type: (str) -> unicode
+    return make_filename(project_suffix_re.sub('', project)).lower()
 
 
 def ustrftime(format, *args):
