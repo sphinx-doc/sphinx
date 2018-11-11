@@ -250,7 +250,7 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = self.latin1_letters.findall(input)
+        latin1 = [term.strip() for term in self.latin1_letters.findall(input)]
         return chinese + latin1
 
     def word_filter(self, stemmed_word):
