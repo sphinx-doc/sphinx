@@ -244,7 +244,8 @@ def test_IndexBuilder_lookup():
 
 @pytest.mark.sphinx(
     testroot='search',
-    confoverrides={'html_search_language': 'zh'}
+    confoverrides={'html_search_language': 'zh'},
+    srcdir='search_zh'
 )
 def test_search_index_gen_zh(app, status, warning):
     app.builder.build_all()
@@ -252,3 +253,4 @@ def test_search_index_gen_zh(app, status, warning):
     searchindex = (app.outdir / 'searchindex.js').text()
     assert 'chinesetest ' not in searchindex
     assert 'chinesetest' in searchindex
+    assert 'cas' in searchindex

@@ -234,6 +234,7 @@ class SearchChinese(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
     latin1_letters = re.compile(u'(?u)\\w+[\u0000-\u00ff]')
+    latin1 = []
 
     def init(self, options):
         # type: (Dict) -> None
@@ -250,8 +251,9 @@ class SearchChinese(SearchLanguage):
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = [term.strip() for term in self.latin1_letters.findall(input)]
-        return chinese + latin1
+        self.latin1 =\
+            [term.strip() for term in self.latin1_letters.findall(input)]
+        return chinese + self.latin1
 
     def word_filter(self, stemmed_word):
         # type: (unicode) -> bool
@@ -259,4 +261,14 @@ class SearchChinese(SearchLanguage):
 
     def stem(self, word):
         # type: (unicode) -> unicode
+
+        # Don't stem Latin words that are long enough to be relevant for search
+        # if not stemmed, but would be too short after being stemmed
+        # avoids some issues with acronyms
+        should_not_be_stemmed =\
+            word in self.latin1 and\
+            len(word) >= 3 and\
+            len(self.stemmer.stem(word.lower())) < 3
+        if should_not_be_stemmed:
+            return word.lower()
         return self.stemmer.stem(word.lower())
