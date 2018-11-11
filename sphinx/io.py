@@ -66,7 +66,7 @@ class SphinxBaseReader(standalone.Reader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.env = app.env
-        standalone.Reader.__init__(self, *args, **kwargs)
+        super(SphinxBaseReader, self).__init__(*args, **kwargs)
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
@@ -106,7 +106,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        SphinxBaseReader.__init__(self, app, *args, **kwargs)
+        super(SphinxStandaloneReader, self).__init__(app, *args, **kwargs)
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -171,7 +171,7 @@ class SphinxBaseFileInput(FileInput):
         codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
 
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        FileInput.__init__(self, *args, **kwds)
+        super(SphinxBaseFileInput, self).__init__(*args, **kwds)
 
     def decode(self, data):
         # type: (Union[unicode, bytes]) -> unicode

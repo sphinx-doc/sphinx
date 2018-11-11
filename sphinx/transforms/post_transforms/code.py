@@ -54,7 +54,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         # type: (nodes.document, unicode) -> None
         self.default_setting = HighlightSetting(default_language, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
-        nodes.NodeVisitor.__init__(self, document)
+        super(HighlightLanguageVisitor, self).__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

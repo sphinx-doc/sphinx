@@ -193,7 +193,7 @@ class LaTeXWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        writers.Writer.__init__(self)
+        super(LaTeXWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -451,7 +451,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.Node, Builder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        super(LaTeXTranslator, self).__init__(document)
         self.builder = builder
         self.body = []  # type: List[unicode]
 

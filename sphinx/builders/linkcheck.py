@@ -52,7 +52,7 @@ class AnchorCheckParser(html_parser.HTMLParser):
 
     def __init__(self, search_anchor):
         # type: (unicode) -> None
-        html_parser.HTMLParser.__init__(self)
+        super(AnchorCheckParser, self).__init__()
 
         self.search_anchor = search_anchor
         self.found = False
