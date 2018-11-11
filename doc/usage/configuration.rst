@@ -60,6 +60,36 @@ Important points to note:
   created *after* the builder is initialized.
 
 
+Project information
+-------------------
+
+.. confval:: project
+
+   The documented project's name.
+
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
+
+.. confval:: copyright
+
+   A copyright statement in the style ``'2008, Author Name'``.
+
+.. confval:: version
+
+   The major project version, used as the replacement for ``|version|``.  For
+   example, for the Python documentation, this may be something like ``2.6``.
+
+.. confval:: release
+
+   The full project version, used as the replacement for ``|release|`` and
+   e.g. in the HTML templates.  For example, for the Python documentation, this
+   may be something like ``2.6.0rc1``.
+
+   If you don't need the separation provided between :confval:`version` and
+   :confval:`release`, just set them both to the same value.
+
+
 General configuration
 ---------------------
 
@@ -479,36 +509,6 @@ General configuration
    The certificates are used to verify server certifications.
 
    .. versionadded:: 1.5
-
-
-Project information
--------------------
-
-.. confval:: project
-
-   The documented project's name.
-
-.. confval:: author
-
-   The author name(s) of the document.  The default value is ``'unknown'``.
-
-.. confval:: copyright
-
-   A copyright statement in the style ``'2008, Author Name'``.
-
-.. confval:: version
-
-   The major project version, used as the replacement for ``|version|``.  For
-   example, for the Python documentation, this may be something like ``2.6``.
-
-.. confval:: release
-
-   The full project version, used as the replacement for ``|release|`` and
-   e.g. in the HTML templates.  For example, for the Python documentation, this
-   may be something like ``2.6.0rc1``.
-
-   If you don't need the separation provided between :confval:`version` and
-   :confval:`release`, just set them both to the same value.
 
 .. confval:: today
              today_fmt
