@@ -16,7 +16,7 @@ import re
 from collections.abc import Callable
 from functools import partial
 
-from six import string_types, u
+from six import string_types
 
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
@@ -189,7 +189,7 @@ class GoogleDocstring(UnicodeMixin):
             Unicode version of the docstring.
 
         """
-        return u('\n').join(self.lines())
+        return '\n'.join(self.lines())
 
     def lines(self):
         # type: () -> List[unicode]
