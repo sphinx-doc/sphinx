@@ -13,11 +13,11 @@ from __future__ import absolute_import
 
 import warnings
 from contextlib import contextmanager
+from urllib.parse import urlsplit
 
 import pkg_resources
 import requests
 from six import string_types
-from six.moves.urllib.parse import urlsplit
 
 try:
     from requests.packages.urllib3.exceptions import SSLError

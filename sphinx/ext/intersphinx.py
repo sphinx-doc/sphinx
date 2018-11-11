@@ -31,11 +31,11 @@ import posixpath
 import sys
 import time
 from os import path
+from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
 from six import string_types, text_type
-from six.moves.urllib.parse import urlsplit, urlunsplit
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
