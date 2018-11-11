@@ -1,16 +1,10 @@
-Release 1.8.2 (in development)
-==============================
-
-Dependencies
-------------
+Release 1.8.2 (released Nov 11, 2018)
+=====================================
 
 Incompatible changes
 --------------------
 
 * #5497: Do not include MathJax.js and jsmath.js unless it is really needed
-
-Deprecated
-----------
 
 Features added
 --------------
@@ -40,9 +34,6 @@ Bugs fixed
 * #5557: quickstart: --no-batchfile isn't honored
 * #3080: texinfo: multiline rubrics are broken
 * #3080: texinfo: multiline citations are broken
-
-Testing
---------
 
 Release 1.8.1 (released Sep 22, 2018)
 =====================================
