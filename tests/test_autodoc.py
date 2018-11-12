@@ -286,13 +286,13 @@ def test_format_signature():
 
 @pytest.mark.usefixtures('setup_test')
 def test_get_doc():
-    def getdocl(objtype, obj, encoding=None):
+    def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
         inst.object = obj
         inst.objpath = [obj.__name__]
         inst.doc_as_attr = False
         inst.format_signature()  # handle docstring signatures!
-        ds = inst.get_doc(encoding)
+        ds = inst.get_doc()
         # for testing purposes, concat them and strip the empty line at the end
         res = sum(ds, [])[:-1]
         print(res)
