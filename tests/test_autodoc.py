@@ -1470,6 +1470,7 @@ def test_partialmethod(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
 def test_merge_autodoc_default_flags1(app):
     app.config.autodoc_default_flags = ['members', 'undoc-members']
     merge_autodoc_default_flags(app, app.config)
@@ -1478,6 +1479,7 @@ def test_merge_autodoc_default_flags1(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+@pytest.mark.filterwarnings('ignore:autodoc_default_flags is now deprecated.')
 def test_merge_autodoc_default_flags2(app):
     app.config.autodoc_default_flags = ['members', 'undoc-members']
     app.config.autodoc_default_options = {'members': 'this,that,order',
