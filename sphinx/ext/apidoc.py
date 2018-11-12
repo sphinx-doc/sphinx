@@ -25,8 +25,6 @@ import sys
 from fnmatch import fnmatch
 from os import path
 
-from six import binary_type
-
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
@@ -443,15 +441,6 @@ def main(argv=sys.argv[1:]):
         )
         if args.extensions:
             d['extensions'].extend(args.extensions)
-
-        if isinstance(args.header, binary_type):
-            d['project'] = d['project'].decode('utf-8')
-        if isinstance(args.author, binary_type):
-            d['author'] = d['author'].decode('utf-8')
-        if isinstance(args.version, binary_type):
-            d['version'] = d['version'].decode('utf-8')
-        if isinstance(args.release, binary_type):
-            d['release'] = d['release'].decode('utf-8')
 
         if not args.dryrun:
             qs.generate(d, silent=True, overwrite=args.force)

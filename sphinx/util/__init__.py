@@ -28,7 +28,7 @@ from time import mktime, strptime
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
-from six import text_type, binary_type
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
@@ -458,7 +458,7 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, binary_type):
+    if isinstance(string, bytes):
         try:
             if encoding:
                 string = string.decode(encoding)

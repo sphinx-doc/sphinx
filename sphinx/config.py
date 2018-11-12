@@ -17,9 +17,9 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import string_types, binary_type, text_type, integer_types
+from six import string_types, text_type, integer_types
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -488,10 +488,13 @@ def check_unicode(config):
     """check all string values for non-ASCII characters in bytestrings,
     since that can result in UnicodeErrors all over the place
     """
+    warnings.warn('sphinx.config.check_unicode() is deprecated.',
+                  RemovedInSphinx40Warning)
+
     nonascii_re = re.compile(br'[\x80-\xff]')
 
     for name, value in config._raw_config.items():
-        if isinstance(value, binary_type) and nonascii_re.search(value):
+        if isinstance(value, bytes) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '
                               'Please use Unicode strings, e.g. %r.'), name, u'Content')

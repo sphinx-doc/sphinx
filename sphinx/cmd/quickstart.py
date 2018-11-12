@@ -35,7 +35,7 @@ except ImportError:
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
-from six import text_type, binary_type
+from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -643,11 +643,6 @@ def main(argv=sys.argv[1:]):
         print()
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
-
-    # decode values in d if value is a Python string literal
-    for key, value in d.items():
-        if isinstance(value, binary_type):
-            d[key] = term_decode(value)
 
     # handle use of CSV-style extension values
     d.setdefault('extensions', [])

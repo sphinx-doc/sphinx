@@ -25,7 +25,7 @@ from docutils.parsers.rst import Directive, directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import Config, check_unicode
+from sphinx.config import Config
 from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
     RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -200,7 +200,6 @@ class Sphinx:
             self.config = Config({}, confoverrides or {})
         else:
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
-            check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions
