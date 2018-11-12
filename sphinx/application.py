@@ -18,10 +18,10 @@ import sys
 import warnings
 from collections import deque
 from inspect import isclass
+from io import StringIO
 from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
-from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
@@ -164,14 +164,14 @@ class Sphinx:
         self.parallel = parallel
 
         if status is None:
-            self._status = cStringIO()      # type: IO
+            self._status = StringIO()      # type: IO
             self.quiet = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning = cStringIO()     # type: IO
+            self._warning = StringIO()     # type: IO
         else:
             self._warning = warning
         self._warncount = 0

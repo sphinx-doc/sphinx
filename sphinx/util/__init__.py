@@ -25,10 +25,10 @@ from datetime import datetime
 from hashlib import md5
 from os import path
 from time import mktime, strptime
+from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
 from six import text_type, binary_type
-from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError

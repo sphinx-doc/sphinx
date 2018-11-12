@@ -20,6 +20,7 @@ import time
 import warnings
 from collections import OrderedDict
 from os import path
+from urllib.parse import quote
 
 # try to import readline, unix specific enhancement
 try:
@@ -35,7 +36,6 @@ except ImportError:
 
 from docutils.utils import column_width
 from six import text_type, binary_type
-from six.moves.urllib.parse import quote as urlquote
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -386,7 +386,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
 
     d['PY3'] = True
     d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = urlquote(d['project'].encode('idna'))
+    d['project_url'] = quote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
