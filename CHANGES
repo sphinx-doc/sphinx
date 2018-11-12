@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #5460: html search does not work with some 3rd party themes
+* #5614: autodoc: incremental build is broken when builtin modules are imported
 
 Testing
 --------
