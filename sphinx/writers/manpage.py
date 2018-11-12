@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class ManualPageWriter(Writer):
     def __init__(self, builder):
         # type: (Builder) -> None
-        Writer.__init__(self)
+        super(ManualPageWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -82,7 +82,7 @@ class ManualPageTranslator(BaseTranslator):
 
     def __init__(self, builder, *args, **kwds):
         # type: (Builder, Any, Any) -> None
-        BaseTranslator.__init__(self, *args, **kwds)
+        super(ManualPageTranslator, self).__init__(*args, **kwds)
         self.builder = builder
 
         self.in_productionlist = 0

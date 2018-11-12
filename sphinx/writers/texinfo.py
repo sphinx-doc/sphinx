@@ -128,7 +128,7 @@ class TexinfoWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (TexinfoBuilder) -> None
-        writers.Writer.__init__(self)
+        super(TexinfoWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -161,7 +161,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.Node, TexinfoBuilder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        super(TexinfoTranslator, self).__init__(document)
         self.builder = builder
         self.init_settings()
 

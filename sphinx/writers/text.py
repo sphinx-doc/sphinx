@@ -382,7 +382,7 @@ class TextWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (TextBuilder) -> None
-        writers.Writer.__init__(self)
+        super(TextWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -397,7 +397,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.Node, TextBuilder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        super(TextTranslator, self).__init__(document)
         self.builder = builder
 
         newlines = builder.config.text_newlines

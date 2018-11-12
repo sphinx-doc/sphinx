@@ -43,7 +43,7 @@ class HTML5Translator(BaseTranslator):
 
     def __init__(self, builder, *args, **kwds):
         # type: (StandaloneHTMLBuilder, Any, Any) -> None
-        BaseTranslator.__init__(self, *args, **kwds)
+        super(HTML5Translator, self).__init__(*args, **kwds)
         self.highlighter = builder.highlighter
         self.builder = builder
         self.docnames = [builder.current_docname]  # for singlehtml builder

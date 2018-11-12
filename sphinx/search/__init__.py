@@ -195,7 +195,7 @@ class WordCollector(NodeVisitor):
 
     def __init__(self, document, lang):
         # type: (nodes.Node, SearchLanguage) -> None
-        NodeVisitor.__init__(self, document)
+        super(WordCollector, self).__init__(document)
         self.found_words = []           # type: List[unicode]
         self.found_title_words = []     # type: List[unicode]
         self.lang = lang

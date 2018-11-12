@@ -137,9 +137,9 @@ class SphinxTestApp(application.Sphinx):
                                       if v.startswith('visit_'))
 
         try:
-            application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,  # type: ignore  # NOQA
-                                        buildername, confoverrides, status, warning,
-                                        freshenv, warningiserror, tags)
+            super(SphinxTestApp, self).__init__(srcdir, confdir, outdir, doctreedir,  # type: ignore  # NOQA
+                                                buildername, confoverrides, status, warning,
+                                                freshenv, warningiserror, tags)
         except Exception:
             self.cleanup()
             raise
