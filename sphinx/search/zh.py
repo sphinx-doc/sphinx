@@ -265,10 +265,11 @@ class SearchChinese(SearchLanguage):
         # Don't stem Latin words that are long enough to be relevant for search
         # if not stemmed, but would be too short after being stemmed
         # avoids some issues with acronyms
-        should_not_be_stemmed =\
-            word in self.latin1 and\
-            len(word) >= 3 and\
+        should_not_be_stemmed = (
+            word in self.latin1 and
+            len(word) >= 3 and
             len(self.stemmer.stem(word.lower())) < 3
+        )
         if should_not_be_stemmed:
             return word.lower()
         return self.stemmer.stem(word.lower())
