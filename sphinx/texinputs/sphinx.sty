@@ -104,8 +104,6 @@
     \vskip\dimexpr\sphinxtablepre\relax
    }%
 \let\sphinxattableend\sphinxatlongtableend
-% longtable's wraps captions to a maximal width of \LTcapwidth
-% so we do the same for all tables
 \newcommand*\sphinxcapstartof[1]{%
    \vskip\parskip
    \vbox{}% force baselineskip for good positioning by capstart of hyperanchor
@@ -114,26 +112,30 @@
 % move back vertically to compensate space inserted by next paragraph
    \vskip-\baselineskip\vskip-\parskip
 }%
-% use \LTcapwidth (default is 4in) to wrap caption (if line width is bigger)
-\newcommand\sphinxcaption[2][\LTcapwidth]{%
+% longtable wraps captions to a maximal width of \LTcapwidth
+% so we do the same for tabular(y) tables (see their templates)
+\def\sphinxtablecapwidth{\LTcapwidth}% (default is 4in: max width of caption)
+% TODO: add alignment options? but user can employ caption package instead.
+\newcommand\sphinxcaption{\@dblarg\spx@caption}%
+\long\def\spx@caption[#1]#2{%
    \noindent\hb@xt@\linewidth{\hss
-      \vtop{\@tempdima\dimexpr#1\relax
+      \vtop{\@tempdima\dimexpr\sphinxtablecapwidth\relax
 % don't exceed linewidth for the caption width
             \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so add hooks here
 % to uniformize control of caption distance to tables
             \abovecaptionskip\sphinxabovecaptionskip
             \belowcaptionskip\sphinxbelowcaptionskip
-            \caption[{#2}]%
+            \caption[{#1}]%
                {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
-\def\spx@abovecaptionskip{\abovecaptionskip}
+\def\spx@abovecaptionskip{\abovecaptionskip}% for literal blocks captions
 \newcommand*\sphinxabovecaptionskip{\z@skip}
 \newcommand*\sphinxbelowcaptionskip{\z@skip}
-
-\newcommand\sphinxaftercaption
+%
+\newcommand\sphinxaftertopcaption
 {% this default definition serves with a caption *above* a table, to make sure
  % its last baseline is \sphinxbelowcaptionspace above table top
  \nobreak
@@ -683,8 +685,29 @@
   \sphinxsetvskipsforfigintablecaption
   \begin{minipage}{#1}%
 }{\end{minipage}}
-% store original \caption macro for use with figures in longtable and tabulary
-\AtBeginDocument{\let\spx@originalcaption\caption}
+% store the original \caption macro for usage with figures inside longtable
+% and tabulary cells. Make sure we get the final \caption in presence of
+% caption package, whether the latter was loaded before or after sphinx.
+\AtBeginDocument{%
+    \let\spx@originalcaption\caption
+    \@ifpackageloaded{caption}
+      {\let\spx@ifcaptionpackage\@firstoftwo
+       \caption@AtBeginDocument*{\let\spx@originalcaption\caption}%
+% in presence of caption package, drop our own \sphinxcaption whose aim was to
+% ensure same width of caption to all kinds of tables (tabular(y), longtable),
+% because caption package has its own width (or margin) option
+       \def\sphinxcaption{\caption}%
+% vertical spacing from last baseline of a top caption to top rule of
+% table will still be \sphinxbelowcaptionspace for tabular/tabulary,
+% (i.e. \sphinxaftertopcaption needs no modification) but we now need
+% this definition for the corrective skip inserted by longtable template:
+       \def\sphinxlongtablecapskipadjust
+          {\dimexpr-\dp\strutbox-\abovecaptionskip+
+                   \sphinxbelowcaptionspace\relax}% this is the vspace we want
+      }%
+      {\let\spx@ifcaptionpackage\@secondoftwo}%
+}
+% tabulary expands twice contents, we need to prevent double counter stepping
 \newcommand*\sphinxfigcaption
   {\ifx\equation$%$% this is trick to identify tabulary first pass
        \firstchoice@false\else\firstchoice@true\fi
@@ -1049,17 +1072,28 @@
        \vskip\spx@abovecaptionskip
        \def\sphinxVerbatim@Before
            {\sphinxVerbatim@Title\nointerlineskip
-            \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace\relax}%
+            \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
+                 % if no frame (code-blocks inside table cells), remove
+                 % the "verbatimsep" whitespace from the top (better visually)
+                 \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+                 % caption package adds \abovecaptionskip vspace, remove it
+                 \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
      \else
        \vskip\sphinxverbatimsmallskipamount
        \def\sphinxVerbatim@After
-          {\nointerlineskip\kern\dp\strutbox\sphinxVerbatim@Title}%
+          {\nointerlineskip\kern\dimexpr\dp\strutbox
+            \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+            \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
+           \sphinxVerbatim@Title}%
      \fi
      \def\@captype{literalblock}%
      \capstart
      % \sphinxVerbatimTitle must reset color
      \setbox\sphinxVerbatim@TitleBox
             \hbox{\begin{minipage}{\linewidth}%
+     % caption package may detect wrongly if top or bottom, so we help it
+                    \spx@ifcaptionpackage
+                      {\caption@setposition{\spx@opt@literalblockcappos}}{}%
                     \sphinxVerbatimTitle
                   \end{minipage}}%
   \fi

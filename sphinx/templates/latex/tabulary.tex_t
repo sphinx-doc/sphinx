@@ -13,7 +13,7 @@
 <% if table.caption -%>
 \sphinxcapstartof{table}
 \sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
-\sphinxaftercaption
+\sphinxaftertopcaption
 <% elif labels -%>
 \phantomsection<%= labels %>\nobreak
 <% endif -%>

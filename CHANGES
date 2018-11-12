@@ -1,4 +1,4 @@
-Release 1.8.2 (in development)
+Release 1.8.3 (in development)
 ==============================
 
 Dependencies
@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #5460: html search does not work with some 3rd party themes
+* #5520: LaTeX, caption package incompatibility since Sphinx 1.6
 
 Testing
 --------
