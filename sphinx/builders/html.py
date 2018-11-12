@@ -456,7 +456,7 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-        doc = new_document(b'<partial node>')
+        doc = new_document('<partial node>')
         doc.append(node)
 
         if self._publisher is None:

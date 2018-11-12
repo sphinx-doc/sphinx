@@ -54,8 +54,8 @@ def setup_command(request, tempdir, rootdir):
 def test_build_sphinx(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -63,8 +63,8 @@ def test_build_sphinx(setup_command):
 def test_build_sphinx_multiple_builders(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -72,8 +72,8 @@ def test_build_sphinx_multiple_builders(setup_command):
 def test_build_sphinx_multiple_invalid_builders(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 1
 
 
@@ -106,8 +106,8 @@ def nonascii_srcdir(request, setup_command):
 def test_build_sphinx_with_nonascii_path(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -118,8 +118,8 @@ def test_build_sphinx_return_nonzero_status(setup_command):
         'http://localhost.unexistentdomain/index.html')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode != 0, 'expect non-zero status for setup.py'
 
 
@@ -129,8 +129,8 @@ def test_build_sphinx_warning_return_zero_status(setup_command):
         'See :ref:`unexisting-reference-label`')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -141,6 +141,6 @@ def test_build_sphinx_warning_is_error_return_nonzero_status(setup_command):
         'See :ref:`unexisting-reference-label`')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode != 0, 'expect non-zero status for setup.py'
