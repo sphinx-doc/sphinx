@@ -17,7 +17,7 @@ from sphinx.locale import _
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -212,7 +212,7 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (unicode, unicode, unicode, int, Inliner, Optional[Dict], Optional[List[unicode]]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
