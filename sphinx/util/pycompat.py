@@ -27,7 +27,7 @@ NoneType = type(None)
 # Python 2/3 compatibility
 
 # prefix for Unicode strings
-u = ''
+u = ''  # RemovedInSphinx40Warning
 
 
 # sys_encoding: some kind of default system encoding; should be used with

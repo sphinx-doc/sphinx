@@ -27,6 +27,7 @@ Deprecated
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.get_matching_docs()`` is deprecated
 * ``sphinx.util.osutil.walk()``
+* ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
 * template variables for LaTeX template
 
