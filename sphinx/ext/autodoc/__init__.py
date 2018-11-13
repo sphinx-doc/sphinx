@@ -21,13 +21,13 @@ from docutils.statemachine import ViewList
 from six import text_type, string_types
 
 import sphinx
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
 from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
-from sphinx.util import rpartition, force_decode
+from sphinx.util import rpartition
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.inspect import Signature, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
@@ -438,16 +438,14 @@ class Documenter:
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]
         """Decode and return lines of the docstring(s) for the object."""
+        if encoding is not None:
+            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx40Warning)
         docstring = getdoc(self.object, self.get_attr,
                            self.env.config.autodoc_inherit_docstrings)
-        # make sure we have Unicode docstrings, then sanitize and split
-        # into lines
-        if isinstance(docstring, text_type):
+        if docstring:
             return [prepare_docstring(docstring, ignore)]
-        elif isinstance(docstring, str):  # this will not trigger on Py3
-            return [prepare_docstring(force_decode(docstring, encoding),
-                                      ignore)]
-        # ... else it is something strange, let's ignore it
         return []
 
     def process_doc(self, docstrings):
@@ -491,8 +489,7 @@ class Documenter:
 
         # add content from docstrings
         if not no_docstring:
-            encoding = self.analyzer and self.analyzer.encoding
-            docstrings = self.get_doc(encoding)
+            docstrings = self.get_doc()
             if not docstrings:
                 # append at least a dummy docstring, so that the event
                 # autodoc-process-docstring is fired and can add some
@@ -926,7 +923,11 @@ class DocstringSignatureMixin:
 
     def _find_signature(self, encoding=None):
         # type: (unicode) -> Tuple[str, str]
-        docstrings = self.get_doc(encoding)
+        if encoding is not None:
+            warnings.warn("The 'encoding' argument to autodoc.%s._find_signature() is "
+                          "deprecated." % self.__class__.__name__,
+                          RemovedInSphinx40Warning)
+        docstrings = self.get_doc()
         self._new_docstrings = docstrings[:]
         result = None
         for i, doclines in enumerate(docstrings):
@@ -955,10 +956,14 @@ class DocstringSignatureMixin:
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]
+        if encoding is not None:
+            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx40Warning)
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
-        return Documenter.get_doc(self, encoding, ignore)  # type: ignore
+        return Documenter.get_doc(self, None, ignore)  # type: ignore
 
     def format_signature(self):
         # type: () -> unicode
@@ -1119,6 +1124,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]
+        if encoding is not None:
+            warnings.warn("The 'encoding' argument to autodoc.%s.get_doc() is deprecated."
+                          % self.__class__.__name__,
+                          RemovedInSphinx40Warning)
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
@@ -1154,14 +1163,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     docstrings = [initdocstring]
                 else:
                     docstrings.append(initdocstring)
-        doc = []
-        for docstring in docstrings:
-            if isinstance(docstring, text_type):
-                doc.append(prepare_docstring(docstring, ignore))
-            elif isinstance(docstring, str):  # this will not trigger on Py3
-                doc.append(prepare_docstring(force_decode(docstring, encoding),
-                                             ignore))
-        return doc
+        return [prepare_docstring(docstring, ignore) for docstring in docstrings]
 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None

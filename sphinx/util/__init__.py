@@ -258,7 +258,7 @@ def save_traceback(app):
     last_msgs = ''
     if app is not None:
         last_msgs = '\n'.join(
-            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()  # type: ignore
+            '#   %s' % strip_colors(s).strip()
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__display_version__,
@@ -458,6 +458,8 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
+    warnings.warn('force_decode() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     if isinstance(string, bytes):
         try:
             if encoding:

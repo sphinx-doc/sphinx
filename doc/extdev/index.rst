@@ -123,6 +123,14 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
+       ``autodoc.DocstringSignatureMixin.get_doc()``,
+       ``autodoc.DocstringSignatureMixin._find_signature()``, and
+       ``autodoc.ClassDocumenter.get_doc()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
      - 2.0
      - 4.0
@@ -144,6 +152,11 @@ The following is a list of deprecated interfaces.
      - N/A
 
    * - ``sphinx.testing.util.remove_unicode_literal()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.force_decode()``
      - 2.0
      - 4.0
      - N/A

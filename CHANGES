@@ -19,12 +19,17 @@ Incompatible changes
 Deprecated
 ----------
 
+* The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
+  ``autodoc.DocstringSignatureMixin.get_doc()``,
+  ``autodoc.DocstringSignatureMixin._find_signature()``, and
+  ``autodoc.ClassDocumenter.get_doc()`` are deprecated.
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.ext.config.check_unicode()``
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.testing.util.remove_unicode_literal()``
+* ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()`` is deprecated
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.pycompat.u``

@@ -15,7 +15,6 @@ import re
 from os import path
 
 from docutils import nodes
-from six import text_type
 
 from sphinx import addnodes
 from sphinx import package_dir
@@ -23,7 +22,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
-from sphinx.util import force_decode, logging
+from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.template import SphinxRenderer
@@ -113,15 +112,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             item = section_template % {'title': indexcls.localname,
                                        'ref': '%s.html' % indexname}
             sections.append(' ' * 4 * 4 + item)
-        # sections may be unicode strings or byte strings, we have to make sure
-        # they are all unicode strings before joining them
-        new_sections = []
-        for section in sections:
-            if not isinstance(section, text_type):
-                new_sections.append(force_decode(section, None))
-            else:
-                new_sections.append(section)
-        sections = u'\n'.join(new_sections)  # type: ignore
+        sections = '\n'.join(sections)  # type: ignore
 
         # keywords
         keywords = []
@@ -182,7 +173,6 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def write_toc(self, node, indentlevel=4):
         # type: (nodes.Node, int) -> List[unicode]
-        # XXX this should return a Unicode string, not a bytestring
         parts = []  # type: List[unicode]
         if self.isdocnode(node):
             refnode = node.children[0][0]
@@ -202,7 +192,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
             item = u' ' * 4 * indentlevel + item
-            parts.append(item.encode('ascii', 'xmlcharrefreplace'))
+            parts.append(item.encode('ascii', 'xmlcharrefreplace').decode())
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:
                 parts.extend(self.write_toc(subnode, indentlevel))
