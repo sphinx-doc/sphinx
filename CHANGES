@@ -18,6 +18,7 @@ Bugs fixed
 
 * #5460: html search does not work with some 3rd party themes
 * #5520: LaTeX, caption package incompatibility since Sphinx 1.6
+* #5614: autodoc: incremental build is broken when builtin modules are imported
 
 Testing
 --------
