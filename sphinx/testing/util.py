@@ -108,7 +108,7 @@ class SphinxTestApp(application.Sphinx):
     def __init__(self, buildername='html', srcdir=None,
                  freshenv=False, confoverrides=None, status=None, warning=None,
                  tags=None, docutilsconf=None):
-        # type: (unicode, path, bool, Dict, IO, IO, unicode, unicode) -> None
+        # type: (unicode, path, bool, Dict, IO, IO, List[unicode], unicode) -> None
 
         if docutilsconf is not None:
             (srcdir / 'docutils.conf').write_text(docutilsconf)
@@ -137,7 +137,7 @@ class SphinxTestApp(application.Sphinx):
                                       if v.startswith('visit_'))
 
         try:
-            super(SphinxTestApp, self).__init__(srcdir, confdir, outdir, doctreedir,  # type: ignore  # NOQA
+            super(SphinxTestApp, self).__init__(srcdir, confdir, outdir, doctreedir,
                                                 buildername, confoverrides, status, warning,
                                                 freshenv, warningiserror, tags)
         except Exception:
