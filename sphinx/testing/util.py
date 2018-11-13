@@ -114,19 +114,15 @@ class SphinxTestApp(application.Sphinx):
             (srcdir / 'docutils.conf').write_text(docutilsconf)
 
         builddir = srcdir / '_build'
-#        if confdir is None:
         confdir = srcdir
-#        if outdir is None:
         outdir = builddir.joinpath(buildername)
         if not outdir.isdir():
             outdir.makedirs()
-#        if doctreedir is None:
         doctreedir = builddir.joinpath('doctrees')
         if not doctreedir.isdir():
             doctreedir.makedirs()
         if confoverrides is None:
             confoverrides = {}
-#        if warningiserror is None:
         warningiserror = False
 
         self._saved_path = sys.path[:]
