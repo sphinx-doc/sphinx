@@ -13,6 +13,7 @@ import re
 import unicodedata
 import warnings
 from copy import copy
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -79,8 +80,9 @@ class GenericObject(ObjectDescription):
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
                                               targetname, '', None))
-        self.env.domaindata['std']['objects'][self.objtype, name] = \
-            self.env.docname, targetname
+
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        std.add_object(self.objtype, name, self.env.docname, targetname)
 
 
 class EnvVar(GenericObject):
@@ -141,8 +143,10 @@ class Target(SphinxDirective):
         name = self.name
         if ':' in self.name:
             _, name = self.name.split(':', 1)
-        self.env.domaindata['std']['objects'][name, fullname] = \
-            self.env.docname, targetname
+
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        std.add_object(name, fullname, self.env.docname, targetname)
+
         return ret
 
 
@@ -192,10 +196,12 @@ class Cmdoption(ObjectDescription):
             targetname = 'cmdoption' + targetname
             signode['names'].append(targetname)
 
+        domain = cast(StandardDomain, self.env.get_domain('std'))
         self.state.document.note_explicit_target(signode)
         for optname in signode.get('allnames', []):
-            self.env.domaindata['std']['progoptions'][currprogram, optname] = \
-                self.env.docname, signode['ids'][0]
+            domain.add_program_option(currprogram, optname,
+                                      self.env.docname, signode['ids'][0])
+
             # create only one index entry for the whole option
             if optname == firstname:
                 self.indexnode['entries'].append(
@@ -248,15 +254,15 @@ def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
     term.line = lineno
 
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-    objects = env.domaindata['std']['objects']
-
     termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)
-    objects['term', termtext.lower()] = env.docname, new_id
+
+    std = cast(StandardDomain, env.get_domain('std'))
+    std.add_object('term', termtext.lower(), env.docname, new_id)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -414,7 +420,7 @@ class ProductionList(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        objects = self.env.domaindata['std']['objects']
+        domain = cast(StandardDomain, self.env.get_domain('std'))
         node = addnodes.productionlist()  # type: nodes.Node
         messages = []  # type: List[nodes.Node]
         i = 0
@@ -435,7 +441,7 @@ class ProductionList(SphinxDirective):
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
                 self.state.document.note_implicit_target(subnode, subnode)
-                objects['token', subnode['tokenname']] = self.env.docname, idname
+                domain.add_object('token', subnode['tokenname'], self.env.docname, idname)
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
         return [node] + messages
@@ -643,6 +649,14 @@ class StandardDomain(Domain):
                 # anonymous-only labels
                 continue
             labels[name] = docname, labelid, sectname
+
+    def add_object(self, objtype, name, docname, labelid):
+        # type: (unicode, unicode, unicode, unicode) -> None
+        self.data['objects'][objtype, name] = (docname, labelid)
+
+    def add_program_option(self, program, name, docname, labelid):
+        # type: (unicode, unicode, unicode, unicode) -> None
+        self.data['progoptions'][program, name] = (docname, labelid)
 
     def check_consistency(self):
         # type: () -> None
