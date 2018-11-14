@@ -417,28 +417,28 @@ def main(argv=sys.argv[1:]):
                 continue
             prev_module = module
             text += '   %s\n' % module
-        d = dict(
-            path = args.destdir,
-            sep = False,
-            dot = '_',
-            project = args.header,
-            author = args.author or 'Author',
-            version = args.version or '',
-            release = args.release or args.version or '',
-            suffix = '.' + args.suffix,
-            master = 'index',
-            epub = True,
-            extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
-                          'sphinx.ext.todo'],
-            makefile = True,
-            batchfile = True,
-            make_mode = True,
-            mastertocmaxdepth = args.maxdepth,
-            mastertoctree = text,
-            language = 'en',
-            module_path = rootpath,
-            append_syspath = args.append_syspath,
-        )
+        d = {
+            'path': args.destdir,
+            'sep': False,
+            'dot': '_',
+            'project': args.header,
+            'author': args.author or 'Author',
+            'version': args.version or '',
+            'release': args.release or args.version or '',
+            'suffix': '.' + args.suffix,
+            'master': 'index',
+            'epub': True,
+            'extensions': ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
+                           'sphinx.ext.todo'],
+            'makefile': True,
+            'batchfile': True,
+            'make_mode': True,
+            'mastertocmaxdepth': args.maxdepth,
+            'mastertoctree': text,
+            'language': 'en',
+            'module_path': rootpath,
+            'append_syspath': args.append_syspath,
+        }
         if args.extensions:
             d['extensions'].extend(args.extensions)
 
