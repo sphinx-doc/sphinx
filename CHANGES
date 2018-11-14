@@ -18,6 +18,7 @@ Bugs fixed
 
 * #5460: html search does not work with some 3rd party themes
 * #5614: autodoc: incremental build is broken when builtin modules are imported
+* #5627: qthelp: index.html missing in QtHelp
 
 Testing
 --------
