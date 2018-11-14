@@ -446,12 +446,12 @@ class IndexBuilder:
 
     def context_for_searchtool(self):
         # type: () -> Dict[unicode, Any]
-        return dict(
-            search_language_stemming_code = self.lang.js_stemmer_code,
-            search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
-            search_scorer_tool = self.js_scorer_code,
-            search_word_splitter_code = self.js_splitter_code,
-        )
+        return {
+            'search_language_stemming_code': self.lang.js_stemmer_code,
+            'search_language_stop_words': jsdump.dumps(sorted(self.lang.stopwords)),
+            'search_scorer_tool': self.js_scorer_code,
+            'search_word_splitter_code': self.js_splitter_code,
+        }
 
     def get_js_stemmer_rawcode(self):
         # type: () -> unicode

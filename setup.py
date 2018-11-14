@@ -153,11 +153,11 @@ else:
 
                 with open(js_file, 'wt') as outfile:
                     outfile.write('Documentation.addTranslations(')
-                    dump(dict(
-                        messages=jscatalog,
-                        plural_expr=catalog.plural_expr,
-                        locale=str(catalog.locale)
-                    ), outfile, sort_keys=True)
+                    dump({
+                        'messages': jscatalog,
+                        'plural_expr': catalog.plural_expr,
+                        'locale': str(catalog.locale)
+                    }, outfile, sort_keys=True)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs

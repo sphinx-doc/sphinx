@@ -265,13 +265,13 @@ class MessageCatalogBuilder(I18nBuilder):
     def finish(self):
         # type: () -> None
         I18nBuilder.finish(self)
-        data = dict(
-            version = self.config.version,
-            copyright = self.config.copyright,
-            project = self.config.project,
-            ctime = datetime.fromtimestamp(
+        data = {
+            'version': self.config.version,
+            'copyright': self.config.copyright,
+            'project': self.config.project,
+            'ctime': datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
-        )
+        }
         for textdomain, catalog in status_iterator(self.catalogs.items(),  # type: ignore
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
