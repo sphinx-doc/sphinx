@@ -44,8 +44,9 @@ def setup_module():
 def jsload(path):
     searchindex = path.text()
     assert searchindex.startswith('Search.setIndex(')
+    assert searchindex.endswith(')')
 
-    return jsdump.loads(searchindex[16:-2])
+    return jsdump.loads(searchindex[16:-1])
 
 
 def is_registered_term(index, keyword):
@@ -65,10 +66,7 @@ test that non-comments are indexed: fermion
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').text()
-    assert searchindex.startswith('Search.setIndex(')
-
-    index = jsdump.loads(searchindex[16:-2])
+    index = jsload(app.outdir / 'searchindex.js')
     assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
 
 
