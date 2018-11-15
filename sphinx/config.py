@@ -29,8 +29,9 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -508,6 +509,21 @@ def check_primary_domain(app, config):
         config.primary_domain = None  # type: ignore
 
 
+def check_master_doc(app, env, added, changed, removed):
+    # type: (Sphinx, BuildEnvironment, Set[unicode], Set[unicode], Set[unicode]) -> Set[unicode]  # NOQA
+    """Adjust master_doc to 'contents' to support an old project which does not have
+    no master_doc setting.
+    """
+    if (app.config.master_doc == 'index' and
+            'index' not in app.project.docnames and
+            'contents' in app.project.docnames):
+        logger.warning(__('Since v2.0, Sphinx uses "index" as master_doc by default. '
+                          'Please add "master_doc = \'contents\'" to your conf.py.'))
+        app.config.master_doc = "contents"  # type: ignore
+
+    return changed
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('config-inited', convert_source_suffix)
@@ -515,6 +531,7 @@ def setup(app):
     app.connect('config-inited', correct_copyright_year)
     app.connect('config-inited', check_confval_types)
     app.connect('config-inited', check_primary_domain)
+    app.connect('env-get-outdated', check_master_doc)
 
     return {
         'version': 'builtin',
