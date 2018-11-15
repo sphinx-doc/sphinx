@@ -2043,17 +2043,48 @@ information.
            ``babel``, not ``polyglossia``.
 
      ``'fontpkg'``
-        Font package inclusion, default ``'\\usepackage{times}'`` (which uses
-        Times for text, Helvetica for sans serif and Courier for code-blocks).
+        Font package inclusion, the default is ``'\\usepackage{times}'`` which
+        uses Times for text, Helvetica for sans serif and Courier for monospace.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
            script.
-        .. versionchanged:: 1.5
-           Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
-        .. versionchanged:: 1.6
-           Defaults to ``''`` also with ``'lualatex'``.
+        .. versionchanged:: 2.0
+           Support for individual Greek and Cyrillic letters:
 
+           - In order to support occasional Cyrillic (физика частиц)
+             or Greek letters (Σωματιδιακή φυσική) in
+             a document whose language is English or a  Latin European
+             one, the default set-up is enhanced (only for ``'pdflatex'``
+             engine) to do:
+
+             .. code-block:: latex
+
+                \substitutefont{LGR}{\rmdefault}{artemisia}
+                \substitutefont{LGR}{\sfdefault}{neohellenic}
+                \substitutefont{LGR}{\ttdefault}{cmtt}
+                \substitutefont{T2A}{\rmdefault}{fcm}
+                \substitutefont{T2A}{\sfdefault}{fcs}
+                \substitutefont{T2A}{\ttdefault}{fct}
+
+             For this however, the ``'fontenc'`` key must be used to tell
+             LaTeX to load the ``LGR`` (Greek) or ``T2A`` (partial Cyrillic)
+             font encoding. If ``'fontenc'`` is not modified the above lines
+             are not executed.
+
+             In a custom ``'fontpkg'`` setting, do not use ``\substitutefont``
+             with a font encoding not also declared via ``'fontenc'``.
+
+           - For ``'xelatex'`` and ``'lualatex'``, the default is
+             ``'\\setmainfont{CMU Serif}'`` (and similar for sans
+             serif and monospace) . This OpenType font family supports
+             both Cyrillic and Greek scripts (contrarily to the
+             default font configured by LaTeX for ``xelatex/lualatex``
+             if ``'fontpkg'`` is left to empty string, as was the case
+             prior to 2.0).
+
+           - ``'platex'`` (Japanese documents) engine supports individual
+             Cyrillic and Greek letters with no need of extra user set-up.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -2130,13 +2161,69 @@ information.
         .. versionadded:: 1.2
 
      ``'fontenc'``
-        "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+        "fontenc" package inclusion, defaults to
+        ``'\\usepackage[T1]{fontenc}'``.
 
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
            ``'lualatex'`` also uses ``fontspec`` per default.
+        .. versionchanged:: 2.0
+           With ``'pdflatex'`` you can add ``LGR`` and/or ``T2A``
+           (before ``T1`` which should remain the last) to trigger
+           automatic support of occasional Greek and Cyrillic letters
+           in text.
+
+           .. attention::
+
+              Prior to 2.0, Unicode Greek letters were escaped to use LaTeX
+              math mark-up. This is not the case anymore so it may be needed
+              to modify this key into ``'\\usepackage[LGR,T1]{fontenc}'`` and
+              also to make sure to have the suitable Greek font packages
+              as listed in :doc:`../changes` (or replacements).
+
+     ``'textgreek'``
+        The default (``'pdflatex'`` only) is
+        ``'\\usepackage{textalpha}'``, but only if ``'fontenc'`` was
+        modified by user to include ``LGR`` option.  If not, the key
+        value will be forced to be empty string.
+
+        This is needed for ``pdfLaTeX`` to support Unicode input of Greek
+        letters such as φύσις. Expert users may want to load the ``textalpha``
+        package with its option ``normalize-symbols``.
+
+        .. note::
+
+           - Unicode Greek letters in text were, prior to release 2.0, escaped
+             to LaTeX math markup in the produced LaTeX file, hence their
+             rendering in PDF used the math font.  They are now copied over
+             unmodified to the LaTeX file and rendered in PDF by the text
+             font.  But the ``LGR`` font encoding must be loaded.
+
+           - Unicode Greek letters are not accepted in :rst:dir:`math`
+             contents.  LaTeX math mark-up ``\alpha`` etc..., must be used
+             there.
+
+           - With ``'xelatex'`` or ``'lualatex'``, this is ignored as the
+             support for Unicode Greek letters comes from using an OpenType
+             font which supports the Greek script.  This is the case (since
+             2.0) with the default fonts used by Sphinx for these engines.
+
+             Besides, Unicode input in math (not only Greek symbols) can be
+             obtained by adding ``\usepackage{unicode-math}`` to the LaTeX
+             preamble (and perhaps use ``\setmathfont`` to switch to some
+             other OpenMath font than the XeLaTeX default).  Then one can use
+             ``:math:`α=\alpha``` input.  But take note that
+             ``\usepackage[math-style=literal]{unicode-math}`` is needed to
+             obtain in PDF similar output as in HTML+MathJaX, i.e. the ``α``
+             remains upright, and the ``\alpha`` gives an italic letter.
+
+           - With ``platex`` (Japanese), this key setting is ignored:
+             Greek (and Cyrillic) letters are handled natively by the engine
+             own default fonts.
+
+        .. versionadded:: 2.0
 
      ``'geometry'``
         "geometry" package inclusion, the default definition is:

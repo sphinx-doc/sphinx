@@ -164,6 +164,8 @@ The builder's "name" must be given to the **-b** command-line option of
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
    * ``texlive-latex-extra``
+   * ``texlive-fonts-extra``, ``texlive-lang-greek`` (if needed to
+     support Greek or Cyrillic letters in non-cyrillic document)
    * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
    * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
 

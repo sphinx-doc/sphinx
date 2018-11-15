@@ -26,7 +26,9 @@
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
 <%= fontpkg %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>

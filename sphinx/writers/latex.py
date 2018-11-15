@@ -64,6 +64,23 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                        'lowerroman': r'\roman',
                                        'upperroman': r'\Roman',
                                    })  # type: Dict[unicode, unicode]
+PDFLATEX_DEFAULT_FONT_PKG = r'''
+\usepackage{times}
+\expandafter\ifx\csname T@LGR\endcsname\relax
+\else
+% LGR was declared as font encoding
+  \substitutefont{LGR}{\rmdefault}{artemisia}   % gfsartemisia
+  \substitutefont{LGR}{\sfdefault}{neohellenic} % gfsneohellenic
+  \substitutefont{LGR}{\ttdefault}{cmtt}        % cbfonts
+\fi
+\expandafter\ifx\csname T@T2A\endcsname\relax
+\else
+% T2A was declared as font encoding
+  \substitutefont{T2A}{\rmdefault}{fcm}
+  \substitutefont{T2A}{\sfdefault}{fcs}
+  \substitutefont{T2A}{\ttdefault}{fct}
+\fi
+'''
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -86,7 +103,9 @@ DEFAULT_SETTINGS = {
     'multilingual':    '',
     'babel':           '\\usepackage{babel}',
     'polyglossia':     '',
-    'fontpkg':         '\\usepackage{times}',
+    'fontpkg':         PDFLATEX_DEFAULT_FONT_PKG,
+    'substitutefont':  '',
+    'textgreek':       '\\usepackage{textalpha}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'hyperref':        ('% Include hyperref last.\n'
                         '\\usepackage{hyperref}\n'
@@ -121,21 +140,17 @@ ADDITIONAL_SETTINGS = {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
                         '% support both utf8 and utf8x syntaxes\n'
-                        '\\edef\\sphinxdqmaybe{'
-                        '\\ifdefined\\DeclareUnicodeCharacterAsOptional'
-                        '\\string"\\fi}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe00A0}'
-                        '{\\nobreakspace}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2500}'
-                        '{\\sphinxunichar{2500}}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2502}'
-                        '{\\sphinxunichar{2502}}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2514}'
-                        '{\\sphinxunichar{2514}}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe251C}'
-                        '{\\sphinxunichar{251C}}\n'
-                        '  \\DeclareUnicodeCharacter{\\sphinxdqmaybe2572}'
-                        '{\\textbackslash}\n'
+                        '  \\ifdefined\\DeclareUnicodeCharacterAsOptional\n'
+                        '    \\def\\sphinxDUC#1{\\DeclareUnicodeCharacter{"#1}}\n'
+                        '  \\else\n'
+                        '    \\let\\sphinxDUC\\DeclareUnicodeCharacter\n'
+                        '  \\fi\n'
+                        '  \\sphinxDUC{00A0}{\\nobreakspace}\n'
+                        '  \\sphinxDUC{2500}{\\sphinxunichar{2500}}\n'
+                        '  \\sphinxDUC{2502}{\\sphinxunichar{2502}}\n'
+                        '  \\sphinxDUC{2514}{\\sphinxunichar{2514}}\n'
+                        '  \\sphinxDUC{251C}{\\sphinxunichar{251C}}\n'
+                        '  \\sphinxDUC{2572}{\\textbackslash}\n'
                         '\\fi'),
     },
     'xelatex': {
@@ -143,7 +158,10 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
-        'fontpkg':      '',
+        'fontpkg':     ('\\setmainfont{CMU Serif}\n'
+                        '\\setsansfont{CMU Sans Serif}\n'
+                        '\\setmonofont{CMU Typewriter Text}'),
+        'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
         'fvset':        '\\fvset{fontsize=auto}',
@@ -153,7 +171,10 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
-        'fontpkg':      '',
+        'fontpkg':     ('\\setmainfont{CMU Serif}\n'
+                        '\\setsansfont{CMU Sans Serif}\n'
+                        '\\setmonofont{CMU Typewriter Text}'),
+        'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
         'fvset':        '\\fvset{fontsize=auto}',
@@ -162,6 +183,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'platex',
         'babel':        '',
         'classoptions': ',dvipdfmx',
+        'fontpkg':      '\\usepackage{times}',
+        'textgreek':    '',
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
@@ -552,6 +575,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                            builder.config.language)
 
         # set up multilingual module...
+        if self.elements['latex_engine'] == 'pdflatex':
+            if ('T2A' in self.elements['fontenc'] and
+                not self.babel.uses_cyrillic()):
+                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
+                self.elements['sphinxpkgoptions'] += ',cyrnocyr'
+            if 'LGR' in self.elements['fontenc']:
+                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
+            else:
+                self.elements['textgreek'] = ''
         # 'babel' key is public and user setting must be obeyed
         if self.elements['babel']:
             self.elements['classoptions'] += ',' + self.babel.get_language()

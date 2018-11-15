@@ -216,7 +216,7 @@ def get_verifier(verify, verify_re):
         'verify',
         u'Γ\\\\∞$',
         None,
-        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+        u'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
@@ -225,7 +225,7 @@ def get_verifier(verify, verify_re):
         None,
         (u'\\fvset{hllines={, ,}}%\n'
          u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         u'@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          u'\\end{sphinxVerbatim}'),
     ),
     (
