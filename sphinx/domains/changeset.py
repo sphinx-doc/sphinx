@@ -63,7 +63,7 @@ class VersionChange(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        node = addnodes.versionmodified()
+        node = addnodes.versionmodified()  # type: nodes.Node
         node.document = self.state.document
         set_source_info(self, node)
         node['type'] = self.name

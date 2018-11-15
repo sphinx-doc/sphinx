@@ -22,13 +22,13 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
-from six import StringIO, binary_type
+from six import StringIO
 
 import sphinx
 from sphinx.builders import Builder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import force_decode, logging
+from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
@@ -330,8 +330,6 @@ class DocTestBuilder(Builder):
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
-        if isinstance(text, binary_type):
-            text = force_decode(text, None)
         self.outfile.write(text)
 
     def get_target_uri(self, docname, typ=None):

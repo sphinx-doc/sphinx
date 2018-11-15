@@ -14,8 +14,6 @@ import re
 
 from six import integer_types, string_types
 
-from sphinx.util.pycompat import u
-
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
@@ -62,7 +60,7 @@ def encode_string(s):
 
 def decode_string(s):
     # type: (str) -> str
-    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
+    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
 reswords = set("""\

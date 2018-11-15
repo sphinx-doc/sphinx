@@ -128,7 +128,7 @@ class TexinfoWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (TexinfoBuilder) -> None
-        writers.Writer.__init__(self)
+        super(TexinfoWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -161,7 +161,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.Node, TexinfoBuilder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        super(TexinfoTranslator, self).__init__(document)
         self.builder = builder
         self.init_settings()
 
@@ -671,9 +671,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         except IndexError:
             rubric = self.rubrics[-1]
         self.body.append('\n%s ' % rubric)
+        self.escape_newlines += 1
 
     def depart_rubric(self, node):
         # type: (nodes.Node) -> None
+        self.escape_newlines -= 1
         self.body.append('\n\n')
 
     def visit_subtitle(self, node):
@@ -918,12 +920,14 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # type: (nodes.Node) -> None
+        self.body.append('\n')
         for id in node.get('ids'):
             self.add_anchor(id, node)
+        self.escape_newlines += 1
 
     def depart_citation(self, node):
         # type: (nodes.Node) -> None
-        pass
+        self.escape_newlines -= 1
 
     def visit_citation_reference(self, node):
         # type: (nodes.Node) -> None

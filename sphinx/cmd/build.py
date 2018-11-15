@@ -18,7 +18,7 @@ import sys
 import traceback
 
 from docutils.utils import SystemMessage
-from six import text_type, binary_type
+from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -230,13 +230,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
     if missing_files:
         parser.error(__('cannot find files %r') % missing_files)
 
-    # likely encoding used for command-line arguments
-    try:
-        locale = __import__('locale')  # due to submodule of the same name
-        likely_encoding = locale.getpreferredencoding()
-    except Exception:
-        likely_encoding = None
-
     if args.force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
@@ -268,11 +261,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
-        if likely_encoding and isinstance(val, binary_type):
-            try:
-                val = val.decode(likely_encoding)
-            except UnicodeError:
-                pass
         confoverrides[key] = val
 
     for val in args.htmldefine:
@@ -283,11 +271,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             val = int(val)
         except ValueError:
-            if likely_encoding and isinstance(val, binary_type):
-                try:
-                    val = val.decode(likely_encoding)
-                except UnicodeError:
-                    pass
+            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:

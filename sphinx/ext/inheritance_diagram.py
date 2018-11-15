@@ -44,13 +44,10 @@ from hashlib import md5
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from six import text_type
 
 import sphinx
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo, figure_wrapper
-from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import force_decode
 from sphinx.util.docutils import SphinxDirective
 
 if False:
@@ -187,10 +184,7 @@ class InheritanceGraph:
             tooltip = None
             try:
                 if cls.__doc__:
-                    enc = ModuleAnalyzer.for_module(cls.__module__).encoding
                     doc = cls.__doc__.strip().split("\n")[0]
-                    if not isinstance(doc, text_type):
-                        doc = force_decode(doc, enc)
                     if doc:
                         tooltip = '"%s"' % doc.replace('"', '\\"')
             except Exception:  # might raise AttributeError for strange classes
@@ -370,7 +364,7 @@ class InheritanceDiagram(SphinxDirective):
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, x = class_role(
+            refnodes, x = class_role(  # type: ignore
                 'class', ':class:`%s`' % name, name, 0, self.state)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the

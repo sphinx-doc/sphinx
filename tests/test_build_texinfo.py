@@ -68,3 +68,24 @@ def test_texinfo(app, status, warning):
                 assert False, 'makeinfo exited with return code %s' % retcode
     finally:
         os.chdir(cwd)
+
+
+@pytest.mark.sphinx('texinfo', testroot='markup-rubric')
+def test_texinfo_rubric(app, status, warning):
+    app.build()
+
+    output = (app.outdir / 'python.texi').text()
+    assert '@heading This is a rubric' in output
+    assert '@heading This is a multiline rubric' in output
+
+
+@pytest.mark.sphinx('texinfo', testroot='markup-citation')
+def test_texinfo_citation(app, status, warning):
+    app.builder.build_all()
+
+    output = (app.outdir / 'python.texi').text()
+    assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
+    assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
+            'This is a citation\n') in output
+    assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
+            'This is a multiline citation\n') in output

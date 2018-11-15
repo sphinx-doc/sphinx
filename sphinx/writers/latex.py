@@ -167,6 +167,8 @@ ADDITIONAL_SETTINGS = {
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 
+EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
+
 
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
@@ -191,7 +193,7 @@ class LaTeXWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        writers.Writer.__init__(self)
+        super(LaTeXWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -449,7 +451,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.Node, Builder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        super(LaTeXTranslator, self).__init__(document)
         self.builder = builder
         self.body = []  # type: List[unicode]
 
@@ -1829,8 +1831,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('\n\\end{flushright}\n')
 
-    def visit_index(self, node, scre=re.compile(r';\s*')):
-        # type: (nodes.Node, Pattern) -> None
+    def visit_index(self, node, scre = None):
+        # type: (nodes.Node, None) -> None
         def escape(value):
             value = self.encode(value)
             value = value.replace(r'\{', r'\sphinxleftcurlybrace{}')
@@ -1840,33 +1842,57 @@ class LaTeXTranslator(nodes.NodeVisitor):
             value = value.replace('!', '"!')
             return value
 
+        def style(string):
+            match = EXTRA_RE.match(string)
+            if match:
+                return match.expand(r'\\spxentry{\1}\\spxextra{\2}')
+            else:
+                return '\\spxentry{%s}' % string
+
+        if scre:
+            warnings.warn(('LaTeXTranslator.visit_index() optional argument '
+                           '"scre" is deprecated. It is ignored.'),
+                          RemovedInSphinx30Warning, stacklevel=2)
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
         for type, string, tid, ismain, key_ in entries:
             m = ''
             if ismain:
-                m = '|textbf'
+                m = '|spxpagem'
             try:
                 if type == 'single':
-                    p = scre.sub('!', escape(string))
-                    self.body.append(r'\index{%s%s}' % (p, m))
+                    try:
+                        p1, p2 = [escape(x) for x in split_into(2, 'single', string)]
+                        P1, P2 = style(p1), style(p2)
+                        self.body.append(r'\index{%s@%s!%s@%s%s}' % (p1, P1, p2, P2, m))
+                    except ValueError:
+                        p = escape(split_into(1, 'single', string)[0])
+                        P = style(p)
+                        self.body.append(r'\index{%s@%s%s}' % (p, P, m))
                 elif type == 'pair':
                     p1, p2 = [escape(x) for x in split_into(2, 'pair', string)]
-                    self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
-                                     (p1, p2, m, p2, p1, m))
+                    P1, P2 = style(p1), style(p2)
+                    self.body.append(r'\index{%s@%s!%s@%s%s}\index{%s@%s!%s@%s%s}' %
+                                     (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
                 elif type == 'triple':
                     p1, p2, p3 = [escape(x) for x in split_into(3, 'triple', string)]
+                    P1, P2, P3 = style(p1), style(p2), style(p3)
                     self.body.append(
-                        r'\index{%s!%s %s%s}\index{%s!%s, %s%s}'
-                        r'\index{%s!%s %s%s}' %
-                        (p1, p2, p3, m, p2, p3, p1, m, p3, p1, p2, m))
+                        r'\index{%s@%s!%s %s@%s %s%s}'
+                        r'\index{%s@%s!%s, %s@%s, %s%s}'
+                        r'\index{%s@%s!%s %s@%s %s%s}' %
+                        (p1, P1, p2, p3, P2, P3, m,
+                         p2, P2, p3, p1, P3, P1, m,
+                         p3, P3, p1, p2, P1, P2, m))
                 elif type == 'see':
                     p1, p2 = [escape(x) for x in split_into(2, 'see', string)]
-                    self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
+                    P1 = style(p1)
+                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
                 elif type == 'seealso':
                     p1, p2 = [escape(x) for x in split_into(2, 'seealso', string)]
-                    self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
+                    P1 = style(p1)
+                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)
             except ValueError as err:

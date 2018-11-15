@@ -780,8 +780,12 @@ def test_xml_footnotes(app, warning):
     assert_elem(
         para0[0],
         ['I18N WITH FOOTNOTE', 'INCLUDE THIS CONTENTS',
-         '2', '[ref]', '1', '100', '*', '.'],
+         '2', '[ref]', '1', '100', '*', '. SECOND FOOTNOTE_REF', '100', '.'],
         ['i18n-with-footnote', 'ref'])
+
+    # check node_id for footnote_references which refer same footnote (refs: #3002)
+    assert para0[0][4].text == para0[0][6].text == '100'
+    assert para0[0][4].attrib['ids'] != para0[0][6].attrib['ids']
 
     footnote0 = secs[0].findall('footnote')
     assert_elem(
@@ -834,8 +838,8 @@ def test_xml_footnote_backlinks(app):
     footnote0 = secs[0].findall('footnote')
     for footnote in footnote0:
         ids = footnote.attrib.get('ids')
-        backrefs = footnote.attrib.get('backrefs')
-        assert refid2id[ids] == backrefs
+        backrefs = footnote.attrib.get('backrefs').split()
+        assert refid2id[ids] in backrefs
 
 
 @sphinx_intl

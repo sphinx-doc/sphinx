@@ -25,7 +25,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
         # type: (Any) -> unicode
         if isinstance(obj, UserString):
             return text_type(obj)
-        return json.JSONEncoder.default(self, obj)
+        return super(SphinxJSONEncoder, self).default(obj)
 
 
 def dump(obj, fp, *args, **kwds):

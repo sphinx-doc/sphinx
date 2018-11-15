@@ -1227,9 +1227,13 @@ def test_latex_index(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
-    assert 'A \\index{famous}famous \\index{equation}equation:\n' in result
-    assert '\n\\index{Einstein}\\index{relativity}\\ignorespaces \nand' in result
-    assert '\n\\index{main \\sphinxleftcurlybrace{}}\\ignorespaces ' in result
+    assert ('A \\index{famous@\\spxentry{famous}}famous '
+            '\\index{equation@\\spxentry{equation}}equation:\n' in result)
+    assert ('\n\\index{Einstein@\\spxentry{Einstein}}'
+            '\\index{relativity@\\spxentry{relativity}}'
+            '\\ignorespaces \nand') in result
+    assert ('\n\\index{main \\sphinxleftcurlybrace{}@\\spxentry{'
+            'main \\sphinxleftcurlybrace{}}}\\ignorespaces ' in result)
 
 
 @pytest.mark.sphinx('latex', testroot='latex-equations')
@@ -1297,20 +1301,22 @@ def test_latex_glossary(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert (u'\\item[{änhlich\\index{änhlich|textbf}\\phantomsection'
+    assert (u'\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
+            r'\phantomsection'
             r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
-    assert (r'\item[{boson\index{boson|textbf}\phantomsection'
+    assert (r'\item[{boson\index{boson@\spxentry{boson}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-boson}}}] \leavevmode' in result)
-    assert (r'\item[{\sphinxstyleemphasis{fermion}\index{fermion|textbf}'
+    assert (r'\item[{\sphinxstyleemphasis{fermion}'
+            r'\index{fermion@\spxentry{fermion}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-fermion}}}] \leavevmode' in result)
-    assert (r'\item[{tauon\index{tauon|textbf}\phantomsection'
+    assert (r'\item[{tauon\index{tauon@\spxentry{tauon}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-tauon}}}] \leavevmode'
-            r'\item[{myon\index{myon|textbf}\phantomsection'
+            r'\item[{myon\index{myon@\spxentry{myon}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-myon}}}] \leavevmode'
-            r'\item[{electron\index{electron|textbf}\phantomsection'
+            r'\item[{electron\index{electron@\spxentry{electron}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
-    assert (u'\\item[{über\\index{über|textbf}\\phantomsection'
+    assert (u'\\item[{über\\index{über@\\spxentry{über}|spxpagem}\\phantomsection'
             r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
 
 

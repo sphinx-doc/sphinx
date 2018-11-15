@@ -17,9 +17,9 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import string_types, binary_type, text_type, integer_types
+from six import string_types, text_type, integer_types
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -97,63 +97,63 @@ class Config:
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values = dict(
+    config_values = {
         # general options
-        project = ('Python', 'env', []),
-        author = ('unknown', 'env', []),
-        copyright = ('', 'html', []),
-        version = ('', 'env', []),
-        release = ('', 'env', []),
-        today = ('', 'env', []),
+        'project': ('Python', 'env', []),
+        'author': ('unknown', 'env', []),
+        'copyright': ('', 'html', []),
+        'version': ('', 'env', []),
+        'release': ('', 'env', []),
+        'today': ('', 'env', []),
         # the real default is locale-dependent
-        today_fmt = (None, 'env', string_classes),
+        'today_fmt': (None, 'env', string_classes),
 
-        language = (None, 'env', string_classes),
-        locale_dirs = (['locales'], 'env', []),
-        figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
+        'language': (None, 'env', string_classes),
+        'locale_dirs': (['locales'], 'env', []),
+        'figure_language_filename': (u'{root}.{language}{ext}', 'env', [str]),
 
-        master_doc = ('index', 'env', []),
-        source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
-        source_encoding = ('utf-8-sig', 'env', []),
-        source_parsers = ({}, 'env', []),
-        exclude_patterns = ([], 'env', []),
-        default_role = (None, 'env', string_classes),
-        add_function_parentheses = (True, 'env', []),
-        add_module_names = (True, 'env', []),
-        trim_footnote_reference_space = (False, 'env', []),
-        show_authors = (False, 'env', []),
-        pygments_style = (None, 'html', string_classes),
-        highlight_language = ('default', 'env', []),
-        highlight_options = ({}, 'env', []),
-        templates_path = ([], 'html', []),
-        template_bridge = (None, 'html', string_classes),
-        keep_warnings = (False, 'env', []),
-        suppress_warnings = ([], 'env', []),
-        modindex_common_prefix = ([], 'html', []),
-        rst_epilog = (None, 'env', string_classes),
-        rst_prolog = (None, 'env', string_classes),
-        trim_doctest_flags = (True, 'env', []),
-        primary_domain = ('py', 'env', [NoneType]),   # type: ignore
-        needs_sphinx = (None, None, string_classes),
-        needs_extensions = ({}, None, []),
-        manpages_url = (None, 'env', []),
-        nitpicky = (False, None, []),
-        nitpick_ignore = ([], None, []),
-        numfig = (False, 'env', []),
-        numfig_secnum_depth = (1, 'env', []),
-        numfig_format = ({}, 'env', []),  # will be initialized in init_numfig_format()
+        'master_doc': ('index', 'env', []),
+        'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
+        'source_encoding': ('utf-8-sig', 'env', []),
+        'source_parsers': ({}, 'env', []),
+        'exclude_patterns': ([], 'env', []),
+        'default_role': (None, 'env', string_classes),
+        'add_function_parentheses': (True, 'env', []),
+        'add_module_names': (True, 'env', []),
+        'trim_footnote_reference_space': (False, 'env', []),
+        'show_authors': (False, 'env', []),
+        'pygments_style': (None, 'html', string_classes),
+        'highlight_language': ('default', 'env', []),
+        'highlight_options': ({}, 'env', []),
+        'templates_path': ([], 'html', []),
+        'template_bridge': (None, 'html', string_classes),
+        'keep_warnings': (False, 'env', []),
+        'suppress_warnings': ([], 'env', []),
+        'modindex_common_prefix': ([], 'html', []),
+        'rst_epilog': (None, 'env', string_classes),
+        'rst_prolog': (None, 'env', string_classes),
+        'trim_doctest_flags': (True, 'env', []),
+        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'needs_sphinx': (None, None, string_classes),
+        'needs_extensions': ({}, None, []),
+        'manpages_url': (None, 'env', []),
+        'nitpicky': (False, None, []),
+        'nitpick_ignore': ([], None, []),
+        'numfig': (False, 'env', []),
+        'numfig_secnum_depth': (1, 'env', []),
+        'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
 
-        math_number_all = (False, 'env', []),
-        math_eqref_format = (None, 'env', string_classes),
-        math_numfig = (True, 'env', []),
-        tls_verify = (True, 'env', []),
-        tls_cacerts = (None, 'env', []),
-        smartquotes = (True, 'env', []),
-        smartquotes_action = ('qDe', 'env', []),
-        smartquotes_excludes = ({'languages': ['ja'],
-                                 'builders': ['man', 'text']},
-                                'env', []),
-    )  # type: Dict[unicode, Tuple]
+        'math_number_all': (False, 'env', []),
+        'math_eqref_format': (None, 'env', string_classes),
+        'math_numfig': (True, 'env', []),
+        'tls_verify': (True, 'env', []),
+        'tls_cacerts': (None, 'env', []),
+        'smartquotes': (True, 'env', []),
+        'smartquotes_action': ('qDe', 'env', []),
+        'smartquotes_excludes': ({'languages': ['ja'],
+                                  'builders': ['man', 'text']},
+                                 'env', []),
+    }  # type: Dict[unicode, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
@@ -488,10 +488,13 @@ def check_unicode(config):
     """check all string values for non-ASCII characters in bytestrings,
     since that can result in UnicodeErrors all over the place
     """
+    warnings.warn('sphinx.config.check_unicode() is deprecated.',
+                  RemovedInSphinx40Warning)
+
     nonascii_re = re.compile(br'[\x80-\xff]')
 
     for name, value in config._raw_config.items():
-        if isinstance(value, binary_type) and nonascii_re.search(value):
+        if isinstance(value, bytes) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '
                               'Please use Unicode strings, e.g. %r.'), name, u'Content')

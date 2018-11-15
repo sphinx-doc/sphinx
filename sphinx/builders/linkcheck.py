@@ -9,25 +9,16 @@
     :license: BSD, see LICENSE for details.
 """
 
+import queue
 import re
 import socket
 import threading
+from html.parser import HTMLParser
 from os import path
+from urllib.parse import unquote
 
 from docutils import nodes
 from requests.exceptions import HTTPError
-from six.moves import queue, html_parser
-from six.moves.urllib.parse import unquote
-
-# 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
-# removed in Python 3.5, however for backward compatibility reasons, we're not
-# going to just remove it.  If it doesn't exist, define an exception that will
-# never be caught but leaves the code in check_anchor() intact.
-try:
-    from six.moves.html_parser import HTMLParseError  # type: ignore
-except ImportError:
-    class HTMLParseError(Exception):  # type: ignore
-        pass
 
 from sphinx.builders import Builder
 from sphinx.locale import __
@@ -47,12 +38,12 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class AnchorCheckParser(html_parser.HTMLParser):
+class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor):
         # type: (unicode) -> None
-        html_parser.HTMLParser.__init__(self)
+        super(AnchorCheckParser, self).__init__()
 
         self.search_anchor = search_anchor
         self.found = False
@@ -71,18 +62,13 @@ def check_anchor(response, anchor):
     Returns True if anchor was found, False otherwise.
     """
     parser = AnchorCheckParser(anchor)
-    try:
-        # Read file in chunks. If we find a matching anchor, we break
-        # the loop early in hopes not to have to download the whole thing.
-        for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
-            parser.feed(chunk)
-            if parser.found:
-                break
-        parser.close()
-    except HTMLParseError:
-        # HTMLParser is usually pretty good with sloppy HTML, but it tends to
-        # choke on EOF. But we're done then anyway.
-        pass
+    # Read file in chunks. If we find a matching anchor, we break
+    # the loop early in hopes not to have to download the whole thing.
+    for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
+        parser.feed(chunk)
+        if parser.found:
+            break
+    parser.close()
     return parser.found
 
 

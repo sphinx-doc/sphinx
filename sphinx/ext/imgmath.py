@@ -49,7 +49,7 @@ class MathExtError(SphinxError):
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
             msg += '\n[stdout]\n' + stdout.decode(sys_encoding, 'replace')
-        SphinxError.__init__(self, msg)
+        super(MathExtError, self).__init__(msg)
 
 
 class InvokeError(SphinxError):

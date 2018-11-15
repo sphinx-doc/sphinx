@@ -456,7 +456,7 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-        doc = new_document(b'<partial node>')
+        doc = new_document('<partial node>')
         doc.append(node)
 
         if self._publisher is None:
@@ -552,35 +552,35 @@ class StandaloneHTMLBuilder(Builder):
         else:
             stylename = 'default.css'
 
-        self.globalcontext = dict(
-            embedded = self.embedded,
-            project = self.config.project,
-            release = return_codes_re.sub('', self.config.release),
-            version = self.config.version,
-            last_updated = self.last_updated,
-            copyright = self.config.copyright,
-            master_doc = self.config.master_doc,
-            use_opensearch = self.config.html_use_opensearch,
-            docstitle = self.config.html_title,
-            shorttitle = self.config.html_short_title,
-            show_copyright = self.config.html_show_copyright,
-            show_sphinx = self.config.html_show_sphinx,
-            has_source = self.config.html_copy_source,
-            show_source = self.config.html_show_sourcelink,
-            sourcelink_suffix = self.config.html_sourcelink_suffix,
-            file_suffix = self.out_suffix,
-            script_files = self.script_files,
-            language = self.config.language,
-            css_files = self.css_files,
-            sphinx_version = __display_version__,
-            style = stylename,
-            rellinks = rellinks,
-            builder = self.name,
-            parents = [],
-            logo = logo,
-            favicon = favicon,
-            html5_doctype = self.config.html_experimental_html5_writer and html5_ready,
-        )  # type: Dict[unicode, Any]
+        self.globalcontext = {
+            'embedded': self.embedded,
+            'project': self.config.project,
+            'release': return_codes_re.sub('', self.config.release),
+            'version': self.config.version,
+            'last_updated': self.last_updated,
+            'copyright': self.config.copyright,
+            'master_doc': self.config.master_doc,
+            'use_opensearch': self.config.html_use_opensearch,
+            'docstitle': self.config.html_title,
+            'shorttitle': self.config.html_short_title,
+            'show_copyright': self.config.html_show_copyright,
+            'show_sphinx': self.config.html_show_sphinx,
+            'has_source': self.config.html_copy_source,
+            'show_source': self.config.html_show_sourcelink,
+            'sourcelink_suffix': self.config.html_sourcelink_suffix,
+            'file_suffix': self.out_suffix,
+            'script_files': self.script_files,
+            'language': self.config.language,
+            'css_files': self.css_files,
+            'sphinx_version': __display_version__,
+            'style': stylename,
+            'rellinks': rellinks,
+            'builder': self.name,
+            'parents': [],
+            'logo': logo,
+            'favicon': favicon,
+            'html5_doctype': self.config.html_experimental_html5_writer and html5_ready,
+        }  # type: Dict[unicode, Any]
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
@@ -652,21 +652,21 @@ class StandaloneHTMLBuilder(Builder):
         self_toc = TocTree(self.env).get_toc_for(docname, self)
         toc = self.render_partial(self_toc)['fragment']
 
-        return dict(
-            parents = parents,
-            prev = prev,
-            next = next,
-            title = title,
-            meta = meta,
-            body = body,
-            metatags = metatags,
-            rellinks = rellinks,
-            sourcename = sourcename,
-            toc = toc,
+        return {
+            'parents': parents,
+            'prev': prev,
+            'next': next,
+            'title': title,
+            'meta': meta,
+            'body': body,
+            'metatags': metatags,
+            'rellinks': rellinks,
+            'sourcename': sourcename,
+            'toc': toc,
             # only display a TOC if there's more than one item to show
-            display_toc = (self.env.toc_num_entries[docname] > 1),
-            page_source_suffix = source_suffix,
-        )
+            'display_toc': (self.env.toc_num_entries[docname] > 1),
+            'page_source_suffix': source_suffix,
+        }
 
     def write_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
@@ -757,11 +757,11 @@ class StandaloneHTMLBuilder(Builder):
             indexcounts.append(sum(1 + len(subitems)
                                    for _, (_, subitems, _) in entries))
 
-        genindexcontext = dict(
-            genindexentries = genindex,
-            genindexcounts = indexcounts,
-            split_index = self.config.html_split_index,
-        )
+        genindexcontext = {
+            'genindexentries': genindex,
+            'genindexcounts': indexcounts,
+            'split_index': self.config.html_split_index,
+        }
         logger.info(' genindex', nonl=1)
 
         if self.config.html_split_index:
@@ -780,11 +780,11 @@ class StandaloneHTMLBuilder(Builder):
     def write_domain_indices(self):
         # type: () -> None
         for indexname, indexcls, content, collapse in self.domain_indices:
-            indexcontext = dict(
-                indextitle = indexcls.localname,
-                content = content,
-                collapse_index = collapse,
-            )
+            indexcontext = {
+                'indextitle': indexcls.localname,
+                'content': content,
+                'collapse_index': collapse,
+            }
             logger.info(' ' + indexname, nonl=1)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
@@ -1332,20 +1332,20 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         else:
             toc = ''
             display_toc = False
-        return dict(
-            parents = [],
-            prev = None,
-            next = None,
-            docstitle = None,
-            title = self.config.html_title,
-            meta = None,
-            body = body,
-            metatags = metatags,
-            rellinks = [],
-            sourcename = '',
-            toc = toc,
-            display_toc = display_toc,
-        )
+        return {
+            'parents': [],
+            'prev': None,
+            'next': None,
+            'docstitle': None,
+            'title': self.config.html_title,
+            'meta': None,
+            'body': body,
+            'metatags': metatags,
+            'rellinks': [],
+            'sourcename': '',
+            'toc': toc,
+            'display_toc': display_toc,
+        }
 
     def write(self, *ignored):
         # type: (Any) -> None

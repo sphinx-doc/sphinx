@@ -286,13 +286,13 @@ def test_format_signature():
 
 @pytest.mark.usefixtures('setup_test')
 def test_get_doc():
-    def getdocl(objtype, obj, encoding=None):
+    def getdocl(objtype, obj):
         inst = app.registry.documenters[objtype](directive, 'tmp')
         inst.object = obj
         inst.objpath = [obj.__name__]
         inst.doc_as_attr = False
         inst.format_signature()  # handle docstring signatures!
-        ds = inst.get_doc(encoding)
+        ds = inst.get_doc()
         # for testing purposes, concat them and strip the empty line at the end
         res = sum(ds, [])[:-1]
         print(res)
@@ -1396,16 +1396,9 @@ def test_mocked_module_imports(app, warning):
 
 @pytest.mark.usefixtures('setup_test')
 def test_partialfunction():
-    def call_autodoc(objtype, name):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate()
-        result = list(directive.result)
-        del directive.result[:]
-        return result
-
-    options.members = ALL
-    #options.undoc_members = True
-    expected = [
+    options = {"members": None}
+    actual = do_autodoc(app, 'module', 'target.partialfunction', options)
+    assert list(actual) == [
         '',
         '.. py:module:: target.partialfunction',
         '',
@@ -1428,8 +1421,6 @@ def test_partialfunction():
         '   docstring of func3',
         '   '
     ]
-
-    assert call_autodoc('module', 'target.partialfunction') == expected
 
 
 @pytest.mark.usefixtures('setup_test')

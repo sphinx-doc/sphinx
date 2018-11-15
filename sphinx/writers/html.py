@@ -47,7 +47,7 @@ class HTMLWriter(Writer):
 
     def __init__(self, builder):
         # type: (StandaloneHTMLBuilder) -> None
-        Writer.__init__(self)
+        super(HTMLWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -73,7 +73,7 @@ class HTMLTranslator(BaseTranslator):
 
     def __init__(self, builder, *args, **kwds):
         # type: (StandaloneHTMLBuilder, Any, Any) -> None
-        BaseTranslator.__init__(self, *args, **kwds)
+        super(HTMLTranslator, self).__init__(*args, **kwds)
         self.highlighter = builder.highlighter
         self.builder = builder
         self.docnames = [builder.current_docname]  # for singlehtml builder

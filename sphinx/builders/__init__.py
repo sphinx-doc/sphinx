@@ -41,7 +41,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -121,7 +121,7 @@ class Builder:
                                        self.versioning_compare)
 
     def get_translator_class(self, *args):
-        # type: (Any) -> nodes.NodeVisitor
+        # type: (Any) -> Type[nodes.NodeVisitor]
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
@@ -349,14 +349,14 @@ class Builder:
         else:
             logger.info(__('none found'))
 
-        # save the environment
-        from sphinx.application import ENV_PICKLE_FILENAME
-        logger.info(bold(__('pickling environment... ')), nonl=True)
-        with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
-            pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
-        logger.info(__('done'))
-
         if updated_docnames:
+            # save the environment
+            from sphinx.application import ENV_PICKLE_FILENAME
+            logger.info(bold(__('pickling environment... ')), nonl=True)
+            with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
+            logger.info(__('done'))
+
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
             logger.info(bold(__('checking consistency... ')), nonl=True)

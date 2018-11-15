@@ -149,7 +149,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[unicode, unicode]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict
@@ -201,7 +201,7 @@ class Domain:
             self._role2type.setdefault(role, []).append(name)
 
     def role(self, name):
-        # type: (unicode) -> Callable
+        # type: (unicode) -> RoleFunction
         """Return a role adapter function that always gives the registered
         role its full name ('domain:name') as the first argument.
         """
@@ -212,7 +212,7 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> nodes.Node  # NOQA
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter

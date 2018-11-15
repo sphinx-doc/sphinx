@@ -16,7 +16,7 @@ from operator import itemgetter
 from os import path
 from uuid import uuid4
 
-from six.moves import range, zip_longest
+from six.moves import zip_longest
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
@@ -151,7 +151,7 @@ def levenshtein_distance(a, b):
             deletions = current_row[j] + 1
             substitutions = previous_row[j] + (column1 != column2)
             current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row  # type: ignore
+        previous_row = current_row
     return previous_row[-1]
 
 

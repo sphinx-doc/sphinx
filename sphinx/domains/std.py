@@ -13,10 +13,11 @@ import re
 import unicodedata
 import warnings
 from copy import copy
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -79,8 +80,9 @@ class GenericObject(ObjectDescription):
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
                                               targetname, '', None))
-        self.env.domaindata['std']['objects'][self.objtype, name] = \
-            self.env.docname, targetname
+
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        std.add_object(self.objtype, name, self.env.docname, targetname)
 
 
 class EnvVar(GenericObject):
@@ -127,7 +129,7 @@ class Target(SphinxDirective):
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]
+        ret = [node]  # type: List[nodes.Node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -141,8 +143,10 @@ class Target(SphinxDirective):
         name = self.name
         if ':' in self.name:
             _, name = self.name.split(':', 1)
-        self.env.domaindata['std']['objects'][name, fullname] = \
-            self.env.docname, targetname
+
+        std = cast(StandardDomain, self.env.get_domain('std'))
+        std.add_object(name, fullname, self.env.docname, targetname)
+
         return ret
 
 
@@ -192,10 +196,12 @@ class Cmdoption(ObjectDescription):
             targetname = 'cmdoption' + targetname
             signode['names'].append(targetname)
 
+        domain = cast(StandardDomain, self.env.get_domain('std'))
         self.state.document.note_explicit_target(signode)
         for optname in signode.get('allnames', []):
-            self.env.domaindata['std']['progoptions'][currprogram, optname] = \
-                self.env.docname, signode['ids'][0]
+            domain.add_program_option(currprogram, optname,
+                                      self.env.docname, signode['ids'][0])
+
             if currprogram:
                 descr = _('%s command line option') % currprogram
             else:
@@ -254,15 +260,15 @@ def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
     term.line = lineno
 
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-    objects = env.domaindata['std']['objects']
-
     termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)
-    objects['term', termtext.lower()] = env.docname, new_id
+
+    std = cast(StandardDomain, env.get_domain('std'))
+    std.add_object('term', termtext.lower(), env.docname, new_id)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -300,7 +306,7 @@ class Glossary(SphinxDirective):
         # be* a definition list.
 
         # first, collect single entries
-        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], ViewList]]
+        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], StringList]]
         in_definition = True
         was_empty = True
         messages = []
@@ -322,7 +328,7 @@ class Glossary(SphinxDirective):
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary term must be preceded by empty line',
                             source=source, line=lineno))
-                    entries.append(([(line, source, lineno)], ViewList()))
+                    entries.append(([(line, source, lineno)], StringList()))
                     in_definition = False
                 # second term and following
                 else:
@@ -352,9 +358,9 @@ class Glossary(SphinxDirective):
         # now, parse all the entries into a big definition list
         items = []
         for terms, definition in entries:
-            termtexts = []
-            termnodes = []
-            system_messages = []  # type: List[unicode]
+            termtexts = []          # type: List[unicode]
+            termnodes = []          # type: List[nodes.Node]
+            system_messages = []    # type: List[nodes.Node]
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -391,7 +397,7 @@ class Glossary(SphinxDirective):
 
 def token_xrefs(text):
     # type: (unicode) -> List[nodes.Node]
-    retnodes = []
+    retnodes = []  # type: List[nodes.Node]
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
@@ -420,8 +426,8 @@ class ProductionList(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        objects = self.env.domaindata['std']['objects']
-        node = addnodes.productionlist()
+        domain = cast(StandardDomain, self.env.get_domain('std'))
+        node = addnodes.productionlist()  # type: nodes.Node
         messages = []  # type: List[nodes.Node]
         i = 0
 
@@ -441,7 +447,7 @@ class ProductionList(SphinxDirective):
                 if idname not in self.state.document.ids:
                     subnode['ids'].append(idname)
                 self.state.document.note_implicit_target(subnode, subnode)
-                objects['token', subnode['tokenname']] = self.env.docname, idname
+                domain.add_object('token', subnode['tokenname'], self.env.docname, idname)
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
         return [node] + messages
@@ -526,7 +532,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
@@ -649,6 +655,14 @@ class StandardDomain(Domain):
                 # anonymous-only labels
                 continue
             labels[name] = docname, labelid, sectname
+
+    def add_object(self, objtype, name, docname, labelid):
+        # type: (unicode, unicode, unicode, unicode) -> None
+        self.data['objects'][objtype, name] = (docname, labelid)
+
+    def add_program_option(self, program, name, docname, labelid):
+        # type: (unicode, unicode, unicode, unicode) -> None
+        self.data['progoptions'][program, name] = (docname, labelid)
 
     def check_consistency(self):
         # type: () -> None

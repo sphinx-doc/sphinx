@@ -165,7 +165,7 @@ class Author(SphinxDirective):
         # type: () -> List[nodes.Node]
         if not self.config.show_authors:
             return []
-        para = nodes.paragraph(translatable=False)
+        para = nodes.paragraph(translatable=False)  # type: nodes.Node
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -247,7 +247,7 @@ class Centered(SphinxDirective):
         # type: () -> List[nodes.Node]
         if not self.arguments:
             return []
-        subnode = addnodes.centered()
+        subnode = addnodes.centered()  # type: nodes.Node
         inodes, messages = self.state.inline_text(self.arguments[0],
                                                   self.lineno)
         subnode.extend(inodes)

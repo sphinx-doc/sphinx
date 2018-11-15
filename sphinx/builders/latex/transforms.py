@@ -27,7 +27,7 @@ URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
 class FootnoteDocnameUpdater(SphinxTransform):
     """Add docname to footnote and footnote_reference nodes."""
-    default_priority = 200
+    default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
     def apply(self):
@@ -150,7 +150,7 @@ class FootnoteCollector(nodes.NodeVisitor):
         self.auto_footnotes = []            # type: List[nodes.footnote]
         self.used_footnote_numbers = set()  # type: Set[unicode]
         self.footnote_refs = []             # type: List[nodes.footnote_reference]
-        nodes.NodeVisitor.__init__(self, document)
+        super(FootnoteCollector, self).__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
@@ -359,7 +359,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.pendings = []          # type: List[nodes.Node]
         self.table_footnotes = []   # type: List[nodes.Node]
         self.restricted = None      # type: nodes.Node
-        nodes.NodeVisitor.__init__(self, document)
+        super(LaTeXFootnoteVisitor, self).__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

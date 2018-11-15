@@ -18,14 +18,14 @@ import sys
 import warnings
 from collections import deque
 from inspect import isclass
+from io import StringIO
 from os import path
 
 from docutils.parsers.rst import Directive, directives, roles
-from six.moves import cStringIO
 
 import sphinx
 from sphinx import package_dir, locale
-from sphinx.config import Config, check_unicode
+from sphinx.config import Config
 from sphinx.config import CONFIG_FILENAME  # NOQA # for compatibility (RemovedInSphinx30)
 from sphinx.deprecation import (
     RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -164,14 +164,14 @@ class Sphinx:
         self.parallel = parallel
 
         if status is None:
-            self._status = cStringIO()      # type: IO
+            self._status = StringIO()      # type: IO
             self.quiet = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning = cStringIO()     # type: IO
+            self._warning = StringIO()     # type: IO
         else:
             self._warning = warning
         self._warncount = 0
@@ -200,7 +200,6 @@ class Sphinx:
             self.config = Config({}, confoverrides or {})
         else:
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
-            check_unicode(self.config)
 
         # initialize some limited config variables before initialize i18n and loading
         # extensions
@@ -775,7 +774,7 @@ class Sphinx:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List, bool) -> None
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.Node], unicode, List, bool) -> None  # NOQA
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type

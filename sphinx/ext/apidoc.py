@@ -25,8 +25,6 @@ import sys
 from fnmatch import fnmatch
 from os import path
 
-from six import binary_type
-
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.cmd.quickstart import EXTENSIONS
@@ -419,39 +417,30 @@ def main(argv=sys.argv[1:]):
                 continue
             prev_module = module
             text += '   %s\n' % module
-        d = dict(
-            path = args.destdir,
-            sep = False,
-            dot = '_',
-            project = args.header,
-            author = args.author or 'Author',
-            version = args.version or '',
-            release = args.release or args.version or '',
-            suffix = '.' + args.suffix,
-            master = 'index',
-            epub = True,
-            extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
-                          'sphinx.ext.todo'],
-            makefile = True,
-            batchfile = True,
-            make_mode = True,
-            mastertocmaxdepth = args.maxdepth,
-            mastertoctree = text,
-            language = 'en',
-            module_path = rootpath,
-            append_syspath = args.append_syspath,
-        )
+        d = {
+            'path': args.destdir,
+            'sep': False,
+            'dot': '_',
+            'project': args.header,
+            'author': args.author or 'Author',
+            'version': args.version or '',
+            'release': args.release or args.version or '',
+            'suffix': '.' + args.suffix,
+            'master': 'index',
+            'epub': True,
+            'extensions': ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
+                           'sphinx.ext.todo'],
+            'makefile': True,
+            'batchfile': True,
+            'make_mode': True,
+            'mastertocmaxdepth': args.maxdepth,
+            'mastertoctree': text,
+            'language': 'en',
+            'module_path': rootpath,
+            'append_syspath': args.append_syspath,
+        }
         if args.extensions:
             d['extensions'].extend(args.extensions)
-
-        if isinstance(args.header, binary_type):
-            d['project'] = d['project'].decode('utf-8')
-        if isinstance(args.author, binary_type):
-            d['author'] = d['author'].decode('utf-8')
-        if isinstance(args.version, binary_type):
-            d['version'] = d['version'].decode('utf-8')
-        if isinstance(args.release, binary_type):
-            d['release'] = d['release'].decode('utf-8')
 
         if not args.dryrun:
             qs.generate(d, silent=True, overwrite=args.force)

@@ -22,7 +22,7 @@ class XMLWriter(BaseXMLWriter):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        BaseXMLWriter.__init__(self)
+        super(XMLWriter, self).__init__()
         self.builder = builder
         self.translator_class = self.builder.get_translator_class()
 
@@ -49,7 +49,7 @@ class PseudoXMLWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        writers.Writer.__init__(self)
+        super(PseudoXMLWriter, self).__init__()
         self.builder = builder
 
     def translate(self):

@@ -17,7 +17,7 @@ from sphinx.util.fileutil import copy_asset, copy_asset_file
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
     def __init__(self):
-        BuiltinTemplateLoader.__init__(self)
+        super(DummyTemplateLoader, self).__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
         builder.app.translater = None
