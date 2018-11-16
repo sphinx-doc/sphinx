@@ -39,7 +39,6 @@ extras_require = {
         'whoosh>=2.0',
     ],
     'test': [
-        'mock',
         'pytest',
         'pytest-cov',
         'html5lib',

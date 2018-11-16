@@ -9,8 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import patch
+
 import pytest
-from mock import patch
 
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (

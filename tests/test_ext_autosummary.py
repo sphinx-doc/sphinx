@@ -57,7 +57,7 @@ def test_mangle_signature():
 
 def test_extract_summary(capsys):
     from sphinx.util.docutils import new_document
-    from mock import Mock
+    from unittest.mock import Mock
     settings = Mock(language_code='',
                     id_prefix='',
                     auto_id_prefix='',

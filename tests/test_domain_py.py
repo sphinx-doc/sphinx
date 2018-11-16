@@ -9,9 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import Mock
+
 import pytest
 from docutils import nodes
-from mock import Mock
 from six import text_type
 
 from sphinx import addnodes

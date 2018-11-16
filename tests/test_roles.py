@@ -9,8 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+from unittest.mock import Mock
+
 from docutils import nodes
-from mock import Mock
 
 from sphinx.roles import emph_literal_role
 from sphinx.testing.util import assert_node
