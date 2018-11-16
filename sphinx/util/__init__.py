@@ -218,8 +218,7 @@ def copy_static_entry(source, targetdir, builder, context={},
     if path.isfile(source):
         copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
-        if not path.isdir(targetdir):
-            os.mkdir(targetdir)
+        ensuredir(targetdir)
         for entry in os.listdir(source):
             if entry.startswith('.'):
                 continue

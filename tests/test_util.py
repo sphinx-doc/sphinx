@@ -9,12 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+import tempfile
+
 import pytest
 from mock import patch
 
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, status_iterator, xmlname_checker
+    display_chunk, encode_uri, ensuredir, parselinenos, status_iterator, xmlname_checker
 )
 from sphinx.util import logging
 
@@ -32,6 +35,20 @@ def test_encode_uri():
     uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
            u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
     assert expected, encode_uri(uri)
+
+
+def test_ensuredir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        # Does not raise an exception for an existing directory.
+        ensuredir(tmp_path)
+
+        path = os.path.join(tmp_path, 'a', 'b', 'c')
+        ensuredir(path)
+        assert os.path.isdir(path)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with pytest.raises(OSError):
+            ensuredir(tmp.name)
 
 
 def test_display_chunk():

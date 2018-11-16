@@ -109,7 +109,7 @@ class ValidationError(Exception):
 def is_path(x):
     # type: (unicode) -> unicode
     x = path.expanduser(x)
-    if path.exists(x) and not path.isdir(x):
+    if not path.isdir(x):
         raise ValidationError(__("Please enter a valid path name."))
     return x
 
@@ -405,8 +405,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
                 'version', 'release', 'master'):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
-    if not path.isdir(d['path']):
-        ensuredir(d['path'])
+    ensuredir(d['path'])
 
     srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
 
