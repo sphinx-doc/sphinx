@@ -576,8 +576,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         # set up multilingual module...
         if self.elements['latex_engine'] == 'pdflatex':
-            if ('T2A' in self.elements['fontenc'] and
-                not self.babel.uses_cyrillic()):
+            if 'T2A' in self.elements['fontenc'] and not self.babel.uses_cyrillic():
                 self.elements['substitutefont'] = '\\usepackage{substitutefont}'
                 self.elements['sphinxpkgoptions'] += ',cyrnocyr'
             if 'LGR' in self.elements['fontenc']:
