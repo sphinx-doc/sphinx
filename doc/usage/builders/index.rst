@@ -167,7 +167,8 @@ The builder's "name" must be given to the **-b** command-line option of
    * ``texlive-fonts-extra``, ``texlive-lang-greek`` (if needed to
      support Greek or Cyrillic letters in non-cyrillic document)
    * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
-   * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
+   * ``texlive-luatex``, ``texlive-xetex``, ``texlive-fonts-extra``
+      (if :confval:`latex_engine` is set to  ``'xelatex'`` or ``'lualatex'``)
 
    The testing of Sphinx LaTeX is done on Ubuntu xenial with the above mentioned
    packages, which are from a TeXLive 2015 snapshot dated March 2016.

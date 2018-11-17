@@ -33,12 +33,15 @@ Dependencies
        - texlive-fonts-extra
        - Cyrillic letters (in non-Cyrillic documents)
 
-  These extra package are not required by default. The first two are needed if
+  These extra package are not required by default.  The first two are needed if
   the :confval:`latex_elements`.\ ``'fontenc'`` key has been modify to declare
-  the use of the ``LGR`` (Greek) and/or ``T2A`` (Cyrillic) font encoding. Even
+  the use of the ``LGR`` (Greek) and/or ``T2A`` (Cyrillic) font encoding.  Even
   then, the last four are font packages arising in the default value for
   :confval:`latex_elements`.\ ``'fontpkg'``, and may be replaced by other font
   packages providing ``LGR`` and/or ``T2A`` support.
+* LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
+  ``'lualatex'`` requires (by default) the ``Computer Modern Unicode`` fonts,
+  which in Ubuntu xenial are in ``texlive-fonts-extra``.
 
 Incompatible changes
 --------------------

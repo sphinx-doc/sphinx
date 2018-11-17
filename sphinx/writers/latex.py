@@ -158,9 +158,18 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
-        'fontpkg':     ('\\setmainfont{CMU Serif}\n'
-                        '\\setsansfont{CMU Sans Serif}\n'
-                        '\\setmonofont{CMU Typewriter Text}'),
+        'fontpkg':     ('\\setmainfont{cmunrm.otf}[\n'
+                        '  BoldFont = cmunbx.otf,\n'
+                        '  ItalicFont = cmunti.otf,\n'
+                        '  BoldItalicFont = cmunbi.otf]\n'
+                        '\\setsansfont{cmunss.otf}[\n'
+                        '  BoldFont = cmunsx.otf,\n'
+                        '  ItalicFont = cmunsi.otf,\n'
+                        '  BoldItalicFont = cmunso.otf]\n'
+                        '\\setmonofont{cmuntt.otf}[\n'
+                        '  BoldFont = cmuntb.otf,\n'
+                        '  ItalicFont = cmunit.otf,\n'
+                        '  BoldItalicFont = cmuntx.otf]'),
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
