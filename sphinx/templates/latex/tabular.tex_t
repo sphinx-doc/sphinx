@@ -12,6 +12,7 @@
 <%- endif %>
 <% if table.caption -%>
 \sphinxcapstartof{table}
+\sphinxthecaptionisattop
 \sphinxcaption{<%= ''.join(table.caption) %>}<%= labels %>
 \sphinxaftertopcaption
 <% elif labels -%>

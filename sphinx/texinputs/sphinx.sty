@@ -82,11 +82,13 @@
 % User interface to set-up whitespace before and after tables:
 \newcommand*\sphinxtablepre {0pt}%
 \newcommand*\sphinxtablepost{\medskipamount}%
+% Space from caption baseline to top of table or frame of literal-block
 \newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
 % as one can not use \baselineskip from inside longtable (it is zero there)
 % we need \sphinxbaselineskip, which defaults to \baselineskip
 \def\sphinxbaselineskip{\baselineskip}%
 % These commands are inserted by the table templates
+% A. Table with longtable
 \def\sphinxatlongtablestart
    {\par
     \vskip\parskip
@@ -95,35 +97,51 @@
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
    }%
-\def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+% Compatibility with caption package
+\def\sphinxthelongtablecaptionisattop{%
+    \spx@ifcaptionpackage{\noalign{\vskip-\belowcaptionskip}}{}%
+}%
+% Achieves exactly \sphinxbelowcaptionspace below longtable caption
 \def\sphinxlongtablecapskipadjust
-   {\dimexpr-\dp\strutbox-\sphinxbaselineskip+\sphinxbelowcaptionspace\relax}%
-% Now for tables not using longtable
-\def\sphinxattablestart
-   {\par
-    \vskip\dimexpr\sphinxtablepre\relax
-   }%
+   {\dimexpr-\dp\strutbox
+            -\spx@ifcaptionpackage{\abovecaptionskip}{\sphinxbaselineskip}%
+            +\sphinxbelowcaptionspace\relax}%
+\def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+% B. Table with tabular or tabulary
+\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax}%
 \let\sphinxattableend\sphinxatlongtableend
+% This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%
    \vskip\parskip
    \vbox{}% force baselineskip for good positioning by capstart of hyperanchor
+   % hyperref puts the anchor 6pt above this baseline; in case of caption
+   % this baseline will be \ht\strutbox above first baseline of caption
    \def\@captype{#1}%
    \capstart
-% move back vertically to compensate space inserted by next paragraph
+% move back vertically, as tabular (or its caption) will compensate
    \vskip-\baselineskip\vskip-\parskip
 }%
-% longtable wraps captions to a maximal width of \LTcapwidth
-% so we do the same for tabular(y) tables (see their templates)
-\def\sphinxtablecapwidth{\LTcapwidth}% (default is 4in: max width of caption)
-% TODO: add alignment options? but user can employ caption package instead.
+\def\sphinxthecaptionisattop{% locate it after \sphinxcapstartof
+    \spx@ifcaptionpackage
+      {\caption@setposition{t}%
+       \vskip\baselineskip\vskip\parskip
+       \vskip-\belowcaptionskip\vskip-\dp\strutbox
+      }%
+      {}%
+}%
+\def\sphinxthecaptionisatbottom{% (not finalized)
+    \spx@ifcaptionpackage{\caption@setposition{b}}{}%
+}%
+% The aim of \sphinxcaption is to apply to tabular(y) the maximal width
+% of caption as done by longtable
+\def\sphinxtablecapwidth{\LTcapwidth}%
 \newcommand\sphinxcaption{\@dblarg\spx@caption}%
 \long\def\spx@caption[#1]#2{%
    \noindent\hb@xt@\linewidth{\hss
       \vtop{\@tempdima\dimexpr\sphinxtablecapwidth\relax
 % don't exceed linewidth for the caption width
             \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
-% longtable ignores \abovecaptionskip/\belowcaptionskip, so add hooks here
-% to uniformize control of caption distance to tables
+% longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
             \abovecaptionskip\sphinxabovecaptionskip
             \belowcaptionskip\sphinxbelowcaptionskip
             \caption[{#1}]%
@@ -131,14 +149,19 @@
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
-\def\spx@abovecaptionskip{\abovecaptionskip}% for literal blocks captions
-\newcommand*\sphinxabovecaptionskip{\z@skip}
-\newcommand*\sphinxbelowcaptionskip{\z@skip}
-%
+\def\sphinxabovecaptionskip{\z@skip}% Do not use! Flagged for removal
+\def\sphinxbelowcaptionskip{\z@skip}% Do not use! Flagged for removal
+% This wrapper of \abovecaptionskip is to allow modified setting
+% in case of a literal block inside a table cell.
+% TODO: unify spacing above captions of tables with the one for code-blocks,
+%       this means \abovecaptionskip must be without any effect
+\def\spx@abovecaptionskip{\abovecaptionskip}%
+% Achieve \sphinxbelowcaptionspace below a caption located above a tabular
+% or a tabulary
 \newcommand\sphinxaftertopcaption
-{% this default definition serves with a caption *above* a table, to make sure
- % its last baseline is \sphinxbelowcaptionspace above table top
- \nobreak
+{%
+   \spx@ifcaptionpackage
+     {\par\prevdepth\dp\strutbox\nobreak\vskip-\abovecaptionskip}{\nobreak}%
    \vskip\dimexpr\sphinxbelowcaptionspace\relax
    \vskip-\baselineskip\vskip-\parskip
 }%
@@ -697,13 +720,6 @@
 % ensure same width of caption to all kinds of tables (tabular(y), longtable),
 % because caption package has its own width (or margin) option
        \def\sphinxcaption{\caption}%
-% vertical spacing from last baseline of a top caption to top rule of
-% table will still be \sphinxbelowcaptionspace for tabular/tabulary,
-% (i.e. \sphinxaftertopcaption needs no modification) but we now need
-% this definition for the corrective skip inserted by longtable template:
-       \def\sphinxlongtablecapskipadjust
-          {\dimexpr-\dp\strutbox-\abovecaptionskip+
-                   \sphinxbelowcaptionspace\relax}% this is the vspace we want
       }%
       {\let\spx@ifcaptionpackage\@secondoftwo}%
 }
