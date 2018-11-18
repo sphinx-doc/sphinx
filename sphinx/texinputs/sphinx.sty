@@ -87,7 +87,19 @@
 % as one can not use \baselineskip from inside longtable (it is zero there)
 % we need \sphinxbaselineskip, which defaults to \baselineskip
 \def\sphinxbaselineskip{\baselineskip}%
-% These commands are inserted by the table templates
+% The following is to ensure that, whether tabular(y) or longtable:
+% - if a caption is on top of table:
+%   a) the space between its last baseline and the top rule of table is
+%      exactly \sphinxbelowcaptionspace
+%   b) the space from last baseline of previous text to first baseline of
+%      caption is exactly \parskip+\baselineskip+ height of a strut.
+%   c) the caption text will wrap at width \LTcapwidth (4in)
+% - make sure this works also if "caption" package is loaded by user
+% TODO: obtain same for caption of literal block: a) & c) DONE, b) TO BE DONE
+%
+% To modify space below such top caption, adjust \sphinxbelowcaptionspace
+% To add or remove space above such top caption, adjust \sphinxtablepre:
+%   notice that \abovecaptionskip, \belowcaptionskip, \LTpre are **ignored**
 % A. Table with longtable
 \def\sphinxatlongtablestart
    {\par
@@ -124,12 +136,15 @@
 \def\sphinxthecaptionisattop{% locate it after \sphinxcapstartof
     \spx@ifcaptionpackage
       {\caption@setposition{t}%
-       \vskip\baselineskip\vskip\parskip
-       \vskip-\belowcaptionskip\vskip-\dp\strutbox
+       \vskip\baselineskip\vskip\parskip % undo those from \sphinxcapstartof
+       \vskip-\belowcaptionskip          % anticipate caption package skip
+       % caption package uses a \vbox, not a \vtop, so "single line" case
+       % gives different result from "multi-line" without this:
+       \nointerlineskip
       }%
       {}%
 }%
-\def\sphinxthecaptionisatbottom{% (not finalized)
+\def\sphinxthecaptionisatbottom{% (not finalized; for template usage)
     \spx@ifcaptionpackage{\caption@setposition{b}}{}%
 }%
 % The aim of \sphinxcaption is to apply to tabular(y) the maximal width
@@ -142,8 +157,8 @@
 % don't exceed linewidth for the caption width
             \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
 % longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
-            \abovecaptionskip\sphinxabovecaptionskip
-            \belowcaptionskip\sphinxbelowcaptionskip
+            \abovecaptionskip\sphinxabovecaptionskip % \z@skip
+            \belowcaptionskip\sphinxbelowcaptionskip % \z@skip
             \caption[{#1}]%
                {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
@@ -151,10 +166,12 @@
 }%
 \def\sphinxabovecaptionskip{\z@skip}% Do not use! Flagged for removal
 \def\sphinxbelowcaptionskip{\z@skip}% Do not use! Flagged for removal
-% This wrapper of \abovecaptionskip is to allow modified setting
-% in case of a literal block inside a table cell.
-% TODO: unify spacing above captions of tables with the one for code-blocks,
-%       this means \abovecaptionskip must be without any effect
+% This wrapper of \abovecaptionskip is used in sphinxVerbatim for top
+% caption, and with another value in sphinxVerbatimintable
+% TODO: To unify space above caption of a code-block with the one above
+%       caption of a table/longtable, \abovecaptionskip must not be used
+%       This auxiliary will get renamed and receive a different meaning
+%       in future.
 \def\spx@abovecaptionskip{\abovecaptionskip}%
 % Achieve \sphinxbelowcaptionspace below a caption located above a tabular
 % or a tabulary
