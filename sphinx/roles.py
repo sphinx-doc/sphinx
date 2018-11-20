@@ -73,7 +73,7 @@ class XRefRole:
 
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None, warn_dangling=False):
-        # type: (bool, bool, Type[nodes.Node], Type[nodes.Node], bool) -> None
+        # type: (bool, bool, Type[nodes.Element], Type[nodes.TextElement], bool) -> None
         self.fix_parens = fix_parens
         self.lowercase = lowercase
         self.warn_dangling = warn_dangling
