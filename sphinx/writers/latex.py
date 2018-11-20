@@ -42,7 +42,7 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
-    from sphinx.builder import Builder  # NOQA
+    from sphinx.builders.latex import LaTeXBuilder  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ class LaTeXWriter(writers.Writer):
     output = None
 
     def __init__(self, builder):
-        # type: (Builder) -> None
+        # type: (LaTeXBuilder) -> None
         super(LaTeXWriter, self).__init__()
         self.builder = builder
 
@@ -450,7 +450,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     docclasses = ('howto', 'manual')
 
     def __init__(self, document, builder):
-        # type: (nodes.Node, Builder) -> None
+        # type: (nodes.Node, LaTeXBuilder) -> None
         super(LaTeXTranslator, self).__init__(document)
         self.builder = builder
         self.body = []  # type: List[unicode]
@@ -730,7 +730,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
 
     def generate_numfig_format(self, builder):
-        # type: (Builder) -> unicode
+        # type: (LaTeXBuilder) -> unicode
         ret = []  # type: List[unicode]
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
@@ -770,7 +770,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return ''.join(ret)
 
     def generate_indices(self):
-        # type: (Builder) -> unicode
+        # type: () -> unicode
         def generate(content, collapsed):
             # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
@@ -808,7 +808,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         continue
                     ret.append(u'\\renewcommand{\\indexname}{%s}\n' %
                                indexcls.localname)
-                    generate(content, collapsed)
+                    generate(content, collapsed)  # type: ignore
 
         return ''.join(ret)
 
