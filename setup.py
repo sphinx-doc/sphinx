@@ -45,8 +45,7 @@ extras_require = {
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy',
-        'typed_ast',
+        'mypy>=0.470',
     ],
 }
 
