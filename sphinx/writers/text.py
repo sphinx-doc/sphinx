@@ -19,14 +19,11 @@ from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
-
-logger = logging.getLogger(__name__)
 
 
 class Cell:
@@ -393,7 +390,6 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(nodes.NodeVisitor):
-    sectionchars = '*=-~"+`'
 
     def __init__(self, document, builder):
         # type: (nodes.Node, TextBuilder) -> None
