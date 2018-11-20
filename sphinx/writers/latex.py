@@ -44,6 +44,7 @@ if False:
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builders.latex import LaTeXBuilder  # NOQA
     from sphinx.builders.latex import nodes as latexnodes  # NOQA
+    from sphinx.domains import IndexEntry  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -773,7 +774,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def generate_indices(self):
         # type: () -> unicode
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
+            # type: (List[Tuple[unicode, List[IndexEntry]]], bool) -> None
             ret.append('\\begin{sphinxtheindex}\n')
             ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
@@ -809,7 +810,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         continue
                     ret.append(u'\\renewcommand{\\indexname}{%s}\n' %
                                indexcls.localname)
-                    generate(content, collapsed)  # type: ignore
+                    generate(content, collapsed)
 
         return ''.join(ret)
 

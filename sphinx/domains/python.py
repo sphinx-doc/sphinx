@@ -17,7 +17,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes, locale
 from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, Index
+from sphinx.domains import Domain, ObjType, Index, IndexEntry
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -669,8 +669,8 @@ class PythonModuleIndex(Index):
     shortname = _('modules')
 
     def generate(self, docnames=None):
-        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
-        content = {}  # type: Dict[unicode, List]
+        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[IndexEntry]]], bool]
+        content = {}  # type: Dict[unicode, List[IndexEntry]]
         # list of prefixes to ignore
         ignores = None  # type: List[unicode]
         ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
@@ -705,19 +705,22 @@ class PythonModuleIndex(Index):
                 if prev_modname == package:
                     # first submodule - make parent a group head
                     if entries:
-                        entries[-1][1] = 1
+                        last = entries[-1]
+                        entries[-1] = IndexEntry(last[0], 1, last[2], last[3],
+                                                 last[4], last[5], last[6])
+                    entries.append(IndexEntry(stripped + package, 1, '', '', '', '', ''))
                 elif not prev_modname.startswith(package):
                     # submodule without parent in list, add dummy entry
-                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                    entries.append(IndexEntry(stripped + package, 1, '', '', '', '', ''))
                 subtype = 2
             else:
                 num_toplevels += 1
                 subtype = 0
 
             qualifier = deprecated and _('Deprecated') or ''
-            entries.append([stripped + modname, subtype, docname,
-                            'module-' + stripped + modname, platforms,
-                            qualifier, synopsis])
+            entries.append(IndexEntry(stripped + modname, subtype, docname,
+                                      'module-' + stripped + modname, platforms,
+                                      qualifier, synopsis))
             prev_modname = modname
 
         # apply heuristics when to collapse modindex at page load:

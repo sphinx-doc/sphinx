@@ -58,7 +58,7 @@ if False:
     from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.domains import Domain, Index, IndexEntry  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 # Experimental HTML5 Writer
@@ -249,7 +249,7 @@ class StandaloneHTMLBuilder(Builder):
     default_html5_translator = False
 
     imgpath = None          # type: unicode
-    domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
+    domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[IndexEntry]]], bool]]  # NOQA
 
     # cached publisher object for snippets
     _publisher = None
