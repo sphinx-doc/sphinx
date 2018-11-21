@@ -14,7 +14,7 @@ from html import escape as htmlescape  # NOQA
 from io import TextIOWrapper  # NOQA
 from textwrap import indent  # type: ignore # NOQA
 
-from six import text_type, exec_
+from six import text_type
 
 if False:
     # For type annotation
@@ -86,4 +86,4 @@ def execfile_(filepath, _globals, open=open):
             code = compile(source, filepath_enc, 'exec')
         else:
             raise
-    exec_(code, _globals)
+    exec(code, _globals)
