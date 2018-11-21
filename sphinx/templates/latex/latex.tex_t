@@ -26,7 +26,10 @@
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>

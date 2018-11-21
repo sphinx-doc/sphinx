@@ -4,7 +4,17 @@ Release 2.0.0 (in development)
 Dependencies
 ------------
 
-* LaTeX builder now depends on TeX Live 2015 or above
+* LaTeX builder now depends on TeX Live 2015 or above.
+* LaTeX builder (with ``'pdflatex'`` :confval:`latex_engine`) will process
+  Unicode Greek letters in text (not in math mark-up) via the text font and
+  will not escape them to math mark-up. See the discussion of the
+  ``'fontenc'`` key of :confval:`latex_elements`; such (optional) support for
+  Greek adds, for example on Ubuntu xenial, the ``texlive-lang-greek`` and (if
+  default font set-up is not modified) ``cm-super(-minimal)`` as additional
+  Sphinx LaTeX requirements.
+* LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
+  ``'lualatex'`` requires (by default) the ``FreeFont`` fonts,
+  which in Ubuntu xenial are provided by package ``fonts-freefont-otf``.
 
 Incompatible changes
 --------------------
@@ -15,6 +25,10 @@ Incompatible changes
   has been longly used as default of sphinx-quickstart.
 * LaTeX: Move message resources to ``sphinxmessage.sty``
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
+* LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
+  will use the text font not the math font. The ``LGR`` font encoding must be
+  added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
+  (only if it is needed by the document, of course).
 
 Deprecated
 ----------
@@ -58,9 +72,17 @@ __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
   :confval:`htmlhelp_link_suffix`
 * #5559: text: Support complex tables (colspan and rowspan)
+* LaTeX: support rendering (not in math, yet) of Greek and Cyrillic Unicode
+  letters in non-Cyrillic document even with ``'pdflatex'`` as
+  :confval:`latex_engine`
 
 Bugs fixed
 ----------
+
+* #5247: LaTeX: PDF does not build with default font config for Russian
+  language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
+  (refs: #5251)
+* #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
 
 Testing
 --------

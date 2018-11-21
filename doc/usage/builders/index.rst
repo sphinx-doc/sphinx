@@ -158,17 +158,34 @@ The builder's "name" must be given to the **-b** command-line option of
    chapter :ref:`latex-options` for details.
 
    The produced LaTeX file uses several LaTeX packages that may not be present
-   in a "minimal" TeX distribution installation.  For example, on Ubuntu, the
-   following packages need to be installed for successful PDF builds:
+   in a "minimal" TeX distribution installation.
+
+   On Ubuntu xenial, the following packages need to be installed for
+   successful PDF builds:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
    * ``texlive-latex-extra``
-   * ``latexmk`` (for ``make latexpdf`` on GNU/Linux and MacOS X)
-   * ``texlive-luatex``, ``texlive-xetex`` (see :confval:`latex_engine`)
+   * ``latexmk`` (this is a Sphinx requirement on GNU/Linux and MacOS X
+     for functioning of ``make latexpdf``)
 
-   The testing of Sphinx LaTeX is done on Ubuntu xenial with the above mentioned
-   packages, which are from a TeXLive 2015 snapshot dated March 2016.
+   Additional packages are needed in some circumstances (see the discussion of
+   the ``'fontpkg'`` key of :confval:`latex_elements` for more information):
+
+   * to support occasional Cyrillic letters or words, and a fortiori if
+     :confval:`language` is set to a Cyrillic language, the package
+     ``texlive-lang-cyrillic`` is required, and, with unmodified ``'fontpkg'``,
+     also ``cm-super`` or ``cm-super-minimal``,
+   * to support occasional Greek letters or words (in text, not in
+     :rst:dir:`math` directive contents), ``texlive-lang-greek`` is required,
+     and, with unmodified ``'fontpkg'``, also ``cm-super`` or
+     ``cm-super-minimal``,
+   * for ``'xelatex'`` or ``'lualatex'`` (see :confval:`latex_engine`),
+     ``texlive-xetex`` resp. ``texlive-luatex``, and, if leaving unchanged
+     ``'fontpkg'``, ``fonts-freefont-otf``.
+
+   The testing of Sphinx LaTeX is done on Ubuntu xenial whose TeX distribution
+   is based on a TeXLive 2015 snapshot dated March 2016.
 
    .. versionchanged:: 1.6
       Formerly, testing had been done on Ubuntu precise (TeXLive 2009).
@@ -191,20 +208,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
       reduces console output to a minimum.
 
-      Also, if ``latexmk`` version is 4.52b or higher (Jan 17)
-      ``LATEXMKOPTS="-xelatex"`` will speed up PDF builds via XeLateX in case
+      Also, if ``latexmk`` is at version 4.52b or higher (January 2017)
+      ``LATEXMKOPTS="-xelatex"`` speeds up PDF builds via XeLateX in case
       of numerous graphics inclusions.
 
-      .. code-block:: console
-
-         make latexpdf LATEXMKOPTS="-xelatex"
-
-      To pass options directly to the ``(pdf|xe|lua)latex`` executable, use
-      variable ``LATEXOPTS``.
+      To pass options directly to the ``(pdf|xe|lua)latex`` binary, use
+      variable ``LATEXOPTS``, for example:
 
       .. code-block:: console
 
-         make latexpdf LATEXOPTS="--interaction=nonstopmode"
+         make latexpdf LATEXOPTS="--halt-on-error"
 
    .. autoattribute:: name
 
