@@ -17,7 +17,6 @@ from urllib.parse import urlsplit
 
 import pkg_resources
 import requests
-from six import string_types
 
 try:
     from requests.packages.urllib3.exceptions import SSLError
@@ -120,7 +119,7 @@ def _get_tls_cacert(url, config):
     certs = getattr(config, 'tls_cacerts', None)
     if not certs:
         return True
-    elif isinstance(certs, (string_types, tuple)):
+    elif isinstance(certs, (str, tuple)):
         return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]

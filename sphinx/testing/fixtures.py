@@ -17,7 +17,7 @@ from collections import namedtuple
 from tempfile import gettempdir
 
 import pytest
-from six import StringIO, string_types
+from six import StringIO
 
 from . import util
 
@@ -102,8 +102,7 @@ def test_params(request):
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and
-            not isinstance(result['shared_result'], string_types)):
+    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
         raise pytest.Exception('You can only provide a string type of value '
                                'for "shared_result" ')
     return result

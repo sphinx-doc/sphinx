@@ -13,7 +13,6 @@ from os import path
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
-from six import string_types
 
 from sphinx import addnodes
 from sphinx.builders import Builder
@@ -77,7 +76,7 @@ class ManualPageBuilder(Builder):
                 logger.warning(__('"man_pages" config value references unknown '
                                   'document %s'), docname)
                 continue
-            if isinstance(authors, string_types):
+            if isinstance(authors, str):
                 if authors:
                     authors = [authors]
                 else:

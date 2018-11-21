@@ -12,7 +12,7 @@
 
 import re
 
-from six import integer_types, string_types
+from six import integer_types
 
 if False:
     # For type annotation
@@ -84,7 +84,7 @@ double   in   super""".split())
 def dumps(obj, key=False):
     # type: (Any, bool) -> str
     if key:
-        if not isinstance(obj, string_types):
+        if not isinstance(obj, str):
             obj = str(obj)
         if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
@@ -105,8 +105,8 @@ def dumps(obj, key=False):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
-    elif isinstance(obj, string_types):
-        return encode_string(obj)  # type: ignore
+    elif isinstance(obj, str):
+        return encode_string(obj)
     raise TypeError(type(obj))
 
 

@@ -25,7 +25,7 @@ from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
-from six import text_type, string_types
+from six import text_type
 
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
@@ -531,7 +531,7 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
 
-        if not isinstance(self.config.html_use_opensearch, string_types):
+        if not isinstance(self.config.html_use_opensearch, str):
             logger.warning(__('html_use_opensearch config value must now be a string'))
 
         self.relations = self.env.collect_relations()
@@ -1533,7 +1533,7 @@ def convert_html_css_files(app, config):
     """This converts string styled html_css_files to tuple styled one."""
     html_css_files = []  # type: List[Tuple[unicode, Dict]]
     for entry in config.html_css_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             html_css_files.append((entry, {}))
         else:
             try:
@@ -1551,7 +1551,7 @@ def convert_html_js_files(app, config):
     """This converts string styled html_js_files to tuple styled one."""
     html_js_files = []  # type: List[Tuple[unicode, Dict]]
     for entry in config.html_js_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             html_js_files.append((entry, {}))
         else:
             try:

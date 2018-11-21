@@ -18,7 +18,7 @@ import warnings
 from typing import Any
 
 from docutils.statemachine import ViewList
-from six import text_type, string_types
+from six import text_type
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -836,7 +836,7 @@ class ModuleDocumenter(Documenter):
                 memberlist = self.object.__all__
                 # Sometimes __all__ is broken...
                 if not isinstance(memberlist, (list, tuple)) or not \
-                   all(isinstance(entry, string_types) for entry in memberlist):
+                   all(isinstance(entry, str) for entry in memberlist):
                     logger.warning(
                         __('__all__ should be a list of strings, not %r '
                            '(in module %s) -- ignoring __all__') %
@@ -1460,7 +1460,7 @@ def merge_autodoc_default_flags(app, config):
                   RemovedInSphinx30Warning, stacklevel=2)
 
     for option in config.autodoc_default_flags:
-        if isinstance(option, string_types):
+        if isinstance(option, str):
             config.autodoc_default_options[option] = None
         else:
             logger.warning(

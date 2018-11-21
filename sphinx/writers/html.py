@@ -17,7 +17,6 @@ import warnings
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
-from six import string_types
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -81,7 +80,7 @@ class HTMLTranslator(BaseTranslator):
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
-        if not isinstance(self.permalink_text, string_types):
+        if not isinstance(self.permalink_text, str):
             self.permalink_text = self.permalink_text and u'\u00B6' or ''
         self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = builder.config.html_secnumber_suffix
