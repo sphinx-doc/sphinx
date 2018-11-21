@@ -200,6 +200,10 @@ Overriding works like this::
 
       {% set script_files = script_files + ["_static/myscript.js"] %}
 
+   .. deprecated:: 1.8.0
+
+      Please use ``.Sphinx.add_js_file()`` instead.
+
 Helper Functions
 ~~~~~~~~~~~~~~~~
 
