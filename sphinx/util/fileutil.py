@@ -39,7 +39,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
     if not os.path.exists(source):
         return
 
-    if os.path.exists(destination) and os.path.isdir(destination):
+    if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 

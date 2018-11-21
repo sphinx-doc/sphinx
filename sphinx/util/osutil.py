@@ -82,13 +82,7 @@ def relative_uri(base, to):
 def ensuredir(path):
     # type: (unicode) -> None
     """Ensure that a path exists."""
-    try:
-        os.makedirs(path)
-    except OSError:
-        # If the path is already an existing directory (not a file!),
-        # that is OK.
-        if not os.path.isdir(path):
-            raise
+    os.makedirs(path, exist_ok=True)  # type: ignore
 
 
 def walk(top, topdown=True, followlinks=False):
