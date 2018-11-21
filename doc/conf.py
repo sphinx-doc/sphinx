@@ -56,17 +56,17 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
-    'fontenc': r'\usepackage[LGR,T2A,T1]{fontenc}',
+    'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
     'fontpkg': r'''
 \usepackage[sc]{mathpazo}
 \usepackage[scaled]{helvet}
 \usepackage{courier}
-\substitutefont{LGR}{\rmdefault}{udidot}
-\substitutefont{LGR}{\sfdefault}{neohellenic}
+\substitutefont{LGR}{\rmdefault}{cmr}
+\substitutefont{LGR}{\sfdefault}{cmss}
 \substitutefont{LGR}{\ttdefault}{cmtt}
-\substitutefont{T2A}{\rmdefault}{fcm}
-\substitutefont{T2A}{\sfdefault}{fcs}
-\substitutefont{T2A}{\ttdefault}{fct}
+\substitutefont{X2}{\rmdefault}{cmr}
+\substitutefont{X2}{\sfdefault}{cmss}
+\substitutefont{X2}{\ttdefault}{cmtt}
 ''',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
     'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',

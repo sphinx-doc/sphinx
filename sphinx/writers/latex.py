@@ -64,23 +64,54 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                        'lowerroman': r'\roman',
                                        'upperroman': r'\Roman',
                                    })  # type: Dict[unicode, unicode]
-PDFLATEX_DEFAULT_FONT_PKG = r'''
+PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{times}
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
 % LGR was declared as font encoding
-  \substitutefont{LGR}{\rmdefault}{artemisia}   % gfsartemisia
-  \substitutefont{LGR}{\sfdefault}{neohellenic} % gfsneohellenic
-  \substitutefont{LGR}{\ttdefault}{cmtt}        % cbfonts
+  \substitutefont{LGR}{\rmdefault}{cmr}
+  \substitutefont{LGR}{\sfdefault}{cmss}
+  \substitutefont{LGR}{\ttdefault}{cmtt}
 \fi
-\expandafter\ifx\csname T@T2A\endcsname\relax
+\expandafter\ifx\csname T@X2\endcsname\relax
+  \expandafter\ifx\csname T@T2A\endcsname\relax
+  \else
+  % T2A was declared as font encoding
+    \substitutefont{T2A}{\rmdefault}{cmr}
+    \substitutefont{T2A}{\sfdefault}{cmss}
+    \substitutefont{T2A}{\ttdefault}{cmtt}
+  \fi
 \else
-% T2A was declared as font encoding
-  \substitutefont{T2A}{\rmdefault}{fcm}
-  \substitutefont{T2A}{\sfdefault}{fcs}
-  \substitutefont{T2A}{\ttdefault}{fct}
+% X2 was declared as font encoding
+  \substitutefont{X2}{\rmdefault}{cmr}
+  \substitutefont{X2}{\sfdefault}{cmss}
+  \substitutefont{X2}{\ttdefault}{cmtt}
 \fi
 '''
+XELATEX_DEFAULT_FONTPKG = r'''
+\setmainfont{FreeSerif}[
+  Extension      = .otf,
+  UprightFont    = *,
+  ItalicFont     = *Italic,
+  BoldFont       = *Bold,
+  BoldItalicFont = *BoldItalic
+]
+\setsansfont{FreeSans}[
+  Extension      = .otf,
+  UprightFont    = *,
+  ItalicFont     = *Oblique,
+  BoldFont       = *Bold,
+  BoldItalicFont = *BoldOblique,
+]
+\setmonofont{FreeMono}[
+  Extension      = .otf,
+  UprightFont    = *,
+  ItalicFont     = *Oblique,
+  BoldFont       = *Bold,
+  BoldItalicFont = *BoldOblique,
+]
+'''
+LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 
 DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
@@ -103,8 +134,9 @@ DEFAULT_SETTINGS = {
     'multilingual':    '',
     'babel':           '\\usepackage{babel}',
     'polyglossia':     '',
-    'fontpkg':         PDFLATEX_DEFAULT_FONT_PKG,
+    'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
     'substitutefont':  '',
+    'textcyrillic':    '',
     'textgreek':       '\\usepackage{textalpha}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'hyperref':        ('% Include hyperref last.\n'
@@ -158,18 +190,7 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
-        'fontpkg':     ('\\setmainfont{cmunrm.otf}[\n'
-                        '  BoldFont = cmunbx.otf,\n'
-                        '  ItalicFont = cmunti.otf,\n'
-                        '  BoldItalicFont = cmunbi.otf]\n'
-                        '\\setsansfont{cmunss.otf}[\n'
-                        '  BoldFont = cmunsx.otf,\n'
-                        '  ItalicFont = cmunsi.otf,\n'
-                        '  BoldItalicFont = cmunso.otf]\n'
-                        '\\setmonofont{cmuntt.otf}[\n'
-                        '  BoldFont = cmuntb.otf,\n'
-                        '  ItalicFont = cmunit.otf,\n'
-                        '  BoldItalicFont = cmuntx.otf]'),
+        'fontpkg':      XELATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -180,9 +201,7 @@ ADDITIONAL_SETTINGS = {
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
-        'fontpkg':     ('\\setmainfont{CMU Serif}\n'
-                        '\\setsansfont{CMU Sans Serif}\n'
-                        '\\setmonofont{CMU Typewriter Text}'),
+        'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
@@ -585,9 +604,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         # set up multilingual module...
         if self.elements['latex_engine'] == 'pdflatex':
-            if 'T2A' in self.elements['fontenc'] and not self.babel.uses_cyrillic():
-                self.elements['substitutefont'] = '\\usepackage{substitutefont}'
-                self.elements['sphinxpkgoptions'] += ',cyrnocyr'
+            if not self.babel.uses_cyrillic():
+                if 'X2' in self.elements['fontenc']:
+                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.elements['textcyrillic'] = ('\\usepackage[Xtwo]'
+                                                     '{sphinxcyrillic}')
+                elif 'T2A' in self.elements['fontenc']:
+                    self.elements['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.elements['textcyrillic'] = ('\\usepackage[TtwoA]'
+                                                     '{sphinxcyrillic}')
             if 'LGR' in self.elements['fontenc']:
                 self.elements['substitutefont'] = '\\usepackage{substitutefont}'
             else:

@@ -247,8 +247,6 @@
 \DeclareStringOption[\inv@mag in]{vmargin}
 \DeclareStringOption[.5\dimexpr\inv@mag in\relax]{marginpar}
 \fi
-% Allow Cyrillic letters in non-Cyrillic document (needed for pdflatex only)
-\DeclareBoolOption[false]{cyrnocyr}
 
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
 \DeclareStringOption[-1]{numfigreset}
@@ -362,28 +360,6 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-
-%% CYRILLIC IN NON-CYRILLIC DOCUMENTS (pdflatex only)
-%
-% refs: https://tex.stackexchange.com/q/460271/4686
-%
-\ifspx@opt@cyrnocyr
-  \@tfor\@tempa:=%
-    {ae}{a}{b}{chrdsc}{chvcrs}{ch}{c}{dje}{dze}{dzhe}{d}{erev}{ery}{e}%
-    {f}{ghcrs}{gup}{g}{hdsc}{hrdsn}{h}{ie}{ii}{ishrt}{i}{je}%
-    {kbeak}{kdsc}{kvcrs}{k}{lje}{l}{m}{ndsc}{ng}{nje}{n}{otld}{o}{p}{r}%
-    {schwa}{sdsc}{sftsn}{shch}{shha}{sh}{s}{tshe}{t}{ushrt}{u}{v}%
-    {ya}{yhcrs}{yi}{yo}{yu}{y}{zdsc}{zhdsc}{zh}{z}\do
-  {%
-    \expandafter\DeclareTextSymbolDefault\expandafter
-               {\csname cyr\@tempa\endcsname}{T2A}%
-    \expandafter\uppercase\expandafter{\expandafter
-                 \def\expandafter\@tempa\expandafter{\@tempa}}%
-    \expandafter\DeclareTextSymbolDefault\expandafter
-      {\csname CYR\@tempa\endcsname}{T2A}%
-  }%
-  \DeclareTextSymbolDefault{\CYRpalochka}{T2A}%
-\fi
 
 %% MAXLISTDEPTH
 %

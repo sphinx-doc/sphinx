@@ -27,6 +27,7 @@
 <%= amsmath %>
 <%= multilingual %>
 <%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
 <%= textgreek %>
 <%= fncychap %>

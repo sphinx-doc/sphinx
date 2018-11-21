@@ -5,43 +5,16 @@ Dependencies
 ------------
 
 * LaTeX builder now depends on TeX Live 2015 or above.
-* LaTeX builder may need these additional LaTeX packages for PDF builds
-  (with ``'pdflatex'`` :confval:`latex_engine`):
-
-  .. list-table:: Requirements
-     :header-rows: 1
-
-     * - LaTeX package (CTAN)
-       - Ubuntu xenial
-       - needed for
-     * - substitutefont
-       - texlive-latex-extra
-       - Greek or Cyrillic letters (in non-Cyrillic documents)
-     * - textalpha
-       - texlive-lang-greek
-       - Greek letters (in text, not math)
-     * - gfsartemisia
-       - fonts-gfs-artemisia (texlive-fonts-extra)
-       - Greek letters (in text, not math)
-     * - gfsneohellenic
-       - fonts-gfs-neohellenic (texlive-fonts-extra)
-       - Greek letters (in text, not math)
-     * - cbfonts
-       - texlive-lang-greek
-       - Greek letters (in text, not math)
-     * - cm-lgc
-       - texlive-fonts-extra
-       - Cyrillic letters (in non-Cyrillic documents)
-
-  These extra package are not required by default.  The first two are needed if
-  the :confval:`latex_elements`.\ ``'fontenc'`` key has been modify to declare
-  the use of the ``LGR`` (Greek) and/or ``T2A`` (Cyrillic) font encoding.  Even
-  then, the last four are font packages arising in the default value for
-  :confval:`latex_elements`.\ ``'fontpkg'``, and may be replaced by other font
-  packages providing ``LGR`` and/or ``T2A`` support.
+* LaTeX builder (with ``'pdflatex'`` :confval:`latex_engine`) will process
+  Unicode Greek letters in text (not in math mark-up) via the text font and
+  will not escape them to math mark-up. See the discussion of the
+  ``'fontenc'`` key of :confval:`latex_elements`; such (optional) support for
+  Greek adds, for example on Ubuntu xenial, the ``texlive-lang-greek`` and (if
+  default font set-up is not modified) ``cm-super(-minimal)`` as additional
+  Sphinx LaTeX requirements.
 * LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
-  ``'lualatex'`` requires (by default) the ``Computer Modern Unicode`` fonts,
-  which in Ubuntu xenial are in ``texlive-fonts-extra``.
+  ``'lualatex'`` requires (by default) the ``FreeFont`` fonts,
+  which in Ubuntu xenial are provided by package ``fonts-freefont-otf``.
 
 Incompatible changes
 --------------------
@@ -53,10 +26,9 @@ Incompatible changes
 * LaTeX: Move message resources to ``sphinxmessage.sty``
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
 * LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
-  will use the text font not the math font. If (and only if) the document
-  contains such Greek Unicode letters *and* the :confval:`latex_engine` is
-  ``'pdflatex'`` then the :confval:`latex_elements`.\ ``'fontenc'`` key
-  **must** be used to declare usage of the ``LGR`` font encoding.
+  will use the text font not the math font. The ``LGR`` font encoding must be
+  added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
+  (only if it is needed by the document, of course).
 
 Deprecated
 ----------
