@@ -26,6 +26,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
+    from sphinx.domains import IndexEntry  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -480,15 +481,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def collect_indices(self):
         # type: () -> None
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool) -> unicode
+            # type: (List[Tuple[unicode, List[IndexEntry]]], bool) -> unicode
             ret = ['\n@menu\n']  # type: List[unicode]
             for letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    name = self.escape_menu(entry[0])  # type: ignore
+                    name = self.escape_menu(entry[0])
                     sid = self.get_short_id('%s:%s' % (entry[2], entry[3]))
-                    desc = self.escape_arg(entry[6])  # type: ignore
+                    desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
             ret.append('@end menu\n')
