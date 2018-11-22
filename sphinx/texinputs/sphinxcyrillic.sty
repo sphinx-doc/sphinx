@@ -1,8 +1,6 @@
 %% CYRILLIC IN NON-CYRILLIC DOCUMENTS (pdflatex only)
 %
 % refs: https://tex.stackexchange.com/q/460271/
-%       https://tex.stackexchange.com/a/460325/ thanks to user egreg
-%       https://tex.stackexchange.com/a/460305/ thanks to user jfbu
 \ProvidesPackage{sphinxcyrillic}%
   [2018/11/21 v2.0 support for Cyrillic in non-Cyrillic documents]
 \RequirePackage{kvoptions}
@@ -10,26 +8,31 @@
 \DeclareBoolOption[false]{Xtwo}
 \DeclareBoolOption[false]{TtwoA}
 \DeclareDefaultOption{\@unknownoptionerror}
-\ProcessKeyvalOptions*
+\ProcessLocalKeyvalOptions* % ignore class options
 
 \ifspx@cyropt@Xtwo
+% original code by tex.sx user egreg:
+%   https://tex.stackexchange.com/a/460325/
 % 159 Cyrillic glyphs as available in X2 TeX 8bit font encoding
 % This assumes inputenc loaded with utf8 option, or LaTeX release
 % as recent as 2018/04/01 which does it automatically. 
   \@tfor\next:=%
-  {ө}{Ө}{ӡ}{Ӡ}{ә}{Ә}{ӕ}{Ӕ}{ӎ}{Ӎ}{ӌ}{Ӌ}{ӈ}{Ӈ}{ӆ}{Ӆ}{ӄ}{Ӄ}{Ӏ}%
-  {ҿ}{Ҿ}{ҽ}{Ҽ}{һ}{Һ}{ҹ}{Ҹ}{ҷ}{Ҷ}{ҵ}{Ҵ}{ҳ}{Ҳ}{ұ}{Ұ}{ү}{Ү}%
-  {ҭ}{Ҭ}{ҫ}{Ҫ}{ҩ}{Ҩ}{ҧ}{Ҧ}{ҥ}{Ҥ}{ң}{Ң}{ҡ}{Ҡ}{ҟ}{Ҟ}{ҝ}{Ҝ}{қ}{Қ}%
-  {ҙ}{Ҙ}{җ}{Җ}{ҕ}{Ҕ}{ғ}{Ғ}{ґ}{Ґ}{ѵ}{Ѵ}{ѫ}{Ѫ}{ѣ}{Ѣ}{џ}{ў}{ћ}{њ}{љ}%
-  {ј}{і}{ѕ}{є}{ђ}{ё}{я}{ю}{э}{ь}{ы}{ъ}{щ}{ш}{ч}{ц}{х}{ф}{у}{т}{с}%
-  {р}{п}{о}{н}{м}{л}{к}{й}{и}{з}{ж}{е}{д}{г}{в}{б}{а}{Я}{Ю}{Э}%
-  {Ь}{Ы}{Ъ}{Щ}{Ш}{Ч}{Ц}{Х}{Ф}{У}{Т}{С}{Р}{П}{О}{Н}{М}{Л}{К}{Й}{И}%
-  {З}{Ж}{Е}{Д}{Г}{В}{Б}{А}{Џ}{Ў}{Ћ}{Њ}{Љ}{Ј}{І}{Ѕ}{Є}{Ђ}{Ё}\do{%
+    {Ё}{Ђ}{Є}{Ѕ}{І}{Ј}{Љ}{Њ}{Ћ}{Ў}{Џ}{А}{Б}{В}{Г}{Д}{Е}{Ж}{З}{И}{Й}%
+    {К}{Л}{М}{Н}{О}{П}{Р}{С}{Т}{У}{Ф}{Х}{Ц}{Ч}{Ш}{Щ}{Ъ}{Ы}{Ь}{Э}{Ю}%
+    {Я}{а}{б}{в}{г}{д}{е}{ж}{з}{и}{й}{к}{л}{м}{н}{о}{п}{р}{с}{т}{у}%
+    {ф}{х}{ц}{ч}{ш}{щ}{ъ}{ы}{ь}{э}{ю}{я}{ё}{ђ}{є}{ѕ}{і}{ј}{љ}{њ}{ћ}%
+    {ў}{џ}{Ѣ}{ѣ}{Ѫ}{ѫ}{Ѵ}{ѵ}{Ґ}{ґ}{Ғ}{ғ}{Ҕ}{ҕ}{Җ}{җ}{Ҙ}{ҙ}{Қ}{қ}{Ҝ}{ҝ}%
+    {Ҟ}{ҟ}{Ҡ}{ҡ}{Ң}{ң}{Ҥ}{ҥ}{Ҧ}{ҧ}{Ҩ}{ҩ}{Ҫ}{ҫ}{Ҭ}{ҭ}{Ү}{ү}{Ұ}{ұ}{Ҳ}{ҳ}%
+    {Ҵ}{ҵ}{Ҷ}{ҷ}{Ҹ}{ҹ}{Һ}{һ}{Ҽ}{ҽ}{Ҿ}{ҿ}{Ӏ}{Ӄ}{ӄ}{Ӆ}{ӆ}{Ӈ}{ӈ}{Ӌ}{ӌ}%
+    {Ӎ}{ӎ}{Ӕ}{ӕ}{Ә}{ә}{Ӡ}{ӡ}{Ө}{ө}\do
+  {%
     \begingroup\def\IeC{\protect\DeclareTextSymbolDefault}%
     \protected@edef\@temp{\endgroup\next{X2}}\@temp
   }%
 \else
 \ifspx@cyropt@TtwoA
+% original code by tex.sx user jfbu:
+%   https://tex.stackexchange.com/a/460305/
 % 63*2+1=127 Cyrillic glyphs as found in T2A 8bit TeX font-encoding
   \@tfor\@tempa:=%
     {ae}{a}{b}{chrdsc}{chvcrs}{ch}{c}{dje}{dze}{dzhe}{d}{erev}{ery}{e}%
@@ -48,4 +51,3 @@
   \DeclareTextSymbolDefault{\CYRpalochka}{T2A}%
 \fi\fi
 \endinput
-
