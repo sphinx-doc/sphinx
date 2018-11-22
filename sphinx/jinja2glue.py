@@ -17,7 +17,6 @@ from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2.utils import open_if_exists
-from six import string_types
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
@@ -33,7 +32,7 @@ if False:
 
 def _tobool(val):
     # type: (unicode) -> bool
-    if isinstance(val, string_types):
+    if isinstance(val, str):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 

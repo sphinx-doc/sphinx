@@ -16,8 +16,6 @@ import re
 from collections.abc import Callable
 from functools import partial
 
-from six import string_types
-
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
 from sphinx.util.pycompat import UnicodeMixin
@@ -132,10 +130,11 @@ class GoogleDocstring(UnicodeMixin):
         self._name = name
         self._obj = obj
         self._opt = options
-        if isinstance(docstring, string_types):
-            docstring = docstring.splitlines()
-        self._lines = docstring
-        self._line_iter = modify_iter(docstring, modifier=lambda s: s.rstrip())
+        if isinstance(docstring, str):
+            lines = docstring.splitlines()
+        else:
+            lines = docstring  # type: ignore
+        self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
         self._parsed_lines = []  # type: List[unicode]
         self._is_in_section = False
         self._section_indent = 0
@@ -543,7 +542,7 @@ class GoogleDocstring(UnicodeMixin):
 
         if self._config.napoleon_custom_sections is not None:
             for entry in self._config.napoleon_custom_sections:
-                if isinstance(entry, string_types):
+                if isinstance(entry, str):
                     # if entry is just a label, add to sections list,
                     # using generic section logic.
                     self._sections[entry.lower()] = self._parse_custom_generic_section
@@ -961,7 +960,7 @@ class NumpyDocstring(GoogleDocstring):
         # type: () -> bool
         section, underline = self._line_iter.peek(2)
         section = section.lower()
-        if section in self._sections and isinstance(underline, string_types):
+        if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))
         elif self._directive_sections:
             if _directive_regex.match(section):

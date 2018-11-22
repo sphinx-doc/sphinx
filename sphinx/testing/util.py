@@ -16,7 +16,6 @@ from xml.etree import ElementTree
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
-from six import string_types
 
 from sphinx import application, locale
 from sphinx.builders.latex import LaTeXBuilder
@@ -74,7 +73,7 @@ def assert_node(node, cls=None, xpath="", **kwargs):
             for i, nodecls in enumerate(cls):
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
-        elif isinstance(cls, string_types):
+        elif isinstance(cls, str):
             assert node == cls, 'The node %r is not %r: %r' % (xpath, cls, node)
         else:
             assert isinstance(node, cls), \
