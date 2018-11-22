@@ -44,6 +44,7 @@ epub_post_files = [('usage/installation.xhtml', 'Installing Sphinx'),
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
                       '_static/jquery.js', '_static/searchtools.js',
                       '_static/underscore.js', '_static/basic.css',
+                      '_static/language_data.js',
                       'search.html', '_static/websupport.js']
 epub_fix_images = False
 epub_max_image_width = 0

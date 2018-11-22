@@ -144,6 +144,7 @@ def test_get_catalogs_from_multiple_locale_dirs(tempdir):
     assert domains == ['test1', 'test1', 'test2']
 
 
+@pytest.mark.filterwarnings('ignore:gettext_compact argument')
 def test_get_catalogs_with_compact(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')

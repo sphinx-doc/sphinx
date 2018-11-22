@@ -15,9 +15,14 @@ import tempfile
 import pytest
 from mock import patch
 
+from six import PY2
+
+import sphinx
+from sphinx.errors import PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, ensuredir, parselinenos, status_iterator, xmlname_checker
+    display_chunk, encode_uri, ensuredir, get_module_source, parselinenos, status_iterator,
+    xmlname_checker
 )
 from sphinx.util import logging
 
@@ -57,6 +62,19 @@ def test_display_chunk():
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
     assert display_chunk(('hello',)) == 'hello'
     assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
+
+
+def test_get_module_source():
+    if PY2:
+        assert get_module_source('sphinx') == ('file', sphinx.__file__.replace('.pyc', '.py'))
+    else:
+        assert get_module_source('sphinx') == ('file', sphinx.__file__)
+
+    # failed to obtain source information from builtin modules
+    with pytest.raises(PycodeError):
+        get_module_source('builtins')
+    with pytest.raises(PycodeError):
+        get_module_source('itertools')
 
 
 @pytest.mark.sphinx('dummy')

@@ -301,7 +301,9 @@ def get_module_source(modname):
             raise PycodeError('error getting filename for %r' % filename, err)
     if filename is None and loader:
         try:
-            return 'string', loader.get_source(modname)
+            filename = loader.get_source(modname)
+            if filename:
+                return 'string', filename
         except Exception as err:
             raise PycodeError('error getting source for %r' % modname, err)
     if filename is None:
