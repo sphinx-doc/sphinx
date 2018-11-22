@@ -147,9 +147,9 @@ class ChangeSetDomain(Domain):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(ChangeSetDomain)
-    app.add_directive('deprecated', VersionChange)
-    app.add_directive('versionadded', VersionChange)
-    app.add_directive('versionchanged', VersionChange)
+    app.add_directive('deprecated', VersionChange, override=True)
+    app.add_directive('versionadded', VersionChange, override=True)
+    app.add_directive('versionchanged', VersionChange, override=True)
 
     return {
         'version': 'builtin',

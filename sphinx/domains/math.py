@@ -143,7 +143,7 @@ class MathDomain(Domain):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(MathDomain)
-    app.add_role('eq', MathReferenceRole(warn_dangling=True))
+    app.add_role('eq', MathReferenceRole(warn_dangling=True), override=True)
 
     return {
         'version': 'builtin',
