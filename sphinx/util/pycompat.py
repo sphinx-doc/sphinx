@@ -16,9 +16,15 @@ from textwrap import indent  # type: ignore # NOQA
 
 from six import text_type
 
+from sphinx.locale import __
+from sphinx.util import logging
+
 if False:
     # For type annotation
     from typing import Any, Callable, Generator  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 NoneType = type(None)
@@ -79,11 +85,14 @@ def execfile_(filepath, _globals, open=open):
     try:
         code = compile(source, filepath_enc, 'exec')
     except SyntaxError:
-        if convert_with_2to3:
-            # maybe the file uses 2.x syntax; try to refactor to
-            # 3.x syntax using 2to3
-            source = convert_with_2to3(filepath)
-            code = compile(source, filepath_enc, 'exec')
-        else:
-            raise
+        # maybe the file uses 2.x syntax; try to refactor to
+        # 3.x syntax using 2to3
+        source = convert_with_2to3(filepath)
+        code = compile(source, filepath_enc, 'exec')
+        # TODO: When support for evaluating Python 2 syntax is removed,
+        # deprecate convert_with_2to3().
+        logger.warning(__('Support for evaluating Python 2 syntax is deprecated '
+                          'and will be removed in Sphinx 4.0. '
+                          'Convert %s to Python 3 syntax.'),
+                       filepath)
     exec(code, _globals)
