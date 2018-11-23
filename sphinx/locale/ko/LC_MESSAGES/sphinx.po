@@ -1943,17 +1943,17 @@ msgstr "변수"
 #: sphinx/domains/changeset.py:34
 #, python-format
 msgid "New in version %s"
-msgstr "버전 %s에 추가"
+msgstr "버전 %s에서 추가"
 
 #: sphinx/domains/changeset.py:35
 #, python-format
 msgid "Changed in version %s"
-msgstr "버전 %s으로 변경"
+msgstr "버전 %s에서 변경"
 
 #: sphinx/domains/changeset.py:36
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "버전 %s 폐지"
+msgstr "버전 %s부터 폐지"
 
 #: sphinx/domains/cpp.py:4037
 #, python-format
@@ -2041,7 +2041,7 @@ msgstr ""
 #: sphinx/domains/javascript.py:132 sphinx/domains/python.py:431
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() 내장 함수)"
+msgstr "%s() (내장 함수)"
 
 #: sphinx/domains/javascript.py:133 sphinx/domains/python.py:496
 #, python-format
