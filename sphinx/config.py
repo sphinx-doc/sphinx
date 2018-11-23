@@ -361,8 +361,7 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s\n"
-                     "Did you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "
