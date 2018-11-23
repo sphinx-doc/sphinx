@@ -26,6 +26,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 generic_docroles = {
@@ -68,8 +69,8 @@ class XRefRole:
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref  # type: Type[nodes.Node]
-    innernodeclass = nodes.literal
+    nodeclass = addnodes.pending_xref   # type: Type[nodes.Element]
+    innernodeclass = nodes.literal      # type: Type[nodes.TextElement]
 
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None, warn_dangling=False):
@@ -395,7 +396,7 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
-}
+}  # type: Dict[str, RoleFunction]
 
 
 def setup(app):

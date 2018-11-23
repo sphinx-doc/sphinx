@@ -22,7 +22,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, List, Set, Tuple, Optional  # NOQA
+    from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
 
@@ -57,7 +57,7 @@ class NodeMatcher:
     """
 
     def __init__(self, *classes, **attrs):
-        # type: (nodes.Node, Any) -> None
+        # type: (Type[nodes.Node], Any) -> None
         self.classes = classes
         self.attrs = attrs
 
@@ -118,7 +118,7 @@ def repr_domxml(node, length=80):
 
 
 def apply_source_workaround(node):
-    # type: (nodes.Node) -> None
+    # type: (nodes.Element) -> None
     # workaround: nodes.term have wrong rawsource if classifier is specified.
     # The behavior of docutils-0.11, 0.12 is:
     # * when ``term text : classifier1 : classifier2`` is specified,
@@ -247,8 +247,9 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, unicode]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Node, unicode]]
     """Extract translatable messages from a document tree."""
+    node = None  # type: nodes.Element
     for node in doctree.traverse(is_translatable):
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
@@ -291,8 +292,9 @@ def traverse_parent(node, cls=None):
 
 
 def traverse_translatable_index(doctree):
-    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[unicode]]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[unicode]]]
     """Traverse translatable index node from a document tree."""
+    node = None  # type: nodes.Element
     for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
         if 'raw_entries' in node:
             entries = node['raw_entries']
@@ -322,7 +324,7 @@ def nested_parse_with_titles(state, content, node):
 
 
 def clean_astext(node):
-    # type: (nodes.Node) -> unicode
+    # type: (nodes.Element) -> unicode
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
@@ -495,7 +497,7 @@ def process_only_nodes(document, tags):
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
-    # type: (nodes.Node) -> nodes.Node
+    # type: (nodes.Element) -> nodes.Element
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source

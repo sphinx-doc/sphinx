@@ -110,7 +110,7 @@ class SphinxComponentRegistry:
         self.source_parsers = {}        # type: Dict[unicode, Type[Parser]]
 
         #: source inputs; file type -> input class
-        self.source_inputs = {}         # type: Dict[unicode, Input]
+        self.source_inputs = {}         # type: Dict[unicode, Type[Input]]
 
         #: source suffix: suffix -> file type
         self.source_suffix = {}         # type: Dict[unicode, unicode]
@@ -231,7 +231,7 @@ class SphinxComponentRegistry:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, Type[nodes.Node], unicode, List, bool) -> None  # NOQA
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.TextElement], unicode, List, bool) -> None  # NOQA
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
@@ -254,7 +254,7 @@ class SphinxComponentRegistry:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (unicode, unicode, unicode, nodes.Node, unicode, bool) -> None
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], unicode, bool) -> None
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass, objname))
 
@@ -325,7 +325,7 @@ class SphinxComponentRegistry:
             raise SphinxError(__('Source parser for %s not registered') % filetype)
 
     def get_source_parsers(self):
-        # type: () -> Dict[unicode, Parser]
+        # type: () -> Dict[unicode, Type[Parser]]
         return self.source_parsers
 
     def create_source_parser(self, app, filename):
@@ -363,7 +363,7 @@ class SphinxComponentRegistry:
         self.translators[name] = translator
 
     def add_translation_handlers(self, node, **kwargs):
-        # type: (nodes.Node, Any) -> None
+        # type: (Type[nodes.Element], Any) -> None
         logger.debug('[app] adding translation_handlers: %r, %r', node, kwargs)
         for builder_name, handlers in kwargs.items():
             translation_handlers = self.translation_handlers.setdefault(builder_name, {})
