@@ -159,8 +159,8 @@ class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
     default_priority = 880
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         env = self.env
         old_doctree = None
         if not env.versioning_condition:

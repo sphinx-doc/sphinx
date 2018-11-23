@@ -35,8 +35,8 @@ class ReferencesResolver(SphinxTransform):
 
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(addnodes.pending_xref):
             contnode = node[0].deepcopy()
             newnode = None
@@ -147,8 +147,8 @@ class ReferencesResolver(SphinxTransform):
 class OnlyNodeTransform(SphinxTransform):
     default_priority = 50
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         # A comment on the comment() nodes being inserted: replacing by [] would
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to

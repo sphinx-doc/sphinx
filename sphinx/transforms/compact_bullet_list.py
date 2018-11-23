@@ -16,7 +16,7 @@ from sphinx.transforms import SphinxTransform
 
 if False:
     # For type annotation
-    from typing import List  # NOQA
+    from typing import Any, List  # NOQA
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -65,8 +65,8 @@ class RefOnlyBulletListTransform(SphinxTransform):
     """
     default_priority = 100
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.config.html_compact_lists:
             return
 
