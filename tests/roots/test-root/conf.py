@@ -53,11 +53,6 @@ latex_documents = [
 
 latex_additional_files = ['svgimg.svg']
 
-man_pages = [
-    ('index', 'SphinxTests', 'Sphinx Tests Documentation',
-     'Georg Brandl and someone else', 1),
-]
-
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
