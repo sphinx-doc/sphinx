@@ -35,8 +35,8 @@ MAX_FILENAME_LEN = 32
 
 
 class BaseImageConverter(SphinxTransform):
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargsj):
+        # type: (Any) -> None
         for node in self.document.traverse(nodes.image):
             if self.match(node):
                 self.handle(node)

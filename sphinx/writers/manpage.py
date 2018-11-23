@@ -60,8 +60,8 @@ class NestedInlineTransform:
         # type: (nodes.document) -> None
         self.document = document
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
         for node in self.document.traverse(matcher):
             if any(matcher(subnode) for subnode in node):

@@ -40,7 +40,8 @@ class HighlightLanguageTransform(SphinxTransform):
     """
     default_priority = 400
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         visitor = HighlightLanguageVisitor(self.document,
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
@@ -105,7 +106,8 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     """
     default_priority = HighlightLanguageTransform.default_priority + 1
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if not self.config.trim_doctest_flags:
             return
 

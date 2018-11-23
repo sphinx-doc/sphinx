@@ -27,7 +27,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
-    from typing import Generator, List  # NOQA
+    from typing import Any, Generator, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
@@ -108,8 +108,8 @@ class DefaultSubstitutions(SphinxTransform):
     # run before the default Substitutions
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
         for ref in self.document.traverse(nodes.substitution_reference):
@@ -132,8 +132,8 @@ class MoveModuleTargets(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
@@ -151,8 +151,8 @@ class HandleCodeBlocks(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
@@ -176,8 +176,8 @@ class AutoNumbering(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         domain = self.env.get_domain('std')  # type: StandardDomain
 
         for node in self.document.traverse(nodes.Element):
@@ -191,8 +191,8 @@ class SortIds(SphinxTransform):
     """
     default_priority = 261
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
@@ -205,8 +205,8 @@ class CitationReferences(SphinxTransform):
     """
     default_priority = 619
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         # mark citation labels as not smartquoted
         for citnode in self.document.traverse(nodes.citation):
             citnode[0]['support_smartquotes'] = False
@@ -238,8 +238,8 @@ class ApplySourceWorkaround(SphinxTransform):
     """
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for n in self.document.traverse():
             if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
@@ -251,8 +251,8 @@ class AutoIndexUpgrader(SphinxTransform):
     """
     default_priority = 210
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = __('4 column based index found. '
@@ -269,8 +269,8 @@ class ExtraTranslatableNodes(SphinxTransform):
     """
     default_priority = 10
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         targets = self.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
@@ -290,8 +290,8 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     """
     default_priority = 200
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.footnotes:
             if node['names'] == []:
                 # footnote having duplicated number.  It is already warned at parser.
@@ -312,8 +312,8 @@ class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         filterlevel = self.config.keep_warnings and 2 or 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
@@ -345,8 +345,8 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
     """
     default_priority = 750
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if not self.is_available():
             return
 
@@ -403,8 +403,8 @@ class DoctreeReadEvent(SphinxTransform):
     """Emit :event:`doctree-read` event."""
     default_priority = 880
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         self.app.emit('doctree-read', self.document)
 
 
@@ -412,8 +412,8 @@ class ManpageLink(SphinxTransform):
     """Find manpage section numbers and names"""
     default_priority = 999
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(addnodes.manpage):
             manpage = ' '.join([str(x) for x in node.children
                                 if isinstance(x, nodes.Text)])

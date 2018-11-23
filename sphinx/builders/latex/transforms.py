@@ -20,7 +20,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
-    from typing import Dict, List, Set, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -30,7 +30,8 @@ class FootnoteDocnameUpdater(SphinxTransform):
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         for node in self.document.traverse(NodeMatcher(*self.TARGET_NODES)):
             node['docname'] = self.env.docname
 
@@ -47,8 +48,8 @@ class ShowUrlsTransform(SphinxTransform):
     # references are expanded to footnotes (or not)
     expanded = False
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         try:
             # replace id_prefix temporarily
             id_prefix = self.document.settings.id_prefix
@@ -342,7 +343,8 @@ class LaTeXFootnoteTransform(SphinxTransform):
 
     default_priority = 600
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         footnotes = list(self.document.traverse(nodes.footnote))
         for node in footnotes:
             node.parent.remove(node)
@@ -513,8 +515,8 @@ class BibliographyTransform(SphinxTransform):
     """
     default_priority = 750
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         citations = thebibliography()
         for node in self.document.traverse(nodes.citation):
             node.parent.remove(node)
@@ -532,8 +534,8 @@ class CitationReferenceTransform(SphinxTransform):
     """
     default_priority = 5  # before ReferencesResolver
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
@@ -555,8 +557,8 @@ class MathReferenceTransform(SphinxTransform):
     """
     default_priority = 5  # before ReferencesResolver
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
@@ -573,8 +575,8 @@ class LiteralBlockTransform(SphinxTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
@@ -588,8 +590,8 @@ class DocumentTargetTransform(SphinxTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
