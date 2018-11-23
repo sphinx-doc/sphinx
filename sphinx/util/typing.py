@@ -18,7 +18,7 @@ from six import text_type
 
 # common role functions
 RoleFunction = Callable[[text_type, text_type, text_type, int, Inliner, Dict, List[text_type]],
-                        Tuple[List[nodes.Node], List[nodes.Node]]]
+                        Tuple[List[nodes.Node], List[nodes.system_message]]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], text_type]
