@@ -17,6 +17,8 @@ from subprocess import Popen, PIPE
 import pytest
 from test_build_html import ENV_WARNINGS
 
+from sphinx.builders.texinfo import default_texinfo_documents
+from sphinx.config import Config
 from sphinx.testing.util import strip_escseq
 from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -89,3 +91,14 @@ def test_texinfo_citation(app, status, warning):
             'This is a citation\n') in output
     assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
             'This is a multiline citation\n') in output
+
+
+def test_default_texinfo_documents():
+    config = Config({'master_doc': 'index',
+                     'project': u'STASI™ Documentation',
+                     'author': u"Wolfgang Schäuble & G'Beckstein"})
+    config.init_values()
+    expected = [('index', 'stasi', u'STASI™ Documentation',
+                 u"Wolfgang Schäuble & G'Beckstein", 'stasi',
+                 'One line description of project', 'Miscellaneous')]
+    assert default_texinfo_documents(config) == expected
