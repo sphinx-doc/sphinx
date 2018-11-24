@@ -14,6 +14,7 @@ if False:
     # For type annotation
     from docutils import nodes  # NOQA
     from sphinx.builders.html import HTMLTranslator  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def get_node_equation_number(writer, node):

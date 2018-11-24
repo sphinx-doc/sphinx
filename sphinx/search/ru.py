@@ -16,6 +16,7 @@ import snowballstemmer
 if False:
     # For type annotation
     from typing import Any  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 russian_stopwords = parse_stop_word(u'''

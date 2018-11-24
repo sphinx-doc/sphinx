@@ -40,6 +40,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.project import Project  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

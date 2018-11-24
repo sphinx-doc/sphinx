@@ -26,6 +26,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, List, Pattern, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

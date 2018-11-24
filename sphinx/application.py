@@ -60,7 +60,7 @@ if False:
     from sphinx.extension import Extension  # NOQA
     from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',

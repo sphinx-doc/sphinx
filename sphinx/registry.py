@@ -43,7 +43,7 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

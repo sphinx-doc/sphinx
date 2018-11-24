@@ -23,6 +23,7 @@ from sphinx.util import get_module_source, detect_encoding
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class ModuleAnalyzer:

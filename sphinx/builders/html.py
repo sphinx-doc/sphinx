@@ -60,6 +60,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
     from sphinx.util.tags import Tags  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 # Experimental HTML5 Writer
 if is_html5_writer_available():
@@ -675,7 +676,7 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.fignumbers = self.env.toc_fignumbers.get(docname, {})  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]  # NOQA
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')  # type: unicode
         self.current_docname = docname

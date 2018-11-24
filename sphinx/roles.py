@@ -26,7 +26,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 generic_docroles = {

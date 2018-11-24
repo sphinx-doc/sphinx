@@ -22,6 +22,7 @@ if False:
     # For type annotation
     from typing import Dict  # NOQA
     from jinja2.loaders import BaseLoader  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class BaseRenderer:

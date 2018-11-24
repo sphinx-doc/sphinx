@@ -12,6 +12,7 @@
 if False:
     # For type annotation
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class ImageAdapter:

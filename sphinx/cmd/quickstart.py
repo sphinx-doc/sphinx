@@ -51,6 +51,7 @@ from sphinx.util.template import SphinxRenderer
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 

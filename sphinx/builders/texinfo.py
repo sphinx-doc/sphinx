@@ -35,6 +35,7 @@ if False:
     # For type annotation
     from sphinx.application import Sphinx  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)

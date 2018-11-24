@@ -20,6 +20,7 @@ from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
     from typing import Dict, List, Set  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']  # type: List[unicode]

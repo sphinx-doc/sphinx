@@ -20,6 +20,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class LinkcodeError(SphinxError):

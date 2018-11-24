@@ -26,6 +26,7 @@ if False:
     from typing import Any, Callable, List, Tuple  # NOQA
     from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class MathDirective(MathDirectiveBase):

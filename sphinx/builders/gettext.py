@@ -35,8 +35,9 @@ if False:
     # For type annotation
     from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
-    from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.i18n import CatalogInfo  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)

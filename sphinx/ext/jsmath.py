@@ -23,6 +23,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def html_visit_math(self, node):

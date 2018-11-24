@@ -24,6 +24,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class Cell:

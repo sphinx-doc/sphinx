@@ -21,6 +21,7 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class Parser(docutils.parsers.Parser):

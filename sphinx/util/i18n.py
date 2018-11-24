@@ -34,6 +34,7 @@ if False:
     # For type annotation
     from typing import Callable, List, Set  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
 

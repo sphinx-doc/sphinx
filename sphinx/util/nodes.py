@@ -25,6 +25,7 @@ if False:
     from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

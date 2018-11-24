@@ -49,6 +49,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
     Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
 

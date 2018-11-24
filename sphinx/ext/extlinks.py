@@ -35,6 +35,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def make_link_role(base_url, prefix):

@@ -12,6 +12,10 @@
 import binascii
 import struct
 
+if False:
+    # For type annotation
+    from sphinx.util.typing import unicode  # NOQA
+
 
 LEN_IEND = 12
 LEN_DEPTH = 22

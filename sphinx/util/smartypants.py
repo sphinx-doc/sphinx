@@ -35,6 +35,7 @@ from sphinx.util.docutils import __version_info__ as docutils_version
 
 if False:  # For type annotation
     from typing import Iterable, Iterator, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 langquotes = {'af':           u'“”‘’',

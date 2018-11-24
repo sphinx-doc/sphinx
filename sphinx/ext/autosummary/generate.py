@@ -48,6 +48,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class DummyApplication:
