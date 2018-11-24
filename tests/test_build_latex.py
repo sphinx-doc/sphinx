@@ -203,7 +203,6 @@ def test_numref(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Listing}}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Fig.\\@ \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -230,6 +229,7 @@ def test_numref(app, status, warning):
     print(result)
     assert r'\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}' in result
     assert r'\addto\captionsenglish{\renewcommand{\tablename}{Table}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Listing}}' in result
 
 
 @pytest.mark.sphinx(
@@ -245,7 +245,6 @@ def test_numref_with_prefix1(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert '\\ref{\\detokenize{index:fig1}}' in result
     assert '\\ref{\\detokenize{baz:fig22}}' in result
     assert '\\ref{\\detokenize{index:table-1}}' in result
@@ -278,6 +277,7 @@ def test_numref_with_prefix1(app, status, warning):
     print(result)
     assert r'\addto\captionsenglish{\renewcommand{\figurename}{Figure:}}' in result
     assert r'\addto\captionsenglish{\renewcommand{\tablename}{Tab_}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Code-}}' in result
 
 
 @pytest.mark.sphinx(
@@ -293,7 +293,6 @@ def test_numref_with_prefix2(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Figure:\\ref{\\detokenize{index:fig1}}.\\@}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -322,6 +321,7 @@ def test_numref_with_prefix2(app, status, warning):
     assert r'\def\fnum@figure{\figurename\thefigure\relax{}.}' in result
     assert r'\addto\captionsenglish{\renewcommand{\tablename}{Tab_}}' in result
     assert r'\def\fnum@table{\tablename\thetable\relax{}:}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Code-}}' in result
 
 
 @pytest.mark.sphinx(
@@ -333,7 +333,6 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -360,6 +359,7 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     assert '\n{\\renewcommand{\\figurename}{図}}' in result
     assert '\n{\\renewcommand{\\tablename}{表}}' in result
+    assert '\n{\\renewcommand{\\literalblockname}{リスト}}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-numfig')

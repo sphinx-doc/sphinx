@@ -21,3 +21,5 @@
 <%- if tablename[1] %>
 \def\fnum@table{\tablename\thetable\relax{}<%= tablename[1].strip() | e %>}
 <%- endif %>
+
+<%= addtocaptions %>{\renewcommand{\literalblockname}{<%= literalblockname[0].strip() %>}}
