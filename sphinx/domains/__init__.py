@@ -159,7 +159,7 @@ class Domain:
     #: role name -> a warning message if reference is missing
     dangling_warnings = {}  # type: Dict[unicode, unicode]
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes = {}   # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
+    enumerable_nodes = {}   # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
 
     #: data value for a fresh environment
     initial_data = {}       # type: Dict

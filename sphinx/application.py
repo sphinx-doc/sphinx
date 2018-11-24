@@ -523,7 +523,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node, override=False, **kwds):
-        # type: (nodes.Node, bool, Any) -> None
+        # type: (Type[nodes.Node], bool, Any) -> None
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -562,7 +562,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, override=False, **kwds):
-        # type: (nodes.Node, unicode, TitleGetter, bool, Any) -> None
+        # type: (Type[nodes.Element], unicode, TitleGetter, bool, Any) -> None
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -591,7 +591,7 @@ class Sphinx:
 
     @property
     def enumerable_nodes(self):
-        # type: () -> Dict[nodes.Node, Tuple[unicode, TitleGetter]]
+        # type: () -> Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
