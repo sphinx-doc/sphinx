@@ -151,7 +151,6 @@ DEFAULT_SETTINGS = {
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
-    'numfig_format':   '',
     'contentsname':    '',
     'preamble':        '',
     'title':           '',
@@ -621,7 +620,6 @@ class LaTeXTranslator(SphinxTranslator):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['numfig_format'] = self.generate_numfig_format(self.builder)
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         self.context = []                   # type: List[Any]
@@ -721,46 +719,6 @@ class LaTeXTranslator(SphinxTranslator):
             suffix = ''
 
         return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
-
-    def generate_numfig_format(self, builder):
-        # type: (LaTeXBuilder) -> str
-        ret = []  # type: List[str]
-        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
-        if len(figure) == 1:
-            ret.append('\\def\\fnum@figure{%s}\n' %
-                       str(figure[0]).strip().translate(tex_escape_map))
-        else:
-            definition = str(figure[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\figurename', definition))
-            if figure[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           str(figure[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
-
-        table = self.builder.config.numfig_format['table'].split('%s', 1)
-        if len(table) == 1:
-            ret.append('\\def\\fnum@table{%s}\n' %
-                       str(table[0]).strip().translate(tex_escape_map))
-        else:
-            definition = str(table[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\tablename', definition))
-            if table[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           str(table[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
-
-        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
-        if len(codeblock) == 1:
-            pass  # FIXME
-        else:
-            definition = str(codeblock[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\literalblockname', definition))
-            if codeblock[1]:
-                pass  # FIXME
-
-        return ''.join(ret)
 
     def generate_indices(self):
         # type: () -> str
@@ -2602,6 +2560,49 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
+
+    def generate_numfig_format(self, builder):
+        # type: (LaTeXBuilder) -> str
+        warnings.warn('generate_numfig_format() is deprecated.',
+                      RemovedInSphinx40Warning)
+        ret = []  # type: List[str]
+        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
+        if len(figure) == 1:
+            ret.append('\\def\\fnum@figure{%s}\n' %
+                       str(figure[0]).strip().translate(tex_escape_map))
+        else:
+            definition = str(figure[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\figurename', definition))
+            if figure[1]:
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
+                           str(figure[1]).strip().translate(tex_escape_map))
+                ret.append('\\makeatother\n')
+
+        table = self.builder.config.numfig_format['table'].split('%s', 1)
+        if len(table) == 1:
+            ret.append('\\def\\fnum@table{%s}\n' %
+                       str(table[0]).strip().translate(tex_escape_map))
+        else:
+            definition = str(table[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\tablename', definition))
+            if table[1]:
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
+                           str(table[1]).strip().translate(tex_escape_map))
+                ret.append('\\makeatother\n')
+
+        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
+        if len(codeblock) == 1:
+            pass  # FIXME
+        else:
+            definition = str(codeblock[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\literalblockname', definition))
+            if codeblock[1]:
+                pass  # FIXME
+
+        return ''.join(ret)
+
 
 # Import old modules here for compatibility
 import sphinx.builders.latex.compat  # NOQA

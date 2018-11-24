@@ -46,7 +46,6 @@
 
 <%= hyperref %>
 <%= contentsname %>
-<%= numfig_format %>
 \usepackage{sphinxmessages}
 <%= tocdepth %>
 <%= secnumdepth %>

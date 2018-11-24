@@ -459,6 +459,11 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.generate_numfig_format()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - :rst:dir:`highlightlang`
      - 1.8
      - 4.0

@@ -104,11 +104,13 @@ Deprecated
 * ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
 * ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
 * ``sphinx.writers.latex.LaTeXTranslator.collect_footnotes()``
+* ``sphinx.writers.latex.LaTeXTranslator.generate_numfig_format()``
 * ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
 * ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
 * template variables for LaTeX template
 
   - ``logo``
+  - ``numfig_format``
   - ``pageautorefname``
   - ``translatablestrings``
 
