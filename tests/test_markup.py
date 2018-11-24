@@ -91,6 +91,7 @@ def verify_re_latex(app, parse):
         app.builder = LaTeXBuilder(app)
         app.builder.set_environment(app.env)
         app.builder.init_context()
+        app.builder.init_babel()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)

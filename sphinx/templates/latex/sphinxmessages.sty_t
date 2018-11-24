@@ -11,3 +11,8 @@
 \renewcommand{\sphinxsymbolsname}{<%= _('Symbols') | e %>}
 \renewcommand{\sphinxnumbersname}{<%= _('Numbers') | e %>}
 \def\pageautorefname{<%= _('page') | e %>}
+
+<%= addtocaptions %>{\renewcommand{\figurename}{<%= figurename[0].strip() | e %>}}
+<%- if figurename[1] %>
+\def\fnum@figure{\figurename\thefigure\relax{}<%= figurename[1].strip() | e %>}
+<%- endif %>
