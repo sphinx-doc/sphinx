@@ -16,3 +16,8 @@
 <%- if figurename[1] %>
 \def\fnum@figure{\figurename\thefigure\relax{}<%= figurename[1].strip() | e %>}
 <%- endif %>
+
+<%= addtocaptions %>{\renewcommand{\tablename}{<%= tablename[0].strip() %>}}
+<%- if tablename[1] %>
+\def\fnum@table{\tablename\thetable\relax{}<%= tablename[1].strip() | e %>}
+<%- endif %>

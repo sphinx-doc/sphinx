@@ -422,6 +422,7 @@ class LaTeXBuilder(Builder):
         context = {
             'addtocaptions': '',
             'figurename': self.config.numfig_format.get('figure', '').split('%s', 1),
+            'tablename': self.config.numfig_format.get('table', '').split('%s', 1)
         }
 
         if self.context['babel'] or self.context['polyglossia']:
