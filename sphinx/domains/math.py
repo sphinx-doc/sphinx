@@ -22,6 +22,7 @@ from sphinx.util.nodes import make_refnode
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
+    from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -57,8 +58,9 @@ class MathDomain(Domain):
     }
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         def math_node(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, (nodes.math, nodes.math_block))
 
         self.data['has_equations'][docname] = any(document.traverse(math_node))
@@ -81,7 +83,7 @@ class MathDomain(Domain):
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         assert typ in ('eq', 'numref')
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
@@ -106,7 +108,7 @@ class MathDomain(Domain):
             return None
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[nodes.Element]  # NOQA
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []

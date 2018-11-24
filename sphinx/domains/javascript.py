@@ -370,7 +370,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         searchorder = node.hasattr('refspecific') and 1 or 0
@@ -382,7 +382,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node,
                          contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         mod_name = node.get('js:module')
         prefix = node.get('js:object')
         name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)

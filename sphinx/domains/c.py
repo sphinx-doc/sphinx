@@ -295,7 +295,7 @@ class CDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         # strip pointer asterisk
         target = target.rstrip(' *')
         # becase TypedField can generate xrefs
@@ -309,7 +309,7 @@ class CDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         # strip pointer asterisk
         target = target.rstrip(' *')
         if target not in self.data['objects']:
