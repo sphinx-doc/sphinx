@@ -57,8 +57,9 @@ class MathDomain(Domain):
     }
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         def math_node(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, (nodes.math, nodes.math_block))
 
         self.data['has_equations'][docname] = any(document.traverse(math_node))

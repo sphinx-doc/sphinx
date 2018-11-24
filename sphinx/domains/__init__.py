@@ -265,7 +265,7 @@ class Domain:
                                   self.__class__)
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         """Process a document after it is read by the environment."""
         pass
 

@@ -585,13 +585,13 @@ class StandardDomain(Domain):
                 self.data['anonlabels'][key] = data
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         self.note_citations(env, docname, document)
         self.note_citation_refs(env, docname, document)
         self.note_labels(env, docname, document)
 
     def note_citations(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         for node in document.traverse(nodes.citation):
             node['docname'] = docname
             label = node[0].astext()
@@ -602,7 +602,7 @@ class StandardDomain(Domain):
             self.data['citations'][label] = (docname, node['ids'][0], node.line)
 
     def note_citation_refs(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         for node in document.traverse(addnodes.pending_xref):
             if node['refdomain'] == 'std' and node['reftype'] == 'citation':
                 label = node['reftarget']
@@ -610,7 +610,7 @@ class StandardDomain(Domain):
                 citation_refs.append(docname)
 
     def note_labels(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, unicode, nodes.document) -> None
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in document.nametypes.items():
             if not explicit:
