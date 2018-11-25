@@ -58,7 +58,7 @@ class Parser(docutils.parsers.Parser):
         self.env = app.env
 
 
-class RSTParser(docutils.parsers.rst.Parser):
+class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
     def get_transforms(self):
