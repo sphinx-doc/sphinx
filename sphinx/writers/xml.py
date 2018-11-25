@@ -16,6 +16,7 @@ if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class XMLWriter(BaseXMLWriter):

@@ -13,6 +13,7 @@
 if False:
     # For type annotation
     from typing import Any  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class SphinxError(Exception):

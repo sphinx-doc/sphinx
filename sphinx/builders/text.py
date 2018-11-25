@@ -24,6 +24,7 @@ if False:
     from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

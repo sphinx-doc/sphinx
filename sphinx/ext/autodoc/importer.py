@@ -22,6 +22,7 @@ from sphinx.util.inspect import isenumclass, safe_getattr
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

@@ -29,6 +29,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class JSObject(ObjectDescription):

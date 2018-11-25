@@ -22,6 +22,7 @@ from six import text_type
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile(u'^\\s*$')
@@ -143,7 +144,7 @@ class TokenProcessor:
         # type: (List[unicode]) -> None
         lines = iter(buffers)
         self.buffers = buffers
-        self.tokens = tokenize.generate_tokens(lambda: next(lines))  # type: ignore  # NOQA
+        self.tokens = tokenize.generate_tokens(lambda: next(lines))  # type: ignore
         self.current = None     # type: Token
         self.previous = None    # type: Token
 

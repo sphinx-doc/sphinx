@@ -28,6 +28,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 glob_re = re.compile(r'.*[*?\[].*')

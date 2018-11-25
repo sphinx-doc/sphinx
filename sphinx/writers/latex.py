@@ -45,6 +45,7 @@ if False:
     from sphinx.builders.latex import LaTeXBuilder  # NOQA
     from sphinx.builders.latex import nodes as latexnodes  # NOQA
     from sphinx.domains import IndexEntry  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

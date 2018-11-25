@@ -34,6 +34,7 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Dict, IO, List, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),

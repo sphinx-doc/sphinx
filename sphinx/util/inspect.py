@@ -26,6 +26,7 @@ from sphinx.util.pycompat import NoneType
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

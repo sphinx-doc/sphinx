@@ -13,7 +13,15 @@ from typing import Callable, Dict, List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
-from six import text_type
+from six import PY2, text_type
+
+
+# a typedef for unicode to make migration to mypy-py3 mode easy
+# Note: It will be removed after migrated (soon).
+if PY2:
+    unicode = text_type
+else:
+    unicode = str
 
 
 # common role functions

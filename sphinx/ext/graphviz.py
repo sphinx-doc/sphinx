@@ -35,6 +35,7 @@ if False:
     from docutils.parsers.rst import Directive  # NOQA
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

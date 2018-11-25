@@ -21,6 +21,7 @@ from sphinx.util.nodes import NodeMatcher
 if False:
     # For type annotation
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 

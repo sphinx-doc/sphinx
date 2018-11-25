@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 if False:
     # For type annotation
     from typing import Dict  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 tex_replacements = [
     # map TeX special chars

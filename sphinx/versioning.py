@@ -25,6 +25,7 @@ if False:
     # For type annotation
     from typing import Any, Iterator  # NOQA
     from docutils import nodes  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 try:
     import Levenshtein

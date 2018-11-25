@@ -18,6 +18,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 if False:
     # For type annotation
     from typing import List, Sequence  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class translatable:

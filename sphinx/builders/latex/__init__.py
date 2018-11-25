@@ -45,6 +45,7 @@ if False:
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 XINDY_LANG_OPTIONS = {

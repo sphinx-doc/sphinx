@@ -15,6 +15,7 @@ from six import text_type
 if False:
     # For type annotation
     from typing import Any, Callable, IO, List  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()

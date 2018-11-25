@@ -51,6 +51,7 @@ from sphinx.util.matching import patfilter  # noqa
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)

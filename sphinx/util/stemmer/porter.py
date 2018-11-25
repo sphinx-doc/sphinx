@@ -28,6 +28,10 @@
     :license: Public Domain ("can be used free of charge for any purpose").
 """
 
+if False:
+    # For type annotation
+    from sphinx.util.typing import unicode  # NOQA
+
 
 class PorterStemmer:
 

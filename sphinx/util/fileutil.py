@@ -22,6 +22,7 @@ if False:
     from typing import Callable, Dict, Union  # NOQA
     from sphinx.util.matching import Matcher  # NOQA
     from sphinx.util.template import BaseRenderer  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):

@@ -17,6 +17,7 @@ env = Environment()
 if False:
     # For type annotation
     from typing import Iterator, List  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class BooleanParser(Parser):

@@ -15,6 +15,7 @@ from sphinx.util.stemmer import get_stemmer
 if False:
     # For type annotation
     from typing import Dict  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 english_stopwords = set(u"""
 a  and  are  as  at

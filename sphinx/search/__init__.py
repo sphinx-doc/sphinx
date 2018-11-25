@@ -26,6 +26,7 @@ if False:
     from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class SearchLanguage:

@@ -25,7 +25,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import RoleFunction  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 class ObjType:

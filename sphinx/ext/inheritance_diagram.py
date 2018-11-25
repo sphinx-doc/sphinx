@@ -55,6 +55,7 @@ if False:
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names

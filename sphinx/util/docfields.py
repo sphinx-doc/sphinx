@@ -20,6 +20,7 @@ if False:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 def _is_single_paragraph(node):

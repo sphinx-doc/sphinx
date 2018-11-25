@@ -11,6 +11,10 @@
 
 from sphinx.util.stemmer.porter import PorterStemmer
 
+if False:
+    # For type annotation
+    from sphinx.util.typing import unicode  # NOQA
+
 try:
     from Stemmer import Stemmer as _PyStemmer
     PYSTEMMER = True

@@ -29,6 +29,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warnin
 if False:
     # For type annotation
     from typing import Any, Iterator, List, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)

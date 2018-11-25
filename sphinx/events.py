@@ -20,6 +20,7 @@ from sphinx.locale import __
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 # List of all known core events. Maps name to arguments description.
