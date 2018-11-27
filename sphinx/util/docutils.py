@@ -319,7 +319,7 @@ class SphinxFileOutput(FileOutput):
                 if f.read() == data:
                     return data
 
-        return FileOutput.write(self, data)
+        return super(SphinxFileOutput, self).write(data)
 
 
 class SphinxDirective(Directive):

@@ -254,7 +254,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         old_stdout = sys.stdout
         sys.stdout = string_io
         try:
-            res = doctest.DocTestRunner.summarize(self, verbose)
+            res = super(SphinxDocTestRunner, self).summarize(verbose)
         finally:
             sys.stdout = old_stdout
         out(string_io.getvalue())

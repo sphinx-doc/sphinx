@@ -802,7 +802,7 @@ class ModuleDocumenter(Documenter):
 
     def parse_name(self):
         # type: () -> bool
-        ret = Documenter.parse_name(self)
+        ret = super(ModuleDocumenter, self).parse_name()
         if self.args or self.retann:
             logger.warning(__('signature arguments or return annotation '
                               'given for automodule %s') % self.fullname,
@@ -964,7 +964,7 @@ class DocstringSignatureMixin:
         lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
             return lines
-        return Documenter.get_doc(self, None, ignore)  # type: ignore
+        return super(DocstringSignatureMixin, self).get_doc(None, ignore)  # type: ignore
 
     def format_signature(self):
         # type: () -> unicode
@@ -974,7 +974,7 @@ class DocstringSignatureMixin:
             result = self._find_signature()
             if result is not None:
                 self.args, self.retann = result
-        return Documenter.format_signature(self)  # type: ignore
+        return super(DocstringSignatureMixin, self).format_signature()  # type: ignore
 
 
 class DocstringStripSignatureMixin(DocstringSignatureMixin):
@@ -993,7 +993,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
                 # DocstringSignatureMixin.format_signature.
                 # Documenter.format_signature use self.args value to format.
                 _args, self.retann = result
-        return Documenter.format_signature(self)  # type: ignore
+        return super(DocstringStripSignatureMixin, self).format_signature()
 
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
@@ -1071,7 +1071,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     def import_object(self):
         # type: () -> Any
-        ret = ModuleLevelDocumenter.import_object(self)
+        ret = super(ClassDocumenter, self).import_object()
         # if the class is documented under another name, document it
         # as data/attribute
         if ret:
@@ -1103,13 +1103,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if self.doc_as_attr:
             return ''
 
-        return DocstringSignatureMixin.format_signature(self)
+        return super(ClassDocumenter, self).format_signature()
 
     def add_directive_header(self, sig):
         # type: (unicode) -> None
         if self.doc_as_attr:
             self.directivetype = 'attribute'
-        Documenter.add_directive_header(self, sig)
+        super(ClassDocumenter, self).add_directive_header(sig)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
@@ -1179,16 +1179,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                     classname = str(module) + u'.' + str(classname)
                 content = ViewList(
                     [_('alias of :class:`%s`') % classname], source='')
-                ModuleLevelDocumenter.add_content(self, content,
-                                                  no_docstring=True)
+                super(ClassDocumenter, self).add_content(content, no_docstring=True)
         else:
-            ModuleLevelDocumenter.add_content(self, more_content)
+            super(ClassDocumenter, self).add_content(more_content)
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
         if self.doc_as_attr:
             return
-        ModuleLevelDocumenter.document_members(self, all_members)
+        super(ClassDocumenter, self).document_members(all_members)
 
     def generate(self, more_content=None, real_modname=None,
                  check_module=False, all_members=False):
@@ -1236,7 +1235,7 @@ class DataDocumenter(ModuleLevelDocumenter):
 
     def add_directive_header(self, sig):
         # type: (unicode) -> None
-        ModuleLevelDocumenter.add_directive_header(self, sig)
+        super(DataDocumenter, self).add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             try:
@@ -1277,7 +1276,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
     def import_object(self):
         # type: () -> Any
-        ret = ClassLevelDocumenter.import_object(self)
+        ret = super(MethodDocumenter, self).import_object()
         if not ret:
             return ret
 
@@ -1355,7 +1354,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     def import_object(self):
         # type: () -> Any
-        ret = ClassLevelDocumenter.import_object(self)
+        ret = super(AttributeDocumenter, self).import_object()
         if isenumattribute(self.object):
             self.object = self.object.value
         if isdescriptor(self.object) and \
@@ -1373,7 +1372,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
 
     def add_directive_header(self, sig):
         # type: (unicode) -> None
-        ClassLevelDocumenter.add_directive_header(self, sig)
+        super(AttributeDocumenter, self).add_directive_header(sig)
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             if not self._datadescriptor:
@@ -1395,7 +1394,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
             # if it's not a data descriptor, its docstring is very probably the
             # wrong thing to display
             no_docstring = True
-        ClassLevelDocumenter.add_content(self, more_content, no_docstring)
+        super(AttributeDocumenter, self).add_content(more_content, no_docstring)
 
 
 class InstanceAttributeDocumenter(AttributeDocumenter):
@@ -1427,7 +1426,7 @@ class InstanceAttributeDocumenter(AttributeDocumenter):
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None
         """Never try to get a docstring from the object."""
-        AttributeDocumenter.add_content(self, more_content, no_docstring=True)
+        super(InstanceAttributeDocumenter, self).add_content(more_content, no_docstring=True)
 
 
 def get_documenters(app):

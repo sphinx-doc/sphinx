@@ -173,8 +173,8 @@ class XRefRole:
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
-        result = XRefRole.process_link(self, env, refnode, has_explicit_title,
-                                       title, target)
+        result = super(AnyXRefRole, self).process_link(env, refnode, has_explicit_title,
+                                                       title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
         refnode.attributes.update(env.ref_context)
         return result

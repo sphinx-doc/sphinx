@@ -245,7 +245,7 @@ class Domain:
             def run(self):
                 # type: () -> List[nodes.Node]
                 self.name = fullname
-                return BaseDirective.run(self)
+                return super(DirectiveAdapter, self).run()
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
