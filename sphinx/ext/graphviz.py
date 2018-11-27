@@ -33,8 +33,9 @@ from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 if False:
     # For type annotation
     from docutils.parsers.rst import Directive  # NOQA
-    from typing import Any, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.docutils import SphinxTranslator  # NOQA
     from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
@@ -219,7 +220,7 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
-    # type: (Union[HTMLTranslator, LaTeXTranslator, TexinfoTranslator], unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    # type: (SphinxTranslator, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
