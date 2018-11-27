@@ -7,6 +7,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 from docutils.nodes import make_id
 from docutils.parsers.rst import directives
@@ -35,14 +37,17 @@ class Figure(images.Figure):
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
             return result
 
-        (figure_node,) = result
+        assert len(result) == 1
+        figure_node = cast(nodes.figure, result[0])
         if name:
+            # set ``name`` to figure_node if given
             self.options['name'] = name
             self.add_name(figure_node)
 
-        # fill lineno using image node
+        # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            figure_node.line = figure_node[1].line
+            caption = cast(nodes.caption, figure_node[1])
+            figure_node.line = caption.line
 
         return [figure_node]
 
@@ -71,7 +76,7 @@ class RSTTable(tables.RSTTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
         title, message = tables.RSTTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -85,7 +90,7 @@ class CSVTable(tables.CSVTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
         title, message = tables.CSVTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -99,7 +104,7 @@ class ListTable(tables.ListTable):
     Only for docutils-0.13 or older version."""
 
     def make_title(self):
-        # type: () -> Tuple[nodes.Node, unicode]
+        # type: () -> Tuple[nodes.title, List[nodes.system_message]]
         title, message = tables.ListTable.make_title(self)
         if title:
             set_source_info(self, title)
@@ -108,7 +113,6 @@ class ListTable(tables.ListTable):
 
 
 class MathDirective(SphinxDirective):
-
     has_content = True
     required_arguments = 0
     optional_arguments = 1
@@ -129,13 +133,13 @@ class MathDirective(SphinxDirective):
                                 number=self.options.get('name'),
                                 label=self.options.get('label'),
                                 nowrap='nowrap' in self.options)
-        ret = [node]
+        ret = [node]  # type: List[nodes.Element]
         set_source_info(self, node)
         self.add_target(ret)
         return ret
 
     def add_target(self, ret):
-        # type: (List[nodes.Node]) -> None
+        # type: (List[nodes.Element]) -> None
         node = ret[0]
 
         # assign label automatically if math_number_all enabled
