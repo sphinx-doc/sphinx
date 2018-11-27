@@ -64,6 +64,8 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
+    transforms = []  # type: List[Type[Transform]]
+
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.env = app.env
@@ -101,8 +103,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
                   SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
-                  UIDTransform,
-                  ]  # type: List[Type[Transform]]
+                  UIDTransform]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
@@ -124,7 +125,7 @@ class SphinxI18nReader(SphinxBaseReader):
                   AutoNumbering, SortIds, RemoveTranslatableInline,
                   FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
-                  SubstitutionDefinitionsRemover]  # type: List[Type[Transform]]
+                  SubstitutionDefinitionsRemover]
 
     def set_lineno_for_reporter(self, lineno):
         # type: (int) -> None
