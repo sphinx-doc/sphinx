@@ -82,6 +82,10 @@ def test_NodeMatcher():
     matcher = NodeMatcher(nodes.title)
     assert len(doctree.traverse(matcher)) == 0
 
+    # search with Any does not match to Text node
+    matcher = NodeMatcher(blah=Any)
+    assert len(doctree.traverse(matcher)) == 0
+
 
 @pytest.mark.parametrize(
     'rst,node_cls,count',

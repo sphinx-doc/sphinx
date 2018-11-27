@@ -68,6 +68,9 @@ class NodeMatcher:
             if self.classes and not isinstance(node, self.classes):
                 return False
 
+            if self.attrs and isinstance(node, nodes.Text):
+                return False
+
             for key, value in self.attrs.items():
                 if key not in node:
                     return False
