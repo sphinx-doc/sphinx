@@ -143,11 +143,13 @@ def env_merge_info(app, env, docnames, other):
 
 
 def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> nodes.Node
+    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.Node) -> nodes.Node
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
                             node['refid'], contnode)
+
+    return None
 
 
 def collect_pages(app):

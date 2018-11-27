@@ -12,6 +12,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -30,6 +32,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
+    from sphinx.writers.latex import LaTeXTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -64,19 +68,21 @@ class Todo(BaseAdmonition, SphinxDirective):
         (todo,) = super(Todo, self).run()
         if isinstance(todo, nodes.system_message):
             return [todo]
+        elif isinstance(todo, todo_node):
+            todo.insert(0, nodes.title(text=_('Todo')))
+            set_source_info(self, todo)
 
-        todo.insert(0, nodes.title(text=_('Todo')))
-        set_source_info(self, todo)
-
-        targetid = 'index-%s' % self.env.new_serialno('index')
-        # Stash the target to be retrieved later in latex_visit_todo_node.
-        todo['targetref'] = '%s:%s' % (self.env.docname, targetid)
-        targetnode = nodes.target('', '', ids=[targetid])
-        return [targetnode, todo]
+            targetid = 'index-%s' % self.env.new_serialno('index')
+            # Stash the target to be retrieved later in latex_visit_todo_node.
+            todo['targetref'] = '%s:%s' % (self.env.docname, targetid)
+            targetnode = nodes.target('', '', ids=[targetid])
+            return [targetnode, todo]
+        else:
+            raise RuntimeError  # never reached here
 
 
 def process_todos(app, doctree):
-    # type: (Sphinx, nodes.Node) -> None
+    # type: (Sphinx, nodes.document) -> None
     # collect all todos in the environment
     # this is not done in the directive itself because it some transformations
     # must have already been run, e.g. substitutions
@@ -103,7 +109,8 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            logger.warning(__("TODO entry found: %s"), node[1].astext(),
+            label = cast(nodes.Element, node[1])
+            logger.warning(__("TODO entry found: %s"), label.astext(),
                            location=node)
 
 
@@ -126,7 +133,8 @@ class TodoList(SphinxDirective):
 
 
 def process_todo_nodes(app, doctree, fromdocname):
-    # type: (Sphinx, nodes.Node, unicode) -> None
+    # type: (Sphinx, nodes.document, unicode) -> None
+    node = None  # type: nodes.Element
     if not app.config['todo_include_todos']:
         for node in doctree.traverse(todo_node):
             node.parent.remove(node)
@@ -140,7 +148,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
     for node in doctree.traverse(todolist):
         if node.get('ids'):
-            content = [nodes.target()]
+            content = [nodes.target()]  # type: List[nodes.Element]
         else:
             content = []
 
@@ -212,16 +220,15 @@ def merge_info(app, env, docnames, other):
 def visit_todo_node(self, node):
     # type: (nodes.NodeVisitor, todo_node) -> None
     self.visit_admonition(node)
-    # self.visit_admonition(node, 'todo')
 
 
 def depart_todo_node(self, node):
-    # type: (nodes.NodeVisitor, todo_node) -> None
+    # type: (HTMLTranslator, todo_node) -> None
     self.depart_admonition(node)
 
 
 def latex_visit_todo_node(self, node):
-    # type: (nodes.NodeVisitor, todo_node) -> None
+    # type: (LaTeXTranslator, todo_node) -> None
     title = node.pop(0).astext().translate(tex_escape_map)
     self.body.append(u'\n\\begin{sphinxadmonition}{note}{')
     # If this is the original todo node, emit a label that will be referenced by
@@ -233,7 +240,7 @@ def latex_visit_todo_node(self, node):
 
 
 def latex_depart_todo_node(self, node):
-    # type: (nodes.NodeVisitor, todo_node) -> None
+    # type: (LaTeXTranslator, todo_node) -> None
     self.body.append('\\end{sphinxadmonition}\n')
 
 

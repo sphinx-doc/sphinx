@@ -12,10 +12,13 @@
 """
 
 import json
+from typing import cast
 
 from docutils import nodes
 
 import sphinx
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
@@ -30,7 +33,7 @@ if False:
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node.astext()) +
@@ -39,7 +42,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (HTMLTranslator, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math_block) -> None
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
         self.body.append(self.encode(node.astext()))
@@ -79,16 +82,18 @@ def install_mathjax(app, env):
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
 
-    if env.get_domain('math').has_equations():  # type: ignore
+    builder = cast(StandaloneHTMLBuilder, app.builder)
+    domain = cast(MathDomain, env.get_domain('math'))
+    if domain.has_equations():
         # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
-        app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
+        builder.add_js_file(app.config.mathjax_path, **options)
 
         if app.config.mathjax_config:
             body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            app.builder.add_js_file(None, type="text/x-mathjax-config", body=body)  # type: ignore  # NOQA
+            builder.add_js_file(None, type="text/x-mathjax-config", body=body)
 
 
 def setup(app):
