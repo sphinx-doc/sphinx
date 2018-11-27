@@ -504,7 +504,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     docclasses = ('howto', 'manual')
 
     def __init__(self, document, builder):
-        # type: (nodes.Node, LaTeXBuilder) -> None
+        # type: (nodes.document, LaTeXBuilder) -> None
         super(LaTeXTranslator, self).__init__(document)
         self.builder = builder
         self.body = []  # type: List[unicode]
@@ -699,15 +699,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
         self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
-        self.context = []               # type: List[Any]
-        self.descstack = []             # type: List[unicode]
-        self.table = None               # type: Table
-        self.next_table_colspec = None  # type: unicode
-        self.bodystack = []             # type: List[List[unicode]]
-        self.footnote_restricted = False
-        self.pending_footnotes = []     # type: List[nodes.footnote_reference]
-        self.curfilestack = []          # type: List[unicode]
-        self.handled_abbrs = set()      # type: Set[unicode]
+        self.context = []                   # type: List[Any]
+        self.descstack = []                 # type: List[unicode]
+        self.table = None                   # type: Table
+        self.next_table_colspec = None      # type: unicode
+        self.bodystack = []                 # type: List[List[unicode]]
+        self.footnote_restricted = None     # type: nodes.Element
+        self.pending_footnotes = []         # type: List[nodes.footnote_reference]
+        self.curfilestack = []              # type: List[unicode]
+        self.handled_abbrs = set()          # type: Set[unicode]
 
     def pushbody(self, newbody):
         # type: (List[unicode]) -> None
@@ -721,21 +721,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return body
 
     def restrict_footnote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         warnings.warn('LaTeXWriter.restrict_footnote() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
 
-        if self.footnote_restricted is False:
+        if self.footnote_restricted is None:
             self.footnote_restricted = node
             self.pending_footnotes = []
 
     def unrestrict_footnote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         warnings.warn('LaTeXWriter.unrestrict_footnote() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
 
         if self.footnote_restricted == node:
-            self.footnote_restricted = False
+            self.footnote_restricted = None
             for footnode in self.pending_footnotes:
                 footnode['footnotetext'] = True
                 footnode.walkabout(self)
@@ -765,7 +765,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             '\\label{%s}' % self.idescape(id)
 
     def hypertarget_to(self, node, anchor=False):
-        # type: (nodes.Node, bool) -> unicode
+        # type: (nodes.Element, bool) -> unicode
         labels = ''.join(self.hypertarget(node_id, anchor=False) for node_id in node['ids'])
         if anchor:
             return r'\phantomsection' + labels
@@ -914,9 +914,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.curfilestack.append(node['docname'])
 
     def collect_footnotes(self, node):
-        # type: (nodes.Node) -> Dict[unicode, List[Union[collected_footnote, bool]]]
+        # type: (nodes.Element) -> Dict[unicode, List[Union[collected_footnote, bool]]]
         def footnotes_under(n):
-            # type: (nodes.Node) -> Iterator[nodes.Node]
+            # type: (nodes.Element) -> Iterator[nodes.footnote]
             if isinstance(n, nodes.footnote):
                 yield n
             else:
@@ -1088,7 +1088,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\end{fulllineitems}\n\n')
 
     def _visit_signature_line(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
                 self.body.append(r'\pysiglinewithargsret{')
@@ -1464,7 +1464,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_enumerated_list(self, node):
         # type: (nodes.enumerated_list) -> None
         def get_enumtype(node):
-            # type: (nodes.Node) -> unicode
+            # type: (nodes.enumerated_list) -> unicode
             enumtype = node.get('enumtype', 'arabic')
             if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
                 # fallback to arabic if alphabet counter overflows
@@ -1807,9 +1807,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\end{sphinxadmonition}\n')
 
     def _make_visit_admonition(name):
-        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Node], None]
+        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
         def visit_admonition(self, node):
-            # type: (nodes.admonition) -> None
+            # type: (nodes.Element) -> None
             self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
@@ -1869,7 +1869,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(id, anchor=anchor))
 
         # skip if visitor for next node supports hyperlink
-        next_node = node
+        next_node = node  # type: nodes.Node
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 

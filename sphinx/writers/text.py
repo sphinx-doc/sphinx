@@ -393,7 +393,7 @@ class TextWriter(writers.Writer):
 class TextTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
-        # type: (nodes.Node, TextBuilder) -> None
+        # type: (nodes.document, TextBuilder) -> None
         super(TextTranslator, self).__init__(document)
         self.builder = builder
 
@@ -1039,16 +1039,16 @@ class TextTranslator(nodes.NodeVisitor):
         self.end_state()
 
     def _visit_admonition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.new_state(2)
 
         if isinstance(node.children[0], nodes.Sequential):
             self.add_text(self.nl)
 
     def _make_depart_admonition(name):
-        # type: (unicode) -> Callable[[TextTranslator, nodes.Node], None]
+        # type: (unicode) -> Callable[[TextTranslator, nodes.Element], None]
         def depart_admonition(self, node):
-            # type: (nodes.admonition) -> None
+            # type: (nodes.Element) -> None
             self.end_state(first=admonitionlabels[name] + ': ')
         return depart_admonition
 

@@ -269,7 +269,7 @@ class HTML5Translator(BaseTranslator):
         self.depart_admonition(node)
 
     def add_secnumber(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         if node.get('secnumber'):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
@@ -289,7 +289,7 @@ class HTML5Translator(BaseTranslator):
                                  self.secnumber_suffix)
 
     def add_fignumber(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         def append_fignumber(figtype, figure_id):
             # type: (unicode, unicode) -> None
             if self.builder.name == 'singlehtml':
@@ -317,7 +317,7 @@ class HTML5Translator(BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node, title):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
@@ -766,7 +766,7 @@ class HTML5Translator(BaseTranslator):
     # overwritten to add even/odd classes
 
     def generate_targets_for_table(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         """Generate hyperlink targets for tables.
 
         Original visit_table() generates hyperlink targets inside table tags
@@ -815,7 +815,6 @@ class HTML5Translator(BaseTranslator):
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
-        return node
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.math, unicode) -> None

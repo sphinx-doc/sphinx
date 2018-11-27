@@ -57,7 +57,7 @@ style-check:
 
 .PHONY: type-check
 type-check:
-	mypy sphinx/
+	mypy sphinx/writers
 
 .PHONY: pylint
 pylint:

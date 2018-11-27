@@ -23,7 +23,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -80,6 +80,8 @@ class ManualPageTranslator(BaseTranslator):
     """
     Custom translator.
     """
+
+    _docinfo = {}  # type: Dict[unicode, Any]
 
     def __init__(self, builder, *args, **kwds):
         # type: (Builder, Any, Any) -> None
