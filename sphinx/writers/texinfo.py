@@ -88,7 +88,7 @@ TEMPLATE = """\
 
 
 def find_subsections(section):
-    # type: (nodes.Node) -> List[nodes.Node]
+    # type: (nodes.Element) -> List[nodes.section]
     """Return a list of subsections for the given ``section``."""
     result = []
     for child in section.children:
@@ -162,7 +162,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     }
 
     def __init__(self, document, builder):
-        # type: (nodes.Node, TexinfoBuilder) -> None
+        # type: (nodes.document, TexinfoBuilder) -> None
         super(TexinfoTranslator, self).__init__(document)
         self.builder = builder
         self.init_settings()
@@ -520,9 +520,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # TODO: move this to sphinx.util
 
     def collect_footnotes(self, node):
-        # type: (nodes.Node) -> Dict[unicode, List[Union[collected_footnote, bool]]]
+        # type: (nodes.Element) -> Dict[unicode, List[Union[collected_footnote, bool]]]
         def footnotes_under(n):
-            # type: (nodes.Node) -> Iterator[nodes.footnote]
+            # type: (nodes.Element) -> Iterator[nodes.footnote]
             if isinstance(n, nodes.footnote):
                 yield n
             else:

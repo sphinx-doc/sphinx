@@ -301,7 +301,7 @@ class HTMLTranslator(BaseTranslator):
         self.depart_admonition(node)
 
     def add_secnumber(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         if node.get('secnumber'):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
@@ -321,7 +321,7 @@ class HTMLTranslator(BaseTranslator):
                                  self.secnumber_suffix)
 
     def add_fignumber(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         def append_fignumber(figtype, figure_id):
             # type: (unicode, unicode) -> None
             if self.builder.name == 'singlehtml':
@@ -349,13 +349,13 @@ class HTMLTranslator(BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node, title):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
     def generate_targets_for_listing(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         """Generate hyperlink targets for listings.
 
         Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
