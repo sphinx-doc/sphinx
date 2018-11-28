@@ -1,7 +1,7 @@
-.. _exttut:
+.. _exttuttodo:
 
-Tutorial: Writing a simple extension
-====================================
+Developing a `TODO` extension
+=============================
 
 This section is intended as a walkthrough for the creation of custom extensions.
 It covers the basics of writing and activating an extension, as well as

@@ -75,8 +75,9 @@ APIs used for writing extensions
 --------------------------------
 
 .. toctree::
+   :maxdepth: 2
 
-   tutorial
+   tutorials/index
    appapi
    envapi
    builderapi

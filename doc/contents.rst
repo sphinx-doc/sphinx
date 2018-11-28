@@ -23,6 +23,7 @@ Sphinx documentation contents
    markdown
    extensions
    extdev/index
+   extdev/tutorials/index
    websupport
 
    faq
