@@ -77,6 +77,21 @@ class Index:
     and providing a :meth:`generate()` method.  Then, add the index class to
     your domain's `indices` list.  Extensions can add indices to existing
     domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
+
+    Note that if you want your index to be referencable using a label (eg.
+    ``:ref:`name``` in rst), you need to add it to
+    :attr:`~sphinx.domains.StandardDomain.labels` and
+    :attr:`~sphinx.domains.StandardDomain.anonlabels` dicts. For example::
+
+        def register_index_as_label(app, document):
+            labels = app.env.domaindata['std']['labels']
+            labels['name'] = 'domain-name', '', _('Index Name')
+            anonlabels = app.env.domaindata['std']['anonlabels']
+            anonlabels['name'] = 'domain-name', ''
+
+        def setup(app):
+            app.connect('doctree-read', register_index_as_label)
+
     """
 
     name = None  # type: unicode
