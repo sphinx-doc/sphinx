@@ -1,6 +1,6 @@
-.. _exttuttodo:
+.. _exttuto-todo:
 
-Developing a `TODO` extension
+Developing a "TODO" extension
 =============================
 
 This section is intended as a walkthrough for the creation of custom extensions.
