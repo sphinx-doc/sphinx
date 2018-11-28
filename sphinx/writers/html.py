@@ -376,18 +376,18 @@ class HTMLTranslator(BaseTranslator):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
         self.generate_targets_for_listing(node)
-        BaseTranslator.visit_bullet_list(self, node)
+        super(HTMLTranslator, self).visit_bullet_list(node)
 
     # overwritten
     def visit_enumerated_list(self, node):
         # type: (nodes.enumerated_list) -> None
         self.generate_targets_for_listing(node)
-        BaseTranslator.visit_enumerated_list(self, node)
+        super(HTMLTranslator, self).visit_enumerated_list(node)
 
     # overwritten
     def visit_title(self, node):
         # type: (nodes.title) -> None
-        BaseTranslator.visit_title(self, node)
+        super(HTMLTranslator, self).visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -413,14 +413,14 @@ class HTMLTranslator(BaseTranslator):
         elif isinstance(node.parent, nodes.table):
             self.body.append('</span>')
 
-        BaseTranslator.depart_title(self, node)
+        super(HTMLTranslator, self).depart_title(node)
 
     # overwritten
     def visit_literal_block(self, node):
         # type: (nodes.literal_block) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            return BaseTranslator.visit_literal_block(self, node)
+            return super(HTMLTranslator, self).visit_literal_block(node)
 
         lang = node.get('language', 'default')
         linenos = node.get('linenos', False)
@@ -446,7 +446,7 @@ class HTMLTranslator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('<div class="code-block-caption">')
         else:
-            BaseTranslator.visit_caption(self, node)
+            super(HTMLTranslator, self).visit_caption(node)
         self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
@@ -467,7 +467,7 @@ class HTMLTranslator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
-            BaseTranslator.depart_caption(self, node)
+            super(HTMLTranslator, self).depart_caption(node)
 
     def visit_doctest_block(self, node):
         # type: (nodes.doctest_block) -> None
@@ -552,7 +552,7 @@ class HTMLTranslator(BaseTranslator):
         if isinstance(node.parent, addnodes.versionmodified):
             # Never compact versionmodified nodes.
             return False
-        return BaseTranslator.should_be_compact_paragraph(self, node)
+        return super(HTMLTranslator, self).should_be_compact_paragraph(node)
 
     def visit_compact_paragraph(self, node):
         # type: (addnodes.compact_paragraph) -> None
@@ -626,7 +626,7 @@ class HTMLTranslator(BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-        BaseTranslator.visit_image(self, node)
+        super(HTMLTranslator, self).visit_image(node)
 
     # overwritten
     def depart_image(self, node):
@@ -634,7 +634,7 @@ class HTMLTranslator(BaseTranslator):
         if node['uri'].lower().endswith(('svg', 'svgz')):
             self.body.append(self.context.pop())
         else:
-            BaseTranslator.depart_image(self, node)
+            super(HTMLTranslator, self).depart_image(node)
 
     def visit_toctree(self, node):
         # type: (addnodes.toctree) -> None
@@ -684,7 +684,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_option_group(self, node):
         # type: (nodes.option_group) -> None
-        BaseTranslator.visit_option_group(self, node)
+        super(HTMLTranslator, self).visit_option_group(node)
         self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     # overwritten
@@ -827,7 +827,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_table(self, node):
         # type: (nodes.table) -> None
         self._table_row_index = 0
-        return BaseTranslator.visit_table(self, node)
+        return super(HTMLTranslator, self).visit_table(node)
 
     def visit_row(self, node):
         # type: (nodes.row) -> None
@@ -841,14 +841,14 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_entry(self, node):
         # type: (nodes.entry) -> None
-        BaseTranslator.visit_entry(self, node)
+        super(HTMLTranslator, self).visit_entry(node)
         if self.body[-1] == '&nbsp;':
             self.body[-1] = '&#160;'
 
     def visit_field_list(self, node):
         # type: (nodes.field_list) -> None
         self._fieldlist_row_index = 0
-        return BaseTranslator.visit_field_list(self, node)
+        return super(HTMLTranslator, self).visit_field_list(node)
 
     def visit_field(self, node):
         # type: (nodes.field) -> None
@@ -862,7 +862,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_field_name(self, node):
         # type: (nodes.field_name) -> None
         context_count = len(self.context)
-        BaseTranslator.visit_field_name(self, node)
+        super(HTMLTranslator, self).visit_field_name(node)
         if context_count != len(self.context):
             self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 

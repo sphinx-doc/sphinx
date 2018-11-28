@@ -328,12 +328,12 @@ class HTML5Translator(BaseTranslator):
         if len(node) == 1 and node[0].tagname == 'toctree':
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
-        BaseTranslator.visit_bullet_list(self, node)
+        super(HTML5Translator, self).visit_bullet_list(node)
 
     # overwritten
     def visit_title(self, node):
         # type: (nodes.title) -> None
-        BaseTranslator.visit_title(self, node)
+        super(HTML5Translator, self).visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -359,14 +359,14 @@ class HTML5Translator(BaseTranslator):
         elif isinstance(node.parent, nodes.table):
             self.body.append('</span>')
 
-        BaseTranslator.depart_title(self, node)
+        super(HTML5Translator, self).depart_title(node)
 
     # overwritten
     def visit_literal_block(self, node):
         # type: (nodes.literal_block) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            return BaseTranslator.visit_literal_block(self, node)
+            return super(HTML5Translator, self).visit_literal_block(node)
 
         lang = node.get('language', 'default')
         linenos = node.get('linenos', False)
@@ -392,7 +392,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('<div class="code-block-caption">')
         else:
-            BaseTranslator.visit_caption(self, node)
+            super(HTML5Translator, self).visit_caption(node)
         self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
@@ -413,7 +413,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
-            BaseTranslator.depart_caption(self, node)
+            super(HTML5Translator, self).depart_caption(node)
 
     def visit_doctest_block(self, node):
         # type: (nodes.doctest_block) -> None
@@ -498,7 +498,7 @@ class HTML5Translator(BaseTranslator):
         if isinstance(node.parent, addnodes.versionmodified):
             # Never compact versionmodified nodes.
             return False
-        return BaseTranslator.should_be_compact_paragraph(self, node)
+        return super(HTML5Translator, self).should_be_compact_paragraph(node)
 
     def visit_compact_paragraph(self, node):
         # type: (addnodes.compact_paragraph) -> None
@@ -572,7 +572,7 @@ class HTML5Translator(BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-        BaseTranslator.visit_image(self, node)
+        super(HTML5Translator, self).visit_image(node)
 
     # overwritten
     def depart_image(self, node):
@@ -580,7 +580,7 @@ class HTML5Translator(BaseTranslator):
         if node['uri'].lower().endswith(('svg', 'svgz')):
             self.body.append(self.context.pop())
         else:
-            BaseTranslator.depart_image(self, node)
+            super(HTML5Translator, self).depart_image(node)
 
     def visit_toctree(self, node):
         # type: (addnodes.toctree) -> None
@@ -806,7 +806,7 @@ class HTML5Translator(BaseTranslator):
     def visit_field_list(self, node):
         # type: (nodes.field_list) -> None
         self._fieldlist_row_index = 0
-        return BaseTranslator.visit_field_list(self, node)
+        return super(HTML5Translator, self).visit_field_list(node)
 
     def visit_field(self, node):
         # type: (nodes.field) -> None

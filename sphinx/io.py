@@ -73,14 +73,14 @@ class SphinxBaseReader(standalone.Reader):
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
-        return standalone.Reader.get_transforms(self) + self.transforms
+        return super(SphinxBaseReader, self).get_transforms() + self.transforms
 
     def new_document(self):
         # type: () -> nodes.document
         """Creates a new document object which having a special reporter object good
         for logging.
         """
-        document = standalone.Reader.new_document(self)
+        document = super(SphinxBaseReader, self).new_document()
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
@@ -187,7 +187,7 @@ class SphinxBaseFileInput(FileInput):
 
         After reading, it emits Sphinx event ``source-read``.
         """
-        data = FileInput.read(self)
+        data = super(SphinxBaseFileInput, self).read()
 
         # emit source-read event
         arg = [data]
@@ -254,7 +254,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
 
     def read(self):
         # type: () -> StringList
-        inputstring = SphinxBaseFileInput.read(self)
+        inputstring = super(SphinxRSTFileInput, self).read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
         for lineno, line in enumerate(lines):

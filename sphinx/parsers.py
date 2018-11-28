@@ -66,7 +66,7 @@ class RSTParser(docutils.parsers.rst.Parser):
         """Sphinx's reST parser replaces a transform class for smart-quotes by own's
 
         refs: sphinx.io.SphinxStandaloneReader"""
-        transforms = docutils.parsers.rst.Parser.get_transforms(self)
+        transforms = super(RSTParser, self).get_transforms()
         transforms.remove(SmartQuotes)
         return transforms
 
@@ -88,7 +88,7 @@ class RSTParser(docutils.parsers.rst.Parser):
             self.finish_parse()
         else:
             # otherwise, inputstring might be a string. It will be handled by superclass.
-            docutils.parsers.rst.Parser.parse(self, inputstring, document)
+            super(RSTParser, self).parse(inputstring, document)
 
 
 def setup(app):

@@ -38,13 +38,13 @@ class PyStemmer(BaseStemmer):
         return self.stemmer.stemWord(word)
 
 
-class StandardStemmer(BaseStemmer, PorterStemmer):  # type: ignore
+class StandardStemmer(PorterStemmer, BaseStemmer):  # type: ignore
     """All those porter stemmer implementations look hideous;
     make at least the stem method nicer.
     """
     def stem(self, word):  # type: ignore
         # type: (unicode) -> unicode
-        return PorterStemmer.stem(self, word, 0, len(word) - 1)
+        return super(StandardStemmer, self).stem(word, 0, len(word) - 1)
 
 
 def get_stemmer():

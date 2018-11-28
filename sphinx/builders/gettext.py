@@ -121,7 +121,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        Builder.init(self)
+        super(I18nBuilder, self).init()
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
@@ -222,7 +222,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def init(self):
         # type: () -> None
-        I18nBuilder.init(self)
+        super(MessageCatalogBuilder, self).init()
         self.create_template_bridge()
         self.templates.init(self)
 
@@ -261,11 +261,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[unicode], unicode, unicode) -> None
         self._extract_from_template()
-        I18nBuilder.build(self, docnames, summary, method)
+        super(MessageCatalogBuilder, self).build(docnames, summary, method)
 
     def finish(self):
         # type: () -> None
-        I18nBuilder.finish(self)
+        super(MessageCatalogBuilder, self).finish()
         data = {
             'version': self.config.version,
             'copyright': self.config.copyright,

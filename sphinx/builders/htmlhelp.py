@@ -200,7 +200,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
-        StandaloneHTMLBuilder.init(self)
+        super(HTMLHelpBuilder, self).init()
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
@@ -227,7 +227,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             if node.get('internal') is None and 'refuri' in node:
                 node['target'] = '_blank'
 
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super(HTMLHelpBuilder, self).write_doc(docname, doctree)
 
     def build_hhx(self, outdir, outname):
         # type: (unicode, unicode) -> None

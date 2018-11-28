@@ -152,7 +152,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
+        super(EpubBuilder, self).init()
         # the output files for epub must be .html only
         self.out_suffix = '.xhtml'
         self.link_suffix = '.xhtml'
@@ -372,7 +372,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         self.fix_ids(doctree)
         self.add_visible_links(doctree, self.config.epub_show_urls)
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super(EpubBuilder, self).write_doc(docname, doctree)
 
     def fix_genindex(self, tree):
         # type: (nodes.Node) -> None
@@ -470,8 +470,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return
             self.fix_genindex(addctx['genindexentries'])
         addctx['doctype'] = self.doctype
-        StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
-                                          outfilename, event_arg)
+        super(EpubBuilder, self).handle_page(pagename, addctx, templatename,
+                                             outfilename, event_arg)
 
     def build_mimetype(self, outdir, outname):
         # type: (unicode, unicode) -> None

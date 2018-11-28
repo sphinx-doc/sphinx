@@ -248,7 +248,7 @@ class ManualPageTranslator(BaseTranslator):
         if node.traverse(nodes.strong):
             self.body.append('\n')
         else:
-            BaseTranslator.visit_term(self, node)
+            super(ManualPageTranslator, self).visit_term(node)
 
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):
@@ -259,7 +259,7 @@ class ManualPageTranslator(BaseTranslator):
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
         self.ensure_eol()
-        BaseTranslator.visit_footnote(self, node)
+        super(ManualPageTranslator, self).visit_footnote(node)
 
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node):
@@ -471,14 +471,14 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append('.SH %s\n' %
                                  self.deunicode(node.astext().upper()))
                 raise nodes.SkipNode
-        return BaseTranslator.visit_title(self, node)
+        return super(ManualPageTranslator, self).visit_title(node)
 
     def depart_title(self, node):
         # type: (nodes.title) -> None
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return
-        return BaseTranslator.depart_title(self, node)
+        return super(ManualPageTranslator, self).depart_title(node)
 
     def visit_raw(self, node):
         # type: (nodes.raw) -> None

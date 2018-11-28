@@ -559,7 +559,7 @@ class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
         # type: () -> List[nodes.Node]
         # a decorator function is a function after all
         self.name = 'py:function'
-        return PyModulelevel.run(self)
+        return super(PyDecoratorFunction, self).run()
 
 
 class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
@@ -569,7 +569,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
     def run(self):
         # type: () -> List[nodes.Node]
         self.name = 'py:method'
-        return PyClassmember.run(self)
+        return super(PyDecoratorMethod, self).run()
 
 
 class PyModule(SphinxDirective):
