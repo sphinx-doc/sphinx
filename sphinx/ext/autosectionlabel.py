@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 
 from sphinx.locale import __
@@ -37,7 +39,8 @@ def register_sections_as_label(app, document):
     for node in document.traverse(nodes.section):
         labelid = node['ids'][0]
         docname = app.env.docname
-        ref_name = getattr(node[0], 'rawsource', node[0].astext())
+        title = cast(nodes.title, node[0])
+        ref_name = getattr(node[0], 'rawsource', title.astext())
         if app.config.autosectionlabel_prefix_document:
             name = nodes.fully_normalize_name(docname + ':' + ref_name)
         else:

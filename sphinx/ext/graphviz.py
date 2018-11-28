@@ -33,9 +33,14 @@ from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 if False:
     # For type annotation
     from docutils.parsers.rst import Directive  # NOQA
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
+    from sphinx.writers.latex import LaTeXTranslator  # NOQA
+    from sphinx.writers.manpage import ManualPageTranslator  # NOQA
+    from sphinx.writers.texinfo import TexinfoTranslator  # NOQA
+    from sphinx.writers.text import TextTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +98,7 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
 
 
 def figure_wrapper(directive, node, caption):
-    # type: (Directive, nodes.Node, unicode) -> nodes.figure
+    # type: (Directive, graphviz, unicode) -> nodes.figure
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
@@ -101,8 +106,7 @@ def figure_wrapper(directive, node, caption):
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)
-    caption_node = nodes.caption(parsed[0].rawsource, '',
-                                 *parsed[0].children)
+    caption_node = nodes.caption(parsed[0].rawsource, '', *parsed[0].children)
     caption_node.source = parsed[0].source
     caption_node.line = parsed[0].line
     figure_node += caption_node
@@ -110,7 +114,7 @@ def figure_wrapper(directive, node, caption):
 
 
 def align_spec(argument):
-    # type: (Any) -> bool
+    # type: (Any) -> str
     return directives.choice(argument, ('left', 'center', 'right'))
 
 
@@ -213,7 +217,7 @@ class GraphvizSimple(SphinxDirective):
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
+    # type: (Union[HTMLTranslator, LaTeXTranslator, TexinfoTranslator], unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -227,7 +231,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
-       self.builder._graphviz_warned_dot.get(graphviz_dot)):
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):  # type: ignore  # NOQA
         return None, None
 
     ensuredir(path.dirname(outfn))
@@ -253,8 +257,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
-            self.builder._graphviz_warned_dot = {}
-        self.builder._graphviz_warned_dot[graphviz_dot] = True
+            self.builder._graphviz_warned_dot = {}  # type: ignore
+        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore
         return None, None
     try:
         # Graphviz may close standard input when an error occurs,
@@ -278,7 +282,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+    # type: (HTMLTranslator, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -331,12 +335,12 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
 
 
 def html_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (HTMLTranslator, graphviz) -> None
     render_dot_html(self, node, node['code'], node['options'])
 
 
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
+    # type: (LaTeXTranslator, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
@@ -369,12 +373,12 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
 
 def latex_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (LaTeXTranslator, graphviz) -> None
     render_dot_latex(self, node, node['code'], node['options'])
 
 
 def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
-    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
+    # type: (TexinfoTranslator, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
@@ -391,7 +395,7 @@ def texinfo_visit_graphviz(self, node):
 
 
 def text_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (TextTranslator, graphviz) -> None
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
     else:
@@ -400,7 +404,7 @@ def text_visit_graphviz(self, node):
 
 
 def man_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (ManualPageTranslator, graphviz) -> None
     if 'alt' in node.attributes:
         self.body.append(_('[graph: %s]') % node['alt'])
     else:

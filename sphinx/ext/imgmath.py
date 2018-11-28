@@ -31,12 +31,13 @@ from sphinx.util.pycompat import sys_encoding
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Union  # NOQA
     from sphinx.addnodes import displaymath  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +216,7 @@ def convert_dvi_to_svg(dvipath, builder):
 
 
 def render_math(self, math):
-    # type: (nodes.NodeVisitor, unicode) -> Tuple[unicode, int]
+    # type: (HTMLTranslator, unicode) -> Tuple[unicode, int]
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -251,7 +252,7 @@ def render_math(self, math):
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_latex = True
+        self.builder._imgmath_warned_latex = True  # type: ignore
         return None, None
 
     # .dvi -> .png/.svg
@@ -261,7 +262,7 @@ def render_math(self, math):
         elif image_format == 'svg':
             imgpath, depth = convert_dvi_to_svg(dvipath, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_image_translator = True
+        self.builder._imgmath_warned_image_translator = True  # type: ignore
         return None, None
 
     # Move generated image on tempdir to build dir
@@ -284,14 +285,14 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    # type: (nodes.NodeVisitor, nodes.math) -> unicode
+    # type: (HTMLTranslator, Union[nodes.math, nodes.math_block]) -> unicode
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.math) -> None
+    # type: (HTMLTranslator, nodes.math) -> None
     try:
         fname, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
@@ -314,7 +315,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, nodes.math_block) -> None
+    # type: (HTMLTranslator, nodes.math_block) -> None
     if node['nowrap']:
         latex = node.astext()
     else:

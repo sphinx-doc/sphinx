@@ -36,7 +36,7 @@ from sphinx.util.osutil import relpath
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -109,7 +109,7 @@ class TestDirective(SphinxDirective):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
-        nodetype = nodes.literal_block
+        nodetype = nodes.literal_block  # type: Type[nodes.TextElement]
         if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:

@@ -10,9 +10,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 
 import sphinx
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
@@ -27,14 +31,14 @@ if False:
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.encode(node.astext()) + '</span>')
     raise nodes.SkipNode
 
 
 def html_visit_displaymath(self, node):
-    # type: (HTMLTranslator, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math_block) -> None
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
         self.body.append(self.encode(node.astext()))
@@ -69,9 +73,11 @@ def install_jsmath(app, env):
         raise ExtensionError('jsmath_path config value must be set for the '
                              'jsmath extension to work')
 
-    if env.get_domain('math').has_equations():  # type: ignore
+    builder = cast(StandaloneHTMLBuilder, app.builder)
+    domain = cast(MathDomain, env.get_domain('math'))
+    if domain.has_equations():
         # Enable jsmath only if equations exists
-        app.builder.add_js_file(app.config.jsmath_path)  # type: ignore
+        builder.add_js_file(app.config.jsmath_path)
 
 
 def setup(app):

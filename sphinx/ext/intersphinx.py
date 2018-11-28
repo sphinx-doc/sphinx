@@ -287,7 +287,7 @@ def load_mappings(app):
 
 
 def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> None
+    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.TextElement) -> None
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)

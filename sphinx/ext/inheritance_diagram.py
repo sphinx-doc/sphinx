@@ -56,6 +56,9 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
+    from sphinx.writers.latex import LaTeXTranslator  # NOQA
+    from sphinx.writers.texinfo import TexinfoTranslator  # NOQA
 
 
 module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
@@ -386,7 +389,7 @@ def get_graph_hash(node):
 
 
 def html_visit_inheritance_diagram(self, node):
-    # type: (nodes.NodeVisitor, inheritance_diagram) -> None
+    # type: (HTMLTranslator, inheritance_diagram) -> None
     """
     Output the graph for HTML.  This will insert a PNG with clickable
     image map.
@@ -419,7 +422,7 @@ def html_visit_inheritance_diagram(self, node):
 
 
 def latex_visit_inheritance_diagram(self, node):
-    # type: (nodes.NodeVisitor, inheritance_diagram) -> None
+    # type: (LaTeXTranslator, inheritance_diagram) -> None
     """
     Output the graph for LaTeX.  This will insert a PDF.
     """
@@ -435,7 +438,7 @@ def latex_visit_inheritance_diagram(self, node):
 
 
 def texinfo_visit_inheritance_diagram(self, node):
-    # type: (nodes.NodeVisitor, inheritance_diagram) -> None
+    # type: (TexinfoTranslator, inheritance_diagram) -> None
     """
     Output the graph for Texinfo.  This will insert a PNG.
     """
