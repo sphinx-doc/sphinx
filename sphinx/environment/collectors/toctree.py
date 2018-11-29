@@ -225,7 +225,7 @@ class TocTreeCollector(EnvironmentCollector):
         fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int, ...], int]]
 
         def get_figtype(node):
-            # type: (nodes.Node) -> unicode
+            # type: (nodes.Element) -> unicode
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
                 if figtype:

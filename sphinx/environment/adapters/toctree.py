@@ -121,7 +121,7 @@ class TocTree:
             # type: (addnodes.toctree, List[nodes.Node], bool, bool) -> List[nodes.Node]
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries = []  # type: List[nodes.Node]
+            entries = []
             for (title, ref) in refs:
                 try:
                     refdoc = None

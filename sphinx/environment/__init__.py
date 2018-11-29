@@ -141,9 +141,9 @@ class BuildEnvironment:
                                                 # docname -> dict of metadata items
 
         # TOC inventory
-        self.titles = {}            # type: Dict[unicode, nodes.Node]
+        self.titles = {}            # type: Dict[unicode, nodes.title]
                                     # docname -> title node
-        self.longtitles = {}        # type: Dict[unicode, nodes.Node]
+        self.longtitles = {}        # type: Dict[unicode, nodes.title]
                                     # docname -> title node; only different if
                                     # set differently with title directive
         self.tocs = {}              # type: Dict[unicode, nodes.Node]
@@ -544,7 +544,7 @@ class BuildEnvironment:
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
     def get_doctree(self, docname):
-        # type: (unicode) -> nodes.Node
+        # type: (unicode) -> nodes.document
         """Read the doctree for a file from the pickle and return it."""
         filename = path.join(self.doctreedir, docname + '.doctree')
         with open(filename, 'rb') as f:
@@ -555,7 +555,7 @@ class BuildEnvironment:
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
-        # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.Node
+        # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.document
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """

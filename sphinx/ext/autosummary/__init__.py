@@ -87,7 +87,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -235,7 +235,7 @@ class Autosummary(SphinxDirective):
             msg, line=self.lineno))
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         self.genopt = Options()
         self.warnings = []  # type: List[nodes.Node]
         self.result = ViewList()
@@ -613,14 +613,14 @@ def _import_by_name(name):
 # -- :autolink: (smart default role) -------------------------------------------
 
 def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
     env = inliner.document.settings.env
-    r = None  # type: Tuple[List[nodes.Node], List[nodes.Node]]
+    r = None  # type: Tuple[List[nodes.Node], List[nodes.system_message]]
     r = env.get_domain('py').role('obj')(
         'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
