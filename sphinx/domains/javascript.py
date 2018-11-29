@@ -29,7 +29,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 class JSObject(ObjectDescription):
@@ -250,7 +250,7 @@ class JSModule(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
@@ -273,7 +273,7 @@ class JSModule(SphinxDirective):
 
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         refnode['js:module'] = env.ref_context.get('js:module')
@@ -400,7 +400,7 @@ class JavaScriptDomain(Domain):
                 refname.replace('$', '_S_'), 1
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         modname = node.get('js:module')
         prefix = node.get('js:object')
         target = node.get('reftarget')

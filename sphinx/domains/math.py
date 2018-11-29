@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class MathReferenceRole(XRefRole):
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.Node, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         node['refdomain'] = 'math'
         return [node], []
 
@@ -53,7 +53,7 @@ class MathDomain(Domain):
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
         displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
+    }
     roles = {
         'numref': MathReferenceRole(),
     }
@@ -109,12 +109,12 @@ class MathDomain(Domain):
             return None
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[nodes.Element]  # NOQA
+        # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []
         else:
-            return [refnode]
+            return [('eq', refnode)]
 
     def get_objects(self):
         # type: () -> List

@@ -27,11 +27,11 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def _pseudo_parse_arglist(signode, arglist):
     string literal (e.g. default argument value).
     """
     paramlist = addnodes.desc_parameterlist()
-    stack = [paramlist]
+    stack = [paramlist]  # type: List[nodes.Element]
     try:
         for argument in arglist.split(','):
             argument = argument.strip()
@@ -106,8 +106,9 @@ def _pseudo_parse_arglist(signode, arglist):
         # if there are too few or too many elements on the stack, just give up
         # and treat the whole argument list as one argument, discarding the
         # already partially populated paramlist node
-        signode += addnodes.desc_parameterlist()
-        signode[-1] += addnodes.desc_parameter(arglist, arglist)
+        paramlist = addnodes.desc_parameterlist()
+        paramlist += addnodes.desc_parameter(arglist, arglist)
+        signode += paramlist
     else:
         signode += paramlist
 
@@ -119,7 +120,7 @@ class PyXrefMixin:
                   rolename,                  # type: unicode
                   domain,                    # type: unicode
                   target,                    # type: unicode
-                  innernode=nodes.emphasis,  # type: nodes.Node
+                  innernode=nodes.emphasis,  # type: Type[nodes.TextElement]
                   contnode=None,             # type: nodes.Node
                   env=None,                  # type: BuildEnvironment
                   ):
@@ -142,7 +143,7 @@ class PyXrefMixin:
                    rolename,                  # type: unicode
                    domain,                    # type: unicode
                    target,                    # type: unicode
-                   innernode=nodes.emphasis,  # type: nodes.Node
+                   innernode=nodes.emphasis,  # type: Type[nodes.TextElement]
                    contnode=None,             # type: nodes.Node
                    env=None,                  # type: BuildEnvironment
                    ):
@@ -170,7 +171,7 @@ class PyXrefMixin:
 class PyField(PyXrefMixin, Field):
     def make_xref(self, rolename, domain, target,
                   innernode=nodes.emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
@@ -186,7 +187,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 class PyTypedField(PyXrefMixin, TypedField):
     def make_xref(self, rolename, domain, target,
                   innernode=nodes.emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
@@ -556,7 +557,7 @@ class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
     Directive to mark functions meant to be used as decorators.
     """
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         # a decorator function is a function after all
         self.name = 'py:function'
         return super(PyDecoratorFunction, self).run()
@@ -567,7 +568,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
     Directive to mark methods meant to be used as decorators.
     """
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         self.name = 'py:method'
         return super(PyDecoratorMethod, self).run()
 
@@ -589,7 +590,7 @@ class PyModule(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
@@ -628,7 +629,7 @@ class PyCurrentModule(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         modname = self.arguments[0].strip()
         if modname == 'None':
             self.env.ref_context.pop('py:module', None)
@@ -639,7 +640,7 @@ class PyCurrentModule(SphinxDirective):
 
 class PyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         refnode['py:module'] = env.ref_context.get('py:module')
         refnode['py:class'] = env.ref_context.get('py:class')
         if not has_explicit_title:
@@ -884,18 +885,16 @@ class PythonDomain(Domain):
         name, obj = matches[0]
 
         if obj[1] == 'module':
-            return self._make_module_refnode(builder, fromdocname, name,
-                                             contnode)
+            return self._make_module_refnode(builder, fromdocname, name, contnode)
         else:
-            return make_refnode(builder, fromdocname, obj[0], name,
-                                contnode, name)
+            return make_refnode(builder, fromdocname, obj[0], name, contnode, name)
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
+        results = []  # type: List[Tuple[unicode, nodes.Element]]
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
@@ -911,7 +910,7 @@ class PythonDomain(Domain):
         return results
 
     def _make_module_refnode(self, builder, fromdocname, name, contnode):
-        # type: (Builder, unicode, unicode, nodes.Node) -> nodes.Node
+        # type: (Builder, unicode, unicode, nodes.Node) -> nodes.Element
         # get additional info for modules
         docname, synopsis, platform, deprecated = self.data['modules'][name]
         title = name
@@ -933,7 +932,7 @@ class PythonDomain(Domain):
                 yield (refname, refname, type, docname, refname, 1)
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         modname = node.get('py:module')
         clsname = node.get('py:class')
         target = node.get('reftarget')

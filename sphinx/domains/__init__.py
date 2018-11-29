@@ -25,7 +25,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import N_co, RoleFunction, unicode  # NOQA
 
 
 class ObjType:
@@ -223,7 +223,7 @@ class Domain:
         fullname = '%s:%s' % (self.name, name)
 
         def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
@@ -243,7 +243,7 @@ class Domain:
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
             def run(self):
-                # type: () -> List[nodes.Node]
+                # type: () -> List[N_co]
                 self.name = fullname
                 return super(DirectiveAdapter, self).run()
         self._directive_cache[name] = DirectiveAdapter
@@ -345,12 +345,12 @@ class Domain:
         return _('%s %s') % (self.label, type.lname)
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Get type of enumerable nodes (experimental)."""
         enum_node_type, _ = self.enumerable_nodes.get(node.__class__, (None, None))
         return enum_node_type
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Return full qualified name for given node."""
         return None
