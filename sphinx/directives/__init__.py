@@ -36,6 +36,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.docfields import Field  # NOQA
     from sphinx.util.typing import N_co, unicode  # NOQA
 
 
@@ -60,7 +61,7 @@ class ObjectDescription(SphinxDirective):
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Any]
+    doc_field_types = []    # type: List[Field]
     domain = None           # type: unicode
     objtype = None          # type: unicode
     indexnode = None        # type: addnodes.index

@@ -298,8 +298,7 @@ def traverse_parent(node, cls=None):
 def traverse_translatable_index(doctree):
     # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[unicode]]]
     """Traverse translatable index node from a document tree."""
-    node = None  # type: nodes.Element
-    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):
+    for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:

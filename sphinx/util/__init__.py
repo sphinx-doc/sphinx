@@ -352,11 +352,11 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
 def detect_encoding(readline):
-    # type: (Callable) -> unicode
+    # type: (Callable[[], bytes]) -> unicode
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
-        # type: () -> unicode
+        # type: () -> bytes
         try:
             return readline()
         except StopIteration:
@@ -375,7 +375,7 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
-        # type: (unicode) -> unicode
+        # type: (bytes) -> unicode
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
