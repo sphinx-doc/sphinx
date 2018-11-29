@@ -232,7 +232,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes):
-        # type: (List[nodes.Node]) -> None
+        # type: (List[Dict[unicode, Any]]) -> None
         """Add the master_doc, pre and post files to a list of refnodes.
         """
         refnodes.insert(0, {
@@ -260,42 +260,44 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
-        # type: (nodes.Node) -> None
+        # type: (nodes.document) -> None
         """Replace colons with hyphens in href and id attributes.
 
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
-        for node in tree.traverse(nodes.reference):
-            if 'refuri' in node:
-                m = self.refuri_re.match(node['refuri'])
+        for reference in tree.traverse(nodes.reference):
+            if 'refuri' in reference:
+                m = self.refuri_re.match(reference['refuri'])
                 if m:
-                    node['refuri'] = self.fix_fragment(m.group(1), m.group(2))
-            if 'refid' in node:
-                node['refid'] = self.fix_fragment('', node['refid'])
-        for node in tree.traverse(nodes.target):
-            for i, node_id in enumerate(node['ids']):
-                if ':' in node_id:
-                    node['ids'][i] = self.fix_fragment('', node_id)
+                    reference['refuri'] = self.fix_fragment(m.group(1), m.group(2))
+            if 'refid' in reference:
+                reference['refid'] = self.fix_fragment('', reference['refid'])
 
-            next_node = node.next_node(siblings=True)
+        for target in tree.traverse(nodes.target):
+            for i, node_id in enumerate(target['ids']):
+                if ':' in node_id:
+                    target['ids'][i] = self.fix_fragment('', node_id)
+
+            next_node = target.next_node(siblings=True)
             if next_node and isinstance(next_node, nodes.Element):
                 for i, node_id in enumerate(next_node['ids']):
                     if ':' in node_id:
                         next_node['ids'][i] = self.fix_fragment('', node_id)
-        for node in tree.traverse(addnodes.desc_signature):
-            ids = node.attributes['ids']
+
+        for desc_signature in tree.traverse(addnodes.desc_signature):
+            ids = desc_signature.attributes['ids']
             newids = []
             for id in ids:
                 newids.append(self.fix_fragment('', id))
-            node.attributes['ids'] = newids
+            desc_signature.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.document, unicode) -> None
         """Add visible link targets for external links"""
 
         def make_footnote_ref(doc, label):
-            # type: (nodes.Node, unicode) -> nodes.footnote_reference
+            # type: (nodes.document, unicode) -> nodes.footnote_reference
             """Create a footnote_reference node with children"""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
@@ -303,7 +305,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote_ref
 
         def make_footnote(doc, label, uri):
-            # type: (nodes.Node, unicode, unicode) -> nodes.footnote
+            # type: (nodes.document, unicode, unicode) -> nodes.footnote
             """Create a footnote node with children"""
             footnote = nodes.footnote(uri)
             para = nodes.paragraph()
@@ -314,7 +316,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote
 
         def footnote_spot(tree):
-            # type: (nodes.Node) -> Tuple[nodes.Node, int]
+            # type: (nodes.document) -> Tuple[nodes.Node, int]
             """Find or create a spot to place footnotes.
 
             The function returns the tuple (parent, index)."""
@@ -364,7 +366,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     fn_idx += 1
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         """Write one document file.
 
         This method is overwritten in order to fix fragment identifiers

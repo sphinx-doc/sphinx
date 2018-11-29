@@ -265,7 +265,7 @@ class CheckExternalLinksBuilder(Builder):
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
-        # type: (nodes.Node) -> None
+        # type: (Set[unicode]) -> None
         return
 
     def write_doc(self, docname, doctree):

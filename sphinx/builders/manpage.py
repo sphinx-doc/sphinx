@@ -67,7 +67,7 @@ class ManualPageBuilder(Builder):
         docsettings = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()
+            read_config_files=True).get_default_values()  # type: Any
 
         logger.info(bold(__('writing... ')), nonl=True)
 

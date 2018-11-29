@@ -124,7 +124,7 @@ class TexinfoBuilder(Builder):
             settings = OptionParser(
                 defaults=self.env.settings,
                 components=(docwriter,),
-                read_config_files=True).get_default_values()
+                read_config_files=True).get_default_values()  # type: Any
             settings.author = author
             settings.title = title
             settings.texinfo_filename = targetname[:-5] + '.info'
@@ -138,7 +138,7 @@ class TexinfoBuilder(Builder):
             logger.info(__("done"))
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.Node
+        # type: (unicode, bool, List[unicode]) -> nodes.document
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -168,7 +168,7 @@ class TexinfoBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]
+            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
