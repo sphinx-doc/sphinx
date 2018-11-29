@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from docutils import nodes
 
@@ -27,7 +27,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 versionlabels = {
@@ -63,8 +63,8 @@ class VersionChange(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
-        node = addnodes.versionmodified()  # type: nodes.Node
+        # type: () -> List[N_co]
+        node = addnodes.versionmodified()
         node.document = self.state.document
         set_source_info(self, node)
         node['type'] = self.name
@@ -96,7 +96,8 @@ class VersionChange(SphinxDirective):
                                    translatable=False)
             node.append(para)
 
-        self.env.get_domain('changeset').note_changeset(node)  # type: ignore
+        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain.note_changeset(node)
         return [node] + messages
 
 
@@ -131,7 +132,7 @@ class ChangeSetDomain(Domain):
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.versionmodified) -> None
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')

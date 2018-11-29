@@ -36,7 +36,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import N_co, RoleFunction, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class EnvVarXRefRole(XRefRole):
     """
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Element], List[nodes.system_message]]  # NOQA
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -123,13 +123,13 @@ class Target(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]  # type: List[nodes.Node]
+        ret = [node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -222,7 +222,7 @@ class Program(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
             self.env.ref_context.pop('std:program', None)
@@ -233,7 +233,7 @@ class Program(SphinxDirective):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -290,7 +290,7 @@ class Glossary(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = addnodes.glossary()
         node.document = self.state.document
 
@@ -419,10 +419,10 @@ class ProductionList(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[nodes.Element]
         domain = cast(StandardDomain, self.env.get_domain('std'))
-        node = addnodes.productionlist()  # type: nodes.Node
-        messages = []  # type: List[nodes.Node]
+        node = addnodes.productionlist()  # type: nodes.Element
+        messages = []  # type: List[nodes.Element]
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -526,7 +526,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
+    }  # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
@@ -619,7 +619,8 @@ class StandardDomain(Domain):
             if labelid is None:
                 continue
             node = document.ids[labelid]
-            if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
+            if isinstance(node, nodes.target) and 'refid' in node:
+                # indirect hyperlink targets
                 node = document.ids.get(node['refid'])
                 labelid = node['names'][0]
             if (node.tagname == 'footnote' or
@@ -668,7 +669,7 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
-        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.Node
+        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.Element
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
@@ -875,7 +876,7 @@ class StandardDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, addnodes.pending_xref, nodes.Element) -> List[Tuple[unicode, nodes.Element]]  # NOQA
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
+        results = []  # type: List[Tuple[unicode, nodes.Element]]
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -927,7 +928,7 @@ class StandardDomain(Domain):
         return node.__class__ in self.enumerable_nodes
 
     def get_numfig_title(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
             _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
@@ -941,10 +942,10 @@ class StandardDomain(Domain):
         return None
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Get type of enumerable nodes."""
         def has_child(node, cls):
-            # type: (nodes.Node, Type) -> bool
+            # type: (nodes.Element, Type) -> bool
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):
@@ -959,7 +960,7 @@ class StandardDomain(Domain):
             return figtype
 
     def get_figtype(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         """Get figure type of nodes.
 
         .. deprecated:: 1.8
@@ -970,7 +971,7 @@ class StandardDomain(Domain):
         return self.get_enumerable_node_type(node)
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):
-        # type: (BuildEnvironment, Builder, unicode, unicode, nodes.Node) -> Tuple[int, ...]
+        # type: (BuildEnvironment, Builder, unicode, unicode, nodes.Element) -> Tuple[int, ...]
         if figtype == 'section':
             if builder.name == 'latex':
                 return tuple()
@@ -993,7 +994,7 @@ class StandardDomain(Domain):
                 raise ValueError
 
     def get_full_qualified_name(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Element) -> unicode
         if node.get('reftype') == 'option':
             progname = node.get('std:program')
             command = ws_re.split(node.get('reftarget'))
