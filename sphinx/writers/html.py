@@ -285,7 +285,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        # type: (nodes.admonition, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name:
@@ -372,7 +372,7 @@ class HTMLTranslator(BaseTranslator):
     # overwritten
     def visit_bullet_list(self, node):
         # type: (nodes.bullet_list) -> None
-        if len(node) == 1 and node[0].tagname == 'toctree':
+        if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
         self.generate_targets_for_listing(node)
