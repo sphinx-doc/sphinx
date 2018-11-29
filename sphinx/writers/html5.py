@@ -221,7 +221,7 @@ class HTML5Translator(BaseTranslator):
             if self.settings.cloak_email_addresses and \
                atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
-                self.in_mailto = 1
+                self.in_mailto = True
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
@@ -254,7 +254,7 @@ class HTML5Translator(BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        # type: (nodes.admonition, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name:
@@ -325,7 +325,7 @@ class HTML5Translator(BaseTranslator):
     # overwritten
     def visit_bullet_list(self, node):
         # type: (nodes.bullet_list) -> None
-        if len(node) == 1 and node[0].tagname == 'toctree':
+        if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
         super(HTML5Translator, self).visit_bullet_list(node)
