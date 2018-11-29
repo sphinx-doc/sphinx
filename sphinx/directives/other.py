@@ -28,7 +28,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 glob_re = re.compile(r'.*[*?\[].*')
@@ -63,7 +63,7 @@ class TocTree(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         subnode = addnodes.toctree()
         subnode['parent'] = self.env.docname
 
@@ -163,10 +163,10 @@ class Author(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if not self.config.show_authors:
             return []
-        para = nodes.paragraph(translatable=False)  # type: nodes.Node
+        para = nodes.paragraph(translatable=False)  # type: nodes.Element
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -195,7 +195,7 @@ class Index(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         arguments = self.arguments[0].split('\n')
         targetid = 'index-%s' % self.env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
@@ -227,7 +227,7 @@ class TabularColumns(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         set_source_info(self, node)
@@ -245,10 +245,10 @@ class Centered(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if not self.arguments:
             return []
-        subnode = addnodes.centered()  # type: nodes.Node
+        subnode = addnodes.centered()  # type: nodes.Element
         inodes, messages = self.state.inline_text(self.arguments[0],
                                                   self.lineno)
         subnode.extend(inodes)
@@ -266,7 +266,7 @@ class Acks(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
@@ -290,7 +290,7 @@ class HList(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
@@ -325,7 +325,7 @@ class Only(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = addnodes.only()
         node.document = self.state.document
         set_source_info(self, node)
@@ -379,7 +379,7 @@ class Include(BaseInclude, SphinxDirective):
     """
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing

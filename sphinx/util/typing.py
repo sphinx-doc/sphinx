@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, TypeVar
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
@@ -22,6 +22,9 @@ if PY2:
     unicode = text_type
 else:
     unicode = str
+
+
+N_co = TypeVar('N_co', bound=nodes.Node, covariant=True)
 
 
 # common role functions

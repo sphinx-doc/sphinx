@@ -29,7 +29,7 @@ if False:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class Highlight(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
                                        linenothreshold=linenothreshold)]
@@ -59,7 +59,7 @@ class HighlightLang(Highlight):
     """highlightlang directive (deprecated)"""
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         warnings.warn('highlightlang directive is deprecated. '
                       'Please use highlight directive instead.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -94,13 +94,16 @@ def container_wrapper(directive, literal_node, caption):
     if isinstance(parsed[0], nodes.system_message):
         msg = __('Invalid caption: %s' % parsed[0].astext())
         raise ValueError(msg)
-    caption_node = nodes.caption(parsed[0].rawsource, '',
-                                 *parsed[0].children)
-    caption_node.source = literal_node.source
-    caption_node.line = literal_node.line
-    container_node += caption_node
-    container_node += literal_node
-    return container_node
+    elif isinstance(parsed[0], nodes.Element):
+        caption_node = nodes.caption(parsed[0].rawsource, '',
+                                     *parsed[0].children)
+        caption_node.source = literal_node.source
+        caption_node.line = literal_node.line
+        container_node += caption_node
+        container_node += literal_node
+        return container_node
+    else:
+        raise RuntimeError  # never reached
 
 
 class CodeBlock(SphinxDirective):
@@ -124,7 +127,7 @@ class CodeBlock(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         document = self.state.document
         code = u'\n'.join(self.content)
         location = self.state_machine.get_source_and_line(self.lineno)
@@ -151,7 +154,7 @@ class CodeBlock(SphinxDirective):
             lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = '\n'.join(lines)
 
-        literal = nodes.literal_block(code, code)
+        literal = nodes.literal_block(code, code)  # type: nodes.Element
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
@@ -416,7 +419,7 @@ class LiteralInclude(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         document = self.state.document
         if not document.settings.file_insertion_enabled:
             return [document.reporter.warning('File insertion disabled',
@@ -434,7 +437,7 @@ class LiteralInclude(SphinxDirective):
             reader = LiteralIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
 
-            retnode = nodes.literal_block(text, text, source=filename)
+            retnode = nodes.literal_block(text, text, source=filename)  # type: nodes.Element
             set_source_info(self, retnode)
             if self.options.get('diff'):  # if diff is set, set udiff
                 retnode['language'] = 'udiff'
