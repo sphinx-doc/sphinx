@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 
 from sphinx import addnodes
@@ -31,11 +33,11 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         raise nodes.NodeFound
 
     def visit_bullet_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.bullet_list) -> None
         pass
 
     def visit_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.list_item) -> None
         children = []  # type: List[nodes.Node]
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
@@ -84,8 +86,8 @@ class RefOnlyBulletListTransform(SphinxTransform):
         for node in self.document.traverse(nodes.bullet_list):
             if check_refonly_list(node):
                 for item in node.traverse(nodes.list_item):
-                    para = item[0]
-                    ref = para[0]
+                    para = cast(nodes.paragraph, item[0])
+                    ref = cast(nodes.reference, para[0])
                     compact_para = addnodes.compact_paragraph()
                     compact_para += ref
                     item.replace(para, compact_para)

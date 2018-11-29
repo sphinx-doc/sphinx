@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 def publish_msgstr(app, source, source_path, source_line, config, settings):
-    # type: (Sphinx, unicode, unicode, int, Config, Dict) -> nodes.document
+    # type: (Sphinx, unicode, unicode, int, Config, Any) -> nodes.document
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
