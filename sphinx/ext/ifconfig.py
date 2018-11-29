@@ -30,7 +30,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 class ifconfig(nodes.Element):
@@ -46,7 +46,7 @@ class IfConfig(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = ifconfig()
         node.document = self.state.document
         set_source_info(self, node)

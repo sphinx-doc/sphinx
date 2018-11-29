@@ -55,7 +55,7 @@ if False:
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
     from sphinx.writers.texinfo import TexinfoTranslator  # NOQA
@@ -337,7 +337,7 @@ class InheritanceDiagram(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = inheritance_diagram()
         node.document = self.state.document
         class_names = self.arguments[0].split()

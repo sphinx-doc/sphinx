@@ -161,7 +161,7 @@ class XRefRole:
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Element], List[nodes.system_message]]  # NOQA
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``

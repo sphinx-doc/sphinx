@@ -17,7 +17,7 @@ from sphinx import addnodes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Type  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import unicode  # NOQA
@@ -67,7 +67,7 @@ class Field:
                   rolename,       # type: unicode
                   domain,         # type: unicode
                   target,         # type: unicode
-                  innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                  innernode=addnodes.literal_emphasis,  # type: Type[nodes.TextElement]
                   contnode=None,  # type: nodes.Node
                   env=None,       # type: BuildEnvironment
                   ):
@@ -85,7 +85,7 @@ class Field:
                    rolename,       # type: unicode
                    domain,         # type: unicode
                    target,         # type: unicode
-                   innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                   innernode=addnodes.literal_emphasis,  # type: Type[nodes.TextElement]
                    contnode=None,  # type: nodes.Node
                    env=None,       # type: BuildEnvironment
                    ):

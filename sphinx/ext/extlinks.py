@@ -41,7 +41,7 @@ if False:
 def make_link_role(base_url, prefix):
     # type: (unicode, unicode) -> RoleFunction
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:

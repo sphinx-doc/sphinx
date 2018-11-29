@@ -24,7 +24,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class AutodocDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         reporter = self.state.document.reporter
 
         try:

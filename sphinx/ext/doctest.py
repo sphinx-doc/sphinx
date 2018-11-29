@@ -38,7 +38,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Sequence, Set, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class TestDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if 'skipif' in self.options:
             condition = self.options['skipif']
             context = {}  # type: Dict[str, Any]
