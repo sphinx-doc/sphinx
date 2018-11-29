@@ -22,7 +22,7 @@ if False:
     # For type annotation
     from typing import Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 class Figure(images.Figure):
@@ -31,9 +31,9 @@ class Figure(images.Figure):
     """
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         name = self.options.pop('name', None)
-        result = super(Figure, self).run()
+        result = super(Figure, self).run()  # type: List[nodes.Node]
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
             return result
 
@@ -54,8 +54,8 @@ class Figure(images.Figure):
 
 class Meta(html.Meta, SphinxDirective):
     def run(self):
-        # type: () -> List[nodes.Node]
-        result = super(Meta, self).run()
+        # type: () -> List[N_co]
+        result = super(Meta, self).run()  # type: List[nodes.Node]
         for node in result:
             if (isinstance(node, nodes.pending) and
                isinstance(node.details['nodes'][0], html.MetaBody.meta)):
@@ -124,7 +124,7 @@ class MathDirective(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex

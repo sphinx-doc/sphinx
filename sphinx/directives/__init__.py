@@ -36,7 +36,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 # RE to strip backslash escapes
@@ -116,7 +116,7 @@ class ObjectDescription(SphinxDirective):
         pass
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -198,7 +198,7 @@ class DefaultRole(SphinxDirective):
     final_argument_whitespace = False
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if not self.arguments:
             if '' in roles._roles:
                 # restore the "default" default role
@@ -230,7 +230,7 @@ class DefaultDomain(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
