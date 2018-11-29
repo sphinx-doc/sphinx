@@ -69,7 +69,7 @@ class Builder:
 
     #: default translator class for the builder.  This can be overrided by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class = None  # type: nodes.NodeVisitor
+    default_translator_class = None  # type: Type[nodes.NodeVisitor]
     # doctree versioning method
     versioning_method = 'none'  # type: unicode
     versioning_compare = False
@@ -528,7 +528,7 @@ class Builder:
         self.write_doctree(docname, doctree)
 
     def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -587,7 +587,7 @@ class Builder:
     def _write_parallel(self, docnames, nproc):
         # type: (Sequence[unicode], int) -> None
         def write_process(docs):
-            # type: (List[Tuple[unicode, nodes.Node]]) -> None
+            # type: (List[Tuple[unicode, nodes.document]]) -> None
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
@@ -623,12 +623,12 @@ class Builder:
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         """Where you actually write something to the filesystem."""
         raise NotImplementedError
 
     def write_doc_serialized(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
         """

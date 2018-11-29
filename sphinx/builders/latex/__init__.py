@@ -215,7 +215,7 @@ class LaTeXBuilder(Builder):
         docsettings = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()
+            read_config_files=True).get_default_values()  # type: Any
 
         self.init_document_data()
         self.write_stylesheet()
@@ -245,12 +245,13 @@ class LaTeXBuilder(Builder):
             self.update_doc_context(title, author)
 
             logger.info(__("writing... "), nonl=1)
+            docsettings.author = author
+            docsettings.title = title
+            docsettings.contentsname = self.get_contentsname(docname)
+            docsettings.docname = docname
+            docsettings.docclass = docclass
+
             doctree.settings = docsettings
-            doctree.settings.author = author
-            doctree.settings.title = title
-            doctree.settings.contentsname = self.get_contentsname(docname)
-            doctree.settings.docname = docname
-            doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
             logger.info("done")
 
@@ -271,7 +272,7 @@ class LaTeXBuilder(Builder):
         self.context['author'] = author
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.Node
+        # type: (unicode, bool, List[unicode]) -> nodes.document
         from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
@@ -303,7 +304,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]
+            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))

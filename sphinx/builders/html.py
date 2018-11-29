@@ -55,7 +55,7 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
@@ -379,8 +379,8 @@ class StandaloneHTMLBuilder(Builder):
         self.script_files.append(JavaScript(filename, **kwargs))
 
     @property
-    def default_translator_class(self):
-        # type: () -> nodes.NodeVisitor
+    def default_translator_class(self):  # type: ignore
+        # type: () -> Type[nodes.NodeVisitor]
         use_html5_writer = self.config.html_experimental_html5_writer
         if use_html5_writer is None:
             use_html5_writer = self.default_html5_translator
@@ -454,7 +454,7 @@ class StandaloneHTMLBuilder(Builder):
         return self.config.html_extra_path + self.config.html_static_path
 
     def render_partial(self, node):
-        # type: (nodes.Nodes) -> Dict[unicode, unicode]
+        # type: (nodes.Node) -> Dict[unicode, unicode]
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -480,7 +480,7 @@ class StandaloneHTMLBuilder(Builder):
         return pub.writer.parts
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> nodes.Node
+        # type: (Set[unicode]) -> None
         # create the search indexer
         self.indexer = None
         if self.search:
@@ -497,7 +497,7 @@ class StandaloneHTMLBuilder(Builder):
         self.docsettings = OptionParser(
             defaults=self.env.settings,
             components=(self.docwriter,),
-            read_config_files=True).get_default_values()
+            read_config_files=True).get_default_values()  # type: Any
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
@@ -671,7 +671,7 @@ class StandaloneHTMLBuilder(Builder):
         }
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -1212,7 +1212,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> None
+        # type: (Set[unicode]) -> None
         super(DirectoryHTMLBuilder, self).prepare_writing(docnames)
         self.globalcontext['no_search_suffix'] = True
 
@@ -1271,7 +1271,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self):
-        # type: () -> nodes.Node
+        # type: () -> nodes.document
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
@@ -1354,7 +1354,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         docnames = self.env.all_docs
 
         logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)
+        self.prepare_writing(docnames)  # type: ignore
         logger.info(__('done'))
 
         logger.info(bold(__('assembling single document... ')), nonl=True)

@@ -24,7 +24,7 @@ from sphinx.util.osutil import make_filename
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -141,7 +141,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return metadata
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> None
+        # type: (Set[unicode]) -> None
         super(Epub3Builder, self).prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
