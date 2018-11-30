@@ -10,13 +10,16 @@
 """
 import pickle
 import re
+import warnings
 from os import path
 
 from six import text_type
 
-from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
+from docutils import nodes
 
-import sphinx
+from sphinx import addnodes
+from sphinx import package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util import jsdump, rpartition
 from sphinx.util.pycompat import htmlescape
 from sphinx.search.jssplitter import splitter_code
@@ -127,7 +130,7 @@ def parse_stop_word(source):
 
     * http://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
-    result = set()
+    result = set()  # type: Set[unicode]
     for line in source.splitlines():
         line = line.split('|')[0]  # remove comment
         result.update(line.split())
@@ -189,21 +192,25 @@ class _JavaScriptIndex:
 js_index = _JavaScriptIndex()
 
 
-class WordCollector(NodeVisitor):
+class WordCollector(nodes.NodeVisitor):
     """
     A special visitor that collects words for the `IndexBuilder`.
     """
 
     def __init__(self, document, lang):
-        # type: (nodes.Node, SearchLanguage) -> None
+        # type: (nodes.document, SearchLanguage) -> None
         super(WordCollector, self).__init__(document)
         self.found_words = []           # type: List[unicode]
         self.found_title_words = []     # type: List[unicode]
         self.lang = lang
 
-    def is_meta_keywords(self, node, nodetype):
-        # type: (nodes.Node, Type) -> bool
-        if isinstance(node, sphinx.addnodes.meta) and node.get('name') == 'keywords':
+    def is_meta_keywords(self, node, nodetype=None):
+        # type: (addnodes.meta, Any) -> bool
+        if nodetype is not None:
+            warnings.warn('"nodetype" argument for WordCollector.is_meta_keywords() '
+                          'is deprecated.', RemovedInSphinx40Warning)
+
+        if isinstance(node, addnodes.meta) and node.get('name') == 'keywords':
             meta_lang = node.get('lang')
             if meta_lang is None:  # lang not specified
                 return True
@@ -214,10 +221,9 @@ class WordCollector(NodeVisitor):
 
     def dispatch_visit(self, node):
         # type: (nodes.Node) -> None
-        nodetype = type(node)
-        if issubclass(nodetype, comment):
-            raise SkipNode
-        if issubclass(nodetype, raw):
+        if isinstance(node, nodes.comment):
+            raise nodes.SkipNode
+        elif isinstance(node, nodes.raw):
             if 'html' in node.get('format', '').split():
                 # Some people might put content in raw HTML that should be searched,
                 # so we just amateurishly strip HTML tags and index the remaining
@@ -226,12 +232,12 @@ class WordCollector(NodeVisitor):
                 nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
                 nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                 self.found_words.extend(self.lang.split(nodetext))
-            raise SkipNode
-        if issubclass(nodetype, Text):
+            raise nodes.SkipNode
+        elif isinstance(node, nodes.Text):
             self.found_words.extend(self.lang.split(node.astext()))
-        elif issubclass(nodetype, title):
+        elif isinstance(node, nodes.title):
             self.found_title_words.extend(self.lang.split(node.astext()))
-        elif self.is_meta_keywords(node, nodetype):
+        elif isinstance(node, addnodes.meta) and self.is_meta_keywords(node):
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
@@ -411,7 +417,7 @@ class IndexBuilder:
             wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):
-        # type: (unicode, unicode, unicode, nodes.Node) -> None
+        # type: (unicode, unicode, unicode, nodes.document) -> None
         """Feed a doctree to the index."""
         self._titles[docname] = title
         self._filenames[docname] = filename
@@ -457,10 +463,7 @@ class IndexBuilder:
     def get_js_stemmer_rawcode(self):
         # type: () -> unicode
         if self.lang.js_stemmer_rawcode:
-            return path.join(
-                sphinx.package_dir, 'search',
-                'non-minified-js',
-                self.lang.js_stemmer_rawcode
-            )
+            return path.join(package_dir, 'search', 'non-minified-js',
+                             self.lang.js_stemmer_rawcode)
         else:
             return None

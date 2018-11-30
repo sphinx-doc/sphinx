@@ -39,6 +39,8 @@ Deprecated
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
   ``autodoc.ClassDocumenter.get_doc()`` are deprecated.
+* The ``nodetype`` argument of ``sphinx.search.WordCollector.
+  is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.application.Sphinx._setting_up_extension``
