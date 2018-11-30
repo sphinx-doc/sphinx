@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import List, cast
+
 from docutils import nodes
 
 from sphinx.environment.collectors import EnvironmentCollector
@@ -52,12 +54,18 @@ class MetadataCollector(EnvironmentCollector):
         for node in docinfo:
             # nodes are multiply inherited...
             if isinstance(node, nodes.authors):
-                md['authors'] = [author.astext() for author in node]
-            elif isinstance(node, nodes.TextElement):  # e.g. author
-                md[node.__class__.__name__] = node.astext()
+                authors = cast(List[nodes.author], node)
+                md['authors'] = [author.astext() for author in authors]
+            elif isinstance(node, nodes.field):
+                assert len(node) == 2
+                field_name = cast(nodes.field_name, node[0])
+                field_body = cast(nodes.field_body, node[1])
+                md[field_name.astext()] = field_body.astext()
             else:
-                name, body = node
-                md[name.astext()] = body.astext()
+                # other children must be TextElement
+                # see: http://docutils.sourceforge.net/docs/ref/doctree.html#bibliographic-elements  # NOQA
+                element = cast(nodes.TextElement, node)
+                md[element.__class__.__name__] = element.astext()
         for name, value in md.items():
             if name in ('tocdepth',):
                 try:
