@@ -5,17 +5,17 @@
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import re
 import bisect
+import re
 import unicodedata
 from itertools import groupby
 
-from six import text_type, iteritems
+from six import text_type
 
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
 if False:
@@ -23,11 +23,12 @@ if False:
     from typing import Any, Dict, Pattern, List, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-class IndexEntries(object):
+class IndexEntries:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env
@@ -60,7 +61,7 @@ class IndexEntries(object):
                     # maintain links in sorted/deterministic order
                     bisect.insort(entry[0], (main, uri))
 
-        for fn, entries in iteritems(self.env.indexentries):
+        for fn, entries in self.env.indexentries.items():
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main, index_key in entries:
                 try:
@@ -89,7 +90,7 @@ class IndexEntries(object):
                         add_entry(first, _('see also %s') % second, None,
                                   link=False, key=index_key)
                     else:
-                        logger.warning('unknown index entry type %r', type, location=fn)
+                        logger.warning(__('unknown index entry type %r'), type, location=fn)
                 except ValueError as err:
                     logger.warning(str(err), location=fn)
 
@@ -146,7 +147,7 @@ class IndexEntries(object):
             # type: (Tuple[unicode, List]) -> unicode
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
+            v[1] = sorted((si, se) for (si, (se, void, void)) in v[1].items())
             if v[2] is None:
                 # now calculate the key
                 if k.startswith(u'\N{RIGHT-TO-LEFT MARK}'):

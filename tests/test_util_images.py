@@ -5,7 +5,7 @@
 
     Test images util.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -19,7 +19,7 @@ from sphinx.util.images import (
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
 PDF_FILENAME = 'img.pdf'
-TXT_FILENAME = 'contents.txt'
+TXT_FILENAME = 'index.txt'
 
 
 @pytest.fixture(scope='module')
@@ -34,6 +34,7 @@ def test_get_image_size(testroot):
     assert get_image_size(testroot / TXT_FILENAME) is None
 
 
+@pytest.mark.filterwarnings('ignore:The content argument')
 def test_guess_mimetype(testroot):
     # guess by filename
     assert guess_mimetype('img.png') == 'image/png'
@@ -44,22 +45,22 @@ def test_guess_mimetype(testroot):
     assert guess_mimetype('IMG.PNG') == 'image/png'
 
     # guess by content
-    assert guess_mimetype(content=(testroot/GIF_FILENAME).bytes()) == 'image/gif'
-    assert guess_mimetype(content=(testroot/PNG_FILENAME).bytes()) == 'image/png'
-    assert guess_mimetype(content=(testroot/PDF_FILENAME).bytes()) is None
-    assert guess_mimetype(content=(testroot/TXT_FILENAME).bytes()) is None
-    assert guess_mimetype(content=(testroot/TXT_FILENAME).bytes(),
+    assert guess_mimetype(content=(testroot / GIF_FILENAME).bytes()) == 'image/gif'
+    assert guess_mimetype(content=(testroot / PNG_FILENAME).bytes()) == 'image/png'
+    assert guess_mimetype(content=(testroot / PDF_FILENAME).bytes()) is None
+    assert guess_mimetype(content=(testroot / TXT_FILENAME).bytes()) is None
+    assert guess_mimetype(content=(testroot / TXT_FILENAME).bytes(),
                           default='text/plain') == 'text/plain'
 
     # the priority of params: filename > content > default
     assert guess_mimetype('img.png',
-                          content=(testroot/GIF_FILENAME).bytes(),
+                          content=(testroot / GIF_FILENAME).bytes(),
                           default='text/plain') == 'image/png'
     assert guess_mimetype('no_extension',
-                          content=(testroot/GIF_FILENAME).bytes(),
+                          content=(testroot / GIF_FILENAME).bytes(),
                           default='text/plain') == 'image/gif'
     assert guess_mimetype('no_extension',
-                          content=(testroot/TXT_FILENAME).bytes(),
+                          content=(testroot / TXT_FILENAME).bytes(),
                           default='text/plain') == 'text/plain'
 
 

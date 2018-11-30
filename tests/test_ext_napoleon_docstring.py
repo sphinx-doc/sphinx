@@ -6,20 +6,19 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from collections import namedtuple
-
-# inspect.cleandoc() implements the trim() function from PEP 257
 from inspect import cleandoc
 from textwrap import dedent
 from unittest import TestCase
 
+import mock
+
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-import mock
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -58,16 +57,50 @@ Sample namedtuple subclass
 
 .. attribute:: attr1
 
-   *Arbitrary type* -- Quick description of attr1
+   Quick description of attr1
+
+   :type: Arbitrary type
 
 .. attribute:: attr2
 
-   *Another arbitrary type* -- Quick description of attr2
+   Quick description of attr2
+
+   :type: Another arbitrary type
 
 .. attribute:: attr3
 
-   *Type* -- Adds a newline after the type
+   Adds a newline after the type
+
+   :type: Type
 """
+
+        self.assertEqual(expected, actual)
+
+
+class InlineAttributeTest(BaseDocstringTest):
+
+    def test_class_data_member(self):
+        config = Config()
+        docstring = """data member description:
+
+- a: b
+"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data member description:
+
+- a: b"""
+
+        self.assertEqual(expected, actual)
+
+    def test_class_data_member_inline(self):
+        config = Config()
+        docstring = """b: data member description with :ref:`reference`"""
+        actual = str(GoogleDocstring(docstring, config=config, app=None,
+                     what='attribute', name='some_data', obj=0))
+        expected = """data member description with :ref:`reference`
+
+:type: b"""
 
         self.assertEqual(expected, actual)
 
@@ -266,6 +299,44 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
     )]
 
+    def test_sphinx_admonitions(self):
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+        config = Config()
+        for section, admonition in admonition_map.items():
+            # Multiline
+            actual = str(GoogleDocstring(("{}:\n"
+                                          "    this is the first line\n"
+                                          "\n"
+                                          "    and this is the second line\n"
+                                          ).format(section), config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+            # Single line
+            actual = str(GoogleDocstring(("{}:\n"
+                                          "    this is a single line\n"
+                                          ).format(section), config))
+            expect = (".. {}:: this is a single line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
     def test_docstrings(self):
         config = Config(
             napoleon_use_param=False,
@@ -323,7 +394,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   :class:`numpy.ndarray` -- super-dooper attribute
+   super-dooper attribute
+
+   :type: :class:`numpy.ndarray`
 """
         self.assertEqual(expected, actual)
 
@@ -336,7 +409,9 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   *numpy.ndarray* -- super-dooper attribute
+   super-dooper attribute
+
+   :type: numpy.ndarray
 """
         self.assertEqual(expected, actual)
 
@@ -405,8 +480,8 @@ Raises:
 """, """
 Example Function
 
-:raises: * :exc:`RuntimeError` -- A setting wasn't specified, or was invalid.
-         * :exc:`ValueError` -- Something something value error.
+:raises RuntimeError: A setting wasn't specified, or was invalid.
+:raises ValueError: Something something value error.
 """),
                       ################################
                       ("""
@@ -418,7 +493,7 @@ Raises:
 """, """
 Example Function
 
-:raises: :exc:`InvalidDimensionsError`
+:raises InvalidDimensionsError:
 """),
                       ################################
                       ("""
@@ -430,7 +505,7 @@ Raises:
 """, """
 Example Function
 
-:raises: Invalid Dimensions Error
+:raises Invalid Dimensions Error:
 """),
                       ################################
                       ("""
@@ -442,7 +517,7 @@ Raises:
 """, """
 Example Function
 
-:raises: *Invalid Dimensions Error* -- With description
+:raises Invalid Dimensions Error: With description
 """),
                       ################################
                       ("""
@@ -454,7 +529,7 @@ Raises:
 """, """
 Example Function
 
-:raises: :exc:`InvalidDimensionsError` -- If the dimensions couldn't be parsed.
+:raises InvalidDimensionsError: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -466,7 +541,7 @@ Raises:
 """, """
 Example Function
 
-:raises: *Invalid Dimensions Error* -- If the dimensions couldn't be parsed.
+:raises Invalid Dimensions Error: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -478,7 +553,7 @@ Raises:
 """, """
 Example Function
 
-:raises: If the dimensions couldn't be parsed.
+:raises If the dimensions couldn't be parsed.:
 """),
                       ################################
                       ("""
@@ -490,7 +565,7 @@ Raises:
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError`
+:raises exc.InvalidDimensionsError:
 """),
                       ################################
                       ("""
@@ -502,8 +577,7 @@ Raises:
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError` -- If the dimensions couldn't """
-                          """be parsed.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -516,9 +590,8 @@ Raises:
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError` -- If the dimensions couldn't """
-                          """be parsed,
-         then a :class:`exc.InvalidDimensionsError` will be raised.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed,
+    then a :class:`exc.InvalidDimensionsError` will be raised.
 """),
                       ################################
                       ("""
@@ -531,9 +604,8 @@ Raises:
 """, """
 Example Function
 
-:raises: * :class:`exc.InvalidDimensionsError` -- If the dimensions """
-                          """couldn't be parsed.
-         * :class:`exc.InvalidArgumentsError` -- If the arguments are invalid.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
+:raises exc.InvalidArgumentsError: If the arguments are invalid.
 """),
                       ################################
                       ("""
@@ -546,8 +618,8 @@ Raises:
 """, """
 Example Function
 
-:raises: * :class:`exc.InvalidDimensionsError`
-         * :class:`exc.InvalidArgumentsError`
+:raises exc.InvalidDimensionsError:
+:raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
             actual = str(GoogleDocstring(docstring))
@@ -917,6 +989,28 @@ Parameters:
         actual = str(GoogleDocstring(docstring, config))
         self.assertEqual(expected, actual)
 
+    def test_custom_generic_sections(self):
+
+        docstrings = (("""\
+Really Important Details:
+    You should listen to me!
+""", """.. rubric:: Really Important Details
+
+You should listen to me!
+"""),
+                      ("""\
+Sooper Warning:
+    Stop hitting yourself!
+""", """:Warns: **Stop hitting yourself!**
+"""))
+
+        testConfig = Config(napoleon_custom_sections=['Really Important Details',
+                                                      ('Sooper Warning', 'warns')])
+
+        for docstring, expected in docstrings:
+            actual = str(GoogleDocstring(docstring, testConfig))
+            self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -1070,6 +1164,46 @@ class NumpyDocstringTest(BaseDocstringTest):
                  description of yielded value
         """
     )]
+
+    def test_sphinx_admonitions(self):
+        admonition_map = {
+            'Attention': 'attention',
+            'Caution': 'caution',
+            'Danger': 'danger',
+            'Error': 'error',
+            'Hint': 'hint',
+            'Important': 'important',
+            'Note': 'note',
+            'Tip': 'tip',
+            'Todo': 'todo',
+            'Warning': 'warning',
+            'Warnings': 'warning',
+        }
+        config = Config()
+        for section, admonition in admonition_map.items():
+            # Multiline
+            actual = str(NumpyDocstring(("{}\n"
+                                         "{}\n"
+                                         "    this is the first line\n"
+                                         "\n"
+                                         "    and this is the second line\n"
+                                         ).format(section, '-' * len(section)), config))
+            expect = (".. {}::\n"
+                      "\n"
+                      "   this is the first line\n"
+                      "   \n"
+                      "   and this is the second line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
+
+            # Single line
+            actual = str(NumpyDocstring(("{}\n"
+                                         "{}\n"
+                                         "    this is a single line\n"
+                                         ).format(section, '-' * len(section)), config))
+            expect = (".. {}:: this is a single line\n"
+                      ).format(admonition)
+            self.assertEqual(expect, actual)
 
     def test_docstrings(self):
         config = Config(
@@ -1237,8 +1371,8 @@ Raises
 """, """
 Example Function
 
-:raises: * :exc:`RuntimeError` -- A setting wasn't specified, or was invalid.
-         * :exc:`ValueError` -- Something something value error.
+:raises RuntimeError: A setting wasn't specified, or was invalid.
+:raises ValueError: Something something value error.
 """),
                       ################################
                       ("""
@@ -1251,7 +1385,7 @@ InvalidDimensionsError
 """, """
 Example Function
 
-:raises: :exc:`InvalidDimensionsError`
+:raises InvalidDimensionsError:
 """),
                       ################################
                       ("""
@@ -1264,7 +1398,7 @@ Invalid Dimensions Error
 """, """
 Example Function
 
-:raises: Invalid Dimensions Error
+:raises Invalid Dimensions Error:
 """),
                       ################################
                       ("""
@@ -1278,7 +1412,7 @@ Invalid Dimensions Error
 """, """
 Example Function
 
-:raises: *Invalid Dimensions Error* -- With description
+:raises Invalid Dimensions Error: With description
 """),
                       ################################
                       ("""
@@ -1292,7 +1426,7 @@ InvalidDimensionsError
 """, """
 Example Function
 
-:raises: :exc:`InvalidDimensionsError` -- If the dimensions couldn't be parsed.
+:raises InvalidDimensionsError: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -1306,7 +1440,7 @@ Invalid Dimensions Error
 """, """
 Example Function
 
-:raises: *Invalid Dimensions Error* -- If the dimensions couldn't be parsed.
+:raises Invalid Dimensions Error: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -1319,7 +1453,7 @@ If the dimensions couldn't be parsed.
 """, """
 Example Function
 
-:raises: If the dimensions couldn't be parsed.
+:raises If the dimensions couldn't be parsed.:
 """),
                       ################################
                       ("""
@@ -1332,7 +1466,7 @@ Raises
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError`
+:raises exc.InvalidDimensionsError:
 """),
                       ################################
                       ("""
@@ -1346,8 +1480,7 @@ Raises
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError` -- If the dimensions couldn't """
-                          """be parsed.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
 """),
                       ################################
                       ("""
@@ -1362,9 +1495,8 @@ Raises
 """, """
 Example Function
 
-:raises: :class:`exc.InvalidDimensionsError` -- If the dimensions couldn't """
-                          """be parsed,
-         then a :class:`exc.InvalidDimensionsError` will be raised.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed,
+    then a :class:`exc.InvalidDimensionsError` will be raised.
 """),
                       ################################
                       ("""
@@ -1380,10 +1512,8 @@ Raises
 """, """
 Example Function
 
-:raises: * :class:`exc.InvalidDimensionsError` -- If the dimensions """
-                          """couldn't be parsed.
-         * :class:`exc.InvalidArgumentsError` -- If the arguments """
-                          """are invalid.
+:raises exc.InvalidDimensionsError: If the dimensions couldn't be parsed.
+:raises exc.InvalidArgumentsError: If the arguments are invalid.
 """),
                       ################################
                       ("""
@@ -1397,8 +1527,8 @@ Raises
 """, """
 Example Function
 
-:raises: * :class:`exc.InvalidDimensionsError`
-         * :class:`exc.InvalidArgumentsError`
+:raises exc.InvalidDimensionsError:
+:raises exc.InvalidArgumentsError:
 """)]
         for docstring, expected in docstrings:
             config = Config()

@@ -5,15 +5,16 @@
 
     Test the sphinx.environment.managers.indexentries.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from collections import namedtuple
-from sphinx import locale
-from sphinx.environment.adapters.indexentries import IndexEntries
 
 import mock
+
+from sphinx import locale
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 Environment = namedtuple('Environment', 'indexentries')
 

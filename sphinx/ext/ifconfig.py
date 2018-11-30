@@ -16,27 +16,28 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 
 import sphinx
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 class ifconfig(nodes.Element):
     pass
 
 
-class IfConfig(Directive):
+class IfConfig(SphinxDirective):
 
     has_content = True
     required_arguments = 1
@@ -45,7 +46,7 @@ class IfConfig(Directive):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         node = ifconfig()
         node.document = self.state.document
         set_source_info(self, node)
@@ -56,8 +57,8 @@ class IfConfig(Directive):
 
 
 def process_ifconfig_nodes(app, doctree, docname):
-    # type: (Sphinx, nodes.Node, unicode) -> None
-    ns = dict((confval.name, confval.value) for confval in app.config)  # type: ignore
+    # type: (Sphinx, nodes.document, unicode) -> None
+    ns = dict((confval.name, confval.value) for confval in app.config)
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):

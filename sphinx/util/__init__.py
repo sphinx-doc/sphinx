@@ -5,30 +5,32 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
 
+import fnmatch
 import os
+import posixpath
 import re
 import sys
-import fnmatch
 import tempfile
-import posixpath
 import traceback
 import unicodedata
+import warnings
+from codecs import BOM_UTF8
+from collections import deque
+from datetime import datetime
+from hashlib import md5
 from os import path
 from time import mktime, strptime
-from codecs import BOM_UTF8
-from datetime import datetime
-from collections import deque
+from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
-from six import text_type, binary_type, itervalues
-from six.moves import range
-from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 from docutils.utils import relative_path
+from six import text_type
 
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
@@ -49,6 +51,7 @@ from sphinx.util.matching import patfilter  # noqa
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -85,7 +88,7 @@ def get_matching_files(dirname, exclude_matchers=()):
     dirname = path.normpath(path.abspath(dirname))
     dirlen = len(dirname) + 1    # exclude final os.path.sep
 
-    for root, dirs, files in walk(dirname, followlinks=True):
+    for root, dirs, files in os.walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
@@ -109,6 +112,8 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
 
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
+    warnings.warn('get_matching_docs() is now deprecated. Use get_matching_files() instead.',
+                  RemovedInSphinx40Warning)
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
@@ -165,6 +170,37 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
+class DownloadFiles(dict):
+    """A special dictionary for download files.
+
+    .. important:: This class would be refactored in nearly future.
+                   Hence don't hack this directly.
+    """
+
+    def add_file(self, docname, filename):
+        # type: (unicode, unicode) -> None
+        if filename not in self:
+            digest = md5(filename.encode('utf-8')).hexdigest()
+            dest = '%s/%s' % (digest, os.path.basename(filename))
+            self[filename] = (set(), dest)
+
+        self[filename][0].add(docname)
+        return self[filename][1]
+
+    def purge_doc(self, docname):
+        # type: (unicode) -> None
+        for filename, (docs, dest) in list(self.items()):
+            docs.discard(docname)
+            if not docs:
+                del self[filename]
+
+    def merge_other(self, docnames, other):
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        for filename, (docs, dest) in other.items():
+            for docname in docs & set(docnames):
+                self.add_file(docname, filename)
+
+
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
     # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
@@ -172,6 +208,9 @@ def copy_static_entry(source, targetdir, builder, context={},
 
     Handles all possible cases of files, directories and subdirectories.
     """
+    warnings.warn('sphinx.util.copy_static_entry is deprecated for removal',
+                  RemovedInSphinx30Warning, stacklevel=2)
+
     if exclude_matchers:
         relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
@@ -180,8 +219,7 @@ def copy_static_entry(source, targetdir, builder, context={},
     if path.isfile(source):
         copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
-        if not path.isdir(targetdir):
-            os.mkdir(targetdir)
+        ensuredir(targetdir)
         for entry in os.listdir(source):
             if entry.startswith('.'):
                 continue
@@ -220,7 +258,7 @@ def save_traceback(app):
     last_msgs = ''
     if app is not None:
         last_msgs = '\n'.join(
-            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()  # type: ignore
+            '#   %s' % strip_colors(s).strip()
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__display_version__,
@@ -230,7 +268,7 @@ def save_traceback(app):
                    jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
-        for ext in itervalues(app.extensions):
+        for ext in app.extensions.values():
             modfile = getattr(ext.module, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
@@ -264,7 +302,9 @@ def get_module_source(modname):
             raise PycodeError('error getting filename for %r' % filename, err)
     if filename is None and loader:
         try:
-            return 'string', loader.get_source(modname)
+            filename = loader.get_source(modname)
+            if filename:
+                return 'string', filename
         except Exception as err:
             raise PycodeError('error getting source for %r' % modname, err)
     if filename is None:
@@ -277,6 +317,12 @@ def get_module_source(modname):
             filename += 'w'
     elif not (lfilename.endswith('.py') or lfilename.endswith('.pyw')):
         raise PycodeError('source is not a .py file: %r' % filename)
+    elif ('.egg' + os.path.sep) in filename:
+        pat = '(?<=\\.egg)' + re.escape(os.path.sep)
+        eggpath, _ = re.split(pat, filename, 1)
+        if path.isfile(eggpath):
+            return 'file', filename
+
     if not path.isfile(filename):
         raise PycodeError('source file is not present: %r' % filename)
     return 'file', filename
@@ -306,11 +352,11 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
 def detect_encoding(readline):
-    # type: (Callable) -> unicode
+    # type: (Callable[[], bytes]) -> unicode
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
-        # type: () -> unicode
+        # type: () -> bytes
         try:
             return readline()
         except StopIteration:
@@ -329,13 +375,13 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
-        # type: (unicode) -> unicode
+        # type: (bytes) -> unicode
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
             return None
 
-        matches = _coding_re.findall(line_string)  # type: ignore
+        matches = _coding_re.findall(line_string)
         if not matches:
             return None
         return get_normal_name(matches[0])
@@ -361,7 +407,7 @@ def detect_encoding(readline):
 
 # Low-level utility functions and classes.
 
-class Tee(object):
+class Tee:
     """
     File-like object writing to two streams.
     """
@@ -398,10 +444,8 @@ def parselinenos(spec, total):
             elif len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
-                start = int(begend[0] or 1)     # type: ignore
-                                                # left half open (cf. -10)
-                end = int(begend[1] or max(start, total))   # type: ignore
-                                                            # right half open (cf. 10-)
+                start = int(begend[0] or 1)  # left half open (cf. -10)
+                end = int(begend[1] or max(start, total))  # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
@@ -416,7 +460,9 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, binary_type):
+    warnings.warn('force_decode() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+    if isinstance(string, bytes):
         try:
             if encoding:
                 string = string.decode(encoding)
@@ -495,7 +541,7 @@ def format_exception_cut_frames(x=1):
     return ''.join(res)
 
 
-class PeekableIterator(object):
+class PeekableIterator:
     """
     An iterator which wraps any iterable and makes it possible to peek to see
     what's the next item.
@@ -528,7 +574,7 @@ class PeekableIterator(object):
     def peek(self):
         # type: () -> Any
         """Return the next item without changing the state of the iterator."""
-        item = next(self)  # type: ignore
+        item = next(self)
         self.push(item)
         return item
 
@@ -562,16 +608,6 @@ def encode_uri(uri):
                  for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query).decode('ascii')
     return urlunsplit(split)
-
-
-def split_docinfo(text):
-    # type: (unicode) -> Sequence[unicode]
-    docinfo_re = re.compile('\\A((?:\\s*:\\w+:.*?\n(?:[ \\t]+.*?\n)*)+)', re.M)
-    result = docinfo_re.split(text, 1)  # type: ignore
-    if len(result) == 1:
-        return '', result[0]
-    else:
-        return result[1:]
 
 
 def display_chunk(chunk):
@@ -621,6 +657,7 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
 
 
 def epoch_to_rfc1123(epoch):
+    # type: (float) -> unicode
     """Convert datetime format epoch to RFC1123."""
     from babel.dates import format_datetime
 
@@ -630,10 +667,12 @@ def epoch_to_rfc1123(epoch):
 
 
 def rfc1123_to_epoch(rfc1123):
+    # type: (str) -> float
     return mktime(strptime(rfc1123, '%a, %d %b %Y %H:%M:%S %Z'))
 
 
 def xmlname_checker():
+    # type: () -> Pattern
     # https://www.w3.org/TR/REC-xml/#NT-Name
     # Only Python 3.3 or newer support character code in regular expression
     name_start_chars = [
@@ -643,8 +682,7 @@ def xmlname_checker():
         [u'\u2C00', u'\u2FEF'], [u'\u3001', u'\uD7FF'], [u'\uF900', u'\uFDCF'],
         [u'\uFDF0', u'\uFFFD']]
 
-    if sys.version_info.major == 3:
-        name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
+    name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
 
     name_chars = [
         u"\\-", u"\\.", [u'0', u'9'], u'\u00B7', [u'\u0300', u'\u036F'],
@@ -652,6 +690,7 @@ def xmlname_checker():
     ]
 
     def convert(entries, splitter=u'|'):
+        # type: (Any, unicode) -> unicode
         results = []
         for entry in entries:
             if isinstance(entry, list):

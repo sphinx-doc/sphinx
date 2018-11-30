@@ -1,58 +1,32 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
-
 import os
 import sys
 from distutils import log
-from distutils.cmd import Command
+from io import StringIO
+
+from setuptools import find_packages, setup
 
 import sphinx
 
-long_desc = '''
-Sphinx is a tool that makes it easy to create intelligent and beautiful
-documentation for Python projects (or other documents consisting of multiple
-reStructuredText sources), written by Georg Brandl.  It was originally created
-for the new Python documentation, and has excellent facilities for Python
-project documentation, but C/C++ is supported as well, and more languages are
-planned.
+with open('README.rst') as f:
+    long_desc = f.read()
 
-Sphinx uses reStructuredText as its markup language, and many of its strengths
-come from the power and straightforwardness of reStructuredText and its parsing
-and translating suite, the Docutils.
-
-Among its features are the following:
-
-* Output formats: HTML (including derivative formats such as HTML Help, Epub
-  and Qt Help), plain text, manual pages and LaTeX or direct PDF output
-  using rst2pdf
-* Extensive cross-references: semantic markup and automatic links
-  for functions, classes, glossary terms and similar pieces of information
-* Hierarchical structure: easy definition of a document tree, with automatic
-  links to siblings, parents and children
-* Automatic indices: general index as well as a module index
-* Code handling: automatic highlighting using the Pygments highlighter
-* Flexible HTML output using the Jinja 2 templating engine
-* Various extensions are available, e.g. for automatic testing of snippets
-  and inclusion of appropriately formatted docstrings
-* Setuptools integration
-'''
-
-if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
-    print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
+if sys.version_info < (3, 5):
+    print('ERROR: Sphinx requires at least Python 3.5 to run.')
     sys.exit(1)
 
-requires = [
+install_requires = [
     'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
-    'docutils>=0.11',
+    'docutils>=0.12',
     'snowballstemmer>=1.1',
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.0.0',
     'setuptools',
-    'sphinxcontrib-websupport',
+    'packaging',
 ]
 
 extras_require = {
@@ -60,40 +34,44 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    ':python_version<"3.5"': [
-        'typing'
-    ],
     'websupport': [
         'sqlalchemy>=0.9',
         'whoosh>=2.0',
     ],
     'test': [
+        'mock',
         'pytest',
-        'mock',  # it would be better for 'test:python_version in 2.7'
-        'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'pytest-cov',
         'html5lib',
+        'flake8>=3.5.0',
+        'flake8-import-order',
+        'mypy>=0.470',
     ],
 }
-
-# for sdist installation with pip-1.5.6
-if sys.platform == 'win32':
-    requires.append('colorama>=0.3.5')
-
-if sys.version_info < (3, 5):
-    requires.append('typing')
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 
 cmdclass = {}
 
+
+class Tee:
+    def __init__(self, stream):
+        self.stream = stream
+        self.buffer = StringIO()
+
+    def write(self, s):
+        self.stream.write(s)
+        self.buffer.write(s)
+
+    def flush(self):
+        self.stream.flush()
+
+
 try:
     from babel.messages.pofile import read_po
     from babel.messages.frontend import compile_catalog
-    try:
-        from simplejson import dump
-    except ImportError:
-        from json import dump
+    from json import dump
 except ImportError:
     pass
 else:
@@ -107,7 +85,13 @@ else:
         """
 
         def run(self):
-            compile_catalog.run(self)
+            try:
+                sys.stderr = Tee(sys.stderr)
+                compile_catalog.run(self)
+            finally:
+                if sys.stderr.buffer.getvalue():
+                    print("Compiling failed.")
+                    sys.exit(1)
 
             if isinstance(self.domain, list):
                 for domain in self.domain:
@@ -168,47 +152,21 @@ else:
 
                 with open(js_file, 'wt') as outfile:
                     outfile.write('Documentation.addTranslations(')
-                    dump(dict(
-                        messages=jscatalog,
-                        plural_expr=catalog.plural_expr,
-                        locale=str(catalog.locale)
-                    ), outfile, sort_keys=True)
+                    dump({
+                        'messages': jscatalog,
+                        'plural_expr': catalog.plural_expr,
+                        'locale': str(catalog.locale)
+                    }, outfile, sort_keys=True)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
-
-
-class CompileGrammarCommand(Command):
-    description = 'Compile python grammar file for pycode'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from sphinx.pycode.pgen2.driver import compile_grammar
-
-        compile_grammar('sphinx/pycode/Grammar-py2.txt')
-        print('sphinx/pycode/Grammar-py2.txt ... done')
-
-        compile_grammar('sphinx/pycode/Grammar-py3.txt')
-        print('sphinx/pycode/Grammar-py3.txt ... done')
-
-    def sub_commands(self):
-        pass
-
-
-cmdclass['compile_grammar'] = CompileGrammarCommand
 
 
 setup(
     name='Sphinx',
     version=sphinx.__version__,
     url='http://sphinx-doc.org/',
-    download_url='https://pypi.python.org/pypi/Sphinx',
+    download_url='https://pypi.org/project/Sphinx/',
     license='BSD',
     author='Georg Brandl',
     author_email='georg@python.org',
@@ -221,34 +179,53 @@ setup(
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: System Administrators',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Framework :: Setuptools Plugin',
         'Framework :: Sphinx',
         'Framework :: Sphinx :: Extension',
         'Framework :: Sphinx :: Theme',
         'Topic :: Documentation',
         'Topic :: Documentation :: Sphinx',
+        'Topic :: Internet :: WWW/HTTP :: Site Management',
+        'Topic :: Printing',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Documentation',
         'Topic :: Text Processing',
+        'Topic :: Text Processing :: General',
+        'Topic :: Text Processing :: Indexing',
+        'Topic :: Text Processing :: Markup',
+        'Topic :: Text Processing :: Markup :: HTML',
+        'Topic :: Text Processing :: Markup :: LaTeX',
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['tests', 'utils']),
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'sphinx-build = sphinx:main',
-            'sphinx-quickstart = sphinx.quickstart:main',
-            'sphinx-apidoc = sphinx.apidoc:main',
+            'sphinx-build = sphinx.cmd.build:main',
+            'sphinx-quickstart = sphinx.cmd.quickstart:main',
+            'sphinx-apidoc = sphinx.ext.apidoc:main',
             'sphinx-autogen = sphinx.ext.autosummary.generate:main',
         ],
         'distutils.commands': [
             'build_sphinx = sphinx.setup_command:BuildDoc',
         ],
     },
-    install_requires=requires,
+    python_requires=">=3.5",
+    install_requires=install_requires,
     extras_require=extras_require,
     cmdclass=cmdclass,
 )

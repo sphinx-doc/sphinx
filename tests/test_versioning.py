@@ -5,7 +5,7 @@
 
     Test the versioning implementation.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,9 +15,8 @@ import pytest
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
-from sphinx.versioning import add_uids, merge_doctrees, get_ratio
-
 from sphinx.testing.util import SphinxTestApp
+from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
 
 app = original = original_uids = None
@@ -28,7 +27,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir/'test-versioning').copytree(srcdir)
+        (rootdir / 'test-versioning').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)

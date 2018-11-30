@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- pylons theme.
  *
- * :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -28,7 +28,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 {{ theme_sidebarwidth }}px;
+    margin: 0 0 0 {{ theme_sidebarwidth|todim }};
 }
 
 hr {
@@ -92,7 +92,7 @@ div.related a {
 }
 
 div.related ul {
-    padding-left: {{ theme_sidebarwidth|toint + 10 }}px;
+    padding-left: calc({{ theme_sidebarwidth|todim }} + 10px);
 }
  
 div.sphinxsidebar {
@@ -148,12 +148,9 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
-div.sphinxsidebar input[type=text]{
+div.sphinxsidebar .searchformwrapper {
     margin-left: 20px;
-}
-
-div.sphinxsidebar input[type=submit]{
-    margin-left: 20px;
+    margin-right: 20px;
 }
 
 /* -- sidebars -------------------------------------------------------------- */

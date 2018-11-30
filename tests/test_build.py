@@ -5,18 +5,19 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pickle
-from docutils import nodes
+import sys
+from textwrap import dedent
+
 import mock
 import pytest
-from textwrap import dedent
-from sphinx.errors import SphinxError
-import sys
+from docutils import nodes
 
+from sphinx.errors import SphinxError
 from sphinx.testing.path import path
 
 
@@ -32,11 +33,6 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
-    # Windows with versions prior to 3.2 (I think) doesn't support unicode on system path
-    # so we force a non-unicode path in that case
-    if sys.platform == "win32" and \
-        not (sys.version_info.major >= 3 and sys.version_info.minor >= 2):
-        return basedir / 'all'
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
@@ -50,7 +46,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             =======================
             """))
 
-        master_doc = srcdir / 'contents.txt'
+        master_doc = srcdir / 'index.txt'
         master_doc.write_text(master_doc.text() + dedent(u"""
                               .. toctree::
 
@@ -59,13 +55,14 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     return srcdir
 
 
+# note: this test skips building docs for some builders because they have independent testcase.
+#       (html, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub', 'applehelp', 'changes', 'xml',
-        'pseudoxml', 'man', 'linkcheck',
+        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
+        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
@@ -91,10 +88,10 @@ def test_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
@@ -103,10 +100,10 @@ def test_numbered_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='dummy', testroot='images')

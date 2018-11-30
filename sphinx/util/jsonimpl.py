@@ -5,7 +5,7 @@
 
     JSON serializer implementation wrapper.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,6 +17,7 @@ from six.moves import UserString
 if False:
     # For type annotation
     from typing import Any, IO  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class SphinxJSONEncoder(json.JSONEncoder):
@@ -25,7 +26,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
         # type: (Any) -> unicode
         if isinstance(obj, UserString):
             return text_type(obj)
-        return json.JSONEncoder.default(self, obj)
+        return super(SphinxJSONEncoder, self).default(obj)
 
 
 def dump(obj, fp, *args, **kwds):

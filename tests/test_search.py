@@ -5,24 +5,24 @@
 
     Test the search index builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from io import BytesIO
 from collections import namedtuple
 
-from six import BytesIO
+import pytest
 from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
-import pytest
 
 DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
 
 
-class DummyDomain(object):
+class DummyDomain:
     def __init__(self, data):
         self.data = data
         self.object_types = {}
@@ -44,8 +44,9 @@ def setup_module():
 def jsload(path):
     searchindex = path.text()
     assert searchindex.startswith('Search.setIndex(')
+    assert searchindex.endswith(')')
 
-    return jsdump.loads(searchindex[16:-2])
+    return jsdump.loads(searchindex[16:-1])
 
 
 def is_registered_term(index, keyword):
@@ -65,10 +66,7 @@ test that non-comments are indexed: fermion
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
-    searchindex = (app.outdir / 'searchindex.js').text()
-    assert searchindex.startswith('Search.setIndex(')
-
-    index = jsdump.loads(searchindex[16:-2])
+    index = jsload(app.outdir / 'searchindex.js')
     assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
 
 
@@ -161,7 +159,7 @@ def test_IndexBuilder():
         'docnames': ('docname', 'docname2'),
         'envversion': '1.0',
         'filenames': ['filename', 'filename2'],
-        'objects': {'': {'objname': (0, 0, 1, '#anchor')}},
+        'objects': {'': {'objdispname': (0, 0, 1, '#anchor')}},
         'objnames': {0: ('dummy', 'objtype', 'objtype')},
         'objtypes': {0: 'dummy:objtype'},
         'terms': {'comment': [0, 1],
@@ -228,3 +226,15 @@ def test_IndexBuilder():
     }
     assert index._objtypes == {('dummy', 'objtype'): 0}
     assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+
+def test_IndexBuilder_lookup():
+    env = DummyEnvironment('1.0', {})
+
+    # zh
+    index = IndexBuilder(env, 'zh', {}, None)
+    assert index.lang.lang == 'zh'
+
+    # zh_CN
+    index = IndexBuilder(env, 'zh_CN', {}, None)
+    assert index.lang.lang == 'zh'

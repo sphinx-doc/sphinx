@@ -5,16 +5,17 @@
 
     Assets adapter for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 if False:
     # For type annotation
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
-class ImageAdapter(object):
+class ImageAdapter:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env

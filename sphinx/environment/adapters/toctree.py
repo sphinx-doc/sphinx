@@ -5,28 +5,29 @@
 
     Toctree adapter for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from six import iteritems
 
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.locale import __
 from sphinx.util import url_re, logging
-from sphinx.util.nodes import clean_astext
+from sphinx.util.matching import Matcher
+from sphinx.util.nodes import clean_astext, process_only_nodes
 
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-class TocTree(object):
+class TocTree:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env
@@ -83,6 +84,7 @@ class TocTree(object):
         # interactions between marking and pruning the tree (see bug #1046).
 
         toctree_ancestors = self.get_toctree_ancestors(docname)
+        excluded = Matcher(self.env.config.exclude_patterns)
 
         def _toctree_add_classes(node, depth):
             # type: (nodes.Node, int) -> None
@@ -148,8 +150,8 @@ class TocTree(object):
                         toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
-                            logger.warning('circular toctree references '
-                                           'detected, ignoring: %s <- %s',
+                            logger.warning(__('circular toctree references '
+                                              'detected, ignoring: %s <- %s'),
                                            ref, ' <- '.join(parents),
                                            location=ref)
                             continue
@@ -158,7 +160,7 @@ class TocTree(object):
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        self.process_only_nodes(toc)
+                        process_only_nodes(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -167,13 +169,17 @@ class TocTree(object):
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
-                        logger.warning('toctree contains reference to document %r that '
-                                       'doesn\'t have a title: no link will be generated',
+                        logger.warning(__('toctree contains reference to document %r that '
+                                          'doesn\'t have a title: no link will be generated'),
                                        ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    logger.warning('toctree contains reference to nonexisting document %r',
-                                   ref, location=toctreenode)
+                    if excluded(self.env.doc2path(ref, None)):
+                        message = __('toctree contains reference to excluded document %r')
+                    else:
+                        message = __('toctree contains reference to nonexisting document %r')
+
+                    logger.warning(message, ref, location=toctreenode)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
@@ -255,7 +261,7 @@ class TocTree(object):
     def get_toctree_ancestors(self, docname):
         # type: (unicode) -> List[unicode]
         parent = {}
-        for p, children in iteritems(self.env.toctree_includes):
+        for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
         ancestors = []  # type: List[unicode]
@@ -288,7 +294,7 @@ class TocTree(object):
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
     def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
+        # type: (unicode, Builder) -> nodes.Node
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -298,7 +304,7 @@ class TocTree(object):
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        self.process_only_nodes(toc)
+        process_only_nodes(toc, builder.tags)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -323,14 +329,3 @@ class TocTree(object):
         for toctree in toctrees[1:]:
             result.extend(toctree.children)
         return result
-
-    def process_only_nodes(self, doctree):
-        # type: (nodes.Node) -> None
-        # Lazy loading
-        from sphinx.transforms import SphinxTransformer
-        from sphinx.transforms.post_transforms import OnlyNodeTransform
-
-        transformer = SphinxTransformer(doctree)
-        transformer.set_environment(self.env)
-        transformer.add_transform(OnlyNodeTransform)
-        transformer.apply_transforms()

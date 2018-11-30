@@ -14,7 +14,7 @@
 
     only differing from it at the points maked --DEPARTURE-- below.
 
-    See also http://www.tartarus.org/~martin/PorterStemmer
+    See also https://tartarus.org/martin/PorterStemmer/
 
     The algorithm as described in the paper could be exactly replicated
     by adjusting the points of DEPARTURE, but this is barely necessary,
@@ -28,8 +28,12 @@
     :license: Public Domain ("can be used free of charge for any purpose").
 """
 
+if False:
+    # For type annotation
+    from sphinx.util.typing import unicode  # NOQA
 
-class PorterStemmer(object):
+
+class PorterStemmer:
 
     def __init__(self):
         # type: () -> None

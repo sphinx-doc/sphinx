@@ -11,16 +11,20 @@
 
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 
 if False:
     # For type annotation
     from typing import Any, Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class DummyBuilder(Builder):
     name = 'dummy'
+    epilog = __('The dummy builder generates no files.')
+
     allow_parallel = True
 
     def init(self):

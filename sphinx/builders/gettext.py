@@ -5,36 +5,39 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from __future__ import unicode_literals
 
-from os import path, walk, getenv
 from codecs import open
-from time import time
+from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
-from collections import defaultdict
+from os import path, walk, getenv
+from time import time
 from uuid import uuid4
 
-from six import iteritems, StringIO
+from six import StringIO
 
 from sphinx.builders import Builder
+from sphinx.domains.python import pairindextypes
+from sphinx.errors import ThemeError
+from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
-from sphinx.util.tags import Tags
-from sphinx.util.nodes import extract_messages, traverse_translatable_index
-from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
-from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold  # type: ignore
-from sphinx.locale import pairindextypes
+from sphinx.util.i18n import find_catalog
+from sphinx.util.nodes import extract_messages, traverse_translatable_index
+from sphinx.util.osutil import relpath, ensuredir, canon_path
+from sphinx.util.tags import Tags
 
 if False:
     # For type annotation
     from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
-    from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.i18n import CatalogInfo  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -61,15 +64,15 @@ msgstr ""
 """[1:]
 
 
-class Catalog(object):
+class Catalog:
     """Catalog of translatable messages."""
 
     def __init__(self):
         # type: () -> None
         self.messages = []  # type: List[unicode]
                             # retain insertion order, a la OrderedDict
-        self.metadata = {}  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
-                            # msgid -> file, line, uid
+        self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]  # NOQA
+                                        # msgid -> file, line, uid
 
     def add(self, msg, origin):
         # type: (unicode, MsgOrigin) -> None
@@ -83,7 +86,7 @@ class Catalog(object):
         self.metadata[msg].append((origin.source, origin.line, origin.uid))
 
 
-class MsgOrigin(object):
+class MsgOrigin:
     """
     Origin holder for Catalog message origin.
     """
@@ -118,7 +121,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        Builder.init(self)
+        super(I18nBuilder, self).init()
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
@@ -192,6 +195,7 @@ ltz = LocalTimeZone()
 
 
 def should_write(filepath, new_content):
+    # type: (unicode, unicode) -> bool
     if not path.exists(filepath):
         return True
     try:
@@ -214,10 +218,11 @@ class MessageCatalogBuilder(I18nBuilder):
     Builds gettext-style message catalogs (.pot files).
     """
     name = 'gettext'
+    epilog = __('The message catalogs are in %(outdir)s.')
 
     def init(self):
         # type: () -> None
-        I18nBuilder.init(self)
+        super(MessageCatalogBuilder, self).init()
         self.create_template_bridge()
         self.templates.init(self)
 
@@ -235,37 +240,41 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def _extract_from_template(self):
         # type: () -> None
-        files = self._collect_templates()
-        logger.info(bold('building [%s]: ' % self.name), nonl=1)
-        logger.info('targets for %d template files', len(files))
+        files = list(self._collect_templates())
+        files.sort()
+        logger.info(bold(__('building [%s]: ') % self.name), nonl=1)
+        logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in status_iterator(files, 'reading templates... ', "purple",  # type: ignore  # NOQA
+        for template in status_iterator(files, __('reading templates... '), "purple",  # type: ignore  # NOQA
                                         len(files), self.app.verbosity):
-            with open(template, 'r', encoding='utf-8') as f:  # type: ignore
-                context = f.read()
-            for line, meth, msg in extract_translations(context):
-                origin = MsgOrigin(template, line)
-                self.catalogs['sphinx'].add(msg, origin)
+            try:
+                with open(template, 'r', encoding='utf-8') as f:  # type: ignore
+                    context = f.read()
+                for line, meth, msg in extract_translations(context):
+                    origin = MsgOrigin(template, line)
+                    self.catalogs['sphinx'].add(msg, origin)
+            except Exception as exc:
+                raise ThemeError('%s: %r' % (template, exc))
 
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[unicode], unicode, unicode) -> None
         self._extract_from_template()
-        I18nBuilder.build(self, docnames, summary, method)
+        super(MessageCatalogBuilder, self).build(docnames, summary, method)
 
     def finish(self):
         # type: () -> None
-        I18nBuilder.finish(self)
-        data = dict(
-            version = self.config.version,
-            copyright = self.config.copyright,
-            project = self.config.project,
-            ctime = datetime.fromtimestamp(
+        super(MessageCatalogBuilder, self).finish()
+        data = {
+            'version': self.config.version,
+            'copyright': self.config.copyright,
+            'project': self.config.project,
+            'ctime': datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
-        )
-        for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
-                                                   "writing message catalogs... ",
+        }
+        for textdomain, catalog in status_iterator(self.catalogs.items(),  # type: ignore
+                                                   __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
                                                    lambda textdomain__: textdomain__[0]):
@@ -282,8 +291,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 if self.config.gettext_location:
                     # generate "#: file1:line1\n#: file2:line2 ..."
                     output.write("#: %s\n" % "\n#: ".join(  # type: ignore
-                        "%s:%s" % (canon_path(
-                            safe_relpath(source, self.outdir)), line)
+                        "%s:%s" % (canon_path(relpath(source, self.outdir)), line)
                         for source, line, _ in positions))
                 if self.config.gettext_uuid:
                     # generate "# uuid1\n# uuid2\n ..."

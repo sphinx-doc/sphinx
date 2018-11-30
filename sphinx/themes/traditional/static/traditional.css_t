@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- traditional docs.python.org theme.
  *
- * :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -23,10 +23,12 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 {{ theme_sidebarwidth }}px 0 0;
+    margin: 0 {{ theme_sidebarwidth|todim }} 0 0;
 }
 
 div.body {
+    min-width: {{ theme_body_min_width|todim }};
+    max-width: {{ theme_body_max_width|todim }};
     background-color: white;
     padding: 0 20px 30px 20px;
 }
@@ -40,7 +42,7 @@ div.sphinxsidebarwrapper {
 div.sphinxsidebar {
     float: right;
     margin-left: -100%;
-    width: {{ theme_sidebarwidth }}px;
+    width: {{ theme_sidebarwidth|todim }};
 }
 
 div.clearer {

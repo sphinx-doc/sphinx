@@ -6,19 +6,18 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from six import iteritems, integer_types, string_types
-
-from sphinx.util.pycompat import u
+from six import integer_types
 
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -62,7 +61,7 @@ def encode_string(s):
 
 def decode_string(s):
     # type: (str) -> str
-    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
+    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
 reswords = set("""\
@@ -86,7 +85,7 @@ double   in   super""".split())
 def dumps(obj, key=False):
     # type: (Any, bool) -> str
     if key:
-        if not isinstance(obj, string_types):
+        if not isinstance(obj, str):
             obj = str(obj)
         if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
@@ -102,13 +101,13 @@ def dumps(obj, key=False):
         return '{%s}' % ','.join(sorted('%s:%s' % (
             dumps(key, True),
             dumps(value)
-        ) for key, value in iteritems(obj)))
+        ) for key, value in obj.items()))
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
-    elif isinstance(obj, string_types):
-        return encode_string(obj)  # type: ignore
+    elif isinstance(obj, str):
+        return encode_string(obj)
     raise TypeError(type(obj))
 
 

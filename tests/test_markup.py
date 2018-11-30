@@ -5,25 +5,25 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import pickle
+import re
 
+import pytest
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
+from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
-import pytest
-
-from sphinx.testing.util import assert_node
 
 
 @pytest.fixture
@@ -88,6 +88,9 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
+        app.builder = LaTeXBuilder(app)
+        app.builder.set_environment(app.env)
+        app.builder.init_context()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
@@ -133,26 +136,27 @@ def get_verifier(verify, verify_re):
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # correct interpretation of code with whitespace
         'verify_re',
         ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{code   sample}',
+        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
         # interpolation of braces in samp and file roles (HTML only)
         'verify',
         ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal"><span class="pre">a</span>'
+        ('<p><code class="samp docutils literal notranslate">'
+         '<span class="pre">a</span>'
          '<em><span class="pre">b</span></em>'
          '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{a\\sphinxstyleemphasis{b}c}',
+        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
     ),
     (
         # interpolation of arrows in menuselection
@@ -162,20 +166,28 @@ def get_verifier(verify, verify_re):
         '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
-        # interpolation of ampersands in guilabel/menuselection
+        # interpolation of ampersands in menuselection
+        'verify',
+        ':menuselection:`&Foo -&&- &Bar`',
+        (u'<p><span class="menuselection"><span class="accelerator">F</span>oo '
+         '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
+        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+    ),
+    (
+        # interpolation of ampersands in guilabel
         'verify',
         ':guilabel:`&Foo -&&- &Bar`',
         (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
-        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+        r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
     (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
-        ('<p><code( class="xref std std-option docutils literal")?>'
+        ('<p><code( class="xref std std-option docutils literal notranslate")?>'
          '<span class="pre">--with-option</span></code></p>$'),
-        r'\\sphinxcode{-{-}with-option}$',
+        r'\\sphinxcode{\\sphinxupquote{-{-}with-option}}$',
     ),
     (
         # verify smarty-pants quotes
@@ -188,31 +200,32 @@ def get_verifier(verify, verify_re):
         # ... but not in literal text
         'verify',
         '``"John"``',
-        ('<p><code class="docutils literal"><span class="pre">'
+        ('<p><code class="docutils literal notranslate"><span class="pre">'
          '&quot;John&quot;</span></code></p>'),
-        '\\sphinxcode{"John"}',
+        '\\sphinxcode{\\sphinxupquote{"John"}}',
     ),
     (
         # verify classes for inline roles
         'verify',
         ':manpage:`mp(1)`',
         '<p><em class="manpage">mp(1)</em></p>',
-        '\\sphinxstyleliteralemphasis{mp(1)}',
+        '\\sphinxstyleliteralemphasis{\\sphinxupquote{mp(1)}}',
     ),
     (
         # correct escaping in normal mode
         'verify',
         u'Γ\\\\∞$',
         None,
-        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+        u'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
         'verify',
         u'::\n\n @Γ\\∞${}',
         None,
-        (u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+        (u'\\fvset{hllines={, ,}}%\n'
+         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         u'@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          u'\\end{sphinxVerbatim}'),
     ),
     (
@@ -286,3 +299,44 @@ def test_compact_refonly_bullet_list(app, status, warning):
     assert_node(doctree[0][4], nodes.bullet_list)
     assert_node(doctree[0][4][0][0], nodes.paragraph)
     assert doctree[0][4][0][0].astext() == 'Hello'
+
+
+@pytest.mark.sphinx('dummy', testroot='default_role')
+def test_default_role1(app, status, warning):
+    app.builder.build_all()
+
+    # default-role: pep
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], addnodes.index)
+    assert_node(doctree[0][1][1], nodes.target)
+    assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
+
+    # no default-role
+    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], nodes.title_reference)
+    assert_node(doctree[0][1][1], nodes.Text)
+
+
+@pytest.mark.sphinx('dummy', testroot='default_role',
+                    confoverrides={'default_role': 'guilabel'})
+def test_default_role2(app, status, warning):
+    app.builder.build_all()
+
+    # default-role directive is stronger than configratuion
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], addnodes.index)
+    assert_node(doctree[0][1][1], nodes.target)
+    assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
+
+    # default_role changes the default behavior
+    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert_node(doctree[0][1], nodes.paragraph)
+    assert_node(doctree[0][1][0], nodes.inline, classes=["guilabel"])
+    assert_node(doctree[0][1][1], nodes.Text)

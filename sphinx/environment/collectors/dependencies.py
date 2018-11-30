@@ -5,16 +5,17 @@
 
     The dependencies collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import os
 from os import path
 
 from docutils.utils import relative_path
 
-from sphinx.util.osutil import getcwd, fs_encoding
 from sphinx.environment.collectors import EnvironmentCollector
+from sphinx.util.osutil import fs_encoding
 
 if False:
     # For type annotation
@@ -22,6 +23,7 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class DependenciesCollector(EnvironmentCollector):
@@ -40,7 +42,7 @@ class DependenciesCollector(EnvironmentCollector):
     def process_doc(self, app, doctree):
         # type: (Sphinx, nodes.Node) -> None
         """Process docutils-generated dependency info."""
-        cwd = getcwd()
+        cwd = os.getcwd()
         frompath = path.join(path.normpath(app.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:

@@ -5,25 +5,26 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 from os import path
 
 from docutils.io import StringOutput
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter, TextTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, Set  # NOQA
+    from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,8 @@ logger = logging.getLogger(__name__)
 class TextBuilder(Builder):
     name = 'text'
     format = 'text'
+    epilog = __('The text files are in %(outdir)s.')
+
     out_suffix = '.txt'
     allow_parallel = True
     default_translator_class = TextTranslator
@@ -39,7 +42,8 @@ class TextBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        pass
+        # section numbers for headings in the currently visited document
+        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
@@ -47,8 +51,7 @@ class TextBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.env.doc2path(docname, self.outdir,
-                                           self.out_suffix)
+            targetname = path.join(self.outdir, docname + self.out_suffix)
             try:
                 targetmtime = path.getmtime(targetname)
             except Exception:
@@ -72,15 +75,16 @@ class TextBuilder(Builder):
     def write_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         self.current_docname = docname
+        self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', 'utf-8') as f:  # type: ignore
+            with open(outfilename, 'w', encoding='utf-8') as f:  # type: ignore
                 f.write(self.writer.output)
         except (IOError, OSError) as err:
-            logger.warning("error writing file %s: %s", outfilename, err)
+            logger.warning(__("error writing file %s: %s"), outfilename, err)
 
     def finish(self):
         # type: () -> None
@@ -93,6 +97,8 @@ def setup(app):
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
     app.add_config_value('text_newlines', 'unix', 'env')
+    app.add_config_value('text_add_secnumbers', True, 'env')
+    app.add_config_value('text_secnumber_suffix', '. ', 'env')
 
     return {
         'version': 'builtin',

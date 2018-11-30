@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,14 +13,11 @@ import re
 import textwrap
 from os import path
 
-from six import itervalues
-from six.moves import range
-
 from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
-from sphinx.locale import admonitionlabels, _
+from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
@@ -29,6 +26,8 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
+    from sphinx.domains import IndexEntry  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +88,7 @@ TEMPLATE = """\
 
 
 def find_subsections(section):
-    # type: (nodes.Node) -> List[nodes.Node]
+    # type: (nodes.Element) -> List[nodes.section]
     """Return a list of subsections for the given ``section``."""
     result = []
     for child in section.children:
@@ -131,7 +130,7 @@ class TexinfoWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (TexinfoBuilder) -> None
-        writers.Writer.__init__(self)
+        super(TexinfoWriter, self).__init__()
         self.builder = builder
 
     def translate(self):
@@ -163,8 +162,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
     }
 
     def __init__(self, document, builder):
-        # type: (nodes.Node, TexinfoBuilder) -> None
-        nodes.NodeVisitor.__init__(self, document)
+        # type: (nodes.document, TexinfoBuilder) -> None
+        super(TexinfoTranslator, self).__init__(document)
         self.builder = builder
         self.init_settings()
 
@@ -238,7 +237,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             'project': self.escape(self.builder.config.project),
             'copyright': self.escape(self.builder.config.copyright),
             'date': self.escape(self.builder.config.today or
-                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),  # type: ignore  # NOQA
+                                format_date(self.builder.config.today_fmt or _('%b %d, %Y'),
                                             language=self.builder.config.language))
         })
         # title
@@ -483,15 +482,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def collect_indices(self):
         # type: () -> None
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool) -> unicode
+            # type: (List[Tuple[unicode, List[IndexEntry]]], bool) -> unicode
             ret = ['\n@menu\n']  # type: List[unicode]
             for letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    name = self.escape_menu(entry[0])  # type: ignore
+                    name = self.escape_menu(entry[0])
                     sid = self.get_short_id('%s:%s' % (entry[2], entry[3]))
-                    desc = self.escape_arg(entry[6])  # type: ignore
+                    desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
             ret.append('@end menu\n')
@@ -499,7 +498,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
         indices_config = self.builder.config.texinfo_domain_indices
         if indices_config:
-            for domain in itervalues(self.builder.env.domains):
+            for domain in self.builder.env.domains.values():
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -521,9 +520,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # TODO: move this to sphinx.util
 
     def collect_footnotes(self, node):
-        # type: (nodes.Node) -> Dict[unicode, List[Union[collected_footnote, bool]]]
+        # type: (nodes.Element) -> Dict[unicode, List[Union[collected_footnote, bool]]]
         def footnotes_under(n):
-            # type: (nodes.Node) -> Iterator[nodes.footnote]
+            # type: (nodes.Element) -> Iterator[nodes.footnote]
             if isinstance(n, nodes.footnote):
                 yield n
             else:
@@ -575,19 +574,19 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Visiting
 
     def visit_document(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.document) -> None
         self.footnotestack.append(self.collect_footnotes(node))
         self.curfilestack.append(node.get('docname', ''))
         if 'docname' in node:
             self.add_anchor(':doc', node)
 
     def depart_document(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.document) -> None
         self.footnotestack.pop()
         self.curfilestack.pop()
 
     def visit_Text(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Text) -> None
         s = self.escape(node.astext())
         if self.escape_newlines:
             s = s.replace('\n', ' ')
@@ -597,7 +596,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append(s)
 
     def depart_Text(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Text) -> None
         pass
 
     def visit_section(self, node):
@@ -613,7 +612,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
         self.body.append('\n@node %s,%s,%s,%s\n' % pointers)  # type: ignore
-        for id in self.next_section_ids:
+        for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
         self.next_section_ids.clear()
@@ -621,7 +620,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.section_level += 1
 
     def depart_section(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.section) -> None
         self.section_level -= 1
 
     headings = (
@@ -639,7 +638,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     )  # type: Tuple[unicode, ...]
 
     def visit_title(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.title) -> None
         if not self.seen_title:
             self.seen_title = True
             raise nodes.SkipNode
@@ -649,8 +648,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
         elif not isinstance(parent, nodes.section):
-            logger.warning('encountered title node not in section, topic, table, '
-                           'admonition or sidebar',
+            logger.warning(__('encountered title node not in section, topic, table, '
+                              'admonition or sidebar'),
                            location=(self.curfilestack[-1], node.line))
             self.visit_rubric(node)
         else:
@@ -661,11 +660,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append('\n%s ' % heading)
 
     def depart_title(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.title) -> None
         self.body.append('\n\n')
 
     def visit_rubric(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.rubric) -> None
         if len(node.children) == 1 and node.children[0].astext() in \
                 ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
@@ -674,23 +673,25 @@ class TexinfoTranslator(nodes.NodeVisitor):
         except IndexError:
             rubric = self.rubrics[-1]
         self.body.append('\n%s ' % rubric)
+        self.escape_newlines += 1
 
     def depart_rubric(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.rubric) -> None
+        self.escape_newlines -= 1
         self.body.append('\n\n')
 
     def visit_subtitle(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.subtitle) -> None
         self.body.append('\n\n@noindent\n')
 
     def depart_subtitle(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.subtitle) -> None
         self.body.append('\n\n')
 
     # -- References
 
     def visit_target(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.target) -> None
         # postpone the labels until after the sectioning command
         parindex = node.parent.index(node)
         try:
@@ -715,11 +716,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.add_anchor(id, node)
 
     def depart_target(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.target) -> None
         pass
 
     def visit_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.reference) -> None
         # an xref's target is displayed in Info so we ignore a few
         # cases for the sake of appearance
         if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
@@ -783,17 +784,17 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def depart_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.reference) -> None
         pass
 
     def visit_number_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.number_reference) -> None
         text = nodes.Text(node.get('title', '#'))
         self.visit_Text(text)
         raise nodes.SkipNode
 
     def visit_title_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.title_reference) -> None
         text = node.astext()
         self.body.append('@cite{%s}' % self.escape_arg(text))
         raise nodes.SkipNode
@@ -801,28 +802,28 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Blocks
 
     def visit_paragraph(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.paragraph) -> None
         self.body.append('\n')
 
     def depart_paragraph(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.paragraph) -> None
         self.body.append('\n')
 
     def visit_block_quote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.block_quote) -> None
         self.body.append('\n@quotation\n')
 
     def depart_block_quote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.block_quote) -> None
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
     def visit_literal_block(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.literal_block) -> None
         self.body.append('\n@example\n')
 
     def depart_literal_block(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.literal_block) -> None
         self.ensure_eol()
         self.body.append('@end example\n')
 
@@ -830,72 +831,72 @@ class TexinfoTranslator(nodes.NodeVisitor):
     depart_doctest_block = depart_literal_block
 
     def visit_line_block(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.line_block) -> None
         if not isinstance(node.parent, nodes.line_block):
             self.body.append('\n\n')
         self.body.append('@display\n')
 
     def depart_line_block(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.line_block) -> None
         self.body.append('@end display\n')
         if not isinstance(node.parent, nodes.line_block):
             self.body.append('\n\n')
 
     def visit_line(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.line) -> None
         self.escape_newlines += 1
 
     def depart_line(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.line) -> None
         self.body.append('@w{ }\n')
         self.escape_newlines -= 1
 
     # -- Inline
 
     def visit_strong(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.strong) -> None
         self.body.append('@strong{')
 
     def depart_strong(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.strong) -> None
         self.body.append('}')
 
     def visit_emphasis(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.emphasis) -> None
         self.body.append('@emph{')
 
     def depart_emphasis(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.emphasis) -> None
         self.body.append('}')
 
     def visit_literal(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.literal) -> None
         self.body.append('@code{')
 
     def depart_literal(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.literal) -> None
         self.body.append('}')
 
     def visit_superscript(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.superscript) -> None
         self.body.append('@w{^')
 
     def depart_superscript(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.superscript) -> None
         self.body.append('}')
 
     def visit_subscript(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.subscript) -> None
         self.body.append('@w{[')
 
     def depart_subscript(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.subscript) -> None
         self.body.append(']}')
 
     # -- Footnotes
 
     def visit_footnote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footnote) -> None
         raise nodes.SkipNode
 
     def visit_collected_footnote(self, node):
@@ -909,7 +910,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.in_footnote -= 1
 
     def visit_footnote_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footnote_reference) -> None
         num = node.astext().strip()
         try:
             footnode, used = self.footnotestack[-1][num]
@@ -920,36 +921,38 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipChildren
 
     def visit_citation(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.citation) -> None
+        self.body.append('\n')
         for id in node.get('ids'):
             self.add_anchor(id, node)
+        self.escape_newlines += 1
 
     def depart_citation(self, node):
-        # type: (nodes.Node) -> None
-        pass
+        # type: (nodes.citation) -> None
+        self.escape_newlines -= 1
 
     def visit_citation_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.citation_reference) -> None
         self.body.append('@w{[')
 
     def depart_citation_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.citation_reference) -> None
         self.body.append(']}')
 
     # -- Lists
 
     def visit_bullet_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.bullet_list) -> None
         bullet = node.get('bullet', '*')
         self.body.append('\n\n@itemize %s\n' % bullet)
 
     def depart_bullet_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.bullet_list) -> None
         self.ensure_eol()
         self.body.append('@end itemize\n')
 
     def visit_enumerated_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.enumerated_list) -> None
         # doesn't support Roman numerals
         enum = node.get('enumtype', 'arabic')
         starters = {'arabic': '',
@@ -959,100 +962,100 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n\n@enumerate %s\n' % start)
 
     def depart_enumerated_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.enumerated_list) -> None
         self.ensure_eol()
         self.body.append('@end enumerate\n')
 
     def visit_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.list_item) -> None
         self.body.append('\n@item ')
 
     def depart_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.list_item) -> None
         pass
 
     # -- Option List
 
     def visit_option_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_list) -> None
         self.body.append('\n\n@table @option\n')
 
     def depart_option_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_list) -> None
         self.ensure_eol()
         self.body.append('@end table\n')
 
     def visit_option_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_list_item) -> None
         pass
 
     def depart_option_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_list_item) -> None
         pass
 
     def visit_option_group(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_group) -> None
         self.at_item_x = '@item'
 
     def depart_option_group(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_group) -> None
         pass
 
     def visit_option(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option) -> None
         self.escape_hyphens += 1
         self.body.append('\n%s ' % self.at_item_x)
         self.at_item_x = '@itemx'
 
     def depart_option(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option) -> None
         self.escape_hyphens -= 1
 
     def visit_option_string(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_string) -> None
         pass
 
     def depart_option_string(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_string) -> None
         pass
 
     def visit_option_argument(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_argument) -> None
         self.body.append(node.get('delimiter', ' '))
 
     def depart_option_argument(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.option_argument) -> None
         pass
 
     def visit_description(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.description) -> None
         self.body.append('\n')
 
     def depart_description(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.description) -> None
         pass
 
     # -- Definitions
 
     def visit_definition_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition_list) -> None
         self.body.append('\n\n@table @asis\n')
 
     def depart_definition_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition_list) -> None
         self.ensure_eol()
         self.body.append('@end table\n')
 
     def visit_definition_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition_list_item) -> None
         self.at_item_x = '@item'
 
     def depart_definition_list_item(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition_list_item) -> None
         pass
 
     def visit_term(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.term) -> None
         for id in node.get('ids'):
             self.add_anchor(id, node)
         # anchors and indexes need to go in front
@@ -1064,45 +1067,45 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.at_item_x = '@itemx'
 
     def depart_term(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.term) -> None
         pass
 
     def visit_classifier(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.classifier) -> None
         self.body.append(' : ')
 
     def depart_classifier(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.classifier) -> None
         pass
 
     def visit_definition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition) -> None
         self.body.append('\n')
 
     def depart_definition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.definition) -> None
         pass
 
     # -- Tables
 
     def visit_table(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.table) -> None
         self.entry_sep = '@item'
 
     def depart_table(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.table) -> None
         self.body.append('\n@end multitable\n\n')
 
     def visit_tabular_col_spec(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.tabular_col_spec) -> None
         pass
 
     def depart_tabular_col_spec(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.tabular_col_spec) -> None
         pass
 
     def visit_colspec(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.colspec) -> None
         self.colwidths.append(node['colwidth'])
         if len(self.colwidths) != self.n_cols:
             return
@@ -1111,97 +1114,97 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.colspec) -> None
         pass
 
     def visit_tgroup(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.tgroup) -> None
         self.colwidths = []
         self.n_cols = node['cols']
 
     def depart_tgroup(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.tgroup) -> None
         pass
 
     def visit_thead(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.thead) -> None
         self.entry_sep = '@headitem'
 
     def depart_thead(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.thead) -> None
         pass
 
     def visit_tbody(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.tbody) -> None
         pass
 
     def depart_tbody(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.tbody) -> None
         pass
 
     def visit_row(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.row) -> None
         pass
 
     def depart_row(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.row) -> None
         self.entry_sep = '@item'
 
     def visit_entry(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.entry) -> None
         self.body.append('\n%s\n' % self.entry_sep)
         self.entry_sep = '@tab'
 
     def depart_entry(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.entry) -> None
         for i in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     # -- Field Lists
 
     def visit_field_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_list) -> None
         pass
 
     def depart_field_list(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_list) -> None
         pass
 
     def visit_field(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field) -> None
         self.body.append('\n')
 
     def depart_field(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field) -> None
         self.body.append('\n')
 
     def visit_field_name(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_name) -> None
         self.ensure_eol()
         self.body.append('@*')
 
     def depart_field_name(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_name) -> None
         self.body.append(': ')
 
     def visit_field_body(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_body) -> None
         pass
 
     def depart_field_body(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.field_body) -> None
         pass
 
     # -- Admonitions
 
     def visit_admonition(self, node, name=''):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.admonition, unicode) -> None
         if not name:
             name = self.escape(node[0].astext())
         self.body.append(u'\n@cartouche\n@quotation %s ' % name)
 
     def depart_admonition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.admonition) -> None
         self.ensure_eol()
         self.body.append('@end quotation\n'
                          '@end cartouche\n')
@@ -1235,41 +1238,41 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Misc
 
     def visit_docinfo(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.docinfo) -> None
         raise nodes.SkipNode
 
     def visit_generated(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.generated) -> None
         raise nodes.SkipNode
 
     def visit_header(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.header) -> None
         raise nodes.SkipNode
 
     def visit_footer(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footer) -> None
         raise nodes.SkipNode
 
     def visit_container(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.container) -> None
         if node.get('literal_block'):
             self.body.append('\n\n@float LiteralBlock\n')
 
     def depart_container(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.container) -> None
         if node.get('literal_block'):
             self.body.append('\n@end float\n\n')
 
     def visit_decoration(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.decoration) -> None
         pass
 
     def depart_decoration(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.decoration) -> None
         pass
 
     def visit_topic(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.topic) -> None
         # ignore TOC's since we have to have a "menu" anyway
         if 'contents' in node.get('classes', []):
             raise nodes.SkipNode
@@ -1278,59 +1281,59 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('%s\n' % self.escape(title.astext()))
 
     def depart_topic(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.topic) -> None
         pass
 
     def visit_transition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.transition) -> None
         self.body.append('\n\n%s\n\n' % ('_' * 66))
 
     def depart_transition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.transition) -> None
         pass
 
     def visit_attribution(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.attribution) -> None
         self.body.append('\n\n@center --- ')
 
     def depart_attribution(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.attribution) -> None
         self.body.append('\n\n')
 
     def visit_raw(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.raw) -> None
         format = node.get('format', '').split()
         if 'texinfo' in format or 'texi' in format:
             self.body.append(node.astext())
         raise nodes.SkipNode
 
     def visit_figure(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.figure) -> None
         self.body.append('\n\n@float Figure\n')
 
     def depart_figure(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.figure) -> None
         self.body.append('\n@end float\n\n')
 
     def visit_caption(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.caption) -> None
         if (isinstance(node.parent, nodes.figure) or
            (isinstance(node.parent, nodes.container) and
                 node.parent.get('literal_block'))):
             self.body.append('\n@caption{')
         else:
-            logger.warning('caption not inside a figure.',
+            logger.warning(__('caption not inside a figure.'),
                            location=(self.curfilestack[-1], node.line))
 
     def depart_caption(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.caption) -> None
         if (isinstance(node.parent, nodes.figure) or
            (isinstance(node.parent, nodes.container) and
                 node.parent.get('literal_block'))):
             self.body.append('}\n')
 
     def visit_image(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.image) -> None
         if node['uri'] in self.builder.images:
             uri = self.builder.images[node['uri']]
         else:
@@ -1351,83 +1354,71 @@ class TexinfoTranslator(nodes.NodeVisitor):
                          (name, width, height, alt, ext[1:]))
 
     def depart_image(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.image) -> None
         pass
 
     def visit_compound(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.compound) -> None
         pass
 
     def depart_compound(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.compound) -> None
         pass
 
     def visit_sidebar(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.sidebar) -> None
         self.visit_topic(node)
 
     def depart_sidebar(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.sidebar) -> None
         self.depart_topic(node)
 
     def visit_label(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.label) -> None
         self.body.append('@w{(')
 
     def depart_label(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.label) -> None
         self.body.append(')} ')
 
     def visit_legend(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.legend) -> None
         pass
 
     def depart_legend(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.legend) -> None
         pass
-
-    def visit_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_substitution_reference(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_substitution_definition(self, node):
-        # type: (nodes.Node) -> None
-        raise nodes.SkipNode
 
     def visit_system_message(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.system_message) -> None
         self.body.append('\n@verbatim\n'
                          '<SYSTEM MESSAGE: %s>\n'
                          '@end verbatim\n' % node.astext())
         raise nodes.SkipNode
 
     def visit_comment(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.comment) -> None
         self.body.append('\n')
         for line in node.astext().splitlines():
             self.body.append('@c %s\n' % line)
         raise nodes.SkipNode
 
     def visit_problematic(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.problematic) -> None
         self.body.append('>>')
 
     def depart_problematic(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.problematic) -> None
         self.body.append('<<')
 
     def unimplemented_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unimplemented node type: %r", node,
+        logger.warning(__("unimplemented node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
-        logger.warning("unknown node type: %r", node,
+        logger.warning(__("unknown node type: %r"), node,
                        location=(self.curfilestack[-1], node.line))
 
     def unknown_departure(self, node):
@@ -1437,7 +1428,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     # -- Sphinx specific
 
     def visit_productionlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.productionlist) -> None
         self.visit_literal_block(None)
         names = []
         for production in node:
@@ -1456,31 +1447,31 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_production(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.production) -> None
         pass
 
     def depart_production(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.production) -> None
         pass
 
     def visit_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.literal_emphasis) -> None
         self.body.append('@code{')
 
     def depart_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.literal_emphasis) -> None
         self.body.append('}')
 
     def visit_literal_strong(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.literal_strong) -> None
         self.body.append('@code{')
 
     def depart_literal_strong(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.literal_strong) -> None
         self.body.append('}')
 
     def visit_index(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.index) -> None
         # terminate the line but don't prevent paragraph breaks
         if isinstance(node.parent, nodes.paragraph):
             self.ensure_eol()
@@ -1492,83 +1483,75 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.body.append('@geindex %s\n' % text)
 
     def visit_versionmodified(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.versionmodified) -> None
         self.body.append('\n')
 
     def depart_versionmodified(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.versionmodified) -> None
         self.body.append('\n')
 
     def visit_start_of_file(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.start_of_file) -> None
         # add a document target
         self.next_section_ids.add(':doc')
         self.curfilestack.append(node['docname'])
         self.footnotestack.append(self.collect_footnotes(node))
 
     def depart_start_of_file(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.start_of_file) -> None
         self.curfilestack.pop()
         self.footnotestack.pop()
 
     def visit_centered(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.centered) -> None
         txt = self.escape_arg(node.astext())
         self.body.append('\n\n@center %s\n\n' % txt)
         raise nodes.SkipNode
 
     def visit_seealso(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.seealso) -> None
         self.body.append(u'\n\n@subsubheading %s\n\n' %
                          admonitionlabels['seealso'])
 
     def depart_seealso(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.seealso) -> None
         self.body.append('\n')
 
     def visit_meta(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.meta) -> None
         raise nodes.SkipNode
 
     def visit_glossary(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.glossary) -> None
         pass
 
     def depart_glossary(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.glossary) -> None
         pass
 
     def visit_acks(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.acks) -> None
         self.body.append('\n\n')
         self.body.append(', '.join(n.astext()
                                    for n in node.children[0].children) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 
-    def visit_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def depart_highlightlang(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
     # -- Desc
 
     def visit_desc(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc) -> None
         self.desc = node
         self.at_deffnx = '@deffn'
 
     def depart_desc(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc) -> None
         self.desc = None
         self.ensure_eol()
         self.body.append('@end deffn\n')
 
     def visit_desc_signature(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_signature) -> None
         self.escape_hyphens += 1
         objtype = node.parent['objtype']
         if objtype != 'describe':
@@ -1589,54 +1572,54 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.desc_type_name = name
 
     def depart_desc_signature(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_signature) -> None
         self.body.append("\n")
         self.escape_hyphens -= 1
         self.desc_type_name = None
 
     def visit_desc_name(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_name) -> None
         pass
 
     def depart_desc_name(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_name) -> None
         pass
 
     def visit_desc_addname(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_addname) -> None
         pass
 
     def depart_desc_addname(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_addname) -> None
         pass
 
     def visit_desc_type(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_type) -> None
         pass
 
     def depart_desc_type(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_type) -> None
         pass
 
     def visit_desc_returns(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_returns) -> None
         self.body.append(' -> ')
 
     def depart_desc_returns(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_returns) -> None
         pass
 
     def visit_desc_parameterlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_parameterlist) -> None
         self.body.append(' (')
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_parameterlist) -> None
         self.body.append(')')
 
     def visit_desc_parameter(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_parameter) -> None
         if not self.first_param:
             self.body.append(', ')
         else:
@@ -1648,15 +1631,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_desc_optional(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_optional) -> None
         self.body.append('[')
 
     def depart_desc_optional(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_optional) -> None
         self.body.append(']')
 
     def visit_desc_annotation(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_annotation) -> None
         # Try to avoid duplicating info already displayed by the deffn category.
         # e.g.
         #     @deffn {Class} Foo
@@ -1669,27 +1652,27 @@ class TexinfoTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
 
     def depart_desc_annotation(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_annotation) -> None
         pass
 
     def visit_desc_content(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_content) -> None
         pass
 
     def depart_desc_content(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.desc_content) -> None
         pass
 
     def visit_inline(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.inline) -> None
         pass
 
     def depart_inline(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.inline) -> None
         pass
 
     def visit_abbreviation(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.abbreviation) -> None
         abbr = node.astext()
         self.body.append('@abbr{')
         if node.hasattr('explanation') and abbr not in self.handled_abbrs:
@@ -1699,54 +1682,58 @@ class TexinfoTranslator(nodes.NodeVisitor):
             self.context.append('}')
 
     def depart_abbreviation(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.abbreviation) -> None
         self.body.append(self.context.pop())
 
     def visit_manpage(self, node):
-        # type: (nodes.Node) -> Any
+        # type: (addnodes.manpage) -> None
         return self.visit_literal_emphasis(node)
 
     def depart_manpage(self, node):
-        # type: (nodes.Node) -> Any
+        # type: (addnodes.manpage) -> None
         return self.depart_literal_emphasis(node)
 
     def visit_download_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.download_reference) -> None
         pass
 
     def depart_download_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.download_reference) -> None
         pass
 
     def visit_hlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.hlist) -> None
         self.visit_bullet_list(node)
 
     def depart_hlist(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.hlist) -> None
         self.depart_bullet_list(node)
 
     def visit_hlistcol(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.hlistcol) -> None
         pass
 
     def depart_hlistcol(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.hlistcol) -> None
         pass
 
     def visit_pending_xref(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         pass
 
     def depart_pending_xref(self, node):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         pass
 
     def visit_math(self, node):
-        # type: (nodes.Node) -> None
-        logger.warning('using "math" markup without a Sphinx math extension '
-                       'active, please use one of the math extensions '
-                       'described at http://sphinx-doc.org/ext/math.html')
+        # type: (nodes.math) -> None
+        self.body.append('@math{' + self.escape_arg(node.astext()) + '}')
         raise nodes.SkipNode
 
-    visit_math_block = visit_math
+    def visit_math_block(self, node):
+        # type: (nodes.math_block) -> None
+        if node.get('label'):
+            self.add_anchor(node['label'], node)
+        self.body.append('\n\n@example\n%s\n@end example\n\n' %
+                         self.escape_arg(node.astext()))
+        raise nodes.SkipNode

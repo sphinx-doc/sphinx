@@ -8,9 +8,14 @@
 <%- endif -%>
 <%= table.get_colspec() %>
 <%- if table.caption -%>
+\sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
-<% endif -%>
 \hline
+<% elif labels -%>
+\hline\noalign{\phantomsection<%= labels %>}%
+<% else -%>
+\hline
+<% endif -%>
 <%= ''.join(table.header) %>
 \endfirsthead
 
@@ -25,8 +30,5 @@
 \endfoot
 
 \endlastfoot
-<% if table.caption_footnotetexts -%>
-<%= ''.join(table.caption_footnotetexts) %>
-<% endif -%>
 <%= ''.join(table.body) %>
 \end{longtable}\sphinxatlongtableend\end{savenotes}

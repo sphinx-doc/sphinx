@@ -5,17 +5,18 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
+from sphinx.util.docutils import SphinxDirective
 
 # import all directives sphinx provides
 from sphinx.directives.code import (  # noqa
@@ -33,7 +34,10 @@ if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.docfields import Field  # NOQA
+    from sphinx.util.typing import N_co, unicode  # NOQA
 
 
 # RE to strip backslash escapes
@@ -41,7 +45,7 @@ nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
 
 
-class ObjectDescription(Directive):
+class ObjectDescription(SphinxDirective):
     """
     Directive to describe a class, function or similar object.  Not used
     directly, but subclassed (in domain-specific directives) to add custom
@@ -57,7 +61,7 @@ class ObjectDescription(Directive):
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Any]
+    doc_field_types = []    # type: List[Field]
     domain = None           # type: unicode
     objtype = None          # type: unicode
     indexnode = None        # type: addnodes.index
@@ -113,7 +117,7 @@ class ObjectDescription(Directive):
         pass
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -135,7 +139,6 @@ class ObjectDescription(Directive):
             self.domain, self.objtype = self.name.split(':', 1)
         else:
             self.domain, self.objtype = '', self.name
-        self.env = self.state.document.settings.env  # type: BuildEnvironment
         self.indexnode = addnodes.index(entries=[])
 
         node = addnodes.desc()
@@ -187,7 +190,7 @@ class ObjectDescription(Directive):
 DescDirective = ObjectDescription
 
 
-class DefaultRole(Directive):
+class DefaultRole(SphinxDirective):
     """
     Set the default interpreted text role.  Overridden from docutils.
     """
@@ -196,7 +199,7 @@ class DefaultRole(Directive):
     final_argument_whitespace = False
 
     def run(self):
-        # type: () -> List[nodes.Node]
+        # type: () -> List[N_co]
         if not self.arguments:
             if '' in roles._roles:
                 # restore the "default" default role
@@ -212,11 +215,11 @@ class DefaultRole(Directive):
                 line=self.lineno)
             return messages + [error]
         roles._roles[''] = role
-        self.state.document.settings.env.temp_data['default_role'] = role_name
+        self.env.temp_data['default_role'] = role_name
         return messages
 
 
-class DefaultDomain(Directive):
+class DefaultDomain(SphinxDirective):
     """
     Directive to (re-)set the default domain for this source file.
     """
@@ -228,16 +231,15 @@ class DefaultDomain(Directive):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Node]
-        env = self.state.document.settings.env
+        # type: () -> List[N_co]
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
-        #     for domain in itervalues(env.domains):
+        #     for domain in env.domains.values():
         #         if domain.label.lower() == domain_name:
         #             domain_name = domain.name
         #             break
-        env.temp_data['default_domain'] = env.domains.get(domain_name)
+        self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
 
 

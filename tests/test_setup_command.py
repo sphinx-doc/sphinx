@@ -5,20 +5,20 @@
 
     Test setup_command for distutils.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-import sys
 import subprocess
+import sys
 from collections import namedtuple
-import sphinx
+from textwrap import dedent
 
 import pytest
 
+import sphinx
 from sphinx.util.osutil import cd
-from textwrap import dedent
 
 
 @pytest.fixture
@@ -27,7 +27,10 @@ def setup_command(request, tempdir, rootdir):
     Run `setup.py build_sphinx` with args and kwargs,
     pass it to the test and clean up properly.
     """
-    marker = request.node.get_marker('setup_command')
+    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
+        marker = request.node.get_closest_marker('setup_command')
+    else:
+        marker = request.node.get_marker('setup_command')
     args = marker.args if marker else []
 
     pkgrootdir = tempdir / 'test-setup'
@@ -51,8 +54,8 @@ def setup_command(request, tempdir, rootdir):
 def test_build_sphinx(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -60,8 +63,8 @@ def test_build_sphinx(setup_command):
 def test_build_sphinx_multiple_builders(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -69,8 +72,8 @@ def test_build_sphinx_multiple_builders(setup_command):
 def test_build_sphinx_multiple_invalid_builders(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 1
 
 
@@ -91,7 +94,7 @@ def nonascii_srcdir(request, setup_command):
         ==========================
         """))
 
-    master_doc = srcdir / 'contents.txt'
+    master_doc = srcdir / 'index.txt'
     master_doc.write_bytes((master_doc.text() + dedent("""
                             .. toctree::
 
@@ -103,8 +106,8 @@ def nonascii_srcdir(request, setup_command):
 def test_build_sphinx_with_nonascii_path(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -115,8 +118,8 @@ def test_build_sphinx_return_nonzero_status(setup_command):
         'http://localhost.unexistentdomain/index.html')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode != 0, 'expect non-zero status for setup.py'
 
 
@@ -126,8 +129,8 @@ def test_build_sphinx_warning_return_zero_status(setup_command):
         'See :ref:`unexisting-reference-label`')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode == 0
 
 
@@ -138,6 +141,6 @@ def test_build_sphinx_warning_is_error_return_nonzero_status(setup_command):
         'See :ref:`unexisting-reference-label`')
     proc = setup_command.proc
     out, err = proc.communicate()
-    print(out)
-    print(err)
+    print(out.decode())
+    print(err.decode())
     assert proc.returncode != 0, 'expect non-zero status for setup.py'

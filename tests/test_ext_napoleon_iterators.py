@@ -6,12 +6,13 @@
     Tests for :mod:`sphinx.ext.napoleon.iterators` module.
 
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 from unittest import TestCase
+
+from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 
 
 class BaseIteratorsTest(TestCase):

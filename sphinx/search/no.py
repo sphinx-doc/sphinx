@@ -13,6 +13,12 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
+
+
 norwegian_stopwords = parse_stop_word(u'''
 | source: http://snowball.tartarus.org/algorithms/norwegian/stop.txt
 og             | and
@@ -207,7 +213,9 @@ class SearchNorwegian(SearchLanguage):
     stopwords = norwegian_stopwords
 
     def init(self, options):
+        # type: (Any) -> None
         self.stemmer = snowballstemmer.stemmer('norwegian')
 
     def stem(self, word):
-        return self.stemmer.stemWord(word)
+        # type: (unicode) -> unicode
+        return self.stemmer.stemWord(word.lower())

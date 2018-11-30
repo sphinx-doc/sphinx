@@ -5,20 +5,26 @@
 
     Tests util functions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import os
+import tempfile
 
 import pytest
 from mock import patch
 
-from sphinx.util import logging
+from six import PY2
+
+import sphinx
+from sphinx.errors import PycodeError
+from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator,
+    display_chunk, encode_uri, ensuredir, get_module_source, parselinenos, status_iterator,
     xmlname_checker
 )
-
-from sphinx.testing.util import strip_escseq
+from sphinx.util import logging
 
 
 def test_encode_uri():
@@ -36,26 +42,18 @@ def test_encode_uri():
     assert expected, encode_uri(uri)
 
 
-def test_splitdocinfo():
-    source = "Hello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ''
-    assert content == 'Hello world.\n'
+def test_ensuredir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        # Does not raise an exception for an existing directory.
+        ensuredir(tmp_path)
 
-    source = ":orphan:\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ':orphan:\n'
-    assert content == '\nHello world.\n'
+        path = os.path.join(tmp_path, 'a', 'b', 'c')
+        ensuredir(path)
+        assert os.path.isdir(path)
 
-    source = ":author: Georg Brandl\n:title: Manual of Sphinx\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ':author: Georg Brandl\n:title: Manual of Sphinx\n'
-    assert content == '\nHello world.\n'
-
-    source = ":multiline: one\n\ttwo\n\tthree\n\nHello world.\n"
-    docinfo, content = split_docinfo(source)
-    assert docinfo == ":multiline: one\n\ttwo\n\tthree\n"
-    assert content == '\nHello world.\n'
+    with tempfile.NamedTemporaryFile() as tmp:
+        with pytest.raises(OSError):
+            ensuredir(tmp.name)
 
 
 def test_display_chunk():
@@ -64,6 +62,19 @@ def test_display_chunk():
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
     assert display_chunk(('hello',)) == 'hello'
     assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
+
+
+def test_get_module_source():
+    if PY2:
+        assert get_module_source('sphinx') == ('file', sphinx.__file__.replace('.pyc', '.py'))
+    else:
+        assert get_module_source('sphinx') == ('file', sphinx.__file__)
+
+    # failed to obtain source information from builtin modules
+    with pytest.raises(PycodeError):
+        get_module_source('builtins')
+    with pytest.raises(PycodeError):
+        get_module_source('itertools')
 
 
 @pytest.mark.sphinx('dummy')
@@ -116,7 +127,6 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
-
 
 
 def test_xmlname_check():

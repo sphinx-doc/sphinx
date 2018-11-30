@@ -4,11 +4,14 @@
 
     Sphinx layout template for the classic theme.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
 
-{% if theme_collapsiblesidebar|tobool %}
-{% set script_files = script_files + ['_static/sidebar.js'] %}
-{% endif %}
+{%- block scripts %}
+    {{ super() }}
+    {% if theme_collapsiblesidebar|tobool %}
+    <script type="text/javascript" src="{{ pathto('_static/sidebar.js', 1) }}"></script>
+    {% endif %}
+{%- endblock %}

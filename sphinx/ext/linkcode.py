@@ -5,7 +5,7 @@
 
     Add external links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,13 +13,14 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.locale import _
 from sphinx.errors import SphinxError
+from sphinx.locale import _
 
 if False:
     # For type annotation
     from typing import Any, Dict, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class LinkcodeError(SphinxError):
@@ -35,12 +36,12 @@ def doctree_read(app, doctree):
         raise LinkcodeError(
             "Function `linkcode_resolve` is not given in conf.py")
 
-    domain_keys = dict(
-        py=['module', 'fullname'],
-        c=['names'],
-        cpp=['names'],
-        js=['object', 'fullname'],
-    )
+    domain_keys = {
+        'py': ['module', 'fullname'],
+        'c': ['names'],
+        'cpp': ['names'],
+        'js': ['object', 'fullname'],
+    }
 
     for objnode in doctree.traverse(addnodes.desc):
         domain = objnode.get('domain')

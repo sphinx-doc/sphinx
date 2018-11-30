@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2017/03/26 v1.6 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2018/09/18 v1.8.1 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -75,7 +75,6 @@
 
 \newcommand{\sphinxtableofcontents}{%
   \pagenumbering{roman}%
-  \pagestyle{plain}%
   \begingroup
     \parskip \z@skip
     \tableofcontents
@@ -83,7 +82,6 @@
   % before resetting page counter, let's do the right thing.
   \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{arabic}%
-  \ifdefined\fancyhf\pagestyle{normal}\fi
 }
 
 % This is needed to get the width of the section # area wide enough in the
@@ -99,7 +97,7 @@
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
   % \phantomsection % not needed here since TeXLive 2010's hyperref
-  \begin{thebibliography}{1}%
+  \begin{thebibliography}{#1}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
 % Same for the indices.

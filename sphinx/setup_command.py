@@ -8,27 +8,28 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
-import sys
 import os
-
-from six import StringIO, string_types
+import sys
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
+from distutils.errors import DistutilsOptionError, DistutilsExecError
+
+from six import StringIO
 
 from sphinx.application import Sphinx
-from sphinx.cmdline import handle_exception
+from sphinx.cmd.build import handle_exception
 from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
-    from typing import Any, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class BuildDoc(Command):
@@ -87,9 +88,10 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
+        ('nitpicky', 'n', 'nit-picky mode, warn about all missing references'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
-                       'link-index']
+                       'link-index', 'nitpicky']
 
     def initialize_options(self):
         # type: () -> None
@@ -107,6 +109,7 @@ class BuildDoc(Command):
         self.copyright = ''
         self.verbosity = 0
         self.traceback = False
+        self.nitpicky = False
 
     def _guess_source_dir(self):
         # type: () -> unicode
@@ -116,48 +119,44 @@ class BuildDoc(Command):
             for root, dirnames, filenames in os.walk(guess):
                 if 'conf.py' in filenames:
                     return root
-        return None
+        return os.curdir
 
     # Overriding distutils' Command._ensure_stringlike which doesn't support
     # unicode, causing finalize_options to fail if invoked again. Workaround
-    # for http://bugs.python.org/issue19570
+    # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
         # type: (unicode, unicode, Any) -> Any
         val = getattr(self, option)
         if val is None:
             setattr(self, option, default)
             return default
-        elif not isinstance(val, string_types):
+        elif not isinstance(val, str):
             raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
                                        % (option, what, val))
         return val
 
     def finalize_options(self):
         # type: () -> None
+        self.ensure_string_list('builder')
+
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
-            self.announce('Using source directory %s' % self.source_dir)  # type: ignore
-        self.ensure_dirname('source_dir')  # type: ignore
-        if self.source_dir is None:
-            self.source_dir = os.curdir
-        self.source_dir = abspath(self.source_dir)
+            self.announce('Using source directory %s' % self.source_dir)
+
+        self.ensure_dirname('source_dir')
+
         if self.config_dir is None:
             self.config_dir = self.source_dir
-        self.config_dir = abspath(self.config_dir)
 
-        self.ensure_string_list('builder')  # type: ignore
         if self.build_dir is None:
-            build = self.get_finalized_command('build')  # type: ignore
-            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
-            self.mkpath(self.build_dir)  # type: ignore
-        self.build_dir = abspath(self.build_dir)
+            build = self.get_finalized_command('build')
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')  # type: ignore
+
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
-        self.mkpath(self.doctree_dir)  # type: ignore
+
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
             for builder in self.builder]  # type: List[Tuple[str, unicode]]
-        for _, builder_target_dir in self.builder_target_dirs:
-            self.mkpath(builder_target_dir)  # type: ignore
 
     def run(self):
         # type: () -> None
@@ -167,7 +166,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}
+        confoverrides = {}  # type: Dict[unicode, Any]
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
@@ -178,12 +177,15 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
+        if self.nitpicky:
+            confoverrides['nitpicky'] = self.nitpicky
 
         for builder, builder_target_dir in self.builder_target_dirs:
             app = None
 
             try:
-                with patch_docutils(), docutils_namespace():
+                confdir = self.config_dir or self.source_dir
+                with patch_docutils(confdir), docutils_namespace():
                     app = Sphinx(self.source_dir, self.config_dir,
                                  builder_target_dir, self.doctree_dir,
                                  builder, confoverrides, status_stream,
