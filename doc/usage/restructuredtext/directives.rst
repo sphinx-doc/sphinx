@@ -1063,6 +1063,15 @@ or use Python raw strings (``r"raw"``).
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 
+.. seealso::
+
+   :ref:`math-support`
+      Rendering options for math with HTML builders.
+
+   :confval:`latex_engine`
+      Explains how to configure LaTeX builder to support Unicode literals in
+      math mark-up.
+
 
 Grammar production displays
 ---------------------------

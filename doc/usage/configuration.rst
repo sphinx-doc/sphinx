@@ -1798,16 +1798,27 @@ information.
 
    ``'pdflatex'``\ 's support for Unicode characters is limited.
 
-   If your project uses Unicode characters, setting the engine to
-   ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
-   with wide-enough glyph coverage (since Sphinx 2.0, the default font is the
-   FreeFont family) is often easier than trying to make
-   ``'pdflatex'`` work with the extra Unicode characters.
-
    .. note::
 
-      2.0 adds to ``'pdflatex'`` automatic support in Latin language document
-      of occasional Cyrillic or Greek letters or words.
+      2.0 adds to ``'pdflatex'`` support in Latin language document of
+      occasional Cyrillic or Greek letters or words.  This is not automatic,
+      see the discussion of the :confval:`latex_elements` ``'fontenc'`` key.
+
+   If your project uses Unicode characters, setting the engine to
+   ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
+   with wide-enough glyph coverage is often easier than trying to make
+   ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+
+   Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
+   LaTeX requires some extra configuration to support Unicode literals in
+   :rst:dir:`math`: the only comprehensive solution (as far as we know) is to
+   use ``'xelatex'`` or ``'lualatex'`` *and* to add
+   ``r'\usepackage{unicode-math}'`` (e.g. via the :confval:`latex_elements`
+   ``'preamble'`` key).  You may prefer
+   ``r'\usepackage[math-style=literal]{unicode-math}'`` to keep a Unicode
+   literal such as ``α`` (U+03B1) for example as is in output, rather than
+   being rendered as :math:`\alpha`.
 
 .. confval:: latex_documents
 
@@ -2164,34 +2175,28 @@ information.
         "fontenc" package inclusion, defaults to
         ``'\\usepackage[T1]{fontenc}'``.
 
-        One can (``'pdflatex'`` only) add ``LGR`` for support of Greek letters
-        or words in the document, and ``X2`` (or ``T2A``) for Cyrillic ones:
+        If ``'pdflatex'`` is the :confval:`latex_engine`, one can add ``LGR``
+        for support of Greek letters in the document, and also ``X2`` (or
+        ``T2A``) for Cyrillic letters, like this:
 
         .. code-block:: latex
 
            r'\usepackage[LGR,X2,T1]{fontenc}'
 
-        (A Cyrillic document will naturally use ``T2A`` or ``X2`` in last
-        position, as it has then to be the main encoding for the document
-        fonts).
-
         .. attention::
 
            Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
-           mark-up. This is not the case anymore, thus if such Greek letters
-           are used in the text (we are not discussing here Greek letters
-           using the math font, from math markup ``\alpha`` etc...) it is then
-           mandatory to declare the ``LGR`` font encoding, i.e.
-           ``r'\usepackage[LGR,T1]{fontenc}'`` if no support for Cyrillic is
-           needed. On Ubuntu xenial, package ``texlive-lang-greek`` is then
-           required (and also ``cm-super`` if the ``'fontpkg'`` setting is not
-           modified).
+           mark-up.  This is not the case anymore, and the above must be used
+           (only in case of ``'pdflatex'`` engine) if the source contains such
+           Unicode Greek.
 
-        .. hint::
-
-           Ubuntu package ``cm-super-minimal`` requires that the LaTeX
-           document executes ``\usepackage[10pt]{type1ec}`` before loading
-           ``fontenc``.  Thus, use this key with this extra at its start.
+           On Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
+           (for the latter, only if the ``'fontpkg'`` setting is left to its
+           default) are needed for ``LGR`` to work.  In place of ``cm-super``
+           one can install smaller ``cm-super-minimal``, but it requires the
+           LaTeX document to execute ``\usepackage[10pt]{type1ec}`` before
+           loading ``fontenc``.  Thus, use this key with this extra at its
+           start if needed.
 
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
@@ -2208,11 +2213,19 @@ information.
         The default (``'pdflatex'`` only) is
         ``'\\usepackage{textalpha}'``, but only if ``'fontenc'`` was
         modified by user to include ``LGR`` option.  If not, the key
-        value will be forced to be empty string.
+        value will be forced to be the empty string.
 
         This is needed for ``pdfLaTeX`` to support Unicode input of Greek
         letters such as φύσις.  Expert users may want to load the ``textalpha``
         package with its option ``normalize-symbols``.
+
+        .. hint::
+
+           Unicode Greek (but no further Unicode symbols) in :rst:dir:`math`
+           can be supported by ``'pdflatex'`` from setting this key to
+           ``r'\usepackage{textalpha,alphabeta}'``.  Then ``:math:`α``` (U+03B1)
+           will render as :math:`\alpha`.  For wider Unicode support in math
+           input, see the discussion of :confval:`latex_engine`.
 
         With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
         key is ignored.
