@@ -287,7 +287,7 @@ def load_mappings(app):
 
 
 def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.TextElement) -> None
+    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.TextElement) -> nodes.reference
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)
@@ -302,10 +302,10 @@ def missing_reference(app, env, node, contnode):
         domain = node.get('refdomain')
         if not domain:
             # only objects in domains are in the inventory
-            return
+            return None
         objtypes = env.get_domain(domain).objtypes_for_role(node['reftype'])
         if not objtypes:
-            return
+            return None
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
@@ -360,6 +360,8 @@ def missing_reference(app, env, node, contnode):
     if in_set is not None and not node.get('refexplicit', True):
         if len(contnode) and isinstance(contnode[0], nodes.Text):
             contnode[0] = nodes.Text(newtarget, contnode[0].rawsource)
+
+    return None
 
 
 def setup(app):

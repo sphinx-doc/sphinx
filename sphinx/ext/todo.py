@@ -28,7 +28,7 @@ from sphinx.util.texescape import tex_escape_map
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List  # NOQA
+    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import N_co, unicode  # NOQA
@@ -65,7 +65,7 @@ class Todo(BaseAdmonition, SphinxDirective):
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        (todo,) = super(Todo, self).run()
+        (todo,) = super(Todo, self).run()  # type: Tuple[nodes.Node]
         if isinstance(todo, nodes.system_message):
             return [todo]
         elif isinstance(todo, todo_node):
@@ -218,7 +218,7 @@ def merge_info(app, env, docnames, other):
 
 
 def visit_todo_node(self, node):
-    # type: (nodes.NodeVisitor, todo_node) -> None
+    # type: (HTMLTranslator, todo_node) -> None
     self.visit_admonition(node)
 
 
@@ -229,14 +229,16 @@ def depart_todo_node(self, node):
 
 def latex_visit_todo_node(self, node):
     # type: (LaTeXTranslator, todo_node) -> None
-    title = node.pop(0).astext().translate(tex_escape_map)
     self.body.append(u'\n\\begin{sphinxadmonition}{note}{')
     # If this is the original todo node, emit a label that will be referenced by
     # a hyperref in the todolist.
     target = node.get('targetref')
     if target is not None:
         self.body.append(u'\\label{%s}' % target)
-    self.body.append('%s:}' % title)
+
+    title_node = cast(nodes.title, node[0])
+    self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))
+    node.pop(0)
 
 
 def latex_depart_todo_node(self, node):
