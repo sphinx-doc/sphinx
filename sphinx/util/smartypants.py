@@ -34,7 +34,7 @@ from docutils.utils import smartquotes
 from sphinx.util.docutils import __version_info__ as docutils_version
 
 if False:  # For type annotation
-    from typing import Iterable, Iterator, Tuple  # NOQA
+    from typing import Generator, Iterable, Tuple  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 
@@ -244,7 +244,7 @@ def educateQuotes(text, language='en'):
 
 
 def educate_tokens(text_tokens, attr=smartquotes.default_smartypants_attr, language='en'):
-    # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Iterator
+    # type: (Iterable[Tuple[str, unicode]], unicode, unicode) -> Generator[unicode, None, None]
     """Return iterator that "educates" the items of `text_tokens`.
 
     This is modified to intercept the ``attr='2'`` as it was used by the

@@ -18,7 +18,7 @@ if False:
 
 
 def get_node_equation_number(writer, node):
-    # type: (HTMLTranslator, nodes.Node) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> unicode
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
