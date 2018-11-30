@@ -25,7 +25,7 @@ from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
+    from typing import Any, Callable, Mapping, List, Tuple, Type  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -342,7 +342,7 @@ class Signature:
 
     @property
     def parameters(self):
-        # type: () -> Dict
+        # type: () -> Mapping
         if self.partialmethod_with_noargs:
             return {}
         else:

@@ -230,7 +230,7 @@ class Locale(SphinxTransform):
                 continue
 
             # update meta nodes
-            if is_pending_meta(node):
+            if isinstance(node, nodes.pending) and is_pending_meta(node):
                 node.details['nodes'][0]['content'] = msgstr
                 continue
 
@@ -276,15 +276,15 @@ class Locale(SphinxTransform):
 
             # auto-numbered foot note reference should use original 'ids'.
             def list_replace_or_append(lst, old, new):
-                # type: (List, Any, Any) -> None
+                # type: (List[nodes.Element], nodes.Element, nodes.Element) -> None
                 if old in lst:
                     lst[lst.index(old)] = new
                 else:
                     lst.append(new)
 
             is_autofootnote_ref = NodeMatcher(nodes.footnote_reference, auto=Any)
-            old_foot_refs = node.traverse(is_autofootnote_ref)
-            new_foot_refs = patch.traverse(is_autofootnote_ref)
+            old_foot_refs = node.traverse(is_autofootnote_ref)  # type: List[nodes.footnote_reference]  # NOQA
+            new_foot_refs = patch.traverse(is_autofootnote_ref)  # type: List[nodes.footnote_reference]  # NOQA
             if len(old_foot_refs) != len(new_foot_refs):
                 old_foot_ref_rawsources = [ref.rawsource for ref in old_foot_refs]
                 new_foot_ref_rawsources = [ref.rawsource for ref in new_foot_refs]
@@ -326,8 +326,8 @@ class Locale(SphinxTransform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             is_refnamed_ref = NodeMatcher(nodes.reference, refname=Any)
-            old_refs = node.traverse(is_refnamed_ref)
-            new_refs = patch.traverse(is_refnamed_ref)
+            old_refs = node.traverse(is_refnamed_ref)  # type: List[nodes.reference]
+            new_refs = patch.traverse(is_refnamed_ref)  # type: List[nodes.reference]
             if len(old_refs) != len(new_refs):
                 old_ref_rawsources = [ref.rawsource for ref in old_refs]
                 new_ref_rawsources = [ref.rawsource for ref in new_refs]
@@ -372,8 +372,8 @@ class Locale(SphinxTransform):
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
-            old_cite_refs = node.traverse(is_citation_ref)
-            new_cite_refs = patch.traverse(is_citation_ref)
+            old_cite_refs = node.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
+            new_cite_refs = patch.traverse(is_citation_ref)  # type: List[nodes.citation_reference]  # NOQA
             refname_ids_map = {}
             if len(old_cite_refs) != len(new_cite_refs):
                 old_cite_ref_rawsources = [ref.rawsource for ref in old_cite_refs]
@@ -392,19 +392,19 @@ class Locale(SphinxTransform):
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
             # This code restricts to change ref-targets in the translation.
-            old_refs = node.traverse(addnodes.pending_xref)
-            new_refs = patch.traverse(addnodes.pending_xref)
+            old_xrefs = node.traverse(addnodes.pending_xref)
+            new_xrefs = patch.traverse(addnodes.pending_xref)
             xref_reftarget_map = {}
-            if len(old_refs) != len(new_refs):
-                old_ref_rawsources = [ref.rawsource for ref in old_refs]
-                new_ref_rawsources = [ref.rawsource for ref in new_refs]
+            if len(old_xrefs) != len(new_xrefs):
+                old_xref_rawsources = [xref.rawsource for xref in old_xrefs]
+                new_xref_rawsources = [xref.rawsource for xref in new_xrefs]
                 logger.warning(__('inconsistent term references in translated message.' +
                                   ' original: {0}, translated: {1}')
-                               .format(old_ref_rawsources, new_ref_rawsources),
+                               .format(old_xref_rawsources, new_xref_rawsources),
                                location=node)
 
             def get_ref_key(node):
-                # type: (nodes.Node) -> Tuple[unicode, unicode, unicode]
+                # type: (nodes.pending_xref) -> Tuple[unicode, unicode, unicode]
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
@@ -414,11 +414,11 @@ class Locale(SphinxTransform):
                         node["reftype"],
                         node['reftarget'],)
 
-            for old in old_refs:
+            for old in old_xrefs:
                 key = get_ref_key(old)
                 if key:
                     xref_reftarget_map[key] = old.attributes
-            for new in new_refs:
+            for new in new_xrefs:
                 key = get_ref_key(new)
                 # Copy attributes to keep original node behavior. Especially
                 # copying 'reftarget', 'py:module', 'py:class' are needed.
@@ -479,6 +479,6 @@ class RemoveTranslatableInline(SphinxTransform):
             return
 
         matcher = NodeMatcher(nodes.inline, translatable=Any)
-        for inline in self.document.traverse(matcher):
+        for inline in self.document.traverse(matcher):  # type: nodes.inline
             inline.parent.remove(inline)
             inline.parent += inline.children

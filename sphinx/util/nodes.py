@@ -11,7 +11,7 @@
 from __future__ import absolute_import
 
 import re
-from typing import Any
+from typing import Any, cast
 
 from docutils import nodes
 from six import text_type
@@ -253,8 +253,7 @@ META_TYPE_NODES = (
 def extract_messages(doctree):
     # type: (nodes.Element) -> Iterable[Tuple[nodes.Node, unicode]]
     """Extract translatable messages from a document tree."""
-    node = None  # type: nodes.Element
-    for node in doctree.traverse(is_translatable):
+    for node in doctree.traverse(is_translatable):  # type: nodes.Element
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
                 yield node, msg
@@ -269,7 +268,7 @@ def extract_messages(doctree):
                 msg += '\n   :alt: %s' % node['alt']
         elif isinstance(node, META_TYPE_NODES):
             msg = node.rawcontent
-        elif is_pending_meta(node):
+        elif isinstance(node, nodes.pending) and is_pending_meta(node):
             msg = node.details['nodes'][0].rawcontent
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
@@ -391,12 +390,12 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[unicode], unicode, nodes.Node, Callable, nodes.Node) -> nodes.Node
+    # type: (Builder, Set[unicode], unicode, nodes.document, Callable, List[unicode]) -> nodes.Element  # NOQA
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
     """
-    tree = tree.deepcopy()
+    tree = cast(nodes.document, tree.deepcopy())
     for toctreenode in tree.traverse(addnodes.toctree):
         newnodes = []
         includefiles = map(text_type, toctreenode['includefiles'])

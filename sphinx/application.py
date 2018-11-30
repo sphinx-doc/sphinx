@@ -523,7 +523,7 @@ class Sphinx:
         self.registry.add_translator(name, translator_class, override=override)
 
     def add_node(self, node, override=False, **kwds):
-        # type: (Type[nodes.Node], bool, Any) -> None
+        # type: (Type[nodes.Element], bool, Any) -> None
         """Register a Docutils node class.
 
         This is necessary for Docutils internals.  It may also be used in the
@@ -774,7 +774,7 @@ class Sphinx:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, Type[nodes.Node], unicode, List, bool) -> None  # NOQA
+        # type: (unicode, unicode, unicode, Callable, Type[nodes.TextElement], unicode, List, bool) -> None  # NOQA
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type
@@ -840,7 +840,7 @@ class Sphinx:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (unicode, unicode, unicode, nodes.Node, unicode, bool) -> None
+        # type: (unicode, unicode, unicode, Type[nodes.TextElement], unicode, bool) -> None
         """Register a new crossref object type.
 
         This method is very similar to :meth:`add_object_type` except that the
