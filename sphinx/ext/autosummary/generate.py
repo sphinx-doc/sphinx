@@ -42,8 +42,7 @@ from sphinx.util.rst import escape as rst_escape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
-    from jinja2 import BaseLoader  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type, Union  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -117,7 +116,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     template_dirs = [os.path.join(package_dir, 'ext',
                                   'autosummary', 'templates')]
 
-    template_loader = None  # type: BaseLoader
+    template_loader = None  # type: Union[BuiltinTemplateLoader, FileSystemLoader]
     if builder is not None:
         # allow the user to override the templates
         template_loader = BuiltinTemplateLoader()

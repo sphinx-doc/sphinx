@@ -169,12 +169,13 @@ class Graphviz(SphinxDirective):
         if 'align' in self.options:
             node['align'] = self.options['align']
 
-        caption = self.options.get('caption')
-        if caption:
-            node = figure_wrapper(self, node, caption)
-
-        self.add_name(node)
-        return [node]
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
 
 
 class GraphvizSimple(SphinxDirective):
@@ -208,12 +209,13 @@ class GraphvizSimple(SphinxDirective):
         if 'align' in self.options:
             node['align'] = self.options['align']
 
-        caption = self.options.get('caption')
-        if caption:
-            node = figure_wrapper(self, node, caption)
-
-        self.add_name(node)
-        return [node]
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):

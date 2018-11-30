@@ -46,13 +46,16 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 import sphinx
-from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
-    render_dot_texinfo, figure_wrapper
+from sphinx.ext.graphviz import (
+    graphviz, figure_wrapper,
+    render_dot_html, render_dot_latex, render_dot_texinfo
+)
 from sphinx.util.docutils import SphinxDirective
 
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
+    from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import N_co, unicode  # NOQA
@@ -314,7 +317,7 @@ class InheritanceGraph:
         return ''.join(res)
 
 
-class inheritance_diagram(nodes.General, nodes.Element):
+class inheritance_diagram(graphviz):
     """
     A docutils node to use as a placeholder for the inheritance diagram.
     """
@@ -375,11 +378,13 @@ class InheritanceDiagram(SphinxDirective):
         # dot file later
         node['graph'] = graph
 
-        # wrap the result in figure node
-        caption = self.options.get('caption')
-        if caption:
-            node = figure_wrapper(self, node, caption)
-        return [node]
+        if 'caption' not in self.options:
+            self.add_name(node)
+            return [node]
+        else:
+            figure = figure_wrapper(self, node, self.options['caption'])
+            self.add_name(figure)
+            return [figure]
 
 
 def get_graph_hash(node):
@@ -403,7 +408,7 @@ def html_visit_inheritance_diagram(self, node):
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
-    for child in node:
+    for child in node:  # type: addnodes.pending_xref
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
                 urls[child['reftitle']] = "../" + child.get('refuri')
