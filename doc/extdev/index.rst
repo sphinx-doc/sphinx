@@ -131,6 +131,12 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``nodetype`` argument of
+       ``sphinx.search.WordCollector.is_meta_keywords()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
      - 2.0
      - 4.0
