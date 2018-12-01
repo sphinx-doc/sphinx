@@ -42,7 +42,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)
@@ -181,7 +181,7 @@ class sphinx_domains:
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
-        # type: (unicode, unicode) -> Tuple[Any, List]
+        # type: (unicode, unicode) -> Any
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -210,14 +210,14 @@ class sphinx_domains:
         raise ElementLookupError
 
     def lookup_directive(self, name, lang_module, document):
-        # type: (unicode, ModuleType, nodes.document) -> Tuple[Any, List]
+        # type: (unicode, ModuleType, nodes.document) -> Tuple[Type[Directive], List[nodes.system_message]]  # NOQA
         try:
             return self.lookup_domain_element('directive', name)
         except ElementLookupError:
             return self.directive_func(name, lang_module, document)
 
     def lookup_role(self, name, lang_module, lineno, reporter):
-        # type: (unicode, ModuleType, int, Any) -> Tuple[Any, List]
+        # type: (unicode, ModuleType, int, Reporter) -> Tuple[RoleFunction, List[nodes.system_message]]  # NOQA
         try:
             return self.lookup_domain_element('role', name)
         except ElementLookupError:
