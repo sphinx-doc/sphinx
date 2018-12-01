@@ -17,6 +17,8 @@ from subprocess import Popen, PIPE
 import pytest
 from test_build_html import ENV_WARNINGS
 
+from sphinx.builders.texinfo import default_texinfo_documents
+from sphinx.config import Config
 from sphinx.testing.util import strip_escseq
 from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -46,7 +48,7 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'SphinxTests.texi').text(encoding='utf8')
+    result = (app.outdir / 'sphinxtests.texi').text(encoding='utf8')
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
@@ -55,7 +57,7 @@ def test_texinfo(app, status, warning):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
+            p = Popen(['makeinfo', '--no-split', 'sphinxtests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
             raise pytest.skip.Exception  # most likely makeinfo was not found
@@ -89,3 +91,14 @@ def test_texinfo_citation(app, status, warning):
             'This is a citation\n') in output
     assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
             'This is a multiline citation\n') in output
+
+
+def test_default_texinfo_documents():
+    config = Config({'master_doc': 'index',
+                     'project': u'STASI™ Documentation',
+                     'author': u"Wolfgang Schäuble & G'Beckstein"})
+    config.init_values()
+    expected = [('index', 'stasi', u'STASI™ Documentation',
+                 u"Wolfgang Schäuble & G'Beckstein", 'stasi',
+                 'One line description of project', 'Miscellaneous')]
+    assert default_texinfo_documents(config) == expected
