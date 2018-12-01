@@ -38,7 +38,7 @@ class TitleCollector(EnvironmentCollector):
             env.longtitles[docname] = other.longtitles[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Add a title node to the document (just copy the first section title),
         and store that title in the environment.
         """

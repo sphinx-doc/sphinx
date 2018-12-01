@@ -46,7 +46,7 @@ class ImageCollector(EnvironmentCollector):
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process and rewrite image URIs."""
         docname = app.env.docname
 
@@ -124,7 +124,7 @@ class DownloadFileCollector(EnvironmentCollector):
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']

@@ -39,7 +39,7 @@ class IndexEntriesCollector(EnvironmentCollector):
             env.indexentries[docname] = other.indexentries[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         docname = app.env.docname
         entries = app.env.indexentries[docname] = []
         for node in doctree.traverse(addnodes.index):

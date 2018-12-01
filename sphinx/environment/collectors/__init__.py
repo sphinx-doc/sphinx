@@ -61,7 +61,7 @@ class EnvironmentCollector:
         raise NotImplementedError
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process a document and gather specific data from it.
 
         This method is called after the document is read."""

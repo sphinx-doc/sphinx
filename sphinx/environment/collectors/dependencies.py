@@ -40,7 +40,7 @@ class DependenciesCollector(EnvironmentCollector):
                 env.dependencies[docname] = other.dependencies[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process docutils-generated dependency info."""
         cwd = os.getcwd()
         frompath = path.join(path.normpath(app.srcdir), 'dummy')

@@ -146,7 +146,7 @@ class BuildEnvironment:
         self.longtitles = {}        # type: Dict[unicode, nodes.title]
                                     # docname -> title node; only different if
                                     # set differently with title directive
-        self.tocs = {}              # type: Dict[unicode, nodes.Node]
+        self.tocs = {}              # type: Dict[unicode, nodes.Element]
                                     # docname -> table of contents nodetree
         self.toc_num_entries = {}   # type: Dict[unicode, int]
                                     # docname -> number of real entries
