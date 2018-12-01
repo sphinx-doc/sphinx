@@ -674,10 +674,10 @@ class Sphinx:
            Add *override* keyword.
         """
         logger.debug('[app] adding role: %r', (name, role))
-        if name in roles._roles and not override:
+        if not override and docutils.is_role_registered(name):
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_role')
-        roles.register_local_role(name, role)
+        docutils.register_role(name, role)
 
     def add_generic_role(self, name, nodeclass, override=False):
         # type: (unicode, Any, bool) -> None
@@ -693,11 +693,11 @@ class Sphinx:
         # Don't use ``roles.register_generic_role`` because it uses
         # ``register_canonical_role``.
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
-        if name in roles._roles and not override:
+        if not override and docutils.is_role_registered(name):
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        roles.register_local_role(name, role)
+        docutils.register_role(name, role)
 
     def add_domain(self, domain, override=False):
         # type: (Type[Domain], bool) -> None

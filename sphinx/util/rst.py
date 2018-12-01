@@ -18,6 +18,7 @@ from docutils.parsers.rst.languages import en as english
 from docutils.utils import Reporter
 
 from sphinx.locale import __
+from sphinx.util import docutils
 from sphinx.util import logging
 
 if False:
@@ -43,10 +44,10 @@ def default_role(docname, name):
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
         if role_fn:
-            roles._roles[''] = role_fn
+            docutils.register_role('', role_fn)
         else:
             logger.warning(__('default role %s not found'), name, location=docname)
 
     yield
 
-    roles._roles.pop('', None)  # if a document has set a local default role
+    docutils.unregister_role('')

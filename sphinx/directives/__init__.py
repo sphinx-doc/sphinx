@@ -15,6 +15,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
+from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util.docutils import SphinxDirective
 
@@ -201,9 +202,7 @@ class DefaultRole(SphinxDirective):
     def run(self):
         # type: () -> List[N_co]
         if not self.arguments:
-            if '' in roles._roles:
-                # restore the "default" default role
-                del roles._roles['']
+            docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
@@ -214,7 +213,8 @@ class DefaultRole(SphinxDirective):
                 nodes.literal_block(self.block_text, self.block_text),
                 line=self.lineno)
             return messages + [error]
-        roles._roles[''] = role
+
+        docutils.register_role('', role)
         self.env.temp_data['default_role'] = role_name
         return messages
 
