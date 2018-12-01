@@ -31,7 +31,7 @@ from sphinx.util.nodes import clean_astext, make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers.rst import Directive  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -246,7 +246,7 @@ def split_term_classifiers(line):
 
 
 def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
-    # type: (BuildEnvironment, List[nodes.Node], unicode, unicode, int, unicode) -> nodes.term
+    # type: (BuildEnvironment, Iterable[nodes.Node], unicode, unicode, int, unicode) -> nodes.term  # NOQA
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)

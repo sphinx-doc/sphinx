@@ -10,7 +10,7 @@
 """
 
 from os import path
-from typing import Any
+from typing import Any, TypeVar
 
 from docutils import nodes
 from docutils.io import StringInput
@@ -37,9 +37,11 @@ if False:
 
 logger = logging.getLogger(__name__)
 
+N = TypeVar('N', bound=nodes.Node)
+
 
 def publish_msgstr(app, source, source_path, source_line, config, settings):
-    # type: (Sphinx, unicode, unicode, int, Config, Any) -> nodes.document
+    # type: (Sphinx, unicode, unicode, int, Config, Any) -> nodes.Element
     """Publish msgstr (single line) into docutils document
 
     :param sphinx.application.Sphinx app: sphinx application
@@ -186,7 +188,7 @@ class Locale(SphinxTransform):
 
                     # replace target's refname to new target name
                     matcher = NodeMatcher(nodes.target, refname=old_name)
-                    for old_target in self.document.traverse(matcher):
+                    for old_target in self.document.traverse(matcher):  # type: nodes.target
                         old_target['refname'] = new_name
 
                     processed = True
@@ -276,7 +278,7 @@ class Locale(SphinxTransform):
 
             # auto-numbered foot note reference should use original 'ids'.
             def list_replace_or_append(lst, old, new):
-                # type: (List[nodes.Element], nodes.Element, nodes.Element) -> None
+                # type: (List[N], N, N) -> None
                 if old in lst:
                     lst[lst.index(old)] = new
                 else:
@@ -295,31 +297,30 @@ class Locale(SphinxTransform):
             old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
-            for new in new_foot_refs:
-                refname = new.get('refname')
+            for newf in new_foot_refs:
+                refname = newf.get('refname')
                 refs = old_foot_namerefs.get(refname, [])
                 if not refs:
                     continue
 
-                old = refs.pop(0)
-                new['ids'] = old['ids']
-                for id in new['ids']:
-                    self.document.ids[id] = new
+                oldf = refs.pop(0)
+                newf['ids'] = oldf['ids']
+                for id in newf['ids']:
+                    self.document.ids[id] = newf
 
-                if new['auto'] == 1:
+                if newf['auto'] == 1:
                     # autofootnote_refs
-                    list_replace_or_append(self.document.autofootnote_refs, old, new)
+                    list_replace_or_append(self.document.autofootnote_refs, oldf, newf)
                 else:
                     # symbol_footnote_refs
-                    list_replace_or_append(self.document.symbol_footnote_refs, old, new)
+                    list_replace_or_append(self.document.symbol_footnote_refs, oldf, newf)
 
                 if refname:
-                    list_replace_or_append(
-                        self.document.footnote_refs.setdefault(refname, []),
-                        old, new)
-                    list_replace_or_append(
-                        self.document.refnames.setdefault(refname, []),
-                        old, new)
+                    footnote_refs = self.document.footnote_refs.setdefault(refname, [])
+                    list_replace_or_append(footnote_refs, oldf, newf)
+
+                    refnames = self.document.refnames.setdefault(refname, [])
+                    list_replace_or_append(refnames, oldf, newf)
 
             # reference should use new (translated) 'refname'.
             # * reference target ".. _Python: ..." is not translatable.
@@ -338,18 +339,18 @@ class Locale(SphinxTransform):
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
             orphans = list(set(old_ref_names) - set(new_ref_names))
-            for new in new_refs:
-                if not self.document.has_name(new['refname']):
+            for newr in new_refs:
+                if not self.document.has_name(newr['refname']):
                     # Maybe refname is translated but target is not translated.
                     # Note: multiple translated refnames break link ordering.
                     if orphans:
-                        new['refname'] = orphans.pop(0)
+                        newr['refname'] = orphans.pop(0)
                     else:
                         # orphan refnames is already empty!
                         # reference number is same in new_refs and old_refs.
                         pass
 
-                self.document.note_refname(new)
+                self.document.note_refname(newr)
 
             # refnamed footnote should use original 'ids'.
             is_refnamed_footnote_ref = NodeMatcher(nodes.footnote_reference, refname=Any)
@@ -363,12 +364,12 @@ class Locale(SphinxTransform):
                                   ' original: {0}, translated: {1}')
                                .format(old_foot_ref_rawsources, new_foot_ref_rawsources),
                                location=node)
-            for old in old_foot_refs:
-                refname_ids_map.setdefault(old["refname"], []).append(old["ids"])
-            for new in new_foot_refs:
-                refname = new["refname"]
+            for oldf in old_foot_refs:
+                refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
+            for newf in new_foot_refs:
+                refname = newf["refname"]
                 if refname_ids_map.get(refname):
-                    new["ids"] = refname_ids_map[refname].pop(0)
+                    newf["ids"] = refname_ids_map[refname].pop(0)
 
             # citation should use original 'ids'.
             is_citation_ref = NodeMatcher(nodes.citation_reference, refname=Any)
@@ -382,12 +383,12 @@ class Locale(SphinxTransform):
                                   ' original: {0}, translated: {1}')
                                .format(old_cite_ref_rawsources, new_cite_ref_rawsources),
                                location=node)
-            for old in old_cite_refs:
-                refname_ids_map.setdefault(old["refname"], []).append(old["ids"])
-            for new in new_cite_refs:
-                refname = new["refname"]
+            for oldc in old_cite_refs:
+                refname_ids_map.setdefault(oldc["refname"], []).append(oldc["ids"])
+            for newc in new_cite_refs:
+                refname = newc["refname"]
                 if refname_ids_map.get(refname):
-                    new["ids"] = refname_ids_map[refname].pop()
+                    newc["ids"] = refname_ids_map[refname].pop()
 
             # Original pending_xref['reftarget'] contain not-translated
             # target name, new pending_xref must use original one.
@@ -404,7 +405,7 @@ class Locale(SphinxTransform):
                                location=node)
 
             def get_ref_key(node):
-                # type: (nodes.pending_xref) -> Tuple[unicode, unicode, unicode]
+                # type: (addnodes.pending_xref) -> Tuple[unicode, unicode, unicode]
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
                     return None
@@ -462,8 +463,8 @@ class Locale(SphinxTransform):
                 node['entries'] = new_entries
 
         # remove translated attribute that is used for avoiding double translation.
-        for node in self.document.traverse(NodeMatcher(translated=Any)):
-            node.delattr('translated')
+        for translated in self.document.traverse(NodeMatcher(translated=Any)):  # type: nodes.Element  # NOQA
+            translated.delattr('translated')
 
 
 class RemoveTranslatableInline(SphinxTransform):
