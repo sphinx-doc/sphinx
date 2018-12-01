@@ -41,11 +41,13 @@ import inspect
 import re
 import sys
 from hashlib import md5
+from typing import Iterable, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 import sphinx
+from sphinx import addnodes
 from sphinx.ext.graphviz import (
     graphviz, figure_wrapper,
     render_dot_html, render_dot_latex, render_dot_texinfo
@@ -55,10 +57,9 @@ from sphinx.util.docutils import SphinxDirective
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
-    from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
     from sphinx.writers.texinfo import TexinfoTranslator  # NOQA
@@ -141,7 +142,7 @@ class InheritanceGraph:
     """
     def __init__(self, class_names, currmodule, show_builtins=False,
                  private_bases=False, parts=0, aliases=None, top_classes=[]):
-        # type: (unicode, str, bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> None  # NOQA
+        # type: (List[unicode], str, bool, bool, int, Optional[Dict[unicode, unicode]], List[Any]) -> None  # NOQA
         """*class_names* is a list of child classes to show bases from.
 
         If *show_builtins* is True, then Python builtins will be shown
@@ -156,7 +157,7 @@ class InheritanceGraph:
                                        'inheritance diagram')
 
     def _import_classes(self, class_names, currmodule):
-        # type: (unicode, str) -> List[Any]
+        # type: (List[unicode], str) -> List[Any]
         """Import a list of classes."""
         classes = []  # type: List[Any]
         for name in class_names:
@@ -340,7 +341,7 @@ class InheritanceDiagram(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = inheritance_diagram()
         node.document = self.state.document
         class_names = self.arguments[0].split()
@@ -408,7 +409,8 @@ def html_visit_inheritance_diagram(self, node):
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
-    for child in node:  # type: addnodes.pending_xref
+    pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
+    for child in pending_xrefs:
         if child.get('refuri') is not None:
             if graphviz_output_format == 'SVG':
                 urls[child['reftitle']] = "../" + child.get('refuri')

@@ -27,7 +27,7 @@ if False:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 versionlabels = {
@@ -63,7 +63,7 @@ class VersionChange(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = addnodes.versionmodified()
         node.document = self.state.document
         set_source_info(self, node)
@@ -98,7 +98,10 @@ class VersionChange(SphinxDirective):
 
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         domain.note_changeset(node)
-        return [node] + messages
+
+        ret = [node]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class ChangeSetDomain(Domain):

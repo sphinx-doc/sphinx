@@ -36,7 +36,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -6472,7 +6472,7 @@ class CPPNamespaceObject(SphinxDirective):
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             symbol = rootSymbol
@@ -6506,7 +6506,7 @@ class CPPNamespacePushObject(SphinxDirective):
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return []
         parser = DefinitionParser(self.arguments[0], self, self.config)
@@ -6541,7 +6541,7 @@ class CPPNamespacePopObject(SphinxDirective):
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
         if not stack or len(stack) == 0:
             self.warn("C++ namespace pop on empty stack. Defaulting to gobal scope.")

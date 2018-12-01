@@ -31,7 +31,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -557,7 +557,7 @@ class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
     Directive to mark functions meant to be used as decorators.
     """
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         # a decorator function is a function after all
         self.name = 'py:function'
         return super(PyDecoratorFunction, self).run()
@@ -568,7 +568,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
     Directive to mark methods meant to be used as decorators.
     """
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         self.name = 'py:method'
         return super(PyDecoratorMethod, self).run()
 
@@ -590,11 +590,11 @@ class PyModule(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
-        ret = []
+        ret = []  # type: List[nodes.Node]
         if not noindex:
             self.env.domaindata['py']['modules'][modname] = (self.env.docname,
                                                              self.options.get('synopsis', ''),
@@ -629,7 +629,7 @@ class PyCurrentModule(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         modname = self.arguments[0].strip()
         if modname == 'None':
             self.env.ref_context.pop('py:module', None)

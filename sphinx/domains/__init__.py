@@ -25,7 +25,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.roles import XRefRole  # NOQA
-    from sphinx.util.typing import N_co, RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 
 class ObjType:
@@ -243,7 +243,7 @@ class Domain:
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
             def run(self):
-                # type: () -> List[N_co]
+                # type: () -> List[nodes.Node]
                 self.name = fullname
                 return super(DirectiveAdapter, self).run()
         self._directive_cache[name] = DirectiveAdapter
