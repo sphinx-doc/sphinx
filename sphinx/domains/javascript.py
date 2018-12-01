@@ -29,7 +29,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class JSObject(ObjectDescription):
@@ -250,11 +250,11 @@ class JSModule(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
-        ret = []
+        ret = []  # type: List[nodes.Node]
         if not noindex:
             self.env.domaindata['js']['modules'][mod_name] = self.env.docname
             # Make a duplicate entry in 'objects' to facilitate searching for

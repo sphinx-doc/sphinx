@@ -308,6 +308,7 @@ class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
     """Node for meta directive -- same as docutils' standard meta node,
     but pickleable.
     """
+    rawcontent = None
 
 
 # inline nodes

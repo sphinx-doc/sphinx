@@ -22,7 +22,7 @@ if False:
     # For type annotation
     from typing import Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 class Figure(images.Figure):
@@ -31,9 +31,9 @@ class Figure(images.Figure):
     """
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         name = self.options.pop('name', None)
-        result = super(Figure, self).run()  # type: List[nodes.Node]
+        result = super(Figure, self).run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
             return result
 
@@ -54,8 +54,8 @@ class Figure(images.Figure):
 
 class Meta(html.Meta, SphinxDirective):
     def run(self):
-        # type: () -> List[N_co]
-        result = super(Meta, self).run()  # type: List[nodes.Node]
+        # type: () -> List[nodes.Node]
+        result = super(Meta, self).run()
         for node in result:
             if (isinstance(node, nodes.pending) and
                isinstance(node.details['nodes'][0], html.MetaBody.meta)):
@@ -124,7 +124,7 @@ class MathDirective(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -133,14 +133,14 @@ class MathDirective(SphinxDirective):
                                 number=self.options.get('name'),
                                 label=self.options.get('label'),
                                 nowrap='nowrap' in self.options)
-        ret = [node]  # type: List[nodes.Element]
+        ret = [node]  # type: List[nodes.Node]
         set_source_info(self, node)
         self.add_target(ret)
         return ret
 
     def add_target(self, ret):
-        # type: (List[nodes.Element]) -> None
-        node = ret[0]
+        # type: (List[nodes.Node]) -> None
+        node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):

@@ -35,7 +35,7 @@ if False:
     from docutils.parsers.rst import Directive  # NOQA
     from typing import Any, Dict, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
     from sphinx.writers.manpage import ManualPageTranslator  # NOQA
@@ -135,7 +135,7 @@ class Graphviz(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if self.arguments:
             document = self.state.document
             if self.content:
@@ -195,7 +195,7 @@ class GraphvizSimple(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
@@ -392,7 +392,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 
 def texinfo_visit_graphviz(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
+    # type: (TexinfoTranslator, graphviz) -> None
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 

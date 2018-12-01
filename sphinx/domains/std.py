@@ -36,7 +36,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ class Target(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
         targetname = '%s-%s' % (self.name, fullname)
@@ -222,7 +222,7 @@ class Program(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
             self.env.ref_context.pop('std:program', None)
@@ -290,7 +290,7 @@ class Glossary(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = addnodes.glossary()
         node.document = self.state.document
 
@@ -419,10 +419,9 @@ class ProductionList(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[nodes.Element]
+        # type: () -> List[nodes.Node]
         domain = cast(StandardDomain, self.env.get_domain('std'))
         node = addnodes.productionlist()  # type: nodes.Element
-        messages = []  # type: List[nodes.Element]
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -444,7 +443,7 @@ class ProductionList(SphinxDirective):
                 domain.add_object('token', subnode['tokenname'], self.env.docname, idname)
             subnode.extend(token_xrefs(tokens))
             node.append(subnode)
-        return [node] + messages
+        return [node]
 
 
 class StandardDomain(Domain):
