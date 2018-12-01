@@ -21,7 +21,7 @@ if False:
     from sphinx.util.typing import unicode  # NOQA
 
 
-class translatable:
+class translatable(nodes.Node):
     """Node which supports translation.
 
     The translation goes forward with following steps:

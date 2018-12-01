@@ -251,7 +251,7 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Element) -> Iterable[Tuple[nodes.Node, unicode]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, unicode]]
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):  # type: nodes.Element
         if isinstance(node, addnodes.translatable):
