@@ -67,6 +67,22 @@ def docutils_namespace():
             additional_nodes.discard(node)
 
 
+def is_directive_registered(name):
+    # type: (unicode) -> bool
+    """Check the *name* directive is already registered."""
+    return name in directives._directives
+
+
+def register_directive(name, directive):
+    # type: (unicode, Type[Directive]) -> None
+    """Register a directive to docutils.
+
+    This modifies global state of docutils.  So it is better to use this
+    inside ``docutils_namespace()`` to prevent side-effects.
+    """
+    directives.register_directive(name, directive)
+
+
 def is_role_registered(name):
     # type: (unicode) -> bool
     """Check the *name* role is already registered."""

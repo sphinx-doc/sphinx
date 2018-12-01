@@ -21,7 +21,7 @@ from inspect import isclass
 from io import StringIO
 from os import path
 
-from docutils.parsers.rst import Directive, directives, roles
+from docutils.parsers.rst import Directive, roles
 
 import sphinx
 from sphinx import package_dir, locale
@@ -651,15 +651,15 @@ class Sphinx:
         """
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
-        if name in directives._directives and not override:
+        if not override and docutils.is_directive_registered(name):
             logger.warning(__('directive %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_directive')
 
         if not isclass(obj) or not issubclass(obj, Directive):
             directive = directive_helper(obj, content, arguments, **options)
-            directives.register_directive(name, directive)
+            docutils.register_directive(name, directive)
         else:
-            directives.register_directive(name, obj)
+            docutils.register_directive(name, obj)
 
     def add_role(self, name, role, override=False):
         # type: (unicode, Any, bool) -> None
