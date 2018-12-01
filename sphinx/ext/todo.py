@@ -31,7 +31,7 @@ if False:
     from typing import Any, Dict, Iterable, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
 
@@ -61,7 +61,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 

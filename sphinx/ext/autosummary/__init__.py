@@ -88,7 +88,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -240,7 +240,7 @@ class Autosummary(SphinxDirective):
             msg, line=self.lineno))
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         self.genopt = Options()
         self.warnings = []  # type: List[nodes.Node]
         self.result = ViewList()

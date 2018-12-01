@@ -10,6 +10,7 @@
 """
 
 import re
+from typing import List, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -32,12 +33,12 @@ from sphinx.directives.patches import (  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List  # NOQA
+    from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.docfields import Field  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 # RE to strip backslash escapes
@@ -117,7 +118,7 @@ class ObjectDescription(SphinxDirective):
         pass
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         """
         Main directive entry function, called by docutils upon encountering the
         directive.
@@ -199,7 +200,7 @@ class DefaultRole(SphinxDirective):
     final_argument_whitespace = False
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if not self.arguments:
             if '' in roles._roles:
                 # restore the "default" default role
@@ -208,15 +209,17 @@ class DefaultRole(SphinxDirective):
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role is None:
-            error = self.state.reporter.error(
-                'Unknown interpreted text role "%s".' % role_name,
-                nodes.literal_block(self.block_text, self.block_text),
-                line=self.lineno)
-            return messages + [error]
-        roles._roles[''] = role
-        self.env.temp_data['default_role'] = role_name
-        return messages
+        if role:
+            roles._roles[''] = role
+            self.env.temp_data['default_role'] = role_name
+        else:
+            literal_block = nodes.literal_block(self.block_text, self.block_text)
+            reporter = self.state.reporter
+            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
+                                   literal_block, line=self.lineno)
+            messages += [error]
+
+        return cast(List[nodes.Node], messages)
 
 
 class DefaultDomain(SphinxDirective):
@@ -231,7 +234,7 @@ class DefaultDomain(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label

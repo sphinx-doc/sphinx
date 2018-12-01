@@ -28,7 +28,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, Generator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 
 glob_re = re.compile(r'.*[*?\[].*')
@@ -63,7 +63,7 @@ class TocTree(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         subnode = addnodes.toctree()
         subnode['parent'] = self.env.docname
 
@@ -163,7 +163,7 @@ class Author(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if not self.config.show_authors:
             return []
         para = nodes.paragraph(translatable=False)  # type: nodes.Element
@@ -178,10 +178,12 @@ class Author(SphinxDirective):
         else:
             text = _('Author: ')
         emph += nodes.Text(text, text)
-        inodes, messages = self.state.inline_text(self.arguments[0],
-                                                  self.lineno)
+        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
-        return [para] + messages
+
+        ret = [para]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class Index(SphinxDirective):
@@ -195,7 +197,7 @@ class Index(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         arguments = self.arguments[0].split('\n')
         targetid = 'index-%s' % self.env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
@@ -227,7 +229,7 @@ class TabularColumns(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         set_source_info(self, node)
@@ -245,14 +247,16 @@ class Centered(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if not self.arguments:
             return []
         subnode = addnodes.centered()  # type: nodes.Element
-        inodes, messages = self.state.inline_text(self.arguments[0],
-                                                  self.lineno)
+        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
-        return [subnode] + messages
+
+        ret = [subnode]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class Acks(SphinxDirective):
@@ -266,14 +270,14 @@ class Acks(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            return [self.state.document.reporter.warning(
-                '.. acks content is not a list', line=self.lineno)]
+            reporter = self.state.document.reporter
+            return [reporter.warning('.. acks content is not a list', line=self.lineno)]
         return [node]
 
 
@@ -290,15 +294,15 @@ class HList(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            return [self.state.document.reporter.warning(
-                '.. hlist content is not a list', line=self.lineno)]
+            reporter = self.state.document.reporter
+            return [reporter.warning('.. hlist content is not a list', line=self.lineno)]
         fulllist = node.children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
@@ -306,11 +310,10 @@ class HList(SphinxDirective):
         newnode = addnodes.hlist()
         for column in range(ncolumns):
             endindex = index + (column < nmore and (npercol + 1) or npercol)
-            col = addnodes.hlistcol()
-            col += nodes.bullet_list()
-            col[0] += fulllist.children[index:endindex]
+            bullet_list = nodes.bullet_list()
+            bullet_list += fulllist.children[index:endindex]
+            newnode += addnodes.hlistcol('', bullet_list)
             index = endindex
-            newnode += col
         return [newnode]
 
 
@@ -325,7 +328,7 @@ class Only(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         node = addnodes.only()
         node.document = self.state.document
         set_source_info(self, node)
@@ -339,7 +342,7 @@ class Only(SphinxDirective):
         self.state.memo.section_level = 0
         try:
             self.state.nested_parse(self.content, self.content_offset,
-                                    node, match_titles=1)
+                                    node, match_titles=True)
             title_styles = self.state.memo.title_styles
             if (not surrounding_title_styles or
                     not title_styles or
@@ -379,7 +382,7 @@ class Include(BaseInclude, SphinxDirective):
     """
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing

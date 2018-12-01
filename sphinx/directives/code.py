@@ -29,7 +29,7 @@ if False:
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import N_co, unicode  # NOQA
+    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class Highlight(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         return [addnodes.highlightlang(lang=self.arguments[0].strip(),
                                        linenothreshold=linenothreshold)]
@@ -59,7 +59,7 @@ class HighlightLang(Highlight):
     """highlightlang directive (deprecated)"""
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         warnings.warn('highlightlang directive is deprecated. '
                       'Please use highlight directive instead.',
                       RemovedInSphinx40Warning, stacklevel=2)
@@ -127,7 +127,7 @@ class CodeBlock(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         document = self.state.document
         code = u'\n'.join(self.content)
         location = self.state_machine.get_source_and_line(self.lineno)
@@ -419,7 +419,7 @@ class LiteralInclude(SphinxDirective):
     }
 
     def run(self):
-        # type: () -> List[N_co]
+        # type: () -> List[nodes.Node]
         document = self.state.document
         if not document.settings.file_insertion_enabled:
             return [document.reporter.warning('File insertion disabled',
