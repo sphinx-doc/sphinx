@@ -90,7 +90,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
             self.config.master_doc, self, prune_toctrees=False)
 
         def write_toc(node, parent):
-            # type: (nodes.Node, nodes.Node) -> None
+            # type: (nodes.Node, etree.Element) -> None
             if isinstance(node, addnodes.compact_paragraph) or \
                isinstance(node, nodes.bullet_list):
                 for subnode in node:
@@ -104,7 +104,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 parent.attrib['name'] = node.astext()
 
         matcher = NodeMatcher(addnodes.compact_paragraph, toctree=Any)
-        for node in tocdoc.traverse(matcher):
+        for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
             write_toc(node, chapters)
 
         # Index

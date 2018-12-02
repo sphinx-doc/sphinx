@@ -22,6 +22,7 @@ from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename_from_project
 from sphinx.util.pycompat import htmlescape
 
@@ -294,11 +295,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     for subnode in node:
                         write_toc(subnode, ullevel)
 
-            def istoctree(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, addnodes.compact_paragraph) and \
-                    'toctree' in node
-            for node in tocdoc.traverse(istoctree):
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
                 write_toc(node)
             f.write(contents_footer)
 

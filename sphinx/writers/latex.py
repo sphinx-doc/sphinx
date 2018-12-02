@@ -17,6 +17,7 @@ import sys
 import warnings
 from collections import defaultdict
 from os import path
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
@@ -254,7 +255,7 @@ class LaTeXWriter(writers.Writer):
         # type: () -> None
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = visitor.astext()
+        self.output = cast(LaTeXTranslator, visitor).astext()
 
 
 # Helper classes
@@ -1443,9 +1444,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (addnodes.acks) -> None
         # this is a list in the source, but should be rendered as a
         # comma-separated list here
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.body.append('\n\n')
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 
@@ -1640,7 +1642,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def latex_image_length(self, width_str):
-        # type: (nodes.Node) -> unicode
+        # type: (unicode) -> unicode
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:

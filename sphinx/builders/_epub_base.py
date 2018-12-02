@@ -160,6 +160,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.tocid = 0
         self.id_cache = {}  # type: Dict[unicode, unicode]
         self.use_index = self.get_builder_config('use_index', 'epub')
+        self.refnodes = []  # type: List[Dict[unicode, Any]]
 
     def create_build_info(self):
         # type: () -> BuildInfo
@@ -210,8 +211,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         'text': ssp(self.esc(doctree.astext()))
                     })
                     break
-        else:
-            for elem in doctree.children:
+        elif isinstance(doctree, nodes.Element):
+            for elem in doctree:
                 result = self.get_refnodes(elem, result)
         return result
 
@@ -280,7 +281,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     target['ids'][i] = self.fix_fragment('', node_id)
 
             next_node = target.next_node(siblings=True)
-            if next_node and isinstance(next_node, nodes.Element):
+            if isinstance(next_node, nodes.Element):
                 for i, node_id in enumerate(next_node['ids']):
                     if ':' in node_id:
                         next_node['ids'][i] = self.fix_fragment('', node_id)
@@ -316,7 +317,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote
 
         def footnote_spot(tree):
-            # type: (nodes.document) -> Tuple[nodes.Node, int]
+            # type: (nodes.document) -> Tuple[nodes.document, int]
             """Find or create a spot to place footnotes.
 
             The function returns the tuple (parent, index)."""
@@ -377,7 +378,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         super(EpubBuilder, self).write_doc(docname, doctree)
 
     def fix_genindex(self, tree):
-        # type: (nodes.Node) -> None
+        # type: (List[Tuple[unicode, List[Tuple[unicode, Any]]]]) -> None
         """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
@@ -625,7 +626,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         metadata)
 
     def new_navpoint(self, node, level, incr=True):
-        # type: (nodes.Node, int, bool) -> NavPoint
+        # type: (Dict[unicode, Any], int, bool) -> NavPoint
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
@@ -635,7 +636,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         node['text'], node['refuri'], [])
 
     def build_navpoints(self, nodes):
-        # type: (nodes.Node) -> List[NavPoint]
+        # type: (List[Dict[unicode, Any]]) -> List[NavPoint]
         """Create the toc navigation structure.
 
         Subelements of a node are nested inside the navpoint.  For nested nodes

@@ -24,9 +24,9 @@ from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to ke
 if False:
     # For type annotation
     from typing import Any, Callable, List, Tuple  # NOQA
-    from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import unicode  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 
 class MathDirective(MathDirectiveBase):
@@ -45,7 +45,7 @@ def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def get_node_equation_number(writer, node):
-    # type: (Writer, nodes.Node) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> unicode
     warnings.warn('sphinx.ext.mathbase.get_node_equation_number() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)
