@@ -956,11 +956,11 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
+                with open(searchindexfn, 'r', encoding='utf-8') as ft:  # type: ignore
+                    self.indexer.load(ft, self.indexer_format)
             else:
-                f = open(searchindexfn, 'rb')
-            with f:
-                self.indexer.load(f, self.indexer_format)
+                with open(searchindexfn, 'rb') as fb:
+                    self.indexer.load(fb, self.indexer_format)
         except (IOError, OSError, ValueError):
             if keep:
                 logger.warning(__('search index couldn\'t be loaded, but not all '
@@ -1175,11 +1175,11 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
+            with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:  # type: ignore
+                self.indexer.dump(ft, self.indexer_format)
         else:
-            f = open(searchindexfn + '.tmp', 'wb')
-        with f:
-            self.indexer.dump(f, self.indexer_format)
+            with open(searchindexfn + '.tmp', 'wb') as fb:
+                self.indexer.dump(fb, self.indexer_format)
         movefile(searchindexfn + '.tmp', searchindexfn)
         logger.info(__('done'))
 
@@ -1433,11 +1433,11 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            f = open(filename, 'w', encoding='utf-8')  # type: ignore
+            with open(filename, 'w', encoding='utf-8') as ft:  # type: ignore
+                self.implementation.dump(context, ft, *self.additional_dump_args)
         else:
-            f = open(filename, 'wb')
-        with f:
-            self.implementation.dump(context, f, *self.additional_dump_args)
+            with open(filename, 'wb') as fb:
+                self.implementation.dump(context, fb, *self.additional_dump_args)
 
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
