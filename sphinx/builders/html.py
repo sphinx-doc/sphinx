@@ -590,7 +590,7 @@ class StandaloneHTMLBuilder(Builder):
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
-        # type: (unicode, unicode, Dict) -> Dict[unicode, Any]
+        # type: (unicode, unicode, unicode) -> Dict[unicode, Any]
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -633,8 +633,8 @@ class StandaloneHTMLBuilder(Builder):
         parents.reverse()
 
         # title rendered as HTML
-        title = self.env.longtitles.get(docname)
-        title = title and self.render_partial(title)['title'] or ''
+        title_node = self.env.longtitles.get(docname)
+        title = title_node and self.render_partial(title_node)['title'] or ''
 
         # Suffix for the document
         source_suffix = path.splitext(self.env.doc2path(docname))[1]
@@ -689,11 +689,11 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
-        title = self.env.longtitles.get(docname)
-        title = title and self.render_partial(title)['title'] or ''
+        title_node = self.env.longtitles.get(docname)
+        title = title_node and self.render_partial(title_node)['title'] or ''
         self.index_page(docname, doctree, title)
 
     def finish(self):
@@ -970,7 +970,7 @@ class StandaloneHTMLBuilder(Builder):
         self.indexer.prune(keep)
 
     def index_page(self, pagename, doctree, title):
-        # type: (unicode, nodes.Node, unicode) -> None
+        # type: (unicode, nodes.document, unicode) -> None
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
@@ -1322,14 +1322,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return {self.config.master_doc: new_fignumbers}
 
     def get_doc_context(self, docname, body, metatags):
-        # type: (unicode, unicode, Dict) -> Dict
+        # type: (unicode, unicode, unicode) -> Dict
         # no relation links...
-        toc = TocTree(self.env).get_toctree_for(self.config.master_doc,
-                                                self, False)
+        toctree = TocTree(self.env).get_toctree_for(self.config.master_doc, self, False)
         # if there is no toctree, toc is None
-        if toc:
-            self.fix_refuris(toc)
-            toc = self.render_partial(toc)['fragment']
+        if toctree:
+            self.fix_refuris(toctree)
+            toc = self.render_partial(toctree)['fragment']
             display_toc = True
         else:
             toc = ''

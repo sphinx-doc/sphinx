@@ -35,7 +35,8 @@ class FootnoteDocnameUpdater(SphinxTransform):
 
     def apply(self, **kwargs):
         # type: (Any) -> None
-        for node in self.document.traverse(NodeMatcher(*self.TARGET_NODES)):
+        matcher = NodeMatcher(*self.TARGET_NODES)
+        for node in self.document.traverse(matcher):  # type: nodes.Element
             node['docname'] = self.env.docname
 
 
@@ -544,10 +545,10 @@ class CitationReferenceTransform(SphinxTransform):
 
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='std', reftype='citation')
         citations = self.env.get_domain('std').data['citations']
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: addnodes.pending_xref
             docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
             if docname:
-                citation_ref = nodes.citation_reference('', *node.children,
+                citation_ref = nodes.citation_reference('', '', *node.children,
                                                         docname=docname, refname=labelid)
                 node.replace_self(citation_ref)
 
@@ -584,7 +585,7 @@ class LiteralBlockTransform(SphinxTransform):
             return
 
         matcher = NodeMatcher(nodes.container, literal_block=True)
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: nodes.container
             newnode = captioned_literal_block('', *node.children, **node.attributes)
             node.replace_self(newnode)
 

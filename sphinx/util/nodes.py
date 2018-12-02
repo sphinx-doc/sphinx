@@ -279,7 +279,7 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
-    # type: (nodes.Node) -> unicode
+    # type: (nodes.Element) -> unicode
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
@@ -287,7 +287,7 @@ def find_source_node(node):
 
 
 def traverse_parent(node, cls=None):
-    # type: (nodes.Node, Any) -> Iterable[nodes.Node]
+    # type: (nodes.Element, Any) -> Iterable[nodes.Element]
     while node:
         if cls is None or isinstance(node, cls):
             yield node
@@ -390,7 +390,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[unicode], unicode, nodes.document, Callable, List[unicode]) -> nodes.Element  # NOQA
+    # type: (Builder, Set[unicode], unicode, nodes.document, Callable, List[unicode]) -> nodes.document  # NOQA
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.

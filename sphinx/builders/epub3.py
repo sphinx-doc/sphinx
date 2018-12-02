@@ -151,7 +151,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['skip_ua_compatible'] = True
 
     def build_navlist(self, navnodes):
-        # type: (List[nodes.Node]) -> List[NavPoint]
+        # type: (List[Dict[unicode, Any]]) -> List[NavPoint]
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.

@@ -13,6 +13,7 @@ import os
 import posixpath
 import re
 from os import path
+from typing import Iterable, cast
 
 from docutils import nodes
 
@@ -23,6 +24,7 @@ from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.template import SphinxRenderer
@@ -101,12 +103,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
                                                   prune_toctrees=False)
 
-        def istoctree(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, addnodes.compact_paragraph) and \
-                'toctree' in node
         sections = []
-        for node in tocdoc.traverse(istoctree):
+        matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+        for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
             sections.extend(self.write_toc(node))
 
         for indexname, indexcls, content, collapse in self.domain_indices:
@@ -164,26 +163,30 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             return False
         if len(node.children) != 2:
             return False
-        if not isinstance(node.children[0], addnodes.compact_paragraph):
+        if not isinstance(node[0], addnodes.compact_paragraph):
             return False
-        if not isinstance(node.children[0][0], nodes.reference):
+        if not isinstance(node[0][0], nodes.reference):
             return False
-        if not isinstance(node.children[1], nodes.bullet_list):
+        if not isinstance(node[1], nodes.bullet_list):
             return False
         return True
 
     def write_toc(self, node, indentlevel=4):
         # type: (nodes.Node, int) -> List[unicode]
         parts = []  # type: List[unicode]
-        if self.isdocnode(node):
-            refnode = node.children[0][0]
-            link = refnode['refuri']
-            title = htmlescape(refnode.astext()).replace('"', '&quot;')
+        if isinstance(node, nodes.list_item) and self.isdocnode(node):
+            compact_paragraph = cast(addnodes.compact_paragraph, node[0])
+            reference = cast(nodes.reference, compact_paragraph[0])
+            link = reference['refuri']
+            title = htmlescape(reference.astext()).replace('"', '&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % \
                 {'title': title, 'ref': link}
             parts.append(' ' * 4 * indentlevel + item)
-            for subnode in node.children[1]:
-                parts.extend(self.write_toc(subnode, indentlevel + 1))
+
+            bullet_list = cast(nodes.bullet_list, node[1])
+            list_items = cast(Iterable[nodes.list_item], bullet_list)
+            for list_item in list_items:
+                parts.extend(self.write_toc(list_item, indentlevel + 1))
             parts.append(' ' * 4 * indentlevel + '</section>')
         elif isinstance(node, nodes.list_item):
             for subnode in node:

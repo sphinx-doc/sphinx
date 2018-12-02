@@ -166,8 +166,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         logger.info(bold(__('writing Info.plist... ')), nonl=True)
-        with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
-            plistlib.dump(info_plist, f)  # type: ignore
+        with open(path.join(contents_dir, 'Info.plist'), 'wb') as fb:
+            plistlib.dump(info_plist, fb)  # type: ignore
         logger.info(__('done'))
 
         # Copy the icon, if one is supplied
@@ -186,8 +186,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         logger.info(bold(__('building access page...')), nonl=True)
-        with open(path.join(language_dir, '_access.html'), 'w') as f:
-            f.write(access_page_template % {
+        with open(path.join(language_dir, '_access.html'), 'w') as ft:
+            ft.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)
             })

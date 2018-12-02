@@ -23,7 +23,8 @@ from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterator, Set  # NOQA
+    from typing import Any, Dict, Iterator, Set, Type  # NOQA
+    from docutils.writers.xml import BaseXMLWriter  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -41,7 +42,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class = XMLWriter
+    _writer_class = XMLWriter  # type: Type[BaseXMLWriter]
     default_translator_class = XMLTranslator
 
     def init(self):
