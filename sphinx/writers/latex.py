@@ -44,7 +44,9 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builders.latex import LaTeXBuilder  # NOQA
-    from sphinx.builders.latex import nodes as latexnodes  # NOQA
+    from sphinx.builders.latex.nodes import (  # NOQA
+        captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
+    )
     from sphinx.domains import IndexEntry  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -2146,7 +2148,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_thebibliography(self, node):
-        # type: (latexnodes.thebibliography) -> None
+        # type: (thebibliography) -> None
         longest_label = max((subnode[0].astext() for subnode in node), key=len)
         if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
             # adjust max width of citation labels not to break the layout
@@ -2156,7 +2158,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                          self.encode(longest_label))
 
     def depart_thebibliography(self, node):
-        # type: (latexnodes.thebibliography) -> None
+        # type: (thebibliography) -> None
         self.body.append(u'\\end{sphinxthebibliography}\n')
 
     def visit_citation(self, node):
@@ -2199,30 +2201,30 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_footnotemark(self, node):
-        # type: (latexnodes.footnotemark) -> None
+        # type: (footnotemark) -> None
         self.body.append('\\sphinxfootnotemark[')
 
     def depart_footnotemark(self, node):
-        # type: (latexnodes.footnotemark) -> None
+        # type: (footnotemark) -> None
         self.body.append(']')
 
     def visit_footnotetext(self, node):
-        # type: (latexnodes.footnotetext) -> None
+        # type: (footnotetext) -> None
         number = node[0].astext()
         self.body.append('%%\n\\begin{footnotetext}[%s]'
                          '\\sphinxAtStartFootnote\n' % number)
 
     def depart_footnotetext(self, node):
-        # type: (latexnodes.footnotetext) -> None
+        # type: (footnotetext) -> None
         # the \ignorespaces in particular for after table header use
         self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
 
     def visit_captioned_literal_block(self, node):
-        # type: (latexnodes.captioned_literal_block) -> None
+        # type: (captioned_literal_block) -> None
         pass
 
     def depart_captioned_literal_block(self, node):
-        # type: (latexnodes.captioned_literal_block) -> None
+        # type: (captioned_literal_block) -> None
         pass
 
     def visit_literal_block(self, node):
@@ -2558,7 +2560,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node):
-        # type: (latexnodes.math_reference) -> None
+        # type: (math_reference) -> None
         label = "equation:%s:%s" % (node['docname'], node['target'])
         eqref_format = self.builder.config.math_eqref_format
         if eqref_format:
@@ -2573,7 +2575,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\eqref{%s}' % label)
 
     def depart_math_reference(self, node):
-        # type: (latexnodes.math_reference) -> None
+        # type: (math_reference) -> None
         pass
 
     def unknown_visit(self, node):
