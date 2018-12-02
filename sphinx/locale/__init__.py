@@ -22,7 +22,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Union  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 
@@ -48,7 +48,7 @@ class _TranslationProxy(UserString):
         return object.__new__(cls)
 
     def __getnewargs__(self):
-        # type: () -> Tuple
+        # type: () -> Tuple[str]
         return (self._func,) + self._args  # type: ignore
 
     def __init__(self, func, *args):
@@ -128,11 +128,11 @@ class _TranslationProxy(UserString):
         return other * self.data
 
     def __lt__(self, other):
-        # type: (unicode) -> bool
+        # type: (Union[unicode, UserString]) -> bool
         return self.data < other
 
     def __le__(self, other):
-        # type: (unicode) -> bool
+        # type: (Union[unicode, UserString]) -> bool
         return self.data <= other
 
     def __eq__(self, other):
@@ -140,11 +140,11 @@ class _TranslationProxy(UserString):
         return self.data == other
 
     def __gt__(self, other):
-        # type: (unicode) -> bool
+        # type: (Union[unicode, UserString]) -> bool
         return self.data > other
 
     def __ge__(self, other):
-        # type: (unicode) -> bool
+        # type: (Union[unicode, UserString]) -> bool
         return self.data >= other
 
     def __getattr__(self, name):
