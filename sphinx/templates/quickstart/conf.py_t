@@ -112,12 +112,6 @@ html_static_path = ['{{ dot }}static']
 # html_sidebars = {}
 
 
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = '{{ project_fn }}doc'
-
-
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {

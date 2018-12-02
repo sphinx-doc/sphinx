@@ -41,8 +41,6 @@ html_style = 'default.css'
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
-htmlhelp_basename = 'SphinxTestsdoc'
-
 applehelp_bundle_id = 'org.sphinx-doc.Sphinx.help'
 applehelp_disable_external_tools = True
 
