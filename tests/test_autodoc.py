@@ -824,6 +824,7 @@ def test_autodoc_ignore_module_all(app):
         '.. py:class:: CustomDataDescriptor2(doc)',
         '.. py:class:: CustomDataDescriptorMeta',
         '.. py:class:: CustomDict',
+        '.. py:class:: InnerChild',
         '.. py:class:: InstAttCls()',
         '.. py:class:: Outer',
         '   .. py:class:: Outer.Inner',
@@ -912,6 +913,18 @@ def test_autodoc_inner_class(app):
         '   ',
         '      Foo',
         '      ',
+    ]
+
+    options['show-inheritance'] = True
+    actual = do_autodoc(app, 'class', 'target.InnerChild', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: InnerChild',
+        '   :module: target', '',
+        '   Bases: :class:`target.Outer.Inner`',
+        '',
+        '   InnerChild docstring',
+        '   '
     ]
 
 
