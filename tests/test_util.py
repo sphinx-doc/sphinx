@@ -33,13 +33,13 @@ def test_encode_uri():
                 u'%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
     uri = (u'https://ru.wikipedia.org/wiki'
            u'/Система_управления_базами_данных')
-    assert expected, encode_uri(uri)
+    assert expected == encode_uri(uri)
 
     expected = (u'https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
                 u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
     uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
            u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    assert expected, encode_uri(uri)
+    assert expected == encode_uri(uri)
 
 
 def test_ensuredir():
