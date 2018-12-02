@@ -12,6 +12,7 @@
 import re
 import textwrap
 from os import path
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 
@@ -135,11 +136,12 @@ class TexinfoWriter(writers.Writer):
 
     def translate(self):
         # type: () -> None
-        self.visitor = visitor = self.builder.create_translator(self.document, self.builder)
+        visitor = self.builder.create_translator(self.document, self.builder)
+        self.visitor = cast(TexinfoTranslator, visitor)
         self.document.walkabout(visitor)
-        visitor.finish()
+        self.visitor.finish()
         for attr in self.visitor_attributes:
-            setattr(self, attr, getattr(visitor, attr))
+            setattr(self, attr, getattr(self.visitor, attr))
 
 
 class TexinfoTranslator(nodes.NodeVisitor):
@@ -1431,10 +1433,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (addnodes.productionlist) -> None
         self.visit_literal_block(None)
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
@@ -1531,9 +1534,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.body.append('\n\n')
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n\n')
         raise nodes.SkipNode
 

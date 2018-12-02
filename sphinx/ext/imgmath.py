@@ -46,7 +46,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
-        # type: (unicode, unicode, unicode) -> None
+        # type: (unicode, bytes, bytes) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:

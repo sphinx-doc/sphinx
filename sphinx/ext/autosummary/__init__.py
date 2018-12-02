@@ -83,7 +83,7 @@ from sphinx.util.matching import Matcher
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -274,8 +274,7 @@ class Autosummary(SphinxDirective):
             tocnode['maxdepth'] = -1
             tocnode['glob'] = None
 
-            tocnode = autosummary_toc('', '', tocnode)
-            nodes.append(tocnode)
+            nodes.append(autosummary_toc('', '', tocnode))
 
         return self.warnings + nodes
 
@@ -354,7 +353,7 @@ class Autosummary(SphinxDirective):
         return items
 
     def get_table(self, items):
-        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[Union[addnodes.tabular_col_spec, autosummary_table]]  # NOQA
+        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[nodes.Node]
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.

@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Iterable, cast
+
 from docutils import nodes
 from docutils.writers.manpage import (
     Writer,
@@ -41,9 +43,9 @@ class ManualPageWriter(Writer):
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.builder.create_translator(self.builder, self.document)
-        self.visitor = visitor
+        self.visitor = cast(ManualPageTranslator, visitor)
         self.document.walkabout(visitor)
-        self.output = visitor.astext()
+        self.output = self.visitor.astext()
 
 
 class NestedInlineTransform:
@@ -64,7 +66,7 @@ class NestedInlineTransform:
     def apply(self, **kwargs):
         # type: (Any) -> None
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: nodes.Element
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(node[1:]):
@@ -292,11 +294,12 @@ class ManualPageTranslator(BaseTranslator):
         names = []
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.defs['strong'][0])
@@ -403,9 +406,10 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.ensure_eol()
-        self.body.append(', '.join(n.astext()
-                                   for n in node.children[0].children) + '.')
+        self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n')
         raise nodes.SkipNode
 

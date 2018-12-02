@@ -13,6 +13,7 @@ import os
 import posixpath
 import sys
 import warnings
+from typing import Iterable, cast
 
 from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
@@ -451,11 +452,12 @@ class HTML5Translator(BaseTranslator):
         # type: (addnodes.productionlist) -> None
         self.body.append(self.starttag(node, 'pre'))
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))
@@ -754,7 +756,7 @@ class HTML5Translator(BaseTranslator):
         # type: (addnodes.manpage) -> None
         self.visit_literal_emphasis(node)
         if self.manpages_url:
-            node['refuri'] = self.manpages_url.format(**dict(node))
+            node['refuri'] = self.manpages_url.format(**node.attributes)
             self.visit_reference(node)
 
     def depart_manpage(self, node):

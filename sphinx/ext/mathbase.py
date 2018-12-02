@@ -63,7 +63,7 @@ def wrap_displaymath(text, label, numbering):
 
 
 def is_in_section_title(node):
-    # type: (nodes.Node) -> bool
+    # type: (nodes.Element) -> bool
     """Determine whether the node is in a section title"""
     from sphinx.util.nodes import traverse_parent
 

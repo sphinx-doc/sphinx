@@ -2145,7 +2145,7 @@ class ASTNestedName(ASTBase):
             # else append directly to signode.
             # NOTE: Breathe relies on the prefix being in the desc_addname node,
             #       so it can remove it in inner declarations.
-            dest = signode
+            dest = signode  # type: nodes.Element
             if mode == 'lastIsName':
                 dest = addnodes.desc_addname()
             for i in range(len(names)):

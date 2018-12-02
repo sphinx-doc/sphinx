@@ -13,6 +13,7 @@ import os
 import re
 import textwrap
 from itertools import groupby, chain
+from typing import Iterable, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -387,7 +388,7 @@ class TextWriter(writers.Writer):
         # type: () -> None
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = visitor.body
+        self.output = cast(TextTranslator, visitor).body
 
 
 class TextTranslator(nodes.NodeVisitor):
@@ -691,11 +692,12 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (addnodes.productionlist) -> None
         self.new_state()
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
@@ -871,9 +873,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         # type: (addnodes.acks) -> None
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.new_state(0)
-        self.add_text(', '.join(n.astext() for n in node.children[0].children) +
-                      '.')
+        self.add_text(', '.join(n.astext() for n in list_items) + '.')
         self.end_state()
         raise nodes.SkipNode
 

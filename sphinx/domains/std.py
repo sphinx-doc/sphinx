@@ -129,7 +129,7 @@ class Target(SphinxDirective):
         targetname = '%s-%s' % (self.name, fullname)
         node = nodes.target('', '', ids=[targetname])
         self.state.document.note_explicit_target(node)
-        ret = [node]
+        ret = [node]  # type: List[nodes.Node]
         if self.indextemplate:
             indexentry = self.indextemplate % (fullname,)
             indextype = 'single'
@@ -303,7 +303,7 @@ class Glossary(SphinxDirective):
         entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], StringList]]
         in_definition = True
         was_empty = True
-        messages = []
+        messages = []  # type: List[nodes.Node]
         for line, (source, lineno) in zip(self.content, self.content.items):
             # empty line -> add to last definition
             if not line:

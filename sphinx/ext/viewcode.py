@@ -121,13 +121,11 @@ def doctree_read(app, doctree):
                 continue
             names.add(fullname)
             pagename = '_modules/' + modname.replace('.', '/')
+            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             onlynode = addnodes.only(expr='html')
-            onlynode += addnodes.pending_xref(
-                '', reftype='viewcode', refdomain='std', refexplicit=False,
-                reftarget=pagename, refid=fullname,
-                refdoc=env.docname)
-            onlynode[0] += nodes.inline('', _('[source]'),
-                                        classes=['viewcode-link'])
+            onlynode += addnodes.pending_xref('', inline, reftype='viewcode', refdomain='std',
+                                              refexplicit=False, reftarget=pagename,
+                                              refid=fullname, refdoc=env.docname)
             signode += onlynode
 
 
