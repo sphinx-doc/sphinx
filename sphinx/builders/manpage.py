@@ -21,13 +21,14 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import make_filename_from_project
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Set, Union  # NOQA
+    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 
@@ -113,14 +114,19 @@ class ManualPageBuilder(Builder):
         pass
 
 
+def default_man_pages(config):
+    # type: (Config) -> List[Tuple[unicode, unicode, unicode, List[unicode], int]]
+    """ Better default man_pages settings. """
+    filename = make_filename_from_project(config.project)
+    return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
+             [config.author], 1)]
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(ManualPageBuilder)
 
-    app.add_config_value('man_pages',
-                         lambda self: [(self.master_doc, make_filename(self.project).lower(),
-                                        '%s %s' % (self.project, self.release), [], 1)],
-                         None)
+    app.add_config_value('man_pages', default_man_pages, None)
     app.add_config_value('man_show_urls', False, None)
 
     return {
