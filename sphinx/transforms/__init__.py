@@ -56,7 +56,7 @@ class SphinxTransform(Transform):
     def app(self):
         # type: () -> Sphinx
         """Reference to the :class:`.Sphinx` object."""
-        return self.document.settings.env.app
+        return self.env.app
 
     @property
     def env(self):
@@ -68,7 +68,7 @@ class SphinxTransform(Transform):
     def config(self):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
-        return self.document.settings.env.config
+        return self.env.config
 
 
 class SphinxTransformer(Transformer):

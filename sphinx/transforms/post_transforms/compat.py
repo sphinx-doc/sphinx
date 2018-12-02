@@ -58,13 +58,13 @@ class MathNodeMigrator(SphinxTransform):
             warnings.warn("Translator for %s does not support math_block node'. "
                           "Please update your extension." % translator,
                           RemovedInSphinx30Warning)
-            for math_block_node in self.document.traverse(math_block):
-                alt = displaymath(latex=math_block_node.astext(),
-                                  number=math_block_node.get('number'),
-                                  label=math_block_node.get('label'),
-                                  nowrap=math_block_node.get('nowrap'),
-                                  docname=math_block_node.get('docname'))
-                math_block_node.replace(alt)
+            for old_math_block_node in self.document.traverse(math_block):
+                alt = displaymath(latex=old_math_block_node.astext(),
+                                  number=old_math_block_node.get('number'),
+                                  label=old_math_block_node.get('label'),
+                                  nowrap=old_math_block_node.get('nowrap'),
+                                  docname=old_math_block_node.get('docname'))
+                old_math_block_node.replace_self(alt)
         elif getattr(self.app.builder, 'math_renderer_name', None) == 'unknown':
             # case: math extension provides old styled math renderer
             for math_block_node in self.document.traverse(nodes.math_block):

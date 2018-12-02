@@ -317,7 +317,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote
 
         def footnote_spot(tree):
-            # type: (nodes.document) -> Tuple[nodes.document, int]
+            # type: (nodes.document) -> Tuple[nodes.Element, int]
             """Find or create a spot to place footnotes.
 
             The function returns the tuple (parent, index)."""

@@ -555,7 +555,7 @@ class BuildEnvironment:
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
-        # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.document
+        # type: (unicode, Builder, nodes.document, bool, bool) -> nodes.document
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -600,7 +600,7 @@ class BuildEnvironment:
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree, docname):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.document, unicode) -> None
         """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
@@ -700,7 +700,7 @@ class BuildEnvironment:
         self.app.builder.read_doc(docname)
 
     def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (unicode, nodes.document) -> None
         warnings.warn('env.write_doctree() is deprecated. '
                       'Please use builder.write_doctree() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -759,7 +759,7 @@ class BuildEnvironment:
 
     @classmethod
     def dumps(cls, env):
-        # type: (BuildEnvironment) -> unicode
+        # type: (BuildEnvironment) -> bytes
         warnings.warn('BuildEnvironment.dumps() is deprecated. '
                       'Please use pickle.dumps() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -784,7 +784,7 @@ class BuildEnvironment:
         return self.domaindata['changeset']['changes']
 
     def note_versionchange(self, type, version, node, lineno):
-        # type: (unicode, unicode, nodes.Node, int) -> None
+        # type: (unicode, unicode, addnodes.versionmodified, int) -> None
         warnings.warn('env.note_versionchange() is deprecated. '
                       'Please use ChangeSetDomain.note_changeset() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)

@@ -84,6 +84,11 @@ class ManualPageBuilder(Builder):
                 else:
                     authors = []
 
+            docsettings.title = name
+            docsettings.subtitle = description
+            docsettings.authors = authors
+            docsettings.section = section
+
             targetname = '%s.%s' % (name, section)
             logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
@@ -94,17 +99,12 @@ class ManualPageBuilder(Builder):
             docnames = set()  # type: Set[unicode]
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
+            largetree.settings = docsettings
             logger.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes
             for pendingnode in largetree.traverse(addnodes.pending_xref):
                 pendingnode.replace_self(pendingnode.children)
-
-            largetree.settings = docsettings
-            largetree.settings.title = name
-            largetree.settings.subtitle = description
-            largetree.settings.authors = authors
-            largetree.settings.section = section
 
             docwriter.write(largetree, destination)
         logger.info('')

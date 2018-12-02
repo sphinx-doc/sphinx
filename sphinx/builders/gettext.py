@@ -144,9 +144,8 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        catalog = self.catalogs[find_catalog(docname,
-                                             self.config.gettext_compact)]
+        # type: (unicode, nodes.document) -> None
+        catalog = self.catalogs[find_catalog(docname, self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)

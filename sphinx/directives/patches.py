@@ -129,7 +129,7 @@ class MathDirective(SphinxDirective):
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
         node = nodes.math_block(latex, latex,
-                                docname=self.state.document.settings.env.docname,
+                                docname=self.env.docname,
                                 number=self.options.get('name'),
                                 label=self.options.get('label'),
                                 nowrap='nowrap' in self.options)

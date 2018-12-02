@@ -14,6 +14,7 @@ import os
 import posixpath
 import sys
 import warnings
+from typing import Iterable, cast
 
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
@@ -53,17 +54,17 @@ class HTMLWriter(Writer):
     def translate(self):
         # type: () -> None
         # sadly, this is mostly copied from parent class
-        self.visitor = visitor = self.builder.create_translator(self.builder,
-                                                                self.document)
+        visitor = self.builder.create_translator(self.builder, self.document)
+        self.visitor = cast(HTMLTranslator, visitor)
         self.document.walkabout(visitor)
-        self.output = visitor.astext()
+        self.output = self.visitor.astext()
         for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',
                      'body_pre_docinfo', 'docinfo', 'body', 'fragment',
                      'body_suffix', 'meta', 'title', 'subtitle', 'header',
                      'footer', 'html_prolog', 'html_head', 'html_title',
                      'html_subtitle', 'html_body', ):
             setattr(self, attr, getattr(visitor, attr, None))
-        self.clean_meta = ''.join(visitor.meta[2:])
+        self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
 class HTMLTranslator(BaseTranslator):
@@ -252,7 +253,7 @@ class HTMLTranslator(BaseTranslator):
             if self.settings.cloak_email_addresses and \
                atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
-                self.in_mailto = 1
+                self.in_mailto = True
         else:
             assert 'refid' in node, \
                    'References must have "refuri" or "refid" attribute.'
@@ -505,11 +506,12 @@ class HTMLTranslator(BaseTranslator):
         # type: (addnodes.productionlist) -> None
         self.body.append(self.starttag(node, 'pre'))
         names = []
-        for production in node:
+        productionlist = cast(Iterable[addnodes.production], node)
+        for production in productionlist:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
         lastname = None
-        for production in node:
+        for production in productionlist:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))

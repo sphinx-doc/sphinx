@@ -14,6 +14,7 @@ from six import text_type
 
 if False:
     # For type annotation
+    import builtins  # NOQA
     from typing import Any, Callable, IO, List  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
@@ -166,7 +167,7 @@ class path(text_type):
             return f.read()
 
     def bytes(self):
-        # type: () -> str
+        # type: () -> builtins.bytes
         """
         Returns the bytes in the file.
         """

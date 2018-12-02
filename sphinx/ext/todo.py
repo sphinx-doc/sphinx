@@ -126,7 +126,7 @@ class TodoList(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def run(self):
-        # type: () -> List[todolist]
+        # type: () -> List[nodes.Node]
         # Simply insert an empty todolist node which will be replaced later
         # when process_todo_nodes is called
         return [todolist('')]

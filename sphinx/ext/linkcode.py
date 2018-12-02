@@ -71,10 +71,9 @@ def doctree_read(app, doctree):
                 continue
             uris.add(uri)
 
+            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             onlynode = addnodes.only(expr='html')
-            onlynode += nodes.reference('', '', internal=False, refuri=uri)
-            onlynode[0] += nodes.inline('', _('[source]'),
-                                        classes=['viewcode-link'])
+            onlynode += nodes.reference('', '', inline, internal=False, refuri=uri)
             signode += onlynode
 
 
