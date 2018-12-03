@@ -56,15 +56,16 @@ class ShowUrlsTransform(SphinxTransform):
         # type: (Any) -> None
         try:
             # replace id_prefix temporarily
-            id_prefix = self.document.settings.id_prefix
-            self.document.settings.id_prefix = 'show_urls'
+            settings = self.document.settings  # type: Any
+            id_prefix = settings.id_prefix
+            settings.id_prefix = 'show_urls'
 
             self.expand_show_urls()
             if self.expanded:
                 self.renumber_footnotes()
         finally:
             # restore id_prefix
-            self.document.settings.id_prefix = id_prefix
+            settings.id_prefix = id_prefix
 
     def expand_show_urls(self):
         # type: () -> None

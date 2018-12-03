@@ -336,14 +336,15 @@ class Only(SphinxDirective):
 
         # Same as util.nested_parse_with_titles but try to handle nested
         # sections which should be raised higher up the doctree.
-        surrounding_title_styles = self.state.memo.title_styles
-        surrounding_section_level = self.state.memo.section_level
-        self.state.memo.title_styles = []
-        self.state.memo.section_level = 0
+        memo = self.state.memo  # type: Any
+        surrounding_title_styles = memo.title_styles
+        surrounding_section_level = memo.section_level
+        memo.title_styles = []
+        memo.section_level = 0
         try:
             self.state.nested_parse(self.content, self.content_offset,
                                     node, match_titles=True)
-            title_styles = self.state.memo.title_styles
+            title_styles = memo.title_styles
             if (not surrounding_title_styles or
                     not title_styles or
                     title_styles[0] not in surrounding_title_styles or
@@ -371,8 +372,8 @@ class Only(SphinxDirective):
             parent.append(node)
             return []
         finally:
-            self.state.memo.title_styles = surrounding_title_styles
-            self.state.memo.section_level = surrounding_section_level
+            memo.title_styles = surrounding_title_styles
+            memo.section_level = surrounding_section_level
 
 
 class Include(BaseInclude, SphinxDirective):
