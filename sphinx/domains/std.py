@@ -525,7 +525,7 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }  # type: Dict[Type[nodes.Element], Tuple[unicode, Callable]]
+    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
@@ -927,7 +927,7 @@ class StandardDomain(Domain):
         return node.__class__ in self.enumerable_nodes
 
     def get_numfig_title(self, node):
-        # type: (nodes.Element) -> unicode
+        # type: (nodes.Node) -> unicode
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
             _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
@@ -941,7 +941,7 @@ class StandardDomain(Domain):
         return None
 
     def get_enumerable_node_type(self, node):
-        # type: (nodes.Element) -> unicode
+        # type: (nodes.Node) -> unicode
         """Get type of enumerable nodes."""
         def has_child(node, cls):
             # type: (nodes.Element, Type) -> bool
@@ -959,7 +959,7 @@ class StandardDomain(Domain):
             return figtype
 
     def get_figtype(self, node):
-        # type: (nodes.Element) -> unicode
+        # type: (nodes.Node) -> unicode
         """Get figure type of nodes.
 
         .. deprecated:: 1.8
