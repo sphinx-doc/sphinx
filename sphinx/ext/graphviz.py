@@ -18,7 +18,6 @@ from subprocess import Popen, PIPE
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
 from six import text_type
 
 import sphinx
@@ -28,6 +27,7 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
+from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
 if False:
@@ -104,12 +104,10 @@ def figure_wrapper(directive, node, caption):
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
 
-    parsed = nodes.Element()
-    directive.state.nested_parse(ViewList([caption], source=''),
-                                 directive.content_offset, parsed)
-    caption_node = nodes.caption(parsed[0].rawsource, '', *parsed[0].children)
-    caption_node.source = parsed[0].source
-    caption_node.line = parsed[0].line
+    inodes, messages = directive.state.inline_text(caption, directive.lineno)
+    caption_node = nodes.caption(caption, '', *inodes)
+    caption_node.extend(messages)
+    set_source_info(directive, caption_node)
     figure_node += caption_node
     return figure_node
 
