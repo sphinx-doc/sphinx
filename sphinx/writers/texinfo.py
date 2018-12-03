@@ -11,12 +11,14 @@
 
 import re
 import textwrap
+import warnings
 from os import path
 from typing import Iterable, cast
 
 from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
@@ -1205,36 +1207,34 @@ class TexinfoTranslator(SphinxTranslator):
             name = self.escape(node[0].astext())
         self.body.append(u'\n@cartouche\n@quotation %s ' % name)
 
+    def _visit_named_admonition(self, node):
+        # type: (nodes.Element) -> None
+        label = admonitionlabels[node.tagname]
+        self.body.append(u'\n@cartouche\n@quotation %s ' % label)
+
     def depart_admonition(self, node):
         # type: (nodes.admonition) -> None
         self.ensure_eol()
         self.body.append('@end quotation\n'
                          '@end cartouche\n')
 
-    def _make_visit_admonition(name):
-        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
-        def visit(self, node):
-            # type: (nodes.Node) -> None
-            self.visit_admonition(node, admonitionlabels[name])
-        return visit
-
-    visit_attention = _make_visit_admonition('attention')
+    visit_attention = _visit_named_admonition
     depart_attention = depart_admonition
-    visit_caution = _make_visit_admonition('caution')
+    visit_caution = _visit_named_admonition
     depart_caution = depart_admonition
-    visit_danger = _make_visit_admonition('danger')
+    visit_danger = _visit_named_admonition
     depart_danger = depart_admonition
-    visit_error = _make_visit_admonition('error')
+    visit_error = _visit_named_admonition
     depart_error = depart_admonition
-    visit_hint = _make_visit_admonition('hint')
+    visit_hint = _visit_named_admonition
     depart_hint = depart_admonition
-    visit_important = _make_visit_admonition('important')
+    visit_important = _visit_named_admonition
     depart_important = depart_admonition
-    visit_note = _make_visit_admonition('note')
+    visit_note = _visit_named_admonition
     depart_note = depart_admonition
-    visit_tip = _make_visit_admonition('tip')
+    visit_tip = _visit_named_admonition
     depart_tip = depart_admonition
-    visit_warning = _make_visit_admonition('warning')
+    visit_warning = _visit_named_admonition
     depart_warning = depart_admonition
 
     # -- Misc
@@ -1741,3 +1741,13 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
+
+    def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
+        warnings.warn('TexinfoTranslator._make_visit_admonition() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        def visit(self, node):
+            # type: (nodes.Node) -> None
+            self.visit_admonition(node, admonitionlabels[name])
+        return visit

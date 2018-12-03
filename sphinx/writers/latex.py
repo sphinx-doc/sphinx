@@ -1811,35 +1811,33 @@ class LaTeXTranslator(SphinxTranslator):
         # type: (nodes.admonition) -> None
         self.body.append('\\end{sphinxadmonition}\n')
 
-    def _make_visit_admonition(name):
-        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
-        def visit_admonition(self, node):
-            # type: (nodes.Element) -> None
-            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
-                             (name, admonitionlabels[name]))
-        return visit_admonition
+    def _visit_named_admonition(self, node):
+        # type: (nodes.Element) -> None
+        label = admonitionlabels[node.tagname]
+        self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+                         (node.tagname, label))
 
     def _depart_named_admonition(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         self.body.append('\\end{sphinxadmonition}\n')
 
-    visit_attention = _make_visit_admonition('attention')
+    visit_attention = _visit_named_admonition
     depart_attention = _depart_named_admonition
-    visit_caution = _make_visit_admonition('caution')
+    visit_caution = _visit_named_admonition
     depart_caution = _depart_named_admonition
-    visit_danger = _make_visit_admonition('danger')
+    visit_danger = _visit_named_admonition
     depart_danger = _depart_named_admonition
-    visit_error = _make_visit_admonition('error')
+    visit_error = _visit_named_admonition
     depart_error = _depart_named_admonition
-    visit_hint = _make_visit_admonition('hint')
+    visit_hint = _visit_named_admonition
     depart_hint = _depart_named_admonition
-    visit_important = _make_visit_admonition('important')
+    visit_important = _visit_named_admonition
     depart_important = _depart_named_admonition
-    visit_note = _make_visit_admonition('note')
+    visit_note = _visit_named_admonition
     depart_note = _depart_named_admonition
-    visit_tip = _make_visit_admonition('tip')
+    visit_tip = _visit_named_admonition
     depart_tip = _depart_named_admonition
-    visit_warning = _make_visit_admonition('warning')
+    visit_warning = _visit_named_admonition
     depart_warning = _depart_named_admonition
 
     def visit_versionmodified(self, node):
@@ -2662,6 +2660,17 @@ class LaTeXTranslator(SphinxTranslator):
             suffix = ''
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
+
+    def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
+        warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
+                      RemovedInSphinx30Warning)
+
+        def visit_admonition(self, node):
+            # type: (nodes.Element) -> None
+            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+                             (name, admonitionlabels[name]))
+        return visit_admonition
 
 # Import old modules here for compatibility
 # They should be imported after `LaTeXTranslator` to avoid recursive import.
