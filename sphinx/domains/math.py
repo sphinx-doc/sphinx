@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class MathReferenceRole(XRefRole):
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         node['refdomain'] = 'math'
         return [node], []
 

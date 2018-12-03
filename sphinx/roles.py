@@ -121,8 +121,7 @@ class XRefRole:
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode,
-                                     is_ref=False)
+            return self.result_nodes(inliner.document, env, innernode, is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         title = utils.unescape(title)
@@ -160,7 +159,7 @@ class XRefRole:
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Element], List[nodes.system_message]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
