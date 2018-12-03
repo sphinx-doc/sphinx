@@ -38,7 +38,7 @@ if False:
     # For type annotation
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
-    from docutils.statemachine import State, ViewList  # NOQA
+    from docutils.statemachine import State, StringList  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
@@ -324,7 +324,7 @@ def directive_helper(obj, has_content=None, argument_spec=None, **option_spec):
 
 @contextmanager
 def switch_source_input(state, content):
-    # type: (State, ViewList) -> Generator[None, None, None]
+    # type: (State, StringList) -> Generator[None, None, None]
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method

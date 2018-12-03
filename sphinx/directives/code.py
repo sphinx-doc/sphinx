@@ -13,7 +13,7 @@ from difflib import unified_diff
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from six import text_type
 
 from sphinx import addnodes
@@ -89,7 +89,7 @@ def container_wrapper(directive, literal_node, caption):
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
     parsed = nodes.Element()
-    directive.state.nested_parse(ViewList([caption], source=''),
+    directive.state.nested_parse(StringList([caption], source=''),
                                  directive.content_offset, parsed)
     if isinstance(parsed[0], nodes.system_message):
         msg = __('Invalid caption: %s' % parsed[0].astext())
