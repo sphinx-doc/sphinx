@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from copy import copy
 from distutils.version import LooseVersion
 from os import path
+from typing import IO, cast
 
 import docutils
 from docutils import nodes
@@ -55,13 +56,13 @@ def docutils_namespace():
     # type: () -> Generator[None, None, None]
     """Create namespace for reST parsers."""
     try:
-        _directives = copy(directives._directives)
-        _roles = copy(roles._roles)
+        _directives = copy(directives._directives)  # type: ignore
+        _roles = copy(roles._roles)  # type: ignore
 
         yield
     finally:
-        directives._directives = _directives
-        roles._roles = _roles
+        directives._directives = _directives  # type: ignore
+        roles._roles = _roles  # type: ignore
 
         for node in list(additional_nodes):
             unregister_node(node)
@@ -71,7 +72,7 @@ def docutils_namespace():
 def is_directive_registered(name):
     # type: (unicode) -> bool
     """Check the *name* directive is already registered."""
-    return name in directives._directives
+    return name in directives._directives  # type: ignore
 
 
 def register_directive(name, directive):
@@ -87,7 +88,7 @@ def register_directive(name, directive):
 def is_role_registered(name):
     # type: (unicode) -> bool
     """Check the *name* role is already registered."""
-    return name in roles._roles
+    return name in roles._roles  # type: ignore
 
 
 def register_role(name, role):
@@ -103,7 +104,7 @@ def register_role(name, role):
 def unregister_role(name):
     # type: (unicode) -> None
     """Unregister a role from docutils."""
-    roles._roles.pop(name, None)
+    roles._roles.pop(name, None)  # type: ignore
 
 
 def is_node_registered(node):
@@ -120,7 +121,7 @@ def register_node(node):
     inside ``docutils_namespace()`` to prevent side-effects.
     """
     if not hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-        nodes._add_node_class_names([node.__name__])
+        nodes._add_node_class_names([node.__name__])  # type: ignore
         additional_nodes.add(node)
 
 
@@ -211,8 +212,8 @@ class sphinx_domains:
         self.directive_func = directives.directive
         self.role_func = roles.role
 
-        directives.directive = self.lookup_directive
-        roles.role = self.lookup_role
+        directives.directive = self.lookup_directive  # type: ignore
+        roles.role = self.lookup_role  # type: ignore
 
     def disable(self):
         # type: () -> None
@@ -287,7 +288,7 @@ class LoggingReporter(Reporter):
                  halt_level=Reporter.SEVERE_LEVEL, debug=False,
                  error_handler='backslashreplace'):
         # type: (unicode, int, int, bool, unicode) -> None
-        stream = WarningStream()
+        stream = cast(IO, WarningStream())
         super(LoggingReporter, self).__init__(source, report_level, halt_level,
                                               stream, debug, error_handler=error_handler)
 
@@ -329,17 +330,17 @@ def switch_source_input(state, content):
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method
-        get_source_and_line = state.memo.reporter.get_source_and_line
+        get_source_and_line = state.memo.reporter.get_source_and_line  # type: ignore
 
         # replace it by new one
         state_machine = StateMachine([], None)
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore  # NOQA
 
         yield
     finally:
         # restore the method
-        state.memo.reporter.get_source_and_line = get_source_and_line
+        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore
 
 
 class SphinxFileOutput(FileOutput):

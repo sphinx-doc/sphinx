@@ -62,10 +62,10 @@ class Meta(html.Meta, SphinxDirective):
                 meta = node.details['nodes'][0]
                 meta.source = self.env.doc2path(self.env.docname)
                 meta.line = self.lineno
-                meta.rawcontent = meta['content']
+                meta.rawcontent = meta['content']  # type: ignore
 
                 # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta
+                meta.__class__ = addnodes.meta  # type: ignore
 
         return result
 

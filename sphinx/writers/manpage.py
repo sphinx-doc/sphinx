@@ -116,7 +116,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():
-            self.language.labels[label] = self.deunicode(translation)
+            self.language.labels[label] = self.deunicode(translation)  # type: ignore
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
@@ -253,7 +253,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super(ManualPageTranslator, self).visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node):
+    def visit_comment(self, node):  # type: ignore
         # type: (nodes.Element) -> None
         raise nodes.SkipNode
 
@@ -333,7 +333,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)
+        self.visit_Text(node)  # type: ignore
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')

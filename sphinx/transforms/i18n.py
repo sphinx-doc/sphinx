@@ -63,7 +63,7 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
         settings=settings,
     )
     try:
-        doc = doc[0]
+        doc = doc[0]  # type: ignore
     except IndexError:  # empty node
         pass
     return doc

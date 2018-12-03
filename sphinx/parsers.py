@@ -76,7 +76,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     def parse(self, inputstring, document):
         # type: (Union[str, StringList], nodes.document) -> None
         """Parse text and generate a document tree."""
-        self.setup_parse(inputstring, document)
+        self.setup_parse(inputstring, document)  # type: ignore
         self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state=self.initial_state,

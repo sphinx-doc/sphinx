@@ -246,8 +246,8 @@ class TocTree:
             caption_node.rawsource = toctree['rawcaption']
             if hasattr(toctree, 'uid'):
                 # move uid to caption_node to translate it
-                caption_node.uid = toctree.uid
-                del toctree.uid
+                caption_node.uid = toctree.uid  # type: ignore
+                del toctree.uid  # type: ignore
             newnode += caption_node
         newnode.extend(tocentries)
         newnode['toctree'] = True
