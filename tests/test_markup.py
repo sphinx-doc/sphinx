@@ -35,6 +35,7 @@ def settings(app):
     settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
+    settings.contentsname = 'dummy'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings

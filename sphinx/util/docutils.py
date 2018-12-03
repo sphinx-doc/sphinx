@@ -39,6 +39,7 @@ if False:
     from types import ModuleType  # NOQA
     from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
     from docutils.statemachine import State, StringList  # NOQA
+    from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
@@ -381,6 +382,32 @@ class SphinxDirective(Directive):
         # type: () -> Config
         """Reference to the :class:`.Config` object."""
         return self.env.config
+
+
+class SphinxTranslator(nodes.NodeVisitor):
+    """A base class for Sphinx translators.
+
+    This class provides helper methods for Sphinx translators.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
+    """
+
+    def __init__(self, builder, document):
+        # type: (Builder, nodes.document) -> None
+        super(SphinxTranslator, self).__init__(document)
+        self.builder = builder
+        self.config = builder.config
+
+    def get_settings(self):
+        # type: () -> Any
+        """Get settings object with type safe.
+
+        .. note:: It is hard to check types for settings object because it's attributes
+                  are added dynamically.  This method avoids the type errors through
+                  imitating it's type as Any.
+        """
+        return self.document.settings
 
 
 # cache a vanilla instance of nodes.document

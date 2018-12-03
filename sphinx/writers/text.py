@@ -20,6 +20,7 @@ from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
+from sphinx.util.docutils import SphinxTranslator
 
 if False:
     # For type annotation
@@ -391,23 +392,23 @@ class TextWriter(writers.Writer):
         self.output = cast(TextTranslator, visitor).body
 
 
-class TextTranslator(nodes.NodeVisitor):
+class TextTranslator(SphinxTranslator):
+    builder = None  # type: TextBuilder
 
     def __init__(self, document, builder):
         # type: (nodes.document, TextBuilder) -> None
-        super(TextTranslator, self).__init__(document)
-        self.builder = builder
+        super(TextTranslator, self).__init__(builder, document)
 
-        newlines = builder.config.text_newlines
+        newlines = self.config.text_newlines
         if newlines == 'windows':
             self.nl = '\r\n'
         elif newlines == 'native':
             self.nl = os.linesep
         else:
             self.nl = '\n'
-        self.sectionchars = builder.config.text_sectionchars
-        self.add_secnumbers = builder.config.text_add_secnumbers
-        self.secnumber_suffix = builder.config.text_secnumber_suffix
+        self.sectionchars = self.config.text_sectionchars
+        self.add_secnumbers = self.config.text_add_secnumbers
+        self.secnumber_suffix = self.config.text_secnumber_suffix
         self.states = [[]]      # type: List[List[Tuple[int, Union[unicode, List[unicode]]]]]
         self.stateindent = [0]
         self.list_counter = []  # type: List[int]

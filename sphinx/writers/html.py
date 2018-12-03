@@ -23,6 +23,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if False:
@@ -67,25 +68,26 @@ class HTMLWriter(Writer):
         self.clean_meta = ''.join(self.visitor.meta[2:])
 
 
-class HTMLTranslator(BaseTranslator):
+class HTMLTranslator(SphinxTranslator, BaseTranslator):
     """
     Our custom HTML translator.
     """
 
-    def __init__(self, builder, *args, **kwds):
-        # type: (StandaloneHTMLBuilder, Any, Any) -> None
-        super(HTMLTranslator, self).__init__(*args, **kwds)
-        self.highlighter = builder.highlighter
-        self.builder = builder
-        self.docnames = [builder.current_docname]  # for singlehtml builder
-        self.manpages_url = builder.config.manpages_url
+    builder = None  # type: StandaloneHTMLBuilder
+
+    def __init__(self, builder, document):
+        # type: (StandaloneHTMLBuilder, nodes.document) -> None
+        super(HTMLTranslator, self).__init__(builder, document)
+        self.highlighter = self.builder.highlighter
+        self.docnames = [self.builder.current_docname]  # for singlehtml builder
+        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
-        self.permalink_text = builder.config.html_add_permalinks
+        self.permalink_text = self.config.html_add_permalinks
         # support backwards-compatible setting to a bool
         if not isinstance(self.permalink_text, str):
             self.permalink_text = self.permalink_text and u'\u00B6' or ''
         self.permalink_text = self.encode(self.permalink_text)
-        self.secnumber_suffix = builder.config.html_secnumber_suffix
+        self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_index = 0
@@ -250,8 +252,8 @@ class HTMLTranslator(BaseTranslator):
             atts['class'] += ' external'
         if 'refuri' in node:
             atts['href'] = node['refuri'] or '#'
-            if self.settings.cloak_email_addresses and \
-               atts['href'].startswith('mailto:'):
+            if (self.get_settings().cloak_email_addresses and
+                    atts['href'].startswith('mailto:')):
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
@@ -708,7 +710,7 @@ class HTMLTranslator(BaseTranslator):
                     # protect runs of multiple spaces; the last one can wrap
                     self.body.append('&#160;' * (len(token) - 1) + ' ')
         else:
-            if self.in_mailto and self.settings.cloak_email_addresses:
+            if self.in_mailto and self.get_settings().cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
             self.body.append(encoded)
 

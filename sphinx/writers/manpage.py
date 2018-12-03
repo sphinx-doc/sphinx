@@ -20,6 +20,7 @@ from docutils.writers.manpage import (
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
 
@@ -78,17 +79,16 @@ class NestedInlineTransform:
                         node.parent.insert(pos + 1, newnode)
 
 
-class ManualPageTranslator(BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     """
     Custom translator.
     """
 
     _docinfo = {}  # type: Dict[unicode, Any]
 
-    def __init__(self, builder, *args, **kwds):
-        # type: (Builder, Any, Any) -> None
-        super(ManualPageTranslator, self).__init__(*args, **kwds)
-        self.builder = builder
+    def __init__(self, builder, document):
+        # type: (Builder, nodes.document) -> None
+        super(ManualPageTranslator, self).__init__(builder, document)
 
         self.in_productionlist = 0
 
@@ -96,23 +96,24 @@ class ManualPageTranslator(BaseTranslator):
         self.section_level = -1
 
         # docinfo set by man_pages config value
-        self._docinfo['title'] = self.document.settings.title
-        self._docinfo['subtitle'] = self.document.settings.subtitle
-        if self.document.settings.authors:
+        settings = self.get_settings()
+        self._docinfo['title'] = settings.title
+        self._docinfo['subtitle'] = settings.subtitle
+        if settings.authors:
             # don't set it if no author given
-            self._docinfo['author'] = self.document.settings.authors
-        self._docinfo['manual_section'] = self.document.settings.section
+            self._docinfo['author'] = settings.authors
+        self._docinfo['manual_section'] = settings.section
 
         # docinfo set by other config values
         self._docinfo['title_upper'] = self._docinfo['title'].upper()
-        if builder.config.today:
-            self._docinfo['date'] = builder.config.today
+        if self.config.today:
+            self._docinfo['date'] = self.config.today
         else:
-            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
-                                                language=builder.config.language)
-        self._docinfo['copyright'] = builder.config.copyright
-        self._docinfo['version'] = builder.config.version
-        self._docinfo['manual_group'] = builder.config.project
+            self._docinfo['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                                language=self.config.language)
+        self._docinfo['copyright'] = self.config.copyright
+        self._docinfo['version'] = self.config.version
+        self._docinfo['manual_group'] = self.config.project
 
         # Overwrite admonition label translations with our own
         for label, translation in admonitionlabels.items():

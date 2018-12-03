@@ -20,6 +20,7 @@ from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
@@ -144,8 +145,9 @@ class TexinfoWriter(writers.Writer):
             setattr(self, attr, getattr(self.visitor, attr))
 
 
-class TexinfoTranslator(nodes.NodeVisitor):
+class TexinfoTranslator(SphinxTranslator):
 
+    builder = None  # type: TexinfoBuilder
     ignore_missing_images = False
 
     default_elements = {
@@ -165,8 +167,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.document, TexinfoBuilder) -> None
-        super(TexinfoTranslator, self).__init__(document)
-        self.builder = builder
+        super(TexinfoTranslator, self).__init__(builder, document)
         self.init_settings()
 
         self.written_ids = set()        # type: Set[unicode]
@@ -227,7 +228,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def init_settings(self):
         # type: () -> None
-        settings = self.settings = self.document.settings
+        self.settings = settings = self.get_settings()
         elements = self.elements = self.default_elements.copy()
         elements.update({
             # if empty, the title is set to the first section title
@@ -243,11 +244,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
                                             language=self.builder.config.language))
         })
         # title
-        title = None  # type: unicode
-        title = elements['title']  # type: ignore
+        title = settings.title  # type: unicode
         if not title:
-            title = self.document.next_node(nodes.title)
-            title = (title and title.astext()) or '<untitled>'  # type: ignore
+            title_node = self.document.next_node(nodes.title)
+            title = (title and title_node.astext()) or '<untitled>'
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename
         if not elements['filename']:

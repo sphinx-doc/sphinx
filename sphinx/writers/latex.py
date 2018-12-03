@@ -30,6 +30,7 @@ from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
+from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
@@ -498,7 +499,8 @@ def rstdim_to_latexdim(width_str):
     return res
 
 
-class LaTeXTranslator(nodes.NodeVisitor):
+class LaTeXTranslator(SphinxTranslator):
+    builder = None  # type: LaTeXBuilder
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
@@ -509,8 +511,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         # type: (nodes.document, LaTeXBuilder) -> None
-        super(LaTeXTranslator, self).__init__(document)
-        self.builder = builder
+        super(LaTeXTranslator, self).__init__(builder, document)
         self.body = []  # type: List[unicode]
 
         # flags
@@ -530,42 +531,42 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.first_param = 0
 
         # sort out some elements
-        self.elements = builder.context.copy()
+        self.elements = self.builder.context.copy()
 
         # but some have other interface in config file
-        self.elements['wrapperclass'] = self.format_docclass(document.settings.docclass)
+        self.elements['wrapperclass'] = self.format_docclass(self.get_settings().docclass)
 
         # we assume LaTeX class provides \chapter command except in case
         # of non-Japanese 'howto' case
         self.sectionnames = LATEXSECTIONNAMES[:]
-        if document.settings.docclass == 'howto':
-            docclass = builder.config.latex_docclass.get('howto', 'article')
+        if self.get_settings().docclass == 'howto':
+            docclass = self.config.latex_docclass.get('howto', 'article')
             if docclass[0] == 'j':  # Japanese class...
                 pass
             else:
                 self.sectionnames.remove('chapter')
         else:
-            docclass = builder.config.latex_docclass.get('manual', 'report')
+            docclass = self.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
 
         # determine top section level
         self.top_sectionlevel = 1
-        if builder.config.latex_toplevel_sectioning:
+        if self.config.latex_toplevel_sectioning:
             try:
                 self.top_sectionlevel = \
-                    self.sectionnames.index(builder.config.latex_toplevel_sectioning)
+                    self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (builder.config.latex_toplevel_sectioning, docclass))
+                               (self.config.latex_toplevel_sectioning, docclass))
 
-        if builder.config.today:
-            self.elements['date'] = builder.config.today
+        if self.config.today:
+            self.elements['date'] = self.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
-                                                language=builder.config.language)
+            self.elements['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                                language=self.config.language)
 
-        if builder.config.numfig:
-            self.numfig_secnum_depth = builder.config.numfig_secnum_depth
+        if self.config.numfig:
+            self.numfig_secnum_depth = self.config.numfig_secnum_depth
             if self.numfig_secnum_depth > 0:  # default is 1
                 # numfig_secnum_depth as passed to sphinx.sty indices same names as in
                 # LATEXSECTIONNAMES but with -1 for part, 0 for chapter, 1 for section...
@@ -583,31 +584,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.elements['sphinxpkgoptions'] += ',nonumfigreset'
             try:
-                if builder.config.math_numfig:
+                if self.config.math_numfig:
                     self.elements['sphinxpkgoptions'] += ',mathnumfig'
             except AttributeError:
                 pass
 
-        if builder.config.latex_logo:
+        if self.config.latex_logo:
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
-                                    path.basename(builder.config.latex_logo)
+                                    path.basename(self.config.latex_logo)
 
-        if (builder.config.language and builder.config.language != 'ja' and
-                'fncychap' not in builder.config.latex_elements):
+        if (self.config.language and self.config.language != 'ja' and
+                'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
                                          '\\ChNameVar{\\Large\\normalfont'
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(builder.config.language,
+        self.babel = ExtBabel(self.config.language,
                               not self.elements['babel'])
-        if builder.config.language and not self.babel.is_supported_language():
+        if self.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
-                           builder.config.language)
+                           self.config.language)
 
         # set up multilingual module...
         if self.elements['latex_engine'] == 'pdflatex':
@@ -629,12 +630,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['classoptions'] += ',' + self.babel.get_language()
             # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
-            if builder.config.language:
+            if self.config.language:
                 self.elements['shorthandoff'] = SHORTHANDOFF
 
                 # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic() \
-                   and 'fontpkg' not in builder.config.latex_elements:
+                if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
                     self.elements['fontpkg'] = ''
         elif self.elements['polyglossia']:
             self.elements['classoptions'] += ',' + self.babel.get_language()
@@ -648,25 +648,25 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
                                                         mainlanguage)
 
-        if getattr(builder, 'usepackages', None):
+        if getattr(self.builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 # type:(unicode, unicode) -> unicode
                 if options:
                     return '\\usepackage[%s]{%s}' % (options, packagename)
                 else:
                     return '\\usepackage{%s}' % (packagename,)
-            usepackages = (declare_package(*p) for p in builder.usepackages)
+            usepackages = (declare_package(*p) for p in self.builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
-        if document.get('tocdepth'):
+        if self.document.get('tocdepth'):
             # reduce tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
             #   tocdepth =  0: show parts and chapters
             #   tocdepth =  1: show parts, chapters and sections
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
-            tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
+            tocdepth = self.document['tocdepth'] + self.top_sectionlevel - 2
             if len(self.sectionnames) < len(LATEXSECTIONNAMES) and \
                self.top_sectionlevel > 0:
                 tocdepth += 1  # because top_sectionlevel is shifted by -1
@@ -677,16 +677,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
             minsecnumdepth = max(minsecnumdepth, tocdepth)
 
-        if builder.config.numfig and (builder.config.numfig_secnum_depth > 0):
+        if self.config.numfig and (self.config.numfig_secnum_depth > 0):
             minsecnumdepth = max(minsecnumdepth, self.numfig_secnum_depth - 1)
 
         if minsecnumdepth > self.secnumdepth:
             self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' %\
                                            minsecnumdepth
 
-        if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = \
-                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
+        contentsname = self.get_settings().contentsname
+        self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
+                                                                contentsname)
 
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
@@ -700,9 +700,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['numfig_format'] = self.generate_numfig_format(builder)
+        self.elements['numfig_format'] = self.generate_numfig_format(self.builder)
 
-        self.highlighter = highlighting.PygmentsBridge('latex', builder.config.pygments_style)
+        self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         self.context = []                   # type: List[Any]
         self.descstack = []                 # type: List[unicode]
         self.table = None                   # type: Table
