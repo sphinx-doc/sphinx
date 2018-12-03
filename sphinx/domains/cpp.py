@@ -6560,7 +6560,7 @@ class CPPNamespacePopObject(SphinxDirective):
 
 class CPPXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         refnode.attributes.update(env.ref_context)
 
         if not has_explicit_title:
