@@ -138,8 +138,7 @@ class XRefRole:
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
         set_role_source_info(inliner, lineno, refnode)  # type: ignore
-        title, target = self.process_link(
-            env, refnode, has_explicit_title, title, target)
+        title, target = self.process_link(env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
         refnode += self.innernodeclass(rawtext, title, classes=classes)
@@ -152,7 +151,7 @@ class XRefRole:
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -172,7 +171,7 @@ class XRefRole:
 
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         result = super(AnyXRefRole, self).process_link(env, refnode, has_explicit_title,
                                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
