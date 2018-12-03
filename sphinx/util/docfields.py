@@ -80,7 +80,7 @@ class Field:
                                         reftype=rolename, reftarget=target)
         refnode += contnode or innernode(target, target)
         if env:
-            env.domains[domain].process_field_xref(refnode)
+            env.get_domain(domain).process_field_xref(refnode)
         return refnode
 
     def make_xrefs(self,

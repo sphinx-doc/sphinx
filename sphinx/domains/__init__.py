@@ -276,7 +276,7 @@ class Domain:
         pass
 
     def process_field_xref(self, pnode):
-        # type: (nodes.Node) -> None
+        # type: (addnodes.pending_xref) -> None
         """Process a pending xref created in a doc field.
         For example, attach information about the current scope.
         """
