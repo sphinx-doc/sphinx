@@ -90,7 +90,7 @@ class SphinxComponentRegistry:
 
         #: additional enumerable nodes
         #: a dict of node class -> tuple of figtype and title_getter function
-        self.enumerable_nodes = {}      # type: Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]  # NOQA
+        self.enumerable_nodes = {}      # type: Dict[Type[nodes.Node], Tuple[unicode, TitleGetter]]  # NOQA
 
         #: HTML inline and block math renderers
         #: a dict of name -> tuple of visit function and depart function
@@ -438,7 +438,7 @@ class SphinxComponentRegistry:
         self.latex_packages.append((name, options))
 
     def add_enumerable_node(self, node, figtype, title_getter=None, override=False):
-        # type: (Type[nodes.Element], unicode, TitleGetter, bool) -> None
+        # type: (Type[nodes.Node], unicode, TitleGetter, bool) -> None
         logger.debug('[app] adding enumerable node: (%r, %r, %r)', node, figtype, title_getter)
         if node in self.enumerable_nodes and not override:
             raise ExtensionError(__('enumerable_node %r already registered') % node)

@@ -591,7 +591,7 @@ class Sphinx:
 
     @property
     def enumerable_nodes(self):
-        # type: () -> Dict[Type[nodes.Element], Tuple[unicode, TitleGetter]]
+        # type: () -> Dict[Type[nodes.Node], Tuple[unicode, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
                       RemovedInSphinx30Warning, stacklevel=2)

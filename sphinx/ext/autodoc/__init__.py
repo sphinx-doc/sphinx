@@ -17,7 +17,7 @@ import sys
 import warnings
 from typing import Any
 
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from six import text_type
 
 import sphinx
@@ -1177,8 +1177,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 parentmodule = safe_getattr(self.parent, '__module__', None)
                 if module and module != parentmodule:
                     classname = str(module) + u'.' + str(classname)
-                content = ViewList(
-                    [_('alias of :class:`%s`') % classname], source='')
+                content = StringList([_('alias of :class:`%s`') % classname], source='')
                 super(ClassDocumenter, self).add_content(content, no_docstring=True)
         else:
             super(ClassDocumenter, self).add_content(more_content)

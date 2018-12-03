@@ -26,6 +26,7 @@ from six import text_type
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
@@ -1877,7 +1878,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = self.builder.env.get_domain('std')
+        domain = cast(StandardDomain, self.builder.env.get_domain('std'))
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):

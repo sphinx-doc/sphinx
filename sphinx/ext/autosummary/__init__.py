@@ -64,7 +64,7 @@ from typing import List, cast
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
-from docutils.statemachine import ViewList
+from docutils.statemachine import StringList
 from six import text_type
 
 import sphinx
@@ -243,7 +243,7 @@ class Autosummary(SphinxDirective):
         # type: () -> List[nodes.Node]
         self.genopt = Options()
         self.warnings = []  # type: List[nodes.Node]
-        self.result = ViewList()
+        self.result = StringList()
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
@@ -302,7 +302,7 @@ class Autosummary(SphinxDirective):
                 items.append((name, '', '', name))
                 continue
 
-            self.result = ViewList()  # initialize for each documenter
+            self.result = StringList()  # initialize for each documenter
             full_name = real_name
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
@@ -377,7 +377,7 @@ class Autosummary(SphinxDirective):
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
                 node = nodes.paragraph('')
-                vl = ViewList()
+                vl = StringList()
                 vl.append(text, '%s:%d:<autosummary>' % (source, line))
                 with switch_source_input(self.state, vl):
                     self.state.nested_parse(vl, 0, node)
