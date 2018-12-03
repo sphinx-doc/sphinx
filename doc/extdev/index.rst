@@ -192,6 +192,11 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
      - 2.0
      - 3.0
