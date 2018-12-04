@@ -389,7 +389,7 @@ def setup(app):
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
-    app.add_node(abbreviation)
+    app.add_node(abbreviation, override=True)
     app.add_node(manpage)
 
     return {
