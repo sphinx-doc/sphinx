@@ -17,7 +17,8 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
-    from typing import List, Sequence  # NOQA
+    from typing import Any, Dict, List, Sequence  # NOQA
+    from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import unicode  # NOQA
 
 
@@ -351,7 +352,48 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-# make the new nodes known to docutils; needed because the HTML writer will
-# choke at some point if these are not added
-nodes._add_node_class_names(k for k in globals().keys()
-                            if k != 'nodes' and k[0] != '_')
+def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
+    app.add_node(toctree)
+    app.add_node(desc)
+    app.add_node(desc_signature)
+    app.add_node(desc_signature_line)
+    app.add_node(desc_addname)
+    app.add_node(desc_type)
+    app.add_node(desc_returns)
+    app.add_node(desc_name)
+    app.add_node(desc_parameterlist)
+    app.add_node(desc_parameter)
+    app.add_node(desc_optional)
+    app.add_node(desc_annotation)
+    app.add_node(desc_content)
+    app.add_node(versionmodified)
+    app.add_node(seealso)
+    app.add_node(productionlist)
+    app.add_node(production)
+    app.add_node(displaymath)
+    app.add_node(index)
+    app.add_node(centered)
+    app.add_node(acks)
+    app.add_node(hlist)
+    app.add_node(hlistcol)
+    app.add_node(compact_paragraph)
+    app.add_node(glossary)
+    app.add_node(only)
+    app.add_node(start_of_file)
+    app.add_node(highlightlang)
+    app.add_node(tabular_col_spec)
+    app.add_node(meta)
+    app.add_node(pending_xref)
+    app.add_node(number_reference)
+    app.add_node(download_reference)
+    app.add_node(literal_emphasis)
+    app.add_node(literal_strong)
+    app.add_node(abbreviation)
+    app.add_node(manpage)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

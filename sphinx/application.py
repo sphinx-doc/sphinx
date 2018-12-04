@@ -63,6 +63,7 @@ if False:
     from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 builtin_extensions = (
+    'sphinx.addnodes',
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
