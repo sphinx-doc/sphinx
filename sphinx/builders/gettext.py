@@ -33,7 +33,7 @@ from sphinx.util.tags import Tags
 
 if False:
     # For type annotation
-    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple  # NOQA
+    from typing import Any, DefaultDict, Dict, Iterable, List, Set, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
@@ -75,7 +75,7 @@ class Catalog:
                                         # msgid -> file, line, uid
 
     def add(self, msg, origin):
-        # type: (unicode, MsgOrigin) -> None
+        # type: (unicode, Union[nodes.Element, MsgOrigin]) -> None
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
