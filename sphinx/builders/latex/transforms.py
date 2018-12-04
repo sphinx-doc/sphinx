@@ -69,7 +69,7 @@ class ShowUrlsTransform(SphinxTransform):
 
     def expand_show_urls(self):
         # type: () -> None
-        show_urls = self.document.settings.env.config.latex_show_urls
+        show_urls = self.config.latex_show_urls
         if show_urls is False or show_urls == 'no':
             return
 
