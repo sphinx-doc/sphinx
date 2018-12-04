@@ -9,7 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.ext.autodoc.importer import _MockObject
+import sys
+
+import pytest
+
+from sphinx.ext.autodoc.importer import _MockModule, _MockObject, mock
 
 
 def test_MockObject():
@@ -29,3 +33,31 @@ def test_MockObject():
     assert isinstance(obj, SubClass)
     assert obj.method() == "string"
     assert isinstance(obj.other_method(), SubClass)
+
+
+def test_mock():
+    modname = 'sphinx.unknown'
+    submodule = modname + '.submodule'
+    assert modname not in sys.modules
+    with pytest.raises(ImportError):
+        __import__(modname)
+
+    with mock([modname]):
+        __import__(modname)
+        assert modname in sys.modules
+        assert isinstance(sys.modules[modname], _MockModule)
+
+        # submodules are also mocked
+        __import__(submodule)
+        assert submodule in sys.modules
+        assert isinstance(sys.modules[submodule], _MockModule)
+
+    assert modname not in sys.modules
+    with pytest.raises(ImportError):
+        __import__(modname)
+
+
+def test_mock_does_not_follow_upper_modules():
+    with mock(['sphinx.unknown.module']):
+        with pytest.raises(ImportError):
+            __import__('sphinx.unknown')
