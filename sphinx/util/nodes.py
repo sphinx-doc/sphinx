@@ -68,18 +68,19 @@ class NodeMatcher:
             if self.classes and not isinstance(node, self.classes):
                 return False
 
-            if self.attrs and isinstance(node, nodes.Text):
-                return False
+            if self.attrs:
+                if not isinstance(node, nodes.Element):
+                    return False
 
-            for key, value in self.attrs.items():
-                if key not in node:
-                    return False
-                elif value is Any:
-                    continue
-                elif node.get(key) != value:
-                    return False
-            else:
-                return True
+                for key, value in self.attrs.items():
+                    if key not in node:
+                        return False
+                    elif value is Any:
+                        continue
+                    elif node.get(key) != value:
+                        return False
+
+            return True
         except Exception:
             # for non-Element nodes
             return False
