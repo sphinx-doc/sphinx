@@ -23,6 +23,7 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Any, Callable, Iterable, List, Optional, Set, Tuple, Type  # NOQA
+    from docutils.statemachine import StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
     from sphinx.util.typing import unicode  # NOQA
@@ -307,7 +308,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
-    # type: (Any, List[unicode], nodes.Node) -> unicode
+    # type: (Any, StringList, nodes.Node) -> unicode
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
