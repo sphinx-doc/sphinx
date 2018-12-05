@@ -252,6 +252,9 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
 
     def read(self):
         # type: () -> StringList
+        warnings.warn('SphinxRSTFileInput is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
         inputstring = super(SphinxRSTFileInput, self).read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
@@ -320,7 +323,6 @@ def read_doc(app, env, filename):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.registry.add_source_input(SphinxFileInput)
-    app.registry.add_source_input(SphinxRSTFileInput)
 
     return {
         'version': 'builtin',

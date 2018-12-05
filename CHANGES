@@ -48,6 +48,7 @@ Deprecated
 * ``sphinx.config.check_unicode()``
 * ``sphinx.ext.autodoc.importer._MockImporter``
 * ``sphinx.ext.doctest.doctest_encode()``
+* ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()`` is deprecated
