@@ -187,6 +187,16 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer._MockImporter``
+     - 2.0
+     - 3.0
+     - N/A
+
    * - ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
      - 2.0
      - 3.0

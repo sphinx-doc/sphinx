@@ -39,12 +39,14 @@ Deprecated
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
   ``autodoc.ClassDocumenter.get_doc()`` are deprecated.
+* The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
 * The ``nodetype`` argument of ``sphinx.search.WordCollector.
   is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
 * ``sphinx.application.Sphinx._setting_up_extension``
-* ``sphinx.ext.config.check_unicode()``
+* ``sphinx.config.check_unicode()``
+* ``sphinx.ext.autodoc.importer._MockImporter``
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.force_decode()``
