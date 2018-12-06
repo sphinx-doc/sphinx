@@ -307,7 +307,6 @@ def read_doc(app, env, filename):
                     writer=SphinxDummyWriter(),
                     source_class=SphinxDummySourceClass,
                     destination=NullOutput())
-    pub.set_components(None, 'restructuredtext', None)
     pub.process_programmatic_settings(None, env.settings, None)
     pub.set_source(source, filename)
     pub.publish()
