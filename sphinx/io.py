@@ -17,7 +17,6 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type
 from typing import Any, Union  # NOQA
 
 from sphinx.deprecation import RemovedInSphinx30Warning
@@ -169,12 +168,6 @@ class SphinxBaseFileInput(FileInput):
 
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         super(SphinxBaseFileInput, self).__init__(*args, **kwds)
-
-    def decode(self, data):
-        # type: (Union[unicode, bytes]) -> unicode
-        if isinstance(data, text_type):  # py3: `data` already decoded.
-            return data
-        return data.decode(self.encoding, 'sphinx')  # py2: decoding
 
     def read(self):
         # type: () -> unicode
