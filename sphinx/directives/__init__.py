@@ -39,7 +39,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.docfields import Field  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import DirectiveOption, unicode  # NOQA
 
 
 # RE to strip backslash escapes
@@ -60,7 +60,7 @@ class ObjectDescription(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {
         'noindex': directives.flag,
-    }
+    }  # type: Dict[str, DirectiveOption]
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
     doc_field_types = []    # type: List[Field]
