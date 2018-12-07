@@ -596,7 +596,7 @@ class BuildEnvironment:
                                      includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
-        # type: (nodes.Node, unicode, Builder) -> None
+        # type: (nodes.document, unicode, Builder) -> None
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree, docname):

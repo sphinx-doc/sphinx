@@ -593,7 +593,7 @@ class StandardDomain(Domain):
         # type: (BuildEnvironment, unicode, nodes.document) -> None
         for node in document.traverse(nodes.citation):
             node['docname'] = docname
-            label = node[0].astext()
+            label = cast(nodes.label, node[0]).astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
                 logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
@@ -634,7 +634,8 @@ class StandardDomain(Domain):
                                location=node)
             anonlabels[name] = docname, labelid
             if node.tagname in ('section', 'rubric'):
-                sectname = clean_astext(node[0])  # node[0] == title node
+                title = cast(nodes.title, node[0])
+                sectname = clean_astext(title)
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
                 if not sectname:

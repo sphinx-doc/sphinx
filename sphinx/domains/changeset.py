@@ -87,8 +87,9 @@ class VersionChange(SphinxDirective):
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
+
+            para = cast(nodes.paragraph, node[0])
+            para.insert(0, nodes.inline('', '%s: ' % text, classes=['versionmodified']))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,

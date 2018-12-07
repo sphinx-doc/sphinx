@@ -67,7 +67,7 @@ class NestedInlineTransform:
     def apply(self, **kwargs):
         # type: (Any) -> None
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in self.document.traverse(matcher):  # type: nodes.Element
+        for node in self.document.traverse(matcher):  # type: nodes.TextElement
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(node[1:]):
@@ -410,6 +410,8 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         bullet_list = cast(nodes.bullet_list, node[0])
         list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.ensure_eol()
+        bullet_list = cast(nodes.bullet_list, node[0])
+        list_items = cast(Iterable[nodes.list_item], bullet_list)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n')
         raise nodes.SkipNode
