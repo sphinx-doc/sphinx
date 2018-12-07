@@ -22,7 +22,6 @@ from six import text_type
 from typing import Any, Union  # NOQA
 
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.locale import __
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
@@ -36,6 +35,7 @@ from sphinx.transforms.i18n import (
 )
 from sphinx.transforms.references import SphinxDomains, SubstitutionDefinitionsRemover
 from sphinx.util import logging
+from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
@@ -169,9 +169,6 @@ class SphinxBaseFileInput(FileInput):
         self.app = app
         self.env = env
 
-        # set up error handler
-        codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
-
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         super(SphinxBaseFileInput, self).__init__(*args, **kwds)
 
@@ -196,18 +193,11 @@ class SphinxBaseFileInput(FileInput):
 
     def warn_and_replace(self, error):
         # type: (Any) -> Tuple
-        """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(__('undecodable source characters, replacing with "?": %r'),
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.env.docname, lineno))
-        return (u'?', error.end)
+        warnings.warn('SphinxBaseFileInput.warn_and_replace() is deprecated. '
+                      'Use UnicodeDecodeErrorHandler instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
+        return UnicodeDecodeErrorHandler(self.env.docname)(error)
 
 
 class SphinxFileInput(SphinxBaseFileInput):
@@ -295,6 +285,10 @@ def get_filetype(source_suffix, filename):
 def read_doc(app, env, filename):
     # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
     """Parse a document and convert to doctree."""
+    # set up error_handler for the target document
+    error_handler = UnicodeDecodeErrorHandler(env.docname)
+    codecs.register_error('sphinx', error_handler)  # type: ignore
+
     filetype = get_filetype(app.config.source_suffix, filename)
     input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
