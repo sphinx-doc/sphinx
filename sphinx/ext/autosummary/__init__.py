@@ -635,9 +635,8 @@ def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     try:
         name, obj, parent, modname = import_by_name(pending_xref['reftarget'], prefixes)
     except ImportError:
-        contnode = pending_xref[0]
-        objects[0] = nodes.emphasis(rawtext, contnode[0].astext(),
-                                    classes=contnode['classes'])
+        literal = cast(nodes.literal, pending_xref[0])
+        objects[0] = nodes.emphasis(rawtext, literal.astext(), classes=literal['classes'])
 
     return objects, msg
 

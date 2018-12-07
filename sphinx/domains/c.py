@@ -126,8 +126,9 @@ class CObject(ObjectDescription):
             raise ValueError('no match')
         rettype, name, arglist, const = m.groups()
 
-        signode += addnodes.desc_type('', '')
-        self._parse_type(signode[-1], rettype)
+        desc_type = addnodes.desc_type('', '')
+        signode += desc_type
+        self._parse_type(desc_type, rettype)
         try:
             classname, funcname = name.split('::', 1)
             classname += '::'

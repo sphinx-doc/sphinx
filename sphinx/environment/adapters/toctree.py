@@ -87,7 +87,7 @@ class TocTree:
         excluded = Matcher(self.env.config.exclude_patterns)
 
         def _toctree_add_classes(node, depth):
-            # type: (nodes.Node, int) -> None
+            # type: (nodes.Element, int) -> None
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
             for subnode in node.children:
                 if isinstance(subnode, (addnodes.compact_paragraph,
