@@ -32,6 +32,7 @@ from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
@@ -403,6 +404,28 @@ def detect_encoding(readline):
     if encoding:
         return encoding
     return default
+
+
+class UnicodeDecodeErrorHandler:
+    """Custom error handler for open() that warns and replaces."""
+
+    def __init__(self, docname):
+        # type: (unicode) -> None
+        self.docname = docname
+
+    def __call__(self, error):
+        # type: (UnicodeDecodeError) -> Tuple[Union[unicode, str], int]
+        linestart = error.object.rfind(b'\n', 0, error.start)
+        lineend = error.object.find(b'\n', error.start)
+        if lineend == -1:
+            lineend = len(error.object)
+        lineno = error.object.count(b'\n', 0, error.start) + 1
+        logger.warning(__('undecodable source characters, replacing with "?": %r'),
+                       (error.object[linestart + 1:error.start] + b'>>>' +
+                        error.object[error.start:error.end] + b'<<<' +
+                        error.object[error.end:lineend]),
+                       location=(self.docname, lineno))
+        return (u'?', error.end)
 
 
 # Low-level utility functions and classes.
