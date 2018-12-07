@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
-import re
 import warnings
 
 from docutils.core import Publisher
@@ -37,6 +36,7 @@ from sphinx.transforms.i18n import (
 from sphinx.transforms.references import SphinxDomains, SubstitutionDefinitionsRemover
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
+from sphinx.util.rst import append_epilog, docinfo_re, prepend_prolog
 from sphinx.versioning import UIDTransform
 
 if False:
@@ -50,8 +50,6 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import unicode  # NOQA
-
-docinfo_re = re.compile(':\\w+:.*?')
 
 
 logger = logging.getLogger(__name__)
@@ -254,16 +252,17 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
 
     def read(self):
         # type: () -> StringList
+        warnings.warn('SphinxRSTFileInput is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
         inputstring = super(SphinxRSTFileInput, self).read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
         for lineno, line in enumerate(lines):
             content.append(line, self.source_path, lineno)
 
-        if self.env.config.rst_prolog:
-            self.prepend_prolog(content, self.env.config.rst_prolog)
-        if self.env.config.rst_epilog:
-            self.append_epilog(content, self.env.config.rst_epilog)
+        prepend_prolog(content, self.env.config.rst_prolog)
+        append_epilog(content, self.env.config.rst_epilog)
 
         return content
 
@@ -324,7 +323,6 @@ def read_doc(app, env, filename):
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.registry.add_source_input(SphinxFileInput)
-    app.registry.add_source_input(SphinxRSTFileInput)
 
     return {
         'version': 'builtin',
