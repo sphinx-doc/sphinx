@@ -1756,7 +1756,7 @@ class LaTeXTranslator(SphinxTranslator):
             length = None
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
-            elif 'width' in node[0]:
+            elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l', length or '0pt'))

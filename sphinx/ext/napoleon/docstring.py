@@ -13,7 +13,6 @@
 
 import inspect
 import re
-from collections.abc import Callable
 from functools import partial
 
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -22,7 +21,7 @@ from sphinx.util.pycompat import UnicodeMixin
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA
     from sphinx.util.typing import unicode  # NOQA
@@ -122,7 +121,7 @@ class GoogleDocstring(UnicodeMixin):
                 what = 'class'
             elif inspect.ismodule(obj):
                 what = 'module'
-            elif isinstance(obj, Callable):
+            elif callable(obj):
                 what = 'function'
             else:
                 what = 'object'

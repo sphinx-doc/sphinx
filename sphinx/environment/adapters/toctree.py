@@ -105,7 +105,7 @@ class TocTree:
                         if not subnode['anchorname']:
                             # give the whole branch a 'current' class
                             # (useful for styling it differently)
-                            branchnode = subnode
+                            branchnode = subnode  # type: nodes.Element
                             while branchnode:
                                 branchnode['classes'].append('current')
                                 branchnode = branchnode.parent
@@ -272,7 +272,7 @@ class TocTree:
         return ancestors
 
     def _toctree_prune(self, node, depth, maxdepth, collapse=False):
-        # type: (nodes.Node, int, int, bool) -> None
+        # type: (nodes.Element, int, int, bool) -> None
         """Utility: Cut a TOC at a specified depth."""
         for subnode in node.children[:]:
             if isinstance(subnode, (addnodes.compact_paragraph,
@@ -313,7 +313,7 @@ class TocTree:
         # type: (unicode, Builder, bool, Any) -> nodes.Node
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
-        toctrees = []
+        toctrees = []  # type: List[addnodes.toctree]
         if 'includehidden' not in kwds:
             kwds['includehidden'] = True
         if 'maxdepth' not in kwds:

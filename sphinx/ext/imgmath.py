@@ -154,7 +154,7 @@ def compile_math(latex, builder):
 
 
 def convert_dvi_to_image(command, name):
-    # type: (List[unicode], unicode) -> Tuple[unicode, unicode]
+    # type: (List[unicode], unicode) -> Tuple[bytes, bytes]
     """Convert DVI file to specific image format."""
     try:
         p = Popen(command, stdout=PIPE, stderr=PIPE)

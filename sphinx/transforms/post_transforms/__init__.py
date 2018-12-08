@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import cast
+
 from docutils import nodes
 
 from sphinx import addnodes
@@ -39,7 +41,7 @@ class ReferencesResolver(SphinxTransform):
     def apply(self, **kwargs):
         # type: (Any) -> None
         for node in self.document.traverse(addnodes.pending_xref):
-            contnode = node[0].deepcopy()
+            contnode = cast(nodes.TextElement, node[0].deepcopy())
             newnode = None
 
             typ = node['reftype']
