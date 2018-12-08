@@ -57,7 +57,7 @@ class _TranslationProxy(UserString, object):
         self._args = args
 
     @property
-    def data(self):
+    def data(self):  # type: ignore
         # type: () -> unicode
         return self._func(*self._args)
 
