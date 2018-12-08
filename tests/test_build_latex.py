@@ -146,6 +146,8 @@ def test_writer(app, status, warning):
             '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}' in result)
 
+    assert 'Footnotes' not in result
+
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
 def test_latex_warnings(app, status, warning):

@@ -29,6 +29,8 @@ def test_all(app, status, warning):
     assert '\n.B term1\n' in content
     assert '\nterm2 (\\fBstronged partially\\fP)\n' in content
 
+    assert 'Footnotes' not in content
+
 
 def test_default_man_pages():
     config = Config({'master_doc': 'index',

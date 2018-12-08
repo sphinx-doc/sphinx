@@ -52,6 +52,7 @@ def test_texinfo(app, status, warning):
     assert ('@anchor{markup doc}@anchor{11}'
             '@anchor{markup id1}@anchor{12}'
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
+    assert 'Footnotes' not in result
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)
