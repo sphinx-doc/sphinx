@@ -644,7 +644,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
 def get_rst_suffix(app):
     # type: (Sphinx) -> unicode
     def get_supported_format(suffix):
-        # type: (unicode) -> Tuple[unicode]
+        # type: (unicode) -> Tuple[unicode, ...]
         parser_class = app.registry.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)

@@ -43,6 +43,7 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
+    from sphinx.io import SphinxFileInput  # NOQA
     from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -337,7 +338,7 @@ class SphinxComponentRegistry:
         return parser
 
     def add_source_input(self, input_class, override=False):
-        # type: (Type[Input], bool) -> None
+        # type: (Type[SphinxFileInput], bool) -> None
         for filetype in input_class.supported:
             if filetype in self.source_inputs and not override:
                 raise ExtensionError(__('source_input for %r is already registered') %

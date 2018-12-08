@@ -8,6 +8,7 @@
 """
 
 import re
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -365,7 +366,7 @@ class Only(SphinxDirective):
             # Use these depths to determine where the nested sections should
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
-            parent = self.state.parent
+            parent = cast(nodes.Element, self.state.parent)
             for i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent

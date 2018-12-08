@@ -383,7 +383,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
     @property
     def smartquotes_action(self):
-        # type: () -> unicode
+        # type: () -> str
         """A smartquotes_action setting for SmartQuotes.
 
         Users can change this setting through :confval:`smartquotes_action`.

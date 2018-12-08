@@ -237,10 +237,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
     ensuredir(path.dirname(outfn))
 
-    # graphviz expects UTF-8 by default
-    if isinstance(code, text_type):
-        code = code.encode('utf-8')
-
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(['-T' + format, '-o' + outfn])
@@ -264,7 +260,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     try:
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
-        stdout, stderr = p.communicate(code)
+        stdout, stderr = p.communicate(code.encode('utf-8'))
     except (OSError, IOError) as err:
         if err.errno not in (EPIPE, EINVAL):
             raise
