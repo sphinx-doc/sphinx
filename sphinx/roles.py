@@ -136,7 +136,7 @@ class XRefRole:
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)  # type: ignore
+        set_role_source_info(inliner, lineno, refnode)
         title, target = self.process_link(env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
@@ -375,7 +375,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
-    set_role_source_info(inliner, lineno, indexnode)  # type: ignore
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 
