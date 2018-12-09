@@ -217,7 +217,7 @@ class TypedField(GroupedField):
                 # inconsistencies later when references are resolved
                 fieldtype = types.pop(fieldarg)
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
-                    typename = u''.join(n.astext() for n in fieldtype)
+                    typename = fieldtype[0].astext()
                     par.extend(self.make_xrefs(self.typerolename, domain, typename,
                                                addnodes.literal_emphasis, env=env))
                 else:
