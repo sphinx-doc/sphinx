@@ -927,13 +927,15 @@ class LaTeXTranslator(SphinxTranslator):
                 for c in n.children:
                     if isinstance(c, addnodes.start_of_file):
                         continue
-                    for k in footnotes_under(c):
-                        yield k
+                    elif isinstance(c, nodes.Element):
+                        for k in footnotes_under(c):
+                            yield k
 
         fnotes = {}  # type: Dict[unicode, List[Union[collected_footnote, bool]]]
         for fn in footnotes_under(node):
-            num = fn.children[0].astext().strip()
-            newnode = collected_footnote(*fn.children, number=num)
+            label = cast(nodes.label, fn[0])
+            num = label.astext().strip()
+            newnode = collected_footnote('', *fn.children, number=num)
             fnotes[num] = [newnode, False]
         return fnotes
 
@@ -1245,10 +1247,11 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
         self.in_footnote += 1
+        label = cast(nodes.label, node[0])
         if self.in_parsed_literal:
-            self.body.append('\\begin{footnote}[%s]' % node[0].astext())
+            self.body.append('\\begin{footnote}[%s]' % label.astext())
         else:
-            self.body.append('%%\n\\begin{footnote}[%s]' % node[0].astext())
+            self.body.append('%%\n\\begin{footnote}[%s]' % label.astext())
         self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_footnote(self, node):
@@ -2209,9 +2212,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_footnotetext(self, node):
         # type: (footnotetext) -> None
-        number = node[0].astext()
+        label = cast(nodes.label, node[0])
         self.body.append('%%\n\\begin{footnotetext}[%s]'
-                         '\\sphinxAtStartFootnote\n' % number)
+                         '\\sphinxAtStartFootnote\n' % label.astext())
 
     def depart_footnotetext(self, node):
         # type: (footnotetext) -> None
