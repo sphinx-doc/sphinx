@@ -10,7 +10,6 @@
 
 import os
 import pickle
-import sys
 import warnings
 from collections import defaultdict
 from copy import copy
@@ -364,15 +363,9 @@ class BuildEnvironment:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=None))
             rel_fn = path.join(docdir, filename)
-        try:
-            # the path.abspath() might seem redundant, but otherwise artifacts
-            # such as ".." will remain in the path
-            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
-        except UnicodeDecodeError:
-            # the source directory is a bytestring with non-ASCII characters;
-            # let's try to encode the rel_fn in the file system encoding
-            enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))  # type: ignore
+        # the path.abspath() might seem redundant, but otherwise artifacts
+        # such as ".." will remain in the path
+        return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
 
     @property
     def found_docs(self):
