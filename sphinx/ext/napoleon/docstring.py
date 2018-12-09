@@ -24,8 +24,6 @@ if False:
     from typing import Any, Callable, Dict, List, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')

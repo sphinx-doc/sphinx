@@ -36,7 +36,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
 

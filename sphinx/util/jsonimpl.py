@@ -17,7 +17,6 @@ from six.moves import UserString
 if False:
     # For type annotation
     from typing import Any, IO  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class SphinxJSONEncoder(json.JSONEncoder):

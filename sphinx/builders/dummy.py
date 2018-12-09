@@ -18,7 +18,6 @@ if False:
     from typing import Any, Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class DummyBuilder(Builder):

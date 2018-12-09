@@ -24,7 +24,6 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 english_stopwords = set(u"""
 a  and  are  as  at

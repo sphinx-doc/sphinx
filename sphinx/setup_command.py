@@ -29,7 +29,6 @@ from sphinx.util.osutil import abspath
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class BuildDoc(Command):

@@ -44,7 +44,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 logger = logging.getLogger(__name__)
 

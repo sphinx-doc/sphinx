@@ -16,7 +16,6 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class Config:

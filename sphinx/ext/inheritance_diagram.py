@@ -59,7 +59,6 @@ if False:
     from typing import Any, Dict, List, Tuple, Dict, Optional  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
     from sphinx.writers.latex import LaTeXTranslator  # NOQA
     from sphinx.writers.texinfo import TexinfoTranslator  # NOQA

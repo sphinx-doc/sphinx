@@ -35,7 +35,6 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 if False:
     # For type annotation
     from typing import Any, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:

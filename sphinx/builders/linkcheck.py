@@ -34,8 +34,6 @@ if False:
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 logger = logging.getLogger(__name__)
 

@@ -16,8 +16,6 @@ if False:
     # For type annotation
     import builtins  # NOQA
     from typing import Any, Callable, IO, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 

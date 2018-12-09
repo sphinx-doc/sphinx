@@ -22,8 +22,6 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Dict  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}  # type: Dict[str, str]

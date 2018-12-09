@@ -22,7 +22,6 @@ from six import text_type
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile(u'^\\s*$')

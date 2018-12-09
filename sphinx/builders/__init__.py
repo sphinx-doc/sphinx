@@ -47,8 +47,6 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.util.tags import Tags  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 logger = logging.getLogger(__name__)
 

@@ -25,7 +25,6 @@ if False:
     # For type annotation
     from typing import Generator  # NOQA
     from docutils.statemachine import StringList  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

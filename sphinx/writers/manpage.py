@@ -28,7 +28,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

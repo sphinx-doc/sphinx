@@ -36,8 +36,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')

@@ -23,7 +23,6 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class _TranslationProxy(UserString):

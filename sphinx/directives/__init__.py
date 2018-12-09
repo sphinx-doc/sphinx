@@ -39,7 +39,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.docfields import Field  # NOQA
-    from sphinx.util.typing import DirectiveOption, unicode  # NOQA
+    from sphinx.util.typing import DirectiveOption  # NOQA
 
 
 # RE to strip backslash escapes

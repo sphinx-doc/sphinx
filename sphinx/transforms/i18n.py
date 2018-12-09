@@ -33,7 +33,6 @@ if False:
     from typing import Dict, List, Tuple, Type  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

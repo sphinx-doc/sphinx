@@ -60,7 +60,6 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
     from sphinx.util.tags import Tags  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 # Experimental HTML5 Writer
 if is_html5_writer_available():

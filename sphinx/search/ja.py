@@ -42,7 +42,6 @@ from sphinx.util import import_object
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class BaseSplitter:

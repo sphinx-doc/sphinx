@@ -43,7 +43,7 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.io import SphinxFileInput  # NOQA
-    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 __version_info__ = tuple(LooseVersion(docutils.__version__).version)

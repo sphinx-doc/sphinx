@@ -50,7 +50,6 @@ if False:
         captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
     )
     from sphinx.domains import IndexEntry  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

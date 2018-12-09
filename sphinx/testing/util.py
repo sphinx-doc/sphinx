@@ -28,8 +28,6 @@ if False:
     # For type annotation
     from typing import List  # NOQA
     from typing import Any, Dict, Generator, IO, List, Pattern  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 __all__ = [
     'Struct',

@@ -26,7 +26,6 @@ if False:
     from typing import Any, Dict, Iterator, Set, Type  # NOQA
     from docutils.writers.xml import BaseXMLWriter  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 

@@ -28,7 +28,6 @@ if False:
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def _tobool(val):

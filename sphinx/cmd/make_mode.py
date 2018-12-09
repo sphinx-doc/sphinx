@@ -29,8 +29,6 @@ from sphinx.util.osutil import cd, rmtree
 if False:
     # For type annotation
     from typing import List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 BUILDERS = [
     ("",      "html",        "to make standalone HTML files"),

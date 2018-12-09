@@ -26,8 +26,6 @@ if False:
     from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
-
 
 NAMESPACE = 'sphinx'
 VERBOSE = 15
