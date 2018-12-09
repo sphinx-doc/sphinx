@@ -499,6 +499,11 @@ def force_decode(string, encoding):
 
 
 class attrdict(dict):
+    def __init__(self, *args, **kwargs):
+        super(attrdict, self).__init__(*args, **kwargs)
+        warnings.warn('The attrdict class is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+
     def __getattr__(self, key):
         # type: (unicode) -> unicode
         return self[key]
@@ -573,6 +578,8 @@ class PeekableIterator:
         # type: (Iterable) -> None
         self.remaining = deque()  # type: deque
         self._iterator = iter(iterable)
+        warnings.warn('PeekableIterator is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
 
     def __iter__(self):
         # type: () -> PeekableIterator
