@@ -268,12 +268,9 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_rubric(self, node):
         # type: (nodes.rubric) -> None
         self.ensure_eol()
-        if len(node.children) == 1:
-            rubtitle = node.children[0].astext()
-            if rubtitle in ('Footnotes', _('Footnotes')):
-                self.body.append('.SH ' + self.deunicode(rubtitle).upper() +
-                                 '\n')
-                raise nodes.SkipNode
+        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+            self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
+            raise nodes.SkipNode
         else:
             self.body.append('.sp\n')
 

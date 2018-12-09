@@ -330,8 +330,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 fn = fns[-1]
                 return fn.parent, fn.parent.index(fn) + 1
             for node in tree.traverse(nodes.rubric):
-                if len(node.children) == 1 and \
-                        node.children[0].astext() == FOOTNOTES_RUBRIC_NAME:
+                if len(node) == 1 and node.astext() == FOOTNOTES_RUBRIC_NAME:
                     return node.parent, node.parent.index(node) + 1
             doc = tree.traverse(nodes.document)[0]
             rub = nodes.rubric()

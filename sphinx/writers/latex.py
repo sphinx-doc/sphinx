@@ -1230,8 +1230,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_rubric(self, node):
         # type: (nodes.rubric) -> None
-        if len(node.children) == 1 and node.children[0].astext() in \
-           ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
         self.body.append('\\subsubsection*{')
         self.context.append('}\n')
