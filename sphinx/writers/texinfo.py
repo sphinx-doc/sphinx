@@ -1205,7 +1205,8 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_admonition(self, node, name=''):
         # type: (nodes.admonition, unicode) -> None
         if not name:
-            name = self.escape(node[0].astext())
+            title = cast(nodes.title, node[0])
+            name = self.escape(title.astext())
         self.body.append(u'\n@cartouche\n@quotation %s ' % name)
 
     def _visit_named_admonition(self, node):
@@ -1279,7 +1280,7 @@ class TexinfoTranslator(SphinxTranslator):
         # ignore TOC's since we have to have a "menu" anyway
         if 'contents' in node.get('classes', []):
             raise nodes.SkipNode
-        title = node[0]
+        title = cast(nodes.title, node[0])
         self.visit_rubric(title)
         self.body.append('%s\n' % self.escape(title.astext()))
 

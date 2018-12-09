@@ -82,7 +82,7 @@ class CObject(ObjectDescription):
     ))
 
     def _parse_type(self, node, ctype):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.Element, unicode) -> None
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
