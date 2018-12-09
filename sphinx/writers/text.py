@@ -712,7 +712,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_footnote(self, node):
         # type: (nodes.footnote) -> None
-        self._footnote = node.children[0].astext().strip()
+        label = cast(nodes.label, node[0])
+        self._footnote = label.astext().strip()
         self.new_state(len(self._footnote) + 3)
 
     def depart_footnote(self, node):

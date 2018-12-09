@@ -533,12 +533,14 @@ class TexinfoTranslator(SphinxTranslator):
                 for c in n.children:
                     if isinstance(c, addnodes.start_of_file):
                         continue
-                    for k in footnotes_under(c):
-                        yield k
+                    elif isinstance(c, nodes.Element):
+                        for k in footnotes_under(c):
+                            yield k
         fnotes = {}  # type: Dict[unicode, List[Union[collected_footnote, bool]]]
         for fn in footnotes_under(node):
-            num = fn.children[0].astext().strip()
-            fnotes[num] = [collected_footnote(*fn.children), False]
+            label = cast(nodes.label, fn[0])
+            num = label.astext().strip()
+            fnotes[num] = [collected_footnote('', *fn.children), False]
         return fnotes
 
     # -- xref handling
