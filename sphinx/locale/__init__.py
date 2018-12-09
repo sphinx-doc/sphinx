@@ -74,26 +74,9 @@ class _TranslationProxy(UserString):
         else:
             return self.data.encode()
 
-    def __contains__(self, key):
-        # type: (Any) -> bool
-        return key in self.data
-
-    def __bool__(self):
-        # type: () -> bool
-        return bool(self.data)
-    __nonzero__ = __bool__  # for python2 compatibility
-
     def __dir__(self):
         # type: () -> List[str]
         return dir(text_type)
-
-    def __iter__(self):
-        # type: () -> Iterator
-        return iter(self.data)
-
-    def __len__(self):
-        # type: () -> int
-        return len(self.data)
 
     def __str__(self):
         # type: () -> str
@@ -127,26 +110,6 @@ class _TranslationProxy(UserString):
         # type: (Any) -> unicode
         return other * self.data
 
-    def __lt__(self, other):
-        # type: (unicode) -> bool
-        return self.data < other
-
-    def __le__(self, other):
-        # type: (unicode) -> bool
-        return self.data <= other
-
-    def __eq__(self, other):
-        # type: (Any) -> bool
-        return self.data == other
-
-    def __gt__(self, other):
-        # type: (unicode) -> bool
-        return self.data > other
-
-    def __ge__(self, other):
-        # type: (unicode) -> bool
-        return self.data >= other
-
     def __getattr__(self, name):
         # type: (unicode) -> Any
         if name == '__members__':
@@ -160,10 +123,6 @@ class _TranslationProxy(UserString):
     def __setstate__(self, tup):
         # type: (Tuple[Callable, Tuple[unicode]]) -> None
         self._func, self._args = tup
-
-    def __getitem__(self, key):  # type: ignore
-        # type: (Any) -> unicode
-        return self.data[key]
 
     def __copy__(self):
         # type: () -> _TranslationProxy
