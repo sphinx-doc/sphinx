@@ -31,7 +31,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import TextlikeNode, unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class PyXrefMixin:
                   rolename,                  # type: unicode
                   domain,                    # type: unicode
                   target,                    # type: unicode
-                  innernode=nodes.emphasis,  # type: Type[nodes.TextElement]
+                  innernode=nodes.emphasis,  # type: Type[TextlikeNode]
                   contnode=None,             # type: nodes.Node
                   env=None,                  # type: BuildEnvironment
                   ):
@@ -143,7 +143,7 @@ class PyXrefMixin:
                    rolename,                  # type: unicode
                    domain,                    # type: unicode
                    target,                    # type: unicode
-                   innernode=nodes.emphasis,  # type: Type[nodes.TextElement]
+                   innernode=nodes.emphasis,  # type: Type[TextlikeNode]
                    contnode=None,             # type: nodes.Node
                    env=None,                  # type: BuildEnvironment
                    ):
@@ -171,7 +171,7 @@ class PyXrefMixin:
 class PyField(PyXrefMixin, Field):
     def make_xref(self, rolename, domain, target,
                   innernode=nodes.emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, Type[nodes.TextElement], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        # type: (unicode, unicode, unicode, Type[TextlikeNode], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
@@ -187,7 +187,7 @@ class PyGroupedField(PyXrefMixin, GroupedField):
 class PyTypedField(PyXrefMixin, TypedField):
     def make_xref(self, rolename, domain, target,
                   innernode=nodes.emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, Type[nodes.TextElement], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
+        # type: (unicode, unicode, unicode, Type[TextlikeNode], nodes.Node, BuildEnvironment) ->  nodes.Node  # NOQA
         if rolename == 'class' and target == 'None':
             # None is not a type, so use obj role instead.
             rolename = 'obj'
