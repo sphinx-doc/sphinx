@@ -98,7 +98,7 @@ class _MockModule(ModuleType):
         return o
 
 
-class _MockImporter:
+class _MockImporter(MetaPathFinder):
     def __init__(self, names):
         # type: (List[str]) -> None
         self.names = names
@@ -120,7 +120,7 @@ class _MockImporter:
                 del sys.modules[m]
 
     def find_module(self, name, path=None):
-        # type: (str, str) -> Any
+        # type: (str, Sequence[Union[bytes, str]]) -> Any
         # check if name is (or is a descendant of) one of our base_packages
         for n in self.names:
             if n == name or name.startswith(n + '.'):
