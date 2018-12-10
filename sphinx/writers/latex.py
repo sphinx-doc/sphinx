@@ -2015,8 +2015,9 @@ class LaTeXTranslator(SphinxTranslator):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
-            if len(node) and hasattr(node[0], 'attributes') and \
-               'std-term' in node[0].get('classes', []):
+            if (len(node) and
+                    isinstance(node[0], nodes.Element) and
+                    'std-term' in node[0].get('classes', [])):
                 # don't add a pageref for glossary terms
                 self.context.append('}}}')
                 # mark up as termreference
@@ -2150,7 +2151,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_thebibliography(self, node):
         # type: (thebibliography) -> None
-        longest_label = max((subnode[0].astext() for subnode in node), key=len)
+        citations = cast(Iterable[nodes.citation], node)
+        labels = (cast(nodes.label, citation[0]) for citation in citations)
+        longest_label = max((label.astext() for label in labels), key=len)
         if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
             # adjust max width of citation labels not to break the layout
             longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
@@ -2164,9 +2167,9 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node):
         # type: (nodes.citation) -> None
-        label = node[0].astext()
-        self.body.append(u'\\bibitem[%s]{%s:%s}' %
-                         (self.encode(label), node['docname'], node['ids'][0]))
+        label = cast(nodes.label, node[0])
+        self.body.append(u'\\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
+                                                    node['docname'], node['ids'][0]))
 
     def depart_citation(self, node):
         # type: (nodes.citation) -> None
