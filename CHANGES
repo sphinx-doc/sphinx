@@ -47,6 +47,10 @@ Deprecated
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.config.check_unicode()``
 * ``sphinx.ext.autodoc.importer._MockImporter``
+* ``sphinx.ext.autosummary.Autosummary.warn()``
+* ``sphinx.ext.autosummary.Autosummary.genopt``
+* ``sphinx.ext.autosummary.Autosummary.warnings``
+* ``sphinx.ext.autosummary.Autosummary.result``
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.testing.util.remove_unicode_literal()``
