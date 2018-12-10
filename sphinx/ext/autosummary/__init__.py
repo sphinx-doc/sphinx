@@ -58,6 +58,7 @@ import os
 import posixpath
 import re
 import sys
+import warnings
 from types import ModuleType
 from typing import List, cast
 
@@ -69,6 +70,7 @@ from six import text_type
 
 import sphinx
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
@@ -234,16 +236,10 @@ class Autosummary(SphinxDirective):
         'template': directives.unchanged,
     }
 
-    def warn(self, msg):
-        # type: (unicode) -> None
-        self.warnings.append(self.state.document.reporter.warning(
-            msg, line=self.lineno))
-
     def run(self):
         # type: () -> List[nodes.Node]
-        self.genopt = Options()
-        self.warnings = []  # type: List[nodes.Node]
-        self.result = StringList()
+        self.bridge = DocumenterBridge(self.env, self.state.document.reporter,
+                                       Options(), self.lineno)
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
@@ -276,7 +272,7 @@ class Autosummary(SphinxDirective):
 
             nodes.append(autosummary_toc('', '', tocnode))
 
-        return self.warnings + nodes
+        return nodes
 
     def get_items(self, names):
         # type: (List[unicode]) -> List[Tuple[unicode, unicode, unicode, unicode]]
@@ -302,7 +298,7 @@ class Autosummary(SphinxDirective):
                 items.append((name, '', '', name))
                 continue
 
-            self.result = StringList()  # initialize for each documenter
+            self.bridge.result = StringList()  # initialize for each documenter
             full_name = real_name
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
@@ -310,7 +306,8 @@ class Autosummary(SphinxDirective):
                 full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
-            documenter = get_documenter(self.env.app, obj, parent)(self, full_name)
+            doccls = get_documenter(self.env.app, obj, parent)
+            documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
@@ -346,7 +343,7 @@ class Autosummary(SphinxDirective):
             # -- Grab the summary
 
             documenter.add_content(None)
-            summary = extract_summary(self.result.data[:], self.state.document)
+            summary = extract_summary(self.bridge.result.data[:], self.state.document)
 
             items.append((display_name, sig, summary, real_name))
 
@@ -399,6 +396,33 @@ class Autosummary(SphinxDirective):
             append_row(col1, col2)
 
         return [table_spec, table]
+
+    def warn(self, msg):
+        # type: (unicode) -> None
+        warnings.warn('Autosummary.warn() is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        logger.warning(msg)
+
+    @property
+    def genopt(self):
+        # type: () -> Options
+        warnings.warn('Autosummary.genopt is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self.bridge.genopt
+
+    @property
+    def warnings(self):
+        # type: () -> List[nodes.Node]
+        warnings.warn('Autosummary.warnings is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return []
+
+    @property
+    def result(self):
+        # type: () -> StringList
+        warnings.warn('Autosummary.result is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return self.bridge.result
 
 
 def strip_arg_typehint(s):
