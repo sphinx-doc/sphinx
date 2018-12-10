@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from typing import Iterable, cast
+
 from docutils import nodes
 
 from sphinx import addnodes
@@ -50,7 +52,7 @@ class TocTree:
 
     def resolve(self, docname, builder, toctree, prune=True, maxdepth=0,
                 titles_only=False, collapse=False, includehidden=False):
-        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
+        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Element  # NOQA
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -118,10 +120,10 @@ class TocTree:
                             subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode, parents, separate=False, subtree=False):
-            # type: (addnodes.toctree, List[nodes.Node], bool, bool) -> List[nodes.Node]
+            # type: (addnodes.toctree, List[unicode], bool, bool) -> List[nodes.Element]
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries = []
+            entries = []  # type: List[nodes.Element]
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -184,9 +186,15 @@ class TocTree:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees
                     if titles_only:
+                        # children of toc are:
+                        # - list_item + compact_paragraph + (reference and subtoc)
+                        # - only + subtoc
+                        # - toctree
+                        children = cast(Iterable[nodes.Element], toc)
+
                         # delete everything but the toplevel title(s)
                         # and toctrees
-                        for toplevel in toc:
+                        for toplevel in children:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
@@ -199,16 +207,17 @@ class TocTree:
                         if not (subtocnode.get('hidden', False) and
                                 not includehidden):
                             i = subtocnode.parent.index(subtocnode) + 1
-                            for item in _entries_from_toctree(
+                            for entry in _entries_from_toctree(
                                     subtocnode, [refdoc] + parents,
                                     subtree=True):
-                                subtocnode.parent.insert(i, item)
+                                subtocnode.parent.insert(i, entry)
                                 i += 1
                             subtocnode.parent.remove(subtocnode)
                     if separate:
                         entries.append(toc)
                     else:
-                        entries.extend(toc.children)
+                        children = cast(Iterable[nodes.Element], toc)
+                        entries.extend(children)
             if not subtree and not separate:
                 ret = nodes.bullet_list()
                 ret += entries
@@ -247,7 +256,7 @@ class TocTree:
         _toctree_add_classes(newnode, 1)
         self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
 
-        if len(newnode[-1]) == 0:  # No titles found
+        if isinstance(newnode[-1], nodes.Element) and len(newnode[-1]) == 0:  # No titles found
             return None
 
         # set the target paths in the toctrees (they are not known at TOC
@@ -310,10 +319,10 @@ class TocTree:
         return toc
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
-        # type: (unicode, Builder, bool, Any) -> nodes.Node
+        # type: (unicode, Builder, bool, Any) -> nodes.Element
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
-        toctrees = []  # type: List[addnodes.toctree]
+        toctrees = []  # type: List[nodes.Element]
         if 'includehidden' not in kwds:
             kwds['includehidden'] = True
         if 'maxdepth' not in kwds:
