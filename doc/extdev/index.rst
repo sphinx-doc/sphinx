@@ -162,6 +162,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.util.attrdict``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.util.force_decode()``
      - 2.0
      - 4.0
@@ -178,6 +183,11 @@ The following is a list of deprecated interfaces.
      - ``os.walk()``
 
    * - ``sphinx.util.pycompat.u``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.PeekableIterator``
      - 2.0
      - 4.0
      - N/A
