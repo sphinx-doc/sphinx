@@ -308,8 +308,9 @@ class TexinfoTranslator(SphinxTranslator):
         # type: () -> None
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
-        for node in ([self.document] +
-                     self.document.traverse(nodes.section)):
+        targets = [self.document]  # type: List[nodes.Element]
+        targets.extend(self.document.traverse(nodes.section))
+        for node in targets:
             assert 'node_name' in node and node['node_name']
             entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
