@@ -22,7 +22,7 @@ if False:
     from typing import Any, Dict, Tuple, Type  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
+    from sphinx.util.typing import TextlikeNode, unicode  # NOQA
 
 
 def _is_single_paragraph(node):
@@ -69,7 +69,7 @@ class Field:
                   rolename,       # type: unicode
                   domain,         # type: unicode
                   target,         # type: unicode
-                  innernode=addnodes.literal_emphasis,  # type: Type[nodes.TextElement]
+                  innernode=addnodes.literal_emphasis,  # type: Type[TextlikeNode]
                   contnode=None,  # type: nodes.Node
                   env=None,       # type: BuildEnvironment
                   ):
@@ -87,7 +87,7 @@ class Field:
                    rolename,       # type: unicode
                    domain,         # type: unicode
                    target,         # type: unicode
-                   innernode=addnodes.literal_emphasis,  # type: Type[nodes.TextElement]
+                   innernode=addnodes.literal_emphasis,  # type: Type[TextlikeNode]
                    contnode=None,  # type: nodes.Node
                    env=None,       # type: BuildEnvironment
                    ):
