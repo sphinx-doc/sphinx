@@ -11,7 +11,7 @@
 """
 from __future__ import absolute_import
 
-from typing import List, cast
+from typing import List, Tuple, cast
 
 from docutils import nodes
 
@@ -19,7 +19,7 @@ from sphinx import addnodes
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Tuple, Type  # NOQA
+    from typing import Any, Dict, Type, Union  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.typing import TextlikeNode, unicode  # NOQA
@@ -279,7 +279,7 @@ class DocFieldTransformer:
         """Transform a single field list *node*."""
         typemap = self.typemap
 
-        entries = []        # type: List
+        entries = []        # type: List[Union[nodes.field, Tuple[Field, Any]]]
         groupindices = {}   # type: Dict[unicode, int]
         types = {}          # type: Dict[unicode, Dict]
 
@@ -290,11 +290,11 @@ class DocFieldTransformer:
             field_body = cast(nodes.field_body, field[1])
             try:
                 # split into field type and argument
-                fieldtype, fieldarg = field_name.astext().split(None, 1)
+                fieldtype_name, fieldarg = field_name.astext().split(None, 1)
             except ValueError:
                 # maybe an argument-less field type?
-                fieldtype, fieldarg = field_name.astext(), ''
-            typedesc, is_typefield = typemap.get(fieldtype, (None, None))
+                fieldtype_name, fieldarg = field_name.astext(), ''
+            typedesc, is_typefield = typemap.get(fieldtype_name, (None, None))
 
             # collect the content, trying not to keep unnecessary paragraphs
             if _is_single_paragraph(field_body):
@@ -307,7 +307,7 @@ class DocFieldTransformer:
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
                 # match the spec; capitalize field name and be done with it
-                new_fieldname = fieldtype[0:1].upper() + fieldtype[1:]
+                new_fieldname = fieldtype_name[0:1].upper() + fieldtype_name[1:]
                 if fieldarg:
                     new_fieldname += ' ' + fieldarg
                 field_name[0] = nodes.Text(new_fieldname)
@@ -368,16 +368,16 @@ class DocFieldTransformer:
             # get one entry per field
             if typedesc.is_grouped:
                 if typename in groupindices:
-                    group = entries[groupindices[typename]]
+                    group = cast(Tuple[Field, List], entries[groupindices[typename]])
                 else:
                     groupindices[typename] = len(entries)
-                    group = [typedesc, []]
+                    group = (typedesc, [])
                     entries.append(group)
-                entry = typedesc.make_entry(fieldarg, [translatable_content])
-                group[1].append(entry)
+                new_entry = typedesc.make_entry(fieldarg, [translatable_content])
+                group[1].append(new_entry)
             else:
-                entry = typedesc.make_entry(fieldarg, [translatable_content])
-                entries.append([typedesc, entry])
+                new_entry = typedesc.make_entry(fieldarg, [translatable_content])
+                entries.append((typedesc, new_entry))
 
         # step 2: all entries are collected, construct the new field list
         new_list = nodes.field_list()
@@ -386,10 +386,10 @@ class DocFieldTransformer:
                 # pass-through old field
                 new_list += entry
             else:
-                fieldtype, content = entry
+                fieldtype, items = entry
                 fieldtypes = types.get(fieldtype.name, {})
                 env = self.directive.state.document.settings.env
                 new_list += fieldtype.make_field(fieldtypes, self.directive.domain,
-                                                 content, env=env)
+                                                 items, env=env)
 
         node.replace_self(new_list)
