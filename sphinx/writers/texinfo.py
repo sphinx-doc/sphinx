@@ -95,11 +95,12 @@ def find_subsections(section):
     # type: (nodes.Element) -> List[nodes.section]
     """Return a list of subsections for the given ``section``."""
     result = []
-    for child in section.children:
+    for child in section:
         if isinstance(child, nodes.section):
             result.append(child)
             continue
-        result.extend(find_subsections(child))
+        elif isinstance(child, nodes.Element):
+            result.extend(find_subsections(child))
     return result
 
 
