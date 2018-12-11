@@ -102,7 +102,7 @@ class CoverageBuilder(Builder):
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
             undoc = set()  # type: Set[Tuple[unicode, unicode]]
-            with open(filename, 'r') as f:
+            with open(filename) as f:
                 for line in f:
                     for key, regex in self.c_regexes:
                         match = regex.match(line)

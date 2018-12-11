@@ -132,7 +132,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file, 'r') as infile:
+                with open(po_file) as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:

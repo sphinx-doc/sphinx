@@ -69,7 +69,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
     def write_mo(self, locale):
         # type: (unicode) -> None
-        with open(self.po_path, 'rt', encoding=self.charset) as file_po:  # type: ignore
+        with open(self.po_path, encoding=self.charset) as file_po:  # type: ignore
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:

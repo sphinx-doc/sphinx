@@ -248,7 +248,7 @@ def find_autosummary_in_files(filenames):
     """
     documented = []  # type: List[Tuple[unicode, unicode, unicode]]
     for filename in filenames:
-        with open(filename, 'r', encoding='utf-8',  # type: ignore
+        with open(filename, encoding='utf-8',  # type: ignore
                   errors='ignore') as f:
             lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines, filename=filename))

@@ -198,7 +198,7 @@ def should_write(filepath, new_content):
     if not path.exists(filepath):
         return True
     try:
-        with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
+        with open(filepath, encoding='utf-8') as oldpot:  # type: ignore
             old_content = oldpot.read()
             old_header_index = old_content.index('"POT-Creation-Date:')
             new_header_index = new_content.index('"POT-Creation-Date:')
@@ -249,7 +249,7 @@ class MessageCatalogBuilder(I18nBuilder):
         for template in status_iterator(files, __('reading templates... '), "purple",  # type: ignore  # NOQA
                                         len(files), self.app.verbosity):
             try:
-                with open(template, 'r', encoding='utf-8') as f:  # type: ignore
+                with open(template, encoding='utf-8') as f:  # type: ignore
                     context = f.read()
                 for line, meth, msg in extract_translations(context):
                     origin = MsgOrigin(template, line)

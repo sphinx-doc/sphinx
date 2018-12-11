@@ -216,7 +216,7 @@ class LiteralIncludeReader:
     def read_file(self, filename, location=None):
         # type: (unicode, Any) -> List[unicode]
         try:
-            with open(filename, 'r',  # type: ignore
+            with open(filename,  # type: ignore
                       encoding=self.encoding, errors='strict') as f:
                 text = f.read()  # type: unicode
                 if 'tab-width' in self.options:

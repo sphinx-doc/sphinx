@@ -163,7 +163,7 @@ class path(text_type):
         """
         Returns the text in the file.
         """
-        with open(self, mode='r', encoding=encoding, **kwargs) as f:  # type: ignore
+        with open(self, encoding=encoding, **kwargs) as f:  # type: ignore
             return f.read()
 
     def bytes(self):
