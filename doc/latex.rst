@@ -209,7 +209,7 @@ The available styling options
        the default changed from ``false`` to ``true``.
 
 ``verbatimcontinuedalign``, ``verbatimcontinuesalign``
-    default ``c``. Horizontal position relative to the framed contents:
+    default ``r``. Horizontal position relative to the framed contents:
     either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
 
     .. versionadded:: 1.7
@@ -354,9 +354,9 @@ The available styling options
                                ``attentionBgColor``, ``dangerBgColor``,
                                ``errorBgColor``
 
-.. |warningborders| replace:: ``warningBorder``, ``cautionBorder``,
-                              ``attentionBorder``, ``dangerBorder``,
-                              ``errorBorder``
+.. |warningborders| replace:: ``warningborder``, ``cautionborder``,
+                              ``attentionborder``, ``dangerborder``,
+                              ``errorborder``
 
 LaTeX macros and environments
 -----------------------------
