@@ -115,7 +115,7 @@ def setup(app):
                              'tex2jax': {
                                  'inlineMath': [['$', '$'], ['\\(', '\\)']],
                                  'processEscapes': True,
-                                 'ignoreClass': '.*',
+                                 'ignoreClass': 'document',
                                  'processClass': 'math',
                              },
                          }, 'html')
