@@ -135,7 +135,7 @@ class ChangesBuilder(Builder):
 
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
-            with open(self.env.doc2path(docname), 'r',  # type: ignore
+            with open(self.env.doc2path(docname),  # type: ignore
                       encoding=self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()

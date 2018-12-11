@@ -956,7 +956,7 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                with open(searchindexfn, 'r', encoding='utf-8') as ft:  # type: ignore
+                with open(searchindexfn, encoding='utf-8') as ft:  # type: ignore
                     self.indexer.load(ft, self.indexer_format)
             else:
                 with open(searchindexfn, 'rb') as fb:
