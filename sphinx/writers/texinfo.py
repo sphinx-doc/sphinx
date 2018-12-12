@@ -231,14 +231,13 @@ class TexinfoTranslator(SphinxTranslator):
 
     def init_settings(self):
         # type: () -> None
-        self.settings = settings = self.get_settings()
         elements = self.elements = self.default_elements.copy()
         elements.update({
             # if empty, the title is set to the first section title
-            'title': settings.title,
-            'author': settings.author,
+            'title': self.settings.title,
+            'author': self.settings.author,
             # if empty, use basename of input file
-            'filename': settings.texinfo_filename,
+            'filename': self.settings.texinfo_filename,
             'release': self.escape(self.builder.config.release),
             'project': self.escape(self.builder.config.project),
             'copyright': self.escape(self.builder.config.copyright),
@@ -247,7 +246,7 @@ class TexinfoTranslator(SphinxTranslator):
                                             language=self.builder.config.language))
         })
         # title
-        title = settings.title  # type: unicode
+        title = self.settings.title  # type: unicode
         if not title:
             title_node = self.document.next_node(nodes.title)
             title = (title and title_node.astext()) or '<untitled>'
@@ -259,19 +258,19 @@ class TexinfoTranslator(SphinxTranslator):
                 elements['filename'] = elements['filename'][:-4]  # type: ignore
             elements['filename'] += '.info'  # type: ignore
         # direntry
-        if settings.texinfo_dir_entry:
+        if self.settings.texinfo_dir_entry:
             entry = self.format_menu_entry(
-                self.escape_menu(settings.texinfo_dir_entry),
+                self.escape_menu(self.settings.texinfo_dir_entry),
                 '(%s)' % elements['filename'],
-                self.escape_arg(settings.texinfo_dir_description))
+                self.escape_arg(self.settings.texinfo_dir_description))
             elements['direntry'] = ('@dircategory %s\n'
                                     '@direntry\n'
                                     '%s'
                                     '@end direntry\n') % (
-                self.escape_id(settings.texinfo_dir_category), entry)
+                self.escape_id(self.settings.texinfo_dir_category), entry)
         elements['copying'] = COPYING % elements
         # allow the user to override them all
-        elements.update(settings.texinfo_elements)
+        elements.update(self.settings.texinfo_elements)
 
     def collect_node_names(self):
         # type: () -> None

@@ -96,13 +96,12 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.section_level = -1
 
         # docinfo set by man_pages config value
-        settings = self.get_settings()
-        self._docinfo['title'] = settings.title
-        self._docinfo['subtitle'] = settings.subtitle
-        if settings.authors:
+        self._docinfo['title'] = self.settings.title
+        self._docinfo['subtitle'] = self.settings.subtitle
+        if self.settings.authors:
             # don't set it if no author given
-            self._docinfo['author'] = settings.authors
-        self._docinfo['manual_section'] = settings.section
+            self._docinfo['author'] = self.settings.authors
+        self._docinfo['manual_section'] = self.settings.section
 
         # docinfo set by other config values
         self._docinfo['title_upper'] = self._docinfo['title'].upper()
