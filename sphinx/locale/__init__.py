@@ -48,7 +48,7 @@ class _TranslationProxy(UserString):
         return object.__new__(cls)
 
     def __getnewargs__(self):
-        # type: () -> Tuple
+        # type: () -> Tuple[str]
         return (self._func,) + self._args  # type: ignore
 
     def __init__(self, func, *args):

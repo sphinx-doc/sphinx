@@ -75,7 +75,7 @@ class NestedInlineTransform:
                     if matcher(subnode):
                         node.parent.insert(pos + 1, subnode)
                     else:
-                        newnode = node.__class__('', subnode, **node.attributes)
+                        newnode = node.__class__('', '', subnode, **node.attributes)
                         node.parent.insert(pos + 1, newnode)
 
 
