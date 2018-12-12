@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import unicode_literals
 
 from codecs import open
 from collections import defaultdict, OrderedDict

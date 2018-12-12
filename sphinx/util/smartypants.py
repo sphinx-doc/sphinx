@@ -25,7 +25,6 @@
     See the LICENSE file and the original docutils code for details.
 
 """
-from __future__ import absolute_import, unicode_literals
 
 import re
 
