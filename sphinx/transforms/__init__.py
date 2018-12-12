@@ -353,6 +353,9 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         if not self.is_available():
             return
 
+        # override default settings with :confval:`smartquotes_action`
+        self.smartquotes_action = self.config.smartquotes_action
+
         super(SphinxSmartQuotes, self).apply()
 
     def is_available(self):
@@ -380,15 +383,6 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
                 return True
         else:
             return False
-
-    @property
-    def smartquotes_action(self):
-        # type: () -> str
-        """A smartquotes_action setting for SmartQuotes.
-
-        Users can change this setting through :confval:`smartquotes_action`.
-        """
-        return self.config.smartquotes_action
 
     def get_tokens(self, txtnodes):
         # type: (List[nodes.Text]) -> Generator[Tuple[unicode, unicode], None, None]
