@@ -492,18 +492,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         # type: (addnodes.centered) -> None
         self.body.append('</strong></p>')
 
-    # overwritten
-    def should_be_compact_paragraph(self, node):
-        # type: (nodes.Node) -> bool
-        """Determine if the <p> tags around paragraph can be omitted."""
-        if isinstance(node.parent, addnodes.desc_content):
-            # Never compact desc_content items.
-            return False
-        if isinstance(node.parent, addnodes.versionmodified):
-            # Never compact versionmodified nodes.
-            return False
-        return super(HTML5Translator, self).should_be_compact_paragraph(node)
-
     def visit_compact_paragraph(self, node):
         # type: (addnodes.compact_paragraph) -> None
         pass
