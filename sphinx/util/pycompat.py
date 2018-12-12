@@ -12,7 +12,7 @@
 import sys
 from html import escape as htmlescape  # NOQA
 from io import TextIOWrapper  # NOQA
-from textwrap import indent  # type: ignore # NOQA
+from textwrap import indent  # NOQA
 
 from six import text_type
 

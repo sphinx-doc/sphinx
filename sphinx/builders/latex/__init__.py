@@ -207,7 +207,7 @@ class LaTeXBuilder(Builder):
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
                     '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
-            f.write(highlighter.get_stylesheet())  # type: ignore
+            f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored):
         # type: (Any) -> None

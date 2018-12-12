@@ -226,7 +226,7 @@ class TestGroup:
         else:
             raise RuntimeError(__('invalid TestCode type'))
 
-    def __repr__(self):  # type: ignore
+    def __repr__(self):
         # type: () -> unicode
         return 'TestGroup(name=%r, setup=%r, cleanup=%r, tests=%r)' % (
             self.name, self.setup, self.cleanup, self.tests)
@@ -241,7 +241,7 @@ class TestCode:
         self.lineno = lineno
         self.options = options or {}
 
-    def __repr__(self):  # type: ignore
+    def __repr__(self):
         # type: () -> unicode
         return 'TestCode(%r, %r, filename=%r, lineno=%r, options=%r)' % (
             self.code, self.type, self.filename, self.lineno, self.options)
@@ -313,9 +313,7 @@ class DocTestBuilder(Builder):
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
-        self.outfile = None  # type: IO
-        self.outfile = open(path.join(self.outdir, 'output.txt'),  # type: ignore
-                            'w', encoding='utf-8')
+        self.outfile = open(path.join(self.outdir, 'output.txt'), 'w', encoding='utf-8')
         self.outfile.write(('Results of doctest builder run on %s\n'
                             '==================================%s\n') %
                            (date, '=' * len(date)))
@@ -437,7 +435,7 @@ Doctest summary
                 logger.warning(__('no code/output in %s block at %s:%s'),
                                node.get('testnodetype', 'doctest'),
                                filename, line_number)
-            code = TestCode(source, type=node.get('testnodetype', 'doctest'),  # type: ignore
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             filename=filename, lineno=line_number,
                             options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -494,8 +492,7 @@ Doctest summary
             # type: (Any, List[TestCode], Any) -> bool
             examples = []
             for testcode in testcodes:
-                example = doctest.Example(testcode.code, '',  # type: ignore
-                                          lineno=testcode.lineno)
+                example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
                 examples.append(example)
             if not examples:
                 return True
@@ -547,11 +544,9 @@ Doctest summary
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(code[0].code, output,  # type: ignore
-                                          exc_msg=exc_msg,
-                                          lineno=code[0].lineno,
-                                          options=options)
-                test = doctest.DocTest([example], {}, group.name,  # type: ignore
+                example = doctest.Example(code[0].code, output, exc_msg=exc_msg,
+                                          lineno=code[0].lineno, options=options)
+                test = doctest.DocTest([example], {}, group.name,
                                        code[0].filename, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want

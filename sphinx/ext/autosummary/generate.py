@@ -228,7 +228,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             ns['underline'] = len(name) * '='
 
             rendered = template.render(**ns)
-            f.write(rendered)  # type: ignore
+            f.write(rendered)
 
     # descend recursively to new files
     if new_files:
@@ -248,8 +248,7 @@ def find_autosummary_in_files(filenames):
     """
     documented = []  # type: List[Tuple[unicode, unicode, unicode]]
     for filename in filenames:
-        with open(filename, encoding='utf-8',  # type: ignore
-                  errors='ignore') as f:
+        with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented
@@ -264,7 +263,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     try:
         real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
-        return find_autosummary_in_lines(lines, module=name, filename=filename)  # type: ignore
+        return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
     except ImportError as e:

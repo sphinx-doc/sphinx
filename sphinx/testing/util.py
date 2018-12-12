@@ -99,7 +99,7 @@ def etree_parse(path):
     # type: (unicode) -> Any
     with warnings.catch_warnings(record=False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)  # type: ignore
+        return ElementTree.parse(path)
 
 
 class Struct:

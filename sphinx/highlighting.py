@@ -96,7 +96,7 @@ class PygmentsBridge:
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
-        kwargs.update(self.formatter_args)  # type: ignore
+        kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
     def unhighlighted(self, source):

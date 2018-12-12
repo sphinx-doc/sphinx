@@ -133,7 +133,7 @@ class GoogleDocstring(UnicodeMixin):
         if isinstance(docstring, str):
             lines = docstring.splitlines()
         else:
-            lines = docstring  # type: ignore
+            lines = docstring
         self._line_iter = modify_iter(lines, modifier=lambda s: s.rstrip())
         self._parsed_lines = []  # type: List[unicode]
         self._is_in_section = False

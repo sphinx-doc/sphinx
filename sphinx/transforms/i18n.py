@@ -107,7 +107,7 @@ class Locale(SphinxTransform):
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
-            msgstr = catalog.gettext(msg)  # type: ignore
+            msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg or not msgstr.strip():
                 # as-of-yet untranslated
@@ -221,7 +221,7 @@ class Locale(SphinxTransform):
             if node.get('translated', False):  # to avoid double translation
                 continue  # skip if the node is already translated by phase1
 
-            msgstr = catalog.gettext(msg)  # type: ignore
+            msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg:  # as-of-yet untranslated
                 continue
@@ -454,7 +454,7 @@ class Locale(SphinxTransform):
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:
-                        msgstr = catalog.gettext(part)  # type: ignore
+                        msgstr = catalog.gettext(part)
                         if not msgstr:
                             msgstr = part
                         msgstr_parts.append(msgstr)

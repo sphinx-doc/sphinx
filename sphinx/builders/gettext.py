@@ -198,7 +198,7 @@ def should_write(filepath, new_content):
     if not path.exists(filepath):
         return True
     try:
-        with open(filepath, encoding='utf-8') as oldpot:  # type: ignore
+        with open(filepath, encoding='utf-8') as oldpot:
             old_content = oldpot.read()
             old_header_index = old_content.index('"POT-Creation-Date:')
             new_header_index = new_content.index('"POT-Creation-Date:')
@@ -246,10 +246,10 @@ class MessageCatalogBuilder(I18nBuilder):
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in status_iterator(files, __('reading templates... '), "purple",  # type: ignore  # NOQA
+        for template in status_iterator(files, __('reading templates... '), "purple",
                                         len(files), self.app.verbosity):
             try:
-                with open(template, encoding='utf-8') as f:  # type: ignore
+                with open(template, encoding='utf-8') as f:
                     context = f.read()
                 for line, meth, msg in extract_translations(context):
                     origin = MsgOrigin(template, line)
@@ -272,7 +272,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'ctime': datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         }
-        for textdomain, catalog in status_iterator(self.catalogs.items(),  # type: ignore
+        for textdomain, catalog in status_iterator(self.catalogs.items(),
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
@@ -282,31 +282,30 @@ class MessageCatalogBuilder(I18nBuilder):
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             output = StringIO()
-            output.write(POHEADER % data)  # type: ignore
+            output.write(POHEADER % data)
 
             for message in catalog.messages:
                 positions = catalog.metadata[message]
 
                 if self.config.gettext_location:
                     # generate "#: file1:line1\n#: file2:line2 ..."
-                    output.write("#: %s\n" % "\n#: ".join(  # type: ignore
+                    output.write("#: %s\n" % "\n#: ".join(
                         "%s:%s" % (canon_path(relpath(source, self.outdir)), line)
                         for source, line, _ in positions))
                 if self.config.gettext_uuid:
                     # generate "# uuid1\n# uuid2\n ..."
-                    output.write("# %s\n" % "\n# ".join(  # type: ignore
-                        uid for _, _, uid in positions))
+                    output.write("# %s\n" % "\n# ".join(uid for _, _, uid in positions))
 
                 # message contains *one* line of text ready for translation
                 message = message.replace('\\', r'\\'). \
                     replace('"', r'\"'). \
                     replace('\n', '\\n"\n"')
-                output.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
+                output.write('msgid "%s"\nmsgstr ""\n\n' % message)
 
             content = output.getvalue()
 
             if should_write(pofn, content):
-                with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
+                with open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 

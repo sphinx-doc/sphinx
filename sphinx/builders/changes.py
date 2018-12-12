@@ -113,11 +113,9 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with open(path.join(self.outdir, 'index.html'), 'w',  # type: ignore
-                  encoding='utf8') as f:
+        with open(path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with open(path.join(self.outdir, 'changes.html'), 'w',  # type: ignore
-                  encoding='utf8') as f:
+        with open(path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = ['.. versionadded:: %s' % version,
@@ -135,7 +133,7 @@ class ChangesBuilder(Builder):
 
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
-            with open(self.env.doc2path(docname),  # type: ignore
+            with open(self.env.doc2path(docname),
                       encoding=self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
@@ -144,7 +142,7 @@ class ChangesBuilder(Builder):
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            with open(targetfn, 'w', encoding='utf-8') as f:  # type: ignore
+            with open(targetfn, 'w', encoding='utf-8') as f:
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, None),

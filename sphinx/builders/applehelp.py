@@ -167,7 +167,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info(bold(__('writing Info.plist... ')), nonl=True)
         with open(path.join(contents_dir, 'Info.plist'), 'wb') as fb:
-            plistlib.dump(info_plist, fb)  # type: ignore
+            plistlib.dump(info_plist, fb)
         logger.info(__('done'))
 
         # Copy the icon, if one is supplied

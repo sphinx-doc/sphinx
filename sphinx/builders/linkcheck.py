@@ -294,8 +294,7 @@ class CheckExternalLinksBuilder(Builder):
 
     def write_entry(self, what, docname, line, uri):
         # type: (unicode, unicode, int, unicode) -> None
-        with open(path.join(self.outdir, 'output.txt'), 'a',  # type: ignore
-                  encoding='utf-8') as output:
+        with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
             output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                                line, what, uri))
 

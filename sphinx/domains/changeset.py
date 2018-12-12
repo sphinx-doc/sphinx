@@ -140,7 +140,7 @@ class ChangeSetDomain(Domain):
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')
-        changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore
+        changeset = ChangeSet(node['type'], self.env.docname, node.line,
                               module, objname, node.astext())
         self.data['changes'].setdefault(version, []).append(changeset)
 

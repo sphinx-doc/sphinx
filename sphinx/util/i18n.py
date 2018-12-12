@@ -69,7 +69,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
     def write_mo(self, locale):
         # type: (unicode) -> None
-        with open(self.po_path, encoding=self.charset) as file_po:  # type: ignore
+        with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
@@ -99,10 +99,10 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
         return []
 
     domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
              for dir_ in locale_dirs]
-    files = [relpath(f, srcdir) for f in files if f]  # type: ignore
-    return files  # type: ignore
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,

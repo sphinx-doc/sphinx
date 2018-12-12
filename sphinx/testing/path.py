@@ -155,7 +155,7 @@ class path(text_type):
         """
         if isinstance(text, bytes):
             text = text.decode(encoding)
-        with open(self, 'w', encoding=encoding, **kwargs) as f:  # type: ignore
+        with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
     def text(self, encoding='utf-8', **kwargs):
@@ -163,7 +163,7 @@ class path(text_type):
         """
         Returns the text in the file.
         """
-        with open(self, encoding=encoding, **kwargs) as f:  # type: ignore
+        with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
     def bytes(self):
@@ -209,7 +209,7 @@ class path(text_type):
         """
         Recursively create directories.
         """
-        os.makedirs(self, mode, exist_ok=exist_ok)  # type: ignore
+        os.makedirs(self, mode, exist_ok=exist_ok)
 
     def joinpath(self, *args):
         # type: (Any) -> path

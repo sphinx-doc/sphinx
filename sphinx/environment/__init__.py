@@ -374,7 +374,7 @@ class BuildEnvironment:
             # the source directory is a bytestring with non-ASCII characters;
             # let's try to encode the rel_fn in the file system encoding
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
+            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))  # type: ignore
 
     @property
     def found_docs(self):

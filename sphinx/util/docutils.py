@@ -166,7 +166,7 @@ def using_user_docutils_conf(confdir):
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
         if confdir:
-            os.environ['DOCUTILSCONFIG'] = path.join(path.abspath(confdir), 'docutils.conf')  # type: ignore  # NOQA
+            os.environ['DOCUTILSCONFIG'] = path.join(path.abspath(confdir), 'docutils.conf')
 
         yield
     finally:
@@ -272,7 +272,7 @@ class WarningStream:
         else:
             location, type, level = matched.groups()
             message = report_re.sub('', text).rstrip()
-            logger.log(type, message, location=location)  # type: ignore
+            logger.log(type, message, location=location)
 
 
 class LoggingReporter(Reporter):
@@ -354,7 +354,7 @@ class SphinxFileOutput(FileOutput):
         # type: (unicode) -> unicode
         if (self.destination_path and self.autoclose and 'b' not in self.mode and
                 self.overwrite_if_changed and os.path.exists(self.destination_path)):
-            with open(self.destination_path, encoding=self.encoding) as f:  # type: ignore
+            with open(self.destination_path, encoding=self.encoding) as f:
                 # skip writing: content not changed
                 if f.read() == data:
                     return data
