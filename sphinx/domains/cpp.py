@@ -6395,6 +6395,10 @@ class CPPObject(ObjectDescription):
             signode['first'] = (not self.names)  # hmm, what is this about?
             self.state.document.note_explicit_target(signode)
 
+    def get_index_text(self, name):
+        # type: (unicode) -> unicode
+        raise NotImplementedError()
+
     def parse_definition(self, parser):
         # type: (Any) -> Any
         raise NotImplementedError()
