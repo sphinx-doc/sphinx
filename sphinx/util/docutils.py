@@ -398,16 +398,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         super(SphinxTranslator, self).__init__(document)
         self.builder = builder
         self.config = builder.config
-
-    def get_settings(self):
-        # type: () -> Any
-        """Get settings object with type safe.
-
-        .. note:: It is hard to check types for settings object because it's attributes
-                  are added dynamically.  This method avoids the type errors through
-                  imitating it's type as Any.
-        """
-        return self.document.settings
+        self.settings = document.settings
 
 
 # cache a vanilla instance of nodes.document

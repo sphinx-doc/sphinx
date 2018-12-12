@@ -221,8 +221,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['class'] += ' external'
         if 'refuri' in node:
             atts['href'] = node['refuri'] or '#'
-            if (self.get_settings().cloak_email_addresses and
-                    atts['href'].startswith('mailto:')):
+            if self.settings.cloak_email_addresses and atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
@@ -639,7 +638,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     # protect runs of multiple spaces; the last one can wrap
                     self.body.append('&#160;' * (len(token) - 1) + ' ')
         else:
-            if self.in_mailto and self.get_settings().cloak_email_addresses:
+            if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
             self.body.append(encoded)
 
@@ -777,8 +776,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self._table_row_index = 0
 
-        classes = [cls.strip(u' \t\n')
-                   for cls in self.get_settings().table_style.split(',')]
+        classes = [cls.strip(u' \t\n') for cls in self.settings.table_style.split(',')]
         classes.insert(0, "docutils")  # compat
         if 'align' in node:
             classes.append('align-%s' % node['align'])
