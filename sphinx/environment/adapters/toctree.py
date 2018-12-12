@@ -199,7 +199,7 @@ class TocTree:
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
                                 if subtrees:
-                                    toplevel[1][:] = subtrees
+                                    toplevel[1][:] = subtrees  # type: ignore
                                 else:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
