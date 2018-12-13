@@ -2301,20 +2301,16 @@ information.
         index is full of long entries.
 
      ``'fvset'``
-        Customization of ``fancyvrb`` LaTeX package.  Currently, Sphinx uses
-        this key to set the fontsize in code-blocks according to the
-        :confval:`latex_engine`.
-
-        - ``'pdflatex'`` uses ``'fvset': '\\fvset{fontsize=\\small}'``,
-          to mitigate the size difference between the default monospaced font
-          (Courier) and the default text font (Times).  You may need to modify
-          this if you use custom fonts.
-
-        - ``'xelatex'`` and ``'lualatex'`` use ``'\\fvset{fontsize=auto}'``,
-          as there is no size difference between the regular and the
-          monospaced fonts used by default by Sphinx with these engines.
+        Customization of ``fancyvrb`` LaTeX package.  Sphinx does by default
+        ``'fvset': '\\fvset{fontsize=\\small}'``, to adjust for the large
+        character width of the monospace font, used in code-blocks.
+        You may need to modify this if you use custom fonts.
 
         .. versionadded:: 1.8
+        .. versionchanged:: 2.0
+           Due to new default font choice for ``'xelatex'`` and ``'lualatex'``
+           (FreeFont), Sphinx does ``\\fvset{fontsize=\\small}`` also with these
+           engines (and not ``\\fvset{fontsize=auto}``).
 
    * Keys that are set by other options and therefore should not be overridden
      are:

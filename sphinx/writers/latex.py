@@ -202,7 +202,6 @@ ADDITIONAL_SETTINGS = {
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
-        'fvset':        '\\fvset{fontsize=auto}',
     },
     'lualatex': {
         'latex_engine': 'lualatex',
@@ -213,7 +212,6 @@ ADDITIONAL_SETTINGS = {
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
-        'fvset':        '\\fvset{fontsize=auto}',
     },
     'platex': {
         'latex_engine': 'platex',
