@@ -25,6 +25,8 @@ Incompatible changes
   has been longly used as default of sphinx-quickstart.
 * LaTeX: Move message resources to ``sphinxmessage.sty``
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
+* LaTeX: for ``'xelatex'`` and ``'lualatex'``, use the ``FreeFont`` OpenType
+  fonts as default choice (refs #5645)
 * LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
   will use the text font not the math font. The ``LGR`` font encoding must be
   added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
@@ -90,7 +92,7 @@ __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 * #5559: text: Support complex tables (colspan and rowspan)
 * LaTeX: support rendering (not in math, yet) of Greek and Cyrillic Unicode
   letters in non-Cyrillic document even with ``'pdflatex'`` as
-  :confval:`latex_engine`
+  :confval:`latex_engine` (refs: #5645)
 
 Bugs fixed
 ----------
