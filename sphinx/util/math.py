@@ -14,11 +14,10 @@ if False:
     # For type annotation
     from docutils import nodes  # NOQA
     from sphinx.builders.html import HTMLTranslator  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def get_node_equation_number(writer, node):
-    # type: (HTMLTranslator, nodes.math_block) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> str
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
@@ -34,9 +33,9 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def is_equation(part):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return part.strip()
 
     if label is None:

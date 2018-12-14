@@ -30,7 +30,6 @@ if False:
     # For type annotation
     from typing import Any  # NOQA
     from sphinx.builders.html import StandaloneHTMLBuilder  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -287,7 +286,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node, name=''):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         self.body.append(self.starttag(
             node, 'div', CLASS=('admonition ' + name)))
         if name:
@@ -325,7 +324,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def add_fignumber(self, node):
         # type: (nodes.Element) -> None
         def append_fignumber(figtype, figure_id):
-            # type: (unicode, unicode) -> None
+            # type: (str, str) -> None
             if self.builder.name == 'singlehtml':
                 key = u"%s/%s" % (self.docnames[-1], figtype)
             else:
@@ -351,7 +350,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
                 append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node, title):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
@@ -870,26 +869,26 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 
     def visit_math(self, node, math_env=''):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
         visit(self, node)
 
     def depart_math(self, node, math_env=''):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
         if depart:
             depart(self, node)
 
     def visit_math_block(self, node, math_env=''):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         name = self.builder.math_renderer_name
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]
         visit(self, node)
 
     def depart_math_block(self, node, math_env=''):
-        # type: (nodes.Element, unicode) -> None
+        # type: (nodes.Element, str) -> None
         name = self.builder.math_renderer_name
         _, depart = self.builder.app.registry.html_block_math_renderers[name]
         if depart:
@@ -903,21 +902,21 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
 
     @property
     def highlightlang(self):
-        # type: () -> unicode
+        # type: () -> str
         warnings.warn('HTMLTranslator.highlightlang is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_language
 
     @property
     def highlightlang_base(self):
-        # type: () -> unicode
+        # type: () -> str
         warnings.warn('HTMLTranslator.highlightlang_base is deprecated.',
                       RemovedInSphinx30Warning)
         return self.builder.config.highlight_language
 
     @property
     def highlightopts(self):
-        # type: () -> unicode
+        # type: () -> str
         warnings.warn('HTMLTranslator.highlightopts is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.builder.config.highlight_options

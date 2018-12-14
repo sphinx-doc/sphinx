@@ -18,14 +18,13 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
 class Extension:
     def __init__(self, name, module, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -63,7 +62,7 @@ def verify_needs_extensions(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', verify_needs_extensions)
 
     return {

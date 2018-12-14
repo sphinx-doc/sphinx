@@ -23,18 +23,17 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class DependenciesCollector(EnvironmentCollector):
     """dependencies collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.dependencies.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]

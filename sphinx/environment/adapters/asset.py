@@ -12,7 +12,6 @@
 if False:
     # For type annotation
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class ImageAdapter:
@@ -21,7 +20,7 @@ class ImageAdapter:
         self.env = env
 
     def get_original_image_uri(self, name):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         """Get the original image URI."""
         while name in self.env.original_image_uri:
             name = self.env.original_image_uri[name]

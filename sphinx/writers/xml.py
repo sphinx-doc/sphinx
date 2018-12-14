@@ -15,7 +15,6 @@ if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class XMLWriter(BaseXMLWriter):
@@ -42,7 +41,7 @@ class PseudoXMLWriter(BaseXMLWriter):
     """Formats this writer supports."""
 
     config_section = 'pseudoxml writer'
-    config_section_dependencies = ('writers',)  # type: Tuple[unicode]
+    config_section_dependencies = ('writers',)
 
     output = None
     """Final translated form of `document`."""
@@ -57,6 +56,6 @@ class PseudoXMLWriter(BaseXMLWriter):
         self.output = self.document.pformat()
 
     def supports(self, format):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         """This writer supports all format-specific elements."""
         return True

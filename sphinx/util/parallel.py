@@ -26,7 +26,6 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Sequence  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +135,7 @@ class ParallelTasks:
 
 
 def make_chunks(arguments, nproc, maxbatch=10):
-    # type: (Sequence[unicode], int, int) -> List[Any]
+    # type: (Sequence[str], int, int) -> List[Any]
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

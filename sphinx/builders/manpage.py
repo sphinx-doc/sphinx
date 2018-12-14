@@ -29,7 +29,6 @@ if False:
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +43,7 @@ class ManualPageBuilder(Builder):
     epilog = __('The manual pages are in %(outdir)s.')
 
     default_translator_class = ManualPageTranslator
-    supported_image_types = []  # type: List[unicode]
+    supported_image_types = []  # type: List[str]
 
     def init(self):
         # type: () -> None
@@ -53,11 +52,11 @@ class ManualPageBuilder(Builder):
                               'will be written'))
 
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, List[unicode]]
+        # type: () -> Union[str, List[str]]
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if typ == 'token':
             return ''
         raise NoUri
@@ -96,7 +95,7 @@ class ManualPageBuilder(Builder):
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames = set()  # type: Set[unicode]
+            docnames = set()  # type: Set[str]
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             largetree.settings = docsettings
@@ -115,7 +114,7 @@ class ManualPageBuilder(Builder):
 
 
 def default_man_pages(config):
-    # type: (Config) -> List[Tuple[unicode, unicode, unicode, List[unicode], int]]
+    # type: (Config) -> List[Tuple[str, str, str, List[str], int]]
     """ Better default man_pages settings. """
     filename = make_filename_from_project(config.project)
     return [(config.master_doc, filename, '%s %s' % (config.project, config.release),
@@ -123,7 +122,7 @@ def default_man_pages(config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages', default_man_pages, None)

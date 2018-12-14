@@ -22,7 +22,6 @@ from six import text_type
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile(u'^\\s*$')
@@ -36,7 +35,7 @@ else:
 
 
 def filter_whitespace(code):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
 
@@ -50,7 +49,7 @@ def get_assign_targets(node):
 
 
 def get_lvar_names(node, self=None):
-    # type: (ast.AST, ast.arg) -> List[unicode]
+    # type: (ast.AST, ast.arg) -> List[str]
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -93,7 +92,7 @@ def get_lvar_names(node, self=None):
 
 
 def dedent_docstring(s):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Remove common leading indentation from docstring."""
     def dummy():
         # type: () -> None
@@ -109,7 +108,7 @@ class Token:
     """Better token wrapper for tokenize module."""
 
     def __init__(self, kind, value, start, end, source):
-        # type: (int, Any, Tuple[int, int], Tuple[int, int], unicode) -> None  # NOQA
+        # type: (int, Any, Tuple[int, int], Tuple[int, int], str) -> None
         self.kind = kind
         self.value = value
         self.start = start
@@ -141,7 +140,7 @@ class Token:
 
 class TokenProcessor:
     def __init__(self, buffers):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
@@ -149,7 +148,7 @@ class TokenProcessor:
         self.previous = None    # type: Token
 
     def get_line(self, lineno):
-        # type: (int) -> unicode
+        # type: (int) -> str
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
@@ -196,9 +195,9 @@ class AfterCommentParser(TokenProcessor):
     """
 
     def __init__(self, lines):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         super(AfterCommentParser, self).__init__(lines)
-        self.comment = None  # type: unicode
+        self.comment = None  # type: str
 
     def fetch_rvalue(self):
         # type: () -> List[Token]
@@ -240,20 +239,20 @@ class VariableCommentPicker(ast.NodeVisitor):
     """Python source code parser to pick up variable comments."""
 
     def __init__(self, buffers, encoding):
-        # type: (List[unicode], unicode) -> None
+        # type: (List[str], str) -> None
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context = []               # type: List[unicode]
-        self.current_classes = []       # type: List[unicode]
+        self.context = []               # type: List[str]
+        self.current_classes = []       # type: List[str]
         self.current_function = None    # type: ast.FunctionDef
-        self.comments = {}              # type: Dict[Tuple[unicode, unicode], unicode]
+        self.comments = {}              # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
-        self.deforders = {}             # type: Dict[unicode, int]
+        self.deforders = {}             # type: Dict[str, int]
         super(VariableCommentPicker, self).__init__()
 
     def add_entry(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
@@ -266,7 +265,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.deforders[".".join(definition)] = next(self.counter)
 
     def add_variable_comment(self, name, comment):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
@@ -287,7 +286,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             return None
 
     def get_line(self, lineno):
-        # type: (int) -> unicode
+        # type: (int) -> str
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
@@ -388,15 +387,15 @@ class VariableCommentPicker(ast.NodeVisitor):
 
 class DefinitionFinder(TokenProcessor):
     def __init__(self, lines):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         super(DefinitionFinder, self).__init__(lines)
         self.decorator = None   # type: Token
-        self.context = []       # type: List[unicode]
+        self.context = []       # type: List[str]
         self.indents = []       # type: List
-        self.definitions = {}   # type: Dict[unicode, Tuple[unicode, int, int]]
+        self.definitions = {}   # type: Dict[str, Tuple[str, int, int]]
 
     def add_definition(self, name, entry):
-        # type: (unicode, Tuple[unicode, int, int]) -> None
+        # type: (str, Tuple[str, int, int]) -> None
         if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
             # ignore definition of inner function
             pass
@@ -425,7 +424,7 @@ class DefinitionFinder(TokenProcessor):
                 self.finalize_block()
 
     def parse_definition(self, typ):
-        # type: (unicode) -> None
+        # type: (str) -> None
         name = self.fetch_token()
         self.context.append(name.value)
         funcname = '.'.join(self.context)
@@ -465,12 +464,12 @@ class Parser:
     """
 
     def __init__(self, code, encoding='utf-8'):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.comments = {}          # type: Dict[Tuple[unicode, unicode], unicode]
-        self.deforders = {}         # type: Dict[unicode, int]
-        self.definitions = {}       # type: Dict[unicode, Tuple[unicode, int, int]]
+        self.comments = {}          # type: Dict[Tuple[str, str], str]
+        self.deforders = {}         # type: Dict[str, int]
+        self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
 
     def parse(self):
         # type: () -> None

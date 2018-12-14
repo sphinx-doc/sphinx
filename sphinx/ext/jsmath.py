@@ -27,7 +27,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def html_visit_math(self, node):
@@ -81,7 +80,7 @@ def install_jsmath(app, env):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_html_math_renderer('jsmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

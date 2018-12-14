@@ -24,7 +24,6 @@ if False:
     from typing import Any, Dict, Iterator, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -38,15 +37,15 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: unicode
+    current_docname = None  # type: str
 
     def init(self):
         # type: () -> None
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
+        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
 
     def get_outdated_docs(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -65,15 +64,15 @@ class TextBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return ''
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         self.writer = TextWriter(self)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.Node) -> None
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -92,7 +91,7 @@ class TextBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

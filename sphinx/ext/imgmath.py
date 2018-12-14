@@ -36,7 +36,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -46,7 +45,7 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
-        # type: (unicode, bytes, bytes) -> None
+        # type: (str, bytes, bytes) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
@@ -91,7 +90,7 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def generate_latex_macro(math, config):
-    # type: (unicode, Config) -> unicode
+    # type: (str, Config) -> str
     """Generate LaTeX macro."""
     fontsize = config.imgmath_font_size
     baselineskip = int(round(fontsize * 1.2))
@@ -106,7 +105,7 @@ def generate_latex_macro(math, config):
 
 
 def ensure_tempdir(builder):
-    # type: (Builder) -> unicode
+    # type: (Builder) -> str
     """Create temporary directory.
 
     use only one tempdir per build -- the use of a directory is cleaner
@@ -120,7 +119,7 @@ def ensure_tempdir(builder):
 
 
 def compile_math(latex, builder):
-    # type: (unicode, Builder) -> unicode
+    # type: (str, Builder) -> str
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
@@ -154,7 +153,7 @@ def compile_math(latex, builder):
 
 
 def convert_dvi_to_image(command, name):
-    # type: (List[unicode], unicode) -> Tuple[bytes, bytes]
+    # type: (List[str], str) -> Tuple[bytes, bytes]
     """Convert DVI file to specific image format."""
     try:
         p = Popen(command, stdout=PIPE, stderr=PIPE)
@@ -174,7 +173,7 @@ def convert_dvi_to_image(command, name):
 
 
 def convert_dvi_to_png(dvipath, builder):
-    # type: (unicode, Builder) -> Tuple[unicode, int]
+    # type: (str, Builder) -> Tuple[str, int]
     """Convert DVI file to PNG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.png')
@@ -201,7 +200,7 @@ def convert_dvi_to_png(dvipath, builder):
 
 
 def convert_dvi_to_svg(dvipath, builder):
-    # type: (unicode, Builder) -> Tuple[unicode, int]
+    # type: (str, Builder) -> Tuple[str, int]
     """Convert DVI file to SVG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.svg')
@@ -216,7 +215,7 @@ def convert_dvi_to_svg(dvipath, builder):
 
 
 def render_math(self, math):
-    # type: (HTMLTranslator, unicode) -> Tuple[unicode, int]
+    # type: (HTMLTranslator, str) -> Tuple[str, int]
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -285,7 +284,7 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    # type: (HTMLTranslator, Union[nodes.math, nodes.math_block]) -> unicode
+    # type: (HTMLTranslator, Union[nodes.math, nodes.math_block]) -> str
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
@@ -347,7 +346,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

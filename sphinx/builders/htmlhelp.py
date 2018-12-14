@@ -30,7 +30,6 @@ if False:
     from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -208,13 +207,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
-        # type: (unicode, unicode, unicode) -> IO
+        # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
         return open(path.join(outdir, basename), mode, encoding=self.encoding,
                     errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
-        # type: (unicode, unicode, Dict, unicode) -> None
+        # type: (str, str, Dict, str) -> None
         ctx['encoding'] = self.encoding
 
     def handle_finish(self):
@@ -222,7 +221,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.document) -> None
+        # type: (str, nodes.document) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
@@ -231,7 +230,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         super(HTMLHelpBuilder, self).write_doc(docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('dumping stopword list...'))
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
@@ -305,9 +304,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
-                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
+                # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
                 def write_param(name, value):
-                    # type: (unicode, unicode) -> None
+                    # type: (str, str) -> None
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
@@ -336,13 +335,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
 
 def default_htmlhelp_basename(config):
-    # type: (Config) -> unicode
+    # type: (Config) -> str
     """Better default htmlhelp_basename setting."""
     return make_filename_from_project(config.project) + 'doc'
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 

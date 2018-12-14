@@ -25,7 +25,6 @@ if False:
     # For type annotation
     from typing import Generator  # NOQA
     from docutils.statemachine import StringList  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ symbols_re = re.compile(r'([!-\-/:-@\[-`{-~])')  # symbols without dot(0x2e)
 
 
 def escape(text):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     text = symbols_re.sub(r'\\\1', text)
     text = re.sub(r'^\.', r'\.', text)  # escape a dot at top
     return text
@@ -42,7 +41,7 @@ def escape(text):
 
 @contextmanager
 def default_role(docname, name):
-    # type: (unicode, unicode) -> Generator
+    # type: (str, str) -> Generator
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)
@@ -57,7 +56,7 @@ def default_role(docname, name):
 
 
 def prepend_prolog(content, prolog):
-    # type: (StringList, unicode) -> None
+    # type: (StringList, str) -> None
     """Prepend a string to content body as prolog."""
     if prolog:
         pos = 0
@@ -80,7 +79,7 @@ def prepend_prolog(content, prolog):
 
 
 def append_epilog(content, epilog):
-    # type: (StringList, unicode) -> None
+    # type: (StringList, str) -> None
     """Append a string to content body as epilog."""
     if epilog:
         content.append('', '<generated>', 0)

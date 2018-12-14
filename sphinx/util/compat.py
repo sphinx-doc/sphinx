@@ -26,7 +26,6 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def deprecate_source_parsers(app, config):
@@ -71,7 +70,7 @@ class IndexEntriesMigrator(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_transform(IndexEntriesMigrator)
     app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)

@@ -42,7 +42,6 @@ from sphinx.util import import_object
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class BaseSplitter:
@@ -52,7 +51,7 @@ class BaseSplitter:
         self.options = options
 
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         """
 
         :param str input:
@@ -75,7 +74,7 @@ class MecabSplitter(BaseSplitter):
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         if native_module:
             result = self.native.parse(input)
         else:
@@ -151,7 +150,7 @@ class JanomeSplitter(BaseSplitter):
         self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
 
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         result = u' '.join(token.surface for token in self.tokenizer.tokenize(input))
         return result.split(u' ')
 
@@ -428,7 +427,7 @@ class DefaultSplitter(BaseSplitter):
 
     # ctype_
     def ctype_(self, char):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         for pattern, value in self.patterns_.items():
             if pattern.match(char):
                 return value
@@ -436,14 +435,14 @@ class DefaultSplitter(BaseSplitter):
 
     # ts_
     def ts_(self, dict, key):
-        # type: (Dict[unicode, int], unicode) -> int
+        # type: (Dict[str, int], str) -> int
         if key in dict:
             return dict[key]
         return 0
 
     # segment
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         if not input:
             return []
 
@@ -568,13 +567,13 @@ class SearchJapanese(SearchLanguage):
                                  dotted_path)
 
     def split(self, input):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         return self.splitter.split(input)
 
     def word_filter(self, stemmed_word):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return word

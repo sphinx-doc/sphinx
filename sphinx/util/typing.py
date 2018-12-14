@@ -13,15 +13,8 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
-from six import PY2, text_type
+from six import text_type
 
-
-# a typedef for unicode to make migration to mypy-py3 mode easy
-# Note: It will be removed after migrated (soon).
-if PY2:
-    unicode = text_type
-else:
-    unicode = str
 
 # An entry of Directive.option_spec
 DirectiveOption = Callable[[str], Any]

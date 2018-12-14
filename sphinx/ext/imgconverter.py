@@ -21,7 +21,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -64,7 +63,7 @@ class ImagemagickConverter(ImageConverter):
         return True
 
     def convert(self, _from, _to):
-        # type: (unicode, unicode) -> bool
+        # type: (str, str) -> bool
         """Converts the image to expected one."""
         try:
             if _from.lower().endswith('.gif'):
@@ -100,7 +99,7 @@ class ImagemagickConverter(ImageConverter):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(ImagemagickConverter)
     app.add_config_value('image_converter', 'convert', 'env')
     app.add_config_value('image_converter_args', [], 'env')

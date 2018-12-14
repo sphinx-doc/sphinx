@@ -15,7 +15,6 @@ import re
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -40,7 +39,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
-        # type: (Match) -> unicode
+        # type: (Match) -> str
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]

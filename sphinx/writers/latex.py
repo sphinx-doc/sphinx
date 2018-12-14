@@ -50,7 +50,6 @@ if False:
         captioned_literal_block, footnotemark, footnotetext, math_reference, thebibliography
     )
     from sphinx.domains import IndexEntry  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ ENUMERATE_LIST_STYLE = defaultdict(lambda: r'\arabic',
                                        'upperalpha': r'\Alph',
                                        'lowerroman': r'\roman',
                                        'upperroman': r'\Roman',
-                                   })  # type: Dict[unicode, unicode]
+                                   })
 PDFLATEX_DEFAULT_FONTPKG = r'''
 \usepackage{times}
 \expandafter\ifx\csname T@LGR\endcsname\relax
@@ -173,7 +172,7 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}  # type: Dict[unicode, unicode]
+}
 
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
@@ -222,7 +221,7 @@ ADDITIONAL_SETTINGS = {
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
-}  # type: Dict[unicode, Dict[unicode, unicode]]
+}
 
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
@@ -266,14 +265,14 @@ class ExtBabel(Babel):
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
 
     def __init__(self, language_code, use_polyglossia=False):
-        # type: (unicode, bool) -> None
+        # type: (str, bool) -> None
         self.language_code = language_code
         self.use_polyglossia = use_polyglossia
         self.supported = True
         super(ExtBabel, self).__init__(language_code or '')
 
     def get_shorthandoff(self):
-        # type: () -> unicode
+        # type: () -> str
         warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return SHORTHANDOFF
@@ -287,7 +286,7 @@ class ExtBabel(Babel):
         return self.supported
 
     def language_name(self, language_code):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         language = super(ExtBabel, self).language_name(language_code)
         if language == 'ngerman' and self.use_polyglossia:
             # polyglossia calls new orthography (Neue Rechtschreibung) as
@@ -300,7 +299,7 @@ class ExtBabel(Babel):
             return language
 
     def get_mainlanguage_options(self):
-        # type: () -> unicode
+        # type: () -> str
         """Return options for polyglossia's ``\\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None
@@ -319,16 +318,16 @@ class Table:
 
     def __init__(self, node):
         # type: (nodes.Element) -> None
-        self.header = []                        # type: List[unicode]
-        self.body = []                          # type: List[unicode]
+        self.header = []                        # type: List[str]
+        self.body = []                          # type: List[str]
         self.align = node.get('align')
         self.colcount = 0
-        self.colspec = None                     # type: unicode
+        self.colspec = None                     # type: str
         self.colwidths = []                     # type: List[int]
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption = None                     # type: List[unicode]
+        self.caption = None                     # type: List[str]
         self.stubs = []                         # type: List[int]
 
         # current position
@@ -336,7 +335,7 @@ class Table:
         self.row = 0
 
         # for internal use
-        self.classes = node.get('classes', [])  # type: List[unicode]
+        self.classes = node.get('classes', [])  # type: List[str]
         self.cells = defaultdict(int)           # type: Dict[Tuple[int, int], int]
                                                 # it maps table location to cell_id
                                                 # (cell = rectangular area)
@@ -344,14 +343,14 @@ class Table:
 
     @property
     def caption_footnotetexts(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         warnings.warn('table.caption_footnotetexts is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     @property
     def header_footnotetexts(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         warnings.warn('table.header_footnotetexts is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return []
@@ -362,7 +361,7 @@ class Table:
         return self.row > 30 or 'longtable' in self.classes
 
     def get_table_type(self):
-        # type: () -> unicode
+        # type: () -> str
         """Returns the LaTeX environment name for the table.
 
         The class currently supports:
@@ -383,7 +382,7 @@ class Table:
             return 'tabulary'
 
     def get_colspec(self):
-        # type: () -> unicode
+        # type: () -> str
         """Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
@@ -474,13 +473,13 @@ class TableCell:
 
 
 def escape_abbr(text):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Adjust spacing after abbreviations."""
     return re.sub(r'\.(?=\s|$)', r'.\@', text)
 
 
 def rstdim_to_latexdim(width_str):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Convert `width_str` with rst length to LaTeX length."""
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
@@ -510,7 +509,7 @@ class LaTeXTranslator(SphinxTranslator):
     def __init__(self, document, builder):
         # type: (nodes.document, LaTeXBuilder) -> None
         super(LaTeXTranslator, self).__init__(builder, document)
-        self.body = []  # type: List[unicode]
+        self.body = []  # type: List[str]
 
         # flags
         self.in_title = 0
@@ -648,7 +647,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         if getattr(self.builder, 'usepackages', None):
             def declare_package(packagename, options=None):
-                # type:(unicode, unicode) -> unicode
+                # type:(str, str) -> str
                 if options:
                     return '\\usepackage[%s]{%s}' % (options, packagename)
                 else:
@@ -702,22 +701,22 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         self.context = []                   # type: List[Any]
-        self.descstack = []                 # type: List[unicode]
+        self.descstack = []                 # type: List[str]
         self.table = None                   # type: Table
-        self.next_table_colspec = None      # type: unicode
-        self.bodystack = []                 # type: List[List[unicode]]
+        self.next_table_colspec = None      # type: str
+        self.bodystack = []                 # type: List[List[str]]
         self.footnote_restricted = None     # type: nodes.Element
         self.pending_footnotes = []         # type: List[nodes.footnote_reference]
-        self.curfilestack = []              # type: List[unicode]
-        self.handled_abbrs = set()          # type: Set[unicode]
+        self.curfilestack = []              # type: List[str]
+        self.handled_abbrs = set()          # type: Set[str]
 
     def pushbody(self, newbody):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         self.bodystack.append(self.body)
         self.body = newbody
 
     def popbody(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         body = self.body
         self.body = self.bodystack.pop()
         return body
@@ -744,7 +743,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.pending_footnotes = []
 
     def format_docclass(self, docclass):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         """ prepends prefix to sphinx document classes
         """
         if docclass in self.docclasses:
@@ -752,7 +751,7 @@ class LaTeXTranslator(SphinxTranslator):
         return docclass
 
     def astext(self):
-        # type: () -> unicode
+        # type: () -> str
         self.elements.update({
             'body': u''.join(self.body),
             'indices': self.generate_indices()
@@ -760,14 +759,14 @@ class LaTeXTranslator(SphinxTranslator):
         return self.render('latex.tex_t', self.elements)
 
     def hypertarget(self, id, withdoc=True, anchor=True):
-        # type: (unicode, bool, bool) -> unicode
+        # type: (str, bool, bool) -> str
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
         return (anchor and '\\phantomsection' or '') + \
             '\\label{%s}' % self.idescape(id)
 
     def hypertarget_to(self, node, anchor=False):
-        # type: (nodes.Element, bool) -> unicode
+        # type: (nodes.Element, bool) -> str
         labels = ''.join(self.hypertarget(node_id, anchor=False) for node_id in node['ids'])
         if anchor:
             return r'\phantomsection' + labels
@@ -775,21 +774,21 @@ class LaTeXTranslator(SphinxTranslator):
             return labels
 
     def hyperlink(self, id):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return '{\\hyperref[%s]{' % self.idescape(id)
 
     def hyperpageref(self, id):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return '\\autopageref*{%s}' % self.idescape(id)
 
     def idescape(self, id):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return '\\detokenize{%s}' % text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
 
     def babel_renewcommand(self, command, definition):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if self.elements['multilingual']:
             prefix = '\\addto\\captions%s{' % self.babel.get_language()
             suffix = '}'
@@ -800,8 +799,8 @@ class LaTeXTranslator(SphinxTranslator):
         return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
 
     def generate_numfig_format(self, builder):
-        # type: (LaTeXBuilder) -> unicode
-        ret = []  # type: List[unicode]
+        # type: (LaTeXBuilder) -> str
+        ret = []  # type: List[str]
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
@@ -840,9 +839,9 @@ class LaTeXTranslator(SphinxTranslator):
         return ''.join(ret)
 
     def generate_indices(self):
-        # type: () -> unicode
+        # type: () -> str
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[IndexEntry]]], bool) -> None
+            # type: (List[Tuple[str, List[IndexEntry]]], bool) -> None
             ret.append('\\begin{sphinxtheindex}\n')
             ret.append('\\let\\bigletter\\sphinxstyleindexlettergroup\n')
             for i, (letter, entries) in enumerate(content):
@@ -883,7 +882,7 @@ class LaTeXTranslator(SphinxTranslator):
         return ''.join(ret)
 
     def render(self, template_name, variables):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         for template_dir in self.builder.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
@@ -916,7 +915,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.curfilestack.append(node['docname'])
 
     def collect_footnotes(self, node):
-        # type: (nodes.Element) -> Dict[unicode, List[Union[collected_footnote, bool]]]
+        # type: (nodes.Element) -> Dict[str, List[Union[collected_footnote, bool]]]
         def footnotes_under(n):
             # type: (nodes.Element) -> Iterator[nodes.footnote]
             if isinstance(n, nodes.footnote):
@@ -928,7 +927,7 @@ class LaTeXTranslator(SphinxTranslator):
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
 
-        fnotes = {}  # type: Dict[unicode, List[Union[collected_footnote, bool]]]
+        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()
@@ -1468,7 +1467,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_enumerated_list(self, node):
         # type: (nodes.Element) -> None
         def get_enumtype(node):
-            # type: (nodes.Element) -> unicode
+            # type: (nodes.Element) -> str
             enumtype = node.get('enumtype', 'arabic')
             if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
                 # fallback to arabic if alphabet counter overflows
@@ -1537,7 +1536,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_term(self, node):
         # type: (nodes.Element) -> None
         self.in_term += 1
-        ctx = ''  # type: unicode
+        ctx = ''
         if node.get('ids'):
             ctx = '\\phantomsection'
             for node_id in node['ids']:
@@ -1644,7 +1643,7 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def latex_image_length(self, width_str):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:
@@ -1659,9 +1658,9 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_image(self, node):
         # type: (nodes.Element) -> None
         attrs = node.attributes
-        pre = []    # type: List[unicode]
+        pre = []    # type: List[str]
                     # in reverse order
-        post = []   # type: List[unicode]
+        post = []   # type: List[str]
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:
@@ -1850,7 +1849,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_target(self, node):
         # type: (nodes.Element) -> None
         def add_target(id):
-            # type: (unicode) -> None
+            # type: (str) -> None
             # indexing uses standard LaTeX index markup, so the targets
             # will be generated differently
             if id.startswith('index-'):
@@ -2493,7 +2492,7 @@ class LaTeXTranslator(SphinxTranslator):
     # text handling
 
     def encode(self, text):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         text = text_type(text).translate(tex_escape_map)
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
@@ -2505,7 +2504,7 @@ class LaTeXTranslator(SphinxTranslator):
         return text
 
     def encode_uri(self, text):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         # in \href, the tilde is allowed and must be represented literally
         return self.encode(text).replace('\\textasciitilde{}', '~')
 
@@ -2587,14 +2586,14 @@ class LaTeXTranslator(SphinxTranslator):
 
     @property
     def footnotestack(self):
-        # type: () -> List[Dict[unicode, List[Union[collected_footnote, bool]]]]
+        # type: () -> List[Dict[str, List[Union[collected_footnote, bool]]]]
         warnings.warn('LaTeXWriter.footnotestack is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return []
 
     @property
     def bibitems(self):
-        # type: () -> List[List[unicode]]
+        # type: () -> List[List[str]]
         warnings.warn('LaTeXTranslator.bibitems() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return []
@@ -2608,7 +2607,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     @property
     def next_section_ids(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         warnings.warn('LaTeXTranslator.next_section_ids is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return set()
@@ -2621,20 +2620,20 @@ class LaTeXTranslator(SphinxTranslator):
         return {}
 
     def push_hyperlink_ids(self, figtype, ids):
-        # type: (unicode, Set[unicode]) -> None
+        # type: (str, Set[str]) -> None
         warnings.warn('LaTeXTranslator.push_hyperlink_ids() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         pass
 
     def pop_hyperlink_ids(self, figtype):
-        # type: (unicode) -> Set[unicode]
+        # type: (str) -> Set[str]
         warnings.warn('LaTeXTranslator.pop_hyperlink_ids() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return set()
 
     @property
     def hlsettingstack(self):
-        # type: () -> List[List[Union[unicode, int]]]
+        # type: () -> List[List[Union[str, int]]]
         warnings.warn('LaTeXTranslator.hlsettingstack is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return [[self.builder.config.highlight_language, sys.maxsize]]
@@ -2650,7 +2649,7 @@ class LaTeXTranslator(SphinxTranslator):
                 logger.warning(msg % key)
 
     def babel_defmacro(self, name, definition):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         warnings.warn('babel_defmacro() is deprecated.',
                       RemovedInSphinx40Warning)
 
@@ -2664,7 +2663,7 @@ class LaTeXTranslator(SphinxTranslator):
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
 
     def _make_visit_admonition(name):  # type: ignore
-        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
+        # type: (str) -> Callable[[LaTeXTranslator, nodes.Element], None]
         warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
                       RemovedInSphinx30Warning)
 

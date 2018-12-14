@@ -36,7 +36,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -61,22 +60,22 @@ class TexinfoBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        self.docnames = []       # type: Iterable[unicode]
-        self.document_data = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
+        self.docnames = []       # type: Iterable[str]
+        self.document_data = []  # type: List[Tuple[str, str, str, str, str, str, str, bool]]
 
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, List[unicode]]
+        # type: () -> Union[str, List[str]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (unicode, unicode, unicode) -> unicode
+        # type: (str, str, str) -> str
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -88,7 +87,7 @@ class TexinfoBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[unicode, unicode]]
+        self.titles = []  # type: List[Tuple[str, str]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -106,7 +105,7 @@ class TexinfoBuilder(Builder):
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'
-            direntry = description = category = ''  # type: unicode
+            direntry = description = category = ''
             if len(entry) > 6:
                 direntry, description, category = entry[4:7]
             toctree_only = False
@@ -139,7 +138,7 @@ class TexinfoBuilder(Builder):
             logger.info(__("done"))
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.document
+        # type: (str, bool, List[str]) -> nodes.document
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -212,7 +211,7 @@ class TexinfoBuilder(Builder):
 
 
 def default_texinfo_documents(config):
-    # type: (Config) -> List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode]]  # NOQA
+    # type: (Config) -> List[Tuple[str, str, str, str, str, str, str]]
     """ Better default texinfo_documents settings. """
     filename = make_filename_from_project(config.project)
     return [(config.master_doc, filename, config.project, config.author, filename,
@@ -220,7 +219,7 @@ def default_texinfo_documents(config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents', default_texinfo_documents, None)

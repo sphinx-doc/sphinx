@@ -23,7 +23,6 @@ if False:
     # For type annotation
     from typing import Any, Iterator  # NOQA
     from docutils import nodes  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 try:
     import Levenshtein
@@ -120,7 +119,7 @@ def merge_doctrees(old, new, condition):
 
 
 def get_ratio(old, new):
-    # type: (unicode, unicode) -> float
+    # type: (str, str) -> float
     """Return a "similiarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
@@ -134,7 +133,7 @@ def get_ratio(old, new):
 
 
 def levenshtein_distance(a, b):
-    # type: (unicode, unicode) -> int
+    # type: (str, str) -> int
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0

@@ -25,7 +25,6 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -58,11 +57,11 @@ class DocumenterBridge:
         self.reporter = reporter
         self.genopt = options
         self.lineno = lineno
-        self.filename_set = set()  # type: Set[unicode]
+        self.filename_set = set()  # type: Set[str]
         self.result = StringList()
 
     def warn(self, msg):
-        # type: (unicode) -> None
+        # type: (str) -> None
         logger.warning(msg, location=(self.env.docname, self.lineno))
 
 
