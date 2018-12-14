@@ -683,8 +683,9 @@ class LaTeXTranslator(SphinxTranslator):
                                            minsecnumdepth
 
         contentsname = self.settings.contentsname
-        self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
-                                                                contentsname)
+        if contentsname:
+            self.elements['contentsname'] = self.babel_renewcommand('\\contentsname',
+                                                                    contentsname)
 
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
