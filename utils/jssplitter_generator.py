@@ -4,8 +4,6 @@ import re
 import subprocess
 import sys
 
-import six
-
 # find char codes they are matched with Python's (?u)\\w
 
 match = re.compile(r'(?u)\w')
@@ -16,7 +14,7 @@ singles = []
 
 for i in range(65536):
     # 0xd800-0xdfff is surrogate pair area. skip this.
-    if not match.match(six.unichr(i)) and not (0xd800 <= i <= 0xdfff):
+    if not match.match(chr(i)) and not (0xd800 <= i <= 0xdfff):
         if begin == -1:
             begin = i
     elif begin != -1:
