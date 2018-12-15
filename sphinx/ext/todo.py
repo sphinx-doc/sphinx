@@ -174,7 +174,15 @@ def process_todo_nodes(app, doctree, fromdocname):
             try:
                 newnode['refuri'] = app.builder.get_relative_uri(
                     fromdocname, todo_info['docname'])
-                newnode['refuri'] += '#' + todo_info['target']['refid']
+                try:
+                    newnode['refuri'] += '#' + todo_info['target']['refid']
+                except KeyError:
+                    # presently, there's no refid for a todo that appears
+                    # inside a param, possibly other places.  avoid crashing
+                    # and leave a warning so we can track it down.
+                    logger.warning(__("TODO target missing refid: %s"),
+                                   todo_info['source'],
+                                   location=node)
             except NoUri:
                 # ignore if no URI can be determined, e.g. for LaTeX output
                 pass
