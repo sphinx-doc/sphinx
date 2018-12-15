@@ -11,6 +11,7 @@
 import os
 from collections import Counter
 
+from docutils import nodes
 import pytest
 from packaging.specifiers import InvalidSpecifier
 from packaging.version import InvalidVersion
@@ -30,6 +31,23 @@ def test_build(app, status, warning):
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-doctest')
+def test_highlight_language_default(app, status, warning):
+    app.build()
+    doctree = app.env.get_doctree('doctest')
+    for node in doctree.traverse(nodes.literal_block):
+        assert node['language'] in ('python3', 'pycon3', 'none')
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-doctest',
+                    confoverrides={'highlight_language': 'python'})
+def test_highlight_language_python2(app, status, warning):
+    app.build()
+    doctree = app.env.get_doctree('doctest')
+    for node in doctree.traverse(nodes.literal_block):
+        assert node['language'] in ('python', 'pycon', 'none')
 
 
 def test_is_allowed_version():

@@ -34,6 +34,8 @@ Incompatible changes
 * LaTeX: setting the :confval:`language` to ``'en'`` triggered ``Sonny`` option
   of ``fncychap``, now it is ``Bjarne`` to match case of no language specified.
   (refs: #5772)
+* #5770: doctest: Follow :confval:`highlight_language` on highlighting doctest
+  block.  As a result, they are highlighted as python3 by default.
 
 Deprecated
 ----------
