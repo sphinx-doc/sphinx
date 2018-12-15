@@ -29,8 +29,8 @@ if False:
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
 ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
-EPIPE = getattr(errno, 'EPIPE', 0)
-EINVAL = getattr(errno, 'EINVAL', 0)
+EPIPE = getattr(errno, 'EPIPE', 0)    # RemovedInSphinx40Warning
+EINVAL = getattr(errno, 'EINVAL', 0)  # RemovedInSphinx40Warning
 
 # SEP separates path elements in the canonical file names
 #
@@ -97,7 +97,7 @@ def mtimes_of_files(dirnames, suffix):
                 if sfile.endswith(suffix):
                     try:
                         yield path.getmtime(path.join(root, sfile))
-                    except EnvironmentError:
+                    except OSError:
                         pass
 
 
@@ -257,7 +257,7 @@ class FileAvoidWrite:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
-        except IOError:
+        except OSError:
             pass
 
         with open(self._path, 'w') as f:

@@ -227,10 +227,20 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``errno.EEXIST`` or ``FileExistsError``
 
+   * - ``sphinx.util.osutil.EINVAL``
+     - 2.0
+     - 4.0
+     - ``errno.EINVAL``
+
    * - ``sphinx.util.osutil.ENOENT``
      - 2.0
      - 4.0
      - ``errno.ENOENT`` or ``FileNotFoundError``
+
+   * - ``sphinx.util.osutil.EPIPE``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``BrokenPipeError``
 
    * - ``sphinx.util.osutil.walk()``
      - 2.0

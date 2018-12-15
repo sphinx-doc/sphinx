@@ -103,7 +103,7 @@ class ImageCollector(EnvironmentCollector):
                 mimetype = guess_mimetype(filename)
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
-            except (OSError, IOError) as err:
+            except OSError as err:
                 logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
         for key, files in globbed.items():

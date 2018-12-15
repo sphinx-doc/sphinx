@@ -169,7 +169,7 @@ class UIDTransform(SphinxTransform):
                 filename = path.join(env.doctreedir, env.docname + '.doctree')
                 with open(filename, 'rb') as f:
                     old_doctree = pickle.load(f)
-            except EnvironmentError:
+            except OSError:
                 pass
 
         # add uids for versioning

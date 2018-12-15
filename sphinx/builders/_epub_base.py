@@ -411,14 +411,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
             dest = self.images[src]
             try:
                 img = Image.open(path.join(self.srcdir, src))
-            except IOError:
+            except OSError:
                 if not self.is_vector_graphics(src):
                     logger.warning(__('cannot read image file %r: copying it instead'),
                                    path.join(self.srcdir, src))
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
-                except (IOError, OSError) as err:
+                except OSError as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
                 continue
@@ -434,7 +434,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
                 img.save(path.join(self.outdir, self.imagedir, dest))
-            except (IOError, OSError) as err:
+            except OSError as err:
                 logger.warning(__('cannot write image file %r: %s'),
                                path.join(self.srcdir, src), err)
 

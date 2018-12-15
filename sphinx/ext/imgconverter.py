@@ -14,7 +14,6 @@ from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
-from sphinx.util.osutil import EPIPE, EINVAL
 
 if False:
     # For type annotation
@@ -39,7 +38,7 @@ class ImagemagickConverter(ImageConverter):
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except (OSError, IOError):
+        except OSError:
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
                            self.config.image_converter)
@@ -47,9 +46,7 @@ class ImagemagickConverter(ImageConverter):
 
         try:
             stdout, stderr = p.communicate()
-        except (OSError, IOError) as err:
-            if err.errno not in (EPIPE, EINVAL):
-                raise
+        except BrokenPipeError:
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:
@@ -82,9 +79,7 @@ class ImagemagickConverter(ImageConverter):
 
         try:
             stdout, stderr = p.communicate()
-        except (OSError, IOError) as err:
-            if err.errno not in (EPIPE, EINVAL):
-                raise
+        except BrokenPipeError:
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:

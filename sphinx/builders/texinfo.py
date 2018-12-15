@@ -189,7 +189,7 @@ class TexinfoBuilder(Builder):
         logger.info(fn, nonl=1)
         try:
             copy_asset_file(os.path.join(template_dir, 'Makefile'), fn)
-        except (IOError, OSError) as err:
+        except OSError as err:
             logger.warning(__("error writing file %s: %s"), fn, err)
         logger.info(__(' done'))
 

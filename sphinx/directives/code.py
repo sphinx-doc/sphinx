@@ -219,8 +219,8 @@ class LiteralIncludeReader:
                     text = text.expandtabs(self.options['tab-width'])
 
                 return text.splitlines(True)
-        except (IOError, OSError):
-            raise IOError(__('Include file %r not found or reading it failed') % filename)
+        except OSError:
+            raise OSError(__('Include file %r not found or reading it failed') % filename)
         except UnicodeError:
             raise UnicodeError(__('Encoding %r used for reading included file %r seems to '
                                   'be wrong, try giving an :encoding: option') %
