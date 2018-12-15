@@ -56,13 +56,6 @@ else:
     except (pkg_resources.DistributionNotFound,
             pkg_resources.VersionConflict):
         pass  # ignored
-    except pkg_resources.UnknownExtra:
-        warnings.warn(
-            'Some links may return broken results due to being unable to '
-            'check the Server Name Indication (SNI) in the returned SSL cert '
-            'against the hostname in the url requested. Recommended to '
-            'install requests-2.4.1+.'
-        )
 
 if False:
     # For type annotation

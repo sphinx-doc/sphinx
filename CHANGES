@@ -15,6 +15,7 @@ Dependencies
 * LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
   ``'lualatex'`` requires (by default) the ``FreeFont`` fonts,
   which in Ubuntu xenial are provided by package ``fonts-freefont-otf``.
+* requests 2.5.0 or above
 
 Incompatible changes
 --------------------
