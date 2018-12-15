@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import enum
-
-from six import StringIO
+from io import StringIO
 
 
 __all__ = ['Class']

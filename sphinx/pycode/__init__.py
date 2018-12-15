@@ -11,10 +11,8 @@
 from __future__ import print_function
 
 import re
-from io import BytesIO
+from io import BytesIO, StringIO
 from zipfile import ZipFile
-
-from six import StringIO
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser

@@ -16,13 +16,13 @@ import re
 import sys
 import time
 import warnings
+from io import StringIO
 from os import path
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from packaging.specifiers import SpecifierSet, InvalidSpecifier
 from packaging.version import Version
-from six import StringIO
 
 import sphinx
 from sphinx.builders import Builder
