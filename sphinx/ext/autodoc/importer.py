@@ -82,7 +82,7 @@ class _MockModule(ModuleType):
 
     def __init__(self, name, loader=None):
         # type: (str, _MockImporter) -> None
-        super(_MockModule, self).__init__(name)
+        super().__init__(name)
         self.__all__ = []  # type: List[str]
         self.__path__ = []  # type: List[str]
 
@@ -143,7 +143,7 @@ class MockLoader(Loader):
     """A loader for mocking."""
     def __init__(self, finder):
         # type: (MockFinder) -> None
-        super(MockLoader, self).__init__()
+        super().__init__()
         self.finder = finder
 
     def create_module(self, spec):
@@ -162,7 +162,7 @@ class MockFinder(MetaPathFinder):
 
     def __init__(self, modnames):
         # type: (List[str]) -> None
-        super(MockFinder, self).__init__()
+        super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
         self.mocked_modules = []  # type: List[str]

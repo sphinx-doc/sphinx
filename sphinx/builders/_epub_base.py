@@ -151,7 +151,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        super(EpubBuilder, self).init()
+        super().init()
         # the output files for epub must be .html only
         self.out_suffix = '.xhtml'
         self.link_suffix = '.xhtml'
@@ -373,7 +373,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         self.fix_ids(doctree)
         self.add_visible_links(doctree, self.config.epub_show_urls)
-        super(EpubBuilder, self).write_doc(docname, doctree)
+        super().write_doc(docname, doctree)
 
     def fix_genindex(self, tree):
         # type: (List[Tuple[str, List[Tuple[str, Any]]]]) -> None
@@ -448,11 +448,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if self.config.epub_fix_images or self.config.epub_max_image_width:
                 if not Image:
                     logger.warning(__('PIL not found - copying image files'))
-                    super(EpubBuilder, self).copy_image_files()
+                    super().copy_image_files()
                 else:
                     self.copy_image_files_pil()
             else:
-                super(EpubBuilder, self).copy_image_files()
+                super().copy_image_files()
 
     def copy_download_files(self):
         # type: () -> None
@@ -471,8 +471,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return
             self.fix_genindex(addctx['genindexentries'])
         addctx['doctype'] = self.doctype
-        super(EpubBuilder, self).handle_page(pagename, addctx, templatename,
-                                             outfilename, event_arg)
+        super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
 
     def build_mimetype(self, outdir, outname):
         # type: (str, str) -> None

@@ -122,7 +122,7 @@ class JSContainer(list):
         warnings.warn('builder.script_files is deprecated. '
                       'Please use app.add_js_file() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
-        super(JSContainer, self).insert(index, obj)
+        super().insert(index, obj)
 
     def extend(self, other):  # type: ignore
         # type: (List[str]) -> None
@@ -256,7 +256,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def __init__(self, app):
         # type: (Sphinx) -> None
-        super(StandaloneHTMLBuilder, self).__init__(app)
+        super().__init__(app)
 
         # CSS files
         self.css_files = []  # type: List[Dict[str, str]]
@@ -1211,7 +1211,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
 
     def prepare_writing(self, docnames):
         # type: (Set[str]) -> None
-        super(DirectoryHTMLBuilder, self).prepare_writing(docnames)
+        super().prepare_writing(docnames)
         self.globalcontext['no_search_suffix'] = True
 
 
@@ -1474,7 +1474,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.dump_context(self.globalcontext, outfilename)
 
         # super here to dump the search index
-        super(SerializingHTMLBuilder, self).handle_finish()
+        super().handle_finish()
 
         # copy the environment file from the doctree dir to the output dir
         # as needed by the web app

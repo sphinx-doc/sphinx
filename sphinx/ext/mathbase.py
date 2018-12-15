@@ -33,7 +33,7 @@ class MathDirective(MathDirectiveBase):
         warnings.warn('sphinx.ext.mathbase.MathDirective is moved to '
                       'sphinx.directives.patches package.',
                       RemovedInSphinx30Warning, stacklevel=2)
-        return super(MathDirective, self).run()
+        return super().run()
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):

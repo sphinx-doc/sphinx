@@ -382,7 +382,7 @@ class TextWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (TextBuilder) -> None
-        super(TextWriter, self).__init__()
+        super().__init__()
         self.builder = builder
 
     def translate(self):
@@ -397,7 +397,7 @@ class TextTranslator(SphinxTranslator):
 
     def __init__(self, document, builder):
         # type: (nodes.document, TextBuilder) -> None
-        super(TextTranslator, self).__init__(builder, document)
+        super().__init__(builder, document)
 
         newlines = self.config.text_newlines
         if newlines == 'windows':

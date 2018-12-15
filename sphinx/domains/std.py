@@ -529,7 +529,7 @@ class StandardDomain(Domain):
 
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
-        super(StandardDomain, self).__init__(env)
+        super().__init__(env)
 
         # set up enumerable nodes
         self.enumerable_nodes = copy(self.enumerable_nodes)  # create a copy for this instance

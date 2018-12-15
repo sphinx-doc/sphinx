@@ -913,8 +913,7 @@ class NumpyDocstring(GoogleDocstring):
                  obj=None, options=None):
         # type: (Union[str, List[str]], SphinxConfig, Sphinx, str, str, Any, Any) -> None
         self._directive_sections = ['.. index::']
-        super(NumpyDocstring, self).__init__(docstring, config, app, what,
-                                             name, obj, options)
+        super().__init__(docstring, config, app, what, name, obj, options)
 
     def _consume_field(self, parse_type=True, prefer_type=False):
         # type: (bool, bool) -> Tuple[str, str, List[str]]

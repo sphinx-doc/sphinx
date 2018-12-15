@@ -216,7 +216,7 @@ class QuickstartRenderer(SphinxRenderer):
     def __init__(self, templatedir):
         # type: (str) -> None
         self.templatedir = templatedir or ''
-        super(QuickstartRenderer, self).__init__()
+        super().__init__()
 
     def render(self, template_name, context):
         # type: (str, Dict) -> str
@@ -224,7 +224,7 @@ class QuickstartRenderer(SphinxRenderer):
         if self.templatedir and path.exists(user_template):
             return self.render_from_file(user_template, context)
         else:
-            return super(QuickstartRenderer, self).render(template_name, context)
+            return super().render(template_name, context)
 
 
 def ask_user(d):

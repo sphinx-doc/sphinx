@@ -25,7 +25,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
         # type: (Any) -> str
         if isinstance(obj, UserString):
             return text_type(obj)
-        return super(SphinxJSONEncoder, self).default(obj)
+        return super().default(obj)
 
 
 def dump(obj, fp, *args, **kwds):

@@ -86,7 +86,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        super(AppleHelpBuilder, self).init()
+        super().init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
         self.link_suffix = '.html'
@@ -105,7 +105,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         # type: () -> None
-        super(AppleHelpBuilder, self).handle_finish()
+        super().handle_finish()
 
         self.finish_tasks.add_task(self.copy_localized_files)
         self.finish_tasks.add_task(self.build_helpbook)

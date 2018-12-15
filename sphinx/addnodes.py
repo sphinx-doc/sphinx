@@ -128,7 +128,7 @@ class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
         # type: () -> str
-        return ' -> ' + super(desc_returns, self).astext()
+        return ' -> ' + super().astext()
 
 
 class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -150,7 +150,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 
     def astext(self):
         # type: () -> str
-        return '[' + super(desc_optional, self).astext() + ']'
+        return '[' + super().astext() + ']'
 
 
 class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -210,7 +210,7 @@ class math(nodes.math):
                           RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
-            return super(math, self).__getitem__(key)
+            return super().__getitem__(key)
 
 
 class math_block(nodes.math_block):
@@ -229,7 +229,7 @@ class math_block(nodes.math_block):
                           RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
-            return super(math_block, self).__getitem__(key)
+            return super().__getitem__(key)
 
 
 class displaymath(math_block):
@@ -354,7 +354,7 @@ class abbreviation(nodes.abbreviation):
         warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
                       RemovedInSphinx40Warning, stacklevel=2)
 
-        super(abbreviation, self).__init__(rawsource, text, *children, **attributes)
+        super().__init__(rawsource, text, *children, **attributes)
 
 
 class manpage(nodes.Inline, nodes.FixedTextElement):

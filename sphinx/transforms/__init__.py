@@ -88,7 +88,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super(SphinxTransformer, self).apply_transforms()
+            super().apply_transforms()
         else:
             # wrap the target node by document node during transforming
             try:
@@ -97,7 +97,7 @@ class SphinxTransformer(Transformer):
                     document.settings.env = self.env
                 document += self.document
                 self.document = document
-                super(SphinxTransformer, self).apply_transforms()
+                super().apply_transforms()
             finally:
                 self.document = self.document[0]
 
@@ -355,7 +355,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # override default settings with :confval:`smartquotes_action`
         self.smartquotes_action = self.config.smartquotes_action
 
-        super(SphinxSmartQuotes, self).apply()
+        super().apply()
 
     def is_available(self):
         # type: () -> bool

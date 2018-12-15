@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class ManualPageWriter(Writer):
     def __init__(self, builder):
         # type: (Builder) -> None
-        super(ManualPageWriter, self).__init__()
+        super().__init__()
         self.builder = builder
 
     def translate(self):
@@ -87,7 +87,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def __init__(self, builder, document):
         # type: (Builder, nodes.document) -> None
-        super(ManualPageTranslator, self).__init__(builder, document)
+        super().__init__(builder, document)
 
         self.in_productionlist = 0
 
@@ -249,7 +249,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if node.traverse(nodes.strong):
             self.body.append('\n')
         else:
-            super(ManualPageTranslator, self).visit_term(node)
+            super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):  # type: ignore
@@ -260,7 +260,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     def visit_footnote(self, node):
         # type: (nodes.Element) -> None
         self.ensure_eol()
-        super(ManualPageTranslator, self).visit_footnote(node)
+        super().visit_footnote(node)
 
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node):
@@ -473,14 +473,14 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                 self.body.append('.SH %s\n' %
                                  self.deunicode(node.astext().upper()))
                 raise nodes.SkipNode
-        return super(ManualPageTranslator, self).visit_title(node)
+        return super().visit_title(node)
 
     def depart_title(self, node):
         # type: (nodes.Element) -> None
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return
-        return super(ManualPageTranslator, self).depart_title(node)
+        return super().depart_title(node)
 
     def visit_raw(self, node):
         # type: (nodes.Element) -> None

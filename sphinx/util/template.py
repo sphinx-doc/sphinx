@@ -44,7 +44,7 @@ class FileRenderer(BaseRenderer):
     def __init__(self, search_path):
         # type: (str) -> None
         loader = SphinxFileSystemLoader(search_path)
-        super(FileRenderer, self).__init__(loader)
+        super().__init__(loader)
 
     @classmethod
     def render_from_file(cls, filename, context):
@@ -59,7 +59,7 @@ class SphinxRenderer(FileRenderer):
         # type: (str) -> None
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
-        super(SphinxRenderer, self).__init__(template_path)
+        super().__init__(template_path)
 
     @classmethod
     def render_from_file(cls, filename, context):
@@ -71,7 +71,7 @@ class LaTeXRenderer(SphinxRenderer):
     def __init__(self):
         # type: () -> None
         template_path = os.path.join(package_dir, 'templates', 'latex')
-        super(LaTeXRenderer, self).__init__(template_path)
+        super().__init__(template_path)
 
         # use texescape as escape filter
         self.env.filters['e'] = texescape.escape

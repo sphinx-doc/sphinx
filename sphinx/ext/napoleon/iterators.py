@@ -232,7 +232,7 @@ class modify_iter(peek_iter):
         if not callable(self.modifier):
             raise TypeError('modify_iter(o, modifier): '
                             'modifier must be callable')
-        super(modify_iter, self).__init__(*args)
+        super().__init__(*args)
 
     def _fillcache(self, n):
         # type: (int) -> None

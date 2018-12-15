@@ -177,7 +177,7 @@ _app = None  # type: Sphinx
 class FakeDirective(DocumenterBridge):
     def __init__(self):
         # type: () -> None
-        super(FakeDirective, self).__init__({}, None, Options(), 0)  # type: ignore
+        super().__init__({}, None, Options(), 0)  # type: ignore
 
 
 def get_documenter(app, obj, parent):

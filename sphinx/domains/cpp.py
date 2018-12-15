@@ -3736,7 +3736,7 @@ class Symbol:
         if key == "children":
             assert False
         else:
-            return super(Symbol, self).__setattr__(key, value)
+            return super().__setattr__(key, value)
 
     def __init__(self,
                  parent,          # type: Symbol
@@ -6432,7 +6432,7 @@ class CPPObject(ObjectDescription):
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
             return []
-        return super(CPPObject, self).run()
+        return super().run()
 
     def handle_signature(self, sig, signode):
         # type: (str, addnodes.desc_signature) -> Any

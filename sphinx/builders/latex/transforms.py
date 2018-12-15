@@ -155,7 +155,7 @@ class FootnoteCollector(nodes.NodeVisitor):
         self.auto_footnotes = []            # type: List[nodes.footnote]
         self.used_footnote_numbers = set()  # type: Set[str]
         self.footnote_refs = []             # type: List[nodes.footnote_reference]
-        super(FootnoteCollector, self).__init__(document)
+        super().__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
@@ -365,7 +365,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.pendings = []          # type: List[nodes.footnote]
         self.table_footnotes = []   # type: List[nodes.footnote]
         self.restricted = None      # type: nodes.Element
-        super(LaTeXFootnoteVisitor, self).__init__(document)
+        super().__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

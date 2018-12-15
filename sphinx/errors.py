@@ -54,7 +54,7 @@ class ExtensionError(SphinxError):
 
     def __init__(self, message, orig_exc=None):
         # type: (str, Exception) -> None
-        super(ExtensionError, self).__init__(message)
+        super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
 
@@ -67,7 +67,7 @@ class ExtensionError(SphinxError):
 
     def __str__(self):
         # type: () -> str
-        parent_str = super(ExtensionError, self).__str__()
+        parent_str = super().__str__()
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
         return parent_str
