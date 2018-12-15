@@ -592,9 +592,9 @@ class LaTeXTranslator(SphinxTranslator):
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(self.config.latex_logo)
 
-        if (self.config.language and self.config.language != 'ja' and
+        if (self.config.language not in {None, 'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
-            # use Sonny style if any language specified
+            # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = ('\\usepackage[Sonny]{fncychap}\n'
                                          '\\ChNameVar{\\Large\\normalfont'
                                          '\\sffamily}\n\\ChTitleVar{\\Large'

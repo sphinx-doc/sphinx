@@ -2094,6 +2094,8 @@ information.
         "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
         "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
+        The default is ``''`` for Japanese documents.
+
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`/latex`.
 
