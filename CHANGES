@@ -46,6 +46,7 @@ Deprecated
   is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
+* ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.config.check_unicode()``
 * ``sphinx.ext.autodoc.importer._MockImporter``
