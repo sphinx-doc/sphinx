@@ -273,7 +273,6 @@ class TextWrapper(textwrap.TextWrapper):
         The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
-        drop_whitespace = getattr(self, 'drop_whitespace', True)  # py25 compat
         lines = []  # type: List[unicode]
         if self.width <= 0:
             raise ValueError("invalid width %r (must be > 0)" % self.width)
@@ -291,7 +290,7 @@ class TextWrapper(textwrap.TextWrapper):
 
             width = self.width - column_width(indent)
 
-            if drop_whitespace and chunks[-1].strip() == '' and lines:
+            if self.drop_whitespace and chunks[-1].strip() == '' and lines:
                 del chunks[-1]
 
             while chunks:
@@ -307,7 +306,7 @@ class TextWrapper(textwrap.TextWrapper):
             if chunks and column_width(chunks[-1]) > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
-            if drop_whitespace and cur_line and cur_line[-1].strip() == '':
+            if self.drop_whitespace and cur_line and cur_line[-1].strip() == '':
                 del cur_line[-1]
 
             if cur_line:
