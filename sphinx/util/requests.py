@@ -47,7 +47,7 @@ except ImportError:
 
 # try to load requests[security] (but only if SSL is available)
 try:
-    import ssl
+    import ssl  # NOQA
 except ImportError:
     pass
 else:
@@ -55,17 +55,7 @@ else:
         pkg_resources.require(['requests[security]'])
     except (pkg_resources.DistributionNotFound,
             pkg_resources.VersionConflict):
-        if not getattr(ssl, 'HAS_SNI', False):
-            # don't complain on each url processed about the SSL issue
-            if InsecurePlatformWarning:
-                requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
-            warnings.warn(
-                'Some links may return broken results due to being unable to '
-                'check the Server Name Indication (SNI) in the returned SSL cert '
-                'against the hostname in the url requested. Recommended to '
-                'install "requests[security]" as a dependency or upgrade to '
-                'a python version with SNI support (Python 3 and Python 2.7.9+).'
-            )
+        pass  # ignored
     except pkg_resources.UnknownExtra:
         warnings.warn(
             'Some links may return broken results due to being unable to '
