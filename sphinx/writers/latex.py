@@ -915,27 +915,6 @@ class LaTeXTranslator(SphinxTranslator):
         # type: (nodes.Element) -> None
         self.curfilestack.append(node['docname'])
 
-    def collect_footnotes(self, node):
-        # type: (nodes.Element) -> Dict[str, List[Union[collected_footnote, bool]]]
-        def footnotes_under(n):
-            # type: (nodes.Element) -> Iterator[nodes.footnote]
-            if isinstance(n, nodes.footnote):
-                yield n
-            else:
-                for c in n.children:
-                    if isinstance(c, addnodes.start_of_file):
-                        continue
-                    elif isinstance(c, nodes.Element):
-                        yield from footnotes_under(c)
-
-        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
-        for fn in footnotes_under(node):
-            label = cast(nodes.label, fn[0])
-            num = label.astext().strip()
-            newnode = collected_footnote('', *fn.children, number=num)
-            fnotes[num] = [newnode, False]
-        return fnotes
-
     def depart_start_of_file(self, node):
         # type: (nodes.Element) -> None
         self.curfilestack.pop()
@@ -2584,6 +2563,30 @@ class LaTeXTranslator(SphinxTranslator):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
     # --------- METHODS FOR COMPATIBILITY --------------------------------------
+
+    def collect_footnotes(self, node):
+        # type: (nodes.Element) -> Dict[str, List[Union[collected_footnote, bool]]]
+        def footnotes_under(n):
+            # type: (nodes.Element) -> Iterator[nodes.footnote]
+            if isinstance(n, nodes.footnote):
+                yield n
+            else:
+                for c in n.children:
+                    if isinstance(c, addnodes.start_of_file):
+                        continue
+                    elif isinstance(c, nodes.Element):
+                        yield from footnotes_under(c)
+
+        warnings.warn('LaTeXWriter.collected_footnote() is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
+
+        fnotes = {}  # type: Dict[str, List[Union[collected_footnote, bool]]]
+        for fn in footnotes_under(node):
+            label = cast(nodes.label, fn[0])
+            num = label.astext().strip()
+            newnode = collected_footnote('', *fn.children, number=num)
+            fnotes[num] = [newnode, False]
+        return fnotes
 
     @property
     def footnotestack(self):
