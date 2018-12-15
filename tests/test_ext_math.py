@@ -23,12 +23,10 @@ from sphinx.testing.util import assert_node
 def has_binary(binary):
     try:
         subprocess.check_output([binary])
-    except OSError as e:
-        if e.errno == errno.ENOENT:
-            # handle file not found error.
-            return False
-        else:
-            return True
+    except FileNotFoundError:
+        return False
+    except OSError:
+        pass
     return True
 
 

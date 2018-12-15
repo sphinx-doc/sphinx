@@ -207,6 +207,16 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.util.osutil.EEXIST``
+     - 2.0
+     - 4.0
+     - ``errno.EEXIST`` or ``FileExistsError``
+
+   * - ``sphinx.util.osutil.ENOENT``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``FileNotFoundError``
+
    * - ``sphinx.util.osutil.walk()``
      - 2.0
      - 4.0

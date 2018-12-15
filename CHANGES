@@ -66,6 +66,8 @@ Deprecated
 * ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()``
 * ``sphinx.util.inspect.Parameter``
+* ``sphinx.util.osutil.EEXIST``
+* ``sphinx.util.osutil.ENOENT``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
 * ``sphinx.util.pycompat.u``

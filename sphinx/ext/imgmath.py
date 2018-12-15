@@ -25,7 +25,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir, ENOENT, cd
+from sphinx.util.osutil import ensuredir, cd
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
 
@@ -137,9 +137,7 @@ def compile_math(latex, builder):
     with cd(tempdir):
         try:
             p = Popen(command, stdout=PIPE, stderr=PIPE)
-        except OSError as err:
-            if err.errno != ENOENT:   # No such file or directory
-                raise
+        except FileNotFoundError:
             logger.warning(__('LaTeX command %r cannot be run (needed for math '
                               'display), check the imgmath_latex setting'),
                            builder.config.imgmath_latex)
@@ -157,9 +155,7 @@ def convert_dvi_to_image(command, name):
     """Convert DVI file to specific image format."""
     try:
         p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except OSError as err:
-        if err.errno != ENOENT:   # No such file or directory
-            raise
+    except FileNotFoundError:
         logger.warning(__('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting'),
                        name, command[0], name)

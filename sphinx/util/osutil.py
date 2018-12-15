@@ -30,8 +30,8 @@ if False:
     from typing import Any, Iterator, List, Tuple, Union  # NOQA
 
 # Errnos that we need.
-EEXIST = getattr(errno, 'EEXIST', 0)
-ENOENT = getattr(errno, 'ENOENT', 0)
+EEXIST = getattr(errno, 'EEXIST', 0)  # RemovedInSphinx40Warning
+ENOENT = getattr(errno, 'ENOENT', 0)  # RemovedInSphinx40Warning
 EPIPE = getattr(errno, 'EPIPE', 0)
 EINVAL = getattr(errno, 'EINVAL', 0)
 
