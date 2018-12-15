@@ -17,8 +17,7 @@ import re
 import sys
 import typing
 from functools import partial
-
-from six import StringIO
+from io import StringIO
 
 from sphinx.util import logging
 from sphinx.util.pycompat import NoneType

@@ -17,8 +17,7 @@ import os
 import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
-
-from six import StringIO
+from io import StringIO
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception

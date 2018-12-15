@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import enum
-
-from six import StringIO
+from io import StringIO
 
 from sphinx.util import save_traceback  # NOQA
 

@@ -14,11 +14,10 @@ from __future__ import unicode_literals
 from codecs import open
 from collections import defaultdict, OrderedDict
 from datetime import datetime, tzinfo, timedelta
+from io import StringIO
 from os import path, walk, getenv
 from time import time
 from uuid import uuid4
-
-from six import StringIO
 
 from sphinx.builders import Builder
 from sphinx.domains.python import pairindextypes

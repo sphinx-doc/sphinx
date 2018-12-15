@@ -14,10 +14,10 @@ import os
 import subprocess
 import sys
 from collections import namedtuple
+from io import StringIO
 from tempfile import gettempdir
 
 import pytest
-from six import StringIO
 
 from . import util
 
