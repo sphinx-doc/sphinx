@@ -30,7 +30,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
@@ -156,7 +155,6 @@ DEFAULT_SETTINGS = {
     'contentsname':    '',
     'preamble':        '',
     'title':           '',
-    'date':            '',
     'release':         '',
     'author':          '',
     'logo':            '\\vbox{}',
@@ -555,12 +553,6 @@ class LaTeXTranslator(SphinxTranslator):
             except ValueError:
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
                                (self.config.latex_toplevel_sectioning, docclass))
-
-        if self.config.today:
-            self.elements['date'] = self.config.today
-        else:
-            self.elements['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                                language=self.config.language)
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
