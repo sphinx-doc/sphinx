@@ -12,11 +12,10 @@
 import gettext
 import locale
 import warnings
-from collections import defaultdict
+from collections import UserString, defaultdict
 from gettext import NullTranslations
 
 from six import text_type
-from six.moves import UserString
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
