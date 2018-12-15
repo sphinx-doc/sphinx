@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import pipes
 import plistlib
 import shlex
@@ -24,7 +25,6 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
-from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
@@ -186,8 +186,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         logger.info(bold(__('building access page...')), nonl=True)
         with open(path.join(language_dir, '_access.html'), 'w') as ft:
             ft.write(access_page_template % {
-                'toc': htmlescape(toc, quote=True),
-                'title': htmlescape(self.config.applehelp_title)
+                'toc': html.escape(toc, quote=True),
+                'title': html.escape(self.config.applehelp_title)
             })
         logger.info(__('done'))
 

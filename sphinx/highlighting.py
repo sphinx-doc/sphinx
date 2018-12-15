@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import warnings
 
 from pygments import highlight
@@ -27,7 +28,6 @@ from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
-from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 
 if False:
@@ -103,7 +103,7 @@ class PygmentsBridge:
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
-            return '<pre>' + htmlescape(source) + '</pre>\n'
+            return '<pre>' + html.escape(source) + '</pre>\n'
         else:
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)

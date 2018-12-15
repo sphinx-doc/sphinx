@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import pickle
 import posixpath
 import re
@@ -50,7 +51,6 @@ from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
-from sphinx.util.pycompat import htmlescape
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
@@ -1083,7 +1083,7 @@ class StandaloneHTMLBuilder(Builder):
             for key in sorted(css.attributes):
                 value = css.attributes[key]
                 if value is not None:
-                    attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+                    attrs.append('%s="%s"' % (key, html.escape(value, True)))
             attrs.append('href="%s"' % pathto(css.filename, resource=True))
             return '<link %s />' % ' '.join(attrs)
         ctx['css_tag'] = css_tag
@@ -1578,7 +1578,7 @@ def setup_js_tag_helper(app, pagename, templatexname, context, doctree):
                     if key == 'body':
                         body = value
                     else:
-                        attrs.append('%s="%s"' % (key, htmlescape(value, True)))
+                        attrs.append('%s="%s"' % (key, html.escape(value, True)))
             if js.filename:
                 attrs.append('src="%s"' % pathto(js.filename, resource=True))
         else:
