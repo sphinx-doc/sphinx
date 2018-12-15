@@ -131,11 +131,8 @@ def isclassmethod(obj):
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj):
-        if getattr(obj, 'im_self', None):  # py2
-            return True
-        elif getattr(obj, '__self__', None):  # py3
-            return True
+    elif inspect.ismethod(obj) and obj.__self__ is not None:
+        return True
 
     return False
 
