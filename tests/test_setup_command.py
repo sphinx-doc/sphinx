@@ -99,7 +99,7 @@ def nonascii_srcdir(request, setup_command):
                             .. toctree::
 
                                %(mb_name)s/%(mb_name)s
-                            """ % locals())).encode('utf-8'))
+                            """ % locals())).encode())
 
 
 @pytest.mark.usefixtures('nonascii_srcdir')

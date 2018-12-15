@@ -180,7 +180,7 @@ class DownloadFiles(dict):
     def add_file(self, docname, filename):
         # type: (str, str) -> None
         if filename not in self:
-            digest = md5(filename.encode('utf-8')).hexdigest()
+            digest = md5(filename.encode()).hexdigest()
             dest = '%s/%s' % (digest, os.path.basename(filename))
             self[filename] = (set(), dest)
 
@@ -266,7 +266,7 @@ def save_traceback(app):
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__,  # type: ignore
-                   last_msgs)).encode('utf-8'))
+                   last_msgs)).encode())
     if app is not None:
         for ext in app.extensions.values():
             modfile = getattr(ext.module, '__file__', 'unknown')
@@ -274,8 +274,8 @@ def save_traceback(app):
                 modfile = modfile.decode(fs_encoding, 'replace')
             if ext.version != 'builtin':
                 os.write(fd, ('#   %s (%s) from %s\n' %
-                              (ext.name, ext.version, modfile)).encode('utf-8'))
-    os.write(fd, exc_format.encode('utf-8'))
+                              (ext.name, ext.version, modfile)).encode())
+    os.write(fd, exc_format.encode())
     os.close(fd)
     return path
 
@@ -490,7 +490,7 @@ def force_decode(string, encoding):
                 string = string.decode(encoding)
             else:
                 # try decoding with utf-8, should only work for real UTF-8
-                string = string.decode('utf-8')
+                string = string.decode()
         except UnicodeError:
             # last resort -- can't fail
             string = string.decode('latin1')
@@ -632,8 +632,8 @@ def encode_uri(uri):
     # type: (str) -> str
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
-    split[2] = quote_plus(split[2].encode('utf-8'), '/')
-    query = list((q, v.encode('utf-8')) for (q, v) in parse_qsl(split[3]))
+    split[2] = quote_plus(split[2].encode(), '/')
+    query = list((q, v.encode()) for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query)
     return urlunsplit(split)
 

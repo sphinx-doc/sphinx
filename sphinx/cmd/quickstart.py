@@ -172,7 +172,7 @@ def term_decode(text):
                        'and terminal encoding unknown -- assuming '
                        'UTF-8 or Latin-1.')))
     try:
-        return text.decode('utf-8')
+        return text.decode()
     except UnicodeDecodeError:
         return text.decode('latin1')
 

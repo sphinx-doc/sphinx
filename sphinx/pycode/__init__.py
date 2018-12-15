@@ -55,7 +55,7 @@ class ModuleAnalyzer:
         eggpath, relpath = re.split('(?<=\\.egg)/', filename)
         try:
             with ZipFile(eggpath) as egg:
-                code = egg.read(relpath).decode('utf-8')
+                code = egg.read(relpath).decode()
                 return cls.for_string(code, modname, filename)
         except Exception as exc:
             raise PycodeError('error opening %r' % filename, exc)

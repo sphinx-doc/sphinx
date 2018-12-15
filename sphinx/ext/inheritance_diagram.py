@@ -389,7 +389,7 @@ class InheritanceDiagram(SphinxDirective):
 
 def get_graph_hash(node):
     # type: (inheritance_diagram) -> str
-    encoded = (node['content'] + str(node['parts'])).encode('utf-8')
+    encoded = (node['content'] + str(node['parts'])).encode()
     return md5(encoded).hexdigest()[-10:]
 
 

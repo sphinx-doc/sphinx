@@ -129,7 +129,7 @@ def test_svg(h, f):
     # type: (bytes, IO) -> str
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
-        if '<svg' in h.decode('utf-8').lower():
+        if '<svg' in h.decode().lower():
             return 'svg+xml'
     except UnicodeDecodeError:
         pass

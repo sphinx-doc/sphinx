@@ -88,7 +88,7 @@ def get_stable_hash(obj):
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(text_type(obj).encode('utf8')).hexdigest()
+    return md5(text_type(obj).encode()).hexdigest()
 
 
 class Stylesheet(text_type):
