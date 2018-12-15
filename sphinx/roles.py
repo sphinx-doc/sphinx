@@ -257,7 +257,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
     text = utils.unescape(text)
     if typ == 'menuselection':
-        text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
+        text = text.replace('-->', '\N{TRIANGULAR BULLET}')
     spans = _amp_re.split(text)
 
     node = nodes.inline(rawtext=rawtext)

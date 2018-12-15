@@ -84,7 +84,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         self.permalink_text = self.config.html_add_permalinks
         # support backwards-compatible setting to a bool
         if not isinstance(self.permalink_text, str):
-            self.permalink_text = self.permalink_text and u'\u00B6' or ''
+            self.permalink_text = self.permalink_text and '\u00B6' or ''
         self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
@@ -326,7 +326,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         def append_fignumber(figtype, figure_id):
             # type: (str, str) -> None
             if self.builder.name == 'singlehtml':
-                key = u"%s/%s" % (self.docnames[-1], figtype)
+                key = "%s/%s" % (self.docnames[-1], figtype)
             else:
                 key = figtype
 
@@ -352,7 +352,7 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
     def add_permalink_ref(self, node, title):
         # type: (nodes.Element, str) -> None
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
-            format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
+            format = '<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
     def generate_targets_for_listing(self, node):
@@ -403,9 +403,9 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Permalink to this headline'))
             elif close_tag.startswith('</a></h'):
-                self.body.append(u'</a><a class="headerlink" href="#%s" ' %
+                self.body.append('</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
-                                 u'title="%s">%s' % (
+                                 'title="%s">%s' % (
                                      _('Permalink to this headline'),
                                      self.permalink_text))
             elif isinstance(node.parent, nodes.table):

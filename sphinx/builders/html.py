@@ -193,8 +193,8 @@ class BuildInfo:
 
     def __init__(self, config=None, tags=None, config_categories=[]):
         # type: (Config, Tags, List[str]) -> None
-        self.config_hash = u''
-        self.tags_hash = u''
+        self.config_hash = ''
+        self.tags_hash = ''
 
         if config:
             values = dict((c.name, c.value) for c in config.filter(config_categories))
@@ -1309,7 +1309,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
         new_fignumbers = {}  # type: Dict[str, Dict[str, Tuple[int, ...]]]
-        # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
+        # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
                 alias = "%s/%s" % (docname, figtype)
@@ -1631,7 +1631,7 @@ def setup(app):
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', u'\u00B6', 'html')
+    app.add_config_value('html_add_permalinks', '\u00B6', 'html')
     app.add_config_value('html_use_index', True, 'html')
     app.add_config_value('html_split_index', False, 'html')
     app.add_config_value('html_copy_source', True, 'html')

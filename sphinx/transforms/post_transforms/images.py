@@ -77,8 +77,8 @@ class ImageDownloader(BaseImageConverter):
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode()).hexdigest() + ext
 
-            dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
-                                                                 ord("&"): u"/"})
+            dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
+                                                                 ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
                 dirname = sha1(dirname.encode()).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))

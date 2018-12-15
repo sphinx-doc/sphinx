@@ -15,12 +15,12 @@
 {% if append_syspath -%}
 import os
 import sys
-sys.path.insert(0, u'{{ module_path }}')
+sys.path.insert(0, '{{ module_path }}')
 {% else -%}
 # import os
 # import sys
 {% if module_path -%}
-# sys.path.insert(0, u'{{ module_path }}')
+# sys.path.insert(0, '{{ module_path }}')
 {% else -%}
 # sys.path.insert(0, os.path.abspath('.'))
 {% endif -%}
@@ -28,14 +28,14 @@ sys.path.insert(0, u'{{ module_path }}')
 
 # -- Project information -----------------------------------------------------
 
-project = u'{{ project_str }}'
-copyright = u'{{ copyright_str }}'
-author = u'{{ author_str }}'
+project = '{{ project_str }}'
+copyright = '{{ copyright_str }}'
+author = '{{ author_str }}'
 
 # The short X.Y version
-version = u'{{ version_str }}'
+version = '{{ version_str }}'
 # The full version, including alpha/beta/rc tags
-release = u'{{ release_str }}'
+release = '{{ release_str }}'
 
 
 # -- General configuration ---------------------------------------------------
@@ -129,8 +129,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, '{{ project_fn }}.tex', u'{{ project_doc_texescaped_str }}',
-     u'{{ author_texescaped_str }}', 'manual'),
+    (master_doc, '{{ project_fn }}.tex', '{{ project_doc_texescaped_str }}',
+     '{{ author_texescaped_str }}', 'manual'),
 ]
 
 

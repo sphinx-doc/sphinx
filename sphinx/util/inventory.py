@@ -146,7 +146,7 @@ class InventoryFile:
                                             # for Python modules, and the first
                                             # one is correct
                 continue
-            if location.endswith(u'$'):
+            if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
             invdata.setdefault(type, {})[name] = (projname, version,
@@ -162,10 +162,10 @@ class InventoryFile:
 
         with open(os.path.join(filename), 'wb') as f:
             # header
-            f.write((u'# Sphinx inventory version 2\n'
-                     u'# Project: %s\n'
-                     u'# Version: %s\n'
-                     u'# The remainder of this file is compressed using zlib.\n' %
+            f.write(('# Sphinx inventory version 2\n'
+                     '# Project: %s\n'
+                     '# Version: %s\n'
+                     '# The remainder of this file is compressed using zlib.\n' %
                      (escape(env.config.project),
                       escape(env.config.version))).encode())
 
@@ -181,8 +181,8 @@ class InventoryFile:
                     if anchor:
                         uri += '#' + anchor
                     if dispname == name:
-                        dispname = u'-'
-                    entry = (u'%s %s:%s %s %s %s\n' %
+                        dispname = '-'
+                    entry = ('%s %s:%s %s %s %s\n' %
                              (name, domainname, typ, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

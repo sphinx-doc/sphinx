@@ -341,7 +341,7 @@ class ModifyIterTest(BaseIteratorsTest):
         self.assertEqual(expected, [i for i in it])
 
     def test_modifier_rstrip_unicode(self):
-        a = [u'', u'  ', u'  a  ', u'b  ', u'  c', u'  ', u'']
+        a = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
         it = modify_iter(a, modifier=lambda s: s.rstrip())
-        expected = [u'', u'', u'  a', u'b', u'  c', u'', u'']
+        expected = ['', '', '  a', 'b', '  c', '', '']
         self.assertEqual(expected, [i for i in it])

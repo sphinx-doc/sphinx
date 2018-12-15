@@ -71,7 +71,7 @@ def test_msgfmt(app):
         assert mo.isfile(), 'msgfmt failed'
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    assert _("Testing various markup") == u"Testing various markup"
+    assert _("Testing various markup") == "Testing various markup"
 
 
 @pytest.mark.sphinx(

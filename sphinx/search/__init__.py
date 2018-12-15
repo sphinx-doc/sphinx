@@ -291,7 +291,7 @@ class IndexBuilder:
             with open(scoring, 'rb') as fp:
                 self.js_scorer_code = fp.read().decode()
         else:
-            self.js_scorer_code = u''
+            self.js_scorer_code = ''
         self.js_splitter_code = splitter_code
 
     def load(self, stream, format):

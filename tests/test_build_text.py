@@ -50,12 +50,12 @@ def test_lineblock(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'lineblock.txt').text(encoding='utf-8')
     expect = (
-        u"* one\n"
-        u"\n"
-        u"     line-block 1\n"
-        u"     line-block 2\n"
-        u"\n"
-        u"followed paragraph.\n"
+        "* one\n"
+        "\n"
+        "     line-block 1\n"
+        "     line-block 2\n"
+        "\n"
+        "followed paragraph.\n"
     )
     assert result == expect
 

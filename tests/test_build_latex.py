@@ -321,25 +321,25 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert u'\\renewcommand{\\figurename}{\u56f3}' in result  # 図
-    assert u'\\renewcommand{\\tablename}{\u8868}' in result  # 表
-    assert u'\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
-    assert (u'\\hyperref[\\detokenize{index:fig1}]'
-            u'{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
+    assert '\\renewcommand{\\figurename}{\u56f3}' in result  # 図
+    assert '\\renewcommand{\\tablename}{\u8868}' in result  # 表
+    assert '\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
+    assert ('\\hyperref[\\detokenize{index:fig1}]'
+            '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
             '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
-    assert (u'\\hyperref[\\detokenize{index:table-1}]'
-            u'{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert (u'\\hyperref[\\detokenize{index:code-1}]'
-            u'{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]'
+            '{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
-    assert (u'\\hyperref[\\detokenize{foo:foo}]'
-            u'{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
-    assert (u'\\hyperref[\\detokenize{bar:bar-a}]'
-            u'{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]'
+            '{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
+    assert ('\\hyperref[\\detokenize{bar:bar-a}]'
+            '{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
     assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
@@ -1302,7 +1302,7 @@ def test_latex_glossary(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert (u'\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
+    assert ('\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
     assert (r'\item[{boson\index{boson@\spxentry{boson}|spxpagem}\phantomsection'
@@ -1317,7 +1317,7 @@ def test_latex_glossary(app, status, warning):
             r'\label{\detokenize{index:term-myon}}}] \leavevmode'
             r'\item[{electron\index{electron@\spxentry{electron}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
-    assert (u'\\item[{über\\index{über@\\spxentry{über}|spxpagem}\\phantomsection'
+    assert ('\\item[{über\\index{über@\\spxentry{über}|spxpagem}\\phantomsection'
             r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
 
 

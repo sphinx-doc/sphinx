@@ -121,24 +121,24 @@ def test_overrides():
 @mock.patch("sphinx.config.logger")
 def test_errors_warnings(logger, tempdir):
     # test the error for syntax errors in the config file
-    (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    (tempdir / 'conf.py').write_text('project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
         Config.read(tempdir, {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
     (tempdir / 'conf.py').write_text(
-        u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
+        '# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
     cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
-    assert cfg.project == u'Jägermeister'
+    assert cfg.project == 'Jägermeister'
     assert logger.called is False
 
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text(u'setup = 1')
+    (tempdir / 'conf.py').write_text('setup = 1')
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
@@ -184,7 +184,7 @@ def test_config_eol(logger, tempdir):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config.read(tempdir, {}, None)
         cfg.init_values()
-        assert cfg.project == u'spam'
+        assert cfg.project == 'spam'
         assert logger.called is False
 
 
@@ -228,12 +228,12 @@ TYPECHECK_WARNINGS = [
     ('value8', B(), None, C(), False),                          # sibling type
     ('value9', None, None, 'foo', False),                       # no default or no annotations
     ('value10', None, None, 123, False),                        # no default or no annotations
-    ('value11', None, [str], u'bar', False),                    # str vs unicode
-    ('value12', 'string', None, u'bar', False),                 # str vs unicode
+    ('value11', None, [str], 'bar', False),                     # str vs unicode
+    ('value12', 'string', None, 'bar', False),                  # str vs unicode
     ('value13', None, string_classes, 'bar', False),            # string_classes
-    ('value14', None, string_classes, u'bar', False),           # string_classes
-    ('value15', u'unicode', None, 'bar', False),                # str vs unicode
-    ('value16', u'unicode', None, u'bar', False),               # str vs unicode
+    ('value14', None, string_classes, 'bar', False),            # string_classes
+    ('value15', 'unicode', None, 'bar', False),                 # str vs unicode
+    ('value16', 'unicode', None, 'bar', False),                 # str vs unicode
 ]
 
 

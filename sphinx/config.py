@@ -111,7 +111,7 @@ class Config:
 
         'language': (None, 'env', string_classes),
         'locale_dirs': (['locales'], 'env', []),
-        'figure_language_filename': (u'{root}.{language}{ext}', 'env', [str]),
+        'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
         'master_doc': ('index', 'env', []),
         'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
@@ -497,7 +497,7 @@ def check_unicode(config):
         if isinstance(value, bytes) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, u'Content')
+                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
 
 
 def check_primary_domain(app, config):

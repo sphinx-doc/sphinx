@@ -51,9 +51,9 @@ for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')
 
 
-escape_hl_chars = {ord(u'\\'): u'\\PYGZbs{}',
-                   ord(u'{'): u'\\PYGZob{}',
-                   ord(u'}'): u'\\PYGZcb{}'}
+escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
+                   ord('{'): '\\PYGZob{}',
+                   ord('}'): '\\PYGZcb{}'}
 
 # used if Pygments is available
 # use textcomp quote to get a true single quote

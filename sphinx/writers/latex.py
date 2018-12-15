@@ -754,7 +754,7 @@ class LaTeXTranslator(SphinxTranslator):
     def astext(self):
         # type: () -> str
         self.elements.update({
-            'body': u''.join(self.body),
+            'body': ''.join(self.body),
             'indices': self.generate_indices()
         })
         return self.render('latex.tex_t', self.elements)
@@ -876,7 +876,7 @@ class LaTeXTranslator(SphinxTranslator):
                         self.builder.docnames)
                     if not content:
                         continue
-                    ret.append(u'\\renewcommand{\\indexname}{%s}\n' %
+                    ret.append('\\renewcommand{\\indexname}{%s}\n' %
                                indexcls.localname)
                     generate(content, collapsed)
 
@@ -900,7 +900,7 @@ class LaTeXTranslator(SphinxTranslator):
             self.first_document = 0
         elif self.first_document == 0:
             # ... and all others are the appendices
-            self.body.append(u'\n\\appendix\n')
+            self.body.append('\n\\appendix\n')
             self.first_document = -1
         if 'docname' in node:
             self.body.append(self.hypertarget(':doc'))
@@ -1032,7 +1032,7 @@ class LaTeXTranslator(SphinxTranslator):
                 short = ''
                 if node.traverse(nodes.image):
                     short = ('[%s]' %
-                             u' '.join(clean_astext(node).split()).translate(tex_escape_map))
+                             ' '.join(clean_astext(node).split()).translate(tex_escape_map))
 
                 try:
                     self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
@@ -1221,7 +1221,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_seealso(self, node):
         # type: (nodes.Element) -> None
-        self.body.append(u'\n\n\\sphinxstrong{%s:}\n\n' % admonitionlabels['seealso'])
+        self.body.append('\n\n\\sphinxstrong{%s:}\n\n' % admonitionlabels['seealso'])
 
     def depart_seealso(self, node):
         # type: (nodes.Element) -> None
@@ -1813,7 +1813,7 @@ class LaTeXTranslator(SphinxTranslator):
     def _visit_named_admonition(self, node):
         # type: (nodes.Element) -> None
         label = admonitionlabels[node.tagname]
-        self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+        self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                          (node.tagname, label))
 
     def _depart_named_admonition(self, node):
@@ -2155,18 +2155,18 @@ class LaTeXTranslator(SphinxTranslator):
             # adjust max width of citation labels not to break the layout
             longest_label = longest_label[:MAX_CITATION_LABEL_LENGTH]
 
-        self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' %
+        self.body.append('\n\\begin{sphinxthebibliography}{%s}\n' %
                          self.encode(longest_label))
 
     def depart_thebibliography(self, node):
         # type: (thebibliography) -> None
-        self.body.append(u'\\end{sphinxthebibliography}\n')
+        self.body.append('\\end{sphinxthebibliography}\n')
 
     def visit_citation(self, node):
         # type: (nodes.Element) -> None
         label = cast(nodes.label, node[0])
-        self.body.append(u'\\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
-                                                    node['docname'], node['ids'][0]))
+        self.body.append('\\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
+                                                   node['docname'], node['ids'][0]))
 
     def depart_citation(self, node):
         # type: (nodes.Element) -> None
@@ -2256,7 +2256,7 @@ class LaTeXTranslator(SphinxTranslator):
                 location=(self.curfilestack[-1], node.line), **highlight_args
             )
             # workaround for Unicode issue
-            hlcode = hlcode.replace(u'€', u'@texteuro[]')
+            hlcode = hlcode.replace('€', '@texteuro[]')
             if self.in_footnote:
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace('\\begin{Verbatim}',
@@ -2498,10 +2498,10 @@ class LaTeXTranslator(SphinxTranslator):
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.
-            text = text.replace(u'\n', u'~\\\\\n').replace(u' ', u'~')
+            text = text.replace('\n', '~\\\\\n').replace(' ', '~')
         if self.no_contractions:
-            text = text.replace('--', u'-{-}')
-            text = text.replace("''", u"'{'}")
+            text = text.replace('--', '-{-}')
+            text = text.replace("''", "'{'}")
         return text
 
     def encode_uri(self, text):
@@ -2670,7 +2670,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         def visit_admonition(self, node):
             # type: (nodes.Element) -> None
-            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
+            self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
 

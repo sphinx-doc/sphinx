@@ -23,9 +23,9 @@ if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
-comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
-indent_re = re.compile(u'^\\s*$')
-emptyline_re = re.compile(u'^\\s*(#.*)?$')
+comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
+indent_re = re.compile('^\\s*$')
+emptyline_re = re.compile('^\\s*(#.*)?$')
 
 
 if sys.version_info >= (3, 6):

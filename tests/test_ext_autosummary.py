@@ -52,8 +52,8 @@ def test_mangle_signature():
     TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
             if '::' in x]
     for inp, outp in TEST:
-        res = mangle_signature(inp).strip().replace(u"\u00a0", " ")
-        assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
+        res = mangle_signature(inp).strip().replace("\u00a0", " ")
+        assert res == outp, ("'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
 def test_extract_summary(capsys):

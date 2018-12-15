@@ -340,13 +340,13 @@ class GoogleDocstring(UnicodeMixin):
     def _fix_field_desc(self, desc):
         # type: (List[str]) -> List[str]
         if self._is_list(desc):
-            desc = [u''] + desc
+            desc = [''] + desc
         elif desc[0].endswith('::'):
             desc_block = desc[1:]
             indent = self._get_indent(desc[0])
             block_indent = self._get_initial_indent(desc_block)
             if block_indent > indent:
-                desc = [u''] + desc
+                desc = [''] + desc
             else:
                 desc = ['', desc[0]] + self._indent(desc_block, 4)
         return desc
@@ -358,9 +358,9 @@ class GoogleDocstring(UnicodeMixin):
             return ['.. %s:: %s' % (admonition, lines[0].strip()), '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
-            return [u'.. %s::' % admonition, u''] + lines + [u'']
+            return ['.. %s::' % admonition, ''] + lines + ['']
         else:
-            return [u'.. %s::' % admonition, u'']
+            return ['.. %s::' % admonition, '']
 
     def _format_block(self, prefix, lines, padding=None):
         # type: (str, List[str], str) -> List[str]
@@ -676,7 +676,7 @@ class GoogleDocstring(UnicodeMixin):
         for _name, _type, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if _desc:
-                lines.extend([u''] + self._indent(_desc, 3))
+                lines.extend([''] + self._indent(_desc, 3))
             lines.append('')
         return lines
 

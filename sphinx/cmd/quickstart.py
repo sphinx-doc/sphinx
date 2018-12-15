@@ -457,13 +457,13 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'),
-                   template.render(makefile_template, d), u'\n')
+                   template.render(makefile_template, d), '\n')
 
     if d['batchfile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'),
-                   template.render(batchfile_template, d), u'\r\n')
+                   template.render(batchfile_template, d), '\r\n')
 
     if silent:
         return

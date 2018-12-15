@@ -40,14 +40,14 @@ def test_jsmath(app, status, warning):
     assert '<div class="math notranslate nohighlight">\na^2 + b^2 = c^2</div>' in content
     assert ('<div class="math notranslate nohighlight">\n\\begin{split}a + 1 &lt; '
             'b\\end{split}</div>' in content)
-    assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-foo">'
+    assert ('<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-foo">'
             '\ne^{i\\pi} = 1</div>' in content)
-    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-math-0">\n'
-            u'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert ('<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-math-0">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math notranslate nohighlight">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math notranslate nohighlight">\na + 1 &lt; b</div>' in content
 

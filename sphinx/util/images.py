@@ -109,8 +109,8 @@ def parse_data_uri(uri):
         return None
 
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-    mimetype = u'text/plain'
-    charset = u'US-ASCII'
+    mimetype = 'text/plain'
+    charset = 'US-ASCII'
 
     properties, data = uri[5:].split(',', 1)
     for prop in properties.split(';'):

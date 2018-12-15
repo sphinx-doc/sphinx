@@ -42,7 +42,7 @@ def test_events(app, status, warning):
 
 
 def test_emit_with_nonascii_name_node(app, status, warning):
-    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
