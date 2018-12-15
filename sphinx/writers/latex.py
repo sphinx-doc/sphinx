@@ -157,7 +157,6 @@ DEFAULT_SETTINGS = {
     'title':           '',
     'release':         '',
     'author':          '',
-    'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
@@ -577,11 +576,6 @@ class LaTeXTranslator(SphinxTranslator):
                     self.elements['sphinxpkgoptions'] += ',mathnumfig'
             except AttributeError:
                 pass
-
-        if self.config.latex_logo:
-            # no need for \\noindent here, used in flushright
-            self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
-                                    path.basename(self.config.latex_logo)
 
         if (self.config.language not in {None, 'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):

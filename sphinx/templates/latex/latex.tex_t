@@ -48,7 +48,11 @@
 \date{<%= date %>}
 \release{<%= release %>}
 \author{<%= author %>}
-\newcommand{\sphinxlogo}{<%= logo %>}
+<%- if logofilename %>
+\newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
+<%- else %>
+\newcommand{\sphinxlogo}{\vbox{}}
+<%- endif %>
 <%- if releasename or release %>
 \renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
 <%- else %>

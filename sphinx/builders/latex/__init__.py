@@ -198,6 +198,9 @@ class LaTeXBuilder(Builder):
             self.context['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
                                                language=self.config.language)
 
+        if self.config.latex_logo:
+            self.context['logofilename'] = path.basename(self.config.latex_logo)
+
         # for compatibilities
         self.context['indexname'] = _('Index')
         if self.config.release:
