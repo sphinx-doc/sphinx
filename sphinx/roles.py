@@ -343,12 +343,12 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     m = _abbr_re.search(text)
     if m is None:
-        return [addnodes.abbreviation(text, text, **options)], []
+        return [nodes.abbreviation(text, text, **options)], []
     abbr = text[:m.start()].strip()
     expl = m.group(1)
     options = options.copy()
     options['explanation'] = expl
-    return [addnodes.abbreviation(abbr, abbr, **options)], []
+    return [nodes.abbreviation(abbr, abbr, **options)], []
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):

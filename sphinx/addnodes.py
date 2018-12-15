@@ -13,7 +13,7 @@ import warnings
 
 from docutils import nodes
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
 if False:
     # For type annotation
@@ -344,8 +344,18 @@ class literal_strong(nodes.strong, not_smartquotable):
     """
 
 
-class abbreviation(nodes.Inline, nodes.TextElement):
-    """Node for abbreviations with explanations."""
+class abbreviation(nodes.abbreviation):
+    """Node for abbreviations with explanations.
+
+    .. deprecated:: 2.0
+    """
+
+    def __init__(self, rawsource='', text='', *children, **attributes):
+        # type: (str, str, *nodes.Node, **Any) -> None
+        warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
+                      RemovedInSphinx40Warning, stacklevel=2)
+
+        super(abbreviation, self).__init__(rawsource, text, *children, **attributes)
 
 
 class manpage(nodes.Inline, nodes.FixedTextElement):
@@ -389,7 +399,6 @@ def setup(app):
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
-    app.add_node(abbreviation, override=True)
     app.add_node(manpage)
 
     return {
