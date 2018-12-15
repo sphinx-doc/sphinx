@@ -28,7 +28,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +83,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     Custom translator.
     """
 
-    _docinfo = {}  # type: Dict[unicode, Any]
+    _docinfo = {}  # type: Dict[str, Any]
 
     def __init__(self, builder, document):
         # type: (Builder, nodes.document) -> None
@@ -120,7 +119,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
-        # type: () -> unicode
+        # type: () -> str
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"

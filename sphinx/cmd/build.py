@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import argparse
 import locale
@@ -199,15 +198,15 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def make_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def build_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
@@ -292,8 +291,8 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         return 2
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 

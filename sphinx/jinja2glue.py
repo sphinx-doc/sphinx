@@ -28,18 +28,17 @@ if False:
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def _tobool(val):
-    # type: (unicode) -> bool
+    # type: (str) -> bool
     if isinstance(val, str):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
 
 def _toint(val):
-    # type: (unicode) -> int
+    # type: (str) -> int
     try:
         return int(val)
     except ValueError:
@@ -47,7 +46,7 @@ def _toint(val):
 
 
 def _todim(val):
-    # type: (Union[int, unicode]) -> unicode
+    # type: (Union[int, str]) -> str
     """
     Make val a css dimension. In particular the following transformations
     are performed:
@@ -88,7 +87,7 @@ def _slice_index(values, slices):
 
 
 def accesskey(context, key):
-    # type: (Any, unicode) -> unicode
+    # type: (Any, str) -> str
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
         context.vars['_accesskeys'] = {}
@@ -116,7 +115,7 @@ class idgen:
 
 @contextfunction
 def warning(context, message, *args, **kwargs):
-    # type: (Dict, unicode, Any, Any) -> unicode
+    # type: (Dict, str, Any, Any) -> str
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = 'in rendering %s: %s' % (filename, message)
@@ -132,7 +131,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
     """
 
     def get_source(self, environment, template):
-        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, str) -> Tuple[str, str, Callable]
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -161,7 +160,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # TemplateBridge interface
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, Theme, List[unicode]) -> None
+        # type: (Builder, Theme, List[str]) -> None
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
@@ -205,11 +204,11 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
 
     def render(self, template, context):  # type: ignore
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.environment.get_template(template).render(context)
 
     def render_string(self, source, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self):
@@ -219,7 +218,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # Loader interface
 
     def get_source(self, environment, template):
-        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, str) -> Tuple[str, str, Callable]
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

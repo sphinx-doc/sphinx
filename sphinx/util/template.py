@@ -22,7 +22,6 @@ if False:
     # For type annotation
     from typing import Dict  # NOQA
     from jinja2.loaders import BaseLoader  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class BaseRenderer:
@@ -33,23 +32,23 @@ class BaseRenderer:
         self.env.install_gettext_translations(get_translator())  # type: ignore
 
     def render(self, template_name, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.env.get_template(template_name).render(context)
 
     def render_string(self, source, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.env.from_string(source).render(context)
 
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path):
-        # type: (unicode) -> None
+        # type: (str) -> None
         loader = SphinxFileSystemLoader(search_path)
         super(FileRenderer, self).__init__(loader)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
@@ -57,14 +56,14 @@ class FileRenderer(BaseRenderer):
 
 class SphinxRenderer(FileRenderer):
     def __init__(self, template_path=None):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super(SphinxRenderer, self).__init__(template_path)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return FileRenderer.render_from_file(filename, context)
 
 

@@ -15,8 +15,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
 import argparse
 import glob
 import locale
@@ -35,7 +33,6 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 if False:
     # For type annotation
     from typing import Any, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -53,7 +50,7 @@ PY_SUFFIXES = set(['.py', '.pyx'])
 
 
 def makename(package, module):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     """Join package and module with a dot."""
     # Both package and module can be None/empty.
     if package:
@@ -66,7 +63,7 @@ def makename(package, module):
 
 
 def write_file(name, text, opts):
-    # type: (unicode, unicode, Any) -> None
+    # type: (str, str, Any) -> None
     """Write the output file for module/package <name>."""
     fname = path.join(opts.destdir, '%s.%s' % (name, opts.suffix))
     if opts.dryrun:
@@ -81,7 +78,7 @@ def write_file(name, text, opts):
 
 
 def format_heading(level, text, escape=True):
-    # type: (int, unicode, bool) -> unicode
+    # type: (int, str, bool) -> str
     """Create a heading of <level> [1, 2 or 3 supported]."""
     if escape:
         text = rst.escape(text)
@@ -90,7 +87,7 @@ def format_heading(level, text, escape=True):
 
 
 def format_directive(module, package=None):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     """Create the automodule directive and add the options."""
     directive = '.. automodule:: %s\n' % makename(package, module)
     for option in OPTIONS:
@@ -99,7 +96,7 @@ def format_directive(module, package=None):
 
 
 def create_module_file(package, module, opts):
-    # type: (unicode, unicode, Any) -> None
+    # type: (str, str, Any) -> None
     """Build the text of the file and write the file."""
     if not opts.noheadings:
         text = format_heading(1, '%s module' % module)
@@ -111,7 +108,7 @@ def create_module_file(package, module, opts):
 
 
 def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace, excludes=[]):  # NOQA
-    # type: (unicode, unicode, unicode, List[unicode], Any, List[unicode], bool, List[unicode]) -> None  # NOQA
+    # type: (str, str, str, List[str], Any, List[str], bool, List[str]) -> None
     """Build the text of the file and write the file."""
     text = format_heading(1, ('%s package' if not is_namespace else "%s namespace")
                           % makename(master_package, subroot))
@@ -171,14 +168,14 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
 
 
 def create_modules_toc_file(modules, opts, name='modules'):
-    # type: (List[unicode], Any, unicode) -> None
+    # type: (List[str], Any, str) -> None
     """Create the module's index."""
     text = format_heading(1, '%s' % opts.header, escape=False)
     text += '.. toctree::\n'
     text += '   :maxdepth: %s\n\n' % opts.maxdepth
 
     modules.sort()
-    prev_module = ''  # type: unicode
+    prev_module = ''
     for module in modules:
         # look if the module is a subpackage and, if yes, ignore it
         if module.startswith(prev_module + '.'):
@@ -190,7 +187,7 @@ def create_modules_toc_file(modules, opts, name='modules'):
 
 
 def shall_skip(module, opts, excludes=[]):
-    # type: (unicode, Any, List[unicode]) -> bool
+    # type: (str, Any, List[str]) -> bool
     """Check if we want to skip this module."""
     # skip if the file doesn't exist and not using implicit namespaces
     if not opts.implicit_namespaces and not path.exists(module):
@@ -217,7 +214,7 @@ def shall_skip(module, opts, excludes=[]):
 
 
 def recurse_tree(rootpath, excludes, opts):
-    # type: (unicode, List[unicode], Any) -> List[unicode]
+    # type: (str, List[str], Any) -> List[str]
     """
     Look for every file in the directory tree and create the corresponding
     ReST files.
@@ -252,7 +249,7 @@ def recurse_tree(rootpath, excludes, opts):
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
         if includeprivate:
-            exclude_prefixes = ('.',)  # type: Tuple[unicode, ...]
+            exclude_prefixes = ('.',)  # type: Tuple[str, ...]
         else:
             exclude_prefixes = ('.', '_')
         subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes) and
@@ -282,7 +279,7 @@ def recurse_tree(rootpath, excludes, opts):
 
 
 def is_excluded(root, excludes):
-    # type: (unicode, List[unicode]) -> bool
+    # type: (str, List[str]) -> bool
     """Check if the directory is in the exclude list.
 
     Note: by having trailing slashes, we avoid common prefix issues, like
@@ -411,7 +408,7 @@ def main(argv=sys.argv[1:]):
     if args.full:
         from sphinx.cmd import quickstart as qs
         modules.sort()
-        prev_module = ''  # type: unicode
+        prev_module = ''
         text = ''
         for module in modules:
             if module.startswith(prev_module + '.'):

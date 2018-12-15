@@ -13,13 +13,12 @@ import warnings
 
 from docutils import nodes
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
 if False:
     # For type annotation
     from typing import Any, Dict, List, Sequence  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class translatable(nodes.Node):
@@ -42,12 +41,12 @@ class translatable(nodes.Node):
         raise NotImplementedError
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Apply translated message."""
         raise NotImplementedError
 
     def extract_original_messages(self):
-        # type: () -> Sequence[unicode]
+        # type: () -> Sequence[str]
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -69,12 +68,12 @@ class toctree(nodes.General, nodes.Element, translatable):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         if 'rawcaption' in self:
             return [self['rawcaption']]
         else:
@@ -128,7 +127,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
-        # type: () -> unicode
+        # type: () -> str
         return ' -> ' + super(desc_returns, self).astext()
 
 
@@ -150,7 +149,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        # type: () -> unicode
+        # type: () -> str
         return '[' + super(desc_optional, self).astext() + ']'
 
 
@@ -344,8 +343,18 @@ class literal_strong(nodes.strong, not_smartquotable):
     """
 
 
-class abbreviation(nodes.Inline, nodes.TextElement):
-    """Node for abbreviations with explanations."""
+class abbreviation(nodes.abbreviation):
+    """Node for abbreviations with explanations.
+
+    .. deprecated:: 2.0
+    """
+
+    def __init__(self, rawsource='', text='', *children, **attributes):
+        # type: (str, str, *nodes.Node, **Any) -> None
+        warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
+                      RemovedInSphinx40Warning, stacklevel=2)
+
+        super(abbreviation, self).__init__(rawsource, text, *children, **attributes)
 
 
 class manpage(nodes.Inline, nodes.FixedTextElement):
@@ -353,7 +362,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_node(toctree)
     app.add_node(desc)
     app.add_node(desc_signature)
@@ -389,7 +398,6 @@ def setup(app):
     app.add_node(download_reference)
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
-    app.add_node(abbreviation, override=True)
     app.add_node(manpage)
 
     return {

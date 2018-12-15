@@ -16,7 +16,6 @@ import snowballstemmer
 if False:
     # For type annotation
     from typing import Any  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 hungarian_stopwords = parse_stop_word(u'''
@@ -242,5 +241,5 @@ class SearchHungarian(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('hungarian')
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.stemmer.stemWord(word.lower())

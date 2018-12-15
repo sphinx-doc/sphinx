@@ -17,7 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import text_type, integer_types
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -33,7 +33,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +67,11 @@ class ENUM:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.candidates = candidates
 
     def match(self, value):
-        # type: (Union[unicode,List,Tuple]) -> bool
+        # type: (Union[str, List, Tuple]) -> bool
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
@@ -155,7 +154,7 @@ class Config:
         'smartquotes_excludes': ({'languages': ['ja'],
                                   'builders': ['man', 'text']},
                                  'env', []),
-    }  # type: Dict[unicode, Tuple]
+    }  # type: Dict[str, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
@@ -166,7 +165,7 @@ class Config:
                           RemovedInSphinx30Warning, stacklevel=2)
             dirname, filename, overrides, tags = args
             if dirname is None:
-                config = {}  # type: Dict[unicode, Any]
+                config = {}  # type: Dict[str, Any]
             else:
                 config = eval_config_file(path.join(dirname, filename), tags)
         else:
@@ -188,11 +187,11 @@ class Config:
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[unicode]
+        self.extensions = config.get('extensions', [])  # type: List[str]
 
     @classmethod
     def read(cls, confdir, overrides=None, tags=None):
-        # type: (unicode, Dict, Tags) -> Config
+        # type: (str, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
@@ -211,7 +210,7 @@ class Config:
         check_unicode(self)
 
     def convert_overrides(self, name, value):
-        # type: (unicode, Any) -> Any
+        # type: (str, Any) -> Any
         if not isinstance(value, str):
             return value
         else:
@@ -224,7 +223,7 @@ class Config:
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
                 return value.split(',')
-            elif isinstance(defvalue, integer_types):
+            elif isinstance(defvalue, int):
                 try:
                     return int(value)
                 except ValueError:
@@ -277,7 +276,7 @@ class Config:
                 self.__dict__[name] = config[name]
 
     def __getattr__(self, name):
-        # type: (unicode) -> Any
+        # type: (str) -> Any
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
@@ -288,19 +287,19 @@ class Config:
         return default
 
     def __getitem__(self, name):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return getattr(self, name)
 
     def __setitem__(self, name, value):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         setattr(self, name, value)
 
     def __delitem__(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         delattr(self, name)
 
     def __contains__(self, name):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         return name in self.values
 
     def __iter__(self):
@@ -309,14 +308,14 @@ class Config:
             yield ConfigValue(name, getattr(self, name), value[1])
 
     def add(self, name, default, rebuild, types):
-        # type: (unicode, Any, Union[bool, unicode], Any) -> None
+        # type: (str, Any, Union[bool, str], Any) -> None
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
         else:
             self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
-        # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
+        # type: (Union[str, List[str]]) -> Iterator[ConfigValue]
         if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
@@ -351,9 +350,9 @@ class Config:
 
 
 def eval_config_file(filename, tags):
-    # type: (unicode, Tags) -> Dict[unicode, Any]
+    # type: (str, Tags) -> Dict[str, Any]
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[unicode, Any]
+    namespace = {}  # type: Dict[str, Any]
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -510,7 +509,7 @@ def check_primary_domain(app, config):
 
 
 def check_master_doc(app, env, added, changed, removed):
-    # type: (Sphinx, BuildEnvironment, Set[unicode], Set[unicode], Set[unicode]) -> Set[unicode]  # NOQA
+    # type: (Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]) -> Set[str]
     """Adjust master_doc to 'contents' to support an old project which does not have
     no master_doc setting.
     """
@@ -525,7 +524,7 @@ def check_master_doc(app, env, added, changed, removed):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)

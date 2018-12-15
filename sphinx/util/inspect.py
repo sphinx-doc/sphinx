@@ -16,17 +16,17 @@ import inspect
 import re
 import sys
 import typing
+import warnings
 from functools import partial
+from io import StringIO
 
-from six import StringIO
-
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
 from sphinx.util.pycompat import NoneType
 
 if False:
     # For type annotation
     from typing import Any, Callable, Mapping, List, Tuple, Type  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -129,17 +129,14 @@ def isclassmethod(obj):
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj):
-        if getattr(obj, 'im_self', None):  # py2
-            return True
-        elif getattr(obj, '__self__', None):  # py3
-            return True
+    elif inspect.ismethod(obj) and obj.__self__ is not None:
+        return True
 
     return False
 
 
 def isstaticmethod(obj, cls=None, name=None):
-    # type: (Any, Any, unicode) -> bool
+    # type: (Any, Any, str) -> bool
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -180,7 +177,7 @@ def isbuiltin(obj):
 
 
 def safe_getattr(obj, name, *defargs):
-    # type: (Any, unicode, unicode) -> object
+    # type: (Any, str, str) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
@@ -203,9 +200,9 @@ def safe_getattr(obj, name, *defargs):
 
 
 def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
-    # type: (Any, Callable[[unicode], bool], Callable) -> List[Tuple[unicode, Any]]
+    # type: (Any, Callable[[str], bool], Callable) -> List[Tuple[str, Any]]
     """A version of inspect.getmembers() that uses safe_getattr()."""
-    results = []  # type: List[Tuple[unicode, Any]]
+    results = []  # type: List[Tuple[str, Any]]
     for key in dir(object):
         try:
             value = attr_getter(object, key, None)
@@ -218,7 +215,7 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
 
 
 def object_description(object):
-    # type: (Any) -> unicode
+    # type: (Any) -> str
     """A repr() implementation that returns text safe to use in reST context."""
     if isinstance(object, dict):
         try:
@@ -256,7 +253,7 @@ def object_description(object):
 
 
 def is_builtin_class_method(obj, attr_name):
-    # type: (Any, unicode) -> bool
+    # type: (Any, str) -> bool
     """If attr_name is implemented at builtin class, return True.
 
         >>> is_builtin_class_method(int, '__init__')
@@ -288,6 +285,9 @@ class Parameter:
         self.kind = kind
         self.default = default
         self.annotation = self.empty
+
+        warnings.warn('sphinx.util.inspect.Parameter is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 class Signature:
@@ -360,7 +360,7 @@ class Signature:
             return None
 
     def format_args(self):
-        # type: () -> unicode
+        # type: () -> str
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -577,7 +577,7 @@ class Signature:
 
 
 def getdoc(obj, attrgetter=safe_getattr, allow_inherited=False):
-    # type: (Any, Callable, bool) -> unicode
+    # type: (Any, Callable, bool) -> str
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:

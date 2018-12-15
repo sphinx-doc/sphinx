@@ -27,7 +27,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +85,7 @@ class MathNodeMigrator(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(MathNodeMigrator)
 
     return {

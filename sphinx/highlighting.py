@@ -34,7 +34,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from pygments.formatter import Formatter  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ lexers = {
     'pycon3': PythonConsoleLexer(python3=True, stripnl=False),
     'rest': RstLexer(stripnl=False),
     'c': CLexer(stripnl=False),
-}  # type: Dict[unicode, Lexer]
+}  # type: Dict[str, Lexer]
 for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')
 
@@ -70,7 +69,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (unicode, unicode, bool) -> None
+        # type: (str, str, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
@@ -82,7 +81,7 @@ class PygmentsBridge:
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
+        self.formatter_args = {'style': style}  # type: Dict[str, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -100,7 +99,7 @@ class PygmentsBridge:
         return self.formatter(**kwargs)
 
     def unhighlighted(self, source):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
@@ -114,7 +113,7 @@ class PygmentsBridge:
                    source + '\\end{Verbatim}\n'
 
     def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
-        # type: (unicode, unicode, Any, Any, bool, Any) -> unicode
+        # type: (str, str, Any, Any, bool, Any) -> str
         if not isinstance(source, text_type):
             source = source.decode()
 
@@ -174,7 +173,7 @@ class PygmentsBridge:
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):
-        # type: () -> unicode
+        # type: () -> str
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')

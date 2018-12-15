@@ -26,11 +26,14 @@ Incompatible changes
 * LaTeX: Move message resources to ``sphinxmessage.sty``
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
 * LaTeX: for ``'xelatex'`` and ``'lualatex'``, use the ``FreeFont`` OpenType
-  fonts as default choice (refs #5645)
+  fonts as default choice (refs: #5645)
 * LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
   will use the text font not the math font. The ``LGR`` font encoding must be
   added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
   (only if it is needed by the document, of course).
+* LaTeX: setting the :confval:`language` to ``'en'`` triggered ``Sonny`` option
+  of ``fncychap``, now it is ``Bjarne`` to match case of no language specified.
+  (refs: #5772)
 * #5770: doctest: Follow :confval:`highlight_language` on highlighting doctest
   block.  As a result, they are highlighted as python3 by default.
 
@@ -48,6 +51,7 @@ Deprecated
   is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
+* ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.config.check_unicode()``
 * ``sphinx.ext.autodoc.importer._MockImporter``
@@ -60,7 +64,8 @@ Deprecated
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.attrdict``
 * ``sphinx.util.force_decode()``
-* ``sphinx.util.get_matching_docs()`` is deprecated
+* ``sphinx.util.get_matching_docs()``
+* ``sphinx.util.inspect.Parameter``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
 * ``sphinx.util.pycompat.u``
@@ -103,6 +108,8 @@ Bugs fixed
   language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
   (refs: #5251)
 * #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
+* #5772: LaTeX: should the Bjarne style of fncychap be used for English also
+  if passed as language option?
 
 Testing
 --------

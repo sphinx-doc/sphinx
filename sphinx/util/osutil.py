@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import contextlib
 import errno
@@ -29,7 +28,6 @@ from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warnin
 if False:
     # For type annotation
     from typing import Any, Iterator, List, Tuple, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
@@ -46,18 +44,18 @@ SEP = "/"
 
 
 def os_path(canonicalpath):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return canonicalpath.replace(SEP, path.sep)
 
 
 def canon_path(nativepath):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Return path in OS-independent form"""
     return nativepath.replace(path.sep, SEP)
 
 
 def relative_uri(base, to):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
@@ -81,13 +79,13 @@ def relative_uri(base, to):
 
 
 def ensuredir(path):
-    # type: (unicode) -> None
+    # type: (str) -> None
     """Ensure that a path exists."""
     os.makedirs(path, exist_ok=True)
 
 
 def walk(top, topdown=True, followlinks=False):
-    # type: (unicode, bool, bool) -> Iterator[Tuple[unicode, List[unicode], List[unicode]]]
+    # type: (str, bool, bool) -> Iterator[Tuple[str, List[str], List[str]]]
     warnings.warn('sphinx.util.osutil.walk() is deprecated for removal. '
                   'Please use os.walk() instead.',
                   RemovedInSphinx40Warning)
@@ -95,7 +93,7 @@ def walk(top, topdown=True, followlinks=False):
 
 
 def mtimes_of_files(dirnames, suffix):
-    # type: (List[unicode], unicode) -> Iterator[float]
+    # type: (List[str], str) -> Iterator[float]
     for dirname in dirnames:
         for root, dirs, files in os.walk(dirname):
             for sfile in files:
@@ -107,7 +105,7 @@ def mtimes_of_files(dirnames, suffix):
 
 
 def movefile(source, dest):
-    # type: (unicode, unicode) -> None
+    # type: (str, str) -> None
     """Move a file, removing the destination if it exists."""
     if os.path.exists(dest):
         try:
@@ -118,7 +116,7 @@ def movefile(source, dest):
 
 
 def copytimes(source, dest):
-    # type: (unicode, unicode) -> None
+    # type: (str, str) -> None
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
@@ -126,7 +124,7 @@ def copytimes(source, dest):
 
 
 def copyfile(source, dest):
-    # type: (unicode, unicode) -> None
+    # type: (str, str) -> None
     """Copy a file and its modification times, if possible.
 
     Note: ``copyfile`` skips copying if the file has not been changed"""
@@ -144,17 +142,17 @@ project_suffix_re = re.compile(' Documentation$')
 
 
 def make_filename(string):
-    # type: (str) -> unicode
+    # type: (str) -> str
     return no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project):
-    # type: (str) -> unicode
+    # type: (str) -> str
     return make_filename(project_suffix_re.sub('', project)).lower()
 
 
 def ustrftime(format, *args):
-    # type: (unicode, Any) -> unicode
+    # type: (str, Any) -> str
     """[DEPRECATED] strftime for unicode strings."""
     warnings.warn('sphinx.util.osutil.ustrtime is deprecated for removal',
                   RemovedInSphinx30Warning, stacklevel=2)
@@ -176,7 +174,7 @@ def ustrftime(format, *args):
 
 
 def relpath(path, start=os.curdir):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -190,11 +188,11 @@ def relpath(path, start=os.curdir):
 
 
 safe_relpath = relpath  # for compatibility
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()  # type: unicode
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 def abspath(pathdir):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     pathdir = path.abspath(pathdir)
     if isinstance(pathdir, bytes):
         try:
@@ -207,7 +205,7 @@ def abspath(pathdir):
 
 
 def getcwd():
-    # type: () -> unicode
+    # type: () -> str
     warnings.warn('sphinx.util.osutil.getcwd() is deprecated. '
                   'Please use os.getcwd() instead.',
                   RemovedInSphinx40Warning)
@@ -216,7 +214,7 @@ def getcwd():
 
 @contextlib.contextmanager
 def cd(target_dir):
-    # type: (unicode) -> Iterator[None]
+    # type: (str) -> Iterator[None]
     cwd = os.getcwd()
     try:
         os.chdir(target_dir)
@@ -238,12 +236,12 @@ class FileAvoidWrite:
     Objects can be used as context managers.
     """
     def __init__(self, path):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self._path = path
         self._io = None  # type: Union[StringIO, BytesIO]
 
     def write(self, data):
-        # type: (Union[str, unicode]) -> None
+        # type: (Union[str, str]) -> None
         if not self._io:
             if isinstance(data, text_type):
                 self._io = StringIO()
@@ -285,7 +283,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(self, type, value, traceback):
-        # type: (unicode, unicode, unicode) -> None
+        # type: (str, str, str) -> None
         self.close()
 
     def __getattr__(self, name):
@@ -299,7 +297,7 @@ class FileAvoidWrite:
 
 
 def rmtree(path):
-    # type: (unicode) -> None
+    # type: (str) -> None
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

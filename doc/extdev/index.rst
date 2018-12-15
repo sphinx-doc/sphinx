@@ -147,6 +147,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.path.join()``
 
+   * - ``sphinx.addnodes.abbreviation``
+     - 2.0
+     - 4.0
+     - ``docutils.nodes.abbreviation``
+
    * - ``sphinx.config.check_unicode()``
      - 2.0
      - 4.0
@@ -196,6 +201,11 @@ The following is a list of deprecated interfaces.
      - 2.0
      - 4.0
      - ``sphinx.util.get_matching_files()``
+
+   * - ``sphinx.util.inspect.Parameter``
+     - 2.0
+     - 3.0
+     - N/A
 
    * - ``sphinx.util.osutil.walk()``
      - 2.0

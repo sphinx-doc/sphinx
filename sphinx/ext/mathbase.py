@@ -25,7 +25,6 @@ if False:
     # For type annotation
     from typing import Any, Callable, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
     from sphinx.writers.html import HTMLTranslator  # NOQA
 
 
@@ -45,7 +44,7 @@ def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def get_node_equation_number(writer, node):
-    # type: (HTMLTranslator, nodes.math_block) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> str
     warnings.warn('sphinx.ext.mathbase.get_node_equation_number() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)
@@ -54,7 +53,7 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     warnings.warn('sphinx.ext.mathbase.wrap_displaymath() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)

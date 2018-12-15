@@ -10,7 +10,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import pickle
@@ -60,7 +59,7 @@ if False:
     from sphinx.extension import Extension  # NOQA
     from sphinx.roles import XRefRole  # NOQA
     from sphinx.theming import Theme  # NOQA
-    from sphinx.util.typing import RoleFunction, TitleGetter, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction, TitleGetter  # NOQA
 
 builtin_extensions = (
     'sphinx.addnodes',
@@ -113,7 +112,7 @@ builtin_extensions = (
     # Strictly, alabaster theme is not a builtin extension,
     # but it is loaded automatically to use it as default theme.
     'alabaster',
-)  # type: Tuple[unicode, ...]
+)
 
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
@@ -133,20 +132,20 @@ class Sphinx:
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0, keep_going=False):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int, bool) -> None  # NOQA
+        # type: (str, str, str, str, str, Dict, IO, IO, bool, bool, List[str], int, int, bool) -> None  # NOQA
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
-        self.extensions = {}                    # type: Dict[unicode, Extension]
+        self.extensions = {}                    # type: Dict[str, Extension]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.project = None                     # type: Project
         self.registry = SphinxComponentRegistry()
-        self.html_themes = {}                   # type: Dict[unicode, unicode]
+        self.html_themes = {}                   # type: Dict[str, str]
 
         # validate provided directories
-        self.srcdir = abspath(srcdir)           # type: unicode
-        self.outdir = abspath(outdir)           # type: unicode
-        self.doctreedir = abspath(doctreedir)   # type: unicode
+        self.srcdir = abspath(srcdir)
+        self.outdir = abspath(outdir)
+        self.doctreedir = abspath(doctreedir)
         self.confdir = confdir
         if self.confdir:  # confdir is optional
             self.confdir = abspath(self.confdir)
@@ -306,11 +305,11 @@ class Sphinx:
                 self._init_env(freshenv=True)
 
     def preload_builder(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.registry.preload_builder(self, name)
 
     def create_builder(self, name):
-        # type: (unicode) -> Builder
+        # type: (str) -> Builder
         if name is None:
             logger.info(__('No builder selected, using default: html'))
             name = 'html'
@@ -326,7 +325,7 @@ class Sphinx:
     # ---- main "build" method -------------------------------------------------
 
     def build(self, force_all=False, filenames=None):
-        # type: (bool, List[unicode]) -> None
+        # type: (bool, List[str]) -> None
         self.phase = BuildPhase.READING
         try:
             if force_all:
@@ -371,7 +370,7 @@ class Sphinx:
     # ---- general extensibility interface -------------------------------------
 
     def setup_extension(self, extname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Import and setup a Sphinx extension module.
 
         Load the extension given by the module *name*.  Use this if your
@@ -382,7 +381,7 @@ class Sphinx:
         self.registry.load_extension(self, extname)
 
     def require_sphinx(self, version):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Check the Sphinx version if requested.
 
         Compare *version* (which must be a ``major.minor`` version string, e.g.
@@ -395,7 +394,7 @@ class Sphinx:
             raise VersionRequirementError(version)
 
     def import_object(self, objname, source=None):
-        # type: (str, unicode) -> Any
+        # type: (str, str) -> Any
         """Import an object from a ``module.name`` string.
 
         .. deprecated:: 1.8
@@ -408,7 +407,7 @@ class Sphinx:
 
     # event interface
     def connect(self, event, callback):
-        # type: (unicode, Callable) -> int
+        # type: (str, Callable) -> int
         """Register *callback* to be called when *event* is emitted.
 
         For details on available core events and the arguments of callback
@@ -428,7 +427,7 @@ class Sphinx:
         self.events.disconnect(listener_id)
 
     def emit(self, event, *args):
-        # type: (unicode, Any) -> List
+        # type: (str, Any) -> List
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the return values of all callbacks as a list.  Do not emit core
@@ -443,7 +442,7 @@ class Sphinx:
         return self.events.emit(event, self, *args)
 
     def emit_firstresult(self, event, *args):
-        # type: (unicode, Any) -> Any
+        # type: (str, Any) -> Any
         """Emit *event* and pass *arguments* to the callback functions.
 
         Return the result of the first callback that doesn't return ``None``.
@@ -468,7 +467,7 @@ class Sphinx:
 
     # TODO(stephenfin): Describe 'types' parameter
     def add_config_value(self, name, default, rebuild, types=()):
-        # type: (unicode, Any, Union[bool, unicode], Any) -> None
+        # type: (str, Any, Union[bool, str], Any) -> None
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -501,7 +500,7 @@ class Sphinx:
         self.config.add(name, default, rebuild, types)
 
     def add_event(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Register an event called *name*.
 
         This is needed to be able to emit it.
@@ -510,7 +509,7 @@ class Sphinx:
         self.events.add(name)
 
     def set_translator(self, name, translator_class, override=False):
-        # type: (unicode, Type[nodes.NodeVisitor], bool) -> None
+        # type: (str, Type[nodes.NodeVisitor], bool) -> None
         """Register or override a Docutils translator class.
 
         This is used to register a custom output translator or to replace a
@@ -563,7 +562,7 @@ class Sphinx:
         self.registry.add_translation_handlers(node, **kwds)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, override=False, **kwds):
-        # type: (Type[nodes.Element], unicode, TitleGetter, bool, Any) -> None
+        # type: (Type[nodes.Element], str, TitleGetter, bool, Any) -> None
         """Register a Docutils node class as a numfig target.
 
         Sphinx numbers the node automatically. And then the users can refer it
@@ -592,14 +591,14 @@ class Sphinx:
 
     @property
     def enumerable_nodes(self):
-        # type: () -> Dict[Type[nodes.Node], Tuple[unicode, TitleGetter]]
+        # type: () -> Dict[Type[nodes.Node], Tuple[str, TitleGetter]]
         warnings.warn('app.enumerable_nodes() is deprecated. '
                       'Use app.get_domain("std").enumerable_nodes instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.registry.enumerable_nodes
 
     def add_directive(self, name, obj, content=None, arguments=None, override=False, **options):  # NOQA
-        # type: (unicode, Any, bool, Tuple[int, int, bool], bool, Any) -> None
+        # type: (str, Any, bool, Tuple[int, int, bool], bool, Any) -> None
         """Register a Docutils directive.
 
         *name* must be the prospective directive name.  There are two possible
@@ -663,7 +662,7 @@ class Sphinx:
             docutils.register_directive(name, obj)
 
     def add_role(self, name, role, override=False):
-        # type: (unicode, Any, bool) -> None
+        # type: (str, Any, bool) -> None
         """Register a Docutils role.
 
         *name* must be the role name that occurs in the source, *role* the role
@@ -681,7 +680,7 @@ class Sphinx:
         docutils.register_role(name, role)
 
     def add_generic_role(self, name, nodeclass, override=False):
-        # type: (unicode, Any, bool) -> None
+        # type: (str, Any, bool) -> None
         """Register a generic Docutils role.
 
         Register a Docutils role that does nothing but wrap its contents in the
@@ -732,7 +731,7 @@ class Sphinx:
 
     def add_directive_to_domain(self, domain, name, obj, has_content=None, argument_spec=None,
                                 override=False, **option_spec):
-        # type: (unicode, unicode, Any, bool, Any, bool, Any) -> None
+        # type: (str, str, Any, bool, Any, bool, Any) -> None
         """Register a Docutils directive in a domain.
 
         Like :meth:`add_directive`, but the directive is added to the domain
@@ -747,7 +746,7 @@ class Sphinx:
                                               **option_spec)
 
     def add_role_to_domain(self, domain, name, role, override=False):
-        # type: (unicode, unicode, Union[RoleFunction, XRefRole], bool) -> None
+        # type: (str, str, Union[RoleFunction, XRefRole], bool) -> None
         """Register a Docutils role in a domain.
 
         Like :meth:`add_role`, but the role is added to the domain named
@@ -760,7 +759,7 @@ class Sphinx:
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
     def add_index_to_domain(self, domain, index, override=False):
-        # type: (unicode, Type[Index], bool) -> None
+        # type: (str, Type[Index], bool) -> None
         """Register a custom index for a domain.
 
         Add a custom *index* class to the domain named *domain*.  *index* must
@@ -775,7 +774,7 @@ class Sphinx:
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[], override=False):
-        # type: (unicode, unicode, unicode, Callable, Type[nodes.TextElement], unicode, List, bool) -> None  # NOQA
+        # type: (str, str, str, Callable, Type[nodes.TextElement], str, List, bool) -> None
         """Register a new object type.
 
         This method is a very convenient way to add a new :term:`object` type
@@ -841,7 +840,7 @@ class Sphinx:
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname='', override=False):
-        # type: (unicode, unicode, unicode, Type[nodes.TextElement], unicode, bool) -> None
+        # type: (str, str, str, Type[nodes.TextElement], str, bool) -> None
         """Register a new crossref object type.
 
         This method is very similar to :meth:`add_object_type` except that the
@@ -920,7 +919,7 @@ class Sphinx:
         self.registry.add_post_transform(transform)
 
     def add_javascript(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+        # type: (str, **str) -> None
         """An alias of :meth:`add_js_file`."""
         warnings.warn('The app.add_javascript() is deprecated. '
                       'Please use app.add_js_file() instead.',
@@ -928,7 +927,7 @@ class Sphinx:
         self.add_js_file(filename, **kwargs)
 
     def add_js_file(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+        # type: (str, **str) -> None
         """Register a JavaScript file to include in the HTML output.
 
         Add *filename* to the list of JavaScript files that the default HTML
@@ -955,7 +954,7 @@ class Sphinx:
             self.builder.add_js_file(filename, **kwargs)  # type: ignore
 
     def add_css_file(self, filename, **kwargs):
-        # type: (unicode, **unicode) -> None
+        # type: (str, **str) -> None
         """Register a stylesheet to include in the HTML output.
 
         Add *filename* to the list of CSS files that the default HTML template
@@ -995,13 +994,13 @@ class Sphinx:
             self.builder.add_css_file(filename, **kwargs)  # type: ignore
 
     def add_stylesheet(self, filename, alternate=False, title=None):
-        # type: (unicode, bool, unicode) -> None
+        # type: (str, bool, str) -> None
         """An alias of :meth:`add_css_file`."""
         warnings.warn('The app.add_stylesheet() is deprecated. '
                       'Please use app.add_css_file() instead.',
                       RemovedInSphinx40Warning, stacklevel=2)
 
-        attributes = {}  # type: Dict[unicode, unicode]
+        attributes = {}  # type: Dict[str, str]
         if alternate:
             attributes['rel'] = 'alternate stylesheet'
         else:
@@ -1013,7 +1012,7 @@ class Sphinx:
         self.add_css_file(filename, **attributes)
 
     def add_latex_package(self, packagename, options=None):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         r"""Register a package to include in the LaTeX source code.
 
         Add *packagename* to the list of packages that LaTeX source code will
@@ -1032,7 +1031,7 @@ class Sphinx:
         self.registry.add_latex_package(packagename, options)
 
     def add_lexer(self, alias, lexer):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         """Register a new lexer for source code.
 
         Use *lexer*, which must be an instance of a Pygments lexer class, to
@@ -1066,7 +1065,7 @@ class Sphinx:
         self.add_directive('auto' + cls.objtype, AutodocDirective)
 
     def add_autodoc_attrgetter(self, typ, getter):
-        # type: (Type, Callable[[Any, unicode, Any], Any]) -> None
+        # type: (Type, Callable[[Any, str, Any], Any]) -> None
         """Register a new ``getattr``-like function for the autodoc extension.
 
         Add *getter*, which must be a function with an interface compatible to
@@ -1098,7 +1097,7 @@ class Sphinx:
         languages[cls.lang] = cls
 
     def add_source_suffix(self, suffix, filetype, override=False):
-        # type: (unicode, unicode, bool) -> None
+        # type: (str, str, bool) -> None
         """Register a suffix of source files.
 
         Same as :confval:`source_suffix`.  The users can override this
@@ -1133,7 +1132,7 @@ class Sphinx:
         collector().enable(self)
 
     def add_html_theme(self, name, theme_path):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Register a HTML Theme.
 
         The *name* is a name of theme, and *path* is a full path to the theme
@@ -1145,7 +1144,7 @@ class Sphinx:
         self.html_themes[name] = theme_path
 
     def add_html_math_renderer(self, name, inline_renderers=None, block_renderers=None):
-        # type: (unicode, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
+        # type: (str, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
         """Register a math renderer for HTML.
 
         The *name* is a name of the math renderer.  Both *inline_renderers* and
@@ -1159,7 +1158,7 @@ class Sphinx:
         self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
 
     def add_message_catalog(self, catalog, locale_dir):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Register a message catalog.
 
         The *catalog* is a name of catalog, and *locale_dir* is a base path
@@ -1173,7 +1172,7 @@ class Sphinx:
 
     # ---- other methods -------------------------------------------------
     def is_parallel_allowed(self, typ):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         """Check parallel processing is allowed or not.
 
         ``typ`` is a type of processing; ``'read'`` or ``'write'``.
@@ -1206,7 +1205,7 @@ class Sphinx:
 
     @property
     def _setting_up_extension(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         warnings.warn('app._setting_up_extension is deprecated.',
                       RemovedInSphinx30Warning)
         return ['?']
@@ -1219,7 +1218,7 @@ class TemplateBridge:
     """
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, Theme, List[unicode]) -> None
+        # type: (Builder, Theme, List[str]) -> None
         """Called by the builder to initialize the template system.
 
         *builder* is the builder object; you'll probably want to look at the
@@ -1239,14 +1238,14 @@ class TemplateBridge:
         return 0
 
     def render(self, template, context):
-        # type: (unicode, Dict) -> None
+        # type: (str, Dict) -> None
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """
         raise NotImplementedError('must be implemented in subclasses')
 
     def render_string(self, template, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         """Called by the builder to render a template given as a string with a
         specified context (a Python dictionary).
         """

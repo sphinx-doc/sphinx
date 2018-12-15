@@ -12,12 +12,9 @@
 
 import re
 
-from six import integer_types
-
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -42,7 +39,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
-        # type: (Match) -> unicode
+        # type: (Match) -> str
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -95,7 +92,7 @@ def dumps(obj, key=False):
         return 'null'
     elif obj is True or obj is False:
         return obj and 'true' or 'false'
-    elif isinstance(obj, integer_types + (float,)):  # type: ignore
+    elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(sorted('%s:%s' % (

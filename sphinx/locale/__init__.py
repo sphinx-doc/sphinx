@@ -12,18 +12,16 @@
 import gettext
 import locale
 import warnings
-from collections import defaultdict
+from collections import UserString, defaultdict
 from gettext import NullTranslations
 
 from six import text_type
-from six.moves import UserString
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class _TranslationProxy(UserString):
@@ -41,7 +39,7 @@ class _TranslationProxy(UserString):
     __slots__ = ('_func', '_args')
 
     def __new__(cls, func, *args):
-        # type: (Callable, unicode) -> object
+        # type: (Callable, str) -> object
         if not args:
             # not called with "function" and "arguments", but a plain string
             return text_type(func)
@@ -52,20 +50,20 @@ class _TranslationProxy(UserString):
         return (self._func,) + self._args  # type: ignore
 
     def __init__(self, func, *args):
-        # type: (Callable, unicode) -> None
+        # type: (Callable, str) -> None
         self._func = func
         self._args = args
 
     @property
     def data(self):  # type: ignore
-        # type: () -> unicode
+        # type: () -> str
         return self._func(*self._args)
 
     # replace function from UserString; it instantiates a self.__class__
     # for the encoding result
 
     def encode(self, encoding=None, errors=None):  # type: ignore
-        # type: (unicode, unicode) -> bytes
+        # type: (str, str) -> bytes
         if encoding:
             if errors:
                 return self.data.encode(encoding, errors)
@@ -83,45 +81,45 @@ class _TranslationProxy(UserString):
         return str(self.data)
 
     def __unicode__(self):
-        # type: () -> unicode
+        # type: () -> str
         return text_type(self.data)
 
     def __add__(self, other):  # type: ignore
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.data + other
 
     def __radd__(self, other):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return other + self.data
 
     def __mod__(self, other):  # type: ignore
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.data % other
 
     def __rmod__(self, other):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return other % self.data
 
     def __mul__(self, other):  # type: ignore
-        # type: (Any) -> unicode
+        # type: (Any) -> str
         return self.data * other
 
     def __rmul__(self, other):
-        # type: (Any) -> unicode
+        # type: (Any) -> str
         return other * self.data
 
     def __getattr__(self, name):
-        # type: (unicode) -> Any
+        # type: (str) -> Any
         if name == '__members__':
             return self.__dir__()
         return getattr(self.data, name)
 
     def __getstate__(self):
-        # type: () -> Tuple[Callable, Tuple[unicode, ...]]
+        # type: () -> Tuple[Callable, Tuple[str, ...]]
         return self._func, self._args
 
     def __setstate__(self, tup):
-        # type: (Tuple[Callable, Tuple[unicode]]) -> None
+        # type: (Tuple[Callable, Tuple[str]]) -> None
         self._func, self._args = tup
 
     def __copy__(self):
@@ -137,7 +135,7 @@ class _TranslationProxy(UserString):
 
 
 def mygettext(string):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Used instead of _ when creating TranslationProxies, because _ is
     not bound yet at that time.
     """
@@ -147,7 +145,7 @@ def mygettext(string):
 
 
 def lazy_gettext(string):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """A lazy version of `gettext`."""
     # if isinstance(string, _TranslationProxy):
     #     return string
@@ -156,11 +154,11 @@ def lazy_gettext(string):
     return _TranslationProxy(mygettext, string)  # type: ignore
 
 
-translators = defaultdict(NullTranslations)  # type: Dict[Tuple[unicode, unicode], NullTranslations]  # NOQA
+translators = defaultdict(NullTranslations)  # type: Dict[Tuple[str, str], NullTranslations]
 
 
 def init(locale_dirs, language, catalog='sphinx', namespace='general'):
-    # type: (List[unicode], unicode, unicode, unicode) -> Tuple[NullTranslations, bool]
+    # type: (List[str], str, str, str) -> Tuple[NullTranslations, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -202,7 +200,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
 
 
 def init_console(locale_dir, catalog):
-    # type: (unicode, unicode) -> Tuple[NullTranslations, bool]
+    # type: (str, str) -> Tuple[NullTranslations, bool]
     """Initialize locale for console.
 
     .. versionadded:: 1.8
@@ -218,17 +216,17 @@ def init_console(locale_dir, catalog):
 
 
 def get_translator(catalog='sphinx', namespace='general'):
-    # type: (unicode, unicode) -> NullTranslations
+    # type: (str, str) -> NullTranslations
     return translators[(namespace, catalog)]
 
 
 def is_translator_registered(catalog='sphinx', namespace='general'):
-    # type: (unicode, unicode) -> bool
+    # type: (str, str) -> bool
     return (namespace, catalog) in translators
 
 
 def _lazy_translate(catalog, namespace, message):
-    # type: (unicode, unicode, unicode) -> unicode
+    # type: (str, str, str) -> str
     """Used instead of _ when creating TranslationProxy, because _ is
     not bound yet at that time.
     """
@@ -261,7 +259,7 @@ def get_translation(catalog, namespace='general'):
     .. versionadded:: 1.8
     """
     def gettext(message, *args):
-        # type: (unicode, *Any) -> unicode
+        # type: (str, *Any) -> str
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
             return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore  # NOQA
@@ -302,10 +300,10 @@ admonitionlabels = {
     'seealso':   _('See also'),
     'tip':       _('Tip'),
     'warning':   _('Warning'),
-}  # type: Dict[unicode, unicode]
+}
 
 # Moved to sphinx.directives.other (will be overrided later)
-versionlabels = {}  # type: Dict[unicode, unicode]
+versionlabels = {}  # type: Dict[str, str]
 
 # Moved to sphinx.domains.python (will be overrided later)
-pairindextypes = {}  # type: Dict[unicode, unicode]
+pairindextypes = {}  # type: Dict[str, str]

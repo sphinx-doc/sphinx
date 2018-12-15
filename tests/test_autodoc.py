@@ -1028,16 +1028,13 @@ def test_autodoc_member_order(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_module_scope(app):
-    def convert(s):
-        return re.sub('<.*>', '<FILTERED>', s)  # for py2/py3
-
     app.env.temp_data['autodoc:module'] = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')
-    assert list(map(convert, actual)) == [
+    assert list(actual) == [
         u'',
         u'.. py:attribute:: Class.mdocattr',
         u'   :module: target',
-        u'   :annotation: = <FILTERED>',
+        u'   :annotation: = <_io.StringIO object>',
         u'',
         u'   should be documented as well - süß',
         u'   '
@@ -1046,17 +1043,14 @@ def test_autodoc_module_scope(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_class_scope(app):
-    def convert(s):
-        return re.sub('<.*>', '<FILTERED>', s)  # for py2/py3
-
     app.env.temp_data['autodoc:module'] = 'target'
     app.env.temp_data['autodoc:class'] = 'Class'
     actual = do_autodoc(app, 'attribute', 'mdocattr')
-    assert list(map(convert, actual)) == [
+    assert list(actual) == [
         u'',
         u'.. py:attribute:: Class.mdocattr',
         u'   :module: target',
-        u'   :annotation: = <FILTERED>',
+        u'   :annotation: = <_io.StringIO object>',
         u'',
         u'   should be documented as well - süß',
         u'   '

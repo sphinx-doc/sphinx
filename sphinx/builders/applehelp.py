@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import pipes
 import plistlib
@@ -31,7 +30,6 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -270,7 +268,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(AppleHelpBuilder)
 

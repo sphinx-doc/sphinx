@@ -33,7 +33,6 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domain.std import StandardDomain  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -385,7 +384,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             return False
 
     def get_tokens(self, txtnodes):
-        # type: (List[nodes.Text]) -> Generator[Tuple[unicode, unicode], None, None]
+        # type: (List[nodes.Text]) -> Generator[Tuple[str, str], None, None]
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
 

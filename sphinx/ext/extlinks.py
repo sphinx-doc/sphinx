@@ -35,13 +35,12 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.typing import RoleFunction  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def make_link_role(base_url, prefix):
-    # type: (unicode, unicode) -> RoleFunction
+    # type: (str, str) -> RoleFunction
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:
@@ -69,7 +68,7 @@ def setup_link_roles(app):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

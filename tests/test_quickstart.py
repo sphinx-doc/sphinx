@@ -11,9 +11,10 @@
 
 import sys
 import time
+from io import StringIO
 
 import pytest
-from six import text_type, StringIO
+from six import text_type
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs

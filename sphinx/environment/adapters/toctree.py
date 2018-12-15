@@ -24,7 +24,6 @@ if False:
     from typing import Any, Dict, List  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,7 @@ class TocTree:
         self.env = env
 
     def note(self, docname, toctreenode):
-        # type: (unicode, addnodes.toctree) -> None
+        # type: (str, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
@@ -52,7 +51,7 @@ class TocTree:
 
     def resolve(self, docname, builder, toctree, prune=True, maxdepth=0,
                 titles_only=False, collapse=False, includehidden=False):
-        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Element  # NOQA
+        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Element
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -120,7 +119,7 @@ class TocTree:
                             subnode = subnode.parent
 
         def _entries_from_toctree(toctreenode, parents, separate=False, subtree=False):
-            # type: (addnodes.toctree, List[unicode], bool, bool) -> List[nodes.Element]
+            # type: (addnodes.toctree, List[str], bool, bool) -> List[nodes.Element]
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
             entries = []  # type: List[nodes.Element]
@@ -268,12 +267,12 @@ class TocTree:
         return newnode
 
     def get_toctree_ancestors(self, docname):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         parent = {}
         for p, children in self.env.toctree_includes.items():
             for child in children:
                 parent[child] = p
-        ancestors = []  # type: List[unicode]
+        ancestors = []  # type: List[str]
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -303,7 +302,7 @@ class TocTree:
                         self._toctree_prune(subnode, depth + 1, maxdepth,  collapse)
 
     def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> nodes.Node
+        # type: (str, Builder) -> nodes.Node
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -319,7 +318,7 @@ class TocTree:
         return toc
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
-        # type: (unicode, Builder, bool, Any) -> nodes.Element
+        # type: (str, Builder, bool, Any) -> nodes.Element
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
         toctrees = []  # type: List[nodes.Element]

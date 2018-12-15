@@ -8,16 +8,15 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import subprocess
 import sys
 from collections import namedtuple
+from io import StringIO
 from tempfile import gettempdir
 
 import pytest
-from six import StringIO
 
 from . import util
 

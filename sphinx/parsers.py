@@ -23,7 +23,6 @@ if False:
     from docutils import nodes  # NOQA
     from docutils.transforms import Transform  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class Parser(docutils.parsers.Parser):
@@ -104,7 +103,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_source_parser(RSTParser)
 
     return {

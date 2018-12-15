@@ -9,8 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+from io import StringIO
+
 import pytest
-from six import StringIO
 
 from sphinx.ext.autosummary import mangle_signature, import_by_name, extract_summary
 from sphinx.testing.util import etree_parse

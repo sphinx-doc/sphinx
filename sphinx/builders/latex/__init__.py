@@ -45,7 +45,6 @@ if False:
     from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 XINDY_LANG_OPTIONS = {
@@ -103,11 +102,11 @@ XINDY_LANG_OPTIONS = {
     'el': '-L greek -C utf8 ',
     # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
     'el-polyton': '-L greek -C polytonic-utf8 ',
-}  # type: Dict[unicode, unicode]
+}
 
 XINDY_CYRILLIC_SCRIPTS = [
     'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk',
-]  # type: List[unicode]
+]
 
 logger = logging.getLogger(__name__)
 
@@ -130,27 +129,27 @@ class LaTeXBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        self.context = {}           # type: Dict[unicode, Any]
-        self.docnames = []          # type: Iterable[unicode]
-        self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
+        self.context = {}           # type: Dict[str, Any]
+        self.docnames = []          # type: Iterable[str]
+        self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.usepackages = self.app.registry.latex_packages
         texescape.init()
 
         self.init_context()
 
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, List[unicode]]
+        # type: () -> Union[str, List[str]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (unicode, unicode, unicode) -> unicode
+        # type: (str, str, str) -> str
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -162,7 +161,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[unicode, unicode]]
+        self.titles = []  # type: List[Tuple[str, str]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -256,7 +255,7 @@ class LaTeXBuilder(Builder):
             logger.info("done")
 
     def get_contentsname(self, indexfile):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         tree = self.env.get_doctree(indexfile)
         contentsname = None
         for toctree in tree.traverse(addnodes.toctree):
@@ -267,12 +266,12 @@ class LaTeXBuilder(Builder):
         return contentsname
 
     def update_doc_context(self, title, author):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         self.context['title'] = title
         self.context['author'] = author
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.document
+        # type: (str, bool, List[str]) -> nodes.document
         from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
@@ -427,7 +426,7 @@ def validate_config_values(app, config):
 
 
 def default_latex_engine(config):
-    # type: (Config) -> unicode
+    # type: (Config) -> str
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'platex'
@@ -436,7 +435,7 @@ def default_latex_engine(config):
 
 
 def default_latex_docclass(config):
-    # type: (Config) -> Dict[unicode, unicode]
+    # type: (Config) -> Dict[str, str]
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
         return {'manual': 'jsbook',
@@ -452,7 +451,7 @@ def default_latex_use_xindy(config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(LaTeXBuilder)
     app.add_post_transform(CitationReferenceTransform)
     app.add_post_transform(MathReferenceTransform)

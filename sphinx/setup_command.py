@@ -11,14 +11,12 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import sys
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
-
-from six import StringIO
+from io import StringIO
 
 from sphinx.application import Sphinx
 from sphinx.cmd.build import handle_exception
@@ -29,7 +27,6 @@ from sphinx.util.osutil import abspath
 if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class BuildDoc(Command):
@@ -97,14 +94,14 @@ class BuildDoc(Command):
         # type: () -> None
         self.fresh_env = self.all_files = False
         self.pdb = False
-        self.source_dir = self.build_dir = None  # type: unicode
+        self.source_dir = self.build_dir = None  # type: str
         self.builder = 'html'
         self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
         self.today = ''
-        self.config_dir = None  # type: unicode
+        self.config_dir = None  # type: str
         self.link_index = False
         self.copyright = ''
         self.verbosity = 0
@@ -112,7 +109,7 @@ class BuildDoc(Command):
         self.nitpicky = False
 
     def _guess_source_dir(self):
-        # type: () -> unicode
+        # type: () -> str
         for guess in ('doc', 'docs'):
             if not os.path.isdir(guess):
                 continue
@@ -125,7 +122,7 @@ class BuildDoc(Command):
     # unicode, causing finalize_options to fail if invoked again. Workaround
     # for https://bugs.python.org/issue19570
     def _ensure_stringlike(self, option, what, default=None):
-        # type: (unicode, unicode, Any) -> Any
+        # type: (str, str, Any) -> Any
         val = getattr(self, option)
         if val is None:
             setattr(self, option, default)
@@ -156,7 +153,7 @@ class BuildDoc(Command):
 
         self.builder_target_dirs = [
             (builder, os.path.join(self.build_dir, builder))
-            for builder in self.builder]  # type: List[Tuple[str, unicode]]
+            for builder in self.builder]
 
     def run(self):
         # type: () -> None
@@ -166,7 +163,7 @@ class BuildDoc(Command):
             status_stream = StringIO()
         else:
             status_stream = sys.stdout  # type: ignore
-        confoverrides = {}  # type: Dict[unicode, Any]
+        confoverrides = {}  # type: Dict[str, Any]
         if self.project:
             confoverrides['project'] = self.project
         if self.version:
