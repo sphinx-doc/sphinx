@@ -36,7 +36,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import fs_encoding
 from sphinx.util import smartypants  # noqa
 
 # import other utilities; partly for backwards compatibility, so don't
@@ -270,8 +269,6 @@ def save_traceback(app):
     if app is not None:
         for ext in app.extensions.values():
             modfile = getattr(ext.module, '__file__', 'unknown')
-            if isinstance(modfile, bytes):
-                modfile = modfile.decode(fs_encoding, 'replace')
             if ext.version != 'builtin':
                 os.write(fd, ('#   %s (%s) from %s\n' %
                               (ext.name, ext.version, modfile)).encode('utf-8'))
