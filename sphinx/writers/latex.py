@@ -926,8 +926,7 @@ class LaTeXTranslator(SphinxTranslator):
                     if isinstance(c, addnodes.start_of_file):
                         continue
                     elif isinstance(c, nodes.Element):
-                        for k in footnotes_under(c):
-                            yield k
+                        yield from footnotes_under(c)
 
         fnotes = {}  # type: Dict[unicode, List[Union[collected_footnote, bool]]]
         for fn in footnotes_under(node):

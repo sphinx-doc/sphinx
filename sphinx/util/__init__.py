@@ -667,8 +667,7 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
                     stringify_func=display_chunk):
     # type: (Iterable, unicode, str, int, int, Callable[[Any], unicode]) -> Iterable  # NOQA
     if length == 0:
-        for item in old_status_iterator(iterable, summary, color, stringify_func):
-            yield item
+        yield from old_status_iterator(iterable, summary, color, stringify_func)
         return
     l = 0
     summary = bold(summary)
