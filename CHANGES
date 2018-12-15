@@ -62,7 +62,8 @@ Deprecated
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.attrdict``
 * ``sphinx.util.force_decode()``
-* ``sphinx.util.get_matching_docs()`` is deprecated
+* ``sphinx.util.get_matching_docs()``
+* ``sphinx.util.inspect.Parameter``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
 * ``sphinx.util.pycompat.u``
