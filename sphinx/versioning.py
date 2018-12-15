@@ -11,12 +11,10 @@
 """
 import pickle
 import warnings
-from itertools import product
+from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
 from uuid import uuid4
-
-from six.moves import zip_longest
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import SphinxTransform
