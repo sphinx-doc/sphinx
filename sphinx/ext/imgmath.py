@@ -124,7 +124,7 @@ def compile_math(latex, builder):
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
-    with open(filename, 'w', encoding='utf-8') as f:  # type: ignore
+    with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
     # build latex command; old versions of latex don't have the

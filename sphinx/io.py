@@ -233,7 +233,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
         for lineno, line in enumerate(epilog.splitlines()):
             text.append(line, '<rst_epilog>', lineno)
 
-    def read(self):
+    def read(self):  # type: ignore
         # type: () -> StringList
         warnings.warn('SphinxRSTFileInput is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -284,7 +284,7 @@ def read_doc(app, env, filename):
     filetype = get_filetype(app.config.source_suffix, filename)
     input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
-    source = input_class(app, env, source=None, source_path=filename,
+    source = input_class(app, env, source=None, source_path=filename,  # type: ignore
                          encoding=env.config.source_encoding)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
@@ -295,7 +295,7 @@ def read_doc(app, env, filename):
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    pub = Publisher(reader=reader,
+    pub = Publisher(reader=reader,  # type: ignore
                     parser=parser,
                     writer=SphinxDummyWriter(),
                     source_class=SphinxDummySourceClass,

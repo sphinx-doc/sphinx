@@ -140,4 +140,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)  # type: ignore
+imghdr.tests.append(test_svg)

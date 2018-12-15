@@ -430,7 +430,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
-            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:  # type: ignore
+            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
         else:
             if 'quiet' not in d:

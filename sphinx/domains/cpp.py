@@ -2232,7 +2232,7 @@ class ASTNestedName(ASTBase):
             #       so it can remove it in inner declarations.
             dest = signode
             if mode == 'lastIsName':
-                dest = addnodes.desc_addname()
+                dest = addnodes.desc_addname()  # type: ignore
             for i in range(len(names)):
                 nne = names[i]
                 template = self.templates[i]
@@ -6936,7 +6936,7 @@ class CPPDomain(Domain):
         # the non-identifier refs are cross-references, which should be processed:
         # - fix parenthesis due to operator() and add_function_parentheses
         if typ != "identifier":
-            title = contnode.pop(0).astext()
+            title = contnode.pop(0).astext()  # type: ignore
             # If it's operator(), we need to add '()' if explicit function parens
             # are requested. Then the Sphinx machinery will add another pair.
             # Also, if it's an 'any' ref that resolves to a function, we need to add

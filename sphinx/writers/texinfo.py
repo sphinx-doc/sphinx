@@ -1745,7 +1745,7 @@ class TexinfoTranslator(SphinxTranslator):
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
 
-    def _make_visit_admonition(name):
+    def _make_visit_admonition(name):  # type: ignore
         # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Element], None]
         warnings.warn('TexinfoTranslator._make_visit_admonition() is deprecated.',
                       RemovedInSphinx30Warning)

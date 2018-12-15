@@ -337,7 +337,7 @@ class TextWrapper(textwrap.TextWrapper):
         """
         def split(t):
             # type: (unicode) -> List[unicode]
-            return super(TextWrapper, self)._split(t)  # type: ignore
+            return super(TextWrapper, self)._split(t)
         chunks = []  # type: List[unicode]
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
@@ -1372,7 +1372,7 @@ class TextTranslator(SphinxTranslator):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
 
-    def _make_depart_admonition(name):
+    def _make_depart_admonition(name):  # type: ignore
         # type: (unicode) -> Callable[[TextTranslator, nodes.Element], None]
         warnings.warn('TextTranslator._make_depart_admonition() is deprecated.',
                       RemovedInSphinx30Warning)

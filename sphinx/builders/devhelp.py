@@ -136,7 +136,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Dump the XML file
         xmlfile = path.join(outdir, outname + '.devhelp.gz')
-        with gzip.open(xmlfile, 'w') as f:  # type: ignore
+        with gzip.open(xmlfile, 'w') as f:
             tree.write(f, 'utf-8')
 
 

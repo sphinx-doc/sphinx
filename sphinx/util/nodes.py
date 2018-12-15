@@ -451,7 +451,7 @@ def set_source_info(directive, node):
 
 def set_role_source_info(inliner, lineno, node):
     # type: (Inliner, int, nodes.Node) -> None
-    node.source, node.line = inliner.reporter.get_source_and_line(lineno)
+    node.source, node.line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
 
 NON_SMARTQUOTABLE_PARENT_NODES = (
@@ -510,4 +510,4 @@ def _new_copy(self):
     return newnode
 
 
-nodes.Element.copy = _new_copy
+nodes.Element.copy = _new_copy  # type: ignore

@@ -315,7 +315,7 @@ class Documenter:
             modname = None
             parents = []
 
-        self.modname, self.objpath = self.resolve_name(modname, parents, path, base)  # type: ignore  # NOQA
+        self.modname, self.objpath = self.resolve_name(modname, parents, path, base)
 
         if not self.modname:
             return False
@@ -905,7 +905,7 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-            modname, cls = rpartition(mod_cls, '.')  # type: ignore
+            modname, cls = rpartition(mod_cls, '.')
             parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:
@@ -953,7 +953,7 @@ class DocstringSignatureMixin:
             result = args, retann
             # don't look any further
             break
-        return result  # type: ignore
+        return result
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (unicode, int) -> List[List[unicode]]

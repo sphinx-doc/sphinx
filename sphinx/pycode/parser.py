@@ -50,7 +50,7 @@ def get_assign_targets(node):
 
 
 def get_lvar_names(node, self=None):
-    # type: (ast.AST, ast.expr) -> List[unicode]
+    # type: (ast.AST, ast.arg) -> List[unicode]
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -60,7 +60,7 @@ def get_lvar_names(node, self=None):
         # => TypeError
     """
     if self:
-        self_id = self.arg  # type: ignore
+        self_id = self.arg
 
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
@@ -100,7 +100,7 @@ def dedent_docstring(s):
         # dummy function to mock `inspect.getdoc`.
         pass
 
-    dummy.__doc__ = s  # type: ignore
+    dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
     return docstring.lstrip("\r\n").rstrip("\r\n")
 
@@ -144,7 +144,7 @@ class TokenProcessor:
         # type: (List[unicode]) -> None
         lines = iter(buffers)
         self.buffers = buffers
-        self.tokens = tokenize.generate_tokens(lambda: next(lines))  # type: ignore
+        self.tokens = tokenize.generate_tokens(lambda: next(lines))
         self.current = None     # type: Token
         self.previous = None    # type: Token
 
@@ -279,7 +279,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.comments[(context, name)] = comment
 
     def get_self(self):
-        # type: () -> ast.expr
+        # type: () -> ast.arg
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]

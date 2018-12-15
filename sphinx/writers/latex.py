@@ -40,7 +40,7 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman
+    from roman import toRoman  # type: ignore
 
 if False:
     # For type annotation
@@ -2664,7 +2664,7 @@ class LaTeXTranslator(SphinxTranslator):
 
         return ('%s\\def%s{%s}%s\n' % (prefix, name, definition, suffix))
 
-    def _make_visit_admonition(name):
+    def _make_visit_admonition(name):  # type: ignore
         # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Element], None]
         warnings.warn('LaTeXTranslator._make_visit_admonition() is deprecated.',
                       RemovedInSphinx30Warning)

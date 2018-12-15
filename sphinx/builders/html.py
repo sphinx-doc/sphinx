@@ -833,7 +833,7 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.join(self.outdir, '_static'))
             # first, create pygments style file
             with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-                f.write(self.highlighter.get_stylesheet())  # type: ignore
+                f.write(self.highlighter.get_stylesheet())
             # then, copy translations JavaScript file
             if self.config.language is not None:
                 jsfile = self._get_translations_js()
@@ -956,7 +956,7 @@ class StandaloneHTMLBuilder(Builder):
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                with open(searchindexfn, encoding='utf-8') as ft:  # type: ignore
+                with open(searchindexfn, encoding='utf-8') as ft:
                     self.indexer.load(ft, self.indexer_format)
             else:
                 with open(searchindexfn, 'rb') as fb:
@@ -1137,8 +1137,8 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with open(outfilename, 'w',  # type: ignore
-                      encoding=ctx['encoding'], errors='xmlcharrefreplace') as f:
+            with open(outfilename, 'w', encoding=ctx['encoding'],
+                      errors='xmlcharrefreplace') as f:
                 f.write(output)
         except (IOError, OSError) as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
@@ -1175,7 +1175,7 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:  # type: ignore
+            with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:
                 self.indexer.dump(ft, self.indexer_format)
         else:
             with open(searchindexfn + '.tmp', 'wb') as fb:
@@ -1433,7 +1433,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def dump_context(self, context, filename):
         # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            with open(filename, 'w', encoding='utf-8') as ft:  # type: ignore
+            with open(filename, 'w', encoding='utf-8') as ft:
                 self.implementation.dump(context, ft, *self.additional_dump_args)
         else:
             with open(filename, 'wb') as fb:

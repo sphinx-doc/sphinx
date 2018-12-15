@@ -83,7 +83,7 @@ def relative_uri(base, to):
 def ensuredir(path):
     # type: (unicode) -> None
     """Ensure that a path exists."""
-    os.makedirs(path, exist_ok=True)  # type: ignore
+    os.makedirs(path, exist_ok=True)
 
 
 def walk(top, topdown=True, followlinks=False):
@@ -169,9 +169,9 @@ def ustrftime(format, *args):
     # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
     # https://bugs.python.org/issue8304
     try:
-        return time.strftime(format, *args)  # type: ignore
+        return time.strftime(format, *args)
     except UnicodeEncodeError:
-        r = time.strftime(format.encode('unicode-escape').decode(), *args)  # type: ignore
+        r = time.strftime(format.encode('unicode-escape').decode(), *args)
         return r.encode().decode('unicode-escape')
 
 
@@ -200,7 +200,7 @@ def abspath(pathdir):
         try:
             pathdir = pathdir.decode(fs_encoding)
         except UnicodeDecodeError:
-            raise UnicodeDecodeError('multibyte filename not supported on '  # type: ignore
+            raise UnicodeDecodeError('multibyte filename not supported on '
                                      'this filesystem encoding '
                                      '(%r)' % fs_encoding)
     return pathdir

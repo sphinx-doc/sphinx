@@ -114,7 +114,7 @@ class AutodocDirective(SphinxDirective):
         reporter = self.state.document.reporter
 
         try:
-            source, lineno = reporter.get_source_and_line(self.lineno)
+            source, lineno = reporter.get_source_and_line(self.lineno)  # type: ignore
         except AttributeError:
             source, lineno = (None, None)
         logger.debug('[autodoc] %s:%s: input:\n%s', source, lineno, self.block_text)

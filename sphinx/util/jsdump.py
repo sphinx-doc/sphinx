@@ -56,7 +56,7 @@ def encode_string(s):
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
                 return '\\u%04x\\u%04x' % (s1, s2)
-    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'  # type: ignore
+    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
 def decode_string(s):

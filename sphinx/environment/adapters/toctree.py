@@ -199,7 +199,7 @@ class TocTree:
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
                                 if subtrees:
-                                    toplevel[1][:] = subtrees
+                                    toplevel[1][:] = subtrees  # type: ignore
                                 else:
                                     toplevel.pop(1)
                     # resolve all sub-toctrees
@@ -246,8 +246,8 @@ class TocTree:
             caption_node.rawsource = toctree['rawcaption']
             if hasattr(toctree, 'uid'):
                 # move uid to caption_node to translate it
-                caption_node.uid = toctree.uid
-                del toctree.uid
+                caption_node.uid = toctree.uid  # type: ignore
+                del toctree.uid  # type: ignore
             newnode += caption_node
         newnode.extend(tocentries)
         newnode['toctree'] = True

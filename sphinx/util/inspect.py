@@ -54,7 +54,7 @@ def getargspec(func):
         raise TypeError(
             "can't compute signature for built-in type {}".format(func))
 
-    sig = inspect.signature(func)  # type: ignore
+    sig = inspect.signature(func)
 
     args = []
     varargs = None
@@ -72,19 +72,19 @@ def getargspec(func):
         kind = param.kind
         name = param.name
 
-        if kind is inspect.Parameter.POSITIONAL_ONLY:  # type: ignore
+        if kind is inspect.Parameter.POSITIONAL_ONLY:
             args.append(name)
-        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:  # type: ignore
+        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
             args.append(name)
             if param.default is not param.empty:
                 defaults += (param.default,)  # type: ignore
-        elif kind is inspect.Parameter.VAR_POSITIONAL:  # type: ignore
+        elif kind is inspect.Parameter.VAR_POSITIONAL:
             varargs = name
-        elif kind is inspect.Parameter.KEYWORD_ONLY:  # type: ignore
+        elif kind is inspect.Parameter.KEYWORD_ONLY:
             kwonlyargs.append(name)
             if param.default is not param.empty:
                 kwdefaults[name] = param.default
-        elif kind is inspect.Parameter.VAR_KEYWORD:  # type: ignore
+        elif kind is inspect.Parameter.VAR_KEYWORD:
             varkw = name
 
         if param.annotation is not param.empty:
@@ -98,7 +98,7 @@ def getargspec(func):
         # compatibility with 'func.__defaults__'
         defaults = None
 
-    return inspect.FullArgSpec(args, varargs, varkw, defaults,  # type: ignore
+    return inspect.FullArgSpec(args, varargs, varkw, defaults,
                                kwonlyargs, kwdefaults, annotations)
 
 
@@ -308,7 +308,7 @@ class Signature:
         self.partialmethod_with_noargs = False
 
         try:
-            self.signature = inspect.signature(subject)  # type: ignore
+            self.signature = inspect.signature(subject)
         except IndexError:
             # Until python 3.6.4, cpython has been crashed on inspection for
             # partialmethods not having any arguments.
@@ -320,7 +320,7 @@ class Signature:
                 raise
 
         try:
-            self.annotations = typing.get_type_hints(subject)  # type: ignore
+            self.annotations = typing.get_type_hints(subject)
         except Exception:
             # get_type_hints() does not support some kind of objects like partial,
             # ForwardRef and so on.  For them, it raises an exception. In that case,
@@ -355,7 +355,7 @@ class Signature:
             if self.has_retval:
                 return self.signature.return_annotation
             else:
-                return inspect.Parameter.empty  # type: ignore
+                return inspect.Parameter.empty
         else:
             return None
 
@@ -391,10 +391,10 @@ class Signature:
                 if param.default is not param.empty:
                     if param.annotation is param.empty:
                         arg.write('=')
-                        arg.write(object_description(param.default))  # type: ignore
+                        arg.write(object_description(param.default))
                     else:
                         arg.write(' = ')
-                        arg.write(object_description(param.default))  # type: ignore
+                        arg.write(object_description(param.default))
             elif param.kind == param.VAR_POSITIONAL:
                 arg.write('*')
                 arg.write(param.name)
@@ -405,7 +405,7 @@ class Signature:
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty:  # type: ignore
+        if self.return_annotation is inspect.Parameter.empty:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
