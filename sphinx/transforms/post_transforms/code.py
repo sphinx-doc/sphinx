@@ -24,7 +24,6 @@ if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 HighlightSetting = NamedTuple('HighlightSetting', [('language', text_type),
@@ -53,7 +52,7 @@ class HighlightLanguageTransform(SphinxTransform):
 
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document, default_language):
-        # type: (nodes.document, unicode) -> None
+        # type: (nodes.document, str) -> None
         self.default_setting = HighlightSetting(default_language, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
         super(HighlightLanguageVisitor, self).__init__(document)
@@ -142,7 +141,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

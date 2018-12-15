@@ -16,7 +16,6 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 if False:
     # For type annotation
     from typing import Any, Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class Config:
@@ -278,7 +277,7 @@ class Config:
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -336,7 +335,7 @@ def _patch_python_domain():
 
 
 def _process_docstring(app, what, name, obj, options, lines):
-    # type: (Sphinx, unicode, unicode, Any, Any, List[unicode]) -> None
+    # type: (Sphinx, str, str, Any, Any, List[str]) -> None
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -386,7 +385,7 @@ def _process_docstring(app, what, name, obj, options, lines):
 
 
 def _skip_member(app, what, name, obj, skip, options):
-    # type: (Sphinx, unicode, unicode, Any, bool, Any) -> bool
+    # type: (Sphinx, str, str, Any, bool, Any) -> bool
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class

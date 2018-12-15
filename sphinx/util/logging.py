@@ -26,7 +26,6 @@ if False:
     from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 NAMESPACE = 'sphinx'
@@ -50,12 +49,12 @@ VERBOSITY_MAP.update({
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
-COLOR_MAP.update({
-    logging.ERROR: 'darkred',
-    logging.WARNING: 'red',
-    logging.DEBUG: 'darkgray',
-})
+COLOR_MAP = defaultdict(lambda: 'blue',
+                        {
+                            logging.ERROR: 'darkred',
+                            logging.WARNING: 'red',
+                            logging.DEBUG: 'darkgray'
+                        })
 
 
 def getLogger(name):
@@ -125,7 +124,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
     def log(self, level, msg, *args, **kwargs):  # type: ignore
-        # type: (Union[int, str], unicode, Any, Any) -> None
+        # type: (Union[int, str], str, Any, Any) -> None
         if isinstance(level, int):
             super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
         else:
@@ -133,11 +132,11 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
-        # type: (unicode, Dict) -> Tuple[unicode, Dict]
+        # type: (str, Dict) -> Tuple[str, Dict]
         extra = kwargs.setdefault('extra', {})
         if 'type' in kwargs:
             extra['type'] = kwargs.pop('type')
@@ -290,7 +289,7 @@ def skip_warningiserror(skip=True):
 
 @contextmanager
 def prefixed_warnings(prefix):
-    # type: (unicode) -> Generator
+    # type: (str) -> Generator
     """Prepend prefix to all records for a while.
 
     For example::
@@ -361,7 +360,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
-    # type: (unicode, unicode, List[unicode]) -> bool
+    # type: (str, str, List[str]) -> bool
     """Check the warning is suppressed or not."""
     if type is None:
         return False
@@ -447,7 +446,7 @@ class MessagePrefixFilter(logging.Filter):
     """Prepend prefix to all records."""
 
     def __init__(self, prefix):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.prefix = prefix
         super(MessagePrefixFilter, self).__init__()
 
@@ -539,7 +538,7 @@ class SafeEncodingWriter:
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         try:
             self.stream.write(data)
         except UnicodeEncodeError:
@@ -560,7 +559,7 @@ class LastMessagesWriter:
         self.app = app
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.app.messagelog.append(data)
 
 

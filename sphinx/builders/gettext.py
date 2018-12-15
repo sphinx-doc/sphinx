@@ -36,7 +36,6 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -68,13 +67,13 @@ class Catalog:
 
     def __init__(self):
         # type: () -> None
-        self.messages = []  # type: List[unicode]
+        self.messages = []  # type: List[str]
                             # retain insertion order, a la OrderedDict
-        self.metadata = OrderedDict()  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]  # NOQA
+        self.metadata = OrderedDict()   # type: Dict[str, List[Tuple[str, int, str]]]
                                         # msgid -> file, line, uid
 
     def add(self, msg, origin):
-        # type: (unicode, Union[nodes.Element, MsgOrigin]) -> None
+        # type: (str, Union[nodes.Element, MsgOrigin]) -> None
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -91,7 +90,7 @@ class MsgOrigin:
     """
 
     def __init__(self, source, line):
-        # type: (unicode, int) -> None
+        # type: (str, int) -> None
         self.source = source
         self.line = line
         self.uid = uuid4().hex
@@ -124,26 +123,26 @@ class I18nBuilder(Builder):
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[unicode, Catalog]
+        self.catalogs = defaultdict(Catalog)  # type: DefaultDict[str, Catalog]
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return ''
 
     def get_outdated_docs(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         return
 
     def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], unicode) -> None
+        # type: (Set[CatalogInfo], str) -> None
         return
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.document) -> None
+        # type: (str, nodes.document) -> None
         catalog = self.catalogs[find_catalog(docname, self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
@@ -193,7 +192,7 @@ ltz = LocalTimeZone()
 
 
 def should_write(filepath, new_content):
-    # type: (unicode, unicode) -> bool
+    # type: (str, str) -> bool
     if not path.exists(filepath):
         return True
     try:
@@ -225,7 +224,7 @@ class MessageCatalogBuilder(I18nBuilder):
         self.templates.init(self)
 
     def _collect_templates(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
@@ -257,7 +256,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 raise ThemeError('%s: %r' % (template, exc))
 
     def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[unicode], unicode, unicode) -> None
+        # type: (Iterable[str], str, str) -> None
         self._extract_from_template()
         super(MessageCatalogBuilder, self).build(docnames, summary, method)
 
@@ -309,7 +308,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext')

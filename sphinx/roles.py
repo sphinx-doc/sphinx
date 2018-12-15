@@ -26,7 +26,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import RoleFunction, unicode  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 generic_docroles = {
@@ -84,7 +84,7 @@ class XRefRole:
             self.innernodeclass = innernodeclass
 
     def _fix_parens(self, env, has_explicit_title, title, target):
-        # type: (BuildEnvironment, bool, unicode, unicode) -> Tuple[unicode, unicode]
+        # type: (BuildEnvironment, bool, str, str) -> Tuple[str, str]
         if not has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -99,7 +99,7 @@ class XRefRole:
 
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
-        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         env = inliner.document.settings.env
         if not typ:
             typ = env.temp_data.get('default_role')
@@ -110,7 +110,7 @@ class XRefRole:
         else:
             typ = typ.lower()
         if ':' not in typ:
-            domain, role = '', typ  # type: unicode, unicode
+            domain, role = '', typ
             classes = ['xref', role]
         else:
             domain, role = typ.split(':', 1)
@@ -150,7 +150,7 @@ class XRefRole:
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -170,7 +170,7 @@ class XRefRole:
 
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.Element, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         result = super(AnyXRefRole, self).process_link(env, refnode, has_explicit_title,
                                                        title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
@@ -179,7 +179,7 @@ class AnyXRefRole(XRefRole):
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
@@ -199,7 +199,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
              targetid, '', None)]
-        anchor = ''  # type: unicode
+        anchor = ''
         anchorindex = target.find('#')
         if anchorindex > 0:
             target, anchor = target[:anchorindex], target[anchorindex:]
@@ -248,7 +248,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -287,7 +287,7 @@ parens_re = re.compile(r'(\\*{|\\*})')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -339,7 +339,7 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     text = utils.unescape(text)
     m = _abbr_re.search(text)
     if m is None:
@@ -352,7 +352,7 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     # create new reference target
     env = inliner.document.settings.env
     targetid = 'index-%s' % env.new_serialno('index')
@@ -398,7 +398,7 @@ specific_docroles = {
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     from docutils.parsers.rst import roles
 
     for rolename, nodeclass in generic_docroles.items():

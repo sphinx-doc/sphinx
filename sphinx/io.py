@@ -48,7 +48,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -170,7 +169,7 @@ class SphinxBaseFileInput(FileInput):
         super(SphinxBaseFileInput, self).__init__(*args, **kwds)
 
     def read(self):
-        # type: () -> unicode
+        # type: () -> str
         """Reads the contents from file.
 
         After reading, it emits Sphinx event ``source-read``.
@@ -213,7 +212,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
     supported = ('restructuredtext',)
 
     def prepend_prolog(self, text, prolog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         docinfo = self.count_docinfo_lines(text)
         if docinfo:
             # insert a blank line after docinfo
@@ -227,7 +226,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
         text.insert(docinfo + lineno + 1, '', '<generated>', 0)
 
     def append_epilog(self, text, epilog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         # append a blank line and rst_epilog
         text.append('', '<generated>', 0)
         for lineno, line in enumerate(epilog.splitlines()):
@@ -265,7 +264,7 @@ class FiletypeNotFoundError(Exception):
 
 
 def get_filetype(source_suffix, filename):
-    # type: (Dict[unicode, unicode], unicode) -> unicode
+    # type: (Dict[str, str], str) -> str
     for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
@@ -275,7 +274,7 @@ def get_filetype(source_suffix, filename):
 
 
 def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
     """Parse a document and convert to doctree."""
     # set up error_handler for the target document
     error_handler = UnicodeDecodeErrorHandler(env.docname)
@@ -307,7 +306,7 @@ def read_doc(app, env, filename):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.registry.add_source_input(SphinxFileInput)
 
     return {

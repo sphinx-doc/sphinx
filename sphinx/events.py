@@ -19,7 +19,6 @@ from sphinx.locale import __
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, List  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 # List of all known core events. Maps name to arguments description.
@@ -40,24 +39,24 @@ core_events = {
     'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
-}  # type: Dict[unicode, unicode]
+}
 
 
 class EventManager:
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()
-        self.listeners = defaultdict(OrderedDict)  # type: Dict[unicode, Dict[int, Callable]]
+        self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
         self.next_listener_id = 0
 
     def add(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
     def connect(self, name, callback):
-        # type: (unicode, Callable) -> int
+        # type: (str, Callable) -> int
         if name not in self.events:
             raise ExtensionError(__('Unknown event name: %s') % name)
 
@@ -72,14 +71,14 @@ class EventManager:
             event.pop(listener_id, None)
 
     def emit(self, name, *args):
-        # type: (unicode, Any) -> List
+        # type: (str, Any) -> List
         results = []
         for callback in self.listeners[name].values():
             results.append(callback(*args))
         return results
 
     def emit_firstresult(self, name, *args):
-        # type: (unicode, Any) -> Any
+        # type: (str, Any) -> Any
         for result in self.emit(name, *args):
             if result is not None:
                 return result

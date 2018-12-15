@@ -27,7 +27,6 @@ if False:
     from docutils.statemachine import StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +103,7 @@ def get_full_module_name(node):
 
 
 def repr_domxml(node, length=80):
-    # type: (nodes.Node, Optional[int]) -> unicode
+    # type: (nodes.Node, Optional[int]) -> str
     """
     return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
@@ -254,7 +253,7 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
-    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, unicode]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, str]]
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):  # type: nodes.Element
         if isinstance(node, addnodes.translatable):
@@ -282,7 +281,7 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
-    # type: (nodes.Element) -> unicode
+    # type: (nodes.Element) -> str
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
@@ -298,7 +297,7 @@ def traverse_parent(node, cls=None):
 
 
 def traverse_translatable_index(doctree):
-    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[unicode]]]
+    # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[str]]]
     """Traverse translatable index node from a document tree."""
     for node in doctree.traverse(NodeMatcher(addnodes.index, inline=False)):  # type: addnodes.index  # NOQA
         if 'raw_entries' in node:
@@ -309,7 +308,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
-    # type: (Any, StringList, nodes.Node) -> unicode
+    # type: (Any, StringList, nodes.Node) -> str
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -329,7 +328,7 @@ def nested_parse_with_titles(state, content, node):
 
 
 def clean_astext(node):
-    # type: (nodes.Element) -> unicode
+    # type: (nodes.Element) -> str
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
@@ -340,7 +339,7 @@ def clean_astext(node):
 
 
 def split_explicit_title(text):
-    # type: (unicode) -> Tuple[bool, unicode, unicode]
+    # type: (str) -> Tuple[bool, str, str]
     """Split role content into title and target, if given."""
     match = explicit_title_re.match(text)
     if match:
@@ -354,10 +353,10 @@ indextypes = [
 
 
 def process_index_entry(entry, targetid):
-    # type: (unicode, unicode) -> List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    # type: (str, str) -> List[Tuple[str, str, str, str, str]]
     from sphinx.domains.python import pairindextypes
 
-    indexentries = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    indexentries = []  # type: List[Tuple[str, str, str, str, str]]
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -393,7 +392,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
-    # type: (Builder, Set[unicode], unicode, nodes.document, Callable, List[unicode]) -> nodes.document  # NOQA
+    # type: (Builder, Set[str], str, nodes.document, Callable, List[str]) -> nodes.document
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -426,7 +425,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
 
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
-    # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
+    # type: (Builder, str, str, str, nodes.Node, str) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:

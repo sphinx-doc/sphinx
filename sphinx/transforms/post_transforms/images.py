@@ -27,7 +27,6 @@ if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +51,7 @@ class BaseImageConverter(SphinxTransform):
 
     @property
     def imagedir(self):
-        # type: () -> unicode
+        # type: () -> str
         return os.path.join(self.app.doctreedir, 'images')
 
 
@@ -160,7 +159,7 @@ class DataURIExtractor(BaseImageConverter):
 
 
 def get_filename_for(filename, mimetype):
-    # type: (unicode, unicode) -> unicode
+    # type: (str, str) -> str
     basename = os.path.basename(filename)
     return os.path.splitext(basename)[0] + get_image_extension(mimetype)
 
@@ -197,7 +196,7 @@ class ImageConverter(BaseImageConverter):
     #:         ('image/gif', 'image/png'),
     #:         ('application/pdf', 'image/png'),
     #:     ]
-    conversion_rules = []  # type: List[Tuple[unicode, unicode]]
+    conversion_rules = []  # type: List[Tuple[str, str]]
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
@@ -224,7 +223,7 @@ class ImageConverter(BaseImageConverter):
                 return False
 
     def get_conversion_rule(self, node):
-        # type: (nodes.image) -> Tuple[unicode, unicode]
+        # type: (nodes.image) -> Tuple[str, str]
         for candidate in self.guess_mimetypes(node):
             for supported in self.app.builder.supported_image_types:
                 rule = (candidate, supported)
@@ -239,7 +238,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError()
 
     def guess_mimetypes(self, node):
-        # type: (nodes.image) -> List[unicode]
+        # type: (nodes.image) -> List[str]
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
@@ -273,7 +272,7 @@ class ImageConverter(BaseImageConverter):
             self.env.images.add_file(self.env.docname, destpath)
 
     def convert(self, _from, _to):
-        # type: (unicode, unicode) -> bool
+        # type: (str, str) -> bool
         """Convert a image file to expected format.
 
         *_from* is a path for source image file, and *_to* is a path for
@@ -283,7 +282,7 @@ class ImageConverter(BaseImageConverter):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 

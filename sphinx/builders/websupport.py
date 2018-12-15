@@ -13,11 +13,10 @@ if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     try:
         from sphinxcontrib.websupport.builder import WebSupportBuilder
         app.add_builder(WebSupportBuilder)

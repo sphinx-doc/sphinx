@@ -68,7 +68,6 @@ if False:
     # For type annotation
     from typing import Any, Generator, Union  # NOQA
     from sphinx.config import Config  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
@@ -98,7 +97,7 @@ def ignore_insecure_warning(**kwargs):
 
 
 def _get_tls_cacert(url, config):
-    # type: (unicode, Config) -> Union[str, bool]
+    # type: (str, Config) -> Union[str, bool]
     """Get additional CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -121,7 +120,7 @@ def _get_tls_cacert(url, config):
 
 
 def get(url, **kwargs):
-    # type: (unicode, Any) -> requests.Response
+    # type: (str, Any) -> requests.Response
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -135,7 +134,7 @@ def get(url, **kwargs):
 
 
 def head(url, **kwargs):
-    # type: (unicode, Any) -> requests.Response
+    # type: (str, Any) -> requests.Response
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""

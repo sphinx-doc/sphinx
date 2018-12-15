@@ -22,7 +22,6 @@ except ImportError:
 if False:
     # For type annotation
     from typing import Dict  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
@@ -89,7 +88,7 @@ def coloron():
 
 
 def colorize(name, text, input_mode=False):
-    # type: (str, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def escseq(name):
         # Wrap escape sequence with ``\1`` and ``\2`` to let readline know
         # it is non-printable characters
@@ -113,7 +112,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return colorize(name, text)
     globals()[name] = inner
 

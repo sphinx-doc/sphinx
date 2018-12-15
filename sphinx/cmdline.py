@@ -44,8 +44,8 @@ def get_parser():
     return build.get_parser()
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     return build.main(argv)

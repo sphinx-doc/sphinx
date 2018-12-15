@@ -15,7 +15,6 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 class EnvironmentCollector:
@@ -27,7 +26,7 @@ class EnvironmentCollector:
     entries and toctrees, etc.
     """
 
-    listener_ids = None  # type: Dict[unicode, int]
+    listener_ids = None  # type: Dict[str, int]
 
     def enable(self, app):
         # type: (Sphinx) -> None
@@ -48,14 +47,14 @@ class EnvironmentCollector:
         self.listener_ids = None
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         """Remove specified data of a document.
 
         This method is called on the removal of the document."""
         raise NotImplementedError
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
         object which coming from a subprocess in parallel builds."""
         raise NotImplementedError
@@ -68,7 +67,7 @@ class EnvironmentCollector:
         raise NotImplementedError
 
     def get_updated_docs(self, app, env):
-        # type: (Sphinx, BuildEnvironment) -> List[unicode]
+        # type: (Sphinx, BuildEnvironment) -> List[str]
         """Return a list of docnames to re-read.
 
         This methods is called after reading the whole of documents (experimental).
@@ -76,7 +75,7 @@ class EnvironmentCollector:
         return []
 
     def get_outdated_docs(self, app, env, added, changed, removed):
-        # type: (Sphinx, BuildEnvironment, unicode, Set[unicode], Set[unicode], Set[unicode]) -> List[unicode]  # NOQA
+        # type: (Sphinx, BuildEnvironment, str, Set[str], Set[str], Set[str]) -> List[str]
         """Return a list of docnames to re-read.
 
         This methods is called before reading the documents.

@@ -26,7 +26,6 @@ if False:
     from typing import Any, Dict, Iterator, Set, Type  # NOQA
     from docutils.writers.xml import BaseXMLWriter  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +49,7 @@ class XMLBuilder(Builder):
         pass
 
     def get_outdated_docs(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -69,15 +68,15 @@ class XMLBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return docname
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         self.writer = self._writer_class(self)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.Node) -> None
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
@@ -119,7 +118,7 @@ class PseudoXMLBuilder(XMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

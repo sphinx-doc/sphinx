@@ -21,7 +21,6 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.applicatin import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +29,11 @@ class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.indexentries.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             env.indexentries[docname] = other.indexentries[docname]
 

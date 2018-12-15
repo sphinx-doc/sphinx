@@ -33,7 +33,6 @@ if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ section_template = '<section title="%(title)s" ref="%(ref)s"/>'
 
 
 def render_file(filename, **kwargs):
-    # type: (unicode, Any) -> unicode
+    # type: (str, Any) -> str
     pathname = os.path.join(package_dir, 'templates', 'qthelp', filename)
     return SphinxRenderer.render_from_file(pathname, kwargs)
 
@@ -88,7 +87,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # self.config.html_style = 'traditional.css'
 
     def get_theme_config(self):
-        # type: () -> Tuple[unicode, Dict]
+        # type: () -> Tuple[str, Dict]
         return self.config.qthelp_theme, self.config.qthelp_theme_options
 
     def handle_finish(self):
@@ -96,7 +95,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         self.build_qhp(self.outdir, self.config.qthelp_basename)
 
     def build_qhp(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('writing project file...'))
 
         # sections
@@ -170,8 +169,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return True
 
     def write_toc(self, node, indentlevel=4):
-        # type: (nodes.Node, int) -> List[unicode]
-        parts = []  # type: List[unicode]
+        # type: (nodes.Node, int) -> List[str]
+        parts = []  # type: List[str]
         if isinstance(node, nodes.list_item) and self.isdocnode(node):
             compact_paragraph = cast(addnodes.compact_paragraph, node[0])
             reference = cast(nodes.reference, compact_paragraph[0])
@@ -205,7 +204,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return parts
 
     def keyword_item(self, name, ref):
-        # type: (unicode, Any) -> unicode
+        # type: (str, Any) -> str
         matchobj = _idpattern.match(name)
         if matchobj:
             groupdict = matchobj.groupdict()
@@ -228,8 +227,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return item
 
     def build_keywords(self, title, refs, subitems):
-        # type: (unicode, List[Any], Any) -> List[unicode]
-        keywords = []  # type: List[unicode]
+        # type: (str, List[Any], Any) -> List[str]
+        keywords = []  # type: List[str]
 
         # if len(refs) == 0: # XXX
         #     write_param('See Also', title)
@@ -251,7 +250,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return keywords
 
     def get_project_files(self, outdir):
-        # type: (unicode) -> List[unicode]
+        # type: (str) -> List[str]
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
@@ -269,7 +268,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(QtHelpBuilder)
 

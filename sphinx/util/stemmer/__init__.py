@@ -11,10 +11,6 @@
 
 from sphinx.util.stemmer.porter import PorterStemmer
 
-if False:
-    # For type annotation
-    from sphinx.util.typing import unicode  # NOQA
-
 try:
     from Stemmer import Stemmer as _PyStemmer
     PYSTEMMER = True
@@ -24,7 +20,7 @@ except ImportError:
 
 class BaseStemmer:
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         raise NotImplementedError()
 
 
@@ -34,7 +30,7 @@ class PyStemmer(BaseStemmer):
         self.stemmer = _PyStemmer('porter')
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.stemmer.stemWord(word)
 
 
@@ -43,7 +39,7 @@ class StandardStemmer(PorterStemmer, BaseStemmer):  # type: ignore
     make at least the stem method nicer.
     """
     def stem(self, word):  # type: ignore
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return super(StandardStemmer, self).stem(word, 0, len(word) - 1)
 
 

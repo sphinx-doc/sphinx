@@ -23,7 +23,6 @@ from sphinx.util.nodes import NodeMatcher
 if False:
     # For type annotation
     from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -92,7 +91,7 @@ class ShowUrlsTransform(SphinxTransform):
                         node.parent.insert(index + 1, textnode)
 
     def get_docname_for_node(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Node) -> str
         while node:
             if isinstance(node, nodes.document):
                 return self.env.path2doc(node['source'])
@@ -104,7 +103,7 @@ class ShowUrlsTransform(SphinxTransform):
         return None  # never reached here. only for type hinting
 
     def create_footnote(self, uri, docname):
-        # type: (unicode, unicode) -> Tuple[nodes.footnote, nodes.footnote_reference]
+        # type: (str, str) -> Tuple[nodes.footnote, nodes.footnote_reference]
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
         footnote['names'].append('#')
@@ -154,7 +153,7 @@ class FootnoteCollector(nodes.NodeVisitor):
     def __init__(self, document):
         # type: (nodes.document) -> None
         self.auto_footnotes = []            # type: List[nodes.footnote]
-        self.used_footnote_numbers = set()  # type: Set[unicode]
+        self.used_footnote_numbers = set()  # type: Set[str]
         self.footnote_refs = []             # type: List[nodes.footnote_reference]
         super(FootnoteCollector, self).__init__(document)
 
@@ -361,7 +360,7 @@ class LaTeXFootnoteTransform(SphinxTransform):
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document, footnotes):
         # type: (nodes.document, List[nodes.footnote]) -> None
-        self.appeared = set()       # type: Set[Tuple[unicode, unicode]]
+        self.appeared = set()       # type: Set[Tuple[str, str]]
         self.footnotes = footnotes  # type: List[nodes.footnote]
         self.pendings = []          # type: List[nodes.footnote]
         self.table_footnotes = []   # type: List[nodes.footnote]

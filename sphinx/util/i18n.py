@@ -34,7 +34,6 @@ if False:
     # For type annotation
     from typing import Callable, List, Set  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
 
@@ -43,22 +42,22 @@ class CatalogInfo(LocaleFileInfoBase):
 
     @property
     def po_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.po'
 
     @property
     def mo_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.mo'
 
     @property
     def po_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.po_file)
 
     @property
     def mo_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self):
@@ -68,7 +67,7 @@ class CatalogInfo(LocaleFileInfoBase):
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
-        # type: (unicode) -> None
+        # type: (str) -> None
         with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
@@ -84,7 +83,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
 
 def find_catalog(docname, compaction):
-    # type: (unicode, bool) -> unicode
+    # type: (str, bool) -> str
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -94,7 +93,7 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
-    # type: (unicode, unicode, List[unicode], unicode, bool) -> List[unicode]
+    # type: (str, str, List[str], str, bool) -> List[str]
     if not(lang and locale_dirs):
         return []
 
@@ -108,7 +107,7 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,
                               charset='utf-8', force_all=False,
                               excluded=Matcher([])):
-    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool, Matcher) -> Set[CatalogInfo]  # NOQA
+    # type: (List[str], str, List[str], bool, str, bool, Matcher) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -199,7 +198,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
-    # type: (datetime, unicode, unicode, Callable) -> unicode
+    # type: (datetime, str, str, Callable) -> str
     if locale is None:
         locale = 'en'
 
@@ -220,7 +219,7 @@ def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
 
 
 def format_date(format, date=None, language=None):
-    # type: (str, datetime, unicode) -> unicode
+    # type: (str, datetime, str) -> str
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -255,7 +254,7 @@ def format_date(format, date=None, language=None):
 
 
 def get_image_filename_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 
@@ -275,7 +274,7 @@ def get_image_filename_for_language(filename, env):
 
 
 def search_image_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 

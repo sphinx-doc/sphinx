@@ -27,14 +27,13 @@ if False:
     from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 versionlabels = {
     'versionadded':   _('New in version %s'),
     'versionchanged': _('Changed in version %s'),
     'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
+}
 
 locale.versionlabels = DeprecatedDict(
     versionlabels,
@@ -116,14 +115,14 @@ class ChangeSetDomain(Domain):
     }  # type: Dict
 
     def clear_doc(self, docname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         for version, changes in self.data['changes'].items():
             for changeset in changes[:]:
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (List[unicode], Dict) -> None
+        # type: (List[str], Dict) -> None
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.data['changes'].setdefault(version, [])
@@ -132,7 +131,7 @@ class ChangeSetDomain(Domain):
                     changes.append(changeset)
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.document) -> None
+        # type: (BuildEnvironment, str, nodes.document) -> None
         pass  # nothing to do here. All changesets are registered on calling directive.
 
     def note_changeset(self, node):
@@ -145,12 +144,12 @@ class ChangeSetDomain(Domain):
         self.data['changes'].setdefault(version, []).append(changeset)
 
     def get_changesets_for(self, version):
-        # type: (unicode) -> List[ChangeSet]
+        # type: (str) -> List[ChangeSet]
         return self.data['changes'].get(version, [])
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)

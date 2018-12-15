@@ -16,7 +16,6 @@ import snowballstemmer
 if False:
     # For type annotation
     from typing import Any  # NOQA
-    from sphinx.util.typing import unicode  # NOQA
 
 
 italian_stopwords = parse_stop_word(u'''
@@ -331,5 +330,5 @@ class SearchItalian(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('italian')
 
     def stem(self, word):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return self.stemmer.stemWord(word.lower())
