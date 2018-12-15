@@ -22,7 +22,6 @@ from .deprecation import RemovedInNextVersionWarning
 
 if False:
     # For type annotation
-    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
     from typing import Any  # NOQA
 
 
