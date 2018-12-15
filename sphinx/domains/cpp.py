@@ -3845,9 +3845,8 @@ class Symbol:
             yield c
             if not c.identOrOp.is_anon():
                 continue
-            # TODO: change to 'yield from' when Python 2 support is dropped
-            for nested in c.children_recurse_anon:
-                yield nested
+
+            yield from c.children_recurse_anon
 
     def get_lookup_key(self):
         # type: () -> List[Tuple[ASTNestedNameElement, Any]]

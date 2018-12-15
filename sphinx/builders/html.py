@@ -418,8 +418,7 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
-                for docname in self.env.found_docs:
-                    yield docname
+                yield from self.env.found_docs
                 return
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)

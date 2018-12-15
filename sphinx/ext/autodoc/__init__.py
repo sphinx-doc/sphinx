@@ -458,8 +458,7 @@ class Documenter:
                 self.env.app.emit('autodoc-process-docstring',
                                   self.objtype, self.fullname, self.object,
                                   self.options, docstringlines)
-            for line in docstringlines:
-                yield line
+            yield from docstringlines
 
     def get_sourcename(self):
         # type: () -> unicode

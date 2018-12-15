@@ -16,9 +16,11 @@ import inspect
 import re
 import sys
 import typing
+import warnings
 from functools import partial
 from io import StringIO
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
 from sphinx.util.pycompat import NoneType
 
@@ -128,11 +130,8 @@ def isclassmethod(obj):
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj):
-        if getattr(obj, 'im_self', None):  # py2
-            return True
-        elif getattr(obj, '__self__', None):  # py3
-            return True
+    elif inspect.ismethod(obj) and obj.__self__ is not None:
+        return True
 
     return False
 
@@ -287,6 +286,9 @@ class Parameter:
         self.kind = kind
         self.default = default
         self.annotation = self.empty
+
+        warnings.warn('sphinx.util.inspect.Parameter is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 class Signature:
