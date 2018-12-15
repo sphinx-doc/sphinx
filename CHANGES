@@ -26,11 +26,14 @@ Incompatible changes
 * LaTeX: Move message resources to ``sphinxmessage.sty``
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
 * LaTeX: for ``'xelatex'`` and ``'lualatex'``, use the ``FreeFont`` OpenType
-  fonts as default choice (refs #5645)
+  fonts as default choice (refs: #5645)
 * LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
   will use the text font not the math font. The ``LGR`` font encoding must be
   added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
   (only if it is needed by the document, of course).
+* LaTeX: setting the :confval:`language` to ``'en'`` triggered ``Sonny`` option
+  of ``fncychap``, now it is ``Bjarne`` to match case of no language specified.
+  (refs: #5772)
 
 Deprecated
 ----------
@@ -101,6 +104,8 @@ Bugs fixed
   language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
   (refs: #5251)
 * #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
+* #5772: LaTeX: should the Bjarne style of fncychap be used for English also
+  if passed as language option?
 
 Testing
 --------

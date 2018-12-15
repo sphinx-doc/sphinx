@@ -2094,6 +2094,13 @@ information.
         "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
         "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
+        The default is ``''`` for Japanese documents.
+
+        .. versionchanged:: 2.0
+           Previously, explicitly setting the language to ``'en'`` (in the
+           :file:`conf.py` or via a command line option as on RTD) led to
+           usage of ``Sonny`` as for other languages.  Now, ``Bjarne`` is used.
+
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`/latex`.
 
