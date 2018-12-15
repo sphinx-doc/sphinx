@@ -187,6 +187,9 @@ class LaTeXBuilder(Builder):
                     self.context['polyglossia'] = ''
                     self.context['babel'] = r'\usepackage{babel}'
 
+        # Apply extension settings to context
+        self.context['packages'] = self.usepackages
+
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release

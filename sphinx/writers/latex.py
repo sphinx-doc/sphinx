@@ -150,7 +150,6 @@ DEFAULT_SETTINGS = {
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
-    'usepackages':     '',
     'numfig_format':   '',
     'contentsname':    '',
     'preamble':        '',
@@ -168,7 +167,7 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}
+}  # type: Dict[str, Any]
 
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
@@ -218,7 +217,7 @@ ADDITIONAL_SETTINGS = {
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
-}
+}  # type: Dict[str, Dict[str, Any]]
 
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
@@ -630,16 +629,6 @@ class LaTeXTranslator(SphinxTranslator):
 
             self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
                                                         mainlanguage)
-
-        if getattr(self.builder, 'usepackages', None):
-            def declare_package(packagename, options=None):
-                # type:(str, str) -> str
-                if options:
-                    return '\\usepackage[%s]{%s}' % (options, packagename)
-                else:
-                    return '\\usepackage{%s}' % (packagename,)
-            usepackages = (declare_package(*p) for p in self.builder.usepackages)
-            self.elements['usepackages'] += "\n".join(usepackages)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):
