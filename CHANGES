@@ -31,6 +31,8 @@ Incompatible changes
   will use the text font not the math font. The ``LGR`` font encoding must be
   added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
   (only if it is needed by the document, of course).
+* #5770: doctest: Follow :confval:`highlight_language` on highlighting doctest
+  block.  As a result, they are highlighted as python3 by default.
 
 Deprecated
 ----------
