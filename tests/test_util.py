@@ -15,8 +15,6 @@ import tempfile
 import pytest
 from mock import patch
 
-from six import PY2
-
 import sphinx
 from sphinx.errors import PycodeError
 from sphinx.testing.util import strip_escseq
@@ -65,10 +63,7 @@ def test_display_chunk():
 
 
 def test_get_module_source():
-    if PY2:
-        assert get_module_source('sphinx') == ('file', sphinx.__file__.replace('.pyc', '.py'))
-    else:
-        assert get_module_source('sphinx') == ('file', sphinx.__file__)
+    assert get_module_source('sphinx') == ('file', sphinx.__file__)
 
     # failed to obtain source information from builtin modules
     with pytest.raises(PycodeError):
