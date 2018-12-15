@@ -222,6 +222,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.walk()``
 
+   * - ``sphinx.util.pycompat.UnicodeMixin``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.util.pycompat.u``
      - 2.0
      - 4.0

@@ -26,7 +26,6 @@ from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_refnode
-from sphinx.util.pycompat import UnicodeMixin
 
 
 if False:
@@ -564,28 +563,28 @@ _id_explicit_cast = {
 }
 
 
-class NoOldIdError(UnicodeMixin, Exception):
+class NoOldIdError(Exception):
     # Used to avoid implementing unneeded id generation for old id schmes.
     def __init__(self, description=""):
         # type: (str) -> None
         self.description = description
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         return self.description
 
 
-class DefinitionError(UnicodeMixin, Exception):
+class DefinitionError(Exception):
     def __init__(self, description):
         # type: (str) -> None
         self.description = description
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         return self.description
 
 
-class _DuplicateSymbolError(UnicodeMixin, Exception):
+class _DuplicateSymbolError(Exception):
     def __init__(self, symbol, declaration):
         # type: (Symbol, Any) -> None
         assert symbol
@@ -593,12 +592,12 @@ class _DuplicateSymbolError(UnicodeMixin, Exception):
         self.symbol = symbol
         self.declaration = declaration
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         return "Internal C++ duplicate symbol error:\n%s" % self.symbol.dump(0)
 
 
-class ASTBase(UnicodeMixin):
+class ASTBase:
     def __eq__(self, other):
         # type: (Any) -> bool
         if type(self) is not type(other):
@@ -622,7 +621,7 @@ class ASTBase(UnicodeMixin):
         # type: (Callable[[Any], str]) -> str
         raise NotImplementedError(repr(self))
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         return self._stringify(lambda ast: text_type(ast))
 
@@ -789,7 +788,7 @@ class ASTNumberLiteral(ASTBase):
         signode.append(nodes.Text(txt, txt))
 
 
-class UnsupportedMultiCharacterCharLiteral(UnicodeMixin, Exception):
+class UnsupportedMultiCharacterCharLiteral(Exception):
     def __init__(self, decoded):
         self.decoded = decoded
 
@@ -1497,9 +1496,9 @@ class ASTIdentifier(ASTBase):
             else:
                 return text_type(len(self.identifier)) + self.identifier
 
-    # and this is where we finally make a difference between __unicode__ and the display string
+    # and this is where we finally make a difference between __str__ and the display string
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         return self.identifier
 

@@ -80,10 +80,6 @@ class _TranslationProxy(UserString):
         # type: () -> str
         return str(self.data)
 
-    def __unicode__(self):
-        # type: () -> str
-        return text_type(self.data)
-
     def __add__(self, other):  # type: ignore
         # type: (str) -> str
         return self.data + other
