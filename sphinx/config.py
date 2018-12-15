@@ -17,7 +17,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import text_type, integer_types
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -224,7 +224,7 @@ class Config:
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
                 return value.split(',')
-            elif isinstance(defvalue, integer_types):
+            elif isinstance(defvalue, int):
                 try:
                     return int(value)
                 except ValueError:
