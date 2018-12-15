@@ -108,6 +108,8 @@ Bugs fixed
 * #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
 * #5772: LaTeX: should the Bjarne style of fncychap be used for English also
   if passed as language option?
+* #5179: LaTex: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
+  enough, ``\textgreater{}\textgreater{}`` applies TeX-ligature
 
 Testing
 --------
