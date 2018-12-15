@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 from os import path
 from typing import cast
 
@@ -21,7 +22,6 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
@@ -123,7 +123,7 @@ class ChangesBuilder(Builder):
 
         def hl(no, line):
             # type: (int, str) -> str
-            line = '<a name="L%s"> </a>' % no + htmlescape(line)
+            line = '<a name="L%s"> </a>' % no + html.escape(line)
             for x in hltext:
                 if x in line:
                     line = '<span class="hl">%s</span>' % line
@@ -157,7 +157,7 @@ class ChangesBuilder(Builder):
 
     def hl(self, text, version):
         # type: (str, str) -> str
-        text = htmlescape(text)
+        text = html.escape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
             text = text.replace('.. %s:: %s' % (directive, version),
                                 '<b>.. %s:: %s</b>' % (directive, version))

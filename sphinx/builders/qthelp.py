@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import os
 import posixpath
 import re
@@ -26,7 +27,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import htmlescape
 from sphinx.util.template import SphinxRenderer
 
 if False:
@@ -175,7 +175,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             compact_paragraph = cast(addnodes.compact_paragraph, node[0])
             reference = cast(nodes.reference, compact_paragraph[0])
             link = reference['refuri']
-            title = htmlescape(reference.astext()).replace('"', '&quot;')
+            title = html.escape(reference.astext()).replace('"', '&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % \
                 {'title': title, 'ref': link}
             parts.append(' ' * 4 * indentlevel + item)
@@ -190,7 +190,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 parts.extend(self.write_toc(subnode, indentlevel))
         elif isinstance(node, nodes.reference):
             link = node['refuri']
-            title = htmlescape(node.astext()).replace('"', '&quot;')
+            title = html.escape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
             item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace').decode())
@@ -217,8 +217,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         else:
             id = None
 
-        nameattr = htmlescape(name, quote=True)
-        refattr = htmlescape(ref[1], quote=True)
+        nameattr = html.escape(name, quote=True)
+        refattr = html.escape(ref[1], quote=True)
         if id:
             item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (nameattr, id, refattr)
         else:

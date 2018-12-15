@@ -10,6 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import os
 from os import path
 
@@ -23,7 +24,6 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename_from_project
-from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
@@ -280,7 +280,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"', '&quot;')
+                    title = html.escape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -310,7 +310,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = htmlescape(title)
+                title = html.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:

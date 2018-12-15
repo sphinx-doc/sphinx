@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import html
 import pickle
 import re
 import warnings
@@ -21,7 +22,6 @@ from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.util import jsdump, rpartition
-from sphinx.util.pycompat import htmlescape
 from sphinx.search.jssplitter import splitter_code
 
 if False:
@@ -341,8 +341,8 @@ class IndexBuilder:
                     continue
                 if prio < 0:
                     continue
-                fullname = htmlescape(fullname)
-                dispname = htmlescape(dispname)
+                fullname = html.escape(fullname)
+                dispname = html.escape(dispname)
                 prefix, name = rpartition(dispname, '.')
                 pdict = rv.setdefault(prefix, {})
                 try:
