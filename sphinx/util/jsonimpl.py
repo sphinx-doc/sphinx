@@ -10,9 +10,9 @@
 """
 
 import json
+from collections import UserString
 
 from six import text_type
-from six.moves import UserString
 
 if False:
     # For type annotation
