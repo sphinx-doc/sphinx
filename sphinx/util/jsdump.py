@@ -12,8 +12,6 @@
 
 import re
 
-from six import integer_types
-
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Union  # NOQA
@@ -95,7 +93,7 @@ def dumps(obj, key=False):
         return 'null'
     elif obj is True or obj is False:
         return obj and 'true' or 'false'
-    elif isinstance(obj, integer_types + (float,)):  # type: ignore
+    elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(sorted('%s:%s' % (
