@@ -162,7 +162,7 @@ class MathDirective(SphinxDirective):
             self.state.document.note_explicit_target(target)
             ret.insert(0, target)
         except UserWarning as exc:
-            self.state_machine.reporter.warning(exc.args[0], line=self.lineno)
+            self.state_machine.reporter.warning(exc, line=self.lineno)
 
 
 def setup(app):

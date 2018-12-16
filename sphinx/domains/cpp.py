@@ -6288,7 +6288,7 @@ class CPPObject(ObjectDescription):
     option_spec['tparam-line-spec'] = directives.flag
 
     def warn(self, msg):
-        # type: (str) -> None
+        # type: (Union[str, Exception]) -> None
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def _add_enumerator_to_parent(self, ast):
@@ -6443,7 +6443,7 @@ class CPPObject(ObjectDescription):
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e.description)
+            self.warn(e)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
@@ -6588,7 +6588,7 @@ class CPPNamespaceObject(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def warn(self, msg):
-        # type: (str) -> None
+        # type: (Union[str, Exception]) -> None
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
@@ -6603,7 +6603,7 @@ class CPPNamespaceObject(SphinxDirective):
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                self.warn(e.description)
+                self.warn(e)
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -6622,7 +6622,7 @@ class CPPNamespacePushObject(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def warn(self, msg):
-        # type: (str) -> None
+        # type: (Union[str, Exception]) -> None
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
@@ -6634,7 +6634,7 @@ class CPPNamespacePushObject(SphinxDirective):
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e.description)
+            self.warn(e)
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = self.env.temp_data.get('cpp:parent_symbol', None)
@@ -6657,7 +6657,7 @@ class CPPNamespacePopObject(SphinxDirective):
     option_spec = {}  # type: Dict
 
     def warn(self, msg):
-        # type: (str) -> None
+        # type: (Union[str, Exception]) -> None
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):

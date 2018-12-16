@@ -363,8 +363,7 @@ class InheritanceDiagram(SphinxDirective):
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])
         except InheritanceException as err:
-            return [node.document.reporter.warning(err.args[0],
-                                                   line=self.lineno)]
+            return [node.document.reporter.warning(err, line=self.lineno)]
 
         # Create xref nodes for each target of the graph's image map and
         # add them to the doc tree so that Sphinx can resolve the
