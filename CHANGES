@@ -70,6 +70,7 @@ Deprecated
 * ``sphinx.util.osutil.ENOENT``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
+* ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
 * ``sphinx.writers.latex.TextTranslator._make_visit_admonition()``

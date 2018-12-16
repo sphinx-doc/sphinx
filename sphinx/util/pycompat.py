@@ -10,12 +10,14 @@
 """
 
 import sys
+import warnings
 from html import escape as htmlescape  # NOQA
 from io import TextIOWrapper  # NOQA
 from textwrap import indent  # NOQA
 
 from six import text_type
 
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -68,9 +70,13 @@ def convert_with_2to3(filepath):
 
 class UnicodeMixin:
     """Mixin class to handle defining the proper __str__/__unicode__
-    methods in Python 2 or 3."""
+    methods in Python 2 or 3.
 
+    .. deprecated:: 2.0
+    """
     def __str__(self):
+        warnings.warn('UnicodeMixin is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()
 
 

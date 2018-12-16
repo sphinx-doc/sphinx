@@ -17,7 +17,6 @@ from functools import partial
 
 from sphinx.ext.napoleon.iterators import modify_iter
 from sphinx.locale import _
-from sphinx.util.pycompat import UnicodeMixin
 
 if False:
     # For type annotation
@@ -39,7 +38,7 @@ _enumerated_list_regex = re.compile(
     r'(?(paren)\)|\.)(\s+\S|\s*$)')
 
 
-class GoogleDocstring(UnicodeMixin):
+class GoogleDocstring:
     """Convert Google style docstrings to reStructuredText.
 
     Parameters
@@ -177,7 +176,7 @@ class GoogleDocstring(UnicodeMixin):
 
         self._parse()
 
-    def __unicode__(self):
+    def __str__(self):
         # type: () -> str
         """Return the parsed docstring in reStructuredText format.
 
