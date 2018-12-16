@@ -480,7 +480,7 @@ class Parser:
     def parse_comments(self):
         # type: () -> None
         """Parse the code and pick up comments."""
-        tree = ast.parse(self.code.encode('utf-8'))
+        tree = ast.parse(self.code.encode())
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
         self.comments = picker.comments

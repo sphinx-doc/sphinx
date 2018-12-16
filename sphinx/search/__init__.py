@@ -289,7 +289,7 @@ class IndexBuilder:
 
         if scoring:
             with open(scoring, 'rb') as fp:
-                self.js_scorer_code = fp.read().decode('utf-8')
+                self.js_scorer_code = fp.read().decode()
         else:
             self.js_scorer_code = u''
         self.js_splitter_code = splitter_code

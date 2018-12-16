@@ -73,7 +73,7 @@ class ClickableMapDefinition:
         if self.id == '%3':
             # graphviz generates wrong ID if graph name not specified
             # https://gitlab.com/graphviz/graphviz/issues/1327
-            hashed = sha1(dot.encode('utf-8')).hexdigest()
+            hashed = sha1(dot.encode()).hexdigest()
             self.id = 'grapviz%s' % hashed[-10:]
             self.content[0] = self.content[0].replace('%3', self.id)
 
@@ -221,7 +221,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
-               str(self.builder.config.graphviz_dot_args)).encode('utf-8')
+               str(self.builder.config.graphviz_dot_args)).encode()
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
     relfn = posixpath.join(self.builder.imgpath, fname)
@@ -257,7 +257,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     try:
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
-        stdout, stderr = p.communicate(code.encode('utf-8'))
+        stdout, stderr = p.communicate(code.encode())
     except (OSError, IOError) as err:
         if err.errno not in (EPIPE, EINVAL):
             raise

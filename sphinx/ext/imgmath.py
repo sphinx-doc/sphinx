@@ -231,7 +231,7 @@ def render_math(self, math):
 
     latex = generate_latex_macro(math, self.builder.config)
 
-    filename = "%s.%s" % (sha1(latex.encode('utf-8')).hexdigest(), image_format)
+    filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     if path.isfile(outfn):

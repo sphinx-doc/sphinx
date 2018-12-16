@@ -354,7 +354,7 @@ def test_html_download(app):
                     confoverrides={'html_experimental_html5_writer': True})
 def test_html_download_role(app, status, warning):
     app.build()
-    digest = md5((app.srcdir / 'dummy.dat').encode('utf-8')).hexdigest()
+    digest = md5((app.srcdir / 'dummy.dat').encode()).hexdigest()
     assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()

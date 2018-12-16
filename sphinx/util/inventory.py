@@ -52,10 +52,10 @@ class InventoryFileReader:
         # type: () -> str
         pos = self.buffer.find(b'\n')
         if pos != -1:
-            line = self.buffer[:pos].decode('utf-8')
+            line = self.buffer[:pos].decode()
             self.buffer = self.buffer[pos + 1:]
         elif self.eof:
-            line = self.buffer.decode('utf-8')
+            line = self.buffer.decode()
             self.buffer = b''
         else:
             self.read_buffer()
@@ -86,7 +86,7 @@ class InventoryFileReader:
             buf += chunk
             pos = buf.find(b'\n')
             while pos != -1:
-                yield buf[:pos].decode('utf-8')
+                yield buf[:pos].decode()
                 buf = buf[pos + 1:]
                 pos = buf.find(b'\n')
 
@@ -167,7 +167,7 @@ class InventoryFile:
                      u'# Version: %s\n'
                      u'# The remainder of this file is compressed using zlib.\n' %
                      (escape(env.config.project),
-                      escape(env.config.version))).encode('utf-8'))
+                      escape(env.config.version))).encode())
 
             # body
             compressor = zlib.compressobj(9)
@@ -184,5 +184,5 @@ class InventoryFile:
                         dispname = u'-'
                     entry = (u'%s %s:%s %s %s %s\n' %
                              (name, domainname, typ, prio, uri, dispname))
-                    f.write(compressor.compress(entry.encode('utf-8')))
+                    f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

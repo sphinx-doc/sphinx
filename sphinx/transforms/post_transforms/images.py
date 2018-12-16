@@ -75,12 +75,12 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode("utf-8")).hexdigest() + ext
+                basename = sha1(filename.encode()).hexdigest() + ext
 
             dirname = node['uri'].replace('://', '/').translate({ord("?"): u"/",
                                                                  ord("&"): u"/"})
             if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode('utf-8')).hexdigest()
+                dirname = sha1(dirname.encode()).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
