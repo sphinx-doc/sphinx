@@ -17,7 +17,6 @@ from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
@@ -42,8 +41,8 @@ mime_suffixes = OrderedDict([
     ('.svgz', 'image/svg+xml'),
 ])
 
-DataURI = NamedTuple('DataURI', [('mimetype', text_type),
-                                 ('charset', text_type),
+DataURI = NamedTuple('DataURI', [('mimetype', str),
+                                 ('charset', str),
                                  ('data', bytes)])
 
 

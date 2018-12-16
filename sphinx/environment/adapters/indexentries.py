@@ -12,8 +12,6 @@ import re
 import unicodedata
 from itertools import groupby
 
-from six import text_type
-
 from sphinx.locale import _, __
 from sphinx.util import split_into, logging
 
@@ -44,7 +42,7 @@ class IndexEntries:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
-            word = text_type(word)
+            word = str(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}, key]

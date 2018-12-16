@@ -13,7 +13,6 @@ from typing import NamedTuple
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.ext import doctest
@@ -25,7 +24,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-HighlightSetting = NamedTuple('HighlightSetting', [('language', text_type),
+HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
                                                    ('lineno_threshold', int)])
 
 

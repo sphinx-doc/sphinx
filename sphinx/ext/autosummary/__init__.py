@@ -65,7 +65,6 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import StringList
-from six import text_type
 
 import sphinx
 from sphinx import addnodes
@@ -160,8 +159,7 @@ def autosummary_table_visit_html(self, node):
             par = cast(nodes.paragraph, col1_entry[0])
             for j, subnode in enumerate(list(par)):
                 if isinstance(subnode, nodes.Text):
-                    new_text = text_type(subnode.astext())
-                    new_text = new_text.replace(" ", "\u00a0")
+                    new_text = subnode.astext().replace(" ", "\u00a0")
                     par[j] = nodes.Text(new_text)
     except IndexError:
         pass

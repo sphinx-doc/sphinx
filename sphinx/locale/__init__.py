@@ -14,8 +14,6 @@ import warnings
 from collections import UserString, defaultdict
 from gettext import NullTranslations
 
-from six import text_type
-
 from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
@@ -41,7 +39,7 @@ class _TranslationProxy(UserString):
         # type: (Callable, str) -> object
         if not args:
             # not called with "function" and "arguments", but a plain string
-            return text_type(func)
+            return str(func)
         return object.__new__(cls)
 
     def __getnewargs__(self):
@@ -73,7 +71,7 @@ class _TranslationProxy(UserString):
 
     def __dir__(self):
         # type: () -> List[str]
-        return dir(text_type)
+        return dir(str)
 
     def __str__(self):
         # type: () -> str
@@ -124,7 +122,7 @@ class _TranslationProxy(UserString):
     def __repr__(self):
         # type: () -> str
         try:
-            return 'i' + repr(text_type(self.data))
+            return 'i' + repr(str(self.data))
         except Exception:
             return '<%s broken>' % self.__class__.__name__
 

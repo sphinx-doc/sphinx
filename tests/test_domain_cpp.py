@@ -12,7 +12,6 @@ import re
 import sys
 
 import pytest
-from six import text_type
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
@@ -39,7 +38,7 @@ def check(name, input, idDict, output=None):
     if output is None:
         output = input
     ast = parse(name, input)
-    res = text_type(ast)
+    res = str(ast)
     if res != output:
         print("")
         print("Input:    ", input)

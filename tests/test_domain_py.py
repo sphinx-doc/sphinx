@@ -11,7 +11,6 @@
 import pytest
 from docutils import nodes
 from mock import Mock
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
@@ -30,22 +29,22 @@ def parse(sig):
 
 def test_function_signatures():
     rv = parse('func(a=1) -> int object')
-    assert text_type(rv) == 'a=1'
+    assert rv == 'a=1'
 
     rv = parse('func(a=1, [b=None])')
-    assert text_type(rv) == 'a=1, [b=None]'
+    assert rv == 'a=1, [b=None]'
 
     rv = parse('func(a=1[, b=None])')
-    assert text_type(rv) == 'a=1, [b=None]'
+    assert rv == 'a=1, [b=None]'
 
     rv = parse("compile(source : string, filename, symbol='file')")
-    assert text_type(rv) == "source : string, filename, symbol='file'"
+    assert rv == "source : string, filename, symbol='file'"
 
     rv = parse('func(a=[], [b=None])')
-    assert text_type(rv) == 'a=[], [b=None]'
+    assert rv == 'a=[], [b=None]'
 
     rv = parse('func(a=[][, b=None])')
-    assert text_type(rv) == 'a=[], [b=None]'
+    assert rv == 'a=[], [b=None]'
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')

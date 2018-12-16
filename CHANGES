@@ -17,6 +17,7 @@ Dependencies
   which in Ubuntu xenial are provided by package ``fonts-freefont-otf``, and
   e.g. in Fedora 29 via package ``texlive-gnu-freefont``.
 * requests 2.5.0 or above
+* The six package is no longer a dependency.
 
 Incompatible changes
 --------------------
