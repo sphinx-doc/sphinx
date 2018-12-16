@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Sphinx documentation build configuration file
 
 import re

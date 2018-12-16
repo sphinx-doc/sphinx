@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.transforms.compact_bullet_list
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

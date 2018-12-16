@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Example NumPy style docstrings.
 
 This module demonstrates documentation as specified by the `NumPy

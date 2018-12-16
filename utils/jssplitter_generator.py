@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import re
 import subprocess
@@ -112,7 +111,7 @@ console.log('   ... ok\\n')
 
 ''' % js_src
 
-python_src = '''# -*- coding: utf-8 -*-
+python_src = '''\
 """
     sphinx.search.jssplitter
     ~~~~~~~~~~~~~~~~~~~~~~~~

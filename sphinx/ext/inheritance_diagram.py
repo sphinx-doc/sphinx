@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
     sphinx.ext.inheritance_diagram
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

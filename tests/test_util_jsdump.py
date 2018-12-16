@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sphinx.util.jsdump import dumps, loads
 
 
