@@ -237,6 +237,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.application.Sphinx._setting_up_extension``
      - 2.0
      - 3.0
@@ -262,6 +267,11 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.writers.latex.LaTeXTranslator.collect_footnotes()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
      - 2.0
      - 3.0
@@ -270,11 +280,6 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
      - 2.0
      - 3.0
-     - N/A
-
-   * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
-     - 2.0
-     - 4.0
      - N/A
 
    * - :rst:dir:`highlightlang`
