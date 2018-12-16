@@ -152,8 +152,6 @@ class path(text_type):
         """
         Writes the given `text` to the file.
         """
-        if isinstance(text, bytes):
-            text = text.decode(encoding)
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
