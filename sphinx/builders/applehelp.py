@@ -8,9 +8,8 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
-import codecs
+import html
 import pipes
 import plistlib
 import shlex
@@ -26,7 +25,6 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
-from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
@@ -35,13 +33,6 @@ if False:
 
 
 logger = logging.getLogger(__name__)
-
-# Use plistlib.dump in 3.4 and above
-try:
-    write_plist = plistlib.dump  # type: ignore
-except AttributeError:
-    write_plist = plistlib.writePlist
-
 
 # False access page (used because helpd expects strict XHTML)
 access_page_template = '''\
@@ -173,8 +164,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         logger.info(bold(__('writing Info.plist... ')), nonl=True)
-        with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
-            write_plist(info_plist, f)
+        with open(path.join(contents_dir, 'Info.plist'), 'wb') as fb:
+            plistlib.dump(info_plist, fb)
         logger.info(__('done'))
 
         # Copy the icon, if one is supplied
@@ -193,10 +184,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         logger.info(bold(__('building access page...')), nonl=True)
-        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:  # type: ignore
-            f.write(access_page_template % {
-                'toc': htmlescape(toc, quote=True),
-                'title': htmlescape(self.config.applehelp_title)
+        with open(path.join(language_dir, '_access.html'), 'w') as ft:
+            ft.write(access_page_template % {
+                'toc': html.escape(toc, quote=True),
+                'title': html.escape(self.config.applehelp_title)
             })
         logger.info(__('done'))
 
@@ -277,7 +268,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(AppleHelpBuilder)
 

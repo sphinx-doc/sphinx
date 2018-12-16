@@ -34,7 +34,10 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.writers.latex import DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
+from sphinx.util.template import LaTeXRenderer
+from sphinx.writers.latex import (
+    ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
+)
 
 if False:
     # For type annotation
@@ -99,11 +102,11 @@ XINDY_LANG_OPTIONS = {
     'el': '-L greek -C utf8 ',
     # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
     'el-polyton': '-L greek -C polytonic-utf8 ',
-}  # type: Dict[unicode, unicode]
+}
 
 XINDY_CYRILLIC_SCRIPTS = [
     'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk',
-]  # type: List[unicode]
+]
 
 logger = logging.getLogger(__name__)
 
@@ -126,24 +129,27 @@ class LaTeXBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        self.docnames = []          # type: Iterable[unicode]
-        self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
+        self.context = {}           # type: Dict[str, Any]
+        self.docnames = []          # type: Iterable[str]
+        self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
         self.usepackages = self.app.registry.latex_packages
         texescape.init()
 
+        self.init_context()
+
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, List[unicode]]
+        # type: () -> Union[str, List[str]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (unicode, unicode, unicode) -> unicode
+        # type: (str, str, str) -> str
         # ignore source path
         return self.get_target_uri(to, typ)
 
@@ -155,7 +161,7 @@ class LaTeXBuilder(Builder):
                               'will be written'))
             return
         # assign subdirs to titles
-        self.titles = []  # type: List[Tuple[unicode, unicode]]
+        self.titles = []  # type: List[Tuple[str, str]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
@@ -167,6 +173,31 @@ class LaTeXBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
+    def init_context(self):
+        # type: () -> None
+        self.context = DEFAULT_SETTINGS.copy()
+
+        # Add special settings for latex_engine
+        self.context.update(ADDITIONAL_SETTINGS.get(self.config.latex_engine, {}))
+
+        # for xelatex+French, don't use polyglossia by default
+        if self.config.latex_engine == 'xelatex':
+            if self.config.language:
+                if self.config.language[:2] == 'fr':
+                    self.context['polyglossia'] = ''
+                    self.context['babel'] = r'\usepackage{babel}'
+
+        # Apply user settings to context
+        self.context.update(self.config.latex_elements)
+        self.context['release'] = self.config.release
+        self.context['use_xindy'] = self.config.latex_use_xindy
+
+        # for compatibilities
+        self.context['indexname'] = _('Index')
+        if self.config.release:
+            # Show the release label only if release value exists
+            self.context['releasename'] = _('Release')
+
     def write_stylesheet(self):
         # type: () -> None
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
@@ -175,7 +206,7 @@ class LaTeXBuilder(Builder):
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write('\\ProvidesPackage{sphinxhighlight}'
                     '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
-            f.write(highlighter.get_stylesheet())  # type: ignore
+            f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored):
         # type: (Any) -> None
@@ -183,7 +214,7 @@ class LaTeXBuilder(Builder):
         docsettings = OptionParser(
             defaults=self.env.settings,
             components=(docwriter,),
-            read_config_files=True).get_default_values()
+            read_config_files=True).get_default_values()  # type: Any
 
         self.init_document_data()
         self.write_stylesheet()
@@ -210,18 +241,21 @@ class LaTeXBuilder(Builder):
             doctree['tocdepth'] = tocdepth
             self.apply_transforms(doctree)
             self.post_process_images(doctree)
+            self.update_doc_context(title, author)
+
             logger.info(__("writing... "), nonl=1)
+            docsettings.author = author
+            docsettings.title = title
+            docsettings.contentsname = self.get_contentsname(docname)
+            docsettings.docname = docname
+            docsettings.docclass = docclass
+
             doctree.settings = docsettings
-            doctree.settings.author = author
-            doctree.settings.title = title
-            doctree.settings.contentsname = self.get_contentsname(docname)
-            doctree.settings.docname = docname
-            doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
             logger.info("done")
 
     def get_contentsname(self, indexfile):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         tree = self.env.get_doctree(indexfile)
         contentsname = None
         for toctree in tree.traverse(addnodes.toctree):
@@ -231,8 +265,13 @@ class LaTeXBuilder(Builder):
 
         return contentsname
 
+    def update_doc_context(self, title, author):
+        # type: (str, str) -> None
+        self.context['title'] = title
+        self.context['author'] = author
+
     def assemble_doctree(self, indexfile, toctree_only, appendices):
-        # type: (unicode, bool, List[unicode]) -> nodes.Node
+        # type: (str, bool, List[str]) -> nodes.document
         from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
         logger.info(darkgreen(indexfile) + " ", nonl=1)
@@ -264,7 +303,7 @@ class LaTeXBuilder(Builder):
         for pendingnode in largetree.traverse(addnodes.pending_xref):
             docname = pendingnode['refdocname']
             sectname = pendingnode['refsectname']
-            newnodes = [nodes.emphasis(sectname, sectname)]
+            newnodes = [nodes.emphasis(sectname, sectname)]  # type: List[nodes.Node]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
                     newnodes.append(nodes.Text(_(' (in '), _(' (in ')))
@@ -290,6 +329,7 @@ class LaTeXBuilder(Builder):
     def finish(self):
         # type: () -> None
         self.copy_image_files()
+        self.write_message_catalog()
 
         # copy TeX support files from texinputs
         # configure usage of xindy (impacts Makefile and latexmkrc)
@@ -353,6 +393,11 @@ class LaTeXBuilder(Builder):
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
+    def write_message_catalog(self):
+        # type: () -> None
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
+        copy_asset_file(filename, self.outdir, context={}, renderer=LaTeXRenderer())
+
 
 def validate_config_values(app, config):
     # type: (Sphinx, Config) -> None
@@ -381,7 +426,7 @@ def validate_config_values(app, config):
 
 
 def default_latex_engine(config):
-    # type: (Config) -> unicode
+    # type: (Config) -> str
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'platex'
@@ -390,7 +435,7 @@ def default_latex_engine(config):
 
 
 def default_latex_docclass(config):
-    # type: (Config) -> Dict[unicode, unicode]
+    # type: (Config) -> Dict[str, str]
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
         return {'manual': 'jsbook',
@@ -406,7 +451,7 @@ def default_latex_use_xindy(config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(LaTeXBuilder)
     app.add_post_transform(CitationReferenceTransform)
     app.add_post_transform(MathReferenceTransform)

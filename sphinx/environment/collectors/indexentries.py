@@ -29,16 +29,16 @@ class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.indexentries.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             env.indexentries[docname] = other.indexentries[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         docname = app.env.docname
         entries = app.env.indexentries[docname] = []
         for node in doctree.traverse(addnodes.index):
@@ -50,11 +50,7 @@ class IndexEntriesCollector(EnvironmentCollector):
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:
-                    if len(entry) == 5:
-                        # Since 1.4: new index structure including index_key (5th column)
-                        entries.append(entry)
-                    else:
-                        entries.append(entry + (None,))
+                    entries.append(entry)
 
 
 def setup(app):

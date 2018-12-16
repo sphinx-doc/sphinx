@@ -9,14 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pickle
 import time
-import warnings
 from os import path
 
 from docutils import nodes
-from six.moves import cPickle as pickle
 
-from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment import CONFIG_OK, CONFIG_CHANGED_REASON
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -43,7 +41,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -54,25 +52,25 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Builder(object):
+class Builder:
     """
     Builds target formats from the reST sources.
     """
 
     #: The builder's name, for the -b command line option.
-    name = ''  # type: unicode
+    name = ''
     #: The builder's output format, or '' if no document output is produced.
-    format = ''  # type: unicode
+    format = ''
     #: The message emitted upon successful build completion. This can be a
     #: printf-style template string with the following keys: ``outdir``,
     #: ``project``
-    epilog = ''  # type: unicode
+    epilog = ''
 
     #: default translator class for the builder.  This can be overrided by
     #: :py:meth:`app.set_translator()`.
-    default_translator_class = None  # type: nodes.NodeVisitor
+    default_translator_class = None  # type: Type[nodes.NodeVisitor]
     # doctree versioning method
-    versioning_method = 'none'  # type: unicode
+    versioning_method = 'none'
     versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
@@ -81,7 +79,7 @@ class Builder(object):
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
-    supported_image_types = []  # type: List[unicode]
+    supported_image_types = []  # type: List[str]
     #: The builder supports remote images or not.
     supported_remote_images = False
     #: The builder supports data URIs or not.
@@ -97,8 +95,6 @@ class Builder(object):
 
         self.app = app              # type: Sphinx
         self.env = None             # type: BuildEnvironment
-        self.warn = app.warn        # type: Callable
-        self.info = app.info        # type: Callable
         self.config = app.config    # type: Config
         self.tags = app.tags        # type: Tags
         self.tags.add(self.format)
@@ -107,11 +103,11 @@ class Builder(object):
         self.tags.add("builder_%s" % self.name)
 
         # images that need to be copied over (source -> dest)
-        self.images = {}  # type: Dict[unicode, unicode]
+        self.images = {}  # type: Dict[str, str]
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
-        self.imgpath = ""  # type: unicode
+        self.imgpath = ""
 
         # these get set later
         self.parallel_ok = False
@@ -125,7 +121,7 @@ class Builder(object):
                                        self.versioning_compare)
 
     def get_translator_class(self, *args):
-        # type: (Any) -> nodes.NodeVisitor
+        # type: (Any) -> Type[nodes.NodeVisitor]
         """Return a class of translator."""
         return self.app.registry.get_translator_class(self)
 
@@ -137,22 +133,6 @@ class Builder(object):
         Users can replace the translator class with ``app.set_translator()`` API.
         """
         return self.app.registry.create_translator(self, *args)
-
-    @property
-    def translator_class(self):
-        # type: () -> Callable[[Any], nodes.NodeVisitor]
-        """Return a class of translator.
-
-        .. deprecated:: 1.6
-        """
-        translator_class = self.app.registry.get_translator_class(self)
-        if translator_class is None and self.default_translator_class is None:
-            warnings.warn('builder.translator_class() is now deprecated. '
-                          'Please use builder.create_translator() and '
-                          'builder.default_translator_class instead.',
-                          RemovedInSphinx20Warning, stacklevel=2)
-            return None
-        return self.create_translator
 
     # helper methods
     def init(self):
@@ -173,7 +153,7 @@ class Builder(object):
             self.templates = BuiltinTemplateLoader()
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
@@ -182,7 +162,7 @@ class Builder(object):
         raise NotImplementedError
 
     def get_relative_uri(self, from_, to, typ=None):
-        # type: (unicode, unicode, unicode) -> unicode
+        # type: (str, str, str) -> str
         """Return a relative URI between two source filenames.
 
         May raise environment.NoUri if there's no way to return a sensible URI.
@@ -191,7 +171,7 @@ class Builder(object):
                             self.get_target_uri(to, typ))
 
     def get_outdated_docs(self):
-        # type: () -> Union[unicode, Iterable[unicode]]
+        # type: () -> Union[str, Iterable[str]]
         """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
 
@@ -202,7 +182,7 @@ class Builder(object):
         raise NotImplementedError
 
     def get_asset_paths(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
         return []
 
@@ -241,12 +221,12 @@ class Builder(object):
     # compile po methods
 
     def compile_catalogs(self, catalogs, message):
-        # type: (Set[CatalogInfo], unicode) -> None
+        # type: (Set[CatalogInfo], str) -> None
         if not self.config.gettext_auto_build:
             return
 
         def cat2relpath(cat):
-            # type: (CatalogInfo) -> unicode
+            # type: (CatalogInfo) -> str
             return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
@@ -267,9 +247,9 @@ class Builder(object):
         self.compile_catalogs(catalogs, message)
 
     def compile_specific_catalogs(self, specified_files):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         def to_domain(fpath):
-            # type: (unicode) -> unicode
+            # type: (str) -> str
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
                 return find_catalog(docname, self.config.gettext_compact)
@@ -305,13 +285,13 @@ class Builder(object):
         self.build(None, summary=__('all source files'), method='all')
 
     def build_specific(self, filenames):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         """Only rebuild as much as needed for changes in the *filenames*."""
         # bring the filenames to the canonical format, that is,
         # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
         to_write = []
-        suffixes = None  # type: Tuple[unicode]
+        suffixes = None  # type: Tuple[str]
         suffixes = tuple(self.config.source_suffix)  # type: ignore
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
@@ -347,7 +327,7 @@ class Builder(object):
                        len(to_build))
 
     def build(self, docnames, summary=None, method='update'):
-        # type: (Iterable[unicode], unicode, unicode) -> None
+        # type: (Iterable[str], str, str) -> None
         """Main build method.
 
         First updates the environment, and then calls :meth:`write`.
@@ -418,7 +398,7 @@ class Builder(object):
         self.finish_tasks.join()
 
     def read(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -481,7 +461,7 @@ class Builder(object):
         return sorted(docnames)
 
     def _read_serial(self, docnames):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         for docname in status_iterator(docnames, 'reading sources... ', "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
@@ -490,14 +470,14 @@ class Builder(object):
             self.read_doc(docname)
 
     def _read_parallel(self, docnames, nproc):
-        # type: (List[unicode], int) -> None
+        # type: (List[str], int) -> None
         # clear all outdated docs at once
         for docname in docnames:
             self.app.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
 
         def read_process(docs):
-            # type: (List[unicode]) -> bytes
+            # type: (List[str]) -> bytes
             self.env.app = self.app
             for docname in docs:
                 self.read_doc(docname)
@@ -505,7 +485,7 @@ class Builder(object):
             return pickle.dumps(self.env, pickle.HIGHEST_PROTOCOL)
 
         def merge(docs, otherenv):
-            # type: (List[unicode], bytes) -> None
+            # type: (List[str], bytes) -> None
             env = pickle.loads(otherenv)
             self.env.merge_info_from(docs, env, self.app)
 
@@ -521,7 +501,7 @@ class Builder(object):
         tasks.join()
 
     def read_doc(self, docname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
 
@@ -547,7 +527,7 @@ class Builder(object):
         self.write_doctree(docname, doctree)
 
     def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         """Write the doctree to a file."""
         # make it picklable
         doctree.reporter = None
@@ -556,13 +536,13 @@ class Builder(object):
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = self.env.doc2path(docname, self.env.doctreedir, '.doctree')
+        doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def write(self, build_docnames, updated_docnames, method='update'):
-        # type: (Iterable[unicode], Sequence[unicode], unicode) -> None
+        # type: (Iterable[str], Sequence[str], str) -> None
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -593,7 +573,7 @@ class Builder(object):
             self._write_serial(sorted(docnames))
 
     def _write_serial(self, docnames):
-        # type: (Sequence[unicode]) -> None
+        # type: (Sequence[str]) -> None
         with logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
@@ -604,9 +584,9 @@ class Builder(object):
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames, nproc):
-        # type: (Sequence[unicode], int) -> None
+        # type: (Sequence[str], int) -> None
         def write_process(docs):
-            # type: (List[Tuple[unicode, nodes.Node]]) -> None
+            # type: (List[Tuple[str, nodes.document]]) -> None
             self.app.phase = BuildPhase.WRITING
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
@@ -637,17 +617,17 @@ class Builder(object):
         tasks.join()
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         """Where you actually write something to the filesystem."""
         raise NotImplementedError
 
     def write_doc_serialized(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
         """
@@ -670,7 +650,7 @@ class Builder(object):
         pass
 
     def get_builder_config(self, option, default):
-        # type: (unicode, unicode) -> Any
+        # type: (str, str) -> Any
         """Return a builder specific option.
 
         This method allows customization of common builder settings by

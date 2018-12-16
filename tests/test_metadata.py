@@ -15,7 +15,7 @@
 import pytest
 
 
-@pytest.mark.sphinx('pseudoxml')
+@pytest.mark.sphinx('dummy', testroot='metadata')
 def test_docinfo(app, status, warning):
     """
     Inspect the 'docinfo' metadata stored in the first node of the document.
@@ -24,9 +24,7 @@ def test_docinfo(app, status, warning):
     'dedication' blocks, or the 'meta' role. Doing otherwise is probably more
     messing with the internals of sphinx than this rare use case merits.
     """
-    app.builder.build(['metadata'])
-    env = app.env
-    exampledocinfo = env.metadata['metadata']
+    app.build()
     expecteddocinfo = {
         'author': u'David Goodger',
         'authors': [u'Me', u'Myself', u'I'],
@@ -51,4 +49,4 @@ def test_docinfo(app, status, warning):
         'orphan': u'',
         'nocomments': u'',
     }
-    assert exampledocinfo == expecteddocinfo
+    assert app.env.metadata['index'] == expecteddocinfo

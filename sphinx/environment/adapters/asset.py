@@ -14,13 +14,13 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class ImageAdapter(object):
+class ImageAdapter:
     def __init__(self, env):
         # type: (BuildEnvironment) -> None
         self.env = env
 
     def get_original_image_uri(self, name):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         """Get the original image URI."""
         while name in self.env.original_image_uri:
             name = self.env.original_image_uri[name]

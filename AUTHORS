@@ -38,6 +38,7 @@ Other contributors, listed alphabetically, are:
 * Zac Hatfield-Dodds -- doctest reporting improvements
 * Doug Hellmann -- graphviz improvements
 * Tim Hoffmann -- theme improvements
+* Antti Kaihola -- doctest extension (skipif option)
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Chris Lamb -- reproducibility fixes
@@ -56,6 +57,7 @@ Other contributors, listed alphabetically, are:
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Bruce Mitchener -- Minor epub improvement
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
+* Julien Palard -- Colspan and rowspan in text builder
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * \T. Powers -- HTML output improvements
@@ -67,6 +69,7 @@ Other contributors, listed alphabetically, are:
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* Eric N. Vander Weele -- autodoc improvements
 * Stefan van der Walt -- autosummary extension
 * Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
@@ -78,6 +81,7 @@ Other contributors, listed alphabetically, are:
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
 * Daniel Pizetta -- inheritance diagram improvements
+* KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 
 Many thanks for all contributions!
 

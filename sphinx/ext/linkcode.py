@@ -35,16 +35,16 @@ def doctree_read(app, doctree):
         raise LinkcodeError(
             "Function `linkcode_resolve` is not given in conf.py")
 
-    domain_keys = dict(
-        py=['module', 'fullname'],
-        c=['names'],
-        cpp=['names'],
-        js=['object', 'fullname'],
-    )
+    domain_keys = {
+        'py': ['module', 'fullname'],
+        'c': ['names'],
+        'cpp': ['names'],
+        'js': ['object', 'fullname'],
+    }
 
     for objnode in doctree.traverse(addnodes.desc):
         domain = objnode.get('domain')
-        uris = set()  # type: Set[unicode]
+        uris = set()  # type: Set[str]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -70,15 +70,14 @@ def doctree_read(app, doctree):
                 continue
             uris.add(uri)
 
+            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             onlynode = addnodes.only(expr='html')
-            onlynode += nodes.reference('', '', internal=False, refuri=uri)
-            onlynode[0] += nodes.inline('', _('[source]'),
-                                        classes=['viewcode-link'])
+            onlynode += nodes.reference('', '', inline, internal=False, refuri=uri)
             signode += onlynode
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

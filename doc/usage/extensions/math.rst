@@ -183,7 +183,7 @@ Sphinx.
 
    The default is empty (not configured).
 
-.. _Using in-line configuration options: http://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
+.. _Using in-line configuration options: https://docs.mathjax.org/en/latest/configuration.html#using-in-line-configuration-options
 
 :mod:`sphinx.ext.jsmath` -- Render math via JavaScript
 ------------------------------------------------------

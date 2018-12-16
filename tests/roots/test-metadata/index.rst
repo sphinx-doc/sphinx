@@ -42,16 +42,5 @@
        markup language, containing examples of all basic
        constructs and many advanced constructs.
 
-================================
- reStructuredText Demonstration
-================================
-
-.. Above is the document title, and below is the subtitle.
-   They are transformed from section titles after parsing.
-
---------------------------------
- Examples of Syntax Constructs
---------------------------------
-
-.. bibliographic fields (which also require a transform):
-
+test-metadata
+==============

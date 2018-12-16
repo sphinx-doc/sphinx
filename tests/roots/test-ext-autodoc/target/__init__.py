@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import enum
+from io import StringIO
 
-from six import StringIO, add_metaclass
-
-from sphinx.ext.autodoc import add_documenter  # NOQA
+from sphinx.util import save_traceback  # NOQA
 
 
 __all__ = ['Class']
@@ -45,9 +44,9 @@ class CustomDataDescriptorMeta(type):
     """Descriptor metaclass docstring."""
 
 
-@add_metaclass(CustomDataDescriptorMeta)
 class CustomDataDescriptor2(CustomDataDescriptor):
     """Descriptor class with custom metaclass docstring."""
+    __metaclass__ = CustomDataDescriptorMeta
 
 
 def _funky_classmethod(name, b, c, d, docstring=None):

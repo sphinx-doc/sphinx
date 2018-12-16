@@ -15,7 +15,6 @@ from os import path
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import iteritems, itervalues
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -38,15 +37,15 @@ class ImageCollector(EnvironmentCollector):
     """Image files collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.images.purge_doc(docname)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process and rewrite image URIs."""
         docname = app.env.docname
 
@@ -55,7 +54,7 @@ class ImageCollector(EnvironmentCollector):
             # choose the best image from these candidates.  The special key * is
             # set if there is only single candidate to be used by a writer.
             # The special key ? is set for nonlocal URIs.
-            candidates = {}  # type: Dict[unicode, unicode]
+            candidates = {}  # type: Dict[str, str]
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
@@ -87,7 +86,7 @@ class ImageCollector(EnvironmentCollector):
 
             # map image paths to unique image names (so that they can be put
             # into a single directory)
-            for imgpath in itervalues(candidates):
+            for imgpath in candidates.values():
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(__('image file not readable: %s') % imgpath,
@@ -96,8 +95,8 @@ class ImageCollector(EnvironmentCollector):
                 app.env.images.add_file(docname, imgpath)
 
     def collect_candidates(self, env, imgpath, candidates, node):
-        # type: (BuildEnvironment, unicode, Dict[unicode, unicode], nodes.Node) -> None
-        globbed = {}  # type: Dict[unicode, List[unicode]]
+        # type: (BuildEnvironment, str, Dict[str, str], nodes.Node) -> None
+        globbed = {}  # type: Dict[str, List[str]]
         for filename in glob(imgpath):
             new_imgpath = relative_path(path.join(env.srcdir, 'dummy'),
                                         filename)
@@ -108,7 +107,7 @@ class ImageCollector(EnvironmentCollector):
             except (OSError, IOError) as err:
                 logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
-        for key, files in iteritems(globbed):
+        for key, files in globbed.items():
             candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
 
@@ -116,15 +115,15 @@ class DownloadFileCollector(EnvironmentCollector):
     """Download files collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.dlfiles.purge_doc(docname)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']

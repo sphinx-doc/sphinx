@@ -48,7 +48,8 @@ def test_emit_with_nonascii_name_node(app, status, warning):
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    warning = strip_escseq(warning.getvalue())
+    assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):

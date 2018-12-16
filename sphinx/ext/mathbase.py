@@ -24,8 +24,8 @@ from sphinx.domains.math import MathReferenceRole as EqXRefRole  # NOQA  # to ke
 if False:
     # For type annotation
     from typing import Any, Callable, List, Tuple  # NOQA
-    from docutils.writers.html4css1 import Writer  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 
 class MathDirective(MathDirectiveBase):
@@ -44,7 +44,7 @@ def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
 
 
 def get_node_equation_number(writer, node):
-    # type: (Writer, nodes.Node) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> str
     warnings.warn('sphinx.ext.mathbase.get_node_equation_number() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)
@@ -53,7 +53,7 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     warnings.warn('sphinx.ext.mathbase.wrap_displaymath() is moved to '
                   'sphinx.util.math package.',
                   RemovedInSphinx30Warning, stacklevel=2)
@@ -62,7 +62,7 @@ def wrap_displaymath(text, label, numbering):
 
 
 def is_in_section_title(node):
-    # type: (nodes.Node) -> bool
+    # type: (nodes.Element) -> bool
     """Determine whether the node is in a section title"""
     from sphinx.util.nodes import traverse_parent
 

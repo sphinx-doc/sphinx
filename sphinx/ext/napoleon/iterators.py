@@ -18,7 +18,7 @@ if False:
     from typing import Any, Iterable  # NOQA
 
 
-class peek_iter(object):
+class peek_iter:
     """An iterator object that supports peeking ahead.
 
     Parameters

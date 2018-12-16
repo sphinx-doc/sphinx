@@ -4,7 +4,7 @@ Web Support Quick Start
 =======================
 
 Building Documentation Data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 To make use of the web support package in your application you'll need to build
 the data it uses.  This data includes pickle files representing documents,
@@ -20,11 +20,11 @@ things are in a document.  To do this you will need to create an instance of the
 
    support.build()
 
-This will read reStructuredText sources from `srcdir` and place the necessary
-data in `builddir`.  The `builddir` will contain two sub-directories: one named
-"data" that contains all the data needed to display documents, search through
-documents, and add comments to documents.  The other directory will be called
-"static" and contains static files that should be served from "/static".
+This will read reStructuredText sources from ``srcdir`` and place the necessary
+data in ``builddir``.  The ``builddir`` will contain two sub-directories: one
+named "data" that contains all the data needed to display documents, search
+through documents, and add comments to documents.  The other directory will be
+called "static" and contains static files that should be served from "/static".
 
 .. note::
 
@@ -34,7 +34,7 @@ documents, and add comments to documents.  The other directory will be called
 
 
 Integrating Sphinx Documents Into Your Webapp
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------
 
 Now that the data is built, it's time to do something useful with it.  Start off
 by creating a :class:`~.WebSupport` object for your application::
@@ -96,7 +96,7 @@ integrate with your existing templating system.  An example using `Jinja2
 
 
 Authentication
---------------
+~~~~~~~~~~~~~~
 
 To use certain features such as voting, it must be possible to authenticate
 users.  The details of the authentication are left to your application.  Once a
@@ -146,13 +146,14 @@ add this data to the ``COMMENT_OPTIONS`` that are used in the template.
 
 
 Performing Searches
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 To use the search form built-in to the Sphinx sidebar, create a function to
-handle requests to the url 'search' relative to the documentation root.  The
+handle requests to the URL 'search' relative to the documentation root.  The
 user's search query will be in the GET parameters, with the key `q`.  Then use
-the :meth:`~sphinxcontrib.websupport.WebSupport.get_search_results` method to retrieve
-search results. In `Flask <http://flask.pocoo.org/>`_ that would be like this::
+the :meth:`~sphinxcontrib.websupport.WebSupport.get_search_results` method to
+retrieve search results. In `Flask <http://flask.pocoo.org/>`_ that would be
+like this::
 
    @app.route('/search')
    def search():
@@ -167,7 +168,7 @@ does.
 
 
 Comments & Proposals
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 Now that this is done it's time to define the functions that handle the AJAX
 calls from the script.  You will need three functions.  The first function is
@@ -186,9 +187,9 @@ used to add a new comment, and will call the web support method
                                      username=username, proposal=proposal)
        return jsonify(comment=comment)
 
-You'll notice that both a `parent_id` and `node_id` are sent with the
-request. If the comment is being attached directly to a node, `parent_id`
-will be empty. If the comment is a child of another comment, then `node_id`
+You'll notice that both a ``parent_id`` and ``node_id`` are sent with the
+request. If the comment is being attached directly to a node, ``parent_id``
+will be empty. If the comment is a child of another comment, then ``node_id``
 will be empty. Then next function handles the retrieval of comments for a
 specific node, and is aptly named
 :meth:`~sphinxcontrib.websupport.WebSupport.get_data`::
@@ -217,11 +218,11 @@ and will handle user votes on comments::
 
 
 Comment Moderation
-~~~~~~~~~~~~~~~~~~
+------------------
 
 By default, all comments added through :meth:`~.WebSupport.add_comment` are
 automatically displayed.  If you wish to have some form of moderation, you can
-pass the `displayed` keyword argument::
+pass the ``displayed`` keyword argument::
 
    comment = support.add_comment(text, node_id='node_id',
                                  parent_id='parent_id',

@@ -14,11 +14,12 @@ import base64
 import imghdr
 import warnings
 from collections import OrderedDict
+from io import BytesIO
 from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import PY3, BytesIO, iteritems
+from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
@@ -34,9 +35,6 @@ if False:
     # For type annotation
     from typing import Dict, IO, List, Tuple  # NOQA
 
-if PY3:
-    unicode = str  # special alias for static typing...
-
 mime_suffixes = OrderedDict([
     ('.gif', 'image/gif'),
     ('.jpg', 'image/jpeg'),
@@ -44,15 +42,15 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
-])  # type: Dict[unicode, unicode]
+])
 
-DataURI = NamedTuple('DataURI', [('mimetype', unicode),
-                                 ('charset', unicode),
+DataURI = NamedTuple('DataURI', [('mimetype', text_type),
+                                 ('charset', text_type),
                                  ('data', bytes)])
 
 
 def get_image_size(filename):
-    # type: (unicode) -> Tuple[int, int]
+    # type: (str) -> Tuple[int, int]
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -72,7 +70,7 @@ def get_image_size(filename):
 
 
 def guess_mimetype_for_stream(stream, default=None):
-    # type: (IO, unicode) -> unicode
+    # type: (IO, str) -> str
     imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
@@ -81,7 +79,7 @@ def guess_mimetype_for_stream(stream, default=None):
 
 
 def guess_mimetype(filename='', content=None, default=None):
-    # type: (unicode, unicode, unicode) -> unicode
+    # type: (str, bytes, str) -> str
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
@@ -97,8 +95,8 @@ def guess_mimetype(filename='', content=None, default=None):
 
 
 def get_image_extension(mimetype):
-    # type: (unicode) -> unicode
-    for ext, _mimetype in iteritems(mime_suffixes):
+    # type: (str) -> str
+    for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
 
@@ -106,7 +104,7 @@ def get_image_extension(mimetype):
 
 
 def parse_data_uri(uri):
-    # type: (unicode) -> DataURI
+    # type: (str) -> DataURI
     if not uri.startswith('data:'):
         return None
 
@@ -128,7 +126,7 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
-    # type: (unicode, IO) -> unicode
+    # type: (bytes, IO) -> str
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
         if '<svg' in h.decode('utf-8').lower():
@@ -141,4 +139,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)  # type: ignore
+imghdr.tests.append(test_svg)

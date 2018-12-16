@@ -16,10 +16,9 @@ from itertools import cycle, chain
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
-from six import PY3
 
 from sphinx.errors import ConfigError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
 
@@ -30,10 +29,10 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
-file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
@@ -44,10 +43,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
-    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
 etree_cache = {}
@@ -248,7 +243,7 @@ def test_html_warnings(app, warning):
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -347,7 +342,7 @@ def test_html_warnings(app, warning):
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),

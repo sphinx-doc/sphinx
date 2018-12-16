@@ -11,7 +11,6 @@ from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
-from sphinx.writers.websupport import WebSupportTranslator
 
 
 project = 'test'
@@ -54,10 +53,6 @@ class ConfTextTranslator(TextTranslator):
     pass
 
 
-class ConfWebSupportTranslator(WebSupportTranslator):
-    pass
-
-
 class ConfXMLTranslator(XMLTranslator):
     pass
 
@@ -76,6 +71,5 @@ def setup(app):
     app.set_translator('man', ConfManualPageTranslator)
     app.set_translator('texinfo', ConfTexinfoTranslator)
     app.set_translator('text', ConfTextTranslator)
-    app.set_translator('websupport', ConfWebSupportTranslator)
     app.set_translator('xml', ConfXMLTranslator)
     app.set_translator('pseudoxml', ConfPseudoXMLTranslator)

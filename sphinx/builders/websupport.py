@@ -16,7 +16,7 @@ if False:
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     try:
         from sphinxcontrib.websupport.builder import WebSupportBuilder
         app.add_builder(WebSupportBuilder)

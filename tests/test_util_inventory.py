@@ -11,8 +11,7 @@
 
 import posixpath
 import zlib
-
-from six import BytesIO
+from io import BytesIO
 
 from sphinx.ext.intersphinx import InventoryFile
 

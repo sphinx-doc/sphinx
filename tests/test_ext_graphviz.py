@@ -35,7 +35,7 @@ def test_graphviz_png_html(app, status, warning):
 
     html = (r'<div class="figure align-right" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
-            r'<span class="caption-text">on right</span>.*</p>\s*</div>')
+            r'<span class="caption-text">on <em>right</em></span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
@@ -73,7 +73,7 @@ def test_graphviz_svg_html(app, status, warning):
             r'foo -&gt; bar\n'
             r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
-            r'on right</span>.*</p>\n'
+            r'on <em>right</em></span>.*</p>\n'
             r'</div>')
     assert re.search(html, content, re.S)
 
@@ -102,7 +102,8 @@ def test_graphviz_latex(app, status, warning):
 
     macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
-             '\\\\caption{on right}\\\\label{.*}\\\\end{wrapfigure}')
+             '\\\\caption{on \\\\sphinxstyleemphasis{right}}'
+             '\\\\label{.*}\\\\end{wrapfigure}')
     assert re.search(macro, content, re.S)
 
     macro = (r'\{\\hfill'

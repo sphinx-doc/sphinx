@@ -9,9 +9,8 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
-import codecs
+import html
 import os
 from os import path
 
@@ -19,16 +18,18 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import htmlescape
+from sphinx.util.nodes import NodeMatcher
+from sphinx.util.osutil import make_filename_from_project
 
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -133,8 +134,9 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split()
 
-# The following list includes only languages supported by Sphinx.
-# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+# The following list includes only languages supported by Sphinx. See
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
+# for more.
 chm_locales = {
     # lang:   LCID,  encoding
     'ca':    (0x403, 'cp1252'),
@@ -195,20 +197,20 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
-        # the output files for HTML help must be .html only
+        # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
+        super(HTMLHelpBuilder, self).init()
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
-        # type: (unicode, unicode, unicode) -> IO
+        # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
-                           self.encoding, 'xmlcharrefreplace')
+        return open(path.join(outdir, basename), mode, encoding=self.encoding,
+                    errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
         # type: (unicode, unicode, Dict, unicode) -> None
@@ -222,16 +224,16 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
                 node['target'] = '_blank'
 
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super(HTMLHelpBuilder, self).write_doc(docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('dumping stopword list...'))
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
@@ -283,7 +285,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"', '&quot;')
+                    title = html.escape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -296,11 +298,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     for subnode in node:
                         write_toc(subnode, ullevel)
 
-            def istoctree(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, addnodes.compact_paragraph) and \
-                    'toctree' in node
-            for node in tocdoc.traverse(istoctree):
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
                 write_toc(node)
             f.write(contents_footer)
 
@@ -310,13 +309,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
-                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
+                # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
                 def write_param(name, value):
-                    # type: (unicode, unicode) -> None
+                    # type: (str, str) -> None
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = htmlescape(title)
+                title = html.escape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
@@ -340,15 +339,23 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('</UL>\n')
 
 
+def default_htmlhelp_basename(config):
+    # type: (Config) -> str
+    """Better default htmlhelp_basename setting."""
+    return make_filename_from_project(config.project) + 'doc'
+
+
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 
-    app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
     app.add_config_value('htmlhelp_ascii_output', False, 'html')
     app.add_config_value('htmlhelp_binary_toc', False, None)
     app.add_config_value('htmlhelp_binary_index', False, None)
+    app.add_config_value('htmlhelp_basename', default_htmlhelp_basename, None)
+    app.add_config_value('htmlhelp_file_suffix', None, 'html', string_classes)
+    app.add_config_value('htmlhelp_link_suffix', None, 'html', string_classes)
 
     return {
         'version': 'builtin',

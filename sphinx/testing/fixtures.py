@@ -8,16 +8,15 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import subprocess
 import sys
 from collections import namedtuple
+from io import StringIO
 from tempfile import gettempdir
 
 import pytest
-from six import StringIO, string_types
 
 from . import util
 
@@ -102,8 +101,7 @@ def test_params(request):
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and
-            not isinstance(result['shared_result'], string_types)):
+    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
         raise pytest.Exception('You can only provide a string type of value '
                                'for "shared_result" ')
     return result
@@ -173,7 +171,7 @@ def make_app(test_params, monkeypatch):
         app_.cleanup()
 
 
-class SharedResult(object):
+class SharedResult:
     cache = {}  # type: Dict[str, Dict[str, str]]
 
     def store(self, key, app_):

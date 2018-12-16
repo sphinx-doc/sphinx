@@ -18,6 +18,7 @@ from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -34,6 +35,7 @@ def settings(app):
     settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
+    settings.contentsname = 'dummy'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -87,6 +89,9 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
+        app.builder = LaTeXBuilder(app)
+        app.builder.set_environment(app.env)
+        app.builder.init_context()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
@@ -212,7 +217,7 @@ def get_verifier(verify, verify_re):
         'verify',
         u'Γ\\\\∞$',
         None,
-        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+        u'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
@@ -221,7 +226,7 @@ def get_verifier(verify, verify_re):
         None,
         (u'\\fvset{hllines={, ,}}%\n'
          u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         u'@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          u'\\end{sphinxVerbatim}'),
     ),
     (

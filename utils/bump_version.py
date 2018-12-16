@@ -84,7 +84,7 @@ def processing(message):
         print('done')
 
 
-class Changes(object):
+class Changes:
     def __init__(self, path):
         self.path = path
         self.fetch_version()

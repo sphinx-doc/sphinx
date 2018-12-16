@@ -9,16 +9,17 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+import tempfile
+
 import pytest
 from mock import patch
-
-from six import PY2
 
 import sphinx
 from sphinx.errors import PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, get_module_source, parselinenos, status_iterator,
+    display_chunk, encode_uri, ensuredir, get_module_source, parselinenos, status_iterator,
     xmlname_checker
 )
 from sphinx.util import logging
@@ -39,6 +40,20 @@ def test_encode_uri():
     assert expected == encode_uri(uri)
 
 
+def test_ensuredir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        # Does not raise an exception for an existing directory.
+        ensuredir(tmp_path)
+
+        path = os.path.join(tmp_path, 'a', 'b', 'c')
+        ensuredir(path)
+        assert os.path.isdir(path)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with pytest.raises(OSError):
+            ensuredir(tmp.name)
+
+
 def test_display_chunk():
     assert display_chunk('hello') == 'hello'
     assert display_chunk(['hello']) == 'hello'
@@ -48,10 +63,7 @@ def test_display_chunk():
 
 
 def test_get_module_source():
-    if PY2:
-        assert get_module_source('sphinx') == ('file', sphinx.__file__.replace('.pyc', '.py'))
-    else:
-        assert get_module_source('sphinx') == ('file', sphinx.__file__)
+    assert get_module_source('sphinx') == ('file', sphinx.__file__)
 
     # failed to obtain source information from builtin modules
     with pytest.raises(PycodeError):

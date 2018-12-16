@@ -157,7 +157,7 @@ def cached_etree_parse():
         # footnote reference
         (".//a[@class='footnote-reference brackets']", r'1'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -249,7 +249,7 @@ def cached_etree_parse():
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),

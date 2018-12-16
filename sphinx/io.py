@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 import codecs
-import re
 import warnings
 
 from docutils.core import Publisher
@@ -18,11 +17,9 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
 from docutils.statemachine import StringList, string2lines
 from docutils.writers import UnfilteredWriter
-from six import text_type, iteritems
 from typing import Any, Union  # NOQA
 
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.locale import __
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
@@ -36,12 +33,14 @@ from sphinx.transforms.i18n import (
 )
 from sphinx.transforms.references import SphinxDomains, SubstitutionDefinitionsRemover
 from sphinx.util import logging
+from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
+from sphinx.util.rst import append_epilog, docinfo_re, prepend_prolog
 from sphinx.versioning import UIDTransform
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -49,8 +48,6 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-docinfo_re = re.compile(':\\w+:.*?')
 
 
 logger = logging.getLogger(__name__)
@@ -63,21 +60,23 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
+    transforms = []  # type: List[Type[Transform]]
+
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.env = app.env
-        standalone.Reader.__init__(self, *args, **kwargs)
+        super(SphinxBaseReader, self).__init__(*args, **kwargs)
 
     def get_transforms(self):
-        # type: () -> List[Transform]
-        return standalone.Reader.get_transforms(self) + self.transforms
+        # type: () -> List[Type[Transform]]
+        return super(SphinxBaseReader, self).get_transforms() + self.transforms
 
     def new_document(self):
         # type: () -> nodes.document
         """Creates a new document object which having a special reporter object good
         for logging.
         """
-        document = standalone.Reader.new_document(self)
+        document = super(SphinxBaseReader, self).new_document()
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
@@ -100,13 +99,12 @@ class SphinxStandaloneReader(SphinxBaseReader):
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
                   SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,
-                  UIDTransform,
-                  ]  # type: List[Transform]
+                  UIDTransform]
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        SphinxBaseReader.__init__(self, app, *args, **kwargs)
+        super(SphinxStandaloneReader, self).__init__(app, *args, **kwargs)
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -167,25 +165,16 @@ class SphinxBaseFileInput(FileInput):
         self.app = app
         self.env = env
 
-        # set up error handler
-        codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
-
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        FileInput.__init__(self, *args, **kwds)
-
-    def decode(self, data):
-        # type: (Union[unicode, bytes]) -> unicode
-        if isinstance(data, text_type):  # py3: `data` already decoded.
-            return data
-        return data.decode(self.encoding, 'sphinx')  # py2: decoding
+        super(SphinxBaseFileInput, self).__init__(*args, **kwds)
 
     def read(self):
-        # type: () -> unicode
+        # type: () -> str
         """Reads the contents from file.
 
         After reading, it emits Sphinx event ``source-read``.
         """
-        data = FileInput.read(self)
+        data = super(SphinxBaseFileInput, self).read()
 
         # emit source-read event
         arg = [data]
@@ -194,18 +183,11 @@ class SphinxBaseFileInput(FileInput):
 
     def warn_and_replace(self, error):
         # type: (Any) -> Tuple
-        """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(__('undecodable source characters, replacing with "?": %r'),
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.env.docname, lineno))
-        return (u'?', error.end)
+        warnings.warn('SphinxBaseFileInput.warn_and_replace() is deprecated. '
+                      'Use UnicodeDecodeErrorHandler instead.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
+        return UnicodeDecodeErrorHandler(self.env.docname)(error)
 
 
 class SphinxFileInput(SphinxBaseFileInput):
@@ -230,7 +212,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
     supported = ('restructuredtext',)
 
     def prepend_prolog(self, text, prolog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         docinfo = self.count_docinfo_lines(text)
         if docinfo:
             # insert a blank line after docinfo
@@ -244,24 +226,25 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
         text.insert(docinfo + lineno + 1, '', '<generated>', 0)
 
     def append_epilog(self, text, epilog):
-        # type: (StringList, unicode) -> None
+        # type: (StringList, str) -> None
         # append a blank line and rst_epilog
         text.append('', '<generated>', 0)
         for lineno, line in enumerate(epilog.splitlines()):
             text.append(line, '<rst_epilog>', lineno)
 
-    def read(self):
+    def read(self):  # type: ignore
         # type: () -> StringList
-        inputstring = SphinxBaseFileInput.read(self)
+        warnings.warn('SphinxRSTFileInput is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
+        inputstring = super(SphinxRSTFileInput, self).read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
         for lineno, line in enumerate(lines):
             content.append(line, self.source_path, lineno)
 
-        if self.env.config.rst_prolog:
-            self.prepend_prolog(content, self.env.config.rst_prolog)
-        if self.env.config.rst_epilog:
-            self.append_epilog(content, self.env.config.rst_epilog)
+        prepend_prolog(content, self.env.config.rst_prolog)
+        append_epilog(content, self.env.config.rst_epilog)
 
         return content
 
@@ -281,8 +264,8 @@ class FiletypeNotFoundError(Exception):
 
 
 def get_filetype(source_suffix, filename):
-    # type: (Dict[unicode, unicode], unicode) -> unicode
-    for suffix, filetype in iteritems(source_suffix):
+    # type: (Dict[str, str], str) -> str
+    for suffix, filetype in source_suffix.items():
         if filename.endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
@@ -291,12 +274,16 @@ def get_filetype(source_suffix, filename):
 
 
 def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, unicode) -> nodes.document
+    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
     """Parse a document and convert to doctree."""
+    # set up error_handler for the target document
+    error_handler = UnicodeDecodeErrorHandler(env.docname)
+    codecs.register_error('sphinx', error_handler)  # type: ignore
+
     filetype = get_filetype(app.config.source_suffix, filename)
     input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
-    source = input_class(app, env, source=None, source_path=filename,
+    source = input_class(app, env, source=None, source_path=filename,  # type: ignore
                          encoding=env.config.source_encoding)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
@@ -307,12 +294,11 @@ def read_doc(app, env, filename):
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    pub = Publisher(reader=reader,
+    pub = Publisher(reader=reader,  # type: ignore
                     parser=parser,
                     writer=SphinxDummyWriter(),
                     source_class=SphinxDummySourceClass,
                     destination=NullOutput())
-    pub.set_components(None, 'restructuredtext', None)
     pub.process_programmatic_settings(None, env.settings, None)
     pub.set_source(source, filename)
     pub.publish()
@@ -320,9 +306,8 @@ def read_doc(app, env, filename):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.registry.add_source_input(SphinxFileInput)
-    app.registry.add_source_input(SphinxRSTFileInput)
 
     return {
         'version': 'builtin',

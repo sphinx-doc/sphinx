@@ -850,8 +850,8 @@ Note however that no checking is performed with respect to parameter
 compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
-Inline Expressions and Tpes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
               cpp:texpr

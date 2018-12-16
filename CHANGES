@@ -1,3 +1,121 @@
+Release 2.0.0 (in development)
+==============================
+
+Dependencies
+------------
+
+* LaTeX builder now depends on TeX Live 2015 or above.
+* LaTeX builder (with ``'pdflatex'`` :confval:`latex_engine`) will process
+  Unicode Greek letters in text (not in math mark-up) via the text font and
+  will not escape them to math mark-up. See the discussion of the
+  ``'fontenc'`` key of :confval:`latex_elements`; such (optional) support for
+  Greek adds, for example on Ubuntu xenial, the ``texlive-lang-greek`` and (if
+  default font set-up is not modified) ``cm-super(-minimal)`` as additional
+  Sphinx LaTeX requirements.
+* LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
+  ``'lualatex'`` requires (by default) the ``FreeFont`` fonts,
+  which in Ubuntu xenial are provided by package ``fonts-freefont-otf``.
+
+Incompatible changes
+--------------------
+
+* Drop python 2.7 and 3.4 support
+* Drop docutils 0.11 support
+* The default setting for :confval:`master_doc` is changed to ``'index'`` which
+  has been longly used as default of sphinx-quickstart.
+* LaTeX: Move message resources to ``sphinxmessage.sty``
+* LaTeX: Stop using ``\captions<lang>`` macro for some labels
+* LaTeX: for ``'xelatex'`` and ``'lualatex'``, use the ``FreeFont`` OpenType
+  fonts as default choice (refs: #5645)
+* LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
+  will use the text font not the math font. The ``LGR`` font encoding must be
+  added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
+  (only if it is needed by the document, of course).
+* LaTeX: setting the :confval:`language` to ``'en'`` triggered ``Sonny`` option
+  of ``fncychap``, now it is ``Bjarne`` to match case of no language specified.
+  (refs: #5772)
+* #5770: doctest: Follow :confval:`highlight_language` on highlighting doctest
+  block.  As a result, they are highlighted as python3 by default.
+
+Deprecated
+----------
+
+* Support for evaluating Python 2 syntax is deprecated. This includes
+  configuration files which should be converted to Python 3.
+* The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
+  ``autodoc.DocstringSignatureMixin.get_doc()``,
+  ``autodoc.DocstringSignatureMixin._find_signature()``, and
+  ``autodoc.ClassDocumenter.get_doc()`` are deprecated.
+* The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+* The ``nodetype`` argument of ``sphinx.search.WordCollector.
+  is_meta_keywords()``
+* The ``suffix`` argument of ``env.doc2path()`` is deprecated.
+* The string style ``base`` argument of ``env.doc2path()`` is deprecated.
+* ``sphinx.addnodes.abbreviation``
+* ``sphinx.application.Sphinx._setting_up_extension``
+* ``sphinx.config.check_unicode()``
+* ``sphinx.ext.autodoc.importer._MockImporter``
+* ``sphinx.ext.autosummary.Autosummary.warn()``
+* ``sphinx.ext.autosummary.Autosummary.genopt``
+* ``sphinx.ext.autosummary.Autosummary.warnings``
+* ``sphinx.ext.autosummary.Autosummary.result``
+* ``sphinx.ext.doctest.doctest_encode()``
+* ``sphinx.io.SphinxRSTFileInput``
+* ``sphinx.testing.util.remove_unicode_literal()``
+* ``sphinx.util.attrdict``
+* ``sphinx.util.force_decode()``
+* ``sphinx.util.get_matching_docs()``
+* ``sphinx.util.inspect.Parameter``
+* ``sphinx.util.osutil.EEXIST``
+* ``sphinx.util.osutil.ENOENT``
+* ``sphinx.util.osutil.walk()``
+* ``sphinx.util.PeekableIterator``
+* ``sphinx.util.pycompat.u``
+* ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+* ``sphinx.writers.latex.TextTranslator._make_visit_admonition()``
+* ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+* ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
+* template variables for LaTeX template
+
+  - ``pageautorefname``
+  - ``translatablestrings``
+
+For more details, see `deprecation APIs list
+<http://www.sphinx-doc.org/en/master/extdev/index.html#deprecated-apis>`_
+
+Features added
+--------------
+* #1618: The search results preview of generated HTML documentation is
+  reader-friendlier: instead of showing the snippets as raw reStructuredText
+  markup, Sphinx now renders the corresponding HTML.  This means the Sphinx
+  extension `Sphinx: pretty search results`__ is no longer necessary.  Note that
+  changes to the search function of your custom or 3rd-pary HTML template might
+  overwrite this improvement.
+
+__ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
+
+* #4182: autodoc: Support :confval:`suppress_warnings`
+* #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
+* #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
+  :confval:`htmlhelp_link_suffix`
+* #5559: text: Support complex tables (colspan and rowspan)
+* LaTeX: support rendering (not in math, yet) of Greek and Cyrillic Unicode
+  letters in non-Cyrillic document even with ``'pdflatex'`` as
+  :confval:`latex_engine` (refs: #5645)
+
+Bugs fixed
+----------
+
+* #5247: LaTeX: PDF does not build with default font config for Russian
+  language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
+  (refs: #5251)
+* #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
+* #5772: LaTeX: should the Bjarne style of fncychap be used for English also
+  if passed as language option?
+
+Testing
+--------
+
 Release 1.8.3 (in development)
 ==============================
 
@@ -2139,7 +2257,7 @@ Incompatible changes
   parsing is attempted to distinguish valid code.  To get the old behavior back,
   add ``highlight_language = "python"`` to conf.py.
 * `Locale Date Markup Language
-  <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
+  <https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.

@@ -11,7 +11,6 @@
 """
 import mock
 import pytest
-from six import PY3
 
 import sphinx
 from sphinx.config import Config, ENUM, string_classes, check_confval_types
@@ -78,7 +77,7 @@ def test_extension_values():
     config = Config()
 
     # check standard settings
-    assert config.master_doc == 'contents'
+    assert config.master_doc == 'index'
 
     # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
@@ -135,19 +134,6 @@ def test_errors_warnings(logger, tempdir):
     cfg.init_values()
     assert cfg.project == u'Jägermeister'
     assert logger.called is False
-
-    # test the warning for bytestrings with non-ascii content
-    # bytestrings with non-ascii content are a syntax error in python3 so we
-    # skip the test there
-    if PY3:
-        return
-    (tempdir / 'conf.py').write_text(
-        u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config.read(tempdir, {}, None)
-
-    assert logger.warning.called is False
-    cfg.check_unicode()
-    assert logger.warning.called is True
 
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
@@ -218,7 +204,7 @@ def test_builtin_conf(app, status, warning):
 
 
 # example classes for type checking
-class A(object):
+class A:
     pass
 
 
@@ -242,7 +228,7 @@ TYPECHECK_WARNINGS = [
     ('value8', B(), None, C(), False),                          # sibling type
     ('value9', None, None, 'foo', False),                       # no default or no annotations
     ('value10', None, None, 123, False),                        # no default or no annotations
-    ('value11', None, [str], u'bar', False if PY3 else True),   # str vs unicode
+    ('value11', None, [str], u'bar', False),                    # str vs unicode
     ('value12', 'string', None, u'bar', False),                 # str vs unicode
     ('value13', None, string_classes, 'bar', False),            # string_classes
     ('value14', None, string_classes, u'bar', False),           # string_classes
@@ -259,6 +245,27 @@ def test_check_types(logger, name, default, annotation, actual, warned):
     config.init_values()
     check_confval_types(None, config)
     assert logger.warning.called == warned
+
+
+TYPECHECK_WARNING_MESSAGES = [
+    ('value1', 'string', [str], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str'."),
+    ('value1', 'string', [str, int], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str' or `int'."),
+    ('value1', 'string', [str, int, tuple], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str', `int', or `tuple'."),
+]
+
+
+@mock.patch("sphinx.config.logger")
+@pytest.mark.parametrize("name,default,annotation,actual,message", TYPECHECK_WARNING_MESSAGES)
+def test_conf_warning_message(logger, name, default, annotation, actual, message):
+    config = Config({name: actual})
+    config.add(name, default, False, annotation or ())
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_called()
+    assert logger.warning.call_args[0][0] == message
 
 
 @mock.patch("sphinx.config.logger")
