@@ -421,7 +421,7 @@ class UnicodeDecodeErrorHandler:
                         error.object[error.start:error.end] + b'<<<' +
                         error.object[error.end:lineend]),
                        location=(self.docname, lineno))
-        return (u'?', error.end)
+        return ('?', error.end)
 
 
 # Low-level utility functions and classes.
@@ -700,30 +700,30 @@ def xmlname_checker():
     # https://www.w3.org/TR/REC-xml/#NT-Name
     # Only Python 3.3 or newer support character code in regular expression
     name_start_chars = [
-        u':', [u'A', u'Z'], u'_',  [u'a', u'z'], [u'\u00C0', u'\u00D6'],
-        [u'\u00D8', u'\u00F6'], [u'\u00F8', u'\u02FF'], [u'\u0370', u'\u037D'],
-        [u'\u037F', u'\u1FFF'], [u'\u200C', u'\u200D'], [u'\u2070', u'\u218F'],
-        [u'\u2C00', u'\u2FEF'], [u'\u3001', u'\uD7FF'], [u'\uF900', u'\uFDCF'],
-        [u'\uFDF0', u'\uFFFD']]
+        ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
+        ['\u00D8', '\u00F6'], ['\u00F8', '\u02FF'], ['\u0370', '\u037D'],
+        ['\u037F', '\u1FFF'], ['\u200C', '\u200D'], ['\u2070', '\u218F'],
+        ['\u2C00', '\u2FEF'], ['\u3001', '\uD7FF'], ['\uF900', '\uFDCF'],
+        ['\uFDF0', '\uFFFD']]
 
-    name_start_chars.append([u'\U00010000', u'\U000EFFFF'])
+    name_start_chars.append(['\U00010000', '\U000EFFFF'])
 
     name_chars = [
-        u"\\-", u"\\.", [u'0', u'9'], u'\u00B7', [u'\u0300', u'\u036F'],
-        [u'\u203F', u'\u2040']
+        "\\-", "\\.", ['0', '9'], '\u00B7', ['\u0300', '\u036F'],
+        ['\u203F', '\u2040']
     ]
 
-    def convert(entries, splitter=u'|'):
+    def convert(entries, splitter='|'):
         # type: (Any, str) -> str
         results = []
         for entry in entries:
             if isinstance(entry, list):
-                results.append(u'[%s]' % convert(entry, u'-'))
+                results.append('[%s]' % convert(entry, '-'))
             else:
                 results.append(entry)
         return splitter.join(results)
 
     start_chars_regex = convert(name_start_chars)
     name_chars_regex = convert(name_chars)
-    return re.compile(u'(%s)(%s|%s)*' % (
+    return re.compile('(%s)(%s|%s)*' % (
         start_chars_regex, start_chars_regex, name_chars_regex))

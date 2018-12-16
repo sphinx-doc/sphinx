@@ -83,7 +83,7 @@ def test_texinfo(app, status, warning):
                     docutilsconf='[general]\nsource_link=true\n')
 def test_docutils_source_link_with_nonascii_file(app, status, warning):
     srcdir = path(app.srcdir)
-    mb_name = u'\u65e5\u672c\u8a9e'
+    mb_name = '\u65e5\u672c\u8a9e'
     try:
         (srcdir / (mb_name + '.txt')).write_text('')
     except UnicodeEncodeError:

@@ -119,7 +119,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         for (key, group) in index:
             for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
-        keywords = u'\n'.join(keywords)  # type: ignore
+        keywords = '\n'.join(keywords)  # type: ignore
 
         # it seems that the "namespace" may not contain non-alphanumeric
         # characters, and more than one successive dot, or leading/trailing
@@ -192,7 +192,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = html.escape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = u' ' * 4 * indentlevel + item
+            item = ' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace').decode())
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:

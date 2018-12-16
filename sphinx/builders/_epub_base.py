@@ -50,22 +50,22 @@ logger = logging.getLogger(__name__)
 # output but that may be customized by (re-)setting module attributes,
 # e.g. from conf.py.
 
-COVERPAGE_NAME = u'epub-cover.xhtml'
+COVERPAGE_NAME = 'epub-cover.xhtml'
 
-TOCTREE_TEMPLATE = u'toctree-l%d'
+TOCTREE_TEMPLATE = 'toctree-l%d'
 
-LINK_TARGET_TEMPLATE = u' [%(uri)s]'
+LINK_TARGET_TEMPLATE = ' [%(uri)s]'
 
-FOOTNOTE_LABEL_TEMPLATE = u'#%d'
+FOOTNOTE_LABEL_TEMPLATE = '#%d'
 
-FOOTNOTES_RUBRIC_NAME = u'Footnotes'
+FOOTNOTES_RUBRIC_NAME = 'Footnotes'
 
-CSS_LINK_TARGET_CLASS = u'link-target'
+CSS_LINK_TARGET_CLASS = 'link-target'
 
 # XXX These strings should be localized according to epub_language
 GUIDE_TITLES = {
-    'toc': u'Table of Contents',
-    'cover': u'Cover'
+    'toc': 'Table of Contents',
+    'cover': 'Cover'
 }
 
 MEDIA_TYPES = {
@@ -721,7 +721,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         epub_filename = path.join(outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
             epub.write(path.join(outdir, 'mimetype'), 'mimetype', ZIP_STORED)
-            for filename in [u'META-INF/container.xml', u'content.opf', u'toc.ncx']:
+            for filename in ['META-INF/container.xml', 'content.opf', 'toc.ncx']:
                 epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
                 epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)

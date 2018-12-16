@@ -27,6 +27,6 @@ def test_htmlhelp_file_suffix(app, warning):
 
 
 def test_default_htmlhelp_basename():
-    config = Config({'project': u'Sphinx Documentation'})
+    config = Config({'project': 'Sphinx Documentation'})
     config.init_values()
     assert default_htmlhelp_basename(config) == 'sphinxdoc'

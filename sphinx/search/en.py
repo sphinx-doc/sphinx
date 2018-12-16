@@ -16,7 +16,7 @@ if False:
     # For type annotation
     from typing import Dict  # NOQA
 
-english_stopwords = set(u"""
+english_stopwords = set("""
 a  and  are  as  at
 be  but  by
 for

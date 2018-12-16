@@ -95,10 +95,10 @@ def test_texinfo_citation(app, status, warning):
 
 def test_default_texinfo_documents():
     config = Config({'master_doc': 'index',
-                     'project': u'STASI™ Documentation',
-                     'author': u"Wolfgang Schäuble & G'Beckstein"})
+                     'project': 'STASI™ Documentation',
+                     'author': "Wolfgang Schäuble & G'Beckstein"})
     config.init_values()
-    expected = [('index', 'stasi', u'STASI™ Documentation',
-                 u"Wolfgang Schäuble & G'Beckstein", 'stasi',
+    expected = [('index', 'stasi', 'STASI™ Documentation',
+                 "Wolfgang Schäuble & G'Beckstein", 'stasi',
                  'One line description of project', 'Miscellaneous')]
     assert default_texinfo_documents(config) == expected

@@ -21,7 +21,7 @@ def get_node_equation_number(writer, node):
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = u"%s/%s" % (writer.docnames[-1], figtype)
+            key = "%s/%s" % (writer.docnames[-1], figtype)
         else:
             key = figtype
 

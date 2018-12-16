@@ -162,7 +162,7 @@ def autosummary_table_visit_html(self, node):
             for j, subnode in enumerate(list(par)):
                 if isinstance(subnode, nodes.Text):
                     new_text = text_type(subnode.astext())
-                    new_text = new_text.replace(u" ", u"\u00a0")
+                    new_text = new_text.replace(" ", "\u00a0")
                     par[j] = nodes.Text(new_text)
     except IndexError:
         pass
@@ -475,7 +475,7 @@ def mangle_signature(sig, max_chars=30):
             sig += "[, %s]" % limited_join(", ", opts,
                                            max_chars=max_chars - len(sig) - 4 - 2)
 
-    return u"(%s)" % sig
+    return "(%s)" % sig
 
 
 def extract_summary(doc, document):

@@ -174,7 +174,7 @@ class CObject(ObjectDescription):
                     ctype, argname = arg.rsplit(' ', 1)
                     self._parse_type(param, ctype)
                     # separate by non-breaking space in the output
-                    param += nodes.emphasis(' ' + argname, u'\xa0' + argname)
+                    param += nodes.emphasis(' ' + argname, '\xa0' + argname)
             except ValueError:
                 # no argument name given, only the type
                 self._parse_type(param, arg)

@@ -111,7 +111,7 @@ class Class(Base):
     """should likewise be documented -- süß"""
 
     udocattr = 'quux'
-    u"""should be documented as well - süß"""
+    """should be documented as well - süß"""
 
     # initialized to any class imported from another module
     mdocattr = StringIO()

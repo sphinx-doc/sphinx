@@ -228,12 +228,12 @@ def depart_todo_node(self, node):
 
 def latex_visit_todo_node(self, node):
     # type: (LaTeXTranslator, todo_node) -> None
-    self.body.append(u'\n\\begin{sphinxadmonition}{note}{')
+    self.body.append('\n\\begin{sphinxadmonition}{note}{')
     # If this is the original todo node, emit a label that will be referenced by
     # a hyperref in the todolist.
     target = node.get('targetref')
     if target is not None:
-        self.body.append(u'\\label{%s}' % target)
+        self.body.append('\\label{%s}' % target)
 
     title_node = cast(nodes.title, node[0])
     self.body.append('%s:}' % title_node.astext().translate(tex_escape_map))

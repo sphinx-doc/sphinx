@@ -25,7 +25,7 @@ if False:
     # For type annotation
     from typing import Dict, List  # NOQA
 
-english_stopwords = set(u"""
+english_stopwords = set("""
 a  and  are  as  at
 be  but  by
 for
@@ -233,7 +233,7 @@ class SearchChinese(SearchLanguage):
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
-    latin1_letters = re.compile(u'(?u)\\w+[\u0000-\u00ff]')
+    latin1_letters = re.compile('(?u)\\w+[\u0000-\u00ff]')
 
     def init(self, options):
         # type: (Dict) -> None

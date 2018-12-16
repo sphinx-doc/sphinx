@@ -31,7 +31,7 @@ def request_session_head(url, **kwargs):
 @pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
-    test_name = u'\u65e5\u672c\u8a9e'
+    test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
@@ -47,7 +47,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             """))
 
         master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.text() + dedent(u"""
+        master_doc.write_text(master_doc.text() + dedent("""
                               .. toctree::
 
                                  %(test_name)s/%(test_name)s

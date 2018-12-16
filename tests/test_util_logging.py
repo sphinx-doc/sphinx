@@ -303,7 +303,7 @@ def test_output_with_unencodable_char(app, status, warning):
     # info with UnicodeEncodeError
     status.truncate(0)
     status.seek(0)
-    logger.info(u"unicode \u206d...")
+    logger.info("unicode \u206d...")
     assert status.getvalue() == "unicode ?...\n"
 
 

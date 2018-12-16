@@ -1206,12 +1206,12 @@ class TexinfoTranslator(SphinxTranslator):
         if not name:
             title = cast(nodes.title, node[0])
             name = self.escape(title.astext())
-        self.body.append(u'\n@cartouche\n@quotation %s ' % name)
+        self.body.append('\n@cartouche\n@quotation %s ' % name)
 
     def _visit_named_admonition(self, node):
         # type: (nodes.Element) -> None
         label = admonitionlabels[node.tagname]
-        self.body.append(u'\n@cartouche\n@quotation %s ' % label)
+        self.body.append('\n@cartouche\n@quotation %s ' % label)
 
     def depart_admonition(self, node):
         # type: (nodes.Element) -> None
@@ -1514,7 +1514,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_seealso(self, node):
         # type: (nodes.Element) -> None
-        self.body.append(u'\n\n@subsubheading %s\n\n' %
+        self.body.append('\n\n@subsubheading %s\n\n' %
                          admonitionlabels['seealso'])
 
     def depart_seealso(self, node):
@@ -1631,7 +1631,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(u' ', '@w{ }')
+        text = text.replace(' ', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 

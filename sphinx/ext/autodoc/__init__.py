@@ -220,7 +220,7 @@ class Documenter:
     #: generated directive name
     objtype = 'object'
     #: indentation by which to indent the directive content
-    content_indent = u'   '
+    content_indent = '   '
     #: priority if multiple documenters return True from can_document_member
     priority = 0
     #: order if autodoc_member_order is set to 'groupwise'
@@ -241,7 +241,7 @@ class Documenter:
         """Called to see if a member can be documented by this documenter."""
         raise NotImplementedError('must be implemented in subclasses')
 
-    def __init__(self, directive, name, indent=u''):
+    def __init__(self, directive, name, indent=''):
         # type: (DocumenterBridge, str, str) -> None
         self.directive = directive
         self.env = directive.env    # type: BuildEnvironment
@@ -426,14 +426,14 @@ class Documenter:
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
         sourcename = self.get_sourcename()
-        self.add_line(u'.. %s:%s:: %s%s' % (domain, directive, name, sig),
+        self.add_line('.. %s:%s:: %s%s' % (domain, directive, name, sig),
                       sourcename)
         if self.options.noindex:
-            self.add_line(u'   :noindex:', sourcename)
+            self.add_line('   :noindex:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
-            self.add_line(u'   :module: %s' % self.modname, sourcename)
+            self.add_line('   :module: %s' % self.modname, sourcename)
 
     def get_doc(self, encoding=None, ignore=1):
         # type: (str, int) -> List[List[str]]
@@ -468,8 +468,8 @@ class Documenter:
                                      sys.getfilesystemencoding(), 'replace')
             else:
                 filename = self.analyzer.srcname
-            return u'%s:docstring of %s' % (filename, self.fullname)
-        return u'docstring of %s' % self.fullname
+            return '%s:docstring of %s' % (filename, self.fullname)
+        return 'docstring of %s' % self.fullname
 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None
@@ -743,14 +743,14 @@ class Documenter:
         # make sure that the result starts with an empty line.  This is
         # necessary for some situations where another directive preprocesses
         # reST and no starting newline is present
-        self.add_line(u'', sourcename)
+        self.add_line('', sourcename)
 
         # format the object's signature, if any
         sig = self.format_signature()
 
         # generate the directive header and options, if applicable
         self.add_directive_header(sig)
-        self.add_line(u'', sourcename)
+        self.add_line('', sourcename)
 
         # e.g. the module directive doesn't have content
         self.indent += self.content_indent
@@ -767,7 +767,7 @@ class ModuleDocumenter(Documenter):
     Specialized Documenter subclass for modules.
     """
     objtype = 'module'
-    content_indent = u''
+    content_indent = ''
     titles_allowed = True
 
     option_spec = {
@@ -815,13 +815,11 @@ class ModuleDocumenter(Documenter):
 
         # add some module-specific options
         if self.options.synopsis:
-            self.add_line(
-                u'   :synopsis: ' + self.options.synopsis, sourcename)
+            self.add_line('   :synopsis: ' + self.options.synopsis, sourcename)
         if self.options.platform:
-            self.add_line(
-                u'   :platform: ' + self.options.platform, sourcename)
+            self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
-            self.add_line(u'   :deprecated:', sourcename)
+            self.add_line('   :deprecated:', sourcename)
 
     def get_object_members(self, want_all):
         # type: (bool) -> Tuple[bool, List[Tuple[str, object]]]
@@ -1112,13 +1110,13 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
             sourcename = self.get_sourcename()
-            self.add_line(u'', sourcename)
+            self.add_line('', sourcename)
             if hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 bases = [b.__module__ in ('__builtin__', 'builtins') and
-                         u':class:`%s`' % b.__name__ or
-                         u':class:`%s.%s`' % (b.__module__, b.__name__)
+                         ':class:`%s`' % b.__name__ or
+                         ':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__]
-                self.add_line(u'   ' + _(u'Bases: %s') % ', '.join(bases),
+                self.add_line('   ' + _('Bases: %s') % ', '.join(bases),
                               sourcename)
 
     def get_doc(self, encoding=None, ignore=1):
@@ -1174,7 +1172,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 module = safe_getattr(self.object, '__module__', None)
                 parentmodule = safe_getattr(self.parent, '__module__', None)
                 if module and module != parentmodule:
-                    classname = str(module) + u'.' + str(classname)
+                    classname = str(module) + '.' + str(classname)
                 content = StringList([_('alias of :class:`%s`') % classname], source='')
                 super().add_content(content, no_docstring=True)
         else:
@@ -1240,11 +1238,11 @@ class DataDocumenter(ModuleLevelDocumenter):
             except ValueError:
                 pass
             else:
-                self.add_line(u'   :annotation: = ' + objrepr, sourcename)
+                self.add_line('   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
         else:
-            self.add_line(u'   :annotation: %s' % self.options.annotation,
+            self.add_line('   :annotation: %s' % self.options.annotation,
                           sourcename)
 
     def document_members(self, all_members=False):
@@ -1378,12 +1376,11 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
                 except ValueError:
                     pass
                 else:
-                    self.add_line(u'   :annotation: = ' + objrepr, sourcename)
+                    self.add_line('   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
         else:
-            self.add_line(u'   :annotation: %s' % self.options.annotation,
-                          sourcename)
+            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
 
     def add_content(self, more_content, no_docstring=False):
         # type: (Any, bool) -> None

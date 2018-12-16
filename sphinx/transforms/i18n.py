@@ -89,7 +89,7 @@ class Locale(SphinxTransform):
     def apply(self, **kwargs):
         # type: (Any) -> None
         settings, source = self.document.settings, self.document['source']
-        msgstr = u''
+        msgstr = ''
 
         # XXX check if this is reliable
         assert source.startswith(self.env.srcdir)

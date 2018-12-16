@@ -163,14 +163,14 @@ def get_verifier(verify, verify_re):
         # interpolation of arrows in menuselection
         'verify',
         ':menuselection:`a --> b`',
-        (u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
+        ('<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
         '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
         # interpolation of ampersands in menuselection
         'verify',
         ':menuselection:`&Foo -&&- &Bar`',
-        (u'<p><span class="menuselection"><span class="accelerator">F</span>oo '
+        ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -178,7 +178,7 @@ def get_verifier(verify, verify_re):
         # interpolation of ampersands in guilabel
         'verify',
         ':guilabel:`&Foo -&&- &Bar`',
-        (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
+        ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -194,8 +194,8 @@ def get_verifier(verify, verify_re):
         # verify smarty-pants quotes
         'verify',
         '"John"',
-        u'<p>“John”</p>',
-        u"“John”",
+        '<p>“John”</p>',
+        "“John”",
     ),
     (
         # ... but not in literal text
@@ -215,24 +215,24 @@ def get_verifier(verify, verify_re):
     (
         # correct escaping in normal mode
         'verify',
-        u'Γ\\\\∞$',
+        'Γ\\\\∞$',
         None,
-        u'Γ\\textbackslash{}\\(\\infty\\)\\$',
+        'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
         'verify',
-        u'::\n\n @Γ\\∞${}',
+        '::\n\n @Γ\\∞${}',
         None,
-        (u'\\fvset{hllines={, ,}}%\n'
-         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-         u'\\end{sphinxVerbatim}'),
+        ('\\fvset{hllines={, ,}}%\n'
+         '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         '@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         '\\end{sphinxVerbatim}'),
     ),
     (
         # in URIs
         'verify_re',
-        u'`test <http://example.com/~me/>`_',
+        '`test <http://example.com/~me/>`_',
         None,
         r'\\sphinxhref{http://example.com/~me/}{test}.*',
     ),

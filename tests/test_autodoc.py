@@ -325,12 +325,12 @@ def test_get_doc():
     # charset guessing (this module is encoded in utf-8)
     def f():
         """Döcstring"""
-    assert getdocl('function', f) == [u'Döcstring']
+    assert getdocl('function', f) == ['Döcstring']
 
     # already-unicode docstrings must be taken literally
     def f():
-        u"""Döcstring"""
-    assert getdocl('function', f) == [u'Döcstring']
+        """Döcstring"""
+    assert getdocl('function', f) == ['Döcstring']
 
     # class docstring: depends on config value which one is taken
     class C:
@@ -1031,13 +1031,13 @@ def test_autodoc_module_scope(app):
     app.env.temp_data['autodoc:module'] = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')
     assert list(actual) == [
-        u'',
-        u'.. py:attribute:: Class.mdocattr',
-        u'   :module: target',
-        u'   :annotation: = <_io.StringIO object>',
-        u'',
-        u'   should be documented as well - süß',
-        u'   '
+        '',
+        '.. py:attribute:: Class.mdocattr',
+        '   :module: target',
+        '   :annotation: = <_io.StringIO object>',
+        '',
+        '   should be documented as well - süß',
+        '   '
     ]
 
 
@@ -1047,13 +1047,13 @@ def test_autodoc_class_scope(app):
     app.env.temp_data['autodoc:class'] = 'Class'
     actual = do_autodoc(app, 'attribute', 'mdocattr')
     assert list(actual) == [
-        u'',
-        u'.. py:attribute:: Class.mdocattr',
-        u'   :module: target',
-        u'   :annotation: = <_io.StringIO object>',
-        u'',
-        u'   should be documented as well - süß',
-        u'   '
+        '',
+        '.. py:attribute:: Class.mdocattr',
+        '   :module: target',
+        '   :annotation: = <_io.StringIO object>',
+        '',
+        '   should be documented as well - süß',
+        '   '
     ]
 
 
@@ -1102,43 +1102,43 @@ def test_autodoc_docstring_signature(app):
     app.config.autodoc_docstring_signature = False
     actual = do_autodoc(app, 'class', 'target.DocstringSig', options)
     assert list(actual) == [
-        u'',
-        u'.. py:class:: DocstringSig',
-        u'   :module: target',
-        u'',
-        u'   ',
-        u'   .. py:method:: DocstringSig.meth()',
-        u'      :module: target',
-        u'   ',
-        u'      meth(FOO, BAR=1) -> BAZ',
-        u'      First line of docstring',
-        u'      ',
-        u'              rest of docstring',
-        u'              ',
-        u'      ',
-        u'   ',
-        u'   .. py:method:: DocstringSig.meth2()',
-        u'      :module: target',
-        u'   ',
-        u'      First line, no signature',
-        u'      Second line followed by indentation::',
-        u'      ',
-        u'          indented line',
-        u'      ',
-        u'   ',
-        u'   .. py:attribute:: DocstringSig.prop1',
-        u'      :module: target',
-        u'   ',
-        u'      DocstringSig.prop1(self)',
-        u'      First line of docstring',
-        u'      ',
-        u'   ',
-        u'   .. py:attribute:: DocstringSig.prop2',
-        u'      :module: target',
-        u'   ',
-        u'      First line of docstring',
-        u'      Second line of docstring',
-        u'      '
+        '',
+        '.. py:class:: DocstringSig',
+        '   :module: target',
+        '',
+        '   ',
+        '   .. py:method:: DocstringSig.meth()',
+        '      :module: target',
+        '   ',
+        '      meth(FOO, BAR=1) -> BAZ',
+        '      First line of docstring',
+        '      ',
+        '              rest of docstring',
+        '              ',
+        '      ',
+        '   ',
+        '   .. py:method:: DocstringSig.meth2()',
+        '      :module: target',
+        '   ',
+        '      First line, no signature',
+        '      Second line followed by indentation::',
+        '      ',
+        '          indented line',
+        '      ',
+        '   ',
+        '   .. py:attribute:: DocstringSig.prop1',
+        '      :module: target',
+        '   ',
+        '      DocstringSig.prop1(self)',
+        '      First line of docstring',
+        '      ',
+        '   ',
+        '   .. py:attribute:: DocstringSig.prop2',
+        '      :module: target',
+        '   ',
+        '      First line of docstring',
+        '      Second line of docstring',
+        '      '
     ]
 
 

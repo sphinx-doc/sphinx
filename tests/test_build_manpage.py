@@ -33,10 +33,10 @@ def test_all(app, status, warning):
 
 def test_default_man_pages():
     config = Config({'master_doc': 'index',
-                     'project': u'STASI™ Documentation',
-                     'author': u"Wolfgang Schäuble & G'Beckstein",
+                     'project': 'STASI™ Documentation',
+                     'author': "Wolfgang Schäuble & G'Beckstein",
                      'release': '1.0'})
     config.init_values()
-    expected = [('index', 'stasi', u'STASI™ Documentation 1.0',
-                 [u"Wolfgang Schäuble & G'Beckstein"], 1)]
+    expected = [('index', 'stasi', 'STASI™ Documentation 1.0',
+                 ["Wolfgang Schäuble & G'Beckstein"], 1)]
     assert default_man_pages(config) == expected

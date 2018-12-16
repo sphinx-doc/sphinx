@@ -148,8 +148,8 @@ class TexinfoBuilder(Builder):
             # fresh document
             new_tree = new_document('<texinfo output>')
             new_sect = nodes.section()
-            new_sect += nodes.title(u'<Set title in conf.py>',
-                                    u'<Set title in conf.py>')
+            new_sect += nodes.title('<Set title in conf.py>',
+                                    '<Set title in conf.py>')
             new_tree += new_sect
             for node in tree.traverse(addnodes.toctree):
                 new_sect += node

@@ -128,7 +128,7 @@ class CodeBlock(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         document = self.state.document
-        code = u'\n'.join(self.content)
+        code = '\n'.join(self.content)
         location = self.state_machine.get_source_and_line(self.lineno)
 
         linespec = self.options.get('emphasize-lines')
