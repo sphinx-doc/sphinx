@@ -42,6 +42,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.frontend import Values  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transforms import Transform  # NOQA
@@ -64,6 +65,7 @@ class SphinxBaseReader(standalone.Reader):
 
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
+        self.app = app
         self.env = app.env
         super().__init__(*args, **kwargs)
 
@@ -105,6 +107,26 @@ class SphinxStandaloneReader(SphinxBaseReader):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
         super().__init__(app, *args, **kwargs)
+
+    def read(self, source, parser, settings):
+        # type: (Input, Parser, Values) -> nodes.document
+        self.source = source
+        if not self.parser:
+            self.parser = parser
+        self.settings = settings
+        self.input = self.read_source()
+        self.parse()
+        return self.document
+
+    def read_source(self):
+        # type: () -> str
+        """Read content from source and do post-process."""
+        content = self.source.read()
+
+        # emit "source-read" event
+        arg = [content]
+        self.app.emit('source-read', self.env.docname, arg)
+        return arg[0]
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -156,8 +178,7 @@ def SphinxDummySourceClass(source, *args, **kwargs):
 class SphinxBaseFileInput(FileInput):
     """A base class of SphinxFileInput.
 
-    It supports to replace unknown Unicode characters to '?'. And it also emits
-    Sphinx events :event:`source-read` on reading.
+    It supports to replace unknown Unicode characters to '?'.
     """
 
     def __init__(self, app, env, *args, **kwds):
@@ -167,19 +188,6 @@ class SphinxBaseFileInput(FileInput):
 
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         super().__init__(*args, **kwds)
-
-    def read(self):
-        # type: () -> str
-        """Reads the contents from file.
-
-        After reading, it emits Sphinx event ``source-read``.
-        """
-        data = super().read()
-
-        # emit source-read event
-        arg = [data]
-        self.app.emit('source-read', self.env.docname, arg)
-        return arg[0]
 
     def warn_and_replace(self, error):
         # type: (Any) -> Tuple
