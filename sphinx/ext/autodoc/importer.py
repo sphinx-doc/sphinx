@@ -10,6 +10,7 @@
 """
 
 import contextlib
+import os
 import sys
 import traceback
 import warnings
@@ -78,7 +79,7 @@ class _MockObject:
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
-    __file__ = '/dev/null'
+    __file__ = os.devnull
 
     def __init__(self, name, loader=None):
         # type: (str, _MockImporter) -> None
