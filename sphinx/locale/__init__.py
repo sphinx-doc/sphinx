@@ -190,8 +190,6 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
         translator = NullTranslations()
         has_translation = False
     translators[(namespace, catalog)] = translator
-    if hasattr(translator, 'ugettext'):
-        translator.gettext = translator.ugettext  # type: ignore
     return translator, has_translation
 
 
