@@ -40,7 +40,7 @@ class StandardStemmer(PorterStemmer, BaseStemmer):  # type: ignore
     """
     def stem(self, word):  # type: ignore
         # type: (str) -> str
-        return super(StandardStemmer, self).stem(word, 0, len(word) - 1)
+        return super().stem(word, 0, len(word) - 1)
 
 
 def get_stemmer():

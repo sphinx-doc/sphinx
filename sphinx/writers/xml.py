@@ -21,7 +21,7 @@ class XMLWriter(BaseXMLWriter):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        super(XMLWriter, self).__init__()
+        super().__init__()
         self.builder = builder
         self.translator_class = self.builder.get_translator_class()
 
@@ -32,7 +32,7 @@ class XMLWriter(BaseXMLWriter):
             self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
-        return super(XMLWriter, self).translate()
+        return super().translate()
 
 
 class PseudoXMLWriter(BaseXMLWriter):
@@ -48,7 +48,7 @@ class PseudoXMLWriter(BaseXMLWriter):
 
     def __init__(self, builder):
         # type: (Builder) -> None
-        super(PseudoXMLWriter, self).__init__()
+        super().__init__()
         self.builder = builder
 
     def translate(self):

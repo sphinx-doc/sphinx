@@ -62,7 +62,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        super(DevhelpBuilder, self).init()
+        super().init()
         self.out_suffix = '.html'
         self.link_suffix = '.html'
 

@@ -129,7 +129,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
-        metadata = super(Epub3Builder, self).content_metadata()
+        metadata = super().content_metadata()
         metadata['description'] = self.esc(self.config.epub_description)
         metadata['contributor'] = self.esc(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
@@ -141,7 +141,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
     def prepare_writing(self, docnames):
         # type: (Set[str]) -> None
-        super(Epub3Builder, self).prepare_writing(docnames)
+        super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)

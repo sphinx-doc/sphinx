@@ -196,7 +196,7 @@ class AfterCommentParser(TokenProcessor):
 
     def __init__(self, lines):
         # type: (List[str]) -> None
-        super(AfterCommentParser, self).__init__(lines)
+        super().__init__(lines)
         self.comment = None  # type: str
 
     def fetch_rvalue(self):
@@ -249,7 +249,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.comments = {}              # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
         self.deforders = {}             # type: Dict[str, int]
-        super(VariableCommentPicker, self).__init__()
+        super().__init__()
 
     def add_entry(self, name):
         # type: (str) -> None
@@ -293,7 +293,7 @@ class VariableCommentPicker(ast.NodeVisitor):
     def visit(self, node):
         # type: (ast.AST) -> None
         """Updates self.previous to ."""
-        super(VariableCommentPicker, self).visit(node)
+        super().visit(node)
         self.previous = node
 
     def visit_Assign(self, node):
@@ -388,7 +388,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 class DefinitionFinder(TokenProcessor):
     def __init__(self, lines):
         # type: (List[str]) -> None
-        super(DefinitionFinder, self).__init__(lines)
+        super().__init__(lines)
         self.decorator = None   # type: Token
         self.context = []       # type: List[str]
         self.indents = []       # type: List

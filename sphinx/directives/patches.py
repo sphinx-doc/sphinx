@@ -32,7 +32,7 @@ class Figure(images.Figure):
     def run(self):
         # type: () -> List[nodes.Node]
         name = self.options.pop('name', None)
-        result = super(Figure, self).run()
+        result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
             return result
 
@@ -54,7 +54,7 @@ class Figure(images.Figure):
 class Meta(html.Meta, SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
-        result = super(Meta, self).run()
+        result = super().run()
         for node in result:
             if (isinstance(node, nodes.pending) and
                isinstance(node.details['nodes'][0], html.MetaBody.meta)):
@@ -76,7 +76,7 @@ class RSTTable(tables.RSTTable):
 
     def make_title(self):
         # type: () -> Tuple[nodes.title, List[nodes.system_message]]
-        title, message = super(RSTTable, self).make_title()
+        title, message = super().make_title()
         if title:
             set_source_info(self, title)
 
@@ -90,7 +90,7 @@ class CSVTable(tables.CSVTable):
 
     def make_title(self):
         # type: () -> Tuple[nodes.title, List[nodes.system_message]]
-        title, message = super(CSVTable, self).make_title()
+        title, message = super().make_title()
         if title:
             set_source_info(self, title)
 
@@ -104,7 +104,7 @@ class ListTable(tables.ListTable):
 
     def make_title(self):
         # type: () -> Tuple[nodes.title, List[nodes.system_message]]
-        title, message = super(ListTable, self).make_title()
+        title, message = super().make_title()
         if title:
             set_source_info(self, title)
 

@@ -125,8 +125,8 @@ class PyXrefMixin:
                   env=None,                  # type: BuildEnvironment
                   ):
         # type: (...) -> nodes.Node
-        result = super(PyXrefMixin, self).make_xref(rolename, domain, target,  # type: ignore
-                                                    innernode, contnode, env)
+        result = super().make_xref(rolename, domain, target,  # type: ignore
+                                   innernode, contnode, env)
         result['refspecific'] = True
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
@@ -176,8 +176,7 @@ class PyField(PyXrefMixin, Field):
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super(PyField, self).make_xref(rolename, domain, target,
-                                              innernode, contnode, env)
+        return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
 class PyGroupedField(PyXrefMixin, GroupedField):
@@ -192,8 +191,7 @@ class PyTypedField(PyXrefMixin, TypedField):
             # None is not a type, so use obj role instead.
             rolename = 'obj'
 
-        return super(PyTypedField, self).make_xref(rolename, domain, target,
-                                                   innernode, contnode, env)
+        return super().make_xref(rolename, domain, target, innernode, contnode, env)
 
 
 class PyObject(ObjectDescription):
@@ -543,7 +541,7 @@ class PyDecoratorMixin:
     """
     def handle_signature(self, sig, signode):
         # type: (str, addnodes.desc_signature) -> Tuple[str, str]
-        ret = super(PyDecoratorMixin, self).handle_signature(sig, signode)  # type: ignore
+        ret = super().handle_signature(sig, signode)  # type: ignore
         signode.insert(0, addnodes.desc_addname('@', '@'))
         return ret
 
@@ -560,7 +558,7 @@ class PyDecoratorFunction(PyDecoratorMixin, PyModulelevel):
         # type: () -> List[nodes.Node]
         # a decorator function is a function after all
         self.name = 'py:function'
-        return super(PyDecoratorFunction, self).run()
+        return super().run()
 
 
 class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
@@ -570,7 +568,7 @@ class PyDecoratorMethod(PyDecoratorMixin, PyClassmember):
     def run(self):
         # type: () -> List[nodes.Node]
         self.name = 'py:method'
-        return super(PyDecoratorMethod, self).run()
+        return super().run()
 
 
 class PyModule(SphinxDirective):

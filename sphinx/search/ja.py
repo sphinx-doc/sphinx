@@ -64,7 +64,7 @@ class BaseSplitter:
 class MecabSplitter(BaseSplitter):
     def __init__(self, options):
         # type: (Dict) -> None
-        super(MecabSplitter, self).__init__(options)
+        super().__init__(options)
         self.ctypes_libmecab = None     # type: Any
         self.ctypes_mecab = None        # type: Any
         if not native_module:
@@ -138,7 +138,7 @@ MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 class JanomeSplitter(BaseSplitter):
     def __init__(self, options):
         # type: (Dict) -> None
-        super(JanomeSplitter, self).__init__(options)
+        super().__init__(options)
         self.user_dict = options.get('user_dic')
         self.user_dict_enc = options.get('user_dic_enc', 'utf8')
         self.init_tokenizer()

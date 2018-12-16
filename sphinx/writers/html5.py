@@ -46,7 +46,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def __init__(self, builder, document):
         # type: (StandaloneHTMLBuilder, nodes.document) -> None
-        super(HTML5Translator, self).__init__(builder, document)
+        super().__init__(builder, document)
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
         self.manpages_url = self.config.manpages_url
@@ -329,12 +329,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if len(node) == 1 and isinstance(node[0], addnodes.toctree):
             # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
-        super(HTML5Translator, self).visit_bullet_list(node)
+        super().visit_bullet_list(node)
 
     # overwritten
     def visit_title(self, node):
         # type: (nodes.Element) -> None
-        super(HTML5Translator, self).visit_title(node)
+        super().visit_title(node)
         self.add_secnumber(node)
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
@@ -360,14 +360,14 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         elif isinstance(node.parent, nodes.table):
             self.body.append('</span>')
 
-        super(HTML5Translator, self).depart_title(node)
+        super().depart_title(node)
 
     # overwritten
     def visit_literal_block(self, node):
         # type: (nodes.Element) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            return super(HTML5Translator, self).visit_literal_block(node)
+            return super().visit_literal_block(node)
 
         lang = node.get('language', 'default')
         linenos = node.get('linenos', False)
@@ -393,7 +393,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('<div class="code-block-caption">')
         else:
-            super(HTML5Translator, self).visit_caption(node)
+            super().visit_caption(node)
         self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
@@ -414,7 +414,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
-            super(HTML5Translator, self).depart_caption(node)
+            super().depart_caption(node)
 
     def visit_doctest_block(self, node):
         # type: (nodes.Element) -> None
@@ -562,7 +562,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-        super(HTML5Translator, self).visit_image(node)
+        super().visit_image(node)
 
     # overwritten
     def depart_image(self, node):
@@ -570,7 +570,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if node['uri'].lower().endswith(('svg', 'svgz')):
             self.body.append(self.context.pop())
         else:
-            super(HTML5Translator, self).depart_image(node)
+            super().depart_image(node)
 
     def visit_toctree(self, node):
         # type: (nodes.Element) -> None
@@ -795,7 +795,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_field_list(self, node):
         # type: (nodes.Element) -> None
         self._fieldlist_row_index = 0
-        return super(HTML5Translator, self).visit_field_list(node)
+        return super().visit_field_list(node)
 
     def visit_field(self, node):
         # type: (nodes.Element) -> None

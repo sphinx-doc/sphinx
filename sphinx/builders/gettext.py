@@ -119,7 +119,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         # type: () -> None
-        super(I18nBuilder, self).init()
+        super().init()
         self.env.set_versioning_method(self.versioning_method,
                                        self.env.config.gettext_uuid)
         self.tags = I18nTags()
@@ -176,7 +176,7 @@ class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
         # type: (Any, Any) -> None
-        super(LocalTimeZone, self).__init__(*args, **kw)  # type: ignore
+        super().__init__(*args, **kw)  # type: ignore
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt):
@@ -219,7 +219,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
     def init(self):
         # type: () -> None
-        super(MessageCatalogBuilder, self).init()
+        super().init()
         self.create_template_bridge()
         self.templates.init(self)
 
@@ -258,11 +258,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def build(self, docnames, summary=None, method='update'):
         # type: (Iterable[str], str, str) -> None
         self._extract_from_template()
-        super(MessageCatalogBuilder, self).build(docnames, summary, method)
+        super().build(docnames, summary, method)
 
     def finish(self):
         # type: () -> None
-        super(MessageCatalogBuilder, self).finish()
+        super().finish()
         data = {
             'version': self.config.version,
             'copyright': self.config.copyright,

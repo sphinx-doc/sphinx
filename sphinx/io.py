@@ -65,18 +65,18 @@ class SphinxBaseReader(standalone.Reader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.env = app.env
-        super(SphinxBaseReader, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_transforms(self):
         # type: () -> List[Type[Transform]]
-        return super(SphinxBaseReader, self).get_transforms() + self.transforms
+        return super().get_transforms() + self.transforms
 
     def new_document(self):
         # type: () -> nodes.document
         """Creates a new document object which having a special reporter object good
         for logging.
         """
-        document = super(SphinxBaseReader, self).new_document()
+        document = super().new_document()
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
@@ -104,7 +104,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     def __init__(self, app, *args, **kwargs):
         # type: (Sphinx, Any, Any) -> None
         self.transforms = self.transforms + app.registry.get_transforms()
-        super(SphinxStandaloneReader, self).__init__(app, *args, **kwargs)
+        super().__init__(app, *args, **kwargs)
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -166,7 +166,7 @@ class SphinxBaseFileInput(FileInput):
         self.env = env
 
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        super(SphinxBaseFileInput, self).__init__(*args, **kwds)
+        super().__init__(*args, **kwds)
 
     def read(self):
         # type: () -> str
@@ -174,7 +174,7 @@ class SphinxBaseFileInput(FileInput):
 
         After reading, it emits Sphinx event ``source-read``.
         """
-        data = super(SphinxBaseFileInput, self).read()
+        data = super().read()
 
         # emit source-read event
         arg = [data]
@@ -237,7 +237,7 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
         warnings.warn('SphinxRSTFileInput is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
 
-        inputstring = super(SphinxRSTFileInput, self).read()
+        inputstring = super().read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
         for lineno, line in enumerate(lines):

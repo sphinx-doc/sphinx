@@ -64,7 +64,7 @@ class Todo(BaseAdmonition, SphinxDirective):
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        (todo,) = super(Todo, self).run()  # type: Tuple[nodes.Node]
+        (todo,) = super().run()  # type: Tuple[nodes.Node]
         if isinstance(todo, nodes.system_message):
             return [todo]
         elif isinstance(todo, todo_node):

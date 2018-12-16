@@ -44,7 +44,7 @@ class AnchorCheckParser(HTMLParser):
 
     def __init__(self, search_anchor):
         # type: (str) -> None
-        super(AnchorCheckParser, self).__init__()
+        super().__init__()
 
         self.search_anchor = search_anchor
         self.found = False

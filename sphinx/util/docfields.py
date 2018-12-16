@@ -141,7 +141,7 @@ class GroupedField(Field):
     def __init__(self, name, names=(), label=None, rolename=None,
                  can_collapse=False):
         # type: (str, Tuple[str, ...], str, str, bool) -> None
-        super(GroupedField, self).__init__(name, names, label, True, rolename)
+        super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
     def make_field(self,
@@ -194,7 +194,7 @@ class TypedField(GroupedField):
     def __init__(self, name, names=(), typenames=(), label=None,
                  rolename=None, typerolename=None, can_collapse=False):
         # type: (str, Tuple[str, ...], Tuple[str, ...], str, str, str, bool) -> None
-        super(TypedField, self).__init__(name, names, label, rolename, can_collapse)
+        super().__init__(name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 

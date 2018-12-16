@@ -62,7 +62,7 @@ class HighlightLang(Highlight):
         warnings.warn('highlightlang directive is deprecated. '
                       'Please use highlight directive instead.',
                       RemovedInSphinx40Warning, stacklevel=2)
-        return super(HighlightLang, self).run()
+        return super().run()
 
 
 def dedent_lines(lines, dedent, location=None):

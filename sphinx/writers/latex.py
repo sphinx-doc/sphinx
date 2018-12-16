@@ -250,7 +250,7 @@ class LaTeXWriter(writers.Writer):
 
     def __init__(self, builder):
         # type: (LaTeXBuilder) -> None
-        super(LaTeXWriter, self).__init__()
+        super().__init__()
         self.builder = builder
 
     def translate(self):
@@ -270,7 +270,7 @@ class ExtBabel(Babel):
         self.language_code = language_code
         self.use_polyglossia = use_polyglossia
         self.supported = True
-        super(ExtBabel, self).__init__(language_code or '')
+        super().__init__(language_code or '')
 
     def get_shorthandoff(self):
         # type: () -> str
@@ -288,7 +288,7 @@ class ExtBabel(Babel):
 
     def language_name(self, language_code):
         # type: (str) -> str
-        language = super(ExtBabel, self).language_name(language_code)
+        language = super().language_name(language_code)
         if language == 'ngerman' and self.use_polyglossia:
             # polyglossia calls new orthography (Neue Rechtschreibung) as
             # german (with new spelling option).
@@ -305,7 +305,7 @@ class ExtBabel(Babel):
         if self.use_polyglossia is False:
             return None
         elif self.language == 'german':
-            language = super(ExtBabel, self).language_name(self.language_code)
+            language = super().language_name(self.language_code)
             if language == 'ngerman':
                 return 'spelling=new'
             else:
@@ -509,7 +509,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def __init__(self, document, builder):
         # type: (nodes.document, LaTeXBuilder) -> None
-        super(LaTeXTranslator, self).__init__(builder, document)
+        super().__init__(builder, document)
         self.body = []  # type: List[str]
 
         # flags

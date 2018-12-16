@@ -100,7 +100,7 @@ class SphinxLogRecord(logging.LogRecord):
 
     def getMessage(self):
         # type: () -> str
-        message = super(SphinxLogRecord, self).getMessage()
+        message = super().getMessage()
         location = getattr(self, 'location', None)
         if location:
             message = '%s: %s%s' % (location, self.prefix, message)
@@ -126,10 +126,10 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def log(self, level, msg, *args, **kwargs):  # type: ignore
         # type: (Union[int, str], str, Any, Any) -> None
         if isinstance(level, int):
-            super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
+            super().log(level, msg, *args, **kwargs)
         else:
             levelno = LEVEL_NAMES[level]
-            super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
+            super().log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
         # type: (str, Any, Any) -> None
@@ -171,7 +171,7 @@ class NewLineStreamHandler(logging.StreamHandler):
             if getattr(record, 'nonl', False):
                 # skip appending terminator when nonl=True
                 self.terminator = ''
-            super(NewLineStreamHandler, self).emit(record)
+            super().emit(record)
         finally:
             self.terminator = '\n'
             self.release()
@@ -182,7 +182,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
     def __init__(self):
         # type: () -> None
-        super(MemoryHandler, self).__init__(-1)
+        super().__init__(-1)
 
     def shouldFlush(self, record):
         # type: (logging.LogRecord) -> bool
@@ -385,7 +385,7 @@ class WarningSuppressor(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningSuppressor, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -411,7 +411,7 @@ class WarningIsErrorFilter(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningIsErrorFilter, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -448,7 +448,7 @@ class MessagePrefixFilter(logging.Filter):
     def __init__(self, prefix):
         # type: (str) -> None
         self.prefix = prefix
-        super(MessagePrefixFilter, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -468,7 +468,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(SphinxLogRecordTranslator, self).__init__()
+        super().__init__()
 
     def filter(self, record):  # type: ignore
         # type: (SphinxWarningLogRecord) -> bool
@@ -519,7 +519,7 @@ def get_node_location(node):
 class ColorizeFormatter(logging.Formatter):
     def format(self, record):
         # type: (logging.LogRecord) -> str
-        message = super(ColorizeFormatter, self).format(record)
+        message = super().format(record)
         color = getattr(record, 'color', None)
         if color is None:
             color = COLOR_MAP.get(record.levelno)
