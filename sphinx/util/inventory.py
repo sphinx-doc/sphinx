@@ -12,8 +12,6 @@ import os
 import re
 import zlib
 
-from six import text_type
-
 from sphinx.util import logging
 
 if False:
@@ -21,8 +19,7 @@ if False:
     from typing import Callable, Dict, IO, Iterator, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-    Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
+    from sphinx.util.typing import Inventory  # NOQA
 
 
 BUFSIZE = 16 * 1024

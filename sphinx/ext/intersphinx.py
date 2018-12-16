@@ -33,7 +33,6 @@ from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
-from six import text_type
 
 import sphinx
 from sphinx.builders.html import INVENTORY_FILENAME
@@ -47,8 +46,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-    Inventory = Dict[text_type, Dict[text_type, Tuple[text_type, text_type, text_type, text_type]]]  # NOQA
+    from sphinx.util.typing import Inventory  # NOQA
 
 logger = logging.getLogger(__name__)
 
