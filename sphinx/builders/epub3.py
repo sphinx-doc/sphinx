@@ -15,7 +15,7 @@ from os import path
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
-from sphinx.config import string_classes, ENUM
+from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -275,8 +275,8 @@ def setup(app):
     app.add_config_value('epub_max_image_width', 0, 'env')
     app.add_config_value('epub_show_urls', 'inline', 'epub')
     app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'epub')
-    app.add_config_value('epub_description', 'unknown', 'epub', string_classes)
-    app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_description', 'unknown', 'epub')
+    app.add_config_value('epub_contributor', 'unknown', 'epub')
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
 

@@ -18,7 +18,6 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
@@ -346,8 +345,8 @@ def setup(app):
     app.add_builder(HTMLHelpBuilder)
 
     app.add_config_value('htmlhelp_basename', default_htmlhelp_basename, None)
-    app.add_config_value('htmlhelp_file_suffix', None, 'html', string_classes)
-    app.add_config_value('htmlhelp_link_suffix', None, 'html', string_classes)
+    app.add_config_value('htmlhelp_file_suffix', None, 'html', [str])
+    app.add_config_value('htmlhelp_link_suffix', None, 'html', [str])
 
     return {
         'version': 'builtin',

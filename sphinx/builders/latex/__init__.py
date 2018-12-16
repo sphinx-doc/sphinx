@@ -22,7 +22,7 @@ from sphinx.builders.latex.transforms import (
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
     ShowUrlsTransform, DocumentTargetTransform,
 )
-from sphinx.config import string_classes, ENUM
+from sphinx.config import ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError, ConfigError
@@ -464,7 +464,7 @@ def setup(app):
                          lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
                                         self.project, '', 'manual')],
                          None)
-    app.add_config_value('latex_logo', None, None, string_classes)
+    app.add_config_value('latex_logo', None, None, [str])
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, None)

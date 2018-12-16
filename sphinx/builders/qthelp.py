@@ -21,7 +21,6 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.config import string_classes
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
@@ -273,7 +272,7 @@ def setup(app):
     app.add_builder(QtHelpBuilder)
 
     app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)
-    app.add_config_value('qthelp_namespace', None, 'html', string_classes)
+    app.add_config_value('qthelp_namespace', None, 'html', [str])
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
 
