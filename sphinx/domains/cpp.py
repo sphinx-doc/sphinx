@@ -294,7 +294,18 @@ _octal_literal_re = re.compile(r'0[0-7]*')
 _hex_literal_re = re.compile(r'0[xX][0-7a-fA-F][0-7a-fA-F]*')
 _binary_literal_re = re.compile(r'0[bB][01][01]*')
 _integer_suffix_re = re.compile(r'')
-_float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
+_float_literal_re = re.compile(r'''(?x)
+    [+-]?(
+    # decimal
+      ([0-9]+[eE][+-]?[0-9]+)
+    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
+    | ([0-9]+\.([eE][+-]?[0-9]+)?)
+    # hex
+    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
+    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
+    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
+    )
+''')
 _char_literal_re = re.compile(r'''(?x)
     ((?:u8)|u|U|L)?
     '(

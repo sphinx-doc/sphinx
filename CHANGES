@@ -22,6 +22,7 @@ Bugs fixed
 * #5627: qthelp: index.html missing in QtHelp
 * #5659: linkcheck: crashes for a hyperlink containing multibyte character
 * #5754: DOC: Fix some mistakes in :doc:`/latex`
+* #5636: C++, fix parsing of floating point literals.
 
 Testing
 --------
