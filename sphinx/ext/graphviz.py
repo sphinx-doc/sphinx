@@ -18,7 +18,6 @@ from subprocess import Popen, PIPE
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError
@@ -284,7 +283,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                    "'svg', but is %r") % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
-        logger.warning(__('dot code %r: %s'), code, text_type(exc))
+        logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode
 
     if imgcls:
@@ -338,7 +337,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
-        logger.warning(__('dot code %r: %s'), code, text_type(exc))
+        logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode
 
     is_inline = self.is_inline(node)
@@ -376,7 +375,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
-        logger.warning(__('dot code %r: %s'), code, text_type(exc))
+        logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])
