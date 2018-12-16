@@ -2260,9 +2260,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 hlcode += '\\end{sphinxVerbatim}'
 
-            hllines = '\\fvset{hllines={, %s,}}%%' %\
-                      str(highlight_args.get('hl_lines', []))[1:-1]
-            self.body.append('\n' + hllines + '\n' + hlcode + '\n')
+            hllines = str(highlight_args.get('hl_lines', []))[1:-1]
+            if hllines:
+                self.body.append('\n\\fvset{hllines={, %s,}}%%' % hllines)
+            self.body.append('\n' + hlcode + '\n')
+            if hllines:
+                self.body.append('\\sphinxresetverbatimhllines\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
