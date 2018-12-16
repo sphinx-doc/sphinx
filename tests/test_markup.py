@@ -224,8 +224,7 @@ def get_verifier(verify, verify_re):
         'verify',
         '::\n\n @Γ\\∞${}',
         None,
-        ('\\fvset{hllines={, ,}}%\n'
-         '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+        ('\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
          '@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
          '\\end{sphinxVerbatim}'),
     ),

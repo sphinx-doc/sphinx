@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/11/18 v1.8.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2018/12/16 v1.8.3 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -208,6 +208,9 @@
 % For highlighted code.
 \RequirePackage{fancyvrb}
 \define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
+% sphinxVerbatim must be usable by third party without requiring hllines set-up
+\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
+\sphinxresetverbatimhllines
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
