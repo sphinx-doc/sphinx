@@ -347,8 +347,8 @@ def setup(app):
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
     app.add_config_value('htmlhelp_ascii_output', False, 'html')
-    app.add_config_value('htmlhelp_binary_toc', False, None)
-    app.add_config_value('htmlhelp_binary_index', False, None)
+    app.add_config_value('htmlhelp_binary_toc', False, 'html')
+    app.add_config_value('htmlhelp_binary_index', False, 'html')
 
     return {
         'version': 'builtin',
