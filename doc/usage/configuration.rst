@@ -2199,7 +2199,11 @@ information.
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
-           ``'lualatex'`` also uses ``fontspec`` per default.
+           ``'lualatex'`` uses ``fontspec`` per default like ``'xelatex'``.
+        .. versionchanged:: 2.0
+           ``'lualatex'`` executes
+           ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
+           ligatures.
         .. versionchanged:: 2.0
            Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
            occasional Greek or Cyrillic (``'pdflatex'`` only, as this support

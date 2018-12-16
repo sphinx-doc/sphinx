@@ -206,7 +206,8 @@ ADDITIONAL_SETTINGS = {
         'latex_engine': 'lualatex',
         'polyglossia':  '\\usepackage{polyglossia}',
         'babel':        '',
-        'fontenc':      '\\usepackage{fontspec}',
+        'fontenc':     ('\\usepackage{fontspec}\n'
+                        '\\defaultfontfeatures[\\rmfamily,\\sffamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
