@@ -356,7 +356,7 @@ def test_code_block_emphasize_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
     assert includes in latex
-    includes = '\\end{sphinxVerbatim}\n\sphinxresetverbatimhllines\n'
+    includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
 
 
