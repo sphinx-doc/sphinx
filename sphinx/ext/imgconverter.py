@@ -15,7 +15,7 @@ from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
-from sphinx.util.osutil import ENOENT, EPIPE, EINVAL
+from sphinx.util.osutil import EPIPE, EINVAL
 
 if False:
     # For type annotation
@@ -75,9 +75,7 @@ class ImagemagickConverter(ImageConverter):
                     [_from, _to])
             logger.debug('Invoking %r ...', args)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except OSError as err:
-            if err.errno != ENOENT:  # No such file or directory
-                raise
+        except FileNotFoundError:
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
                            self.config.image_converter)

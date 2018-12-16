@@ -28,7 +28,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
+from sphinx.util.osutil import ensuredir, EPIPE, EINVAL
 
 if False:
     # For type annotation
@@ -247,9 +247,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
     try:
         p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=cwd)
-    except OSError as err:
-        if err.errno != ENOENT:   # No such file or directory
-            raise
+    except FileNotFoundError:
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
