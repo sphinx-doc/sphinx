@@ -13,7 +13,8 @@ Deprecated
 Features added
 --------------
 
-* #5788: add ``htmlhelp_ascii_output`` option to htmlhelp builder
+* #5788: add ``htmlhelp_ascii_output``, ``htmlhelp_binary_toc`` and
+  ``htmlhelp_binary_index`` options to htmlhelp builder
 
 Bugs fixed
 ----------

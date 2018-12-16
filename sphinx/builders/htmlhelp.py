@@ -70,8 +70,8 @@ logger = logging.getLogger(__name__)
 
 project_template = '''\
 [OPTIONS]
-Binary TOC=No
-Binary Index=No
+Binary TOC=%(binary_toc)s
+Binary Index=%(binary_index)s
 Compiled file=%(outname)s.chm
 Contents file=%(outname)s.hhc
 Default Window=%(outname)s
@@ -240,6 +240,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing project file...'))
         with self.open_file(outdir, outname + '.hhp') as f:
             f.write(project_template % {
+                'binary_toc': 'Yes' if self.config.htmlhelp_binary_toc else 'No',
+                'binary_index': 'Yes' if self.config.htmlhelp_binary_index else 'No',
                 'outname': outname,
                 'title': self.config.html_title,
                 'version': self.config.version,
@@ -345,6 +347,8 @@ def setup(app):
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
     app.add_config_value('htmlhelp_ascii_output', False, 'html')
+    app.add_config_value('htmlhelp_binary_toc', False, None)
+    app.add_config_value('htmlhelp_binary_index', False, None)
 
     return {
         'version': 'builtin',

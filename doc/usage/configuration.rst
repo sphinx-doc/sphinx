@@ -1360,6 +1360,18 @@ Options for HTML help output
 
    .. versionadded:: 1.8.3
 
+.. confval:: htmlhelp_binary_toc
+
+   Turn on Binary TOC in .hpp file.  Default is ``False``.
+
+   .. versionadded:: 1.8.3
+
+.. confval:: htmlhelp_binary_index
+
+   Turn on Binary Index in .hpp file.  Default is ``False``.
+
+   .. versionadded:: 1.8.3
+
 .. _applehelp-options:
 
 Options for Apple Help output
