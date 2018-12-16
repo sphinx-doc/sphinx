@@ -18,10 +18,8 @@ import shutil
 import sys
 import time
 import warnings
-from io import BytesIO, StringIO
+from io import StringIO
 from os import path
-
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
@@ -238,17 +236,13 @@ class FileAvoidWrite:
     def __init__(self, path):
         # type: (str) -> None
         self._path = path
-        self._io = None  # type: Union[StringIO, BytesIO]
+        self._io = None  # type: StringIO
 
     def write(self, data):
-        # type: (Union[str, str]) -> None
+        # type: (str) -> None
         if not self._io:
-            if isinstance(data, text_type):
-                self._io = StringIO()
-            else:
-                self._io = BytesIO()
-
-        self._io.write(data)  # type: ignore
+            self._io = StringIO()
+        self._io.write(data)
 
     def close(self):
         # type: () -> None
@@ -259,23 +253,15 @@ class FileAvoidWrite:
         buf = self.getvalue()
         self._io.close()
 
-        r_mode = 'r'
-        w_mode = 'w'
-        if isinstance(self._io, BytesIO):
-            r_mode = 'rb'
-            w_mode = 'wb'
-
-        old_content = None
-
         try:
-            with open(self._path, r_mode) as old_f:
+            with open(self._path) as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
         except IOError:
             pass
 
-        with open(self._path, w_mode) as f:
+        with open(self._path, 'w') as f:
             f.write(buf)
 
     def __enter__(self):
