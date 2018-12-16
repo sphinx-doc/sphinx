@@ -212,7 +212,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
         # type: (unicode, unicode, Dict, unicode) -> None
-        ctx['encoding'] = self.encoding
+        if self.config.htmlhelp_ascii_output:
+            ctx['encoding'] = 'ascii'
+        else:
+            ctx['encoding'] = self.encoding
 
     def handle_finish(self):
         # type: () -> None
@@ -341,6 +344,7 @@ def setup(app):
     app.add_builder(HTMLHelpBuilder)
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_ascii_output', False, 'html')
 
     return {
         'version': 'builtin',

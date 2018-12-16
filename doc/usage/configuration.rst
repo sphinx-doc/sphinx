@@ -1353,6 +1353,12 @@ Options for HTML help output
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+.. confval:: htmlhelp_ascii_output
+
+   Escape non-ASCII characters in content's html file to ASCII.  Default is
+   ``False``.
+
+   .. versionadded:: 1.8.3
 
 .. _applehelp-options:
 
