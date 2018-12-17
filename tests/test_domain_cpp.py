@@ -43,7 +43,7 @@ def check(name, input, idDict, output=None):
     res = text_type(ast)
     if res != output:
         print("")
-        print("Input:    ", text_type(input))
+        print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
@@ -74,13 +74,13 @@ def check(name, input, idDict, output=None):
         res.append(idExpected[i] == idActual[i])
 
     if not all(res):
-        print("input:    %s" % text_type(input).rjust(20))
+        print("input:    %s" % input.rjust(20))
         for i in range(1, _max_id + 1):
             if res[i]:
                 continue
             print("Error in id version %d." % i)
-            print("result:   %s" % str(idActual[i]))
-            print("expected: %s" % str(idExpected[i]))
+            print("result:   %s" % idActual[i])
+            print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
 

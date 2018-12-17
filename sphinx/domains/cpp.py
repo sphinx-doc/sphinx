@@ -3149,8 +3149,7 @@ class ASTDeclaratorNameParamQual(ASTBase):
         # cv-qualifiers
         if self.paramQual:
             return self.paramQual.get_modifiers_id(version)
-        raise Exception(
-            "This should only be called on a function: %s" % text_type(self))
+        raise Exception("This should only be called on a function: %s" % self)
 
     def get_param_id(self, version):  # only the parameters (if any)
         # type: (int) -> str
@@ -6143,7 +6142,7 @@ class DefinitionParser:
                     % (numArgs, numParams, numExtra)
                 msg += " Declaration:\n\t"
                 if templatePrefix:
-                    msg += "%s\n\t" % text_type(templatePrefix)
+                    msg += "%s\n\t" % templatePrefix
                 msg += text_type(nestedName)
                 self.warn(msg)
 
@@ -6360,7 +6359,7 @@ class CPPObject(ObjectDescription):
         assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
             self.warn('Index id generation for C++ object "%s" failed, please '
-                      'report as bug (id=%s).' % (text_type(ast), newestId))
+                      'report as bug (id=%s).' % (ast, newestId))
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip(':')
         # Add index entry, but not if it's a declaration inside a concept

@@ -92,7 +92,7 @@ class Table:
        table.add_row()
        table.add_cell(Cell("FOO"))
        table.add_cell(Cell("BAR"))
-       print(str(table))
+       print(table)
        +--------+--------+
        | foo    | bar    |
        |========|========|
