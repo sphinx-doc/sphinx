@@ -12,7 +12,6 @@ import traceback
 import warnings
 
 from docutils import nodes
-from six import text_type
 
 import sphinx
 from sphinx import addnodes
@@ -74,12 +73,8 @@ def doctree_read(app, doctree):
                 env._viewcode_modules[modname] = False  # type: ignore
                 return
 
-            if not isinstance(analyzer.code, text_type):
-                code = analyzer.code.decode(analyzer.encoding)
-            else:
-                code = analyzer.code
-
             analyzer.find_tags()
+            code = analyzer.code
             tags = analyzer.tags
         else:
             code, tags = code_tags
