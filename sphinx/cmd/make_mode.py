@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.cmd.make_mode
     ~~~~~~~~~~~~~~~~~~~~

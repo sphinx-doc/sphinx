@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     pytest config for sphinx/tests
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

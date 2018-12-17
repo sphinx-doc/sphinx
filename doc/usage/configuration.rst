@@ -40,9 +40,7 @@ Important points to note:
   contain the file name extension.
 
 * Since :file:`conf.py` is read as a Python file, the usual rules apply for
-  encodings and Unicode support: declare the encoding using an encoding cookie
-  (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string literals
-  when you include non-ASCII characters in configuration values.
+  encodings and Unicode support.
 
 * The contents of the config namespace are pickled (so that Sphinx can find out
   when configuration changes), so it may not contain unpickleable values --
