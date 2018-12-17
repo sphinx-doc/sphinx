@@ -32,7 +32,7 @@ from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.config import string_classes
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -977,6 +977,12 @@ class StandaloneHTMLBuilder(Builder):
             except TypeError:
                 # fallback for old search-adapters
                 self.indexer.feed(pagename, title, doctree)  # type: ignore
+                indexer_name = self.indexer.__class__.__name__
+                warnings.warn(
+                    'The %s.feed() method signature is deprecated. Update to '
+                    '%s.feed(docname, filename, title, doctree).' % (
+                        indexer_name, indexer_name),
+                    RemovedInSphinx40Warning)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         # type: (str, bool, Any) -> str

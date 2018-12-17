@@ -237,6 +237,12 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - Omitting the ``filename`` argument in an overriddent
+       ``IndexBuilder.feed()`` method.
+     - 2.0
+     - 4.0
+     - ``IndexBuilder.feed(docname, filename, title, doctree)``
+
    * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
      - 2.0
      - 4.0
