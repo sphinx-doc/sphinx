@@ -59,7 +59,7 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
 
     # line number correction
     offset = 1
-    if lines[0:1] == ['#!/usr/bin/env python\n']:
+    if lines[0:1] == ['#!/usr/bin/env python3\n']:
         lines = lines[1:]
         offset = 2
 

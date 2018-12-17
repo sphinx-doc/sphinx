@@ -8,8 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import absolute_import
-
 import warnings
 from contextlib import contextmanager
 from urllib.parse import urlsplit

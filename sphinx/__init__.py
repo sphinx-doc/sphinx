@@ -11,8 +11,6 @@
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)
 
-from __future__ import absolute_import
-
 import os
 import warnings
 from os import path

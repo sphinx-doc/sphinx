@@ -8,8 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import unicode_literals
-
 if False:
     # For type annotation
     from typing import Dict  # NOQA
