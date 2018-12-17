@@ -198,7 +198,7 @@ class SphinxBaseFileInput(FileInput):
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
-    supported = ('*',)  # special source input
+    supported = ('*',)  # RemovedInSphinx30Warning
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None

@@ -64,6 +64,7 @@ Deprecated
 * ``sphinx.ext.autosummary.Autosummary.result``
 * ``sphinx.ext.doctest.doctest_encode()``
 * ``sphinx.io.SphinxBaseFileInput``
+* ``sphinx.io.SphinxFileInput.supported``
 * ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
 * ``sphinx.testing.util.remove_unicode_literal()``
