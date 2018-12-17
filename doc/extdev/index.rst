@@ -268,6 +268,11 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.io.SphinxBaseFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
    * - ``sphinx.io.SphinxRSTFileInput``
      - 2.0
      - 3.0

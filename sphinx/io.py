@@ -185,15 +185,14 @@ class SphinxBaseFileInput(FileInput):
         self.app = app
         self.env = env
 
+        warnings.warn('%s is deprecated.' % self.__class__.__name__,
+                      RemovedInSphinx30Warning, stacklevel=2)
+
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         super().__init__(*args, **kwds)
 
     def warn_and_replace(self, error):
         # type: (Any) -> Tuple
-        warnings.warn('SphinxBaseFileInput.warn_and_replace() is deprecated. '
-                      'Use UnicodeDecodeErrorHandler instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
         return UnicodeDecodeErrorHandler(self.env.docname)(error)
 
 
@@ -246,9 +245,6 @@ class SphinxRSTFileInput(SphinxBaseFileInput):
 
     def read(self):  # type: ignore
         # type: () -> StringList
-        warnings.warn('SphinxRSTFileInput is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-
         inputstring = super().read()
         lines = string2lines(inputstring, convert_whitespace=True)
         content = StringList()
