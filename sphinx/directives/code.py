@@ -14,7 +14,6 @@ from difflib import unified_diff
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -143,7 +142,7 @@ class CodeBlock(SphinxDirective):
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
             except ValueError as err:
-                return [document.reporter.warning(str(err), line=self.lineno)]
+                return [document.reporter.warning(err, line=self.lineno)]
         else:
             hl_lines = None
 
@@ -170,7 +169,7 @@ class CodeBlock(SphinxDirective):
             try:
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
-                return [document.reporter.warning(text_type(exc), line=self.lineno)]
+                return [document.reporter.warning(exc, line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -465,7 +464,7 @@ class LiteralInclude(SphinxDirective):
 
             return [retnode]
         except Exception as exc:
-            return [document.reporter.warning(text_type(exc), line=self.lineno)]
+            return [document.reporter.warning(exc, line=self.lineno)]
 
 
 def setup(app):
