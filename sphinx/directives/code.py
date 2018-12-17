@@ -64,7 +64,7 @@ class HighlightLang(Highlight):
 
 
 def dedent_lines(lines, dedent, location=None):
-    # type: (List[str], int, Any) -> List[str]
+    # type: (List[str], int, Tuple[str, int]) -> List[str]
     if not dedent:
         return lines
 
@@ -211,7 +211,7 @@ class LiteralIncludeReader:
                                  (option1, option2))
 
     def read_file(self, filename, location=None):
-        # type: (str, Any) -> List[str]
+        # type: (str, Tuple[str, int]) -> List[str]
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
@@ -227,7 +227,7 @@ class LiteralIncludeReader:
                                (self.encoding, filename))
 
     def read(self, location=None):
-        # type: (Any) -> Tuple[str, int]
+        # type: (Tuple[str, int]) -> Tuple[str, int]
         if 'diff' in self.options:
             lines = self.show_diff()
         else:
@@ -245,7 +245,7 @@ class LiteralIncludeReader:
         return ''.join(lines), len(lines)
 
     def show_diff(self, location=None):
-        # type: (Any) -> List[str]
+        # type: (Tuple[str, int]) -> List[str]
         new_lines = self.read_file(self.filename)
         old_filename = self.options.get('diff')
         old_lines = self.read_file(old_filename)
@@ -253,7 +253,7 @@ class LiteralIncludeReader:
         return list(diff)
 
     def pyobject_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         pyobject = self.options.get('pyobject')
         if pyobject:
             from sphinx.pycode import ModuleAnalyzer
@@ -272,7 +272,7 @@ class LiteralIncludeReader:
         return lines
 
     def lines_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         linespec = self.options.get('lines')
         if linespec:
             linelist = parselinenos(linespec, len(lines))
@@ -297,7 +297,7 @@ class LiteralIncludeReader:
         return lines
 
     def start_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         if 'start-at' in self.options:
             start = self.options.get('start-at')
             inclusive = False
@@ -329,7 +329,7 @@ class LiteralIncludeReader:
         return lines
 
     def end_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         if 'end-at' in self.options:
             end = self.options.get('end-at')
             inclusive = True
@@ -357,7 +357,7 @@ class LiteralIncludeReader:
         return lines
 
     def prepend_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         prepend = self.options.get('prepend')
         if prepend:
             lines.insert(0, prepend + '\n')
@@ -365,7 +365,7 @@ class LiteralIncludeReader:
         return lines
 
     def append_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         append = self.options.get('append')
         if append:
             lines.append(append + '\n')
@@ -373,7 +373,7 @@ class LiteralIncludeReader:
         return lines
 
     def dedent_filter(self, lines, location=None):
-        # type: (List[str], Any) -> List[str]
+        # type: (List[str], Tuple[str, int]) -> List[str]
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)
         else:
