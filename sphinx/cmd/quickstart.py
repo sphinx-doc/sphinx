@@ -49,7 +49,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
-TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
+TERM_ENCODING = getattr(sys.stdin, 'encoding', None)  # RemovedInSphinx40Warning
 
 EXTENSIONS = OrderedDict([
     ('autodoc', __('automatically insert docstrings from modules')),
@@ -155,6 +155,9 @@ def ok(x):
 
 def term_decode(text):
     # type: (Union[bytes,str]) -> str
+    warnings.warn('term_decode() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+
     if isinstance(text, text_type):
         return text
 
@@ -192,7 +195,6 @@ def do_prompt(text, default=None, validator=nonempty):
         x = term_input(prompt).strip()
         if default and not x:
             x = default
-        x = term_decode(x)
         try:
             x = validator(x)
         except ValidationError as err:
