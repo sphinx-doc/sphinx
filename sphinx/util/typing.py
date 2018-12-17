@@ -28,4 +28,5 @@ RoleFunction = Callable[[text_type, text_type, text_type, int, Inliner, Dict, Li
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter = Callable[[nodes.Node], text_type]
 
+# inventory data on memory
 Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]
