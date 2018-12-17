@@ -168,7 +168,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def __init__(self, document, builder):
         # type: (nodes.document, TexinfoBuilder) -> None
-        super().__init__(builder, document)
+        super().__init__(document, builder)
         self.init_settings()
 
         self.written_ids = set()        # type: Set[str]

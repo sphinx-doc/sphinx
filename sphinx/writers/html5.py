@@ -18,7 +18,8 @@ from docutils import nodes
 from docutils.writers.html5_polyglot import HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -43,9 +44,17 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     builder = None  # type: StandaloneHTMLBuilder
 
-    def __init__(self, builder, document):
-        # type: (StandaloneHTMLBuilder, nodes.document) -> None
-        super().__init__(builder, document)
+    def __init__(self, *args):
+        # type: (Any) -> None
+        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
+            document, builder = args
+        else:
+            warnings.warn('The order of arguments for HTML5Translator has been changed. '
+                          'Please give "document" as 1st and "builder" as 2nd.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            builder, document = args
+        super().__init__(document, builder)
+
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
         self.manpages_url = self.config.manpages_url
