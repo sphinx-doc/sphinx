@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import time
 from io import StringIO
 
@@ -51,7 +50,6 @@ real_input = input
 
 def teardown_module():
     qs.term_input = real_input
-    qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
 
@@ -94,12 +92,7 @@ def test_do_prompt_with_nonascii():
         'Q1': '\u30c9\u30a4\u30c4',
     }
     qs.term_input = mock_input(answers)
-    try:
-        result = qs.do_prompt('Q1', default='\u65e5\u672c')
-    except UnicodeEncodeError:
-        raise pytest.skip.Exception(
-            'non-ASCII console input not supported on this encoding: %s',
-            qs.TERM_ENCODING)
+    result = qs.do_prompt('Q1', default='\u65e5\u672c')
     assert result == '\u30c9\u30a4\u30c4'
 
 
@@ -144,8 +137,8 @@ def test_quickstart_all_answers(tempdir):
         'Root path': tempdir,
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
-        'Project name': 'STASI™'.encode(),
-        'Author name': 'Wolfgang Schäuble & G\'Beckstein'.encode(),
+        'Project name': 'STASI™',
+        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -166,7 +159,6 @@ def test_quickstart_all_answers(tempdir):
         'Do you want to use the epub builder': 'yes',
     }
     qs.term_input = mock_input(answers, needanswer=True)
-    qs.TERM_ENCODING = 'utf-8'
     d = {}
     qs.ask_user(d)
     qs.generate(d)

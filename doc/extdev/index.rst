@@ -152,6 +152,16 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``docutils.nodes.abbreviation``
 
+   * - ``sphinx.cmd.quickstart.term_decode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.cmd.quickstart.TERM_ENCODING``
+     - 2.0
+     - 4.0
+     - ``sys.stdin.encoding``
+
    * - ``sphinx.config.check_unicode()``
      - 2.0
      - 4.0
