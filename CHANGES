@@ -51,6 +51,8 @@ Deprecated
   is_meta_keywords()``
 * The ``suffix`` argument of ``env.doc2path()`` is deprecated.
 * The string style ``base`` argument of ``env.doc2path()`` is deprecated.
+* The fallback to allow omitting the ``filename`` argument from an overridden
+  ``IndexBuilder.feed()`` method is deprecated.
 * ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.config.check_unicode()``
