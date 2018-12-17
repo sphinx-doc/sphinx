@@ -337,6 +337,8 @@ class SphinxComponentRegistry:
 
     def add_source_input(self, input_class, override=False):
         # type: (Type[SphinxFileInput], bool) -> None
+        warnings.warn('registry.source_input() is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
         for filetype in input_class.supported:
             if filetype in self.source_inputs and not override:
                 raise ExtensionError(__('source_input for %r is already registered') %
@@ -352,7 +354,7 @@ class SphinxComponentRegistry:
                 # use special source_input for unknown filetype
                 return self.source_inputs['*']
             except KeyError:
-                raise SphinxError(__('source_input for %s not registered') % filetype)
+                return None
 
     def add_translator(self, name, translator, override=False):
         # type: (str, Type[nodes.NodeVisitor], bool) -> None

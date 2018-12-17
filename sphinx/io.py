@@ -197,9 +197,14 @@ class SphinxBaseFileInput(FileInput):
         return UnicodeDecodeErrorHandler(self.env.docname)(error)
 
 
-class SphinxFileInput(SphinxBaseFileInput):
+class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
     supported = ('*',)  # special source input
+
+    def __init__(self, *args, **kwargs):
+        # type: (Any, Any) -> None
+        kwargs['error_handler'] = 'sphinx'
+        super(SphinxFileInput, self).__init__(*args, **kwargs)
 
 
 class SphinxRSTFileInput(SphinxBaseFileInput):
@@ -287,11 +292,8 @@ def read_doc(app, env, filename):
     error_handler = UnicodeDecodeErrorHandler(env.docname)
     codecs.register_error('sphinx', error_handler)  # type: ignore
 
-    filetype = get_filetype(app.config.source_suffix, filename)
-    input_class = app.registry.get_source_input(filetype)
     reader = SphinxStandaloneReader(app)
-    source = input_class(app, env, source=None, source_path=filename,  # type: ignore
-                         encoding=env.config.source_encoding)
+    filetype = get_filetype(app.config.source_suffix, filename)
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
         # a workaround for recommonmark
@@ -301,23 +303,26 @@ def read_doc(app, env, filename):
         #   CommonMarkParser.
         parser.settings_spec = RSTParser.settings_spec
 
-    pub = Publisher(reader=reader,  # type: ignore
-                    parser=parser,
-                    writer=SphinxDummyWriter(),
-                    source_class=SphinxDummySourceClass,
-                    destination=NullOutput())
-    pub.process_programmatic_settings(None, env.settings, None)
-    pub.set_source(source, filename)
+    input_class = app.registry.get_source_input(filetype)
+    if input_class:
+        # Sphinx-1.8 style
+        source = input_class(app, env, source=None, source_path=filename,  # type: ignore
+                             encoding=env.config.source_encoding)
+        pub = Publisher(reader=reader,  # type: ignore
+                        parser=parser,
+                        writer=SphinxDummyWriter(),
+                        source_class=SphinxDummySourceClass,
+                        destination=NullOutput())
+        pub.process_programmatic_settings(None, env.settings, None)
+        pub.set_source(source, filename)
+    else:
+        # Sphinx-2.0 style
+        pub = Publisher(reader=reader,
+                        parser=parser,
+                        writer=SphinxDummyWriter(),
+                        source_class=SphinxFileInput)
+        pub.process_programmatic_settings(None, env.settings, None)
+        pub.set_source(source_path=filename)
+
     pub.publish()
     return pub.document
-
-
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
-    app.registry.add_source_input(SphinxFileInput)
-
-    return {
-        'version': 'builtin',
-        'parallel_read_safe': True,
-        'parallel_write_safe': True,
-    }
