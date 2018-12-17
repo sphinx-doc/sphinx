@@ -150,6 +150,7 @@ Bugs fixed
 * #5810: LaTeX: sphinxVerbatim requires explicit "hllines" set-up since 1.6.6
   (refs: #1238)
 * #5636: C++, fix parsing of floating point literals.
+* #5496 (again): C++, fix assertion in partial builds with duplicates.
 
 Testing
 --------
