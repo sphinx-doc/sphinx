@@ -13,7 +13,7 @@ import mock
 import pytest
 
 import sphinx
-from sphinx.config import Config, ENUM, string_classes, check_confval_types
+from sphinx.config import Config, ENUM, check_confval_types
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 from sphinx.testing.path import path
 
@@ -228,12 +228,8 @@ TYPECHECK_WARNINGS = [
     ('value8', B(), None, C(), False),                          # sibling type
     ('value9', None, None, 'foo', False),                       # no default or no annotations
     ('value10', None, None, 123, False),                        # no default or no annotations
-    ('value11', None, [str], 'bar', False),                     # str vs unicode
-    ('value12', 'string', None, 'bar', False),                  # str vs unicode
-    ('value13', None, string_classes, 'bar', False),            # string_classes
-    ('value14', None, string_classes, 'bar', False),            # string_classes
-    ('value15', 'unicode', None, 'bar', False),                 # str vs unicode
-    ('value16', 'unicode', None, 'bar', False),                 # str vs unicode
+    ('value11', None, [str], 'bar', False),                     # str
+    ('value12', 'string', None, 'bar', False),                  # str
 ]
 
 

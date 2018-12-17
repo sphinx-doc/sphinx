@@ -157,6 +157,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.config.string_classes``
+     - 2.0
+     - 4.0
+     - ``[str]``
+
    * - ``sphinx.ext.autosummary.Autosummary.warn()``
      - 2.0
      - 4.0

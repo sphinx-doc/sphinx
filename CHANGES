@@ -56,6 +56,7 @@ Deprecated
 * ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.config.check_unicode()``
+* ``sphinx.config.string_classes``
 * ``sphinx.ext.autodoc.importer._MockImporter``
 * ``sphinx.ext.autosummary.Autosummary.warn()``
 * ``sphinx.ext.autosummary.Autosummary.genopt``

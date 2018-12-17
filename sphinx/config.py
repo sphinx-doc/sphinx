@@ -78,6 +78,7 @@ class ENUM:
             return value in self.candidates
 
 
+# RemovedInSphinx40Warning
 string_classes = [text_type]  # type: List
 
 
@@ -107,9 +108,9 @@ class Config:
         'release': ('', 'env', []),
         'today': ('', 'env', []),
         # the real default is locale-dependent
-        'today_fmt': (None, 'env', string_classes),
+        'today_fmt': (None, 'env', [str]),
 
-        'language': (None, 'env', string_classes),
+        'language': (None, 'env', [str]),
         'locale_dirs': (['locales'], 'env', []),
         'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
@@ -118,24 +119,24 @@ class Config:
         'source_encoding': ('utf-8-sig', 'env', []),
         'source_parsers': ({}, 'env', []),
         'exclude_patterns': ([], 'env', []),
-        'default_role': (None, 'env', string_classes),
+        'default_role': (None, 'env', [str]),
         'add_function_parentheses': (True, 'env', []),
         'add_module_names': (True, 'env', []),
         'trim_footnote_reference_space': (False, 'env', []),
         'show_authors': (False, 'env', []),
-        'pygments_style': (None, 'html', string_classes),
+        'pygments_style': (None, 'html', [str]),
         'highlight_language': ('default', 'env', []),
         'highlight_options': ({}, 'env', []),
         'templates_path': ([], 'html', []),
-        'template_bridge': (None, 'html', string_classes),
+        'template_bridge': (None, 'html', [str]),
         'keep_warnings': (False, 'env', []),
         'suppress_warnings': ([], 'env', []),
         'modindex_common_prefix': ([], 'html', []),
-        'rst_epilog': (None, 'env', string_classes),
-        'rst_prolog': (None, 'env', string_classes),
+        'rst_epilog': (None, 'env', [str]),
+        'rst_prolog': (None, 'env', [str]),
         'trim_doctest_flags': (True, 'env', []),
         'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
-        'needs_sphinx': (None, None, string_classes),
+        'needs_sphinx': (None, None, [str]),
         'needs_extensions': ({}, None, []),
         'manpages_url': (None, 'env', []),
         'nitpicky': (False, None, []),
@@ -145,7 +146,7 @@ class Config:
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
 
         'math_number_all': (False, 'env', []),
-        'math_eqref_format': (None, 'env', string_classes),
+        'math_eqref_format': (None, 'env', [str]),
         'math_numfig': (True, 'env', []),
         'tls_verify': (True, 'env', []),
         'tls_cacerts': (None, 'env', []),
