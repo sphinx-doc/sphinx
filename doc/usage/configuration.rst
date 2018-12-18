@@ -2322,10 +2322,8 @@ information.
      ``'docclass'``
      ``'classoptions'``
      ``'title'``
-     ``'date'``
      ``'release'``
      ``'author'``
-     ``'logo'``
      ``'makeindex'``
 
 .. confval:: latex_docclass
