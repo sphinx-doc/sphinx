@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from typing import Iterable, cast
 
 from docutils import nodes
@@ -17,6 +18,8 @@ from docutils.writers.manpage import (
 )
 
 from sphinx import addnodes
+from sphinx.builders import Builder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -26,7 +29,6 @@ from sphinx.util.nodes import NodeMatcher
 if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
-    from sphinx.builders import Builder  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +43,7 @@ class ManualPageWriter(Writer):
         # type: () -> None
         transform = NestedInlineTransform(self.document)
         transform.apply()
-        visitor = self.builder.create_translator(self.builder, self.document)
+        visitor = self.builder.create_translator(self.document, self.builder)
         self.visitor = cast(ManualPageTranslator, visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
@@ -84,9 +86,16 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     _docinfo = {}  # type: Dict[str, Any]
 
-    def __init__(self, builder, document):
-        # type: (Builder, nodes.document) -> None
-        super().__init__(builder, document)
+    def __init__(self, *args):
+        # type: (Any) -> None
+        if isinstance(args[0], nodes.document) and isinstance(args[1], Builder):
+            document, builder = args
+        else:
+            warnings.warn('The order of arguments for ManualPageTranslator has been changed. '
+                          'Please give "document" as 1st and "builder" as 2nd.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+            builder, document = args
+        super().__init__(document, builder)
 
         self.in_productionlist = 0
 

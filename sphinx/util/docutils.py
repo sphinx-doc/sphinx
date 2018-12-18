@@ -392,8 +392,8 @@ class SphinxTranslator(nodes.NodeVisitor):
               This class is strongly coupled with Sphinx.
     """
 
-    def __init__(self, builder, document):
-        # type: (Builder, nodes.document) -> None
+    def __init__(self, document, builder):
+        # type: (nodes.document, Builder) -> None
         super().__init__(document)
         self.builder = builder
         self.config = builder.config

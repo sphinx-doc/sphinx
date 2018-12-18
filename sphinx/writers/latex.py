@@ -508,7 +508,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def __init__(self, document, builder):
         # type: (nodes.document, LaTeXBuilder) -> None
-        super().__init__(builder, document)
+        super().__init__(document, builder)
         self.body = []  # type: List[str]
 
         # flags
