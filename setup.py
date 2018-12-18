@@ -23,7 +23,7 @@ install_requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests>=2.0.0',
+    'requests>=2.5.0',
     'setuptools',
     'packaging',
 ]
