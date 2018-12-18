@@ -278,7 +278,22 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
+   * - ``sphinx.io.SphinxBaseFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxFileInput.supported``
+     - 2.0
+     - 3.0
+     - N/A
+
    * - ``sphinx.io.SphinxRSTFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
      - 2.0
      - 3.0
      - N/A
