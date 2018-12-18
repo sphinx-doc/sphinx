@@ -149,6 +149,7 @@ Features added
 Bugs fixed
 ----------
 
+* #5725: mathjax: Use CDN URL for "latest" version by default
 * #5460: html search does not work with some 3rd party themes
 * #5520: LaTeX, caption package incompatibility since Sphinx 1.6
 * #5614: autodoc: incremental build is broken when builtin modules are imported
@@ -159,6 +160,7 @@ Bugs fixed
   (refs: #1238)
 * #5636: C++, fix parsing of floating point literals.
 * #5496 (again): C++, fix assertion in partial builds with duplicates.
+* #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
 
 Testing
 --------

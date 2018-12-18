@@ -94,7 +94,7 @@ def test_mathjax_options(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
     assert ('<script async="async" integrity="sha384-0123456789" type="text/javascript" '
-            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
+            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
             'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
 
 

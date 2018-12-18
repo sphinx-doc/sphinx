@@ -65,6 +65,7 @@ def compile_latex_document(app):
             copyfile('SphinxTests.tex',
                      app.config.latex_engine + '/SphinxTests.tex')
             p = Popen([app.config.latex_engine,
+                       '--halt-on-error',
                        '--interaction=nonstopmode',
                        '-output-directory=%s' % app.config.latex_engine,
                        'SphinxTests.tex'],

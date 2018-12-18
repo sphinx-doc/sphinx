@@ -403,7 +403,7 @@ The format of the autosummary directive is documented in the
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> None
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     app = DummyApplication()
