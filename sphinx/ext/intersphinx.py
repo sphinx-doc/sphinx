@@ -204,28 +204,7 @@ def load_mappings(app):
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     inventories = InventoryAdapter(app.builder.env)
     update = False
-    for key, value in app.config.intersphinx_mapping.items():
-        name = None  # type: str
-        uri = None   # type: str
-        inv = None   # type: Union[str, Tuple[str, ...]]
-
-        if isinstance(value, (list, tuple)):
-            # new format
-            name, (uri, inv) = key, value
-            if not isinstance(name, str):
-                logger.warning(__('intersphinx identifier %r is not string. Ignored'), name)
-                continue
-        else:
-            # old format, no name
-            name, uri, inv = None, key, value
-        # we can safely assume that the uri<->inv mapping is not changed
-        # during partial rebuilds since a changed intersphinx_mapping
-        # setting will cause a full environment reread
-        if not isinstance(inv, tuple):
-            invs = (inv, )
-        else:
-            invs = inv  # type: ignore
-
+    for key, (name, (uri, invs)) in app.config.intersphinx_mapping.items():
         failures = []
         for inv in invs:
             if not inv:
@@ -358,13 +337,39 @@ def missing_reference(app, env, node, contnode):
     return None
 
 
+def normalize_intersphinx_mapping(app, config):
+    # type: (Sphinx, Config) -> None
+    for key, value in config.intersphinx_mapping.copy().items():
+        try:
+            if isinstance(value, (list, tuple)):
+                # new format
+                name, (uri, inv) = key, value
+                if not isinstance(name, str):
+                    logger.warning(__('intersphinx identifier %r is not string. Ignored'),
+                                   name)
+                    config.intersphinx_mapping.pop(key)
+                    continue
+            else:
+                # old format, no name
+                name, uri, inv = None, key, value
+
+            if not isinstance(inv, tuple):
+                config.intersphinx_mapping[key] = (name, (uri, (inv,)))
+            else:
+                config.intersphinx_mapping[key] = (name, (uri, inv))
+        except Exception as exc:
+            logger.warning(__('Fail to read intersphinx_mapping[%s], Ignored: %r'), key, exc)
+            config.intersphinx_mapping.pop(key)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.connect('missing-reference', missing_reference)
+    app.connect('config-inited', normalize_intersphinx_mapping)
     app.connect('builder-inited', load_mappings)
+    app.connect('missing-reference', missing_reference)
     return {
         'version': sphinx.__display_version__,
         'env_version': 1,
