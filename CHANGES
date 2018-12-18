@@ -99,14 +99,15 @@ For more details, see `deprecation APIs list
 
 Features added
 --------------
+
 * #1618: The search results preview of generated HTML documentation is
   reader-friendlier: instead of showing the snippets as raw reStructuredText
   markup, Sphinx now renders the corresponding HTML.  This means the Sphinx
   extension `Sphinx: pretty search results`__ is no longer necessary.  Note that
-  changes to the search function of your custom or 3rd-pary HTML template might
+  changes to the search function of your custom or 3rd-party HTML template might
   overwrite this improvement.
 
-__ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
+  __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 
 * #4182: autodoc: Support :confval:`suppress_warnings`
 * #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
@@ -120,14 +121,16 @@ __ https://github.com/sphinx-contrib/sphinx-pretty-searchresults
 Bugs fixed
 ----------
 
+* #1682: LaTeX: writer should not translate Greek unicode, but use textgreek
+  package
 * #5247: LaTeX: PDF does not build with default font config for Russian
   language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
   (refs: #5251)
 * #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
 * #5772: LaTeX: should the Bjarne style of fncychap be used for English also
   if passed as language option?
-* #5179: LaTex: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
-  enough, ``\textgreater{}\textgreater{}`` applies TeX-ligature
+* #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
+  enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
 
 Testing
 --------
