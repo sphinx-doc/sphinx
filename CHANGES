@@ -27,6 +27,7 @@ Bugs fixed
   (refs: #1238)
 * #5636: C++, fix parsing of floating point literals.
 * #5496 (again): C++, fix assertion in partial builds with duplicates.
+* #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
 
 Testing
 --------
