@@ -14,7 +14,8 @@ Dependencies
   Sphinx LaTeX requirements.
 * LaTeX builder with :confval:`latex_engine` set to ``'xelatex'`` or to
   ``'lualatex'`` requires (by default) the ``FreeFont`` fonts,
-  which in Ubuntu xenial are provided by package ``fonts-freefont-otf``.
+  which in Ubuntu xenial are provided by package ``fonts-freefont-otf``, and
+  e.g. in Fedora 29 via package ``texlive-gnu-freefont``.
 * requests 2.5.0 or above
 
 Incompatible changes
