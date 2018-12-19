@@ -61,7 +61,7 @@ in all directives:
 
 .. rubric:: Directive declaration
 
-Our new directive is declared in the :code:`HelloWorld` class, it extends
+Our new directive is declared in the ``HelloWorld`` class, it extends
 docutils_' code:`Directive` class. All extensions that create directives
 should extend this class.
 
@@ -73,7 +73,7 @@ be processed by Sphinx.
 
 .. seealso::
 
-   :ref:`exttuto-todo`.
+   :doc:`todo`
 
 .. rubric:: docutils nodes
 
@@ -81,27 +81,33 @@ The ``run`` method returns a list of nodes. Nodes are docutils' way of
 representing the content of a document. There are many types of nodes
 available: text, paragraph, reference, table, etc.
 
-Read more about `docutils nodes`_.
+.. seealso::
 
-You can also create your own nodes if needed, refer to the
-:ref:`exttuto-todo` for more information.
+   `docutils nodes`_
 
-The :code:`nodes.paragraph` method creates a new paragraph node. A paragraph
+The ``nodes.paragraph`` class creates a new paragraph node. A paragraph
 node typically contains some text that we can set during instantiation using
 the ``text`` parameter.
 
-.. rubric:: `setup` method
+.. rubric:: ``setup`` function
 
-This method is a requirement. We use it to plug our new directive into
-Sphinx. The first argument is the name of the directive itself. In our case:
+This function is a requirement. We use it to plug our new directive into
+Sphinx.
+The simplest thing you can do it call the ``app.add_directive`` method.
 
-.. code-block:: rst
+.. note::
 
-   Some intro text here...
+   The first argument is the name of the directive itself as used in an rST file.
 
-   .. helloworld::
+   In our case, we would use ``helloworld``:
 
-   Some more text here...
+   .. code-block:: rst
+
+      Some intro text here...
+
+      .. helloworld::
+
+      Some more text here...
 
 
 Updating the conf.py file
@@ -111,9 +117,9 @@ The extension file has to be declared in your :file:`conf.py` file to make
 Sphinx aware of it:
 
 #. Open :file:`conf.py`. It is in the :file:`source` folder by default.
-#. Add :code:`sys.path.append(os.path.abspath("./_ext"))` before
+#. Add ``sys.path.append(os.path.abspath("./_ext"))`` before
    the ``extensions`` variable declaration (if it exists).
-#. Update of create the ``extensions`` list and add the
+#. Update or create the ``extensions`` list and add the
    extension file name to the list:
 
    .. code-block:: python
@@ -145,6 +151,12 @@ You can now use the extension.
 This is the very basic principle of an extension that creates a new directive.
 
 For a more advanced example, refer to :ref:`exttuto-todo`
+
+Further reading
+---------------
+
+You can create your own nodes if needed, refer to the
+:ref:`exttuto-todo` for more information.
 
 .. _docutils: http://docutils.sourceforge.net/
 .. _`docutils nodes`: http://docutils.sourceforge.net/docs/ref/doctree.html

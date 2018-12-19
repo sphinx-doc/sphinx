@@ -30,7 +30,7 @@ How do I...
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :ref:`extension tutorial <exttuto-todo>`.
+   See the :doc:`/development/tutorials/index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
