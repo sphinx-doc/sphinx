@@ -172,6 +172,21 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``[str]``
 
+   * - ``sphinx.domains.cpp.DefinitionError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.NoOldIdError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.UnsupportedMultiCharacterCharLiteral.decoded``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
    * - ``sphinx.ext.autosummary.Autosummary.warn()``
      - 2.0
      - 4.0
