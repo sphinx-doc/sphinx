@@ -1,5 +1,3 @@
-.. _exttuto-helloworld:
-
 Developing a "Hello world" directive
 ====================================
 
@@ -7,7 +5,7 @@ The objective of this tutorial is to create a very basic extension that adds a n
 directive that outputs a paragraph containing `hello world`.
 
 Only basic information is provided in this tutorial. For more information,
-refer to the :ref:`other tutorials <extensiontutos>` that go into more
+refer to the :doc:`other tutorials <index>` that go into more
 details.
 
 .. warning:: For this extension, you will need some basic understanding of docutils_
@@ -67,17 +65,19 @@ Our new directive is declared in the :code:`HelloWorld` class, it extends
 docutils_' code:`Directive` class. All extensions that create directives
 should extend this class.
 
-.. rubric:: `run` method
+.. rubric:: ``run`` method
 
 This method is a requirement and it is part of every directive. It contains
 the main logic of the directive and it returns a list of docutils nodes to
 be processed by Sphinx.
 
-Read more on this topic in :ref:`exttuto-todo`.
+.. seealso::
+
+   :ref:`exttuto-todo`.
 
 .. rubric:: docutils nodes
 
-The `run` method returns a list of nodes. Nodes are docutils' way of
+The ``run`` method returns a list of nodes. Nodes are docutils' way of
 representing the content of a document. There are many types of nodes
 available: text, paragraph, reference, table, etc.
 
