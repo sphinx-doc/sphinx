@@ -96,6 +96,7 @@ Deprecated
 * ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
 * template variables for LaTeX template
 
+  - ``logo``
   - ``pageautorefname``
   - ``translatablestrings``
 

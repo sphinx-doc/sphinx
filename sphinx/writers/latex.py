@@ -30,7 +30,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
@@ -151,15 +150,12 @@ DEFAULT_SETTINGS = {
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
-    'usepackages':     '',
     'numfig_format':   '',
     'contentsname':    '',
     'preamble':        '',
     'title':           '',
-    'date':            '',
     'release':         '',
     'author':          '',
-    'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
@@ -171,7 +167,7 @@ DEFAULT_SETTINGS = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}
+}  # type: Dict[str, Any]
 
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
@@ -221,7 +217,7 @@ ADDITIONAL_SETTINGS = {
         'fncychap':     '',
         'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
-}
+}  # type: Dict[str, Dict[str, Any]]
 
 EXTRA_RE = re.compile(r'^(.*\S)\s+\(([^()]*)\)\s*$')
 
@@ -556,12 +552,6 @@ class LaTeXTranslator(SphinxTranslator):
                 logger.warning(__('unknown %r toplevel_sectioning for class %r') %
                                (self.config.latex_toplevel_sectioning, docclass))
 
-        if self.config.today:
-            self.elements['date'] = self.config.today
-        else:
-            self.elements['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                                language=self.config.language)
-
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
             if self.numfig_secnum_depth > 0:  # default is 1
@@ -585,11 +575,6 @@ class LaTeXTranslator(SphinxTranslator):
                     self.elements['sphinxpkgoptions'] += ',mathnumfig'
             except AttributeError:
                 pass
-
-        if self.config.latex_logo:
-            # no need for \\noindent here, used in flushright
-            self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
-                                    path.basename(self.config.latex_logo)
 
         if (self.config.language not in {None, 'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
@@ -644,16 +629,6 @@ class LaTeXTranslator(SphinxTranslator):
 
             self.elements['multilingual'] = '%s\n%s' % (self.elements['polyglossia'],
                                                         mainlanguage)
-
-        if getattr(self.builder, 'usepackages', None):
-            def declare_package(packagename, options=None):
-                # type:(str, str) -> str
-                if options:
-                    return '\\usepackage[%s]{%s}' % (options, packagename)
-                else:
-                    return '\\usepackage{%s}' % (packagename,)
-            usepackages = (declare_package(*p) for p in self.builder.usepackages)
-            self.elements['usepackages'] += "\n".join(usepackages)
 
         minsecnumdepth = self.secnumdepth  # 2 from legacy sphinx manual/howto
         if self.document.get('tocdepth'):

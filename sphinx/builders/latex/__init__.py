@@ -31,6 +31,7 @@ from sphinx.util import texescape, logging, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.template import LaTeXRenderer
@@ -186,10 +187,22 @@ class LaTeXBuilder(Builder):
                     self.context['polyglossia'] = ''
                     self.context['babel'] = r'\usepackage{babel}'
 
+        # Apply extension settings to context
+        self.context['packages'] = self.usepackages
+
         # Apply user settings to context
         self.context.update(self.config.latex_elements)
         self.context['release'] = self.config.release
         self.context['use_xindy'] = self.config.latex_use_xindy
+
+        if self.config.today:
+            self.context['date'] = self.config.today
+        else:
+            self.context['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                               language=self.config.language)
+
+        if self.config.latex_logo:
+            self.context['logofilename'] = path.basename(self.config.latex_logo)
 
         # for compatibilities
         self.context['indexname'] = _('Index')
