@@ -341,7 +341,7 @@ Note: By default this script will not overwrite already created files."""))
                         dest='includeprivate',
                         help=__('include "_private" modules'))
     parser.add_argument('--tocfile', action='store', dest='tocfile', default='modules',
-                        help=__("don't create a table of contents file"))
+                        help=__("filename of table of contents (default: modules)"))
     parser.add_argument('-T', '--no-toc', action='store_false', dest='tocfile',
                         help=__("don't create a table of contents file"))
     parser.add_argument('-E', '--no-headings', action='store_true',
