@@ -137,13 +137,13 @@ Bugs fixed
   language and ``'xelatex'`` or ``'lualatex'`` as :confval:`latex_engine`
   (refs: #5251)
 * #5248: LaTeX: Greek letters in section titles disappear from PDF bookmarks
+* #5249: LaTeX: Unicode Greek letters in math directive break PDF build
+  (fix requires extra set-up, see :confval:`latex_elements` ``'textgreek'`` key
+  and/or :confval:`latex_engine` setting)
 * #5772: LaTeX: should the Bjarne style of fncychap be used for English also
   if passed as language option?
 * #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
   enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
-* #5249: LaTeX: Unicode Greek letters in math directive break PDF build
-  (fix requires extra set-up, see :confval:`latex_elements` ``'textgreek'`` key
-  and/or :confval:`latex_engine` setting)
 
 Testing
 --------
