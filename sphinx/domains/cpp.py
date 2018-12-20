@@ -9,6 +9,7 @@
 """
 
 import re
+import warnings
 from copy import deepcopy
 
 from docutils import nodes, utils
@@ -16,6 +17,7 @@ from docutils.parsers.rst import directives
 from six import text_type
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.environment import NoUri
@@ -575,23 +577,23 @@ _id_explicit_cast = {
 
 class NoOldIdError(Exception):
     # Used to avoid implementing unneeded id generation for old id schmes.
-    def __init__(self, description=""):
-        # type: (str) -> None
-        self.description = description
-
-    def __str__(self):
+    @property
+    def description(self):
         # type: () -> str
-        return self.description
+        warnings.warn('%s.description is deprecated. '
+                      'Coerce the instance to a string instead.' % self.__class__.__name__,
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return str(self)
 
 
 class DefinitionError(Exception):
-    def __init__(self, description):
-        # type: (str) -> None
-        self.description = description
-
-    def __str__(self):
+    @property
+    def description(self):
         # type: () -> str
-        return self.description
+        warnings.warn('%s.description is deprecated. '
+                      'Coerce the instance to a string instead.' % self.__class__.__name__,
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return str(self)
 
 
 class _DuplicateSymbolError(Exception):
@@ -799,8 +801,13 @@ class ASTNumberLiteral(ASTBase):
 
 
 class UnsupportedMultiCharacterCharLiteral(Exception):
-    def __init__(self, decoded):
-        self.decoded = decoded
+    @property
+    def decoded(self):
+        # type: () -> str
+        warnings.warn('%s.decoded is deprecated. '
+                      'Coerce the instance to a string instead.' % self.__class__.__name__,
+                      RemovedInSphinx40Warning, stacklevel=2)
+        return str(self)
 
 
 class ASTCharLiteral(ASTBase):
@@ -4451,23 +4458,23 @@ class DefinitionParser:
         # type: (List[Any], str) -> DefinitionError
         if len(errors) == 1:
             if len(header) > 0:
-                return DefinitionError(header + '\n' + errors[0][0].description)
+                return DefinitionError(header + '\n' + str(errors[0][0]))
             else:
-                return DefinitionError(errors[0][0].description)
+                return DefinitionError(str(errors[0][0]))
         result = [header, '\n']
         for e in errors:
             if len(e[1]) > 0:
                 ident = '  '
                 result.append(e[1])
                 result.append(':\n')
-                for line in e[0].description.split('\n'):
+                for line in str(e[0]).split('\n'):
                     if len(line) == 0:
                         continue
                     result.append(ident)
                     result.append(line)
                     result.append('\n')
             else:
-                result.append(e[0].description)
+                result.append(str(e[0]))
         return DefinitionError(''.join(result))
 
     def status(self, msg):
@@ -5175,7 +5182,7 @@ class DefinitionParser:
             if not allow or not self.allowFallbackExpressionParsing:
                 raise
             self.warn("Parsing of expression failed. Using fallback parser."
-                      " Error was:\n%s" % e.description)
+                      " Error was:\n%s" % e)
             self.pos = prevPos
         # and then the fallback scanning
         assert end is not None
@@ -6742,8 +6749,7 @@ class CPPExprRole:
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
-            Warner().warn('Unparseable C++ expression: %r\n%s'
-                          % (text, text_type(ex.description)))
+            Warner().warn('Unparseable C++ expression: %r\n%s' % (text, ex))
             # see below
             return [self.node_type(text, text, classes=classes)], []
         parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
@@ -6891,8 +6897,7 @@ class CPPDomain(Domain):
                 # strange, that we don't get the error now, use the original
                 return target, e
             t, ex = findWarning(e)
-            warner.warn('Unparseable C++ cross-reference: %r\n%s'
-                        % (t, text_type(ex.description)))
+            warner.warn('Unparseable C++ cross-reference: %r\n%s' % (t, ex))
             return None, None
         parentKey = node.get("cpp:parent_key", None)
         rootSymbol = self.data['root_symbol']
