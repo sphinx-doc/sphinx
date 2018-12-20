@@ -97,6 +97,8 @@ APIs used for writing extensions
    i18n
    utils
 
+.. _dev-deprecated-apis:
+
 Deprecated APIs
 ---------------
 
