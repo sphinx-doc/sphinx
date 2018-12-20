@@ -408,7 +408,7 @@ class BuildEnvironment:
                         self.config.gettext_compact)
                     for filename in catalog_files:
                         self.dependencies[docname].add(filename)
-        except EnvironmentError as exc:
+        except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 
     def get_outdated_files(self, config_changed):
@@ -455,7 +455,7 @@ class BuildEnvironment:
                         if depmtime > mtime:
                             changed.add(docname)
                             break
-                    except EnvironmentError:
+                    except OSError:
                         # give it another chance
                         changed.add(docname)
                         break
@@ -723,7 +723,7 @@ class BuildEnvironment:
         except Exception as exc:
             # This can happen for example when the pickle is from a
             # different version of Sphinx.
-            raise IOError(exc)
+            raise OSError(exc)
         if app:
             env.app = app
             env.config.values = app.config.values

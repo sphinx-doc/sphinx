@@ -419,7 +419,7 @@ class StandaloneHTMLBuilder(Builder):
                 return
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
-        except IOError:
+        except OSError:
             # ignore errors on reading
             pass
 
@@ -441,7 +441,7 @@ class StandaloneHTMLBuilder(Builder):
                                template_mtime)
                 if srcmtime > targetmtime:
                     yield docname
-            except EnvironmentError:
+            except OSError:
                 # source doesn't exist anymore
                 pass
 
@@ -817,7 +817,7 @@ class StandaloneHTMLBuilder(Builder):
                     dest = path.join(self.outdir, '_downloads', self.env.dlfiles[src][1])
                     ensuredir(path.dirname(dest))
                     copyfile(path.join(self.srcdir, src), dest)
-                except EnvironmentError as err:
+                except OSError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
                                    path.join(self.srcdir, src), err)
 
@@ -883,9 +883,7 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.confdir, self.config.html_favicon),
                              icontarget)
             logger.info('done')
-        except EnvironmentError as err:
-            # TODO: In py3, EnvironmentError (and IOError) was merged into OSError.
-            # So it should be replaced by IOError on dropping py2 support
+        except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self):
@@ -903,7 +901,7 @@ class StandaloneHTMLBuilder(Builder):
 
                 copy_asset(entry, self.outdir, excluded)
             logger.info(__('done'))
-        except EnvironmentError as err:
+        except OSError as err:
             logger.warning(__('cannot copy extra file %r'), err)
 
     def write_buildinfo(self):
@@ -911,7 +909,7 @@ class StandaloneHTMLBuilder(Builder):
         try:
             with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
                 self.build_info.dump(fp)
-        except IOError as exc:
+        except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)
 
     def cleanup(self):
@@ -957,7 +955,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 with open(searchindexfn, 'rb') as fb:
                     self.indexer.load(fb, self.indexer_format)
-        except (IOError, OSError, ValueError):
+        except (OSError, ValueError):
             if keep:
                 logger.warning(__('search index couldn\'t be loaded, but not all '
                                   'documents will be built: the index will be '
@@ -1142,7 +1140,7 @@ class StandaloneHTMLBuilder(Builder):
             with open(outfilename, 'w', encoding=ctx['encoding'],
                       errors='xmlcharrefreplace') as f:
                 f.write(output)
-        except (IOError, OSError) as err:
+        except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link

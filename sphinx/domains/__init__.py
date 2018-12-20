@@ -140,7 +140,7 @@ class Domain:
     build process starts, every active domain is instantiated and given the
     environment object; the `domaindata` dict must then either be nonexistent or
     a dictionary whose 'version' key is equal to the domain class'
-    :attr:`data_version` attribute.  Otherwise, `IOError` is raised and the
+    :attr:`data_version` attribute.  Otherwise, `OSError` is raised and the
     pickled environment is discarded.
     """
 
@@ -190,7 +190,7 @@ class Domain:
         else:
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
-                raise IOError('data of %r domain out of date' % self.label)
+                raise OSError('data of %r domain out of date' % self.label)
         for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)

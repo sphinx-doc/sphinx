@@ -26,7 +26,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import ensuredir, EPIPE, EINVAL
+from sphinx.util.osutil import ensuredir
 
 if False:
     # For type annotation
@@ -144,7 +144,7 @@ class Graphviz(SphinxDirective):
             try:
                 with open(filename, encoding='utf-8') as fp:
                     dotcode = fp.read()
-            except (IOError, OSError):
+            except OSError:
                 return [document.reporter.warning(
                     __('External Graphviz file %r not found or reading '
                        'it failed') % filename, line=self.lineno)]
@@ -256,9 +256,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         # Graphviz may close standard input when an error occurs,
         # resulting in a broken pipe on communicate()
         stdout, stderr = p.communicate(code.encode())
-    except (OSError, IOError) as err:
-        if err.errno not in (EPIPE, EINVAL):
-            raise
+    except BrokenPipeError:
         # in this case, read the standard output and standard error streams
         # directly, to get the error message(s)
         stdout, stderr = p.stdout.read(), p.stderr.read()
