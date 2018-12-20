@@ -137,6 +137,9 @@ Bugs fixed
   if passed as language option?
 * #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
   enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
+* #5249: LaTeX: Unicode Greek letters in math directive break PDF build
+  (fix requires extra set-up, see :confval:`latex_elements` ``'textgreek'`` key
+  and/or :confval:`latex_engine` setting)
 
 Testing
 --------
