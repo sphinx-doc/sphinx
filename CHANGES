@@ -29,6 +29,11 @@ Incompatible changes
 * LaTeX: Stop using ``\captions<lang>`` macro for some labels
 * LaTeX: for ``'xelatex'`` and ``'lualatex'``, use the ``FreeFont`` OpenType
   fonts as default choice (refs: #5645)
+* LaTeX: ``'xelatex'`` and ``'lualatex'`` now use ``\small`` in code-blocks
+  (due to ``FreeMono`` character width) like ``'pdflatex'`` already did (due
+  to ``Courier`` character width).  You may need to adjust this via
+  :confval:`latex_elements` ``'fvset'`` key, in case of usage of some other
+  OpenType fonts (refs: #5768)
 * LaTeX: Greek letters in text are not escaped to math mode mark-up, and they
   will use the text font not the math font. The ``LGR`` font encoding must be
   added to the ``'fontenc'`` key of :confval:`latex_elements` for this to work
