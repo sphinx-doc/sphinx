@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_quickstart
     ~~~~~~~~~~~~~~~
@@ -9,12 +8,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import time
+from io import StringIO
 
 import pytest
-from six import PY2, text_type, StringIO
-from six.moves import input
+from six import text_type
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs
@@ -37,12 +35,7 @@ def mock_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
-        if PY2:
-            prompt = str(prompt)  # Python2.x raw_input emulation
-            # `raw_input` encode `prompt` by default encoding to print.
-        else:
-            prompt = text_type(prompt)  # Python3.x input emulation
-            # `input` decode prompt by default encoding before print.
+        prompt = text_type(prompt)
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
                 return answers[question]
@@ -57,7 +50,6 @@ real_input = input
 
 def teardown_module():
     qs.term_input = real_input
-    qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
 
@@ -97,16 +89,11 @@ def test_do_prompt_inputstrip():
 
 def test_do_prompt_with_nonascii():
     answers = {
-        'Q1': u'\u30c9\u30a4\u30c4',
+        'Q1': '\u30c9\u30a4\u30c4',
     }
     qs.term_input = mock_input(answers)
-    try:
-        result = qs.do_prompt('Q1', default=u'\u65e5\u672c')
-    except UnicodeEncodeError:
-        raise pytest.skip.Exception(
-            'non-ASCII console input not supported on this encoding: %s',
-            qs.TERM_ENCODING)
-    assert result == u'\u30c9\u30a4\u30c4'
+    result = qs.do_prompt('Q1', default='\u65e5\u672c')
+    assert result == '\u30c9\u30a4\u30c4'
 
 
 def test_quickstart_defaults(tempdir):
@@ -150,8 +137,8 @@ def test_quickstart_all_answers(tempdir):
         'Root path': tempdir,
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
-        'Project name': u'STASI™'.encode('utf-8'),
-        'Author name': u'Wolfgang Schäuble & G\'Beckstein'.encode('utf-8'),
+        'Project name': 'STASI™',
+        'Author name': 'Wolfgang Schäuble & G\'Beckstein',
         'Project version': '2.0',
         'Project release': '2.0.1',
         'Project language': 'de',
@@ -172,7 +159,6 @@ def test_quickstart_all_answers(tempdir):
         'Do you want to use the epub builder': 'yes',
     }
     qs.term_input = mock_input(answers, needanswer=True)
-    qs.TERM_ENCODING = 'utf-8'
     d = {}
     qs.ask_user(d)
     qs.generate(d)
@@ -187,23 +173,16 @@ def test_quickstart_all_answers(tempdir):
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
-    assert ns['project'] == u'STASI™'
-    assert ns['copyright'] == u'%s, Wolfgang Schäuble & G\'Beckstein' % \
+    assert ns['project'] == 'STASI™'
+    assert ns['copyright'] == '%s, Wolfgang Schäuble & G\'Beckstein' % \
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
     assert ns['todo_include_todos'] is True
     assert ns['html_static_path'] == ['.static']
     assert ns['latex_documents'] == [
-        ('contents', 'STASI.tex', u'STASI™ Documentation',
-         u'Wolfgang Schäuble \\& G\'Beckstein', 'manual')]
-    assert ns['man_pages'] == [
-        ('contents', 'stasi', u'STASI™ Documentation',
-         [u'Wolfgang Schäuble & G\'Beckstein'], 1)]
-    assert ns['texinfo_documents'] == [
-        ('contents', 'STASI', u'STASI™ Documentation',
-         u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
-         'One line description of project.', 'Miscellaneous')]
+        ('contents', 'STASI.tex', 'STASI™ Documentation',
+         'Wolfgang Schäuble \\& G\'Beckstein', 'manual')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
@@ -234,7 +213,7 @@ def test_generated_files_eol(tempdir):
 def test_quickstart_and_build(tempdir):
     answers = {
         'Root path': tempdir,
-        'Project name': u'Fullwidth characters: \u30c9\u30a4\u30c4',
+        'Project name': 'Fullwidth characters: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
@@ -259,7 +238,7 @@ def test_quickstart_and_build(tempdir):
 def test_default_filename(tempdir):
     answers = {
         'Root path': tempdir,
-        'Project name': u'\u30c9\u30a4\u30c4',  # Fullwidth characters only
+        'Project name': '\u30c9\u30a4\u30c4',  # Fullwidth characters only
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
@@ -273,8 +252,6 @@ def test_default_filename(tempdir):
     ns = {}
     execfile_(conffile, ns)
     assert ns['latex_documents'][0][1] == 'sphinx.tex'
-    assert ns['man_pages'][0][1] == 'sphinx'
-    assert ns['texinfo_documents'][0][1] == 'sphinx'
 
 
 def test_extensions(tempdir):

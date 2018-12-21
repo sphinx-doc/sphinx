@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_markup
     ~~~~~~~~~~~
@@ -18,6 +17,7 @@ from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -34,6 +34,7 @@ def settings(app):
     settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
+    settings.contentsname = 'dummy'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -87,6 +88,9 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
+        app.builder = LaTeXBuilder(app)
+        app.builder.set_environment(app.env)
+        app.builder.init_context()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
@@ -158,14 +162,14 @@ def get_verifier(verify, verify_re):
         # interpolation of arrows in menuselection
         'verify',
         ':menuselection:`a --> b`',
-        (u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
+        ('<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
         '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
         # interpolation of ampersands in menuselection
         'verify',
         ':menuselection:`&Foo -&&- &Bar`',
-        (u'<p><span class="menuselection"><span class="accelerator">F</span>oo '
+        ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -173,7 +177,7 @@ def get_verifier(verify, verify_re):
         # interpolation of ampersands in guilabel
         'verify',
         ':guilabel:`&Foo -&&- &Bar`',
-        (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
+        ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -189,8 +193,8 @@ def get_verifier(verify, verify_re):
         # verify smarty-pants quotes
         'verify',
         '"John"',
-        u'<p>“John”</p>',
-        u"“John”",
+        '<p>“John”</p>',
+        "“John”",
     ),
     (
         # ... but not in literal text
@@ -210,24 +214,23 @@ def get_verifier(verify, verify_re):
     (
         # correct escaping in normal mode
         'verify',
-        u'Γ\\\\∞$',
+        'Γ\\\\∞$',
         None,
-        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+        'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
         'verify',
-        u'::\n\n @Γ\\∞${}',
+        '::\n\n @Γ\\∞${}',
         None,
-        (u'\\fvset{hllines={, ,}}%\n'
-         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-         u'\\end{sphinxVerbatim}'),
+        ('\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         '@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         '\\end{sphinxVerbatim}'),
     ),
     (
         # in URIs
         'verify_re',
-        u'`test <http://example.com/~me/>`_',
+        '`test <http://example.com/~me/>`_',
         None,
         r'\\sphinxhref{http://example.com/~me/}{test}.*',
     ),

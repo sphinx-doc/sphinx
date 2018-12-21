@@ -23,7 +23,6 @@ Contents:
    bom
    math
    autodoc
-   metadata
    extensions
    extensions
    footnote

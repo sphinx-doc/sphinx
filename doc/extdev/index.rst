@@ -85,6 +85,7 @@ APIs used for writing extensions
 
    tutorial
    appapi
+   projectapi
    envapi
    builderapi
    collectorapi
@@ -95,6 +96,8 @@ APIs used for writing extensions
    logging
    i18n
    utils
+
+.. _dev-deprecated-apis:
 
 Deprecated APIs
 ---------------
@@ -121,6 +124,226 @@ The following is a list of deprecated interfaces.
      - |LaTeXHyphenate|\ Deprecated
      - (will be) Removed
      - Alternatives
+
+   * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
+       ``autodoc.DocstringSignatureMixin.get_doc()``,
+       ``autodoc.DocstringSignatureMixin._find_signature()``, and
+       ``autodoc.ClassDocumenter.get_doc()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``nodetype`` argument of
+       ``sphinx.search.WordCollector.is_meta_keywords()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``suffix`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - string style ``base`` argument of ``BuildEnvironment.doc2path()``
+     - 2.0
+     - 4.0
+     - ``os.path.join()``
+
+   * - ``sphinx.addnodes.abbreviation``
+     - 2.0
+     - 4.0
+     - ``docutils.nodes.abbreviation``
+
+   * - ``sphinx.cmd.quickstart.term_decode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.cmd.quickstart.TERM_ENCODING``
+     - 2.0
+     - 4.0
+     - ``sys.stdin.encoding``
+
+   * - ``sphinx.config.check_unicode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.config.string_classes``
+     - 2.0
+     - 4.0
+     - ``[str]``
+
+   * - ``sphinx.domains.cpp.DefinitionError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.NoOldIdError.description``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.domains.cpp.UnsupportedMultiCharacterCharLiteral.decoded``
+     - 2.0
+     - 4.0
+     - ``str(exc)``
+
+   * - ``sphinx.ext.autosummary.Autosummary.warn()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.genopt``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.warnings``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.Autosummary.result``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.doctest.doctest_encode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.testing.util.remove_unicode_literal()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.attrdict``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.force_decode()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.get_matching_docs()``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.get_matching_files()``
+
+   * - ``sphinx.util.inspect.Parameter``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.util.osutil.EEXIST``
+     - 2.0
+     - 4.0
+     - ``errno.EEXIST`` or ``FileExistsError``
+
+   * - ``sphinx.util.osutil.EINVAL``
+     - 2.0
+     - 4.0
+     - ``errno.EINVAL``
+
+   * - ``sphinx.util.osutil.ENOENT``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``FileNotFoundError``
+
+   * - ``sphinx.util.osutil.EPIPE``
+     - 2.0
+     - 4.0
+     - ``errno.ENOENT`` or ``BrokenPipeError``
+
+   * - ``sphinx.util.osutil.walk()``
+     - 2.0
+     - 4.0
+     - ``os.walk()``
+
+   * - ``sphinx.util.pycompat.UnicodeMixin``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.u``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.PeekableIterator``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - Omitting the ``filename`` argument in an overriddent
+       ``IndexBuilder.feed()`` method.
+     - 2.0
+     - 4.0
+     - ``IndexBuilder.feed(docname, filename, title, doctree)``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.application.Sphinx._setting_up_extension``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - The ``importer`` argument of ``sphinx.ext.autodoc.importer._MockModule``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer._MockImporter``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxBaseFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxFileInput.supported``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.io.SphinxRSTFileInput``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.collect_footnotes()``
+     - 2.0
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.texinfo.TexinfoTranslator._make_visit_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
+
+   * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
+     - 2.0
+     - 3.0
+     - N/A
 
    * - :rst:dir:`highlightlang`
      - 1.8

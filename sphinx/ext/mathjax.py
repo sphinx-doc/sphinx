@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.mathjax
     ~~~~~~~~~~~~~~~~~~
@@ -12,10 +11,13 @@
 """
 
 import json
+from typing import cast
 
 from docutils import nodes
 
 import sphinx
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
@@ -25,10 +27,11 @@ if False:
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math) -> None
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node.astext()) +
@@ -37,7 +40,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, nodes.Node) -> None
+    # type: (HTMLTranslator, nodes.math_block) -> None
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
         self.body.append(self.encode(node.astext()))
@@ -77,20 +80,22 @@ def install_mathjax(app, env):
         raise ExtensionError('mathjax_path config value must be set for the '
                              'mathjax extension to work')
 
-    if env.get_domain('math').has_equations():  # type: ignore
+    builder = cast(StandaloneHTMLBuilder, app.builder)
+    domain = cast(MathDomain, env.get_domain('math'))
+    if domain.has_equations():
         # Enable mathjax only if equations exists
         options = {'async': 'async'}
         if app.config.mathjax_options:
             options.update(app.config.mathjax_options)
-        app.builder.add_js_file(app.config.mathjax_path, **options)  # type: ignore
+        builder.add_js_file(app.config.mathjax_path, **options)
 
         if app.config.mathjax_config:
             body = "MathJax.Hub.Config(%s)" % json.dumps(app.config.mathjax_config)
-            app.builder.add_js_file(None, type="text/x-mathjax-config", body=body)  # type: ignore  # NOQA
+            builder.add_js_file(None, type="text/x-mathjax-config", body=body)
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_html_math_renderer('mathjax',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))
@@ -98,7 +103,7 @@ def setup(app):
     # more information for mathjax secure url is here:
     # https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
-                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
+                         'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
                          'config=TeX-AMS-MML_HTMLorMML', 'html')
     app.add_config_value('mathjax_options', {}, 'html')
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')

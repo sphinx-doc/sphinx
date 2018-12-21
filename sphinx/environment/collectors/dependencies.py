@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.collectors.dependencies
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -9,12 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 from os import path
 
 from docutils.utils import relative_path
 
 from sphinx.environment.collectors import EnvironmentCollector
-from sphinx.util.osutil import getcwd, fs_encoding
+from sphinx.util.osutil import fs_encoding
 
 if False:
     # For type annotation
@@ -28,19 +28,19 @@ class DependenciesCollector(EnvironmentCollector):
     """dependencies collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.dependencies.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process docutils-generated dependency info."""
-        cwd = getcwd()
+        cwd = os.getcwd()
         frompath = path.join(path.normpath(app.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:

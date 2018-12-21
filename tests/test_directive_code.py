@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_directive_code
     ~~~~~~~~~~~~~~~~~~~
@@ -95,10 +94,10 @@ def test_LiteralIncludeReader_lines1(literal_inc_path):
     options = {'lines': '1-4'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"# Literally included file using Python highlighting\n"
-                       u"# -*- coding: utf-8 -*-\n"
-                       u"\n"
-                       u"foo = \"Including Unicode characters: üöä\"\n")
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "# -*- coding: utf-8 -*-\n"
+                       "\n"
+                       "foo = \"Including Unicode characters: üöä\"\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -106,9 +105,9 @@ def test_LiteralIncludeReader_lines2(literal_inc_path):
     options = {'lines': '1,4,6'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"# Literally included file using Python highlighting\n"
-                       u"foo = \"Including Unicode characters: üöä\"\n"
-                       u"class Foo:\n")
+    assert content == ("# Literally included file using Python highlighting\n"
+                       "foo = \"Including Unicode characters: üöä\"\n"
+                       "class Foo:\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -116,9 +115,9 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
     options = {'lines': '4-6', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
-    assert content == (u"foo = \"Including Unicode characters: üöä\"\n"
-                       u"\n"
-                       u"class Foo:\n")
+    assert content == ("foo = \"Including Unicode characters: üöä\"\n"
+                       "\n"
+                       "class Foo:\n")
     assert reader.lineno_start == 4
 
 
@@ -312,11 +311,11 @@ def test_code_block(app, status, warning):
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
-    caption = (u'<div class="code-block-caption">'
-               u'<span class="caption-number">Listing 1 </span>'
-               u'<span class="caption-text">caption <em>test</em> rb'
-               u'</span><a class="headerlink" href="#id1" '
-               u'title="Permalink to this code">\xb6</a></div>')
+    caption = ('<div class="code-block-caption">'
+               '<span class="caption-number">Listing 1 </span>'
+               '<span class="caption-text">caption <em>test</em> rb'
+               '</span><a class="headerlink" href="#id1" '
+               'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
 
@@ -355,6 +354,8 @@ def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
+    assert includes in latex
+    includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
 
 
@@ -460,11 +461,11 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
-    caption = (u'<div class="code-block-caption">'
-               u'<span class="caption-number">Listing 2 </span>'
-               u'<span class="caption-text">caption <strong>test</strong> py'
-               u'</span><a class="headerlink" href="#id2" '
-               u'title="Permalink to this code">\xb6</a></div>')
+    caption = ('<div class="code-block-caption">'
+               '<span class="caption-number">Listing 2 </span>'
+               '<span class="caption-text">caption <strong>test</strong> py'
+               '</span><a class="headerlink" href="#id2" '
+               'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
 

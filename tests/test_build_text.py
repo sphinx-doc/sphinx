@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_text
     ~~~~~~~~~~~~~~~
@@ -12,7 +11,7 @@
 import pytest
 from docutils.utils import column_width
 
-from sphinx.writers.text import MAXWIDTH
+from sphinx.writers.text import MAXWIDTH, Table, Cell
 
 
 def with_text_app(*args, **kw):
@@ -50,12 +49,12 @@ def test_lineblock(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'lineblock.txt').text(encoding='utf-8')
     expect = (
-        u"* one\n"
-        u"\n"
-        u"     line-block 1\n"
-        u"     line-block 2\n"
-        u"\n"
-        u"followed paragraph.\n"
+        "* one\n"
+        "\n"
+        "     line-block 1\n"
+        "     line-block 2\n"
+        "\n"
+        "followed paragraph.\n"
     )
     assert result == expect
 
@@ -87,6 +86,41 @@ def test_nonascii_maxwidth(app, status, warning):
     assert max(line_widths) < MAXWIDTH
 
 
+def test_table_builder():
+    table = Table([6, 6])
+    table.add_cell(Cell("foo"))
+    table.add_cell(Cell("bar"))
+    table_str = str(table).split("\n")
+    assert table_str[0] == "+--------+--------+"
+    assert table_str[1] == "| foo    | bar    |"
+    assert table_str[2] == "+--------+--------+"
+    assert repr(table).count("<Cell ") == 2
+
+
+def test_table_separator():
+    table = Table([6, 6])
+    table.add_cell(Cell("foo"))
+    table.add_cell(Cell("bar"))
+    table.set_separator()
+    table.add_row()
+    table.add_cell(Cell("FOO"))
+    table.add_cell(Cell("BAR"))
+    table_str = str(table).split("\n")
+    assert table_str[0] == "+--------+--------+"
+    assert table_str[1] == "| foo    | bar    |"
+    assert table_str[2] == "|========|========|"
+    assert table_str[3] == "| FOO    | BAR    |"
+    assert table_str[4] == "+--------+--------+"
+    assert repr(table).count("<Cell ") == 4
+
+
+def test_table_cell():
+    cell = Cell("Foo bar baz")
+    cell.wrap(3)
+    assert "Cell" in repr(cell)
+    assert cell.wrapped == ["Foo", "bar", "baz"]
+
+
 @with_text_app()
 def test_table_with_empty_cell(app, status, warning):
     app.builder.build_update()
@@ -99,6 +133,63 @@ def test_table_with_empty_cell(app, status, warning):
     assert lines[4] == "+-------+-------+"
     assert lines[5] == "| XXX   |       |"
     assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_rowspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_rowspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXXXXXXXX     |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "|       | XXX   |"
+    assert lines[4] == "+-------+-------+"
+    assert lines[5] == "| XXX   |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXX   | XXX   |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "|       | XXX   |"
+    assert lines[4] == "+-------+       |"
+    assert lines[5] == "| XXX   |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan_left(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan_left.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXX   | XXX   |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "| XXX   | XXX   |"
+    assert lines[4] == "|       +-------+"
+    assert lines[5] == "|       |       |"
+    assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_table_with_colspan_and_rowspan(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'table_colspan_and_rowspan.txt').text(encoding='utf-8')
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert result
+    assert lines[0] == "+-------+-------+-------+"
+    assert lines[1] == "| AAA           | BBB   |"
+    assert lines[2] == "+-------+-------+       |"
+    assert lines[3] == "| DDD   | XXX   |       |"
+    assert lines[4] == "|       +-------+-------+"
+    assert lines[5] == "|       | CCC           |"
+    assert lines[6] == "+-------+-------+-------+"
 
 
 @with_text_app()
@@ -116,8 +207,8 @@ def test_list_items_in_admonition(app, status, warning):
 @with_text_app()
 def test_secnums(app, status, warning):
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* 1. Section A"
     assert lines[1] == ""
     assert lines[2] == "* 2. Section B"
@@ -142,8 +233,8 @@ def test_secnums(app, status, warning):
 
     app.config.text_secnumber_suffix = " "
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* 1 Section A"
     assert lines[1] == ""
     assert lines[2] == "* 2 Section B"
@@ -168,8 +259,8 @@ def test_secnums(app, status, warning):
 
     app.config.text_add_secnumbers = False
     app.builder.build_all()
-    contents = (app.outdir / 'contents.txt').text(encoding='utf8')
-    lines = contents.splitlines()
+    index = (app.outdir / 'index.txt').text(encoding='utf8')
+    lines = index.splitlines()
     assert lines[0] == "* Section A"
     assert lines[1] == ""
     assert lines[2] == "* Section B"

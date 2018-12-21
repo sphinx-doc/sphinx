@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_latex
     ~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import re
@@ -17,11 +15,10 @@ from shutil import copyfile
 from subprocess import Popen, PIPE
 
 import pytest
-from six import PY3
 from test_build_html import ENV_WARNINGS
 
 from sphinx.errors import SphinxError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
@@ -39,9 +36,6 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for latex builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
 # only run latex if all needed packages are there
@@ -71,6 +65,7 @@ def compile_latex_document(app):
             copyfile('SphinxTests.tex',
                      app.config.latex_engine + '/SphinxTests.tex')
             p = Popen([app.config.latex_engine,
+                       '--halt-on-error',
                        '--interaction=nonstopmode',
                        '-output-directory=%s' % app.config.latex_engine,
                        'SphinxTests.tex'],
@@ -112,6 +107,7 @@ def skip_if_stylefiles_notfound(testfunc):
 def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
     app.config.latex_documents[0] = app.config.latex_documents[0][:4] + (docclass,)
+    app.builder.init_context()
 
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
@@ -148,6 +144,8 @@ def test_writer(app, status, warning):
             '\\caption{figure with align \\& width option}'
             '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}' in result)
+
+    assert 'Footnotes' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
@@ -323,25 +321,25 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert u'\\renewcommand{\\figurename}{\u56f3}' in result  # 図
-    assert u'\\renewcommand{\\tablename}{\u8868}' in result  # 表
-    assert u'\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
-    assert (u'\\hyperref[\\detokenize{index:fig1}]'
-            u'{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
+    assert '\\renewcommand{\\figurename}{\u56f3}' in result  # 図
+    assert '\\renewcommand{\\tablename}{\u8868}' in result  # 表
+    assert '\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
+    assert ('\\hyperref[\\detokenize{index:fig1}]'
+            '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
             '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
-    assert (u'\\hyperref[\\detokenize{index:table-1}]'
-            u'{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{\u8868 \\ref{\\detokenize{index:table-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
-    assert (u'\\hyperref[\\detokenize{index:code-1}]'
-            u'{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]'
+            '{\u30ea\u30b9\u30c8 \\ref{\\detokenize{index:code-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
-    assert (u'\\hyperref[\\detokenize{foo:foo}]'
-            u'{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
-    assert (u'\\hyperref[\\detokenize{bar:bar-a}]'
-            u'{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]'
+            '{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
+    assert ('\\hyperref[\\detokenize{bar:bar-a}]'
+            '{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
     assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
@@ -423,8 +421,12 @@ def test_babel_with_no_language_settings(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx(
@@ -444,8 +446,12 @@ def test_babel_with_language_de(app, status, warning):
             in result)
     assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasngerman{\\def\\pageautorefname{Seite}}\n' in result
     assert '\\shorthandoff{"}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{Seite}' in result
 
 
 @pytest.mark.sphinx(
@@ -465,9 +471,12 @@ def test_babel_with_language_ru(app, status, warning):
             in result)
     assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
-            u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
     assert '\\shorthandoff{"}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{страница}' in result
 
 
 @pytest.mark.sphinx(
@@ -487,8 +496,12 @@ def test_babel_with_language_tr(app, status, warning):
             in result)
     assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasturkish{\\def\\pageautorefname{sayfa}}\n' in result
     assert '\\shorthandoff{=}' in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{sayfa}' in result
 
 
 @pytest.mark.sphinx(
@@ -507,8 +520,12 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\renewcommand{\\figurename}{Fig.}\n' in result
     assert '\\renewcommand{\\tablename}{Table.}\n' in result
-    assert u'\\def\\pageautorefname{ページ}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{ページ}' in result
 
 
 @pytest.mark.sphinx(
@@ -528,10 +545,14 @@ def test_babel_with_unknown_language(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx(
@@ -552,8 +573,12 @@ def test_polyglossia_with_language_de(app, status, warning):
             in result)
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\def\\pageautorefname{Seite}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{Seite}' in result
 
 
 @pytest.mark.sphinx(
@@ -574,8 +599,12 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
             in result)
     assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
     assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
-    assert '\\def\\pageautorefname{page}\n' in result
     assert '\\shorthandoff' not in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\def\pageautorefname{page}' in result
 
 
 @pytest.mark.sphinx('latex')
@@ -1273,7 +1302,7 @@ def test_latex_glossary(app, status, warning):
     app.builder.build_all()
 
     result = (app.outdir / 'test.tex').text(encoding='utf8')
-    assert (u'\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
+    assert ('\\item[{änhlich\\index{änhlich@\\spxentry{änhlich}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-anhlich}}}] \leavevmode' in result)
     assert (r'\item[{boson\index{boson@\spxentry{boson}|spxpagem}\phantomsection'
@@ -1288,7 +1317,7 @@ def test_latex_glossary(app, status, warning):
             r'\label{\detokenize{index:term-myon}}}] \leavevmode'
             r'\item[{electron\index{electron@\spxentry{electron}|spxpagem}\phantomsection'
             r'\label{\detokenize{index:term-electron}}}] \leavevmode' in result)
-    assert (u'\\item[{über\\index{über@\\spxentry{über}|spxpagem}\\phantomsection'
+    assert ('\\item[{über\\index{über@\\spxentry{über}|spxpagem}\\phantomsection'
             r'\label{\detokenize{index:term-uber}}}] \leavevmode' in result)
 
 

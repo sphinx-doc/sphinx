@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.epub3
     ~~~~~~~~~~~~~~~~~~~~~
@@ -13,11 +12,9 @@
 from collections import namedtuple
 from os import path
 
-from six import string_types
-
 from sphinx import package_dir
 from sphinx.builders import _epub_base
-from sphinx.config import string_classes, ENUM
+from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -26,7 +23,7 @@ from sphinx.util.osutil import make_filename
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Iterable, List, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
@@ -53,8 +50,8 @@ THEME_WRITING_MODES = {
 DOCTYPE = '''<!DOCTYPE html>'''
 
 HTML_TAG = (
-    u'<html xmlns="http://www.w3.org/1999/xhtml" '
-    u'xmlns:epub="http://www.idpf.org/2007/ops">'
+    '<html xmlns="http://www.w3.org/1999/xhtml" '
+    'xmlns:epub="http://www.idpf.org/2007/ops">'
 )
 
 
@@ -131,7 +128,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
-        metadata = super(Epub3Builder, self).content_metadata()
+        metadata = super().content_metadata()
         metadata['description'] = self.esc(self.config.epub_description)
         metadata['contributor'] = self.esc(self.config.epub_contributor)
         metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
@@ -142,8 +139,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return metadata
 
     def prepare_writing(self, docnames):
-        # type: (Iterable[unicode]) -> None
-        super(Epub3Builder, self).prepare_writing(docnames)
+        # type: (Set[str]) -> None
+        super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
         self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
@@ -152,7 +149,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.globalcontext['skip_ua_compatible'] = True
 
     def build_navlist(self, navnodes):
-        # type: (List[nodes.Node]) -> List[NavPoint]
+        # type: (List[Dict[str, Any]]) -> List[NavPoint]
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.
@@ -206,7 +203,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         return metadata
 
     def build_navigation_doc(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Write the metainfo file nav.xhtml."""
         logger.info(__('writing %s file...'), outname)
 
@@ -232,9 +229,9 @@ class Epub3Builder(_epub_base.EpubBuilder):
 def convert_epub_css_files(app, config):
     # type: (Sphinx, Config) -> None
     """This converts string styled epub_css_files to tuple styled one."""
-    epub_css_files = []  # type: List[Tuple[unicode, Dict]]
+    epub_css_files = []  # type: List[Tuple[str, Dict]]
     for entry in config.epub_css_files:
-        if isinstance(entry, string_types):
+        if isinstance(entry, str):
             epub_css_files.append((entry, {}))
         else:
             try:
@@ -248,7 +245,7 @@ def convert_epub_css_files(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(Epub3Builder)
 
     # config values
@@ -277,8 +274,8 @@ def setup(app):
     app.add_config_value('epub_max_image_width', 0, 'env')
     app.add_config_value('epub_show_urls', 'inline', 'epub')
     app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'epub')
-    app.add_config_value('epub_description', 'unknown', 'epub', string_classes)
-    app.add_config_value('epub_contributor', 'unknown', 'epub', string_classes)
+    app.add_config_value('epub_description', 'unknown', 'epub')
+    app.add_config_value('epub_contributor', 'unknown', 'epub')
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
                          ENUM('horizontal', 'vertical'))
 

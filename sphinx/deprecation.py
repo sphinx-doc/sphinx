@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.deprecation
     ~~~~~~~~~~~~~~~~~~
@@ -13,12 +12,7 @@ import warnings
 
 if False:
     # For type annotation
-    # note: Don't use typing.TYPE_CHECK here (for py27 and py34).
     from typing import Any, Dict, Type  # NOQA
-
-
-class RemovedInSphinx20Warning(DeprecationWarning):
-    pass
 
 
 class RemovedInSphinx30Warning(PendingDeprecationWarning):
@@ -29,7 +23,7 @@ class RemovedInSphinx40Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx20Warning
+RemovedInNextVersionWarning = RemovedInSphinx30Warning
 
 
 class DeprecatedDict(dict):
@@ -39,29 +33,29 @@ class DeprecatedDict(dict):
         # type: (Dict, str, Type[Warning]) -> None
         self.message = message
         self.warning = warning
-        super(DeprecatedDict, self).__init__(data)
+        super().__init__(data)
 
     def __setitem__(self, key, value):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
-        super(DeprecatedDict, self).__setitem__(key, value)
+        super().__setitem__(key, value)
 
     def setdefault(self, key, default=None):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
-        return super(DeprecatedDict, self).setdefault(key, default)
+        return super().setdefault(key, default)
 
     def __getitem__(self, key):
-        # type: (unicode) -> None
+        # type: (str) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
-        return super(DeprecatedDict, self).__getitem__(key)
+        return super().__getitem__(key)
 
     def get(self, key, default=None):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
-        return super(DeprecatedDict, self).get(key, default)
+        return super().get(key, default)
 
     def update(self, other=None):  # type: ignore
         # type: (Dict) -> None
         warnings.warn(self.message, self.warning, stacklevel=2)
-        super(DeprecatedDict, self).update(other)
+        super().update(other)

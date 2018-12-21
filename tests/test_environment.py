@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_env
     ~~~~~~~~
@@ -69,3 +68,47 @@ def test_object_inventory(app):
 
     assert app.env.domains['py'].data is app.env.domaindata['py']
     assert app.env.domains['c'].data is app.env.domaindata['c']
+
+
+@pytest.mark.sphinx('dummy', testroot='basic')
+def test_env_relfn2path(app):
+    # relative filename and root document
+    relfn, absfn = app.env.relfn2path('logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # absolute filename and root document
+    relfn, absfn = app.env.relfn2path('/logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # relative filename and a document in subdir
+    relfn, absfn = app.env.relfn2path('logo.jpg', 'subdir/index')
+    assert relfn == 'subdir/logo.jpg'
+    assert absfn == app.srcdir / 'subdir' / 'logo.jpg'
+
+    # absolute filename and a document in subdir
+    relfn, absfn = app.env.relfn2path('/logo.jpg', 'subdir/index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # relative filename having subdir
+    relfn, absfn = app.env.relfn2path('images/logo.jpg', 'index')
+    assert relfn == 'images/logo.jpg'
+    assert absfn == app.srcdir / 'images' / 'logo.jpg'
+
+    # relative path traversal
+    relfn, absfn = app.env.relfn2path('../logo.jpg', 'index')
+    assert relfn == '../logo.jpg'
+    assert absfn == app.srcdir.parent / 'logo.jpg'
+
+    # omit docname (w/ current docname)
+    app.env.temp_data['docname'] = 'subdir/document'
+    relfn, absfn = app.env.relfn2path('images/logo.jpg')
+    assert relfn == 'subdir/images/logo.jpg'
+    assert absfn == app.srcdir / 'subdir' / 'images' / 'logo.jpg'
+
+    # omit docname (w/o current docname)
+    app.env.temp_data.clear()
+    with pytest.raises(KeyError):
+        app.env.relfn2path('images/logo.jpg')

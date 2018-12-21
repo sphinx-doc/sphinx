@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_transforms_post_transforms_code
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

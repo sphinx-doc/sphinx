@@ -65,7 +65,7 @@ The WebSupport Class
 
 
 Methods
-~~~~~~~
+-------
 
 .. automethod:: sphinxcontrib.websupport.WebSupport.build
 

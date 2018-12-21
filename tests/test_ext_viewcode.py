@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_viewcode
     ~~~~~~~~~~~~~~~~~
@@ -68,10 +67,10 @@ def test_local_source_files(app, status, warning):
         if modname == 'not_a_package':
             source = (app.srcdir / 'not_a_package/__init__.py').text()
             tags = {
-                'func1': ('def', 3, 3),
-                'Class1': ('class', 3, 3),
-                'not_a_package.submodule.func1': ('def', 3, 3),
-                'not_a_package.submodule.Class1': ('class', 3, 3),
+                'func1': ('def', 1, 1),
+                'Class1': ('class', 1, 1),
+                'not_a_package.submodule.func1': ('def', 1, 1),
+                'not_a_package.submodule.Class1': ('class', 1, 1),
             }
         else:
             source = (app.srcdir / 'not_a_package/submodule.py').text()

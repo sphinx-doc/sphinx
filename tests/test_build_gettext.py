@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_gettext
     ~~~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import gettext
 import os
@@ -72,7 +70,7 @@ def test_msgfmt(app):
         assert mo.isfile(), 'msgfmt failed'
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    assert _("Testing various markup") == u"Testing various markup"
+    assert _("Testing various markup") == "Testing various markup"
 
 
 @pytest.mark.sphinx(

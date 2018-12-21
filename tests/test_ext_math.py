@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_math
     ~~~~~~~~~~~~~
@@ -23,12 +22,10 @@ from sphinx.testing.util import assert_node
 def has_binary(binary):
     try:
         subprocess.check_output([binary])
-    except OSError as e:
-        if e.errno == errno.ENOENT:
-            # handle file not found error.
-            return False
-        else:
-            return True
+    except FileNotFoundError:
+        return False
+    except OSError:
+        pass
     return True
 
 
@@ -42,14 +39,14 @@ def test_jsmath(app, status, warning):
     assert '<div class="math notranslate nohighlight">\na^2 + b^2 = c^2</div>' in content
     assert ('<div class="math notranslate nohighlight">\n\\begin{split}a + 1 &lt; '
             'b\\end{split}</div>' in content)
-    assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-foo">'
+    assert ('<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-foo">'
             '\ne^{i\\pi} = 1</div>' in content)
-    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-math-0">\n'
-            u'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert ('<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-math-0">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math notranslate nohighlight">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math notranslate nohighlight">\na + 1 &lt; b</div>' in content
 
@@ -97,7 +94,7 @@ def test_mathjax_options(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
     assert ('<script async="async" integrity="sha384-0123456789" type="text/javascript" '
-            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
+            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
             'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
 
 

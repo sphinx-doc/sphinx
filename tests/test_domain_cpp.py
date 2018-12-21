@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_domain_cpp
     ~~~~~~~~~~~~~~~
@@ -22,7 +21,7 @@ from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
 
 
 def parse(name, string):
-    class Config(object):
+    class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
@@ -43,7 +42,7 @@ def check(name, input, idDict, output=None):
     res = text_type(ast)
     if res != output:
         print("")
-        print("Input:    ", text_type(input))
+        print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
@@ -74,19 +73,19 @@ def check(name, input, idDict, output=None):
         res.append(idExpected[i] == idActual[i])
 
     if not all(res):
-        print("input:    %s" % text_type(input).rjust(20))
+        print("input:    %s" % input.rjust(20))
         for i in range(1, _max_id + 1):
             if res[i]:
                 continue
             print("Error in id version %d." % i)
-            print("result:   %s" % str(idActual[i]))
-            print("expected: %s" % str(idExpected[i]))
+            print("result:   %s" % idActual[i])
+            print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':
@@ -124,8 +123,20 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     for suffix in ['', 'f', 'F', 'l', 'L']:
-        expr = '5.0' + suffix
-        exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                '5e42', '5e+42', '5e-42',
+                '5.', '5.e42', '5.e+42', '5.e-42',
+                '.5', '.5e42', '.5e+42', '.5e-42',
+                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+            expr = e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                'ApF', 'Ap+F', 'Ap-F',
+                'A.', 'A.pF', 'A.p+F', 'A.p-F',
+                '.A', '.ApF', '.Ap+F', '.Ap-F',
+                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+            expr = "0x" + e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals
@@ -804,7 +815,7 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-    class RoleClasses(object):
+    class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
         def __init__(self, role, root, contents):

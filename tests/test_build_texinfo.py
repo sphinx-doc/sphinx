@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_texinfo
     ~~~~~~~~~~~~~~~~~~
@@ -8,17 +7,17 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import re
 from subprocess import Popen, PIPE
 
 import pytest
-from six import PY3
 from test_build_html import ENV_WARNINGS
 
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.builders.texinfo import default_texinfo_documents
+from sphinx.config import Config
+from sphinx.testing.util import strip_escseq
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
@@ -29,9 +28,6 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for texinfo builder not found: \
 \\['application/pdf', 'image/svg\\+xml'\\] \\(svgimg.\\*\\)
 """
-
-if PY3:
-    TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
 @pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
@@ -50,16 +46,17 @@ def test_texinfo_warnings(app, status, warning):
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    result = (app.outdir / 'SphinxTests.texi').text(encoding='utf8')
-    assert ('@anchor{markup doc}@anchor{12}'
-            '@anchor{markup id1}@anchor{13}'
-            '@anchor{markup testing-various-markup}@anchor{14}' in result)
+    result = (app.outdir / 'sphinxtests.texi').text(encoding='utf8')
+    assert ('@anchor{markup doc}@anchor{11}'
+            '@anchor{markup id1}@anchor{12}'
+            '@anchor{markup testing-various-markup}@anchor{13}' in result)
+    assert 'Footnotes' not in result
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['makeinfo', '--no-split', 'SphinxTests.texi'],
+            p = Popen(['makeinfo', '--no-split', 'sphinxtests.texi'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
             raise pytest.skip.Exception  # most likely makeinfo was not found
@@ -93,3 +90,14 @@ def test_texinfo_citation(app, status, warning):
             'This is a citation\n') in output
     assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
             'This is a multiline citation\n') in output
+
+
+def test_default_texinfo_documents():
+    config = Config({'master_doc': 'index',
+                     'project': 'STASI™ Documentation',
+                     'author': "Wolfgang Schäuble & G'Beckstein"})
+    config.init_values()
+    expected = [('index', 'stasi', 'STASI™ Documentation',
+                 "Wolfgang Schäuble & G'Beckstein", 'stasi',
+                 'One line description of project', 'Miscellaneous')]
+    assert default_texinfo_documents(config) == expected

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util_images
     ~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import pytest
 
@@ -19,7 +17,7 @@ from sphinx.util.images import (
 GIF_FILENAME = 'img.gif'
 PNG_FILENAME = 'img.png'
 PDF_FILENAME = 'img.pdf'
-TXT_FILENAME = 'contents.txt'
+TXT_FILENAME = 'index.txt'
 
 
 @pytest.fixture(scope='module')

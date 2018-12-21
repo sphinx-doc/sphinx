@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_html
     ~~~~~~~~~~~~~~~
@@ -16,10 +15,9 @@ from itertools import cycle, chain
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
-from six import PY3
 
 from sphinx.errors import ConfigError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
 
@@ -30,10 +28,10 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
-file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
@@ -44,10 +42,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
-    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
 etree_cache = {}
@@ -158,11 +152,11 @@ def test_html_warnings(app, warning):
         (".//pre/span", 'line 2'),
     ],
     'includes.html': [
-        (".//pre", u'Max Strauß'),
+        (".//pre", 'Max Strauß'),
         (".//a[@class='reference download internal']", ''),
-        (".//pre/span", u'"quotes"'),
-        (".//pre/span", u"'included'"),
-        (".//pre/span[@class='s2']", u'üöä'),
+        (".//pre/span", '"quotes"'),
+        (".//pre/span", "'included'"),
+        (".//pre/span[@class='s2']", 'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
@@ -170,7 +164,7 @@ def test_html_warnings(app, warning):
         (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text notranslate']//pre",
-         u'^foo = "Including Unicode characters: üöä"\\n$'),
+         '^foo = "Including Unicode characters: üöä"\\n$'),
         (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
@@ -210,7 +204,7 @@ def test_html_warnings(app, warning):
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
         (".//li/kbd", r'^kbd\\n$'),
-        (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/span", 'File \N{TRIANGULAR BULLET} Close'),
         (".//li/code/span[@class='pre']", '^a/$'),
         (".//li/code/em/span[@class='pre']", '^varpart$'),
         (".//li/code/em/span[@class='pre']", '^i$'),
@@ -248,7 +242,7 @@ def test_html_warnings(app, warning):
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -271,12 +265,12 @@ def test_html_warnings(app, warning):
         # tests for numeric labels
         (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
-        (".//li", u'Smart “quotes” in English ‘text’.'),
-        (".//li", u'Smart — long and – short dashes.'),
-        (".//li", u'Ellipsis…'),
+        (".//li", 'Smart “quotes” in English ‘text’.'),
+        (".//li", 'Smart — long and – short dashes.'),
+        (".//li", 'Ellipsis…'),
         (".//li//code//span[@class='pre']", 'foo--"bar"...'),
-        (".//p", u'Этот «абзац» должен использовать „русские“ кавычки.'),
-        (".//p", u'Il dit : « C’est “super” ! »'),
+        (".//p", 'Этот «абзац» должен использовать „русские“ кавычки.'),
+        (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
@@ -347,7 +341,7 @@ def test_html_warnings(app, warning):
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),

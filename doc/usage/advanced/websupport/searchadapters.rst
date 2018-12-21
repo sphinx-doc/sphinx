@@ -26,13 +26,13 @@ documentation of the :class:`BaseSearch` class below.
    BaseSearch class is moved to sphinxcontrib.websupport.search from
    sphinx.websupport.search.
 
-BaseSearch Methods
-~~~~~~~~~~~~~~~~~~
+Methods
+-------
 
-   The following methods are defined in the BaseSearch class. Some methods do
-   not need to be overridden, but some (:meth:`~BaseSearch.add_document` and
-   :meth:`~BaseSearch.handle_query`) must be overridden in your subclass. For a
-   working example, look at the built-in adapter for whoosh.
+The following methods are defined in the BaseSearch class. Some methods do not
+need to be overridden, but some (:meth:`~BaseSearch.add_document` and
+:meth:`~BaseSearch.handle_query`) must be overridden in your subclass. For a
+working example, look at the built-in adapter for whoosh.
 
 .. automethod:: BaseSearch.init_indexing
 

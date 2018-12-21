@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sphinx.util.jsdump import dumps, loads
 
 
@@ -11,7 +10,7 @@ def test_jsdump():
     assert dumps(data) == '{a1:1}'
     assert data == loads(dumps(data))
 
-    data = {u'a\xe8': 1}
+    data = {'a\xe8': 1}
     assert dumps(data) == '{"a\\u00e8":1}'
     assert data == loads(dumps(data))
 

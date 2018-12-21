@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.cmd.quickstart
     ~~~~~~~~~~~~~~~~~~~~~
@@ -8,8 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 import argparse
 import locale
@@ -17,9 +14,10 @@ import os
 import re
 import sys
 import time
+import warnings
 from collections import OrderedDict
-from io import open
 from os import path
+from urllib.parse import quote
 
 # try to import readline, unix specific enhancement
 try:
@@ -34,12 +32,11 @@ except ImportError:
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
-from six import PY2, PY3, text_type, binary_type
-from six.moves import input
-from six.moves.urllib.parse import quote as urlquote
+from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
@@ -52,7 +49,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, List, Pattern, Union  # NOQA
 
-TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
+TERM_ENCODING = getattr(sys.stdin, 'encoding', None)  # RemovedInSphinx40Warning
 
 EXTENSIONS = OrderedDict([
     ('autodoc', __('automatically insert docstrings from modules')),
@@ -91,7 +88,7 @@ else:
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     if sys.platform == 'win32':
         # Important: On windows, readline is not enabled by default.  In these
         #            environment, escape sequences have been broken.  To avoid the
@@ -107,29 +104,29 @@ class ValidationError(Exception):
 
 
 def is_path(x):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     x = path.expanduser(x)
-    if path.exists(x) and not path.isdir(x):
+    if not path.isdir(x):
         raise ValidationError(__("Please enter a valid path name."))
     return x
 
 
 def allow_empty(x):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return x
 
 
 def nonempty(x):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     if not x:
         raise ValidationError(__("Please enter some text."))
     return x
 
 
 def choice(*l):
-    # type: (unicode) -> Callable[[unicode], unicode]
+    # type: (str) -> Callable[[str], str]
     def val(x):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         if x not in l:
             raise ValidationError(__('Please enter one of %s.') % ', '.join(l))
         return x
@@ -137,14 +134,14 @@ def choice(*l):
 
 
 def boolean(x):
-    # type: (unicode) -> bool
+    # type: (str) -> bool
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
         raise ValidationError(__("Please enter either 'y' or 'n'."))
     return x.upper() in ('Y', 'YES')
 
 
 def suffix(x):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     if not (x[0:1] == '.' and len(x) > 1):
         raise ValidationError(__("Please enter a file suffix, "
                                  "e.g. '.rst' or '.txt'."))
@@ -152,12 +149,15 @@ def suffix(x):
 
 
 def ok(x):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return x
 
 
 def term_decode(text):
-    # type: (Union[bytes,unicode]) -> unicode
+    # type: (Union[bytes,str]) -> str
+    warnings.warn('term_decode() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
+
     if isinstance(text, text_type):
         return text
 
@@ -173,32 +173,18 @@ def term_decode(text):
                        'and terminal encoding unknown -- assuming '
                        'UTF-8 or Latin-1.')))
     try:
-        return text.decode('utf-8')
+        return text.decode()
     except UnicodeDecodeError:
         return text.decode('latin1')
 
 
 def do_prompt(text, default=None, validator=nonempty):
-    # type: (unicode, unicode, Callable[[unicode], Any]) -> Union[unicode, bool]
+    # type: (str, str, Callable[[str], Any]) -> Union[str, bool]
     while True:
         if default is not None:
-            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)  # type: unicode
+            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
-        if PY2:
-            # for Python 2.x, try to get a Unicode string out of it
-            if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
-                    != prompt:
-                if TERM_ENCODING:
-                    prompt = prompt.encode(TERM_ENCODING)
-                else:
-                    print(turquoise(__('* Note: non-ASCII default value provided '
-                                       'and terminal encoding unknown -- assuming '
-                                       'UTF-8 or Latin-1.')))
-                    try:
-                        prompt = prompt.encode('utf-8')
-                    except UnicodeEncodeError:
-                        prompt = prompt.encode('latin1')
         if USE_LIBEDIT:
             # Note: libedit has a problem for combination of ``input()`` and escape
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
@@ -209,7 +195,6 @@ def do_prompt(text, default=None, validator=nonempty):
         x = term_input(prompt).strip()
         if default and not x:
             x = default
-        x = term_decode(x)
         try:
             x = validator(x)
         except ValidationError as err:
@@ -220,27 +205,26 @@ def do_prompt(text, default=None, validator=nonempty):
 
 
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
-    # type: (unicode, Pattern) -> unicode
+    # type: (str, Pattern) -> str
     # remove Unicode literal prefixes
-    if PY3:
-        return rex.sub('\\1', source)
-    else:
-        return source
+    warnings.warn('convert_python_source() is deprecated.',
+                  RemovedInSphinx40Warning)
+    return rex.sub('\\1', source)
 
 
 class QuickstartRenderer(SphinxRenderer):
     def __init__(self, templatedir):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.templatedir = templatedir or ''
-        super(QuickstartRenderer, self).__init__()
+        super().__init__()
 
     def render(self, template_name, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         user_template = path.join(self.templatedir, path.basename(template_name))
         if self.templatedir and path.exists(user_template):
             return self.render_from_file(user_template, context)
         else:
-            return super(QuickstartRenderer, self).render(template_name, context)
+            return super().render(template_name, context)
 
 
 def ask_user(d):
@@ -388,7 +372,7 @@ directly.'''))
 
 
 def generate(d, overwrite=True, silent=False, templatedir=None):
-    # type: (Dict, bool, bool, unicode) -> None
+    # type: (Dict, bool, bool, str) -> None
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
@@ -399,9 +383,9 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
-    d['PY3'] = PY3
+    d['PY3'] = True
     d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = urlquote(d['project'].encode('idna'))
+    d['project_url'] = quote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
@@ -420,8 +404,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
                 'version', 'release', 'master'):
         d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
-    if not path.isdir(d['path']):
-        ensuredir(d['path'])
+    ensuredir(d['path'])
 
     srcdir = d['sep'] and path.join(d['path'], 'source') or d['path']
 
@@ -441,7 +424,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     ensuredir(path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath, content, newline=None):
-        # type: (unicode, unicode, unicode) -> None
+        # type: (str, str, str) -> None
         if overwrite or not path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
@@ -455,7 +438,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     if not conf_path or not path.isfile(conf_path):
         conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
     with open(conf_path) as f:
-        conf_text = convert_python_source(f.read())
+        conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
@@ -474,13 +457,13 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'),
-                   template.render(makefile_template, d), u'\n')
+                   template.render(makefile_template, d), '\n')
 
     if d['batchfile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'),
-                   template.render(batchfile_template, d), u'\r\n')
+                   template.render(batchfile_template, d), '\r\n')
 
     if silent:
         return
@@ -613,7 +596,7 @@ Makefile to be used with sphinx-build.
 
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     if not color_terminal():
@@ -658,11 +641,6 @@ def main(argv=sys.argv[1:]):
         print()
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
-
-    # decode values in d if value is a Python string literal
-    for key, value in d.items():
-        if isinstance(value, binary_type):
-            d[key] = term_decode(value)
 
     # handle use of CSV-style extension values
     d.setdefault('extensions', [])
