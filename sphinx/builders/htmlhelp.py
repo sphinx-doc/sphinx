@@ -13,6 +13,7 @@ from __future__ import print_function
 
 import codecs
 import os
+import re
 from os import path
 
 from docutils import nodes
@@ -33,6 +34,16 @@ if False:
 
 logger = logging.getLogger(__name__)
 
+# chm_htmlescape() is a wrapper of htmlescape()
+# .hhc/.hhk files don't recognize hex escaping, we need convert
+# hex escaping to decimal escaping. for example: &#x27; -> &#39;
+def chm_htmlescape(*args, **kwargs):
+    def convert(matchobj):
+        codepoint = int(matchobj.group(1), 16)
+        return '&#%d;' % codepoint
+    return re.sub(r'&#[xX]([0-9a-fA-F]+);',
+                  convert,
+                  htmlescape(*args, **kwargs))
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
 # the pythlp in pythlp.hhp); 'version' is the doc version number (like
@@ -278,7 +289,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -311,7 +322,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = htmlescape(title)
+                title = chm_htmlescape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
