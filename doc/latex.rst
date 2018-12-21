@@ -395,8 +395,20 @@ Macros
 
   .. versionchanged:: 1.5
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
-- the ``\maketitle`` command is redefined by the class files
-  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
+- a custom ``\sphinxmaketitle`` is defined in the class files
+  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls` and is used as
+  default setting of ``'maketitle'`` :confval:`latex_elements` key.
+
+  .. versionchanged:: 1.8.3
+     formerly, ``\maketitle`` from LaTeX document class was modified by
+     Sphinx.
+- for ``'manual'`` docclass a macro ``\sphinxbackoftitlepage``, if it is
+  defined, gets executed at end of ``\sphinxmaketitle``, before the final
+  ``\clearpage``.  Use either the ``'maketitle'`` key or the ``'preamble'`` key
+  of :confval:`latex_elements` to add a custom definition of
+  ``\sphinxbackoftitlepage``.
+
+  .. versionadded:: 1.8.3
 - the citation reference is typeset via ``\sphinxcite`` which is a wrapper
   of standard ``\cite``.
 

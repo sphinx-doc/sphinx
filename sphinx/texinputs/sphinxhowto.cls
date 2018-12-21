@@ -30,7 +30,7 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
+\newcommand{\sphinxmaketitle}{%
   \noindent\rule{\textwidth}{1pt}\par
     \begingroup % for PDF information dictionary
        \def\endgraf{ }\def\and{\& }%
