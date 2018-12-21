@@ -62,7 +62,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.permalink_text = self.config.html_add_permalinks
         # support backwards-compatible setting to a bool
         if not isinstance(self.permalink_text, str):
-            self.permalink_text = self.permalink_text and '\u00B6' or ''
+            self.permalink_text = self.permalink_text and '¶' or ''
         self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''

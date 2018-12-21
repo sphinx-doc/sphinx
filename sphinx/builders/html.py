@@ -1633,7 +1633,7 @@ def setup(app):
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', '\u00B6', 'html')
+    app.add_config_value('html_add_permalinks', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
     app.add_config_value('html_split_index', False, 'html')
     app.add_config_value('html_copy_source', True, 'html')
