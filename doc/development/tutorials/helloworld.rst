@@ -62,7 +62,7 @@ in all directives:
 .. rubric:: Directive declaration
 
 Our new directive is declared in the ``HelloWorld`` class, it extends
-docutils_' code:`Directive` class. All extensions that create directives
+docutils_' ``Directive`` class. All extensions that create directives
 should extend this class.
 
 .. rubric:: ``run`` method
@@ -83,7 +83,7 @@ available: text, paragraph, reference, table, etc.
 
 .. seealso::
 
-   `docutils nodes`_
+   `The docutils documentation on nodes <docutils nodes>`_
 
 The ``nodes.paragraph`` class creates a new paragraph node. A paragraph
 node typically contains some text that we can set during instantiation using
