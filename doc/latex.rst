@@ -365,6 +365,8 @@ Here are some macros from the package file :file:`sphinx.sty` and class files
 :file:`sphinxhowto.cls`, :file:`sphinxmanual.cls`, which have public names
 thus allowing redefinitions. Check the respective files for the defaults.
 
+.. _latex-macros:
+
 Macros
 ~~~~~~
 
@@ -390,11 +392,18 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
-  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
-  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
+  wrapper (defined differently in :file:`sphinxhowto.cls` and in
+  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro
+  ``\sphinxtableofcontentshook`` is executed during its expansion right before
+  ``\tableofcontents`` itself.
 
   .. versionchanged:: 1.5
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
+  .. versionchanged:: 2.0
+     hard-coded redefinitions of ``\l@section`` and ``\l@subsection`` formerly
+     done during loading of ``'manual'`` docclass are now executed later via
+     ``\sphinxtableofcontentshook``.  This macro is also executed by the
+     ``'howto'`` docclass, but defaults to empty with it.
 - the ``\maketitle`` command is redefined by the class files
   :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
 - the citation reference is typeset via ``\sphinxcite`` which is a wrapper

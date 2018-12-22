@@ -57,15 +57,16 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\newcommand{\sphinxtableofcontents}{
+\newcommand{\sphinxtableofcontents}{%
   \begingroup
-    \parskip = 0mm
+    \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \rule{\textwidth}{1pt}
-  \vspace{12pt}
+  \noindent\rule{\textwidth}{1pt}\par
+  \vspace{12pt}%
 }  
-
+\newcommand\sphinxtableofcontentshook{}
 \pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
