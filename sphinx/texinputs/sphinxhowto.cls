@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2018/09/18 v1.8.1 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2018/12/22 v1.8.3 Document class (Sphinx howto)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
