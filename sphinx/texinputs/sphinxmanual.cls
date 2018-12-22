@@ -34,8 +34,8 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
-  \let\spx@tempa\relax
-  \ifHy@pageanchor\def\spx@tempa{\Hy@pageanchortrue}\fi
+  \let\sphinxrestorepageanchorsetting\relax
+  \ifHy@pageanchor\def\sphinxrestorepageanchorsetting{\Hy@pageanchortrue}\fi
   \hypersetup{pageanchor=false}% avoid duplicate destination warnings
   \begin{titlepage}%
     \let\footnotesize\small
@@ -70,7 +70,7 @@
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
   \if@openright\cleardoublepage\else\clearpage\fi
-  \spx@tempa
+  \sphinxrestorepageanchorsetting
 }
 
 \newcommand{\sphinxtableofcontents}{%
