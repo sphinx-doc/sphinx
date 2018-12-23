@@ -106,7 +106,7 @@ DEFAULT_SETTINGS = {
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
-    'maketitle':       '\\maketitle',
+    'maketitle':       '\\sphinxmaketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',

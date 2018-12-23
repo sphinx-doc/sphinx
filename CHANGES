@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* LaTeX: it is possible to insert custom material to appear on back of title
+  page, see discussion of ``'maketitle'`` key of :confval:`latex_elements`
+  (``'manual'`` docclass only)
+
 Bugs fixed
 ----------
 
@@ -29,7 +33,10 @@ Bugs fixed
 * #5496 (again): C++, fix assertion in partial builds with duplicates.
 * #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
 * #1956: Default conf.py is not PEP8-compliant
+* #5849: LaTeX: document class ``\maketitle`` is overwritten with no
+  possibility to use original meaning in place of Sphinx custom one
 * #5834: apidoc: wrong help for ``--tocfile``
+* #5800: todo: crashed if todo is defined in TextElement
 * #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 
 Testing
