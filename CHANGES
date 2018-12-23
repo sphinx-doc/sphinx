@@ -45,6 +45,11 @@ Incompatible changes
   block.  As a result, they are highlighted as python3 by default.
 * The order of argument for ``HTMLTranslator``, ``HTML5Translator`` and
   ``ManualPageTranslator`` are changed
+* LaTeX: hard-coded redefinitions of ``\l@section`` and ``\l@subsection``
+  formerly done during loading of ``'manual'`` docclass get executed later, at
+  time of ``\sphinxtableofcontents``.  This means that custom user definitions
+  from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
+  to insert custom user definitions.  See :ref:`latex-macros`.
 
 Deprecated
 ----------

@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2018/12/22 v1.8.3 Document class (Sphinx howto)]
+\ProvidesClass{sphinxhowto}[2018/12/23 v2.0 Document class (Sphinx howto)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -57,15 +57,16 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\newcommand{\sphinxtableofcontents}{
+\newcommand{\sphinxtableofcontents}{%
   \begingroup
-    \parskip = 0mm
+    \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \rule{\textwidth}{1pt}
-  \vspace{12pt}
+  \noindent\rule{\textwidth}{1pt}\par
+  \vspace{12pt}%
 }  
-
+\newcommand\sphinxtableofcontentshook{}
 \pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
