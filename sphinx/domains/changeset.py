@@ -27,6 +27,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
+
 versionlabels = {
     'versionadded':   _('New in version %s'),
     'versionchanged': _('Changed in version %s'),

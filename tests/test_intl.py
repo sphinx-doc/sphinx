@@ -705,20 +705,20 @@ def test_html_versionchanges(app):
             return ''
 
     expect1 = (
-        """<p><span class="versionmodified">Deprecated since version 1.0: </span>"""
+        """<p><span class="versionmodified deprecated">Deprecated since version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
         """<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
     matched_content = get_content(result, "deprecated")
     assert expect1 == matched_content
 
     expect2 = (
-        """<p><span class="versionmodified">New in version 1.0: </span>"""
+        """<p><span class="versionmodified added">New in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
 
     expect3 = (
-        """<p><span class="versionmodified">Changed in version 1.0: </span>"""
+        """<p><span class="versionmodified changed">Changed in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
     matched_content = get_content(result, "versionchanged")
     assert expect3 == matched_content
