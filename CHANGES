@@ -192,6 +192,7 @@ Bugs fixed
   possibility to use original meaning in place of Sphinx custom one
 * #5834: apidoc: wrong help for ``--tocfile``
 * #5800: todo: crashed if todo is defined in TextElement
+* #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 
 Testing
 --------
