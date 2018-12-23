@@ -33,7 +33,7 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\sphinxmaketitle}{%
+\newcommand{\sphinxmaketitle}{%
   \let\sphinxrestorepageanchorsetting\relax
   \ifHy@pageanchor\def\sphinxrestorepageanchorsetting{\Hy@pageanchortrue}\fi
   \hypersetup{pageanchor=false}% avoid duplicate destination warnings
