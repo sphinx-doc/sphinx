@@ -100,7 +100,7 @@ This is the current list of contributed extensions in that repository:
 - zopeext: provide an ``autointerface`` directive for using `Zope interfaces`_
 
 
-See the :ref:`extension tutorial <exttuto-todo>` on getting started with writing your
+See the :doc:`extension tutorials <../development/tutorials/index>` on getting started with writing your
 own extensions.
 
 

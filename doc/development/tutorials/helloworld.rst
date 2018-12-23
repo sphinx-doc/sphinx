@@ -150,13 +150,13 @@ You can now use the extension.
 
 This is the very basic principle of an extension that creates a new directive.
 
-For a more advanced example, refer to :ref:`exttuto-todo`
+For a more advanced example, refer to :doc:`todo`.
 
 Further reading
 ---------------
 
 You can create your own nodes if needed, refer to the
-:ref:`exttuto-todo` for more information.
+:doc:`todo` for more information.
 
 .. _docutils: http://docutils.sourceforge.net/
 .. _`docutils nodes`: http://docutils.sourceforge.net/docs/ref/doctree.html
