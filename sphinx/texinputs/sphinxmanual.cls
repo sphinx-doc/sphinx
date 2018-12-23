@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2018/09/18 v1.8.1 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2018/12/22 v1.8.3 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -33,9 +33,9 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
-  \let\spx@tempa\relax
-  \ifHy@pageanchor\def\spx@tempa{\Hy@pageanchortrue}\fi
+\newcommand{\sphinxmaketitle}{%
+  \let\sphinxrestorepageanchorsetting\relax
+  \ifHy@pageanchor\def\sphinxrestorepageanchorsetting{\Hy@pageanchortrue}\fi
   \hypersetup{pageanchor=false}% avoid duplicate destination warnings
   \begin{titlepage}%
     \let\footnotesize\small
@@ -69,8 +69,10 @@
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
+  \clearpage
+  \ifdefined\sphinxbackoftitlepage\sphinxbackoftitlepage\fi
   \if@openright\cleardoublepage\else\clearpage\fi
-  \spx@tempa
+  \sphinxrestorepageanchorsetting
 }
 
 \newcommand{\sphinxtableofcontents}{%
