@@ -11,6 +11,7 @@
 
 import html
 import os
+import re
 from os import path
 
 from docutils import nodes
@@ -168,6 +169,18 @@ chm_locales = {
     'zh_TW': (0x404, 'cp950'),
 }
 
+# chm_htmlescape() is a wrapper of html.escape()
+# .hhc/.hhk files don't recognize hex escaping, we need convert
+# hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
+# html.escape() may generates a hex escaping `&#x27;` for single
+# quote `'`, this wrapper fixes this.
+def chm_htmlescape(*args, **kwargs):
+    def convert(matchobj):
+        codepoint = int(matchobj.group(1), 16)
+        return '&#%d;' % codepoint
+    return re.sub(r'&#[xX]([0-9a-fA-F]+);',
+                  convert,
+                  html.escape(*args, **kwargs))
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
@@ -278,7 +291,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = html.escape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -308,7 +321,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = html.escape(title)
+                title = chm_htmlescape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:

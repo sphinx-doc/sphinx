@@ -144,6 +144,7 @@ Bugs fixed
   if passed as language option?
 * #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
   enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
+* #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 
 Testing
 --------
