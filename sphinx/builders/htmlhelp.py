@@ -28,7 +28,7 @@ from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple, Match  # NOQA
+    from typing import Any, Dict, IO, List, Match, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -171,7 +171,7 @@ chm_locales = {
 
 
 def chm_htmlescape(*args, **kwargs):
-    # type: (*unicode, **bool) -> unicode
+    # type: (*Any, **Any) -> unicode
     """
     chm_htmlescape() is a wrapper of htmlescape().
     .hhc/.hhk files don't recognize hex escaping, we need convert
@@ -180,7 +180,7 @@ def chm_htmlescape(*args, **kwargs):
     quote `'`, this wrapper fixes this.
     """
     def convert(matchobj):
-        # type: (Match[str]) -> unicode
+        # type: (Match[unicode]) -> unicode
         codepoint = int(matchobj.group(1), 16)
         return '&#%d;' % codepoint
     return re.sub(r'&#[xX]([0-9a-fA-F]+);',
