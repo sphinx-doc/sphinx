@@ -166,7 +166,10 @@ def process_todo_nodes(app, doctree, fromdocname):
             try:
                 newnode['refuri'] = app.builder.get_relative_uri(
                     fromdocname, todo_info['docname'])
-                newnode['refuri'] += '#' + todo_info['target']['refid']
+                if 'refid' in todo_info['target']:
+                    newnode['refuri'] += '#' + todo_info['target']['refid']
+                else:
+                    newnode['refuri'] += '#' + todo_info['target']['ids'][0]
             except NoUri:
                 # ignore if no URI can be determined, e.g. for LaTeX output
                 pass
