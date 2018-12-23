@@ -379,10 +379,6 @@ Index markup
    !Main, !Other
    !single: entry; pair
 
-.. index:: triple-quoted string, Unicode Consortium, raw string
-   single: """; string literal
-   single: '''; https://github.com/sphinx-doc/sphinx/issues/5846
-
 :index:`!Main`
 
 .. _ölabel:
