@@ -41,7 +41,7 @@ __ https://www.sphinx-doc.org/en/1.8/usage/markdown.html
       extensions = ['recommonmark']
 
    .. versionchanged:: 1.8
-      Version 1.8 deprecates and version 2.0 removes the ``source_parsers``
+      Version 1.8 deprecates and version 3.0 removes the ``source_parsers``
       configuration variable that was used by older *recommonmark* versions.
 
 #. If you want to use Markdown files with extensions other than ``.md``, adjust
