@@ -169,18 +169,24 @@ chm_locales = {
     'zh_TW': (0x404, 'cp950'),
 }
 
-# chm_htmlescape() is a wrapper of htmlescape()
-# .hhc/.hhk files don't recognize hex escaping, we need convert
-# hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
-# htmlescape() may generates a hex escaping `&#x27;` for single
-# quote `'`, this wrapper fixes this.
+
 def chm_htmlescape(*args, **kwargs):
+    # type: (unicode, Any) -> unicode
+    """
+    chm_htmlescape() is a wrapper of htmlescape().
+    .hhc/.hhk files don't recognize hex escaping, we need convert
+    hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
+    htmlescape() may generates a hex escaping `&#x27;` for single
+    quote `'`, this wrapper fixes this.
+    """
     def convert(matchobj):
+        # type: (re.Match) -> unicode
         codepoint = int(matchobj.group(1), 16)
         return '&#%d;' % codepoint
     return re.sub(r'&#[xX]([0-9a-fA-F]+);',
                   convert,
                   htmlescape(*args, **kwargs))
+
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
