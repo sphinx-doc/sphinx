@@ -185,7 +185,7 @@ def chm_htmlescape(*args, **kwargs):
         return '&#%d;' % codepoint
     return re.sub(r'&#[xX]([0-9a-fA-F]+);',
                   convert,
-                  htmlescape(*args, **kwargs))
+                  html.escape(*args, **kwargs))
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
