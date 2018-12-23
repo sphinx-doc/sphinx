@@ -180,7 +180,7 @@ def chm_htmlescape(*args, **kwargs):
     quote `'`, this wrapper fixes this.
     """
     def convert(matchobj):
-        # type: (re.Match) -> unicode
+        # type: (Match[str]) -> unicode
         codepoint = int(matchobj.group(1), 16)
         return '&#%d;' % codepoint
     return re.sub(r'&#[xX]([0-9a-fA-F]+);',
