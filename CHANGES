@@ -30,6 +30,7 @@ Bugs fixed
 * #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
 * #1956: Default conf.py is not PEP8-compliant
 * #5834: apidoc: wrong help for ``--tocfile``
+* #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 
 Testing
 --------
