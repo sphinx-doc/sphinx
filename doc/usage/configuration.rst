@@ -2279,10 +2279,22 @@ information.
            Previously this was done from inside :file:`sphinx.sty`.
 
      ``'maketitle'``
-        "maketitle" call, default ``'\\maketitle'`` (but it has been
-        redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
-        if you want to generate a differently-styled title page.
+        "maketitle" call, default ``'\\sphinxmaketitle'``. Override
+        if you want to generate a differently styled title page.
 
+        .. hint::
+
+           If the key value is set to
+           ``r'\newcommand\sphinxbackoftitlepage{<Extra
+           material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
+           typeset on back of title page (``'manual'`` docclass only).
+
+        .. versionchanged:: 1.8.3
+           Original ``\maketitle`` from document class is not overwritten,
+           hence is re-usable as part of some custom setting for this key.
+        .. versionadded:: 1.8.3
+           ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
+           inside ``'preamble'`` key rather than this one.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
         ``'Release'``. As for *title* and *author* used in the tuples of
