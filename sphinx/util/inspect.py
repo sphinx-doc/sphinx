@@ -103,16 +103,12 @@ def getargspec(func):
 def isenumclass(x):
     # type: (Type) -> bool
     """Check if the object is subclass of enum."""
-    if enum is None:
-        return False
     return inspect.isclass(x) and issubclass(x, enum.Enum)
 
 
 def isenumattribute(x):
     # type: (Any) -> bool
     """Check if the object is attribute of enum."""
-    if enum is None:
-        return False
     return isinstance(x, enum.Enum)
 
 
