@@ -15,7 +15,7 @@ parsing the `CommonMark`__ Markdown flavor.
 __ https://daringfireball.net/projects/markdown/
 __ https://recommonmark.readthedocs.io/en/latest/index.html
 __ https://github.com/rtfd/CommonMark-py
-__ http://commonmark.org/
+__ https://commonmark.org/
 
 Configuration
 -------------

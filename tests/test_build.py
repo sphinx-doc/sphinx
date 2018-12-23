@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build
     ~~~~~~~~~~
@@ -31,13 +30,8 @@ def request_session_head(url, **kwargs):
 @pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
-    test_name = u'\u65e5\u672c\u8a9e'
+    test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
-    # Windows with versions prior to 3.2 (I think) doesn't support unicode on system path
-    # so we force a non-unicode path in that case
-    if (sys.platform == "win32" and
-            not (sys.version_info.major >= 3 and sys.version_info.minor >= 2)):
-        return basedir / 'all'
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
@@ -51,8 +45,8 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             =======================
             """))
 
-        master_doc = srcdir / 'contents.txt'
-        master_doc.write_text(master_doc.text() + dedent(u"""
+        master_doc = srcdir / 'index.txt'
+        master_doc.write_text(master_doc.text() + dedent("""
                               .. toctree::
 
                                  %(test_name)s/%(test_name)s
@@ -93,10 +87,10 @@ def test_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
@@ -105,10 +99,10 @@ def test_numbered_circular_toctree(app, status, warning):
     warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
-        'sub <- contents <- sub') in warnings
+        'sub <- index <- sub') in warnings
     assert (
         'circular toctree references detected, ignoring: '
-        'contents <- sub <- contents') in warnings
+        'index <- sub <- index') in warnings
 
 
 @pytest.mark.sphinx(buildername='dummy', testroot='images')

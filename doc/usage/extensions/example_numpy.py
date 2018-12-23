@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Example NumPy style docstrings.
 
 This module demonstrates documentation as specified by the `NumPy
@@ -223,7 +222,7 @@ class ExampleError(Exception):
         self.code = code
 
 
-class ExampleClass(object):
+class ExampleClass:
     """The summary line for a class docstring should fit on one line.
 
     If the class has public attributes, they may be documented here

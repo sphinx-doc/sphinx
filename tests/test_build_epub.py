@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_html
     ~~~~~~~~~~~~~~~
@@ -28,7 +27,7 @@ def runnable(command):
         return p.returncode == 0
 
 
-class EPUBElementTree(object):
+class EPUBElementTree:
     """Test helper for content.opf and toc.ncx"""
     namespaces = {
         'idpf': 'http://www.idpf.org/2007/opf',
@@ -189,7 +188,7 @@ def test_nested_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests’s documentation!")
+                                     "Welcome to Sphinx Tests’s documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -210,7 +209,7 @@ def test_nested_toc(app):
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
-                               u"Welcome to Sphinx Tests’s documentation!")
+                               "Welcome to Sphinx Tests’s documentation!")
     assert toc[0].findall("./xhtml:ol") == []
 
     # nav.xhtml / nested toc
@@ -245,7 +244,7 @@ def test_escaped_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests's documentation!")
+                                     "Welcome to Sphinx Tests's documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -254,7 +253,7 @@ def test_escaped_toc(app):
     assert len(navchildren) == 4
     assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
     assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
 
     # nav.xhtml / nav
@@ -274,7 +273,7 @@ def test_escaped_toc(app):
     tocchildren = toc[1].findall("./xhtml:ol/xhtml:li")
     assert len(tocchildren) == 3
     assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
@@ -354,6 +353,24 @@ def test_epub_css_files(app):
             'href="https://example.com/custom.css" />' not in content)
 
 
+@pytest.mark.sphinx('epub', testroot='roles-download')
+def test_html_download_role(app, status, warning):
+    app.build()
+    assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
+
+    content = (app.outdir / 'index.xhtml').text()
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">dummy.dat</span></code></p></li>' in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">not_found.dat</span></code></p></li>' in content)
+    assert ('<li><p><code class="xref download docutils literal notranslate">'
+            '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
+            '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
+            '/_static/sphinxheader.png]</span></p></li>' in content)
+
+
+@pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
+                    reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')
 def test_run_epubcheck(app):
     app.build()

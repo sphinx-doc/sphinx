@@ -198,6 +198,81 @@ The following is an example for the usage of the directives.  The test via
       This parrot wouldn't voom if you put 3000 volts through it!
 
 
+Skipping tests conditionally
+----------------------------
+
+``skipif``, a string option, can be used to skip directives conditionally. This
+may be useful e.g. when a different set of tests should be run depending on the
+environment (hardware, network/VPN, optional dependencies or different versions
+of dependencies). The ``skipif`` option is supported by all of the doctest
+directives. Below are typical use cases for ``skipif`` when used for different
+directives:
+
+- :rst:dir:`testsetup` and :rst:dir:`testcleanup`
+
+  - conditionally skip test setup and/or cleanup
+  - customize setup/cleanup code per environment
+
+- :rst:dir:`doctest`
+
+  - conditionally skip both a test and its output verification
+
+- :rst:dir:`testcode`
+
+  - conditionally skip a test
+  - customize test code per environment
+
+- :rst:dir:`testoutput`
+
+  - conditionally skip output assertion for a skipped test
+  - expect different output depending on the environment
+
+The value of the ``skipif`` option is evaluated as a Python expression. If the
+result is a true value, the directive is omitted from the test run just as if
+it wasn't present in the file at all.
+
+Instead of repeating an expression, the :confval:`doctest_global_setup`
+configuration option can be used to assign it to a variable which can then be
+used instead.
+
+Here's an example which skips some tests if Pandas is not installed:
+
+.. code-block:: py
+   :caption: conf.py
+
+   extensions = ['sphinx.ext.doctest']
+   doctest_global_setup = '''
+   try:
+       import pandas as pd
+   except ImportError:
+       pd = None
+   '''
+
+.. code-block:: rst
+   :caption: contents.rst
+
+   .. testsetup::
+      :skipif: pd is None
+
+      data = pd.Series([42])
+
+   .. doctest::
+      :skipif: pd is None
+
+      >>> data.iloc[0]
+      42
+
+   .. testcode::
+      :skipif: pd is None
+
+      print(data.iloc[-1])
+
+   .. testoutput::
+      :skipif: pd is None
+
+      42
+
+
 Configuration
 -------------
 

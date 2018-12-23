@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.cmd.build
     ~~~~~~~~~~~~~~~~
@@ -8,7 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import argparse
 import locale
@@ -18,7 +16,7 @@ import sys
 import traceback
 
 from docutils.utils import SystemMessage
-from six import text_type, binary_type
+from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -189,6 +187,8 @@ files can be built by specifying individual filenames.
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
+    group.add_argument('--keep-going', action='store_true', dest='keep_going',
+                       help=__("With -W, Keep going when getting warnings"))
     group.add_argument('-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('-P', action='store_true', dest='pdb',
@@ -197,15 +197,15 @@ files can be built by specifying individual filenames.
     return parser
 
 
-def make_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def make_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
-    from sphinx import make_mode
+    from sphinx.cmd import make_mode
     return make_mode.run_make_mode(argv[1:])
 
 
-def build_main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def build_main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
 
     parser = get_parser()
@@ -217,7 +217,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         args.confdir = args.sourcedir
 
     if not args.doctreedir:
-        args.doctreedir = os.path.join(args.sourcedir, '.doctrees')
+        args.doctreedir = os.path.join(args.outputdir, '.doctrees')
 
     # handle remaining filename arguments
     filenames = args.filenames
@@ -227,13 +227,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             missing_files.append(filename)
     if missing_files:
         parser.error(__('cannot find files %r') % missing_files)
-
-    # likely encoding used for command-line arguments
-    try:
-        locale = __import__('locale')  # due to submodule of the same name
-        likely_encoding = locale.getpreferredencoding()
-    except Exception:
-        likely_encoding = None
 
     if args.force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
@@ -266,11 +259,6 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
-        if likely_encoding and isinstance(val, binary_type):
-            try:
-                val = val.decode(likely_encoding)
-            except UnicodeError:
-                pass
         confoverrides[key] = val
 
     for val in args.htmldefine:
@@ -281,11 +269,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         try:
             val = int(val)
         except ValueError:
-            if likely_encoding and isinstance(val, binary_type):
-                try:
-                    val = val.decode(likely_encoding)
-                except UnicodeError:
-                    pass
+            pass
         confoverrides['html_context.%s' % key] = val
 
     if args.nitpicky:
@@ -298,7 +282,7 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, confoverrides, status,
                          warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs)
+                         args.tags, args.verbosity, args.jobs, args.keep_going)
             app.build(args.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
@@ -306,9 +290,9 @@ def build_main(argv=sys.argv[1:]):  # type: ignore
         return 2
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
-    locale.setlocale(locale.LC_ALL, '')
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
+    sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     if argv[:1] == ['-M']:
@@ -318,4 +302,4 @@ def main(argv=sys.argv[1:]):  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))  # type: ignore
+    sys.exit(main(sys.argv[1:]))

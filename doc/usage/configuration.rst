@@ -40,9 +40,7 @@ Important points to note:
   contain the file name extension.
 
 * Since :file:`conf.py` is read as a Python file, the usual rules apply for
-  encodings and Unicode support: declare the encoding using an encoding cookie
-  (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string literals
-  when you include non-ASCII characters in configuration values.
+  encodings and Unicode support.
 
 * The contents of the config namespace are pickled (so that Sphinx can find out
   when configuration changes), so it may not contain unpickleable values --
@@ -58,6 +56,36 @@ Important points to note:
   ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
   Note that the current builder tag is not available in ``conf.py``, as it is
   created *after* the builder is initialized.
+
+
+Project information
+-------------------
+
+.. confval:: project
+
+   The documented project's name.
+
+.. confval:: author
+
+   The author name(s) of the document.  The default value is ``'unknown'``.
+
+.. confval:: copyright
+
+   A copyright statement in the style ``'2008, Author Name'``.
+
+.. confval:: version
+
+   The major project version, used as the replacement for ``|version|``.  For
+   example, for the Python documentation, this may be something like ``2.6``.
+
+.. confval:: release
+
+   The full project version, used as the replacement for ``|release|`` and
+   e.g. in the HTML templates.  For example, for the Python documentation, this
+   may be something like ``2.6.0rc1``.
+
+   If you don't need the separation provided between :confval:`version` and
+   :confval:`release`, just set them both to the same value.
 
 
 General configuration
@@ -98,7 +126,7 @@ General configuration
           '.md': 'markdown',
       }
 
-   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   By default, Sphinx only supports ``'restructuredtext'`` file type.  You can
    add a new file type using source parser extensions.  Please read a document
    of the extension to know what file type the extension supports.
 
@@ -149,7 +177,10 @@ General configuration
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that
-   contains the root :rst:dir:`toctree` directive.  Default is ``'contents'``.
+   contains the root :rst:dir:`toctree` directive.  Default is ``'index'``.
+
+   .. versionchanged:: 2.0
+      The default is changed to ``'index'`` from ``'contents'``.
 
 .. confval:: exclude_patterns
 
@@ -477,36 +508,6 @@ General configuration
 
    .. versionadded:: 1.5
 
-
-Project information
--------------------
-
-.. confval:: project
-
-   The documented project's name.
-
-.. confval:: author
-
-   The author name(s) of the document.  The default value is ``'unknown'``.
-
-.. confval:: copyright
-
-   A copyright statement in the style ``'2008, Author Name'``.
-
-.. confval:: version
-
-   The major project version, used as the replacement for ``|version|``.  For
-   example, for the Python documentation, this may be something like ``2.6``.
-
-.. confval:: release
-
-   The full project version, used as the replacement for ``|release|`` and
-   e.g. in the HTML templates.  For example, for the Python documentation, this
-   may be something like ``2.6.0rc1``.
-
-   If you don't need the separation provided between :confval:`version` and
-   :confval:`release`, just set them both to the same value.
-
 .. confval:: today
              today_fmt
 
@@ -813,7 +814,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_theme
 
    The "theme" that the HTML output should use.  See the :doc:`section about
-   theming </theming>`.  The default is ``'alabaster'``.
+   theming </usage/theming>`.  The default is ``'alabaster'``.
 
    .. versionadded:: 0.6
 
@@ -1108,12 +1109,6 @@ that use Sphinx's HTMLWriter class.
    If true, the reST sources are included in the HTML build as
    :file:`_sources/{name}`.  The default is ``True``.
 
-   .. warning::
-
-      If this config value is set to ``False``, the JavaScript search function
-      will only display the titles of matching documents, and no excerpt from
-      the matching contents.
-
 .. confval:: html_show_sourcelink
 
    If true (and :confval:`html_copy_source` is true as well), links to the
@@ -1251,7 +1246,7 @@ that use Sphinx's HTMLWriter class.
 
       :'sphinx.search.ja.DefaultSplitter':
          TinySegmenter algorithm. This is default splitter.
-      :'sphinx.search.ja.MeCabSplitter':
+      :'sphinx.search.ja.MecabSplitter':
          MeCab binding. To use this splitter, 'mecab' python binding or dynamic
          link library ('libmecab.so' for linux, 'libmecab.dll' for windows) is
          required.
@@ -1333,6 +1328,16 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+Options for Single HTML output
+-------------------------------
+
+.. confval:: singlehtml_sidebars
+
+   Custom sidebar templates, must be a dictionary that maps document names to
+   template names.  And it only allows a key named `'index'`.  All other keys
+   are ignored.  For more information, refer to :confval:`html_sidebars`.  By
+   default, it is same as :confval:`html_sidebars`.
+
 
 .. _htmlhelp-options:
 
@@ -1342,6 +1347,19 @@ Options for HTML help output
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
+
+.. confval:: htmlhelp_file_suffix
+
+   This is the file name suffix for generated HTML help files.  The
+   default is ``".html"``.
+
+   .. versionadded:: 2.0
+
+.. confval:: htmlhelp_link_suffix
+
+   Suffix for generated links to HTML files.  The default is ``".html"``.
+
+   .. versionadded:: 2.0
 
 
 .. _applehelp-options:
@@ -1763,8 +1781,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output. For customization of LaTeX
-macros and environments, see also :doc:`/latex`.
+These options influence LaTeX output. Refer to :doc:`/latex` for more
+information.
 
 .. confval:: latex_engine
 
@@ -1776,24 +1794,29 @@ macros and environments, see also :doc:`/latex`.
    * ``'lualatex'`` -- LuaLaTeX
    * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
 
-   PDFLaTeX's support for Unicode characters covers those from the document
-   language (the LaTeX ``babel`` and ``inputenc`` packages map them to glyph
-   slots in the document font, at various encodings allowing each only 256
-   characters; Sphinx uses by default (except for Cyrillic languages) the
-   ``times`` package), but stray characters from other scripts or special
-   symbols may require adding extra LaTeX packages or macros to the LaTeX
-   preamble.
+   ``'pdflatex'``\ 's support for Unicode characters is limited.
 
-   If your project uses such extra Unicode characters, switching the engine to
-   XeLaTeX or LuaLaTeX often provides a quick fix. They only work with UTF-8
-   encoded sources and can (in fact, should) use OpenType fonts, either from
-   the system or the TeX install tree. Recent LaTeX releases will default with
-   these engines to the Latin Modern OpenType font, which has good coverage of
-   Latin and Cyrillic scripts (it is provided by standard LaTeX installation),
-   and Sphinx does not modify this default. Refer to the documentation of the
-   LaTeX ``polyglossia`` package to see how to instruct LaTeX to use some
-   other OpenType font if Unicode coverage proves insufficient (or use
-   directly ``\setmainfont`` et. al. as in :ref:`this example <latex-basic>`.)
+   .. note::
+
+      2.0 adds to ``'pdflatex'`` support in Latin language document of
+      occasional Cyrillic or Greek letters or words.  This is not automatic,
+      see the discussion of the :confval:`latex_elements` ``'fontenc'`` key.
+
+   If your project uses Unicode characters, setting the engine to
+   ``'xelatex'`` or ``'lualatex'`` and making sure to use an OpenType font
+   with wide-enough glyph coverage is often easier than trying to make
+   ``'pdflatex'`` work with the extra Unicode characters.  Since Sphinx 2.0
+   the default is the GNU FreeFont which covers well Latin, Cyrillic and Greek.
+
+   Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
+   LaTeX requires some extra configuration to support Unicode literals in
+   :rst:dir:`math`: the only comprehensive solution (as far as we know) is to
+   use ``'xelatex'`` or ``'lualatex'`` *and* to add
+   ``r'\usepackage{unicode-math}'`` (e.g. via the :confval:`latex_elements`
+   ``'preamble'`` key).  You may prefer
+   ``r'\usepackage[math-style=literal]{unicode-math}'`` to keep a Unicode
+   literal such as ``α`` (U+03B1) for example as is in output, rather than
+   being rendered as :math:`\alpha`.
 
 .. confval:: latex_documents
 
@@ -1926,26 +1949,23 @@ macros and environments, see also :doc:`/latex`.
    __ http://xindy.sourceforge.net/
 
    - This option is ignored if :confval:`latex_engine` is ``'platex'``
-     (Japanese documents) as :program:`mendex` is used in that case.
+     (Japanese documents; :program:`mendex` replaces :program:`makeindex`
+     then).
 
    - The default is ``True`` for ``'xelatex'`` or ``'lualatex'`` as
      :program:`makeindex`, if any indexed term starts with a non-ascii
-     character, creates ``.ind`` file containing invalid bytes for
+     character, creates ``.ind`` files containing invalid bytes for
      UTF-8 encoding. With ``'lualatex'`` this then breaks the PDF
-     build.  Notice that :program:`xindy` supports most but not
-     all European languages.
+     build.
 
    - The default is ``False`` for ``'pdflatex'`` but ``True`` is
      recommended for non-English documents as soon as some indexed
      terms use non-ascii characters from the language script.
-     Cyrillic scripts are (transparently) supported with
-     ``'pdflatex'`` thanks to a specific Sphinx-contributed ``xindy``
-     style file :file:`cyrLICRutf8.xdy`.
 
-     As :program:`xindy` does not support the same range of languages
-     as ``LaTeX/babel`` does, the default :program:`makeindex` for
-     ``'pdflatex'`` may be preferred in some circumstances, although
-     the index will be ill-formed probably.
+   Sphinx adds to :program:`xindy` base distribution some dedicated support
+   for using ``'pdflatex'`` engine with Cyrillic scripts.  And whether with
+   ``'pdflatex'`` or Unicode engines, Cyrillic documents handle correctly the
+   indexing of Latin names, even with diacritics.
 
    .. versionadded:: 1.8
 
@@ -1998,33 +2018,82 @@ macros and environments, see also :doc:`/latex`.
         ``english`` is used if no language.) For Japanese documents, the
         default is the empty string.
 
+        With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
+        `polyglossia`_, but one should be aware that current `babel`_ has
+        improved its support for Unicode engines in recent years and for some
+        languages it may make sense to prefer ``babel`` over ``polyglossia``.
+
+        .. hint::
+
+           After modifiying a core LaTeX key like this one, clean up the LaTeX
+           build repertory before next PDF build, else left-over auxiliary
+           files are likely to break the build.
+
+        .. _`polyglossia`: https://ctan.org/pkg/polyglossia
+        .. _`babel`: https://ctan.org/pkg/babel
+
         .. versionchanged:: 1.5
            For :confval:`latex_engine` set to ``'xelatex'``, the default
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
         .. versionchanged:: 1.6
            ``'lualatex'`` uses same default setting as ``'xelatex'``
+        .. versionchanged:: 1.7.6
+           For French, ``xelatex`` and ``lualatex`` default to using
+           ``babel``, not ``polyglossia``.
 
      ``'fontpkg'``
-        Font package inclusion, default ``'\\usepackage{times}'`` (which uses
-        Times for text, Helvetica for sans serif and Courier for code-blocks).
-
-        .. hint::
-
-           Courier is much wider than Times, and Sphinx emits LaTeX command
-           ``\small`` in code-blocks to compensate.  Since ``1.5`` this is not
-           hard-coded anymore: ``\fvset{fontsize=auto}`` can be added to
-           preamble to not change font size in code-blocks.  Since ``1.8`` a
-           separate ``'fvset'`` key is provided for this.
+        Font package inclusion, the default is ``'\\usepackage{times}'`` which
+        uses Times for text, Helvetica for sans serif and Courier for monospace.
 
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
            script.
-        .. versionchanged:: 1.5
-           Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
-        .. versionchanged:: 1.6
-           Defaults to ``''`` also with ``'lualatex'``.
-        .. versionchanged:: 1.8
-           ``'xelatex'`` and ``'lualatex'`` do ``\fvset{fontsize=auto}``.
+        .. versionchanged:: 2.0
+           Support for individual Greek and Cyrillic letters:
+
+           - In order to support occasional Cyrillic (физика частиц)
+             or Greek letters (Σωματιδιακή φυσική) in
+             a document whose language is English or a  Latin European
+             one, the default set-up is enhanced (only for ``'pdflatex'``
+             engine) to do:
+
+             .. code-block:: latex
+
+                \substitutefont{LGR}{\rmdefault}{cmr}
+                \substitutefont{LGR}{\sfdefault}{cmss}
+                \substitutefont{LGR}{\ttdefault}{cmtt}
+                \substitutefont{X2}{\rmdefault}{cmr}
+                \substitutefont{X2}{\sfdefault}{cmss}
+                \substitutefont{X2}{\ttdefault}{cmtt}
+
+             but this is activated only under the condition that the
+             ``'fontenc'`` key is configured to load the ``LGR`` (Greek)
+             and/or ``X2`` (Cyrillic) pdflatex-font encodings (if the
+             :confval:`language` is set to a Cyrillic language, this
+             ``'fontpkg'`` key must be used as "times" package has no direct
+             support for it; then keep only ``LGR`` lines from the above,
+             if support is needed for Greek in the text).
+
+             The ``\substitutefont`` command is from the eponymous LaTeX
+             package, which is loaded by Sphinx if needed (on Ubuntu xenial it
+             is part of ``texlive-latex-extra`` which is a Sphinx
+             requirement).
+
+             Only if the document actually does contain Unicode Greek letters
+             (in text) or Cyrillic letters, will the above default set-up
+             cause additional requirements for the PDF build.  On Ubuntu
+             xenial, ``texlive-lang-greek``, ``texlive-lang-cyrillic``, and
+             (with the above choice of fonts) the ``cm-super`` (or
+             ``cm-super-minimal``) package.
+
+           - For ``'xelatex'`` and ``'lualatex'``, the default is to
+             use the FreeFont family:  this OpenType font family
+             supports both Cyrillic and Greek scripts and is available as
+             separate Ubuntu xenial package ``fonts-freefont-otf``, it is not
+             needed to install the big package ``texlive-fonts-extra``.
+
+           - ``'platex'`` (Japanese documents) engine supports individual
+             Cyrillic and Greek letters with no need of extra user set-up.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -2033,6 +2102,8 @@ macros and environments, see also :doc:`/latex`.
         the "Bjarne" style uses numbers spelled out in English).  Other
         "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
         "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
+
+        The default is ``''`` for Japanese documents.
 
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`/latex`.
@@ -2101,14 +2172,69 @@ macros and environments, see also :doc:`/latex`.
         .. versionadded:: 1.2
 
      ``'fontenc'``
-        "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+        "fontenc" package inclusion, defaults to
+        ``'\\usepackage[T1]{fontenc}'``.
+
+        If ``'pdflatex'`` is the :confval:`latex_engine`, one can add ``LGR``
+        for support of Greek letters in the document, and also ``X2`` (or
+        ``T2A``) for Cyrillic letters, like this:
+
+        .. code-block:: latex
+
+           r'\usepackage[LGR,X2,T1]{fontenc}'
+
+        .. attention::
+
+           Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
+           mark-up.  This is not the case anymore, and the above must be used
+           (only in case of ``'pdflatex'`` engine) if the source contains such
+           Unicode Greek.
+
+           On Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
+           (for the latter, only if the ``'fontpkg'`` setting is left to its
+           default) are needed for ``LGR`` to work.  In place of ``cm-super``
+           one can install smaller ``cm-super-minimal``, but it requires the
+           LaTeX document to execute ``\usepackage[10pt]{type1ec}`` before
+           loading ``fontenc``.  Thus, use this key with this extra at its
+           start if needed.
 
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
         .. versionchanged:: 1.6
-           ``'lualatex'`` also uses ``fontspec`` per default.
+           ``'lualatex'`` uses ``fontspec`` per default like ``'xelatex'``.
+        .. versionchanged:: 2.0
+           ``'lualatex'`` executes
+           ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
+           ligatures.
+        .. versionchanged:: 2.0
+           Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
+           occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
+           is provided natively by ``'platex'`` and only requires suitable
+           font with ``'xelatex'/'lualatex'``).
 
+     ``'textgreek'``
+        The default (``'pdflatex'`` only) is
+        ``'\\usepackage{textalpha}'``, but only if ``'fontenc'`` was
+        modified by user to include ``LGR`` option.  If not, the key
+        value will be forced to be the empty string.
+
+        This is needed for ``pdfLaTeX`` to support Unicode input of Greek
+        letters such as φύσις.  Expert users may want to load the ``textalpha``
+        package with its option ``normalize-symbols``.
+
+        .. hint::
+
+           Unicode Greek (but no further Unicode symbols) in :rst:dir:`math`
+           can be supported by ``'pdflatex'`` from setting this key to
+           ``r'\usepackage{textalpha,alphabeta}'``.  Then ``:math:`α``` (U+03B1)
+           will render as :math:`\alpha`.  For wider Unicode support in math
+           input, see the discussion of :confval:`latex_engine`.
+
+        With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
+        key is ignored.
+
+        .. versionadded:: 2.0
      ``'geometry'``
         "geometry" package inclusion, the default definition is:
 
@@ -2153,10 +2279,22 @@ macros and environments, see also :doc:`/latex`.
            Previously this was done from inside :file:`sphinx.sty`.
 
      ``'maketitle'``
-        "maketitle" call, default ``'\\maketitle'`` (but it has been
-        redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
-        if you want to generate a differently-styled title page.
+        "maketitle" call, default ``'\\sphinxmaketitle'``. Override
+        if you want to generate a differently styled title page.
 
+        .. hint::
+
+           If the key value is set to
+           ``r'\newcommand\sphinxbackoftitlepage{<Extra
+           material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
+           typeset on back of title page (``'manual'`` docclass only).
+
+        .. versionchanged:: 1.8.3
+           Original ``\maketitle`` from document class is not overwritten,
+           hence is re-usable as part of some custom setting for this key.
+        .. versionadded:: 1.8.3
+           ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
+           inside ``'preamble'`` key rather than this one.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
         ``'Release'``. As for *title* and *author* used in the tuples of
@@ -2185,25 +2323,23 @@ macros and environments, see also :doc:`/latex`.
            Remove unneeded ``{}`` after ``\\hrule``.
 
      ``'printindex'``
-        "printindex" call, the last thing in the file.
-
-        .. versionchanged:: 1.8
-           Former default ``'\\printindex'`` now ``'\\sphinxprintindex'``.
-           This macro works around an issue__ with PDF builds at RTD doing too
-           few ``pdflatex`` runs.
-
-           __ https://github.com/rtfd/readthedocs.org/issues/2857
+        "printindex" call, the last thing in the file, default
+        ``'\\printindex'``.  Override if you want to generate the index
+        differently or append some content after the index. For example
+        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
+        index is full of long entries.
 
      ``'fvset'``
-        Customization of ``fancyvrb`` LaTeX package. Defaults to
-        ``'\\fvset{fontsize=\\small}'``, because default font (Courier) used in
-        code-blocks is wider and taller than default text font (Times).
-
-        For ``'xelatex'`` and ``'lualatex'``, defaults to
-        ``'\\fvset{fontsize=auto}'``, because the default fonts are part of
-        one unified typeface family (Latin Modern OpenType).
+        Customization of ``fancyvrb`` LaTeX package.  Sphinx does by default
+        ``'fvset': '\\fvset{fontsize=\\small}'``, to adjust for the large
+        character width of the monospace font, used in code-blocks.
+        You may need to modify this if you use custom fonts.
 
         .. versionadded:: 1.8
+        .. versionchanged:: 2.0
+           Due to new default font choice for ``'xelatex'`` and ``'lualatex'``
+           (FreeFont), Sphinx does ``\\fvset{fontsize=\\small}`` also with these
+           engines (and not ``\\fvset{fontsize=auto}``).
 
    * Keys that are set by other options and therefore should not be overridden
      are:
@@ -2211,10 +2347,8 @@ macros and environments, see also :doc:`/latex`.
      ``'docclass'``
      ``'classoptions'``
      ``'title'``
-     ``'date'``
      ``'release'``
      ``'author'``
-     ``'logo'``
      ``'makeindex'``
 
 .. confval:: latex_docclass

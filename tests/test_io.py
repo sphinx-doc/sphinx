@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_sphinx_io
     ~~~~~~~~~~~~~~
@@ -9,8 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+from io import StringIO
+
 import pytest
-from six import StringIO
 
 from sphinx.io import SphinxRSTFileInput
 

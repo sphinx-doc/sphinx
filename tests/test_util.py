@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util
     ~~~~~~~~~~~~~~~
@@ -9,29 +8,49 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+import tempfile
+
 import pytest
 from mock import patch
 
+import sphinx
+from sphinx.errors import PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, parselinenos, status_iterator, xmlname_checker
+    display_chunk, encode_uri, ensuredir, get_module_source, parselinenos, status_iterator,
+    xmlname_checker
 )
 from sphinx.util import logging
 
 
 def test_encode_uri():
-    expected = (u'https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
-                u'%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
-                u'%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
-    uri = (u'https://ru.wikipedia.org/wiki'
-           u'/Система_управления_базами_данных')
-    assert expected, encode_uri(uri)
+    expected = ('https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
+                '%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
+                '%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
+    uri = ('https://ru.wikipedia.org/wiki'
+           '/Система_управления_базами_данных')
+    assert expected == encode_uri(uri)
 
-    expected = (u'https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
-                u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
-           u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
-    assert expected, encode_uri(uri)
+    expected = ('https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
+                'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
+    uri = ('https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
+           'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
+    assert expected == encode_uri(uri)
+
+
+def test_ensuredir():
+    with tempfile.TemporaryDirectory() as tmp_path:
+        # Does not raise an exception for an existing directory.
+        ensuredir(tmp_path)
+
+        path = os.path.join(tmp_path, 'a', 'b', 'c')
+        ensuredir(path)
+        assert os.path.isdir(path)
+
+    with tempfile.NamedTemporaryFile() as tmp:
+        with pytest.raises(OSError):
+            ensuredir(tmp.name)
 
 
 def test_display_chunk():
@@ -40,6 +59,16 @@ def test_display_chunk():
     assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
     assert display_chunk(('hello',)) == 'hello'
     assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
+
+
+def test_get_module_source():
+    assert get_module_source('sphinx') == ('file', sphinx.__file__)
+
+    # failed to obtain source information from builtin modules
+    with pytest.raises(PycodeError):
+        get_module_source('builtins')
+    with pytest.raises(PycodeError):
+        get_module_source('itertools')
 
 
 @pytest.mark.sphinx('dummy')

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_apidoc
     ~~~~~~~~~~~
@@ -8,8 +7,6 @@
     :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from __future__ import print_function
 
 from collections import namedtuple
 
@@ -268,10 +265,10 @@ def test_excludes_module_should_not_be_skipped(apidoc):
 @pytest.mark.apidoc(
     coderoot='test-root',
     options=[
-        '--doc-project', u'プロジェクト名',
-        '--doc-author', u'著者名',
-        '--doc-version', u'バージョン',
-        '--doc-release', u'リリース',
+        '--doc-project', 'プロジェクト名',
+        '--doc-author', '著者名',
+        '--doc-version', 'バージョン',
+        '--doc-release', 'リリース',
     ],
 )
 def test_multibyte_parameters(make_app, apidoc):
@@ -282,10 +279,10 @@ def test_multibyte_parameters(make_app, apidoc):
 
     conf_py = (outdir / 'conf.py').text()
     conf_py_ = remove_unicode_literals(conf_py)
-    assert u"project = 'プロジェクト名'" in conf_py_
-    assert u"author = '著者名'" in conf_py_
-    assert u"version = 'バージョン'" in conf_py_
-    assert u"release = 'リリース'" in conf_py_
+    assert "project = 'プロジェクト名'" in conf_py_
+    assert "author = '著者名'" in conf_py_
+    assert "version = 'バージョン'" in conf_py_
+    assert "release = 'リリース'" in conf_py_
 
     app = make_app('text', srcdir=outdir)
     app.build()

@@ -81,6 +81,10 @@ div.sphinxsidebar input {
     font-size: 1em;
 }
 
+div.sphinxsidebar #searchbox form.search {
+    overflow: hidden;
+}
+
 div.sphinxsidebar #searchbox input[type="text"] {
     float: left;
     width: 80%;

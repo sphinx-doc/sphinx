@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.latex.nodes
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,3 +34,12 @@ class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):
 class thebibliography(nodes.container):
     """A node for wrapping bibliographies."""
     pass
+
+
+HYPERLINK_SUPPORT_NODES = (
+    nodes.figure,
+    nodes.literal_block,
+    nodes.table,
+    nodes.section,
+    captioned_literal_block,
+)

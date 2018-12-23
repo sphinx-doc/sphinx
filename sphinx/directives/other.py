@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -8,21 +7,20 @@
 """
 
 import re
-from contextlib import contextmanager
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
-from six.moves import range
 
-from sphinx import addnodes, locale
-from sphinx.deprecation import DeprecatedDict, RemovedInSphinx30Warning
+from sphinx import addnodes
+from sphinx.domains.changeset import VersionChange  # NOQA  # for compatibility
 from sphinx.locale import _
 from sphinx.util import url_re, docname_join
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.matching import patfilter
+from sphinx.util.matching import Matcher, patfilter
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 
@@ -32,24 +30,11 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-versionlabels = {
-    'versionadded':   _('New in version %s'),
-    'versionchanged': _('Changed in version %s'),
-    'deprecated':     _('Deprecated since version %s'),
-}  # type: Dict[unicode, unicode]
-
-locale.versionlabels = DeprecatedDict(
-    versionlabels,
-    'sphinx.locale.versionlabels is deprecated. '
-    'Please use sphinx.directives.other.versionlabels instead.',
-    RemovedInSphinx30Warning
-)
-
 glob_re = re.compile(r'.*[*?\[].*')
 
 
 def int_or_nothing(argument):
-    # type: (unicode) -> int
+    # type: (str) -> int
     if not argument:
         return 999
     return int(argument)
@@ -109,6 +94,7 @@ class TocTree(SphinxDirective):
         all_docnames.remove(self.env.docname)  # remove current document
 
         ret = []
+        excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
                 continue
@@ -144,9 +130,13 @@ class TocTree(SphinxDirective):
                 if url_re.match(ref) or ref == 'self':
                     toctree['entries'].append((title, ref))
                 elif docname not in self.env.found_docs:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree contains reference to nonexisting '
-                        'document %r' % docname, line=self.lineno))
+                    if excluded(self.env.doc2path(docname, None)):
+                        message = 'toctree contains reference to excluded document %r'
+                    else:
+                        message = 'toctree contains reference to nonexisting document %r'
+
+                    ret.append(self.state.document.reporter.warning(message % docname,
+                                                                    line=self.lineno))
                     self.env.note_reread()
                 else:
                     all_docnames.discard(docname)
@@ -175,7 +165,7 @@ class Author(SphinxDirective):
         # type: () -> List[nodes.Node]
         if not self.config.show_authors:
             return []
-        para = nodes.paragraph(translatable=False)
+        para = nodes.paragraph(translatable=False)  # type: nodes.Element
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -187,10 +177,12 @@ class Author(SphinxDirective):
         else:
             text = _('Author: ')
         emph += nodes.Text(text, text)
-        inodes, messages = self.state.inline_text(self.arguments[0],
-                                                  self.lineno)
+        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         emph.extend(inodes)
-        return [para] + messages
+
+        ret = [para]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class Index(SphinxDirective):
@@ -216,54 +208,6 @@ class Index(SphinxDirective):
         for entry in arguments:
             indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
-
-
-class VersionChange(SphinxDirective):
-    """
-    Directive to describe a change/addition/deprecation in a specific version.
-    """
-    has_content = True
-    required_arguments = 1
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {}  # type: Dict
-
-    def run(self):
-        # type: () -> List[nodes.Node]
-        node = addnodes.versionmodified()
-        node.document = self.state.document
-        set_source_info(self, node)
-        node['type'] = self.name
-        node['version'] = self.arguments[0]
-        text = versionlabels[self.name] % self.arguments[0]
-        if len(self.arguments) == 2:
-            inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno + 1)
-            para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
-            set_source_info(self, para)
-            node.append(para)
-        else:
-            messages = []
-        if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
-                content = nodes.inline(node[0].rawsource, translatable=True)
-                content.source = node[0].source
-                content.line = node[0].line
-                content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
-        else:
-            para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']),
-                                   translatable=False)
-            node.append(para)
-        # XXX should record node.source as well
-        self.env.note_versionchange(node['type'], node['version'], node, node.line)
-        return [node] + messages
 
 
 class SeeAlso(BaseAdmonition):
@@ -305,11 +249,13 @@ class Centered(SphinxDirective):
         # type: () -> List[nodes.Node]
         if not self.arguments:
             return []
-        subnode = addnodes.centered()
-        inodes, messages = self.state.inline_text(self.arguments[0],
-                                                  self.lineno)
+        subnode = addnodes.centered()  # type: nodes.Element
+        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
         subnode.extend(inodes)
-        return [subnode] + messages
+
+        ret = [subnode]  # type: List[nodes.Node]
+        ret += messages
+        return ret
 
 
 class Acks(SphinxDirective):
@@ -329,8 +275,8 @@ class Acks(SphinxDirective):
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            return [self.state.document.reporter.warning(
-                '.. acks content is not a list', line=self.lineno)]
+            reporter = self.state.document.reporter
+            return [reporter.warning('.. acks content is not a list', line=self.lineno)]
         return [node]
 
 
@@ -354,8 +300,8 @@ class HList(SphinxDirective):
         self.state.nested_parse(self.content, self.content_offset, node)
         if len(node.children) != 1 or not isinstance(node.children[0],
                                                      nodes.bullet_list):
-            return [self.state.document.reporter.warning(
-                '.. hlist content is not a list', line=self.lineno)]
+            reporter = self.state.document.reporter
+            return [reporter.warning('.. hlist content is not a list', line=self.lineno)]
         fulllist = node.children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
@@ -363,11 +309,10 @@ class HList(SphinxDirective):
         newnode = addnodes.hlist()
         for column in range(ncolumns):
             endindex = index + (column < nmore and (npercol + 1) or npercol)
-            col = addnodes.hlistcol()
-            col += nodes.bullet_list()
-            col[0] += fulllist.children[index:endindex]
+            bullet_list = nodes.bullet_list()
+            bullet_list += fulllist.children[index:endindex]
+            newnode += addnodes.hlistcol('', bullet_list)
             index = endindex
-            newnode += col
         return [newnode]
 
 
@@ -390,14 +335,15 @@ class Only(SphinxDirective):
 
         # Same as util.nested_parse_with_titles but try to handle nested
         # sections which should be raised higher up the doctree.
-        surrounding_title_styles = self.state.memo.title_styles
-        surrounding_section_level = self.state.memo.section_level
-        self.state.memo.title_styles = []
-        self.state.memo.section_level = 0
+        memo = self.state.memo  # type: Any
+        surrounding_title_styles = memo.title_styles
+        surrounding_section_level = memo.section_level
+        memo.title_styles = []
+        memo.section_level = 0
         try:
             self.state.nested_parse(self.content, self.content_offset,
-                                    node, match_titles=1)
-            title_styles = self.state.memo.title_styles
+                                    node, match_titles=True)
+            title_styles = memo.title_styles
             if (not surrounding_title_styles or
                     not title_styles or
                     title_styles[0] not in surrounding_title_styles or
@@ -418,15 +364,15 @@ class Only(SphinxDirective):
             # Use these depths to determine where the nested sections should
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
-            parent = self.state.parent
+            parent = cast(nodes.Element, self.state.parent)
             for i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
             parent.append(node)
             return []
         finally:
-            self.state.memo.title_styles = surrounding_title_styles
-            self.state.memo.section_level = surrounding_section_level
+            memo.title_styles = surrounding_title_styles
+            memo.section_level = surrounding_section_level
 
 
 class Include(BaseInclude, SphinxDirective):
@@ -437,47 +383,23 @@ class Include(BaseInclude, SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
-        current_filename = self.env.doc2path(self.env.docname)
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
             # docutils "standard" includes, do not do path processing
-            return BaseInclude.run(self)
+            return super().run()
         rel_filename, filename = self.env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
         self.env.note_included(filename)
-        with patched_warnings(self, current_filename):
-            return BaseInclude.run(self)
-
-
-@contextmanager
-def patched_warnings(directive, parent_filename):
-    # type: (BaseInclude, unicode) -> Generator[None, None, None]
-    """Add includee filename to the warnings during inclusion."""
-    try:
-        original = directive.state_machine.insert_input
-
-        def insert_input(input_lines, source):
-            # type: (Any, unicode) -> None
-            source += ' <included from %s>' % parent_filename
-            original(input_lines, source)
-
-        # patch insert_input() temporarily
-        directive.state_machine.insert_input = insert_input
-        yield
-    finally:
-        directive.state_machine.insert_input = original
+        return super().run()
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)
     directives.register_directive('codeauthor', Author)
     directives.register_directive('index', Index)
-    directives.register_directive('deprecated', VersionChange)
-    directives.register_directive('versionadded', VersionChange)
-    directives.register_directive('versionchanged', VersionChange)
     directives.register_directive('seealso', SeeAlso)
     directives.register_directive('tabularcolumns', TabularColumns)
     directives.register_directive('centered', Centered)

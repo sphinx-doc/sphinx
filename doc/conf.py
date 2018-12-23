@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Sphinx documentation build configuration file
 
 import re
@@ -44,6 +42,7 @@ epub_post_files = [('usage/installation.xhtml', 'Installing Sphinx'),
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
                       '_static/jquery.js', '_static/searchtools.js',
                       '_static/underscore.js', '_static/basic.css',
+                      '_static/language_data.js',
                       'search.html', '_static/websupport.js']
 epub_fix_images = False
 epub_max_image_width = 0
@@ -56,15 +55,27 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
+    'fontenc': r'\usepackage[LGR,X2,T1]{fontenc}',
     'fontpkg': r'''
 \usepackage[sc]{mathpazo}
 \usepackage[scaled]{helvet}
 \usepackage{courier}
+\substitutefont{LGR}{\rmdefault}{cmr}
+\substitutefont{LGR}{\sfdefault}{cmss}
+\substitutefont{LGR}{\ttdefault}{cmtt}
+\substitutefont{X2}{\rmdefault}{cmr}
+\substitutefont{X2}{\sfdefault}{cmss}
+\substitutefont{X2}{\ttdefault}{cmtt}
 ''',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
     'preamble': '\\DeclareUnicodeCharacter{229E}{\\ensuremath{\\boxplus}}',
     'fvset': '\\fvset{fontsize=auto}',
-    'printindex': '\\footnotesize\\raggedright\\sphinxprintindex',
+    # fix missing index entry due to RTD doing only once pdflatex after makeindex
+    'printindex': r'''
+\IfFileExists{\jobname.ind}
+             {\footnotesize\raggedright\printindex}
+             {\begin{sphinxtheindex}\end{sphinxtheindex}}
+''',
 }
 latex_show_urls = 'footnote'
 latex_use_xindy = True
@@ -139,3 +150,10 @@ def setup(app):
                          names=['param'], can_collapse=True)
     app.add_object_type('event', 'event', 'pair: %s; event', parse_event,
                         doc_field_types=[fdesc])
+
+    # workaround for RTD
+    from sphinx.util import logging
+    logger = logging.getLogger(__name__)
+    app.info = lambda *args, **kwargs: logger.info(*args, **kwargs)
+    app.warn = lambda *args, **kwargs: logger.warning(*args, **kwargs)
+    app.debug = lambda *args, **kwargs: logger.debug(*args, **kwargs)

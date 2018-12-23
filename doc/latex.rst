@@ -55,7 +55,7 @@ example::
    \setlength{\cftsecnumwidth}{1.25cm}
    ''',
        'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
-       'printindex': r'\footnotesize\raggedright\sphinxprintindex',
+       'printindex': r'\footnotesize\raggedright\printindex',
    }
    latex_show_urls = 'footnote'
 
@@ -209,7 +209,7 @@ The available styling options
        the default changed from ``false`` to ``true``.
 
 ``verbatimcontinuedalign``, ``verbatimcontinuesalign``
-    default ``c``. Horizontal position relative to the framed contents:
+    default ``r``. Horizontal position relative to the framed contents:
     either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
 
     .. versionadded:: 1.7
@@ -354,9 +354,9 @@ The available styling options
                                ``attentionBgColor``, ``dangerBgColor``,
                                ``errorBgColor``
 
-.. |warningborders| replace:: ``warningBorder``, ``cautionBorder``,
-                              ``attentionBorder``, ``dangerBorder``,
-                              ``errorBorder``
+.. |warningborders| replace:: ``warningborder``, ``cautionborder``,
+                              ``attentionborder``, ``dangerborder``,
+                              ``errorborder``
 
 LaTeX macros and environments
 -----------------------------
@@ -364,6 +364,8 @@ LaTeX macros and environments
 Here are some macros from the package file :file:`sphinx.sty` and class files
 :file:`sphinxhowto.cls`, :file:`sphinxmanual.cls`, which have public names
 thus allowing redefinitions. Check the respective files for the defaults.
+
+.. _latex-macros:
 
 Macros
 ~~~~~~
@@ -390,32 +392,34 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
-  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
-  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
+  wrapper (defined differently in :file:`sphinxhowto.cls` and in
+  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro
+  ``\sphinxtableofcontentshook`` is executed during its expansion right before
+  ``\tableofcontents`` itself.
 
   .. versionchanged:: 1.5
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
-- the ``\maketitle`` command is redefined by the class files
-  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
+  .. versionchanged:: 2.0
+     hard-coded redefinitions of ``\l@section`` and ``\l@subsection`` formerly
+     done during loading of ``'manual'`` docclass are now executed later via
+     ``\sphinxtableofcontentshook``.  This macro is also executed by the
+     ``'howto'`` docclass, but defaults to empty with it.
+- a custom ``\sphinxmaketitle`` is defined in the class files
+  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls` and is used as
+  default setting of ``'maketitle'`` :confval:`latex_elements` key.
+
+  .. versionchanged:: 1.8.3
+     formerly, ``\maketitle`` from LaTeX document class was modified by
+     Sphinx.
+- for ``'manual'`` docclass a macro ``\sphinxbackoftitlepage``, if it is
+  defined, gets executed at end of ``\sphinxmaketitle``, before the final
+  ``\clearpage``.  Use either the ``'maketitle'`` key or the ``'preamble'`` key
+  of :confval:`latex_elements` to add a custom definition of
+  ``\sphinxbackoftitlepage``.
+
+  .. versionadded:: 1.8.3
 - the citation reference is typeset via ``\sphinxcite`` which is a wrapper
   of standard ``\cite``.
-- regarding the general index, the :confval:`latex_elements` dictionary has a
-  ``'printindex'`` key which defaults to ``'\\sphinxprintindex'``.  It often
-  proves advantageous to use::
-
-    'printindex': '\\footnotesize\\raggedright\\sphinxprintindex',
-
-  especially if the index contains long entries. The LaTeX class for Japanese
-  ``'manual'``-type documents already does the font size and text
-  justification change, so the above is not needed then.
-
-  .. tip::
-
-     Advanced LaTeX users can also, via :confval:`latex_additional_files`, use
-     a custom :program:`makeindex` style file :file:`python.ist`, or a custom
-     :program:`xindy` style file :file:`sphinx.xdy` (see
-     :confval:`latex_use_xindy`) in order to modify how the general index is
-     typeset.
 
 Environments
 ~~~~~~~~~~~~
@@ -470,8 +474,7 @@ Environments
 - the bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
-  environments, needed mainly to insert a corresponding entry in the PDF
-  bookmarks and table of contents.
+  environments as provided by the document class (or packages).
 
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
