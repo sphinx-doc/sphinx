@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>First Try at sphinx and read the docs &#8212; smobsc 0.0.1 documentation</title>
+    <title>How to contribute &#8212; smobsc 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="help" href="help.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -32,34 +32,17 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="first-try-at-sphinx-and-read-the-docs">
-<h1>First Try at sphinx and read the docs<a class="headerlink" href="#first-try-at-sphinx-and-read-the-docs" title="Permalink to this headline">¶</a></h1>
-<p>Let’s see if this worked…
-Some text explaining very important complicated stuff.
-Some code:</p>
-<blockquote>
-<div>print ‘hello’
-&gt;&gt; hello</div></blockquote>
-<p>Second try to see if it worked</p>
-<div class="section" id="some-header">
-<h2>Some header<a class="headerlink" href="#some-header" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html#contact">Contact</a></li>
-<li class="toctree-l1"><a class="reference internal" href="help.html">help</a></li>
-<li class="toctree-l1"><a class="reference internal" href="How to contribute.html">How to contribute</a></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
+  <div class="section" id="how-to-contribute">
+<h1>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
+<p>If you want to contribute to the documentation, go to the smobsc directory and
+then acess the “docs” folder. There you will find an index.rst file. This
+is basically where you see the main structure of the documentation with all the
+headers, subheaders etc. If you want to link to a new section, you have to add
+it under toctree. When building the documentation sphinx will go through the
+sections under toctree and look for .rst files with the same names in the docs
+directory. Once you’ve added the section in the index.rst file and added the
+corresponding .rst file in the docs directory, you can build the html with
+“make html”.</p>
 </div>
 
 
@@ -69,7 +52,7 @@ Some code:</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">smobsc</a></h1>
+<h1 class="logo"><a href="index.html">smobsc</a></h1>
 
 
 
@@ -79,18 +62,18 @@ Some code:</p>
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html#contact">Contact</a></li>
 <li class="toctree-l1"><a class="reference internal" href="help.html">help</a></li>
-<li class="toctree-l1"><a class="reference internal" href="How to contribute.html">How to contribute</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to contribute</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="license.html" title="next chapter">License</a></li>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="help.html" title="previous chapter">help</a></li>
   </ul></li>
 </ul>
 </div>
@@ -118,7 +101,7 @@ Some code:</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
       
       |
-      <a href="_sources/index.rst.txt"
+      <a href="_sources/How to contribute.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
