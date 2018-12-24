@@ -25,6 +25,7 @@ Sphinx documentation contents
    templating
    latex
    extdev/index
+   development/tutorials/index
 
    faq
    glossary

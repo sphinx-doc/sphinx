@@ -11,6 +11,7 @@
 
 import html
 import os
+import re
 from os import path
 
 from docutils import nodes
@@ -25,7 +26,7 @@ from sphinx.util.osutil import make_filename_from_project
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from typing import Any, Dict, IO, List, Match, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 
@@ -169,6 +170,24 @@ chm_locales = {
 }
 
 
+def chm_htmlescape(*args, **kwargs):
+    # type: (*Any, **Any) -> str
+    """
+    chm_htmlescape() is a wrapper of htmlescape().
+    .hhc/.hhk files don't recognize hex escaping, we need convert
+    hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
+    htmlescape() may generates a hex escaping `&#x27;` for single
+    quote `'`, this wrapper fixes this.
+    """
+    def convert(matchobj):
+        # type: (Match[str]) -> str
+        codepoint = int(matchobj.group(1), 16)
+        return '&#%d;' % codepoint
+    return re.sub(r'&#[xX]([0-9a-fA-F]+);',
+                  convert,
+                  html.escape(*args, **kwargs))
+
+
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that also outputs Windows HTML help project, contents and
@@ -278,7 +297,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = html.escape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -308,7 +327,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
-                title = html.escape(title)
+                title = chm_htmlescape(title)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:

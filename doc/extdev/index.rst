@@ -52,6 +52,115 @@ Note that it is still necessary to register the builder using
 
 .. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
 
+.. _important-objects:
+
+Important objects
+-----------------
+
+There are several key objects whose API you will use while writing an
+extension. These are:
+
+**Application**
+   The application object (usually called ``app``) is an instance of
+   :class:`.Sphinx`.  It controls most high-level functionality, such as the
+   setup of extensions, event dispatching and producing output (logging).
+
+   If you have the environment object, the application is available as
+   ``env.app``.
+
+**Environment**
+   The build environment object (usually called ``env``) is an instance of
+   :class:`.BuildEnvironment`.  It is responsible for parsing the source
+   documents, stores all metadata about the document collection and is
+   serialized to disk after each build.
+
+   Its API provides methods to do with access to metadata, resolving references,
+   etc.  It can also be used by extensions to cache information that should
+   persist for incremental rebuilds.
+
+   If you have the application or builder object, the environment is available
+   as ``app.env`` or ``builder.env``.
+
+**Builder**
+   The builder object (usually called ``builder``) is an instance of a specific
+   subclass of :class:`.Builder`.  Each builder class knows how to convert the
+   parsed documents into an output format, or otherwise process them (e.g. check
+   external links).
+
+   If you have the application object, the builder is available as
+   ``app.builder``.
+
+**Config**
+   The config object (usually called ``config``) provides the values of
+   configuration values set in :file:`conf.py` as attributes.  It is an instance
+   of :class:`.Config`.
+
+   The config is available as ``app.config`` or ``env.config``.
+
+To see an example of use of these objects, refer to :doc:`../development/tutorials/index`.
+
+.. _build-phases:
+
+Build Phases
+------------
+
+One thing that is vital in order to understand extension mechanisms is the way
+in which a Sphinx project is built: this works in several phases.
+
+**Phase 0: Initialization**
+
+   In this phase, almost nothing of interest to us happens.  The source
+   directory is searched for source files, and extensions are initialized.
+   Should a stored build environment exist, it is loaded, otherwise a new one is
+   created.
+
+**Phase 1: Reading**
+
+   In Phase 1, all source files (and on subsequent builds, those that are new or
+   changed) are read and parsed.  This is the phase where directives and roles
+   are encountered by docutils, and the corresponding code is executed.  The
+   output of this phase is a *doctree* for each source file; that is a tree of
+   docutils nodes.  For document elements that aren't fully known until all
+   existing files are read, temporary nodes are created.
+
+   There are nodes provided by docutils, which are documented `in the docutils
+   documentation <http://docutils.sourceforge.net/docs/ref/doctree.html>`__.
+   Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
+
+   During reading, the build environment is updated with all meta- and cross
+   reference data of the read documents, such as labels, the names of headings,
+   described Python objects and index entries.  This will later be used to
+   replace the temporary nodes.
+
+   The parsed doctrees are stored on the disk, because it is not possible to
+   hold all of them in memory.
+
+**Phase 2: Consistency checks**
+
+   Some checking is done to ensure no surprises in the built documents.
+
+**Phase 3: Resolving**
+
+   Now that the metadata and cross-reference data of all existing documents is
+   known, all temporary nodes are replaced by nodes that can be converted into
+   output using components called tranform.  For example, links are created for
+   object references that exist, and simple literal nodes are created for those
+   that don't.
+
+**Phase 4: Writing**
+
+   This phase converts the resolved doctrees to the desired output format, such
+   as HTML or LaTeX.  This happens via a so-called docutils writer that visits
+   the individual nodes of each doctree and produces some output in the process.
+
+.. note::
+
+   Some builders deviate from this general build plan, for example, the builder
+   that checks external links does not need anything more than the parsed
+   doctrees and therefore does not have phases 2--4.
+
+To see an example of application, refer to :doc:`../development/tutorials/todo`.
+
 .. _ext-metadata:
 
 Extension metadata
@@ -82,8 +191,8 @@ APIs used for writing extensions
 --------------------------------
 
 .. toctree::
+   :maxdepth: 2
 
-   tutorial
    appapi
    projectapi
    envapi
