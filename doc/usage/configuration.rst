@@ -1353,6 +1353,18 @@ Options for HTML help output
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+.. confval:: htmlhelp_ascii_output
+
+   If your document has non-ASCII characters, and you want to distribute the
+   chm document worldwide, you may set this option to ``True`` to get the
+   correct display effect on some Windows system.
+
+   This option will escape non-ASCII characters after <head> tag to ASCII
+   form. e.g. ``ß``->``&#223;``.
+
+   Default is ``False``.
+
+   .. versionadded:: 1.8.3
 
 .. _applehelp-options:
 

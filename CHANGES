@@ -16,6 +16,7 @@ Features added
 * LaTeX: it is possible to insert custom material to appear on back of title
   page, see discussion of ``'maketitle'`` key of :confval:`latex_elements`
   (``'manual'`` docclass only)
+* #5788: add :confval:`htmlhelp_ascii_output` option to htmlhelp builder.
 
 Bugs fixed
 ----------

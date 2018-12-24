@@ -13,6 +13,7 @@ from __future__ import print_function
 
 import codecs
 import os
+import re
 from os import path
 
 from docutils import nodes
@@ -232,6 +233,32 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         # type: (unicode, unicode, Dict, unicode) -> None
         ctx['encoding'] = self.encoding
 
+    def process_final_html(self, htm):
+        # type: (unicode) -> unicode
+        """If ``htmlhelp_ascii_output`` is True, non-ASCII characters
+           after <head> tag will be escaped to ASCII form.
+           e.g. ``ß`` -> ``&#223;``.
+        """
+        # only process when htmlhelp_ascii_output is True
+        if not self.config.htmlhelp_ascii_output:
+            return htm
+
+        def process(string):
+            # type: (unicode) -> unicode
+            def escape(matchobj):
+                # type: (Match[unicode]) -> unicode
+                codepoint = ord(matchobj.group(0))
+                return '&#%d;' % codepoint
+            return re.sub(r'[^\x00-\x7F]', escape, string)
+
+        # escape non-ASCII characters after head tag
+        m = re.search(r'^.*?</head>', htm, re.DOTALL|re.IGNORECASE)
+        if not m:
+            return htm
+
+        end = m.end()
+        return htm[:end] + process(htm[end:])
+
     def handle_finish(self):
         # type: () -> None
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
@@ -358,6 +385,7 @@ def setup(app):
     app.add_builder(HTMLHelpBuilder)
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_ascii_output', False, 'html')
 
     return {
         'version': 'builtin',

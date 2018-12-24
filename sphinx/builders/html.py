@@ -1104,6 +1104,12 @@ class StandaloneHTMLBuilder(Builder):
         # type: (unicode, unicode) -> unicode
         return docname + self.link_suffix
 
+    def process_final_html(self, htm):
+        # type: (unicode) -> unicode
+        """Give subclasses a chance to process html before writing to file.
+        """
+        return htm
+
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         # type: (unicode, Dict, unicode, unicode, Any) -> None
@@ -1192,6 +1198,7 @@ class StandaloneHTMLBuilder(Builder):
             outfilename = self.get_outfilename(pagename)
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
+        output = self.process_final_html(output)
         try:
             with codecs.open(outfilename, 'w', ctx['encoding'], 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
                 f.write(output)
