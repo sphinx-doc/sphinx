@@ -19,7 +19,7 @@ from sphinx.builders.htmlhelp import chm_htmlescape
 def test_chm(app):
     app.build()
 
-    # check .hhk file
+    # ensure hex-escaping doesn't exist in .hhk file
     outname = app.builder.config.htmlhelp_basename
     hhk_path = str(app.outdir / outname + '.hhk')
 
@@ -27,6 +27,18 @@ def test_chm(app):
         data = f.read()
     m = re.search(br'&#[xX][0-9a-fA-F]+;', data)
     assert m is None, 'Hex escaping exists in .hhk file: ' + str(m.group(0))
+
+    # ensure ``htmlhelp_ascii_output`` option works
+    htm_path = str(app.outdir / 'index.html')
+
+    with open(htm_path, 'rb') as f:
+        data = f.read()
+
+    body_start = data.find(b'<body>')
+    assert body_start >= 0
+
+    m = re.search(br'[^\x00-\x7F]', data[body_start:])
+    assert m is None, "`htmlhelp_ascii_output` option doesn't works"
 
 
 def test_chm_htmlescape():

@@ -19,6 +19,12 @@ from os import path
 from docutils import nodes
 from six import PY3
 
+# codepoint2name dict
+if PY3:
+    from html.entities import codepoint2name
+else:
+    from htmlentitydefs import codepoint2name
+
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -237,7 +243,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         # type: (unicode) -> unicode
         """If ``htmlhelp_ascii_output`` is True, non-ASCII characters
            after <head> tag will be escaped to ASCII form.
-           e.g. ``ß`` -> ``&#223;``.
+           e.g. ``ß`` -> ``&szlig;``.
         """
         # only process when htmlhelp_ascii_output is True
         if not self.config.htmlhelp_ascii_output:
@@ -248,7 +254,11 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             def escape(matchobj):
                 # type: (Match[unicode]) -> unicode
                 codepoint = ord(matchobj.group(0))
-                return '&#%d;' % codepoint
+                name = codepoint2name.get(codepoint)
+                if name is None:
+                    return '&#%d;' % codepoint
+                else:
+                    return '&%s;' % name
             return re.sub(r'[^\x00-\x7F]', escape, string)
 
         # escape non-ASCII characters after head tag

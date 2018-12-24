@@ -1,5 +1,11 @@
-Index markup
-------------
+Summary -- Release Highlights
+=============================
+
+.. This section singles out the most important changes in Python 3.7.
+   Brevity is key.
+
+Non-ASCII characters:
+   Ä Å Æ Ç È É Ê Ë Ì Í
 
 .. index::
    single: entry
