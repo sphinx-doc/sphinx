@@ -19,12 +19,6 @@ from os import path
 from docutils import nodes
 from six import PY3
 
-# codepoint2name dict
-if PY3:
-    from html.entities import codepoint2name
-else:
-    from htmlentitydefs import codepoint2name
-
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -37,6 +31,12 @@ if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Match, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+# codepoint2name dict
+if PY3:
+    from html.entities import codepoint2name
+else:
+    from htmlentitydefs import codepoint2name
 
 
 logger = logging.getLogger(__name__)
@@ -262,7 +262,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             return re.sub(r'[^\x00-\x7F]', escape, string)
 
         # escape non-ASCII characters after head tag
-        m = re.search(r'^.*?</head>', htm, re.DOTALL|re.IGNORECASE)
+        m = re.search(r'^.*?</head>', htm, re.DOTALL | re.IGNORECASE)
         if not m:
             return htm
 
