@@ -13,10 +13,10 @@ from __future__ import print_function
 
 import codecs
 import os
-import re
 from os import path
 
 from docutils import nodes
+from six import PY3
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -170,22 +170,21 @@ chm_locales = {
 }
 
 
-def chm_htmlescape(*args, **kwargs):
-    # type: (*Any, **Any) -> unicode
+def chm_htmlescape(s, quote=None):
+    # type: (unicode, bool) -> unicode
     """
-    chm_htmlescape() is a wrapper of htmlescape().
+    chm_htmlescape() is a wrapper of html.escape().
     .hhc/.hhk files don't recognize hex escaping, we need convert
-    hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
-    htmlescape() may generates a hex escaping `&#x27;` for single
-    quote `'`, this wrapper fixes this.
+    hex escaping to decimal escaping. for example: ``&#x27;`` -> ``&#39;``
+    html.escape() may generates a hex escaping ``&#x27;`` for single
+    quote ``'``, this wrapper fixes this.
     """
-    def convert(matchobj):
-        # type: (Match[unicode]) -> unicode
-        codepoint = int(matchobj.group(1), 16)
-        return '&#%d;' % codepoint
-    return re.sub(r'&#[xX]([0-9a-fA-F]+);',
-                  convert,
-                  htmlescape(*args, **kwargs))
+    if quote is None:
+        quote = PY3  # True for py3, False for py2  (for compatibility)
+
+    s = htmlescape(s, quote)
+    s = s.replace('&#x27;', '&#39;')    # re-escape as decimal
+    return s
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
@@ -297,7 +296,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = chm_htmlescape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext(), True)
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -327,10 +326,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
                 def write_param(name, value):
                     # type: (unicode, unicode) -> None
-                    item = '    <param name="%s" value="%s">\n' % \
-                        (name, value)
+                    item = '    <param name="%s" value="%s">\n' % (name, value)
                     f.write(item)
-                title = chm_htmlescape(title)
+                title = chm_htmlescape(title, True)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
