@@ -1360,7 +1360,7 @@ Options for HTML help output
    correct display effect on some Windows system.
 
    This option will escape non-ASCII characters after <head> tag to ASCII
-   form. e.g. ``ß``->``&#223;``.
+   form. e.g. ``ß``->``&szlig;``.
 
    Default is ``False``.
 
