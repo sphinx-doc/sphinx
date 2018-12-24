@@ -132,6 +132,11 @@ Features added
 * LaTeX: support rendering (not in math, yet) of Greek and Cyrillic Unicode
   letters in non-Cyrillic document even with ``'pdflatex'`` as
   :confval:`latex_engine` (refs: #5645)
+* #5660: The ``versionadded``, ``versionchanged`` and ``deprecated`` directives
+  are now generated with their own specific CSS classes
+  (``added``, ``changed`` and ``deprecated``, respectively) in addition to the
+  generic ``versionmodified`` class.
+
 
 Bugs fixed
 ----------

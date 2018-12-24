@@ -34,6 +34,12 @@ versionlabels = {
     'deprecated':     _('Deprecated since version %s'),
 }
 
+versionlabel_classes = {
+    'versionadded':     'added',
+    'versionchanged':   'changed',
+    'deprecated':       'deprecated',
+}
+
 locale.versionlabels = DeprecatedDict(
     versionlabels,
     'sphinx.locale.versionlabels is deprecated. '
@@ -78,6 +84,7 @@ class VersionChange(SphinxDirective):
             messages = []
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
+        classes = ['versionmodified', versionlabel_classes[self.name]]
         if len(node):
             if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
                 content = nodes.inline(node[0].rawsource, translatable=True)
@@ -87,11 +94,11 @@ class VersionChange(SphinxDirective):
                 node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
 
             para = cast(nodes.paragraph, node[0])
-            para.insert(0, nodes.inline('', '%s: ' % text, classes=['versionmodified']))
+            para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']),
+                                                classes=classes),
                                    translatable=False)
             node.append(para)
 
