@@ -171,7 +171,7 @@ chm_locales = {
 
 
 def chm_htmlescape(*args, **kwargs):
-    # type: (*Any, **Any) -> unicode
+    # type: (*Any, **Any) -> str
     """
     chm_htmlescape() is a wrapper of htmlescape().
     .hhc/.hhk files don't recognize hex escaping, we need convert
@@ -180,7 +180,7 @@ def chm_htmlescape(*args, **kwargs):
     quote `'`, this wrapper fixes this.
     """
     def convert(matchobj):
-        # type: (Match[unicode]) -> unicode
+        # type: (Match[str]) -> str
         codepoint = int(matchobj.group(1), 16)
         return '&#%d;' % codepoint
     return re.sub(r'&#[xX]([0-9a-fA-F]+);',
