@@ -1,0 +1,16 @@
+Conducting Experiments
+======================
+
+Variables in Psychology 
+^^^^^^^^^^^^^^^^^^^^^^^
+Contrafactual Causality
+^^^^^^^^^^^^^^^^^^^^^^^ 
+Experimental Designs 
+^^^^^^^^^^^^^^^^^^^^
+e.g. 2*2 Design gambling task
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Programming Experiments in Psychopy 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+reaction time experiment
+
+jpsych online survey
