@@ -6,9 +6,7 @@ The text will unify scientific theory, open science, and the practical skills ne
 
 In the spirit of Open Science, the book will be hosted on a GitHub repository, open for contributions. This eliminates the need for multiple editions, and a simple text, markup-based structure allows straight-forward conversion into multiple formats, from HTML to ePub or PDF. After establishing the core components and sections on fundamental topics, we will invite experts from different domains to contribute. Contributors will be able to create associated repositories with teaching materials for specialized cases.
 
-The dynamic nature of a GitHub-based website allows searchable content, a modular structure, combined with an overarching narrative. Students can complete all necessary steps for preparing, conducting, and presenting scientific work. Our aim is to provide a standalone
-
-fully-comprehensible online book that can be integrated into different teaching formats: assisting lectures, theoretical seminars, practical workshops, student-organized tutorials, or self-paced online learning. We hope this resource will change the skillsets and thinking of developing researchers early on. We believe such a project is essential to achieving transparent, open, and reproducible scientific disciplines.  
+The dynamic nature of a GitHub-based website allows searchable content, a modular structure, combined with an overarching narrative. Students can complete all necessary steps for preparing, conducting, and presenting scientific work. Our aim is to provide a standalone fully-comprehensible online book that can be integrated into different teaching formats: assisting lectures, theoretical seminars, practical workshops, student-organized tutorials, or self-paced online learning. We hope this resource will change the skillsets and thinking of developing researchers early on. We believe such a project is essential to achieving transparent, open, and reproducible scientific disciplines.  
 
 Chapters
 ^^^^^^^^
