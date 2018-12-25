@@ -1,14 +1,5 @@
-Release 1.8.3 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 1.8.3 (released Dec 26, 2018)
+=====================================
 
 Features added
 --------------
@@ -39,9 +30,6 @@ Bugs fixed
 * #5800: todo: crashed if todo is defined in TextElement
 * #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 * htmlhelp: broken .hhk file generated when title contains a double quote
-
-Testing
---------
 
 Release 1.8.2 (released Nov 11, 2018)
 =====================================
