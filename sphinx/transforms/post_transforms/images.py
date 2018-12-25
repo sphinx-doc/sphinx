@@ -13,7 +13,6 @@ from hashlib import sha1
 from math import ceil
 
 from docutils import nodes
-from six import text_type
 
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
@@ -118,8 +117,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]') %
-                           (node['uri'], text_type(exc)))
+            logger.warning(__('Could not fetch remote image: %s [%s]') % (node['uri'], exc))
 
 
 class DataURIExtractor(BaseImageConverter):

@@ -12,12 +12,10 @@
 
 import inspect
 import re
-import sys
 import warnings
 from typing import Any
 
 from docutils.statemachine import StringList
-from six import text_type
 
 import sphinx
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
@@ -461,13 +459,7 @@ class Documenter:
     def get_sourcename(self):
         # type: () -> str
         if self.analyzer:
-            # prevent encoding errors when the file name is non-ASCII
-            if not isinstance(self.analyzer.srcname, text_type):
-                filename = text_type(self.analyzer.srcname,
-                                     sys.getfilesystemencoding(), 'replace')
-            else:
-                filename = self.analyzer.srcname
-            return '%s:docstring of %s' % (filename, self.fullname)
+            return '%s:docstring of %s' % (self.analyzer.srcname, self.fullname)
         return 'docstring of %s' % self.fullname
 
     def add_content(self, more_content, no_docstring=False):

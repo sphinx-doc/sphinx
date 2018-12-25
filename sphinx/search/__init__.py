@@ -13,8 +13,6 @@ import re
 import warnings
 from os import path
 
-from six import text_type
-
 from docutils import nodes
 
 from sphinx import addnodes
@@ -351,9 +349,9 @@ class IndexBuilder:
                     otypes[domainname, type] = typeindex
                     otype = domain.object_types.get(type)
                     if otype:
-                        # use unicode() to fire translation proxies
+                        # use str() to fire translation proxies
                         onames[typeindex] = (domainname, type,
-                                             text_type(domain.get_type_name(otype)))
+                                             str(domain.get_type_name(otype)))
                     else:
                         onames[typeindex] = (domainname, type, type)
                 if anchor == fullname:

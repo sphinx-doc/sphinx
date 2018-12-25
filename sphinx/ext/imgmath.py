@@ -17,7 +17,6 @@ from os import path
 from subprocess import Popen, PIPE
 
 from docutils import nodes
-from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError
@@ -290,7 +289,7 @@ def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
-        msg = text_type(exc)
+        msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)
@@ -317,7 +316,7 @@ def html_visit_displaymath(self, node):
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
-        msg = text_type(exc)
+        msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)

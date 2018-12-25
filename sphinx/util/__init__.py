@@ -26,7 +26,6 @@ from time import mktime, strptime
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
@@ -70,9 +69,7 @@ def path_stabilize(filepath):
     # type: (str) -> str
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
-    if isinstance(newpath, text_type):
-        newpath = unicodedata.normalize('NFC', newpath)
-    return newpath
+    return unicodedata.normalize('NFC', newpath)
 
 
 def get_matching_files(dirname, exclude_matchers=()):
@@ -637,9 +634,9 @@ def display_chunk(chunk):
     # type: (Any) -> str
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
-            return text_type(chunk[0])
+            return str(chunk[0])
         return '%s .. %s' % (chunk[0], chunk[-1])
-    return text_type(chunk)
+    return str(chunk)
 
 
 def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):

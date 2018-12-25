@@ -16,7 +16,6 @@ import sys
 import traceback
 
 from docutils.utils import SystemMessage
-from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -53,17 +52,17 @@ def handle_exception(app, args, exception, stderr=sys.stderr):
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
             print(red('%s:' % exception.category), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             tbpath = save_traceback(app)
             print(red(__('The full traceback has been saved in %s, if you want '
                          'to report the issue to the developers.') % tbpath),
                   file=stderr)
         elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
             print(red(__('Recursion error:')), file=stderr)
-            print(terminal_safe(text_type(exception)), file=stderr)
+            print(terminal_safe(str(exception)), file=stderr)
             print(file=stderr)
             print(__('This can happen with very large or deeply nested source '
                      'files.  You can carefully increase the default Python '

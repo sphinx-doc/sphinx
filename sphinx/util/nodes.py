@@ -12,7 +12,6 @@ import re
 from typing import Any, cast
 
 from docutils import nodes
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -115,7 +114,7 @@ def repr_domxml(node, length=80):
     try:
         text = node.asdom().toxml()
     except Exception:
-        text = text_type(node)
+        text = str(node)
     if length and len(text) > length:
         text = text[:length] + '...'
     return text
@@ -398,7 +397,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
     tree = cast(nodes.document, tree.deepcopy())
     for toctreenode in tree.traverse(addnodes.toctree):
         newnodes = []
-        includefiles = map(text_type, toctreenode['includefiles'])
+        includefiles = map(str, toctreenode['includefiles'])
         for includefile in includefiles:
             if includefile not in traversed:
                 try:

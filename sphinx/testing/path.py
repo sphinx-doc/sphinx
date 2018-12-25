@@ -9,8 +9,6 @@ import os
 import shutil
 import sys
 
-from six import text_type
-
 if False:
     # For type annotation
     import builtins  # NOQA
@@ -20,7 +18,7 @@ if False:
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-class path(text_type):
+class path(str):
     """
     Represents a path which behaves like a string.
     """
@@ -222,4 +220,4 @@ class path(text_type):
 
     def __repr__(self):
         # type: () -> str
-        return '%s(%s)' % (self.__class__.__name__, text_type.__repr__(self))
+        return '%s(%s)' % (self.__class__.__name__, super().__repr__())

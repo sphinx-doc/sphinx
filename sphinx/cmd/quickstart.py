@@ -32,7 +32,6 @@ except ImportError:
     USE_LIBEDIT = False
 
 from docutils.utils import column_width
-from six import text_type
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
@@ -158,7 +157,7 @@ def term_decode(text):
     warnings.warn('term_decode() is deprecated.',
                   RemovedInSphinx40Warning, stacklevel=2)
 
-    if isinstance(text, text_type):
+    if isinstance(text, str):
         return text
 
     # Use the known encoding, if possible
@@ -391,10 +390,9 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = text_type(d['author']).\
-        translate(texescape.tex_escape_map)
+    d['author_texescaped'] = d['author'].translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
-    d['project_doc_texescaped'] = text_type(d['project'] + ' Documentation').\
+    d['project_doc_texescaped'] = (d['project'] + ' Documentation').\
         translate(texescape.tex_escape_map)
 
     # escape backslashes and single quotes in strings that are put into

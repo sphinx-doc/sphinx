@@ -16,8 +16,6 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
-from six import text_type
-
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
@@ -349,7 +347,7 @@ class VariableCommentPicker(ast.NodeVisitor):
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
-                    if isinstance(node.value.s, text_type):
+                    if isinstance(node.value.s, str):
                         docstring = node.value.s
                     else:
                         docstring = node.value.s.decode(self.encoding or 'utf-8')
