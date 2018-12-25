@@ -17,6 +17,8 @@ Bugs fixed
 ----------
 
 * #5460: html search does not work with some 3rd party themes
+* #5605 If the documentation language is set to Chinese, English words could not
+  be searched.
 
 Testing
 --------
