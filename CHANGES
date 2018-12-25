@@ -1,4 +1,4 @@
-Release 1.8.3 (in development)
+Release 1.8.4 (in development)
 ==============================
 
 Dependencies
@@ -9,6 +9,18 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.8.3 (released Dec 26, 2018)
+=====================================
 
 Features added
 --------------
@@ -41,9 +53,6 @@ Bugs fixed
 * htmlhelp: broken .hhk file generated when title contains a double quote
 * #5605 If the documentation language is set to Chinese, English words could not
   be searched.
-
-Testing
---------
 
 Release 1.8.2 (released Nov 11, 2018)
 =====================================
