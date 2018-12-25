@@ -1,6 +1,6 @@
 Scientific Methods for Open Behavioral, Social and Cognitive Sciences
 ==================================================================================================
-Editors: Sage Boettcher | Dejan Draschkow  | Jona Sassenhagen | Martin Schultze |
+Editors: Sage Boettcher | Dejan Draschkow  | Jona Sassenhagen | Martin Schultze
 
 Contributors: Aylin Kallmayer | Leah Kumle 
 
