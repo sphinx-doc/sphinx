@@ -762,7 +762,7 @@ Some directives support options:
 Anonymous Entities
 ~~~~~~~~~~~~~~~~~~
 
-C++ supposrts anonymous namespaces, classes, enums, and unions.
+C++ supports anonymous namespaces, classes, enums, and unions.
 For the sake of documentation they must be given some name that starts with ``@``,
 e.g., ``@42`` or ``@data``.
 These names can also be used in cross-references and (type) expressions,
@@ -850,8 +850,8 @@ Note however that no checking is performed with respect to parameter
 compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
-Inline Expressions and Tpes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
               cpp:texpr
@@ -1155,7 +1155,7 @@ There is a set of directives allowing documenting command-line programs:
          Run a module as a script.
 
    The directive will create cross-reference targets for the given options,
-   referencable by :rst:role:`option` (in the example case, you'd use something
+   referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
@@ -1163,7 +1163,7 @@ There is a set of directives allowing documenting command-line programs:
 .. rst:directive:: .. envvar:: name
 
    Describes an environment variable that the documented code or program uses
-   or defines.  Referencable by :rst:role:`envvar`.
+   or defines.  Referenceable by :rst:role:`envvar`.
 
 .. rst:directive:: .. program:: name
 
