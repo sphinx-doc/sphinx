@@ -15,6 +15,8 @@ Features added
 
 Bugs fixed
 ----------
+* #5605 If the documentation language is set to Chinese, English words could not
+  be searched.
 
 Testing
 --------
@@ -51,8 +53,6 @@ Bugs fixed
 * #5800: todo: crashed if todo is defined in TextElement
 * #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
 * htmlhelp: broken .hhk file generated when title contains a double quote
-* #5605 If the documentation language is set to Chinese, English words could not
-  be searched.
 
 Release 1.8.2 (released Nov 11, 2018)
 =====================================
