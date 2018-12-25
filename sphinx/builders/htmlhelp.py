@@ -11,7 +11,6 @@
 
 import html
 import os
-import re
 from os import path
 
 from docutils import nodes
@@ -170,22 +169,18 @@ chm_locales = {
 }
 
 
-def chm_htmlescape(*args, **kwargs):
-    # type: (*Any, **Any) -> str
+def chm_htmlescape(s, quote=True):
+    # type: (str, bool) -> str
     """
-    chm_htmlescape() is a wrapper of htmlescape().
+    chm_htmlescape() is a wrapper of html.escape().
     .hhc/.hhk files don't recognize hex escaping, we need convert
-    hex escaping to decimal escaping. for example: `&#x27;` -> `&#39;`
-    htmlescape() may generates a hex escaping `&#x27;` for single
-    quote `'`, this wrapper fixes this.
+    hex escaping to decimal escaping. for example: ``&#x27;`` -> ``&#39;``
+    html.escape() may generates a hex escaping ``&#x27;`` for single
+    quote ``'``, this wrapper fixes this.
     """
-    def convert(matchobj):
-        # type: (Match[str]) -> str
-        codepoint = int(matchobj.group(1), 16)
-        return '&#%d;' % codepoint
-    return re.sub(r'&#[xX]([0-9a-fA-F]+);',
-                  convert,
-                  html.escape(*args, **kwargs))
+    s = html.escape(s, quote)
+    s = s.replace('&#x27;', '&#39;')    # re-escape as decimal
+    return s
 
 
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
@@ -297,7 +292,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = chm_htmlescape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext(), True)
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -324,10 +319,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
                 def write_param(name, value):
                     # type: (str, str) -> None
-                    item = '    <param name="%s" value="%s">\n' % \
-                        (name, value)
+                    item = '    <param name="%s" value="%s">\n' % (name, value)
                     f.write(item)
-                title = chm_htmlescape(title)
+                title = chm_htmlescape(title, True)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:

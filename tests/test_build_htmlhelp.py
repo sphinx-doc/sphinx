@@ -12,6 +12,8 @@ import re
 
 import pytest
 
+from sphinx.builders.htmlhelp import chm_htmlescape
+
 from sphinx.builders.htmlhelp import default_htmlhelp_basename
 from sphinx.config import Config
 
@@ -45,3 +47,17 @@ def test_chm(app):
         data = f.read()
     m = re.search(br'&#[xX][0-9a-fA-F]+;', data)
     assert m is None, 'Hex escaping exists in .hhk file: ' + str(m.group(0))
+
+
+def test_chm_htmlescape():
+    assert chm_htmlescape('Hello world') == 'Hello world'
+    assert chm_htmlescape(u'Unicode 文字') == u'Unicode 文字'
+    assert chm_htmlescape('&#x45') == '&amp;#x45'
+
+    assert chm_htmlescape('<Hello> "world"') == '&lt;Hello&gt; &quot;world&quot;'
+    assert chm_htmlescape('<Hello> "world"', True) == '&lt;Hello&gt; &quot;world&quot;'
+    assert chm_htmlescape('<Hello> "world"', False) == '&lt;Hello&gt; "world"'
+
+    assert chm_htmlescape("Hello 'world'") == "Hello &#39;world&#39;"
+    assert chm_htmlescape("Hello 'world'", True) == "Hello &#39;world&#39;"
+    assert chm_htmlescape("Hello 'world'", False) == "Hello 'world'"

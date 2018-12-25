@@ -158,7 +158,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.8.3 (in development)
+Release 1.8.4 (in development)
 ==============================
 
 Dependencies
@@ -169,6 +169,18 @@ Incompatible changes
 
 Deprecated
 ----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.8.3 (released Dec 26, 2018)
+=====================================
 
 Features added
 --------------
@@ -198,9 +210,7 @@ Bugs fixed
 * #5834: apidoc: wrong help for ``--tocfile``
 * #5800: todo: crashed if todo is defined in TextElement
 * #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
-
-Testing
---------
+* htmlhelp: broken .hhk file generated when title contains a double quote
 
 Release 1.8.2 (released Nov 11, 2018)
 =====================================
@@ -569,27 +579,6 @@ Documentation
 
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
-
-Release 1.7.10 (in development)
-===============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 1.7.9 (released Sep 05, 2018)
 =====================================
