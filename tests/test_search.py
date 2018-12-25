@@ -253,4 +253,5 @@ def test_search_index_gen_zh(app, status, warning):
     searchindex = (app.outdir / 'searchindex.js').text()
     assert 'chinesetest ' not in searchindex
     assert 'chinesetest' in searchindex
+    assert 'chinesetesttwo' in searchindex
     assert 'cas' in searchindex
