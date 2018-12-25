@@ -1,11 +1,8 @@
 Scientific Methods for Open Behavioral, Social and Cognitive Sciences
 ==================================================================================================
-|                                 |           Edited by             | | |
-| :-------------: |:-------------:| :-------------:| :-------------:|
-| Sage Boettcher | Dejan Draschkow  | Jona Sassenhagen | Martin Schultze |
-|                                 |           Contributors          | | |
-| :-------------: |:-------------:| :-------------:| :-------------:|
-| Aylin Kallmayer | Leah Kumle  |  |  |
+Editors: Sage Boettcher | Dejan Draschkow  | Jona Sassenhagen | Martin Schultze |
+
+Contributors: Aylin Kallmayer | Leah Kumle 
 
 Open Science requires more than conviction and good intentions: it is not only a philosophy, but also a technical skillset and knowledge base. Open Science practices -- e.g., data management and sharing, transparent and open-source software, and preregistering projects -- present a steep learning curve. Undeveloped incentive structures shift scientists’ priorities away from these initially time-consuming processes, despite saving a significant amount of time in the long run. Establishing Open Science practices can only succeed if acquired as an essential part of general methodological skill building, i.e., in the first undergraduate classes -- combined with the acquisition of canonised methodological knowledge (e.g., on experimental design or statistical analysis). To facilitate teaching -- as well as practicing -- Open Science, for both junior and senior scientists, we will develop a comprehensive online textbook, combining a state-of-the-art presentation of core methodological skills already embedded in Open Science practices.
 
