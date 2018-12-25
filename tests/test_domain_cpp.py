@@ -124,8 +124,20 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     for suffix in ['', 'f', 'F', 'l', 'L']:
-        expr = '5.0' + suffix
-        exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                '5e42', '5e+42', '5e-42',
+                '5.', '5.e42', '5.e+42', '5.e-42',
+                '.5', '.5e42', '.5e+42', '.5e-42',
+                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+            expr = e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                'ApF', 'Ap+F', 'Ap-F',
+                'A.', 'A.pF', 'A.p+F', 'A.p-F',
+                '.A', '.ApF', '.Ap+F', '.Ap-F',
+                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+            expr = "0x" + e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals

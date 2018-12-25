@@ -294,7 +294,18 @@ _octal_literal_re = re.compile(r'0[0-7]*')
 _hex_literal_re = re.compile(r'0[xX][0-7a-fA-F][0-7a-fA-F]*')
 _binary_literal_re = re.compile(r'0[bB][01][01]*')
 _integer_suffix_re = re.compile(r'')
-_float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
+_float_literal_re = re.compile(r'''(?x)
+    [+-]?(
+    # decimal
+      ([0-9]+[eE][+-]?[0-9]+)
+    | ([0-9]*\.[0-9]+([eE][+-]?[0-9]+)?)
+    | ([0-9]+\.([eE][+-]?[0-9]+)?)
+    # hex
+    | (0[xX][0-9a-fA-F]+[pP][+-]?[0-9a-fA-F]+)
+    | (0[xX][0-9a-fA-F]*\.[0-9a-fA-F]+([pP][+-]?[0-9a-fA-F]+)?)
+    | (0[xX][0-9a-fA-F]+\.([pP][+-]?[0-9a-fA-F]+)?)
+    )
+''')
 _char_literal_re = re.compile(r'''(?x)
     ((?:u8)|u|U|L)?
     '(
@@ -3604,6 +3615,7 @@ class SymbolLookupResult(object):
 
 class Symbol(object):
     debug_lookup = False
+    debug_show_tree = False
 
     def _assert_invariants(self):
         # type: () -> None
@@ -4026,11 +4038,10 @@ class Symbol(object):
             print("      #noDecl:  ", len(noDecl))
             print("      #withDecl:", len(withDecl))
             print("      #dupDecl: ", len(dupDecl))
-        if len(dupDecl) > 0:
-            assert len(withDecl) > 0
-        # assert len(noDecl) <= 1  # we should fill in symbols when they are there
-        # TODO: enable assertion when we at some point find out how to do cleanup
         # With partial builds we may start with a large symbol tree stripped of declarations.
+        # Essentially any combination of noDecl, withDecl, and dupDecls seems possible.
+        # TODO: make partial builds fully work. What should happen when the primary symbol gets
+        #  deleted, and other duplicates exist? The full document should probably be rebuild.
 
         # First check if one of those with a declaration matches.
         # If it's a function, we need to compare IDs,
@@ -4283,6 +4294,8 @@ class Symbol(object):
                 res.append(text_type(self.templateArgs))
             if self.declaration:
                 res.append(": ")
+                if self.isRedeclaration:
+                    res.append('!!duplicate!! ')
                 res.append(text_type(self.declaration))
         if self.docname:
             res.append('\t(')
@@ -6680,18 +6693,30 @@ class CPPDomain(Domain):
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
+        if Symbol.debug_show_tree:
+            print("clear_doc:", docname)
+            print("\tbefore:")
+            print(self.data['root_symbol'].dump(1))
+            print("\tbefore end")
+
         rootSymbol = self.data['root_symbol']
         rootSymbol.clear_doc(docname)
+
+        if Symbol.debug_show_tree:
+            print("\tafter:")
+            print(self.data['root_symbol'].dump(1))
+            print("\tafter end")
+            print("clear_doc end:", docname)
         for name, nDocname in list(self.data['names'].items()):
             if nDocname == docname:
                 del self.data['names'][name]
 
     def process_doc(self, env, docname, document):
         # type: (BuildEnvironment, unicode, nodes.Node) -> None
-        # just for debugging
-        # print("process_doc:", docname)
-        # print(self.data['root_symbol'].dump(0))
-        pass
+        if Symbol.debug_show_tree:
+            print("process_doc:", docname)
+            print(self.data['root_symbol'].dump(0))
+            print("process_doc end:", docname)
 
     def process_field_xref(self, pnode):
         # type: (nodes.Node) -> None
@@ -6699,11 +6724,15 @@ class CPPDomain(Domain):
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
-        # print("merge_domaindata:")
-        # print("self")
-        # print(self.data['root_symbol'].dump(0))
-        # print("other:")
-        # print(otherdata['root_symbol'].dump(0))
+        if Symbol.debug_show_tree:
+            print("merge_domaindata:")
+            print("\tself:")
+            print(self.data['root_symbol'].dump(1))
+            print("\tself end")
+            print("\tother:")
+            print(otherdata['root_symbol'].dump(1))
+            print("\tother end")
+            print("merge_domaindata end")
 
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)

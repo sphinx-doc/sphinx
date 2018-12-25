@@ -1,4 +1,4 @@
-Release 1.8.2 (in development)
+Release 1.8.3 (in development)
 ==============================
 
 Dependencies
@@ -13,10 +13,32 @@ Deprecated
 Features added
 --------------
 
+* LaTeX: it is possible to insert custom material to appear on back of title
+  page, see discussion of ``'maketitle'`` key of :confval:`latex_elements`
+  (``'manual'`` docclass only)
+
 Bugs fixed
 ----------
 
+* #5725: mathjax: Use CDN URL for "latest" version by default
 * #5460: html search does not work with some 3rd party themes
+* #5520: LaTeX, caption package incompatibility since Sphinx 1.6
+* #5614: autodoc: incremental build is broken when builtin modules are imported
+* #5627: qthelp: index.html missing in QtHelp
+* #5659: linkcheck: crashes for a hyperlink containing multibyte character
+* #5754: DOC: Fix some mistakes in :doc:`/latex`
+* #5810: LaTeX: sphinxVerbatim requires explicit "hllines" set-up since 1.6.6
+  (refs: #1238)
+* #5636: C++, fix parsing of floating point literals.
+* #5496 (again): C++, fix assertion in partial builds with duplicates.
+* #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
+* #1956: Default conf.py is not PEP8-compliant
+* #5849: LaTeX: document class ``\maketitle`` is overwritten with no
+  possibility to use original meaning in place of Sphinx custom one
+* #5834: apidoc: wrong help for ``--tocfile``
+* #5800: todo: crashed if todo is defined in TextElement
+* #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
+* htmlhelp: broken .hhk file generated when title contains a double quote
 * #5605 If the documentation language is set to Chinese, English words could not
   be searched.
 
@@ -390,27 +412,6 @@ Documentation
 
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
-
-Release 1.7.10 (in development)
-===============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 1.7.9 (released Sep 05, 2018)
 =====================================

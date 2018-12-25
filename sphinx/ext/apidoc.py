@@ -341,7 +341,7 @@ Note: By default this script will not overwrite already created files."""))
                         dest='includeprivate',
                         help=__('include "_private" modules'))
     parser.add_argument('--tocfile', action='store', dest='tocfile', default='modules',
-                        help=__("don't create a table of contents file"))
+                        help=__("filename of table of contents (default: modules)"))
     parser.add_argument('-T', '--no-toc', action='store_false', dest='tocfile',
                         help=__("don't create a table of contents file"))
     parser.add_argument('-E', '--no-headings', action='store_true',
@@ -387,7 +387,7 @@ Note: By default this script will not overwrite already created files."""))
 def main(argv=sys.argv[1:]):
     # type: (List[str]) -> int
     """Parse and check the command line arguments."""
-    locale.setlocale(locale.LC_ALL, '')
+    sphinx.locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console(os.path.join(package_dir, 'locale'), 'sphinx')
 
     parser = get_parser()

@@ -22,7 +22,7 @@ from sphinx.deprecation import RemovedInSphinx30Warning
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
 
 
 class _TranslationProxy(UserString, object):
@@ -57,7 +57,7 @@ class _TranslationProxy(UserString, object):
         self._args = args
 
     @property
-    def data(self):
+    def data(self):  # type: ignore
         # type: () -> unicode
         return self._func(*self._args)
 
@@ -245,6 +245,27 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     if hasattr(translator, 'ugettext'):
         translator.gettext = translator.ugettext  # type: ignore
     return translator, has_translation
+
+
+def setlocale(category, value=None):
+    # type: (int, Union[str, Iterable[str]]) -> None
+    """Update locale settings.
+
+    This does not throw any exception even if update fails.
+    This is workaround for Python's bug.
+
+    For more details:
+
+    * https://github.com/sphinx-doc/sphinx/issues/5724
+    * https://bugs.python.org/issue18378#msg215215
+
+    .. note:: Only for internal use.  Please don't call this method from extensions.
+              This will be removed in future.
+    """
+    try:
+        locale.setlocale(category, value)
+    except locale.Error:
+        pass
 
 
 def init_console(locale_dir, catalog):
