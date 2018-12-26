@@ -371,6 +371,8 @@ Note: By default this script will not overwrite already created files."""))
                                 'defaults to --doc-version'))
 
     group = parser.add_argument_group(__('extension options'))
+    group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
+                       action='append', help=__('enable arbitrary extensions'))
     for ext in EXTENSIONS:
         group.add_argument('--ext-%s' % ext, action='append_const',
                            const='sphinx.ext.%s' % ext, dest='extensions',
@@ -438,6 +440,11 @@ def main(argv=sys.argv[1:]):
         }
         if args.extensions:
             d['extensions'].extend(args.extensions)
+
+        for ext in d['extensions'][:]:
+            if ',' in ext:
+                d['extensions'].remove(ext)
+                d['extensions'].extend(ext.split(','))
 
         if not args.dryrun:
             qs.generate(d, silent=True, overwrite=args.force)

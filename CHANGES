@@ -137,7 +137,7 @@ Features added
   are now generated with their own specific CSS classes
   (``added``, ``changed`` and ``deprecated``, respectively) in addition to the
   generic ``versionmodified`` class.
-
+* #5841: apidoc: Add --extensions option to sphinx-apidoc
 
 Bugs fixed
 ----------
