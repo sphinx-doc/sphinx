@@ -26,7 +26,6 @@ from time import mktime, strptime
 from urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 
 from docutils.utils import relative_path
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
@@ -70,9 +69,7 @@ def path_stabilize(filepath):
     # type: (str) -> str
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
-    if isinstance(newpath, text_type):
-        newpath = unicodedata.normalize('NFC', newpath)
-    return newpath
+    return unicodedata.normalize('NFC', newpath)
 
 
 def get_matching_files(dirname, exclude_matchers=()):
@@ -637,9 +634,9 @@ def display_chunk(chunk):
     # type: (Any) -> str
     if isinstance(chunk, (list, tuple)):
         if len(chunk) == 1:
-            return text_type(chunk[0])
+            return str(chunk[0])
         return '%s .. %s' % (chunk[0], chunk[-1])
-    return text_type(chunk)
+    return str(chunk)
 
 
 def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):
@@ -696,15 +693,12 @@ def rfc1123_to_epoch(rfc1123):
 def xmlname_checker():
     # type: () -> Pattern
     # https://www.w3.org/TR/REC-xml/#NT-Name
-    # Only Python 3.3 or newer support character code in regular expression
     name_start_chars = [
         ':', ['A', 'Z'], '_', ['a', 'z'], ['\u00C0', '\u00D6'],
         ['\u00D8', '\u00F6'], ['\u00F8', '\u02FF'], ['\u0370', '\u037D'],
         ['\u037F', '\u1FFF'], ['\u200C', '\u200D'], ['\u2070', '\u218F'],
         ['\u2C00', '\u2FEF'], ['\u3001', '\uD7FF'], ['\uF900', '\uFDCF'],
-        ['\uFDF0', '\uFFFD']]
-
-    name_start_chars.append(['\U00010000', '\U000EFFFF'])
+        ['\uFDF0', '\uFFFD'], ['\U00010000', '\U000EFFFF']]
 
     name_chars = [
         "\\-", "\\.", ['0', '9'], '\u00B7', ['\u0300', '\u036F'],

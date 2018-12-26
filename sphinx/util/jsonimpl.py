@@ -11,8 +11,6 @@
 import json
 from collections import UserString
 
-from six import text_type
-
 if False:
     # For type annotation
     from typing import Any, IO  # NOQA
@@ -23,7 +21,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         # type: (Any) -> str
         if isinstance(obj, UserString):
-            return text_type(obj)
+            return str(obj)
         return super().default(obj)
 
 

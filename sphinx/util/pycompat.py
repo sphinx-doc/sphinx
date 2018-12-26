@@ -14,8 +14,6 @@ from html import escape as htmlescape  # NOQA
 from io import TextIOWrapper  # NOQA
 from textwrap import indent  # NOQA
 
-from six import text_type
-
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
@@ -64,7 +62,7 @@ def convert_with_2to3(filepath):
         lineno, offset = err.context[1]
         # try to match ParseError details with SyntaxError details
         raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
-    return text_type(tree)
+    return str(tree)
 
 
 class UnicodeMixin:

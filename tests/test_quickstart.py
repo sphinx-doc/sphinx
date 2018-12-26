@@ -12,7 +12,6 @@ import time
 from io import StringIO
 
 import pytest
-from six import text_type
 
 from sphinx import application
 from sphinx.cmd import quickstart as qs
@@ -35,7 +34,6 @@ def mock_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
-        prompt = text_type(prompt)
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
                 return answers[question]

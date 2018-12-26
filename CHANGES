@@ -17,6 +17,7 @@ Dependencies
   which in Ubuntu xenial are provided by package ``fonts-freefont-otf``, and
   e.g. in Fedora 29 via package ``texlive-gnu-freefont``.
 * requests 2.5.0 or above
+* The six package is no longer a dependency.
 
 Incompatible changes
 --------------------
@@ -45,6 +46,11 @@ Incompatible changes
   block.  As a result, they are highlighted as python3 by default.
 * The order of argument for ``HTMLTranslator``, ``HTML5Translator`` and
   ``ManualPageTranslator`` are changed
+* LaTeX: hard-coded redefinitions of ``\l@section`` and ``\l@subsection``
+  formerly done during loading of ``'manual'`` docclass get executed later, at
+  time of ``\sphinxtableofcontents``.  This means that custom user definitions
+  from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
+  to insert custom user definitions.  See :ref:`latex-macros`.
 
 Deprecated
 ----------
@@ -127,6 +133,10 @@ Features added
 * LaTeX: support rendering (not in math, yet) of Greek and Cyrillic Unicode
   letters in non-Cyrillic document even with ``'pdflatex'`` as
   :confval:`latex_engine` (refs: #5645)
+* #5660: The ``versionadded``, ``versionchanged`` and ``deprecated`` directives
+  are now generated with their own specific CSS classes
+  (``added``, ``changed`` and ``deprecated``, respectively) in addition to the
+  generic ``versionmodified`` class.
 * #5841: apidoc: Add --extensions option to sphinx-apidoc
 
 Bugs fixed
@@ -149,7 +159,7 @@ Bugs fixed
 Testing
 --------
 
-Release 1.8.3 (in development)
+Release 1.8.4 (in development)
 ==============================
 
 Dependencies
@@ -167,6 +177,22 @@ Features added
 Bugs fixed
 ----------
 
+Testing
+--------
+
+Release 1.8.3 (released Dec 26, 2018)
+=====================================
+
+Features added
+--------------
+
+* LaTeX: it is possible to insert custom material to appear on back of title
+  page, see discussion of ``'maketitle'`` key of :confval:`latex_elements`
+  (``'manual'`` docclass only)
+
+Bugs fixed
+----------
+
 * #5725: mathjax: Use CDN URL for "latest" version by default
 * #5460: html search does not work with some 3rd party themes
 * #5520: LaTeX, caption package incompatibility since Sphinx 1.6
@@ -179,9 +205,13 @@ Bugs fixed
 * #5636: C++, fix parsing of floating point literals.
 * #5496 (again): C++, fix assertion in partial builds with duplicates.
 * #5724: quickstart: sphinx-quickstart fails when $LC_ALL is empty
-
-Testing
---------
+* #1956: Default conf.py is not PEP8-compliant
+* #5849: LaTeX: document class ``\maketitle`` is overwritten with no
+  possibility to use original meaning in place of Sphinx custom one
+* #5834: apidoc: wrong help for ``--tocfile``
+* #5800: todo: crashed if todo is defined in TextElement
+* #5846: htmlhelp: convert hex escaping to decimal escaping in .hhc/.hhk files
+* htmlhelp: broken .hhk file generated when title contains a double quote
 
 Release 1.8.2 (released Nov 11, 2018)
 =====================================
@@ -550,27 +580,6 @@ Documentation
 
 * #5083: Fix wrong make.bat option for internationalization.
 * #5115: napoleon: add admonitions added by #4613 to the docs.
-
-Release 1.7.10 (in development)
-===============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
---------
 
 Release 1.7.9 (released Sep 05, 2018)
 =====================================

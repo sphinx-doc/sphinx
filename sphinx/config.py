@@ -16,8 +16,6 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import text_type
-
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
@@ -41,7 +39,7 @@ copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', Union[bool, text_type])])
+                                         ('rebuild', Union[bool, str])])
 
 
 def is_serializable(obj):
@@ -78,7 +76,7 @@ class ENUM:
 
 
 # RemovedInSphinx40Warning
-string_classes = [text_type]  # type: List
+string_classes = [str]  # type: List
 
 
 class Config:

@@ -25,7 +25,6 @@ from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
 from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
-from six import text_type
 
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
@@ -86,10 +85,10 @@ def get_stable_hash(obj):
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(text_type(obj).encode()).hexdigest()
+    return md5(str(obj).encode()).hexdigest()
 
 
-class Stylesheet(text_type):
+class Stylesheet(str):
     """A metadata of stylesheet.
 
     To keep compatibility with old themes, an instance of stylesheet behaves as
@@ -101,7 +100,7 @@ class Stylesheet(text_type):
 
     def __new__(cls, filename, *args, **attributes):
         # type: (str, str, str) -> None
-        self = text_type.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
         self.attributes.setdefault('rel', 'stylesheet')
@@ -146,7 +145,7 @@ class JSContainer(list):
         return ret
 
 
-class JavaScript(text_type):
+class JavaScript(str):
     """A metadata of javascript file.
 
     To keep compatibility with old themes, an instance of javascript behaves as
@@ -158,7 +157,7 @@ class JavaScript(text_type):
 
     def __new__(cls, filename, **attributes):
         # type: (str, **str) -> None
-        self = text_type.__new__(cls, filename)  # type: ignore
+        self = str.__new__(cls, filename)  # type: ignore
         self.filename = filename
         self.attributes = attributes
         self.attributes.setdefault('type', 'text/javascript')
@@ -1633,7 +1632,7 @@ def setup(app):
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', '\u00B6', 'html')
+    app.add_config_value('html_add_permalinks', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
     app.add_config_value('html_split_index', False, 'html')
     app.add_config_value('html_copy_source', True, 'html')

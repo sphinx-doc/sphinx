@@ -20,7 +20,6 @@ from typing import Iterable, cast
 
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
-from six import text_type
 
 from sphinx import addnodes
 from sphinx import highlighting
@@ -159,7 +158,7 @@ DEFAULT_SETTINGS = {
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
-    'maketitle':       '\\maketitle',
+    'maketitle':       '\\sphinxmaketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',
@@ -759,7 +758,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def idescape(self, id):
         # type: (str) -> str
-        return '\\detokenize{%s}' % text_type(id).translate(tex_replace_map).\
+        return '\\detokenize{%s}' % str(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
 
@@ -780,34 +779,34 @@ class LaTeXTranslator(SphinxTranslator):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       text_type(figure[0]).strip().translate(tex_escape_map))
+                       str(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = text_type(figure[0]).strip().translate(tex_escape_map)
+            definition = str(figure[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           text_type(figure[1]).strip().translate(tex_escape_map))
+                           str(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       text_type(table[0]).strip().translate(tex_escape_map))
+                       str(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = text_type(table[0]).strip().translate(tex_escape_map)
+            definition = str(table[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           text_type(table[1]).strip().translate(tex_escape_map))
+                           str(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = text_type(codeblock[0]).strip().translate(tex_escape_map)
+            definition = str(codeblock[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME
@@ -824,7 +823,7 @@ class LaTeXTranslator(SphinxTranslator):
                 if i > 0:
                     ret.append('\\indexspace\n')
                 ret.append('\\bigletter{%s}\n' %
-                           text_type(letter).translate(tex_escape_map))
+                           str(letter).translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -2003,7 +2002,7 @@ class LaTeXTranslator(SphinxTranslator):
             id = node.get('refuri', '')[1:].replace('#', ':')
 
         title = node.get('title', '%s')
-        title = text_type(title).translate(tex_escape_map).replace('\\%s', '%s')
+        title = str(title).translate(tex_escape_map).replace('\\%s', '%s')
         if '\\{name\\}' in title or '\\{number\\}' in title:
             # new style format (cf. "Fig.%{number}")
             title = title.replace('\\{name\\}', '{name}').replace('\\{number\\}', '{number}')
@@ -2451,7 +2450,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def encode(self, text):
         # type: (str) -> str
-        text = text_type(text).translate(tex_escape_map)
+        text = str(text).translate(tex_escape_map)
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.

@@ -20,7 +20,6 @@ from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
     CLexer, TextLexer, RstLexer
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext import doctest
@@ -113,7 +112,7 @@ class PygmentsBridge:
 
     def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
         # type: (str, str, Any, Any, bool, Any) -> str
-        if not isinstance(source, text_type):
+        if not isinstance(source, str):
             source = source.decode()
 
         # find out which lexer to use

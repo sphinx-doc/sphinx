@@ -41,10 +41,9 @@ Configuration
 
 .. confval:: viewcode_follow_imported_members
 
-   If this is ``True``, viewcode extension will follow alias objects that
-   imported from another module such as functions, classes and attributes.  As
-   side effects, this option else they produce nothing.  The default is
-   ``True``.
+   If this is ``True``, viewcode extension will emit
+   :event:`viewcode-follow-imported` event to resolve the name of the module
+   by other extensions.  The default is ``True``.
 
    .. versionadded:: 1.3
 

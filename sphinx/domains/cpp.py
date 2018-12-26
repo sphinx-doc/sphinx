@@ -14,7 +14,6 @@ from copy import deepcopy
 
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
@@ -635,7 +634,7 @@ class ASTBase:
 
     def __str__(self):
         # type: () -> str
-        return self._stringify(lambda ast: text_type(ast))
+        return self._stringify(lambda ast: str(ast))
 
     def get_display_string(self):
         # type: () -> str
@@ -666,7 +665,7 @@ class ASTCPPAttribute(ASTBase):
 
     def describe_signature(self, signode):
         # type: (addnodes.desc_signature) -> None
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -705,7 +704,7 @@ class ASTGnuAttributeList(ASTBase):
 
     def describe_signature(self, signode):
         # type: (addnodes.desc_signature) -> None
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -739,7 +738,7 @@ class ASTParenAttribute(ASTBase):
 
     def describe_signature(self, signode):
         # type: (addnodes.desc_signature) -> None
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -779,7 +778,7 @@ class ASTBooleanLiteral(ASTBase):
             return 'L0E'
 
     def describe_signature(self, signode, mode, env, symbol):
-        signode.append(nodes.Text(text_type(self)))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTNumberLiteral(ASTBase):
@@ -796,7 +795,7 @@ class ASTNumberLiteral(ASTBase):
         return "L%sE" % self.data
 
     def describe_signature(self, signode, mode, env, symbol):
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -835,7 +834,7 @@ class ASTCharLiteral(ASTBase):
         return self.type + str(self.value)
 
     def describe_signature(self, signode, mode, env, symbol):
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -854,7 +853,7 @@ class ASTStringLiteral(ASTBase):
         return "LA%d_KcE" % (len(self.data) - 2)
 
     def describe_signature(self, signode, mode, env, symbol):
-        txt = text_type(self)
+        txt = str(self)
         signode.append(nodes.Text(txt, txt))
 
 
@@ -917,7 +916,7 @@ class ASTFoldExpr(ASTBase):
         # type: (int) -> str
         assert version >= 3
         if version == 3:
-            return text_type(self)
+            return str(self)
         # TODO: find the right mangling scheme
         assert False
 
@@ -1473,7 +1472,7 @@ class ASTFallbackExpr(ASTBase):
 
     def get_id(self, version):
         # type: (int) -> str
-        return text_type(self.expr)
+        return str(self.expr)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode += nodes.Text(self.expr)
@@ -1511,7 +1510,7 @@ class ASTIdentifier(ASTBase):
             if self.is_anon():
                 return 'Ut%d_%s' % (len(self.identifier) - 1, self.identifier[1:])
             else:
-                return text_type(len(self.identifier)) + self.identifier
+                return str(len(self.identifier)) + self.identifier
 
     # and this is where we finally make a difference between __str__ and the display string
 
@@ -1994,7 +1993,7 @@ class ASTOperator(ASTBase):
     def describe_signature(self, signode, mode, env, prefix, templateArgs, symbol):
         # type: (addnodes.desc_signature, str, Any, str, str, Symbol) -> None
         _verify_description_mode(mode)
-        identifier = text_type(self)
+        identifier = str(self)
         if mode == 'lastIsName':
             signode += addnodes.desc_name(identifier, identifier)
         else:
@@ -2043,7 +2042,7 @@ class ASTOperatorType(ASTOperator):
 
     def get_name_no_template(self):
         # type: () -> str
-        return text_type(self)
+        return str(self)
 
 
 class ASTOperatorLiteral(ASTOperator):
@@ -2078,9 +2077,9 @@ class ASTTemplateArgConstant(ASTBase):
     def get_id(self, version):
         # type: (int) -> str
         if version == 1:
-            return text_type(self).replace(' ', '-')
+            return str(self).replace(' ', '-')
         if version == 2:
-            return 'X' + text_type(self) + 'E'
+            return 'X' + str(self) + 'E'
         return 'X' + self.value.get_id(version) + 'E'
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -2155,7 +2154,7 @@ class ASTNestedNameElement(ASTBase):
 
     def describe_signature(self, signode, mode, env, prefix, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, str, Symbol) -> None
-        tArgs = text_type(self.templateArgs) if self.templateArgs is not None else ''
+        tArgs = str(self.templateArgs) if self.templateArgs is not None else ''
         self.identOrOp.describe_signature(signode, mode, env, prefix, tArgs, symbol)
         if self.templateArgs is not None:
             self.templateArgs.describe_signature(signode, mode, env, symbol)
@@ -2188,7 +2187,7 @@ class ASTNestedName(ASTBase):
     def get_id(self, version, modifiers=''):
         # type: (int, str) -> str
         if version == 1:
-            tt = text_type(self)
+            tt = str(self)
             if tt in _id_shorthands_v1:
                 return _id_shorthands_v1[tt]
             else:
@@ -2223,9 +2222,9 @@ class ASTNestedName(ASTBase):
         _verify_description_mode(mode)
         # just print the name part, with template args, not template params
         if mode == 'noneIsName':
-            signode += nodes.Text(text_type(self))
+            signode += nodes.Text(str(self))
         elif mode == 'param':
-            name = text_type(self)
+            name = str(self)
             signode += nodes.emphasis(name, name)
         elif mode == 'markType' or mode == 'lastIsName':
             # Each element should be a pending xref targeting the complete
@@ -2258,10 +2257,10 @@ class ASTNestedName(ASTBase):
                 if template:
                     dest += nodes.Text("template ")
                 first = False
-                txt_nne = text_type(nne)
+                txt_nne = str(nne)
                 if txt_nne != '':
                     if nne.templateArgs and iTemplateParams < len(templateParams):
-                        templateParamsPrefix += text_type(templateParams[iTemplateParams])
+                        templateParamsPrefix += str(templateParams[iTemplateParams])
                         iTemplateParams += 1
                     nne.describe_signature(dest, 'markType',
                                            env, templateParamsPrefix + prefix, symbol)
@@ -2306,7 +2305,7 @@ class ASTTrailingTypeSpecFundamental(ASTBase):
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
-        signode += nodes.Text(text_type(self.name))
+        signode += nodes.Text(str(self.name))
 
 
 class ASTTrailingTypeSpecName(ASTBase):
@@ -2354,7 +2353,7 @@ class ASTTrailingTypeSpecDecltypeAuto(ASTBase):
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
-        signode.append(nodes.Text(text_type(self)))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTTrailingTypeSpecDecltype(ASTBase):
@@ -2467,7 +2466,7 @@ class ASTParametersQualifiers(ASTBase):
             if not first:
                 res.append(', ')
             first = False
-            res.append(text_type(a))
+            res.append(str(a))
         res.append(')')
         if self.volatile:
             res.append(' volatile')
@@ -2478,7 +2477,7 @@ class ASTParametersQualifiers(ASTBase):
             res.append(self.refQual)
         if self.exceptionSpec:
             res.append(' ')
-            res.append(text_type(self.exceptionSpec))
+            res.append(str(self.exceptionSpec))
         if self.final:
             res.append(' final')
         if self.override:
@@ -2515,13 +2514,13 @@ class ASTParametersQualifiers(ASTBase):
         if self.refQual:
             _add_text(signode, self.refQual)
         if self.exceptionSpec:
-            _add_anno(signode, text_type(self.exceptionSpec))
+            _add_anno(signode, str(self.exceptionSpec))
         if self.final:
             _add_anno(signode, 'final')
         if self.override:
             _add_anno(signode, 'override')
         if self.initializer:
-            _add_text(signode, '= ' + text_type(self.initializer))
+            _add_text(signode, '= ' + str(self.initializer))
 
 
 class ASTDeclSpecsSimple(ASTBase):
@@ -2653,7 +2652,7 @@ class ASTDeclSpecs(ASTBase):
             if len(res) > 0:
                 res.append(" ")
             res.append(transform(self.trailingTypeSpec))
-            r = text_type(self.rightSpecs)
+            r = str(self.rightSpecs)
             if len(r) > 0:
                 if len(res) > 0:
                     res.append(" ")
@@ -2704,7 +2703,7 @@ class ASTArray(ASTBase):
             return 'A'
         if version == 2:
             if self.size:
-                return 'A' + text_type(self.size) + '_'
+                return 'A' + str(self.size) + '_'
             else:
                 return 'A_'
         if self.size:
@@ -3321,7 +3320,7 @@ class ASTType(ASTBase):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env, symbol)
         if (self.decl.require_space_after_declSpecs() and
-                len(text_type(self.declSpecs)) > 0):
+                len(str(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         # for parameters that don't really declare new names we get 'markType',
         # this should not be propagated, but be 'noneIsName'.
@@ -3929,8 +3928,8 @@ class Symbol:
                 param = templateParams.params[i]
                 arg = templateArgs.args[i]
                 # TODO: doing this by string manipulation is probably not the most efficient
-                paramName = text_type(param.name)
-                argTxt = text_type(arg)
+                paramName = str(param.name)
+                argTxt = str(arg)
                 isArgPackExpansion = argTxt.endswith('...')
                 if param.isPack != isArgPackExpansion:
                     return True
@@ -3958,13 +3957,13 @@ class Symbol:
                     return False
             if templateParams:
                 # TODO: do better comparison
-                if text_type(s.templateParams) != text_type(templateParams):
+                if str(s.templateParams) != str(templateParams):
                     return False
             if (s.templateArgs is None) != (templateArgs is None):
                 return False
             if s.templateArgs:
                 # TODO: do better comparison
-                if text_type(s.templateArgs) != text_type(templateArgs):
+                if str(s.templateArgs) != str(templateArgs):
                     return False
             return True
         if matchSelf and matches(self):
@@ -4253,7 +4252,7 @@ class Symbol:
                 if not ourChild.declaration:
                     ourChild._fill_empty(otherChild.declaration, otherChild.docname)
                 elif ourChild.docname != otherChild.docname:
-                    name = text_type(ourChild.declaration)
+                    name = str(ourChild.declaration)
                     msg = __("Duplicate declaration, also defined in '%s'.\n"
                              "Declaration is '%s'.")
                     msg = msg % (ourChild.docname, name)
@@ -4401,20 +4400,20 @@ class Symbol:
             res.append('::')
         else:
             if self.templateParams:
-                res.append(text_type(self.templateParams))
+                res.append(str(self.templateParams))
                 res.append('\n')
                 res.append('\t' * indent)
             if self.identOrOp:
-                res.append(text_type(self.identOrOp))
+                res.append(str(self.identOrOp))
             else:
-                res.append(text_type(self.declaration))
+                res.append(str(self.declaration))
             if self.templateArgs:
-                res.append(text_type(self.templateArgs))
+                res.append(str(self.templateArgs))
             if self.declaration:
                 res.append(": ")
                 if self.isRedeclaration:
                     res.append('!!duplicate!! ')
-                res.append(text_type(self.declaration))
+                res.append(str(self.declaration))
         if self.docname:
             res.append('\t(')
             res.append(self.docname)
@@ -6151,7 +6150,7 @@ class DefinitionParser:
                 msg += " Declaration:\n\t"
                 if templatePrefix:
                     msg += "%s\n\t" % templatePrefix
-                msg += text_type(nestedName)
+                msg += str(nestedName)
                 self.warn(msg)
 
             newTemplates = []
@@ -6445,7 +6444,7 @@ class CPPObject(ObjectDescription):
         parentDecl = parentSymbol.declaration
         if parentDecl is not None and parentDecl.objectType == 'function':
             self.warn("C++ declarations inside functions are not supported." +
-                      " Parent function is " + text_type(parentSymbol.get_full_nested_name()))
+                      " Parent function is " + str(parentSymbol.get_full_nested_name()))
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
             env.temp_data['cpp:last_symbol'] = symbol
@@ -6928,7 +6927,7 @@ class CPPDomain(Domain):
                                               templateShorthand=True,
                                               matchSelf=True, recurseInAnon=True)
         if s is None or s.declaration is None:
-            txtName = text_type(name)
+            txtName = str(name)
             if txtName.startswith('std::') or txtName == 'std':
                 raise NoUri()
             return None, None
@@ -7031,7 +7030,7 @@ class CPPDomain(Domain):
                 continue
             assert symbol.docname
             fullNestedName = symbol.get_full_nested_name()
-            name = text_type(fullNestedName).lstrip(':')
+            name = str(fullNestedName).lstrip(':')
             dispname = fullNestedName.get_display_string().lstrip(':')
             objectType = symbol.declaration.objectType
             docname = symbol.docname
@@ -7050,7 +7049,7 @@ class CPPDomain(Domain):
         rootSymbol = self.data['root_symbol']
         parentSymbol = rootSymbol.direct_lookup(parentKey)
         parentName = parentSymbol.get_full_nested_name()
-        return '::'.join([text_type(parentName), target])
+        return '::'.join([str(parentName), target])
 
 
 def setup(app):
