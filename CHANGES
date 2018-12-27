@@ -15,6 +15,7 @@ Features added
 
 Bugs fixed
 ----------
+* #3707: latex: no bold checkmark (✔) available.
 * #5605 If the documentation language is set to Chinese, English words could not
   be searched.
 
