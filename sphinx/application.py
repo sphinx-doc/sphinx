@@ -936,10 +936,10 @@ class Sphinx:
         Example::
 
             app.add_js_file('example.js')
-            # => <scrtipt src="_static/example.js"></script>
+            # => <script src="_static/example.js"></script>
 
             app.add_js_file('example.js', async="async")
-            # => <scrtipt src="_static/example.js" async="async"></script>
+            # => <script src="_static/example.js" async="async"></script>
 
         .. versionadded:: 0.5
 
@@ -1145,13 +1145,14 @@ class Sphinx:
         # type: (str, Tuple[Callable, Callable], Tuple[Callable, Callable]) -> None
         """Register a math renderer for HTML.
 
-        The *name* is a name of the math renderer.  Both *inline_renderers* and
-        *block_renderes* are used as visitor functions for HTML writer.
-        *inline_renderers* is used for inline math node (``nodes.math`)).  The
-        another is used for block math node (``nodes.math_block``).  About
-        visitor functions, see :meth:`add_node` for more details.
+        The *name* is a name of math renderer.  Both *inline_renderers* and
+        *block_renderers* are used as visitor functions for the HTML writer:
+        the former for inline math node (``nodes.math``), the latter for
+        block math node (``nodes.math_block``).  Regarding visitor functions,
+        see :meth:`add_node` for details.
 
         .. versionadded:: 1.8
+
         """
         self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
 

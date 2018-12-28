@@ -57,7 +57,7 @@ Logging API
 
       **color**
         The color of logs.  By default, info and verbose level logs are not colored,
-        and deug level ones are colored as ``"darkgray"``.
+        and debug level ones are colored as ``"darkgray"``.
 
 .. autofunction:: pending_logging()
 

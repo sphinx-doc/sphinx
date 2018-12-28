@@ -40,7 +40,7 @@ Options
 
 .. option:: -f, --force
 
-   Force overwritting of any existing generated files.
+   Force overwriting of any existing generated files.
 
 .. option:: -l, --follow-links
 

@@ -65,7 +65,7 @@ class Builder:
     #: ``project``
     epilog = ''
 
-    #: default translator class for the builder.  This can be overrided by
+    #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`app.set_translator()`.
     default_translator_class = None  # type: Type[nodes.NodeVisitor]
     # doctree versioning method

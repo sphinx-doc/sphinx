@@ -155,7 +155,7 @@ def init(locale_dirs, language, catalog='sphinx', namespace='general'):
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
-    together (thus making ``init`` reentrable).
+    together (thus making ``init`` reentrant).
     """
     global translators
     translator = translators.get((namespace, catalog))
@@ -314,8 +314,8 @@ admonitionlabels = {
     'warning':   _('Warning'),
 }
 
-# Moved to sphinx.directives.other (will be overrided later)
+# Moved to sphinx.directives.other (will be overriden later)
 versionlabels = {}  # type: Dict[str, str]
 
-# Moved to sphinx.domains.python (will be overrided later)
+# Moved to sphinx.domains.python (will be overriden later)
 pairindextypes = {}  # type: Dict[str, str]

@@ -130,7 +130,7 @@ Google vs NumPy
 ~~~~~~~~~~~~~~~
 
 Napoleon supports two styles of docstrings: `Google`_ and `NumPy`_. The
-main difference between the two styles is that Google uses indention to
+main difference between the two styles is that Google uses indentation to
 separate sections, whereas NumPy uses underlines.
 
 Google style:

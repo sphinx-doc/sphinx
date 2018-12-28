@@ -654,7 +654,7 @@ Glossary
 .. rst:directive:: .. glossary::
 
    This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referencable with the
+   definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
