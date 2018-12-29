@@ -289,7 +289,7 @@ Intersphinx
 -----------
 
 Many Sphinx documents including the `Python documentation`_ are published on
-the internet.  When you want to make links to such documents from your
+the Internet.  When you want to make links to such documents from your
 documentation, you can do it with :mod:`sphinx.ext.intersphinx`.
 
 .. _Python documentation: https://docs.python.org/3
