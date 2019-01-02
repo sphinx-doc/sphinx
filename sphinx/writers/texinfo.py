@@ -384,7 +384,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def escape_id(self, s):
         # type: (unicode) -> unicode
         """Return an escaped string suitable for node names and anchors."""
-        bad_chars = ',:.()'
+        bad_chars = ',:()'
         for bc in bad_chars:
             s = s.replace(bc, ' ')
         s = ' '.join(s.split()).strip()
