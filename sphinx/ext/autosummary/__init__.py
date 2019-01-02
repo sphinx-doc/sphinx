@@ -552,12 +552,12 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 # -- Importing items -----------------------------------------------------------
 
 def get_import_prefixes_from_env(env):
-    # type: (BuildEnvironment) -> List
+    # type: (BuildEnvironment) -> List[str]
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes = [None]  # type: List
+    prefixes = [None]  # type: List[str]
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -574,7 +574,7 @@ def get_import_prefixes_from_env(env):
 
 
 def import_by_name(name, prefixes=[None]):
-    # type: (str, List) -> Tuple[str, Any, Any, str]
+    # type: (str, List[str]) -> Tuple[str, Any, Any, str]
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
