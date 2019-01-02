@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # set this by test
 # import os
 # import sys

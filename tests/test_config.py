@@ -126,9 +126,7 @@ def test_errors_warnings(logger, tempdir):
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text(
-        '# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
-        encoding='utf-8')
+    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n', encoding='utf-8')
     cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
     assert cfg.project == 'Jägermeister'
