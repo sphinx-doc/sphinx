@@ -26,7 +26,7 @@ def with_text_app(*args, **kw):
 @with_text_app()
 def test_maxwitdh_with_prefix(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'maxwidth.txt').text(encoding='utf-8')
+    result = (app.outdir / 'maxwidth.txt').text()
 
     lines = result.splitlines()
     line_widths = [column_width(line) for line in lines]
@@ -47,7 +47,7 @@ def test_maxwitdh_with_prefix(app, status, warning):
 def test_lineblock(app, status, warning):
     # regression test for #1109: need empty line after line block
     app.builder.build_update()
-    result = (app.outdir / 'lineblock.txt').text(encoding='utf-8')
+    result = (app.outdir / 'lineblock.txt').text()
     expect = (
         "* one\n"
         "\n"
@@ -62,7 +62,7 @@ def test_lineblock(app, status, warning):
 @with_text_app()
 def test_nonascii_title_line(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'nonascii_title.txt').text(encoding='utf-8')
+    result = (app.outdir / 'nonascii_title.txt').text()
     expect_underline = '*********'
     result_underline = result.splitlines()[1].strip()
     assert expect_underline == result_underline
@@ -71,7 +71,7 @@ def test_nonascii_title_line(app, status, warning):
 @with_text_app()
 def test_nonascii_table(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'nonascii_table.txt').text(encoding='utf-8')
+    result = (app.outdir / 'nonascii_table.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert len(set(line_widths)) == 1  # same widths
@@ -80,7 +80,7 @@ def test_nonascii_table(app, status, warning):
 @with_text_app()
 def test_nonascii_maxwidth(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'nonascii_maxwidth.txt').text(encoding='utf-8')
+    result = (app.outdir / 'nonascii_maxwidth.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert max(line_widths) < MAXWIDTH
@@ -124,7 +124,7 @@ def test_table_cell():
 @with_text_app()
 def test_table_with_empty_cell(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'table.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert lines[0] == "+-------+-------+"
     assert lines[1] == "| XXX   | XXX   |"
@@ -138,7 +138,7 @@ def test_table_with_empty_cell(app, status, warning):
 @with_text_app()
 def test_table_with_rowspan(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'table_rowspan.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table_rowspan.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert lines[0] == "+-------+-------+"
     assert lines[1] == "| XXXXXXXXX     |"
@@ -152,7 +152,7 @@ def test_table_with_rowspan(app, status, warning):
 @with_text_app()
 def test_table_with_colspan(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'table_colspan.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table_colspan.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert lines[0] == "+-------+-------+"
     assert lines[1] == "| XXX   | XXX   |"
@@ -166,7 +166,7 @@ def test_table_with_colspan(app, status, warning):
 @with_text_app()
 def test_table_with_colspan_left(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'table_colspan_left.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table_colspan_left.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert lines[0] == "+-------+-------+"
     assert lines[1] == "| XXX   | XXX   |"
@@ -180,7 +180,7 @@ def test_table_with_colspan_left(app, status, warning):
 @with_text_app()
 def test_table_with_colspan_and_rowspan(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'table_colspan_and_rowspan.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table_colspan_and_rowspan.txt').text()
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert result
     assert lines[0] == "+-------+-------+-------+"
@@ -195,7 +195,7 @@ def test_table_with_colspan_and_rowspan(app, status, warning):
 @with_text_app()
 def test_list_items_in_admonition(app, status, warning):
     app.builder.build_update()
-    result = (app.outdir / 'listitems.txt').text(encoding='utf-8')
+    result = (app.outdir / 'listitems.txt').text()
     lines = [line.rstrip() for line in result.splitlines()]
     assert lines[0] == "See also:"
     assert lines[1] == ""

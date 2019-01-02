@@ -309,7 +309,7 @@ def test_code_block(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
-    html = (app.outdir / 'caption.html').text(encoding='utf-8')
+    html = (app.outdir / 'caption.html').text()
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 1 </span>'
                '<span class="caption-text">caption <em>test</em> rb'
@@ -321,7 +321,7 @@ def test_code_block_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'Python.tex').text()
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
@@ -334,7 +334,7 @@ def test_code_block_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'Python.tex').text()
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-rb}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
@@ -351,7 +351,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
+    latex = (app.outdir / 'Python.tex').text().replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
@@ -364,7 +364,7 @@ def test_literal_include(app, status, warning):
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
     literal_include = secs[1].findall('literal_block')
-    literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
+    literal_src = (app.srcdir / 'literal.inc').text()
     assert len(literal_include) > 0
     actual = literal_include[0].text
     assert actual == literal_src
@@ -397,7 +397,7 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
-    html = (app.outdir / 'linenos.html').text(encoding='utf-8')
+    html = (app.outdir / 'linenos.html').text()
 
     # :linenos:
     assert ('<td class="linenos"><div class="linenodiv"><pre>'
@@ -443,7 +443,7 @@ def test_literal_include_linenos(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
+    latex = (app.outdir / 'Python.tex').text().replace('\r\n', '\n')
     includes = (
         '\\begin{sphinxVerbatim}'
         '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
@@ -457,7 +457,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
-    html = (app.outdir / 'caption.html').text(encoding='utf-8')
+    html = (app.outdir / 'caption.html').text()
     caption = ('<div class="code-block-caption">'
                '<span class="caption-number">Listing 2 </span>'
                '<span class="caption-text">caption <strong>test</strong> py'
@@ -469,7 +469,7 @@ def test_literalinclude_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'Python.tex').text()
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
@@ -482,7 +482,7 @@ def test_literalinclude_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    latex = (app.outdir / 'Python.tex').text()
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-py}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'

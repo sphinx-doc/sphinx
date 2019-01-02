@@ -43,5 +43,5 @@ def test_numbered_toctree(app, status, warning):
     # give argument to :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', ':numbered: 1', index)
-    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()

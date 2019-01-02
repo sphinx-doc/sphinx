@@ -104,7 +104,7 @@ def assert_count(expected_expr, result, count):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_toctree(app):
     app.build()
-    result = (app.outdir / 'index.txt').text(encoding='utf-8')
+    result = (app.outdir / 'index.txt').text()
     assert_startswith(result, "CONTENTS\n********\n\nTABLE OF CONTENTS\n")
 
 
@@ -126,7 +126,7 @@ def test_text_emit_warnings(app, warning):
 def test_text_warning_node(app):
     app.build()
     # test warnings in translation
-    result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
+    result = (app.outdir / 'warnings.txt').text()
     expect = ("3. I18N WITH REST WARNINGS"
               "\n**************************\n"
               "\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
@@ -140,7 +140,7 @@ def test_text_warning_node(app):
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
-    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
+    result = (app.outdir / 'bom.txt').text()
     expect = ("2. Datei mit UTF-8"
               "\n******************\n"  # underline matches new translation
               "\nThis file has umlauts: äöü.\n")
@@ -153,7 +153,7 @@ def test_text_title_underline(app):
 def test_text_subdirs(app):
     app.build()
     # --- check translation in subdirs
-    result = (app.outdir / 'subdir' / 'index.txt').text(encoding='utf-8')
+    result = (app.outdir / 'subdir' / 'index.txt').text()
     assert_startswith(result, "1. subdir contents\n******************\n")
 
 
@@ -163,7 +163,7 @@ def test_text_subdirs(app):
 def test_text_inconsistency_warnings(app, warning):
     app.build()
     # --- check warnings for inconsistency in number of references
-    result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
+    result = (app.outdir / 'refs_inconsistency.txt').text()
     expect = ("8. I18N WITH REFS INCONSISTENCY"
               "\n*******************************\n"
               "\n* FOR CITATION [ref3].\n"
@@ -213,7 +213,7 @@ def test_text_inconsistency_warnings(app, warning):
 def test_text_literalblock_warnings(app, warning):
     app.build()
     # --- check warning for literal block
-    result = (app.outdir / 'literalblock.txt').text(encoding='utf-8')
+    result = (app.outdir / 'literalblock.txt').text()
     expect = ("9. I18N WITH LITERAL BLOCK"
               "\n**************************\n"
               "\nCORRECT LITERAL BLOCK:\n"
@@ -235,7 +235,7 @@ def test_text_literalblock_warnings(app, warning):
 def test_text_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #975, #2198, #2205
-    result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
+    result = (app.outdir / 'definition_terms.txt').text()
     expect = ("13. I18N WITH DEFINITION TERMS"
               "\n******************************\n"
               "\nSOME TERM"
@@ -255,7 +255,7 @@ def test_text_definition_terms(app):
 def test_text_glossary_term(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
-    result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
+    result = (app.outdir / 'glossary_terms.txt').text()
     expect = ("18. I18N WITH GLOSSARY TERMS"
               "\n****************************\n"
               "\nSOME NEW TERM"
@@ -274,7 +274,7 @@ def test_text_glossary_term(app, warning):
 def test_text_glossary_term_inconsistencies(app, warning):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    result = (app.outdir / 'glossary_terms_inconsistency.txt').text(encoding='utf-8')
+    result = (app.outdir / 'glossary_terms_inconsistency.txt').text()
     expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
               "\n1. LINK TO *SOME NEW TERM*.\n")
@@ -307,7 +307,7 @@ def test_gettext_section(app):
 def test_text_section(app):
     app.build()
     # --- section
-    result = (app.outdir / 'section.txt').text(encoding='utf-8')
+    result = (app.outdir / 'section.txt').text()
     expect = read_po(app.srcdir / 'section.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -319,7 +319,7 @@ def test_text_section(app):
 def test_text_seealso(app):
     app.build()
     # --- seealso
-    result = (app.outdir / 'seealso.txt').text(encoding='utf-8')
+    result = (app.outdir / 'seealso.txt').text()
     expect = ("12. I18N WITH SEEALSO"
               "\n*********************\n"
               "\nSee also: SHORT TEXT 1\n"
@@ -335,7 +335,7 @@ def test_text_seealso(app):
 def test_text_figure_captions(app):
     app.build()
     # --- figure captions: regression test for #940
-    result = (app.outdir / 'figure.txt').text(encoding='utf-8')
+    result = (app.outdir / 'figure.txt').text()
     expect = ("14. I18N WITH FIGURE CAPTION"
               "\n****************************\n"
               "\n   [image]MY CAPTION OF THE FIGURE\n"
@@ -377,7 +377,7 @@ def test_text_figure_captions(app):
 def test_text_rubric(app):
     app.build()
     # --- rubric: regression test for pull request #190
-    result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
+    result = (app.outdir / 'rubric.txt').text()
     expect = ("I18N WITH RUBRIC"
               "\n****************\n"
               "\n-[ RUBRIC TITLE ]-\n"
@@ -395,7 +395,7 @@ def test_text_rubric(app):
 def test_text_docfields(app):
     app.build()
     # --- docfields
-    result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
+    result = (app.outdir / 'docfields.txt').text()
     expect = ("21. I18N WITH DOCFIELDS"
               "\n***********************\n"
               "\nclass Cls1\n"
@@ -426,7 +426,7 @@ def test_text_admonitions(app):
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
     # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
-    result = (app.outdir / 'admonitions.txt').text(encoding='utf-8')
+    result = (app.outdir / 'admonitions.txt').text()
     directives = (
         "attention", "caution", "danger", "error", "hint",
         "important", "note", "tip", "warning", "admonition")
@@ -468,7 +468,7 @@ def test_gettext_table(app):
 def test_text_table(app):
     app.build()
     # --- toctree
-    result = (app.outdir / 'table.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table.txt').text()
     expect = read_po(app.srcdir / 'table.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -492,7 +492,7 @@ def test_gettext_topic(app):
 def test_text_topic(app):
     app.build()
     # --- topic
-    result = (app.outdir / 'topic.txt').text(encoding='utf-8')
+    result = (app.outdir / 'topic.txt').text()
     expect = read_po(app.srcdir / 'topic.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -611,7 +611,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
 def test_html_meta(app):
     app.build()
     # --- test for meta
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
     expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
@@ -625,7 +625,7 @@ def test_html_footnotes(app):
     app.build()
     # --- test for #955 cant-build-html-with-footnotes-when-using
     # expect no error by build
-    (app.outdir / 'footnote.html').text(encoding='utf-8')
+    (app.outdir / 'footnote.html').text()
 
 
 @sphinx_intl
@@ -634,7 +634,7 @@ def test_html_footnotes(app):
 def test_html_undefined_refs(app):
     app.build()
     # --- links to undefined reference
-    result = (app.outdir / 'refs_inconsistency.html').text(encoding='utf-8')
+    result = (app.outdir / 'refs_inconsistency.html').text()
 
     expected_expr = ('<a class="reference external" '
                      'href="http://www.example.com">reference</a>')
@@ -656,7 +656,7 @@ def test_html_undefined_refs(app):
 def test_html_index_entries(app):
     app.build()
     # --- index entries: regression test for #976
-    result = (app.outdir / 'genindex.html').text(encoding='utf-8')
+    result = (app.outdir / 'genindex.html').text()
 
     def wrap(tag, keyword):
         start_tag = "<%s[^>]*>" % tag
@@ -694,7 +694,7 @@ def test_html_index_entries(app):
 def test_html_versionchanges(app):
     app.build()
     # --- versionchanges
-    result = (app.outdir / 'versionchange.html').text(encoding='utf-8')
+    result = (app.outdir / 'versionchange.html').text()
 
     def get_content(result, name):
         matched = re.search(r'<div class="%s">\n*(.*?)</div>' % name,
@@ -731,7 +731,7 @@ def test_html_docfields(app):
     app.build()
     # --- docfields
     # expect no error by build
-    (app.outdir / 'docfields.html').text(encoding='utf-8')
+    (app.outdir / 'docfields.html').text()
 
 
 @sphinx_intl
@@ -740,7 +740,7 @@ def test_html_docfields(app):
 def test_html_template(app):
     app.build()
     # --- gettext template
-    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    result = (app.outdir / 'contents.html').text()
     assert "WELCOME" in result
     assert "SPHINX 2013.120" in result
 
@@ -1038,7 +1038,7 @@ def test_xml_label_targets(app):
 def test_additional_targets_should_not_be_translated(app):
     app.build()
     # [literalblock.txt]
-    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+    result = (app.outdir / 'literalblock.html').text()
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
@@ -1074,7 +1074,7 @@ def test_additional_targets_should_not_be_translated(app):
 
     # [raw.txt]
 
-    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+    result = (app.outdir / 'raw.html').text()
 
     # raw block should not be translated
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
@@ -1082,7 +1082,7 @@ def test_additional_targets_should_not_be_translated(app):
 
     # [figure.txt]
 
-    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+    result = (app.outdir / 'figure.html').text()
 
     # alt and src for image block should not be translated
     expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
@@ -1112,7 +1112,7 @@ def test_additional_targets_should_not_be_translated(app):
 def test_additional_targets_should_be_translated(app):
     app.build()
     # [literalblock.txt]
-    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+    result = (app.outdir / 'literalblock.html').text()
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
@@ -1148,7 +1148,7 @@ def test_additional_targets_should_be_translated(app):
 
     # [raw.txt]
 
-    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+    result = (app.outdir / 'raw.html').text()
 
     # raw block should be translated
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
@@ -1156,7 +1156,7 @@ def test_additional_targets_should_be_translated(app):
 
     # [figure.txt]
 
-    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+    result = (app.outdir / 'figure.html').text()
 
     # alt and src for image block should be translated
     expected_expr = """<img alt="I18N -&gt; IMG" src="_images/img.png" />"""
