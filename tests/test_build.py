@@ -73,12 +73,12 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
 
 
 def test_master_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('master_doc = "index"')
+    (tempdir / 'conf.py').write_text('')
     assert tempdir.listdir() == ['conf.py']
 
     app = make_app('dummy', srcdir=tempdir)
     with pytest.raises(SphinxError):
-        app.builder.build_all()
+        app.builder.build_all()  # no index.rst
 
 
 @pytest.mark.sphinx(buildername='text', testroot='circular')

@@ -1,4 +1,3 @@
-master_doc = 'index'
 project = 'Sphinx'
 version = '1.4.4'
 

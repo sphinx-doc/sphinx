@@ -13,7 +13,6 @@ from sphinx.writers.text import TextTranslator
 
 
 project = 'test'
-master_doc = 'index'
 
 
 class ConfHTMLTranslator(HTMLTranslator):

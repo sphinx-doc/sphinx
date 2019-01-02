@@ -93,8 +93,7 @@ def test_texinfo_citation(app, status, warning):
 
 
 def test_default_texinfo_documents():
-    config = Config({'master_doc': 'index',
-                     'project': 'STASI™ Documentation',
+    config = Config({'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein"})
     config.init_values()
     expected = [('index', 'stasi', 'STASI™ Documentation',

@@ -1,4 +1,3 @@
-master_doc = 'index'
 html_theme = 'classic'
 templates_path = ['_templates']
 
