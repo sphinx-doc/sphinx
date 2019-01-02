@@ -89,7 +89,7 @@ General configuration
 .. confval:: source_suffix
 
    The file extensions of source files.  Sphinx considers the files with this
-   suffix as sources.  This value can be a dictionary mapping file extensions
+   suffix as sources.  The value can be a dictionary mapping file extensions
    to file types.  For example::
 
       source_suffix = {
@@ -98,15 +98,16 @@ General configuration
           '.md': 'markdown',
       }
 
-   By default, Sphinx only supports ``'restrcturedtext'`` file type.  You can
+   By default, Sphinx only supports ``'restructuredtext'`` file type.  You can
    add a new file type using source parser extensions.  Please read a document
-   of the extension to know what file type the extension supports.
+   of the extension to know which file type the extension supports.
 
-   This also allows a list of file extensions.  In that case, Sphinx conciders
-   that all they are ``'restructuredtext'``.  Default is
-   ``{'.rst': 'restructuredtext'}``.
+   The value may also be a list of file extensions: then Sphinx will consider
+   that they all map to the ``'restructuredtext'`` file type.
 
-   .. note:: file extensions have to start with dot (like ``.rst``).
+   Default is ``{'.rst': 'restructuredtext'}``.
+
+   .. note:: file extensions have to start with a dot (e.g. ``.rst``).
 
    .. versionchanged:: 1.3
       Can now be a list of extensions.
@@ -787,10 +788,10 @@ These options influence Math notations.
 
 .. confval:: math_eqref_format
 
-   A string that are used for format of label of references to equations.
-   As a special character, ``{number}`` will be replaced to equaition number.
+   A string used for formatting the labels of references to equations.
+   The ``{number}`` place-holder stands for the equation number.
 
-   Example: ``'Eq.{number}'`` is rendered as ``Eq.10``
+   Example: ``'Eq.{number}'`` gets rendered as, for example, ``Eq.10``.
 
 .. confval:: math_numfig
 
@@ -2630,7 +2631,7 @@ Options for the C++ domain
    A list of strings that the parser additionally should accept as attributes
    with one argument.  That is, if ``my_align_as`` is in the list, then
    ``my_align_as(X)`` is parsed as an attribute for all strings ``X`` that have
-   balanced brances (``()``, ``[]``, and ``{}``).  This can for example be used
+   balanced braces (``()``, ``[]``, and ``{}``).  This can for example be used
    when attributes have been ``#define`` d for portability.
 
    .. versionadded:: 1.5

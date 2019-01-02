@@ -5,7 +5,7 @@
 
     A Base class for additional parsers.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +25,7 @@ if False:
 
 class Parser(docutils.parsers.Parser):
     """
-    A base class of source parsers.  The additonal parsers should inherits this class instead
+    A base class of source parsers.  The additional parsers should inherit this class instead
     of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
     improves accessibility to Sphinx APIs.
 

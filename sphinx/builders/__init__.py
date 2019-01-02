@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -68,7 +68,7 @@ class Builder(object):
     #: ``project``
     epilog = ''  # type: unicode
 
-    #: default translator class for the builder.  This can be overrided by
+    #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`app.set_translator()`.
     default_translator_class = None  # type: nodes.NodeVisitor
     # doctree versioning method
