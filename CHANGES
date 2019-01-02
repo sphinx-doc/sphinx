@@ -66,6 +66,7 @@ Incompatible changes
   the text width and height, even if width and/or height option were used.
   (refs: #5956)
 * #4550: All tables and figures without ``align`` option are displayed to center
+* #4587: html: Output HTML5 by default
 
 Deprecated
 ----------
@@ -76,6 +77,10 @@ Deprecated
   ``EpubBuilder.build_container()``, ``EpubBuilder.bulid_content()``,
   ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
 * The arguments of ``Epub3Builder.build_navigation_doc()``
+* The config variables
+
+  - :confval:`html_experimental_html5_writer`
+
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
@@ -179,6 +184,7 @@ Features added
 * #4611: epub: Show warning for duplicated ToC entries
 * #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
   omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
+* #4587: html: Add :confval:`html4_writer` to use old HTML4 writer
 * #6016: HTML search: A placeholder for the search summary prevents search
   result links from changing their position when the search terminates.  This
   makes navigating search results easier.
