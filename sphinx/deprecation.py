@@ -8,7 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 import warnings
+from importlib import import_module
 
 if False:
     # For type annotation
@@ -24,6 +26,34 @@ class RemovedInSphinx40Warning(PendingDeprecationWarning):
 
 
 RemovedInNextVersionWarning = RemovedInSphinx30Warning
+
+
+def deprecated_alias(modname, objects, warning):
+    # type: (str, Dict, Type[Warning]) -> None
+    module = sys.modules.get(modname)
+    if module is None:
+        module = import_module(modname)
+
+    sys.modules[modname] = _ModuleWrapper(module, modname, objects, warning)  # type: ignore
+
+
+class _ModuleWrapper(object):
+    def __init__(self, module, modname, objects, warning):
+        # type: (Any, str, Dict, Type[Warning]) -> None
+        self._module = module
+        self._modname = modname
+        self._objects = objects
+        self._warning = warning
+
+    def __getattr__(self, name):
+        # type: (str) -> Any
+        if name in self._objects:
+            warnings.warn("%s.%s is now deprecated. Please refer CHANGES to grasp"
+                          "the changes of Sphinx API." % (self._modname, name),
+                          self._warning, stacklevel=3)
+            return self._objects[name]
+
+        return getattr(self._module, name)
 
 
 class DeprecatedDict(dict):

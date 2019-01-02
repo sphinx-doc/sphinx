@@ -23,6 +23,9 @@ from docutils.writers.latex2e import Babel
 
 from sphinx import addnodes
 from sphinx import highlighting
+from sphinx.builders.latex.nodes import (
+    HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext
+)
 from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
@@ -2655,11 +2658,4 @@ class LaTeXTranslator(SphinxTranslator):
         return visit_admonition
 
 # Import old modules here for compatibility
-# They should be imported after `LaTeXTranslator` to avoid recursive import.
-#
-# refs: https://github.com/sphinx-doc/sphinx/issues/4889
-from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
-
-# FIXME: Workaround to avoid circular import
-# refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA
+import sphinx.builders.latex.compat  # NOQA
