@@ -64,6 +64,7 @@ builtin_extensions = (
     'sphinx.addnodes',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
+    'sphinx.builders.dirhtml',
     'sphinx.builders.dummy',
     'sphinx.builders.gettext',
     'sphinx.builders.html',

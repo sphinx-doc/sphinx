@@ -1169,39 +1169,6 @@ class StandaloneHTMLBuilder(Builder):
         logger.info(__('done'))
 
 
-class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    A StandaloneHTMLBuilder that creates all HTML pages as "index.html" in
-    a directory given by their pagename, so that generated URLs don't have
-    ``.html`` in them.
-    """
-    name = 'dirhtml'
-
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
-        if docname == 'index':
-            return ''
-        if docname.endswith(SEP + 'index'):
-            return docname[:-5]  # up to sep
-        return docname + SEP
-
-    def get_outfilename(self, pagename):
-        # type: (str) -> str
-        if pagename == 'index' or pagename.endswith(SEP + 'index'):
-            outfilename = path.join(self.outdir, os_path(pagename) +
-                                    self.out_suffix)
-        else:
-            outfilename = path.join(self.outdir, os_path(pagename),
-                                    'index' + self.out_suffix)
-
-        return outfilename
-
-    def prepare_writing(self, docnames):
-        # type: (Set[str]) -> None
-        super().prepare_writing(docnames)
-        self.globalcontext['no_search_suffix'] = True
-
-
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     """
     An abstract builder that serializes the generated HTML.
@@ -1417,10 +1384,12 @@ def validate_math_renderer(app):
 
 
 # for compatibility
+from sphinx.builders.dirhtml import DirectoryHTMLBuilder  # NOQA
 from sphinx.builders.singlehtml import SingleFileHTMLBuilder  # NOQA
 
 deprecated_alias('sphinx.builders.html',
                  {
+                     'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
                      'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
                  },
                  RemovedInSphinx40Warning)
@@ -1430,7 +1399,6 @@ def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     # builders
     app.add_builder(StandaloneHTMLBuilder)
-    app.add_builder(DirectoryHTMLBuilder)
     app.add_builder(PickleHTMLBuilder)
     app.add_builder(JSONHTMLBuilder)
 
