@@ -13,6 +13,7 @@ from os import path
 
 from docutils.frontend import OptionParser
 
+import sphinx.builders.latex.nodes  # NOQA  # Workaround: import this before writer to avoid ImportError
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.builders import Builder
 from sphinx.builders.latex.transforms import (
