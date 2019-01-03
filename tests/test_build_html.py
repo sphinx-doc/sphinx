@@ -585,7 +585,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index)
-    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
 
     warnings = warning.getvalue()
@@ -683,7 +683,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index)
-    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    (app.srcdir / 'index.rst').write_text(index)
 
     if not app.outdir.listdir():
         app.build()

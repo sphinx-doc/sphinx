@@ -25,7 +25,7 @@ def test_html_with_default_docutilsconf(app, status, warning):
     with patch_docutils(app.confdir):
         app.builder.build(['contents'])
 
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
 
     assert regex_count(r'<th class="field-name">', result) == 1
     assert regex_count(r'<th class="field-name" colspan="2">', result) == 1
@@ -43,7 +43,7 @@ def test_html_with_docutilsconf(app, status, warning):
     with patch_docutils(app.confdir):
         app.builder.build(['contents'])
 
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
 
     assert regex_count(r'<th class="field-name">', result) == 0
     assert regex_count(r'<th class="field-name" colspan="2">', result) == 2

@@ -30,7 +30,7 @@ def test_build_gettext(app):
     assert (app.outdir / 'subdir.pot').isfile()
 
     # regression test for issue #960
-    catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
+    catalog = (app.outdir / 'markup.pot').text()
     assert 'msgid "something, something else, something more"' in catalog
 
 
@@ -88,7 +88,7 @@ def test_gettext_index_entries(app):
             return m.groups()[0]
         return None
 
-    pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
+    pot = (app.outdir / 'index_entries.pot').text()
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
@@ -137,7 +137,7 @@ def test_gettext_disable_index_entries(app):
             return m.groups()[0]
         return None
 
-    pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
+    pot = (app.outdir / 'index_entries.pot').text()
     msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
 
     expected_msgids = [
@@ -160,7 +160,7 @@ def test_gettext_template(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 
-    result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
+    result = (app.outdir / 'sphinx.pot').text()
     assert "Welcome" in result
     assert "Sphinx %(version)s" in result
 
@@ -170,7 +170,7 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 
-    result = (app.outdir / 'sphinx.pot').text(encoding='utf-8')
+    result = (app.outdir / 'sphinx.pot').text()
     assert re.search(
         ('msgid "Template 1".*'
          'msgid "This is Template 1\\.".*'
