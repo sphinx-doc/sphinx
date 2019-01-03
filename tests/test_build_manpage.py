@@ -31,8 +31,7 @@ def test_all(app, status, warning):
 
 
 def test_default_man_pages():
-    config = Config({'master_doc': 'index',
-                     'project': 'STASI™ Documentation',
+    config = Config({'project': 'STASI™ Documentation',
                      'author': "Wolfgang Schäuble & G'Beckstein",
                      'release': '1.0'})
     config.init_values()

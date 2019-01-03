@@ -1,5 +1,3 @@
-master_doc = 'index'
-
 extensions = ['sphinx.ext.imgmath']  # for math_numfig
 
 latex_documents = [
