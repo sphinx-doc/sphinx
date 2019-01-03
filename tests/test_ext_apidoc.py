@@ -13,7 +13,6 @@ from collections import namedtuple
 import pytest
 
 from sphinx.ext.apidoc import main as apidoc_main
-from sphinx.testing.util import remove_unicode_literals
 
 
 @pytest.fixture()
@@ -278,11 +277,10 @@ def test_multibyte_parameters(make_app, apidoc):
     assert (outdir / 'index.rst').isfile()
 
     conf_py = (outdir / 'conf.py').text()
-    conf_py_ = remove_unicode_literals(conf_py)
-    assert "project = 'プロジェクト名'" in conf_py_
-    assert "author = '著者名'" in conf_py_
-    assert "version = 'バージョン'" in conf_py_
-    assert "release = 'リリース'" in conf_py_
+    assert "project = 'プロジェクト名'" in conf_py
+    assert "author = '著者名'" in conf_py
+    assert "version = 'バージョン'" in conf_py
+    assert "release = 'リリース'" in conf_py
 
     app = make_app('text', srcdir=outdir)
     app.build()

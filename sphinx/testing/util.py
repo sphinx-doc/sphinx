@@ -194,7 +194,7 @@ _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 def remove_unicode_literals(s):
     # type: (str) -> str
     warnings.warn('remove_unicode_literals() is deprecated.',
-                  RemovedInSphinx40Warning)
+                  RemovedInSphinx40Warning, stacklevel=2)
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 
 

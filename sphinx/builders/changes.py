@@ -62,11 +62,13 @@ class ChangesBuilder(Builder):
         libchanges = {}     # type: Dict[str, List[Tuple[str, str, int]]]
         apichanges = []     # type: List[Tuple[str, str, int]]
         otherchanges = {}   # type: Dict[Tuple[str, str], List[Tuple[str, str, int]]]
-        if version not in self.env.versionchanges:
+
+        changesets = domain.get_changesets_for(version)
+        if not changesets:
             logger.info(bold(__('no changes in version %s.') % version))
             return
         logger.info(bold('writing summary file...'))
-        for changeset in domain.get_changesets_for(version):
+        for changeset in changesets:
             if isinstance(changeset.descname, tuple):
                 descname = changeset.descname[0]
             else:
