@@ -234,6 +234,29 @@ def get_verifier(verify, verify_re):
         None,
         r'\\sphinxhref{http://example.com/~me/}{test}.*',
     ),
+    (
+        # description list: simple
+        'verify',
+        'term\n    description',
+        '<dl class="docutils">\n<dt>term</dt><dd>description</dd>\n</dl>',
+        None,
+    ),
+    (
+        # description list: with classifiers
+        'verify',
+        'term : class1 : class2\n    description',
+        ('<dl class="docutils">\n<dt>term<span class="classifier">class1</span>'
+         '<span class="classifier">class2</span></dt><dd>description</dd>\n</dl>'),
+        None,
+    ),
+    (
+        # glossary (description list): multiple terms
+        'verify',
+        '.. glossary::\n\n   term1\n   term2\n       description',
+        ('<dl class="glossary docutils">\n<dt id="term-term1">term1</dt>'
+         '<dt id="term-term2">term2</dt><dd>description</dd>\n</dl>'),
+        None,
+    ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
