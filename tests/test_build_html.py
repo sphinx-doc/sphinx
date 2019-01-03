@@ -1258,6 +1258,15 @@ def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
+@pytest.mark.sphinx('html', testroot='html_style')
+def test_html_style(app, status, warning):
+    app.build()
+    result = (app.outdir / 'contents.html').text()
+    assert '<link rel="stylesheet" href="_static/default.css" type="text/css" />' in result
+    assert ('<link rel="stylesheet" href="_static/alabaster.css" type="text/css" />'
+            not in result)
+
+
 @pytest.mark.sphinx('html', testroot='images')
 def test_html_remote_images(app, status, warning):
     app.builder.build_all()
