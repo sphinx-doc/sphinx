@@ -253,11 +253,9 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
                     if excluded(self.env.doc2path(docname, None)):
-                        self.warn('toctree references excluded document %r'
-                                  % docname)
+                        logger.warning('toctree references excluded document %r' % docname)
                     else:
-                        self.warn('toctree references unknown document %r'
-                                  % docname)
+                        logger.warning('toctree references unknown document %r' % docname)
                 docnames.append(docname)
 
             tocnode = addnodes.toctree()
@@ -290,7 +288,7 @@ class Autosummary(SphinxDirective):
             try:
                 real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
-                self.warn('failed to import %s' % name)
+                logger.warning('failed to import %s' % name)
                 items.append((name, '', '', name))
                 continue
 
@@ -305,11 +303,11 @@ class Autosummary(SphinxDirective):
             doccls = get_documenter(self.env.app, obj, parent)
             documenter = doccls(self.bridge, full_name)
             if not documenter.parse_name():
-                self.warn('failed to parse name %s' % real_name)
+                logger.warning('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
             if not documenter.import_object():
-                self.warn('failed to import object %s' % real_name)
+                logger.warning('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
             if documenter.options.members and not documenter.check_module():

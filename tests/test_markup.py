@@ -77,7 +77,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
-        html_translator = ForgivingHTMLTranslator(app.builder, document)
+        html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
         assert re.match(html_expected, html_translated), 'from ' + rst
