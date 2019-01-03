@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 extensions = ['sphinx.ext.ifconfig']
 master_doc = 'index'
 exclude_patterns = ['_build']

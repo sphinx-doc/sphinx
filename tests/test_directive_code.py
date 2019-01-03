@@ -36,18 +36,18 @@ def test_LiteralIncludeReader(literal_inc_path):
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == literal_inc_path.text()
-    assert lines == 14
+    assert lines == 13
     assert reader.lineno_start == 1
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lineno_start(literal_inc_path):
-    options = {'lineno-start': 5}
+    options = {'lineno-start': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == literal_inc_path.text()
-    assert lines == 14
-    assert reader.lineno_start == 5
+    assert lines == 13
+    assert reader.lineno_start == 4
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -57,7 +57,7 @@ def test_LiteralIncludeReader_pyobject1(literal_inc_path):
     content, lines = reader.read()
     assert content == ("class Foo:\n"
                        "    pass\n")
-    assert reader.lineno_start == 6
+    assert reader.lineno_start == 5
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -91,18 +91,17 @@ def test_LiteralIncludeReader_pyobject_and_lines(literal_inc_path):
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines1(literal_inc_path):
-    options = {'lines': '1-4'}
+    options = {'lines': '1-3'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("# Literally included file using Python highlighting\n"
-                       "# -*- coding: utf-8 -*-\n"
                        "\n"
                        "foo = \"Including Unicode characters: üöä\"\n")
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines2(literal_inc_path):
-    options = {'lines': '1,4,6'}
+    options = {'lines': '1,3,5'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("# Literally included file using Python highlighting\n"
@@ -112,18 +111,18 @@ def test_LiteralIncludeReader_lines2(literal_inc_path):
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
-    options = {'lines': '4-6', 'lineno-match': True}
+    options = {'lines': '3-5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("foo = \"Including Unicode characters: üöä\"\n"
                        "\n"
                        "class Foo:\n")
-    assert reader.lineno_start == 4
+    assert reader.lineno_start == 3
 
 
 @pytest.mark.sphinx()  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app, status, warning):
-    options = {'lines': '1,4,6', 'lineno-match': True}
+    options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(ValueError):
         content, lines = reader.read()
@@ -146,7 +145,7 @@ def test_LiteralIncludeReader_start_at(literal_inc_path):
                        "    pass\n"
                        "\n"
                        "class Bar:\n")
-    assert reader.lineno_start == 6
+    assert reader.lineno_start == 5
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -156,13 +155,13 @@ def test_LiteralIncludeReader_start_after(literal_inc_path):
     content, lines = reader.read()
     assert content == ("    pass\n"
                        "\n")
-    assert reader.lineno_start == 7
+    assert reader.lineno_start == 6
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
     options = {'lineno-match': True, 'lines': '6-',
-               'start-after': 'coding', 'end-before': 'comment'}
+               'start-after': 'Literally', 'end-before': 'comment'}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("\n"
@@ -170,7 +169,7 @@ def test_LiteralIncludeReader_start_after_and_lines(literal_inc_path):
                        "    def baz():\n"
                        "        pass\n"
                        "\n")
-    assert reader.lineno_start == 8
+    assert reader.lineno_start == 7
 
 
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
@@ -219,7 +218,7 @@ def test_LiteralIncludeReader_prepend(literal_inc_path):
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_LiteralIncludeReader_dedent(literal_inc_path):
     # dedent: 2
-    options = {'lines': '10-12', 'dedent': 2}
+    options = {'lines': '9-11', 'dedent': 2}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("  def baz():\n"
@@ -227,7 +226,7 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "\n")
 
     # dedent: 4
-    options = {'lines': '10-12', 'dedent': 4}
+    options = {'lines': '9-11', 'dedent': 4}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("def baz():\n"
@@ -235,7 +234,7 @@ def test_LiteralIncludeReader_dedent(literal_inc_path):
                        "\n")
 
     # dedent: 6
-    options = {'lines': '10-12', 'dedent': 6}
+    options = {'lines': '9-11', 'dedent': 6}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("f baz():\n"
@@ -278,7 +277,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
     content, lines = reader.read()
     assert content == ("--- " + testroot + "/literal-diff.inc\n"
                        "+++ " + testroot + "/literal.inc\n"
-                       "@@ -7,8 +7,8 @@\n"
+                       "@@ -6,8 +6,8 @@\n"
                        "     pass\n"
                        " \n"
                        " class Bar:\n"
@@ -353,7 +352,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 def test_code_block_emphasize_latex(app, status, warning):
     app.builder.build(['emphasize'])
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26, 27,}}%\n'
+    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
@@ -414,8 +413,7 @@ def test_literal_include_linenos(app, status, warning):
             '10\n'
             '11\n'
             '12\n'
-            '13\n'
-            '14</pre></div></td>' in html)
+            '13</pre></div></td>' in html)
 
     # :lineno-start:
     assert ('<td class="linenos"><div class="linenodiv"><pre>'
@@ -431,8 +429,7 @@ def test_literal_include_linenos(app, status, warning):
             '209\n'
             '210\n'
             '211\n'
-            '212\n'
-            '213</pre></div></td>' in html)
+            '212</pre></div></td>' in html)
 
     # :lineno-match:
     assert ('<td class="linenos"><div class="linenodiv"><pre>'

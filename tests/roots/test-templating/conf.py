@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 project = 'Sphinx templating <Tests>'
 source_suffix = '.txt'
 keep_warnings = True

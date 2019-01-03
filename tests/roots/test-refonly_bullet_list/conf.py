@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 master_doc = 'index'
 html_compact_lists = False
 

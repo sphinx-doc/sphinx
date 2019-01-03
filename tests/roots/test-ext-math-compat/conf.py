@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from docutils.parsers.rst import Directive
 
 from sphinx.ext.mathbase import math, displaymath
