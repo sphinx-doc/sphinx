@@ -27,7 +27,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.nodes import is_translatable
-from sphinx.util.websupport import is_commentable
 
 if False:
     # For type annotation
@@ -76,8 +75,7 @@ CONFIG_CHANGED_REASON = {
 versioning_conditions = {
     'none': False,
     'text': is_translatable,
-    'commentable': is_commentable,
-}
+}  # type: Dict[str, Union[bool, Callable]]
 
 
 class NoUri(Exception):
@@ -273,6 +271,7 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
+        condition = None  # type: Union[bool, Callable]
         if callable(method):
             condition = method
         else:

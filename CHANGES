@@ -17,7 +17,8 @@ Dependencies
   which in Ubuntu xenial are provided by package ``fonts-freefont-otf``, and
   e.g. in Fedora 29 via package ``texlive-gnu-freefont``.
 * requests 2.5.0 or above
-* The six package is no longer a dependency.
+* The six package is no longer a dependency
+* The sphinxcontrib-websupport package is no longer a dependency
 * Some packages are separated to sub packages:
 
   - sphinxcontrib.jsmath
@@ -55,6 +56,7 @@ Incompatible changes
   from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
   to insert custom user definitions.  See :ref:`latex-macros`.
 * quickstart: Simplify generated ``conf.py``
+* websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
 
 Deprecated
 ----------
