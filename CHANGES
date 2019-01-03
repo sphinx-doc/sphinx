@@ -155,6 +155,8 @@ Bugs fixed
   if passed as language option?
 * #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
   enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
+* HTML: Invalid HTML5 file is generated for a glossary having multiple terms for
+  one description (refs: #4611)
 
 Testing
 --------

@@ -394,6 +394,48 @@ class HTMLTranslator(SphinxTranslator, BaseTranslator):
         super().visit_enumerated_list(node)
 
     # overwritten
+    def visit_definition(self, node):
+        # type: (nodes.Element) -> None
+        # don't insert </dt> here.
+        self.body.append(self.starttag(node, 'dd', ''))
+
+    # overwritten
+    def depart_definition(self, node):
+        # type: (nodes.Element) -> None
+        self.body.append('</dd>\n')
+
+    # overwritten
+    def visit_classifier(self, node):
+        # type: (nodes.Element) -> None
+        self.body.append(self.starttag(node, 'span', '', CLASS='classifier'))
+
+    # overwritten
+    def depart_classifier(self, node):
+        # type: (nodes.Element) -> None
+        self.body.append('</span>')
+
+        next_node = node.next_node(descend=False, siblings=True)  # type: nodes.Node
+        if not isinstance(next_node, nodes.classifier):
+            # close `<dt>` tag at the tail of classifiers
+            self.body.append('</dt>')
+
+    # overwritten
+    def visit_term(self, node):
+        # type: (nodes.Element) -> None
+        self.body.append(self.starttag(node, 'dt', ''))
+
+    # overwritten
+    def depart_term(self, node):
+        # type: (nodes.Element) -> None
+        next_node = node.next_node(descend=False, siblings=True)  # type: nodes.Node
+        if isinstance(next_node, nodes.classifier):
+            # Leave the end tag to `self.depart_classifier()`, in case
+            # there's a classifier.
+            pass
+        else:
+            self.body.append('</dt>')
+
+    # overwritten
     def visit_title(self, node):
         # type: (nodes.Element) -> None
         super().visit_title(node)
