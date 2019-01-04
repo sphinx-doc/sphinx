@@ -350,6 +350,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.ext.jsmath``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.jsmath``
+
    * - ``sphinx.testing.util.remove_unicode_literal()``
      - 2.0
      - 4.0

@@ -18,6 +18,9 @@ Dependencies
   e.g. in Fedora 29 via package ``texlive-gnu-freefont``.
 * requests 2.5.0 or above
 * The six package is no longer a dependency.
+* Some packages are separated to sub packages:
+
+  - sphinxcontrib.jsmath
 
 Incompatible changes
 --------------------

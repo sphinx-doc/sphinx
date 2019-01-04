@@ -1366,7 +1366,7 @@ def test_html_math_renderer_is_imgmath(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath']})
 def test_html_math_renderer_is_duplicated(make_app, app_params):
     try:
@@ -1387,7 +1387,7 @@ def test_html_math_renderer_is_duplicated2(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath'],
                                    'html_math_renderer': 'imgmath'})
 def test_html_math_renderer_is_chosen(app, status, warning):
@@ -1395,7 +1395,7 @@ def test_html_math_renderer_is_chosen(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.jsmath',
+                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.mathjax'],
                                    'html_math_renderer': 'imgmath'})
 def test_html_math_renderer_is_mismatched(make_app, app_params):

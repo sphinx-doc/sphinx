@@ -9,8 +9,10 @@ from sphinx import addnodes
 
 sys.path.append(os.path.abspath('.'))
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.extlinks']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.extlinks']
 
 jsmath_path = 'dummy.js'
 
