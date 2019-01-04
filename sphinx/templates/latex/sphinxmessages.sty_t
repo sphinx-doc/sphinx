@@ -3,6 +3,8 @@
 %
 % message resources for Sphinx
 %
+\ProvidesPackage{sphinxmessages}[2019/01/04 v2.0 Localized LaTeX macros (Sphinx team)]
+
 \renewcommand{\literalblockcontinuedname}{<%= _('continued from previous page') | e %>}
 \renewcommand{\literalblockcontinuesname}{<%= _('continues on next page') | e %>}
 \renewcommand{\sphinxnonalphabeticalgroupname}{<%= _('Non-alphabetical') | e %>}
