@@ -795,7 +795,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\figurename', definition))
             ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@figure{\\figurename \\thefigure{}%s}\n' %
+            ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
                        text_type(figure[1]).translate(tex_escape_map))
             ret.append('\\makeatother\n')
 
@@ -807,7 +807,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\tablename', definition))
             ret.append('\\makeatletter\n')
-            ret.append('\\def\\fnum@table{\\tablename \\thetable{}%s}\n' %
+            ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
                        text_type(table[1]).translate(tex_escape_map))
             ret.append('\\makeatother\n')
 

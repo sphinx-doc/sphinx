@@ -289,9 +289,9 @@ def test_numref_with_prefix2(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
-    assert '\\def\\fnum@figure{\\figurename \\thefigure{}.}' in result
+    assert '\\def\\fnum@figure{\\figurename\\thefigure{}.}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
-    assert '\\def\\fnum@table{\\tablename \\thetable{}:}' in result
+    assert '\\def\\fnum@table{\\tablename\\thetable{}:}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Figure:\\ref{\\detokenize{index:fig1}}.\\@}') in result
