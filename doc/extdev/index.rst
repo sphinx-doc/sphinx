@@ -394,6 +394,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``IndexBuilder.feed(docname, filename, title, doctree)``
 
+   * - ``sphinx.writers.latex.ExtBabel``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.latex.util.ExtBabel``
+
    * - ``sphinx.writers.latex.LaTeXTranslator.babel_defmacro()``
      - 2.0
      - 4.0
@@ -452,6 +457,11 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.writers.text.TextTranslator._make_depart_admonition()``
      - 2.0
      - 3.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.generate_numfig_format()``
+     - 2.0
+     - 4.0
      - N/A
 
    * - :rst:dir:`highlightlang`

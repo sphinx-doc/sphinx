@@ -3,9 +3,23 @@
 %
 % message resources for Sphinx
 %
+\ProvidesPackage{sphinxmessages}[2019/01/04 v2.0 Localized LaTeX macros (Sphinx team)]
+
 \renewcommand{\literalblockcontinuedname}{<%= _('continued from previous page') | e %>}
 \renewcommand{\literalblockcontinuesname}{<%= _('continues on next page') | e %>}
 \renewcommand{\sphinxnonalphabeticalgroupname}{<%= _('Non-alphabetical') | e %>}
 \renewcommand{\sphinxsymbolsname}{<%= _('Symbols') | e %>}
 \renewcommand{\sphinxnumbersname}{<%= _('Numbers') | e %>}
 \def\pageautorefname{<%= _('page') | e %>}
+
+<%= addtocaptions %>{\renewcommand{\figurename}{<%= figurename[0].strip() | e %>}}
+<%- if figurename[1] %>
+\def\fnum@figure{\figurename\thefigure\relax{}<%= figurename[1].strip() | e %>}
+<%- endif %>
+
+<%= addtocaptions %>{\renewcommand{\tablename}{<%= tablename[0].strip() %>}}
+<%- if tablename[1] %>
+\def\fnum@table{\tablename\thetable\relax{}<%= tablename[1].strip() | e %>}
+<%- endif %>
+
+<%= addtocaptions %>{\renewcommand{\literalblockname}{<%= literalblockname[0].strip() %>}}

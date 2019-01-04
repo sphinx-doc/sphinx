@@ -19,7 +19,6 @@ from os import path
 from typing import Iterable, cast
 
 from docutils import nodes, writers
-from docutils.writers.latex2e import Babel
 
 from sphinx import addnodes
 from sphinx import highlighting
@@ -152,7 +151,6 @@ DEFAULT_SETTINGS = {
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
                         '\\urlstyle{same}'),
-    'numfig_format':   '',
     'contentsname':    '',
     'preamble':        '',
     'title':           '',
@@ -258,58 +256,6 @@ class LaTeXWriter(writers.Writer):
 
 
 # Helper classes
-
-class ExtBabel(Babel):
-    cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
-
-    def __init__(self, language_code, use_polyglossia=False):
-        # type: (str, bool) -> None
-        self.language_code = language_code
-        self.use_polyglossia = use_polyglossia
-        self.supported = True
-        super().__init__(language_code or '')
-
-    def get_shorthandoff(self):
-        # type: () -> str
-        warnings.warn('ExtBabel.get_shorthandoff() is deprecated.',
-                      RemovedInSphinx30Warning, stacklevel=2)
-        return SHORTHANDOFF
-
-    def uses_cyrillic(self):
-        # type: () -> bool
-        return self.language in self.cyrillic_languages
-
-    def is_supported_language(self):
-        # type: () -> bool
-        return self.supported
-
-    def language_name(self, language_code):
-        # type: (str) -> str
-        language = super().language_name(language_code)
-        if language == 'ngerman' and self.use_polyglossia:
-            # polyglossia calls new orthography (Neue Rechtschreibung) as
-            # german (with new spelling option).
-            return 'german'
-        elif not language:
-            self.supported = False
-            return 'english'  # fallback to english
-        else:
-            return language
-
-    def get_mainlanguage_options(self):
-        # type: () -> str
-        """Return options for polyglossia's ``\\setmainlanguage``."""
-        if self.use_polyglossia is False:
-            return None
-        elif self.language == 'german':
-            language = super().language_name(self.language_code)
-            if language == 'ngerman':
-                return 'spelling=new'
-            else:
-                return 'spelling=old'
-        else:
-            return None
-
 
 class Table:
     """A table data"""
@@ -586,8 +532,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          '\\sffamily}\n\\ChTitleVar{\\Large'
                                          '\\normalfont\\sffamily}')
 
-        self.babel = ExtBabel(self.config.language,
-                              not self.elements['babel'])
+        self.babel = self.builder.babel
         if self.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
@@ -675,7 +620,6 @@ class LaTeXTranslator(SphinxTranslator):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['numfig_format'] = self.generate_numfig_format(self.builder)
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
         self.context = []                   # type: List[Any]
@@ -775,46 +719,6 @@ class LaTeXTranslator(SphinxTranslator):
             suffix = ''
 
         return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
-
-    def generate_numfig_format(self, builder):
-        # type: (LaTeXBuilder) -> str
-        ret = []  # type: List[str]
-        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
-        if len(figure) == 1:
-            ret.append('\\def\\fnum@figure{%s}\n' %
-                       str(figure[0]).strip().translate(tex_escape_map))
-        else:
-            definition = str(figure[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\figurename', definition))
-            if figure[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           str(figure[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
-
-        table = self.builder.config.numfig_format['table'].split('%s', 1)
-        if len(table) == 1:
-            ret.append('\\def\\fnum@table{%s}\n' %
-                       str(table[0]).strip().translate(tex_escape_map))
-        else:
-            definition = str(table[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\tablename', definition))
-            if table[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           str(table[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
-
-        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
-        if len(codeblock) == 1:
-            pass  # FIXME
-        else:
-            definition = str(codeblock[0]).strip().translate(tex_escape_map)
-            ret.append(self.babel_renewcommand('\\literalblockname', definition))
-            if codeblock[1]:
-                pass  # FIXME
-
-        return ''.join(ret)
 
     def generate_indices(self):
         # type: () -> str
@@ -2656,6 +2560,49 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append('\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
+
+    def generate_numfig_format(self, builder):
+        # type: (LaTeXBuilder) -> str
+        warnings.warn('generate_numfig_format() is deprecated.',
+                      RemovedInSphinx40Warning)
+        ret = []  # type: List[str]
+        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
+        if len(figure) == 1:
+            ret.append('\\def\\fnum@figure{%s}\n' %
+                       str(figure[0]).strip().translate(tex_escape_map))
+        else:
+            definition = str(figure[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\figurename', definition))
+            if figure[1]:
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
+                           str(figure[1]).strip().translate(tex_escape_map))
+                ret.append('\\makeatother\n')
+
+        table = self.builder.config.numfig_format['table'].split('%s', 1)
+        if len(table) == 1:
+            ret.append('\\def\\fnum@table{%s}\n' %
+                       str(table[0]).strip().translate(tex_escape_map))
+        else:
+            definition = str(table[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\tablename', definition))
+            if table[1]:
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
+                           str(table[1]).strip().translate(tex_escape_map))
+                ret.append('\\makeatother\n')
+
+        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
+        if len(codeblock) == 1:
+            pass  # FIXME
+        else:
+            definition = str(codeblock[0]).strip().translate(tex_escape_map)
+            ret.append(self.babel_renewcommand('\\literalblockname', definition))
+            if codeblock[1]:
+                pass  # FIXME
+
+        return ''.join(ret)
+
 
 # Import old modules here for compatibility
 import sphinx.builders.latex.compat  # NOQA

@@ -203,9 +203,6 @@ def test_numref(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table}}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Listing}}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Fig.\\@ \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -227,6 +224,13 @@ def test_numref(app, status, warning):
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\tablename}{Table}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Listing}}' in result
+
 
 @pytest.mark.sphinx(
     'latex', testroot='numfig',
@@ -241,9 +245,6 @@ def test_numref_with_prefix1(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert '\\ref{\\detokenize{index:fig1}}' in result
     assert '\\ref{\\detokenize{baz:fig22}}' in result
     assert '\\ref{\\detokenize{index:table-1}}' in result
@@ -271,6 +272,13 @@ def test_numref_with_prefix1(app, status, warning):
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\addto\captionsenglish{\renewcommand{\figurename}{Figure:}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\tablename}{Tab_}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Code-}}' in result
+
 
 @pytest.mark.sphinx(
     'latex', testroot='numfig',
@@ -285,11 +293,6 @@ def test_numref_with_prefix2(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
-    assert '\\def\\fnum@figure{\\figurename\\thefigure.}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
-    assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Figure:\\ref{\\detokenize{index:fig1}}.\\@}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -311,6 +314,15 @@ def test_numref_with_prefix2(app, status, warning):
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert r'\addto\captionsenglish{\renewcommand{\figurename}{Figure:}}' in result
+    assert r'\def\fnum@figure{\figurename\thefigure\relax{}.}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\tablename}{Tab_}}' in result
+    assert r'\def\fnum@table{\tablename\thetable\relax{}:}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\literalblockname}{Code-}}' in result
+
 
 @pytest.mark.sphinx(
     'latex', testroot='numfig',
@@ -321,9 +333,6 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\renewcommand{\\figurename}{\u56f3}' in result  # 図
-    assert '\\renewcommand{\\tablename}{\u8868}' in result  # 表
-    assert '\\renewcommand{\\literalblockname}{\u30ea\u30b9\u30c8}' in result  # リスト
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
@@ -344,6 +353,13 @@ def test_numref_with_language_ja(app, status, warning):
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
             '\\nameref{\\detokenize{foo:foo}}}') in result
+
+    # sphinxmessages.sty
+    result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
+    print(result)
+    assert '\n{\\renewcommand{\\figurename}{図}}' in result
+    assert '\n{\\renewcommand{\\tablename}{表}}' in result
+    assert '\n{\\renewcommand{\\literalblockname}{リスト}}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-numfig')
@@ -419,14 +435,14 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff' not in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{page}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -444,14 +460,14 @@ def test_babel_with_language_de(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff{"}' in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{Seite}' in result
+    assert r'\addto\captionsngerman{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsngerman{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -469,14 +485,14 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff{"}' in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{страница}' in result
+    assert r'\addto\captionsrussian{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsrussian{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -494,14 +510,14 @@ def test_babel_with_language_tr(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff{=}' in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{sayfa}' in result
+    assert r'\addto\captionsturkish{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsturkish{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -518,14 +534,14 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\usepackage{times}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
-    assert '\\renewcommand{\\figurename}{Fig.}\n' in result
-    assert '\\renewcommand{\\tablename}{Table.}\n' in result
     assert '\\shorthandoff' not in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{ページ}' in result
+    assert '\n{\\renewcommand{\\figurename}{Fig.}}' in result
+    assert '\n{\\renewcommand{\\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -543,8 +559,6 @@ def test_babel_with_unknown_language(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
@@ -553,6 +567,8 @@ def test_babel_with_unknown_language(app, status, warning):
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{page}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsenglish{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -571,14 +587,14 @@ def test_polyglossia_with_language_de(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff' not in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{Seite}' in result
+    assert r'\addto\captionsgerman{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsgerman{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx(
@@ -597,14 +613,14 @@ def test_polyglossia_with_language_de_1901(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsgerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsgerman{\\renewcommand{\\figurename}{Fig.}}\n' in result
-    assert '\\addto\\captionsgerman{\\renewcommand{\\tablename}{Table.}}\n' in result
     assert '\\shorthandoff' not in result
 
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{page}' in result
+    assert r'\addto\captionsgerman{\renewcommand{\figurename}{Fig.}}' in result
+    assert r'\addto\captionsgerman{\renewcommand{\tablename}{Table.}}' in result
 
 
 @pytest.mark.sphinx('latex')

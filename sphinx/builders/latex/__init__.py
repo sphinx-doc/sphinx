@@ -21,6 +21,7 @@ from sphinx.builders.latex.transforms import (
     FootnoteDocnameUpdater, LaTeXFootnoteTransform, LiteralBlockTransform,
     ShowUrlsTransform, DocumentTargetTransform,
 )
+from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM
 from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -129,6 +130,7 @@ class LaTeXBuilder(Builder):
 
     def init(self):
         # type: () -> None
+        self.babel = None           # type: ExtBabel
         self.context = {}           # type: Dict[str, Any]
         self.docnames = []          # type: Iterable[str]
         self.document_data = []     # type: List[Tuple[str, str, str, str, str, bool]]
@@ -136,6 +138,7 @@ class LaTeXBuilder(Builder):
         texescape.init()
 
         self.init_context()
+        self.init_babel()
 
     def get_outdated_docs(self):
         # type: () -> Union[str, List[str]]
@@ -209,6 +212,15 @@ class LaTeXBuilder(Builder):
         if self.config.release:
             # Show the release label only if release value exists
             self.context['releasename'] = _('Release')
+
+    def init_babel(self):
+        # type: () -> None
+        self.babel = ExtBabel(self.config.language, not self.context['babel'])
+        if self.config.language and not self.babel.is_supported_language():
+            # emit warning if specified language is invalid
+            # (only emitting, nothing changed to processing)
+            logger.warning(__('no Babel option known for language %r'),
+                           self.config.language)
 
     def write_stylesheet(self):
         # type: () -> None
@@ -407,8 +419,19 @@ class LaTeXBuilder(Builder):
 
     def write_message_catalog(self):
         # type: () -> None
+        formats = self.config.numfig_format
+        context = {
+            'addtocaptions': '',
+            'figurename': formats.get('figure', '').split('%s', 1),
+            'tablename': formats.get('table', '').split('%s', 1),
+            'literalblockname': formats.get('code-block', '').split('%s', 1)
+        }
+
+        if self.context['babel'] or self.context['polyglossia']:
+            context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
+
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
-        copy_asset_file(filename, self.outdir, context={}, renderer=LaTeXRenderer())
+        copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
 def validate_config_values(app, config):

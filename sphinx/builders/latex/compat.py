@@ -11,7 +11,10 @@
 """
 
 from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform
-from sphinx.deprecation import RemovedInSphinx30Warning, deprecated_alias
+from sphinx.builders.latex.util import ExtBabel
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
 
 
 deprecated_alias('sphinx.writers.latex',
@@ -20,3 +23,9 @@ deprecated_alias('sphinx.writers.latex',
                      'URI_SCHEMES': URI_SCHEMES,
                  },
                  RemovedInSphinx30Warning)
+
+deprecated_alias('sphinx.writers.latex',
+                 {
+                     'ExtBabel': ExtBabel,
+                 },
+                 RemovedInSphinx40Warning)
