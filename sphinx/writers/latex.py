@@ -796,7 +796,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
+                ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
                            text_type(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
@@ -809,7 +809,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
+                ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
                            text_type(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
