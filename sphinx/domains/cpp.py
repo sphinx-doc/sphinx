@@ -364,8 +364,8 @@ _keywords = [
     'while', 'xor', 'xor_eq'
 ]
 
-_max_id = 3
-_id_prefix = [None, '', '_CPPv2', '_CPPv3']
+_max_id = 4
+_id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
 
 # ------------------------------------------------------------------------------
 # Id v1 constants
@@ -895,7 +895,7 @@ class ASTFoldExpr(ASTBase):
 
     def get_id(self, version):
         assert version >= 3
-        if version == 3:
+        if version == 3 or version == 4:
             return text_type(self)
         # TODO: find the right mangling scheme
         assert False
@@ -2537,11 +2537,12 @@ class ASTDeclSpecs(ASTBase):
                 res.append('C')
             return u''.join(res)
         res = []
-        if self.leftSpecs.volatile or self.rightSpecs.volatile:
+        if self.allSpecs.volatile:
             res.append('V')
-        if self.leftSpecs.const or self.rightSpecs.volatile:
+        if self.allSpecs.const:
             res.append('K')
-        res.append(self.trailingTypeSpec.get_id(version))
+        if self.trailingTypeSpec is not None:
+            res.append(self.trailingTypeSpec.get_id(version))
         return u''.join(res)
 
     def _stringify(self, transform):
@@ -3177,6 +3178,14 @@ class ASTType(ASTBase):
             if objectType == 'function':  # also modifiers
                 modifiers = self.decl.get_modifiers_id(version)
                 res.append(symbol.get_full_nested_name().get_id(version, modifiers))
+                if version >= 4:
+                    # with templates we need to mangle the return type in as well
+                    templ = symbol.declaration.templatePrefix
+                    if templ is not None:
+                        typeId = self.decl.get_ptr_suffix_id(version)
+                        returnTypeId = self.declSpecs.get_id(version)
+                        res.append(typeId)
+                        res.append(returnTypeId)
                 res.append(self.decl.get_param_id(version))
             elif objectType == 'type':  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
@@ -6354,7 +6363,7 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            self.warn("Duplicate declaration.")
+            self.warn("Duplicate declaration, %s" % sig)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
