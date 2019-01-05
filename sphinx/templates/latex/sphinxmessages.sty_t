@@ -12,14 +12,10 @@
 \renewcommand{\sphinxnumbersname}{<%= _('Numbers') | e %>}
 \def\pageautorefname{<%= _('page') | e %>}
 
-<%= addtocaptions %>{\renewcommand{\figurename}{<%= figurename[0].strip() | e %>}}
-<%- if figurename[1] %>
-\def\fnum@figure{\figurename\thefigure\relax{}<%= figurename[1].strip() | e %>}
-<%- endif %>
+<%= addtocaptions %>{\renewcommand{\figurename}{<%= figurename[0] | e | eabbr %>}}
+\def\fnum@figure{\figurename\thefigure{}<%= figurename[1] | e %>}
 
-<%= addtocaptions %>{\renewcommand{\tablename}{<%= tablename[0].strip() %>}}
-<%- if tablename[1] %>
-\def\fnum@table{\tablename\thetable\relax{}<%= tablename[1].strip() | e %>}
-<%- endif %>
+<%= addtocaptions %>{\renewcommand{\tablename}{<%= tablename[0] | e | eabbr %>}}
+\def\fnum@table{\tablename\thetable{}<%= tablename[1] | e %>}
 
 <%= addtocaptions %>{\renewcommand{\literalblockname}{<%= literalblockname[0].strip() %>}}

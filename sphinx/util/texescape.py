@@ -8,6 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
+
 if False:
     # For type annotation
     from typing import Dict  # NOQA
@@ -38,6 +40,7 @@ tex_replacements = [
     ('→', r'\(\rightarrow\)'),
     ('‣', r'\(\rightarrow\)'),
     ('✓', r'\(\checkmark\)'),
+    ('✔', r'\(\pmb{\checkmark}\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
@@ -79,6 +82,12 @@ def escape(s):
     # type: (str) -> str
     """Escape text for LaTeX output."""
     return s.translate(tex_escape_map)
+
+
+def escape_abbr(text):
+    # type: (str) -> str
+    """Adjust spacing after abbreviations. Works with @ letter or other."""
+    return re.sub(r'\.(?=\s|$)', r'.\@{}', text)
 
 
 def init():

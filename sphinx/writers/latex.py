@@ -2571,26 +2571,24 @@ class LaTeXTranslator(SphinxTranslator):
             ret.append('\\def\\fnum@figure{%s}\n' %
                        str(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = str(figure[0]).strip().translate(tex_escape_map)
+            definition = escape_abbr(str(figure[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\figurename', definition))
-            if figure[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           str(figure[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
+            ret.append('\\makeatletter\n')
+            ret.append('\\def\\fnum@figure{\\figurename\\thefigure{}%s}\n' %
+                       str(figure[1]).translate(tex_escape_map))
+            ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
                        str(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = str(table[0]).strip().translate(tex_escape_map)
+            definition = escape_abbr(str(table[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\tablename', definition))
-            if table[1]:
-                ret.append('\\makeatletter\n')
-                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           str(table[1]).strip().translate(tex_escape_map))
-                ret.append('\\makeatother\n')
+            ret.append('\\makeatletter\n')
+            ret.append('\\def\\fnum@table{\\tablename\\thetable{}%s}\n' %
+                       str(table[1]).translate(tex_escape_map))
+            ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:

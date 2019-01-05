@@ -181,8 +181,11 @@ Features added
 
 Bugs fixed
 ----------
+* #3707: latex: no bold checkmark (✔) available.
 * #5605: with the documentation language set to Chinese, English words could not
   be searched.
+* #5889: LaTeX: user ``numfig_format`` is stripped of spaces and may cause
+  build failure
 
 Testing
 --------
