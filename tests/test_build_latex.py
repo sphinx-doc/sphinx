@@ -357,9 +357,9 @@ def test_numref_with_language_ja(app, status, warning):
     # sphinxmessages.sty
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
-    assert '\n{\\renewcommand{\\figurename}{図 }}' in result
-    assert '\n{\\renewcommand{\\tablename}{表 }}' in result
-    assert '\n{\\renewcommand{\\literalblockname}{リスト}}' in result
+    assert '\\@iden{\\renewcommand{\\figurename}{図 }}' in result
+    assert '\\@iden{\\renewcommand{\\tablename}{表 }}' in result
+    assert '\\@iden{\\renewcommand{\\literalblockname}{リスト}}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-numfig')
@@ -540,8 +540,8 @@ def test_babel_with_language_ja(app, status, warning):
     result = (app.outdir / 'sphinxmessages.sty').text(encoding='utf8')
     print(result)
     assert r'\def\pageautorefname{ページ}' in result
-    assert '\n{\\renewcommand{\\figurename}{Fig.\\@{} }}' in result
-    assert '\n{\\renewcommand{\\tablename}{Table.\\@{} }}' in result
+    assert '\\@iden{\\renewcommand{\\figurename}{Fig.\\@{} }}' in result
+    assert '\\@iden{\\renewcommand{\\tablename}{Table.\\@{} }}' in result
 
 
 @pytest.mark.sphinx(

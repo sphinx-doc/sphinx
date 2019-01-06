@@ -421,7 +421,7 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         formats = self.config.numfig_format
         context = {
-            'addtocaptions': '',
+            'addtocaptions': r'\@iden',
             'figurename': formats.get('figure', '').split('%s', 1),
             'tablename': formats.get('table', '').split('%s', 1),
             'literalblockname': formats.get('code-block', '').split('%s', 1)
