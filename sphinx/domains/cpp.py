@@ -872,6 +872,7 @@ class ASTParenExpr(ASTBase):
 
 class ASTFoldExpr(ASTBase):
     def __init__(self, leftExpr, op, rightExpr):
+        # type: (Any, str, Any) -> None
         assert leftExpr is not None or rightExpr is not None
         self.leftExpr = leftExpr
         self.op = op
@@ -895,10 +896,24 @@ class ASTFoldExpr(ASTBase):
 
     def get_id(self, version):
         assert version >= 3
-        if version == 3 or version == 4:
+        if version == 3:
             return text_type(self)
-        # TODO: find the right mangling scheme
-        assert False
+        # https://github.com/itanium-cxx-abi/cxx-abi/pull/67
+        res = []
+        if self.leftExpr is None:  # (... op expr)
+            res.append('fl')
+        elif self.rightExpr is None:  # (expr op ...)
+            res.append('fr')
+        else:  # (expr op ... op expr)
+            # we don't check where the parameter pack is,
+            # we just always call this a binary left fold
+            res.append('fL')
+        res.append(_id_operator_v2[self.op])
+        if self.leftExpr:
+            res.append(self.leftExpr.get_id(version))
+        if self.rightExpr:
+            res.append(self.rightExpr.get_id(version))
+        return ''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('('))
@@ -4632,13 +4647,45 @@ class DefinitionParser(object):
             if not self.skip_string(')'):
                 self.fail("Expected ')' in end of fold expression.")
             return ASTFoldExpr(None, op, rightExpr)
-        # TODO: actually try to parse fold expression
-        # fall back to a paren expression
-        res = self._parse_expression(inTemplate=False)
+        # try first parsing a unary right fold, or a binary fold
+        pos = self.pos
+        try:
+            self.skip_ws()
+            leftExpr = self._parse_cast_expression()
+            self.skip_ws()
+            if not self.match(_fold_operator_re):
+                self.fail("Expected fold operator after left expression in fold expression.")
+            op = self.matched_text
+            self.skip_ws()
+            if not self.skip_string_and_ws('...'):
+                self.fail("Expected '...' after fold operator in fold expression.")
+        except DefinitionError as eFold:
+            self.pos = pos
+            # fall back to a paren expression
+            try:
+                res = self._parse_expression(inTemplate=False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expected ')' in end of parenthesized expression.")
+            except DefinitionError as eExpr:
+                raise self._make_multi_error([
+                    (eFold, "If fold expression"),
+                    (eExpr, "If parenthesized expression")
+                ], "Error in fold expression or parenthesized expression.")
+            return ASTParenExpr(res)
+        # now it definitely is a fold expression
+        if self.skip_string(')'):
+            return ASTFoldExpr(leftExpr, op, None)
+        if not self.match(_fold_operator_re):
+            self.fail("Expected fold operator or ')' after '...' in fold expression.")
+        if op != self.matched_text:
+            self.fail("Operators are different in binary fold: '%s' and '%s'."
+                      % (op, self.matched_text))
+        rightExpr = self._parse_cast_expression()
         self.skip_ws()
         if not self.skip_string(')'):
-            self.fail("Expected ')' in end of fold expression or parenthesized expression.")
-        return ASTParenExpr(res)
+            self.fail("Expected ')' to end binary fold expression.")
+        return ASTFoldExpr(leftExpr, op, rightExpr)
 
     def _parse_primary_expression(self):
         # literal
@@ -4947,7 +4994,7 @@ class DefinitionParser(object):
             try:
                 typ = self._parse_type(False)
                 if not self.skip_string(')'):
-                    raise DefinitionError("Expected ')' in cast expression.")
+                    self.fail("Expected ')' in cast expression.")
                 expr = self._parse_cast_expression()
                 return ASTCastExpr(typ, expr)
             except DefinitionError as exCast:

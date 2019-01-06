@@ -106,9 +106,12 @@ def test_fundamental_types():
 
 
 def test_expressions():
-    def exprCheck(expr, id):
+    def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
-        check('class', 'template<> C<a[%s]>' % expr, {2: ids % expr, 3: ids % id})
+        idDict = {2: ids % expr, 3: ids % id}
+        if id4 is not None:
+            idDict[4] = ids % id4
+        check('class', 'template<> C<a[%s]>' % expr, idDict)
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -155,7 +158,9 @@ def test_expressions():
             exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
-    exprCheck('(... + Ns)', '(... + Ns)')
+    exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
+    exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
+    exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')
     # postfix
