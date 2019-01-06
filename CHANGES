@@ -20,6 +20,10 @@ Bugs fixed
   be searched.
 * #5889: LaTeX: user ``numfig_format`` is stripped of spaces and may cause
   build failure
+* C++, fix hyperlinks for declarations involving east cv-qualifiers.
+* #5755: C++, fix duplicate declaration error on function templates with constraints
+  in the return type.
+* C++, parse unary right fold expressions and binary fold expressions.
 
 Testing
 --------
