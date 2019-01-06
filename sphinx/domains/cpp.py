@@ -872,7 +872,7 @@ class ASTParenExpr(ASTBase):
 
 class ASTFoldExpr(ASTBase):
     def __init__(self, leftExpr, op, rightExpr):
-        # type: (Any, str, Any) -> None
+        # type: (Any, unicode, Any) -> None
         assert leftExpr is not None or rightExpr is not None
         self.leftExpr = leftExpr
         self.op = op
@@ -908,7 +908,7 @@ class ASTFoldExpr(ASTBase):
             # we don't check where the parameter pack is,
             # we just always call this a binary left fold
             res.append('fL')
-        res.append(_id_operator_v2[self.op])
+        res.append(str(_id_operator_v2[self.op]))  # TODO: remove str when merging to 2.0
         if self.leftExpr:
             res.append(self.leftExpr.get_id(version))
         if self.rightExpr:
