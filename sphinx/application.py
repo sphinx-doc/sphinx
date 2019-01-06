@@ -625,7 +625,7 @@ class Sphinx(object):
         if not override and docutils.is_node_registered(node):
             logger.warning(__('while setting up extension %s: node class %r is '
                               'already registered, its visitors will be overridden'),
-                           self._setting_up_extension, node.__name__,
+                           self._setting_up_extension[-1], node.__name__,
                            type='app', subtype='add_node')
         docutils.register_node(node)
         self.registry.add_translation_handlers(node, **kwds)
