@@ -11,12 +11,14 @@
 
 import html
 import os
+import warnings
 from os import path
 
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
@@ -221,6 +223,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def open_file(self, outdir, basename, mode='w'):
         # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
+        warnings.warn('HTMLHelpBuilder.open_file() is deprecated.',
+                      RemovedInSphinx40Warning)
         return open(path.join(outdir, basename), mode, encoding=self.encoding,
                     errors='xmlcharrefreplace')
 
@@ -244,12 +248,14 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def build_hhx(self, outdir, outname):
         # type: (str, str) -> None
         logger.info(__('dumping stopword list...'))
-        with self.open_file(outdir, outname + '.stp') as f:
+        filename = path.join(outdir, outname + '.stp')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
         logger.info(__('writing project file...'))
-        with self.open_file(outdir, outname + '.hhp') as f:
+        filename = path.join(outdir, outname + '.hhp')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write(project_template % {
                 'outname': outname,
                 'title': self.config.html_title,
@@ -272,7 +278,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                               file=f)
 
         logger.info(__('writing TOC file...'))
-        with self.open_file(outdir, outname + '.hhc') as f:
+        filename = path.join(outdir, outname + '.hhc')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write(contents_header)
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
@@ -312,7 +319,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
-        with self.open_file(outdir, outname + '.hhk') as f:
+        filename = path.join(outdir, outname + '.hhk')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
