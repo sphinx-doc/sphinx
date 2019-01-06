@@ -151,6 +151,8 @@ Features added
   (``added``, ``changed`` and ``deprecated``, respectively) in addition to the
   generic ``versionmodified`` class.
 * #5841: apidoc: Add --extensions option to sphinx-apidoc
+* #4981: C++, added an alias directive for inserting lists of declarations,
+  that references existing declarations (e.g., for making a synopsis).
 
 Bugs fixed
 ----------
