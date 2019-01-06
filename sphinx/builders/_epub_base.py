@@ -29,10 +29,7 @@ from sphinx.util.osutil import ensuredir, copyfile
 try:
     from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+    Image = None
 
 if False:
     # For type annotation
@@ -401,9 +398,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     def copy_image_files_pil(self):
         # type: () -> None
-        """Copy images using the PIL.
-        The method tries to read and write the files with the PIL,
-        converting the format and resizing the image if necessary/possible.
+        """Copy images using Pillow, the Python Imaging Libary.
+        The method tries to read and write the files with Pillow, converting
+        the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, self.imagedir))
         for src in status_iterator(self.images, 'copying images... ', "brown",
@@ -424,7 +421,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 continue
             if self.config.epub_fix_images:
                 if img.mode in ('P',):
-                    # See PIL documentation for Image.convert()
+                    # See the Pillow documentation for Image.convert()
+                    # https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.convert
                     img = img.convert()
             if self.config.epub_max_image_width > 0:
                 (width, height) = img.size
@@ -441,12 +439,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def copy_image_files(self):
         # type: () -> None
         """Copy image files to destination directory.
-        This overwritten method can use the PIL to convert image files.
+        This overwritten method can use Pillow to convert image files.
         """
         if self.images:
             if self.config.epub_fix_images or self.config.epub_max_image_width:
                 if not Image:
-                    logger.warning(__('PIL not found - copying image files'))
+                    logger.warning(__('Pillow not found - copying image files'))
                     super().copy_image_files()
                 else:
                     self.copy_image_files_pil()

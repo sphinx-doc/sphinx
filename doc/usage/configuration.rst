@@ -1713,9 +1713,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    This flag determines if sphinx should try to fix image formats that are not
    supported by some epub readers.  At the moment palette images with a small
-   color table are upgraded.  You need the Python Image Library (Pillow the
-   successor of the PIL) installed to use this option.  The default value is
-   ``False`` because the automatic conversion may lose information.
+   color table are upgraded.  You need Pillow, the Python Image Library,
+   installed to use this option.  The default value is ``False`` because the
+   automatic conversion may lose information.
 
    .. versionadded:: 1.2
 

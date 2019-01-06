@@ -21,12 +21,9 @@ import imagesize
 from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
-    from PIL import Image        # check for the Python Imaging Library
+    from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+    Image = None
 
 if False:
     # For type annotation
@@ -53,7 +50,7 @@ def get_image_size(filename):
         if size[0] == -1:
             size = None
 
-        if size is None and Image:  # fallback to PIL
+        if size is None and Image:  # fallback to Pillow
             im = Image.open(filename)
             size = im.size
             try:
