@@ -1387,9 +1387,9 @@ def test_default_latex_documents():
     from sphinx.util import texescape
     texescape.init()
     config = Config({'master_doc': 'index',
-                     'project': u'STASI™ Documentation',
-                     'author': u"Wolfgang Schäuble & G'Beckstein"})
+                     'project': 'STASI™ Documentation',
+                     'author': "Wolfgang Schäuble & G'Beckstein."})
     config.init_values()
-    expected = [('index', 'stasi.tex', u'STASI™ Documentation',
-                 u"Wolfgang Schäuble \\& G'Beckstein", 'manual')]
+    expected = [('index', 'stasi.tex', 'STASI™ Documentation',
+                 r"Wolfgang Schäuble \& G'Beckstein.\@{}", 'manual')]
     assert default_latex_documents(config) == expected

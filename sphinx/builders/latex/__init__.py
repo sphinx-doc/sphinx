@@ -473,8 +473,8 @@ def default_latex_documents(config):
     """ Better default latex_documents settings. """
     return [(config.master_doc,
              make_filename_from_project(config.project) + '.tex',
-             texescape.escape(config.project),
-             texescape.escape(config.author),
+             texescape.escape_abbr(texescape.escape(config.project)),
+             texescape.escape_abbr(texescape.escape(config.author)),
              'manual')]
 
 
