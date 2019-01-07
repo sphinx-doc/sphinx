@@ -8,13 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
+import html
+import io
 import sys
+import textwrap
 import warnings
-from html import escape as htmlescape  # NOQA
-from io import TextIOWrapper  # NOQA
-from textwrap import indent  # NOQA
 
-from sphinx.deprecation import RemovedInSphinx40Warning
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -30,10 +30,6 @@ NoneType = type(None)
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
-
-# prefix for Unicode strings
-u = ''  # RemovedInSphinx40Warning
-
 
 # sys_encoding: some kind of default system encoding; should be used with
 # a lenient error handler
@@ -99,3 +95,13 @@ def execfile_(filepath, _globals, open=open):
                           'Convert %s to Python 3 syntax.'),
                        filepath)
     exec(code, _globals)
+
+
+deprecated_alias('sphinx.util.pycompat',
+                 {
+                     'TextIOWrapper': io.TextIOWrapper,
+                     'htmlescape': html.escape,
+                     'indent': textwrap.indent,
+                     'u': '',
+                 },
+                 RemovedInSphinx40Warning)
