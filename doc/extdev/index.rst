@@ -378,10 +378,25 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.walk()``
 
+   * - ``sphinx.util.pycompat.TextIOWrapper``
+     - 2.0
+     - 4.0
+     - ``io.TextIOWrapper``
+
    * - ``sphinx.util.pycompat.UnicodeMixin``
      - 2.0
      - 4.0
      - N/A
+
+   * - ``sphinx.util.pycompat.htmlescape()``
+     - 2.0
+     - 4.0
+     - ``html.escape()``
+
+   * - ``sphinx.util.pycompat.indent()``
+     - 2.0
+     - 4.0
+     - ``textwrap.indent()``
 
    * - ``sphinx.util.pycompat.u``
      - 2.0

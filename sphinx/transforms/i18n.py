@@ -9,6 +9,7 @@
 """
 
 from os import path
+from textwrap import indent
 from typing import Any, TypeVar
 
 from docutils import nodes
@@ -25,7 +26,6 @@ from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
     extract_messages, is_pending_meta, traverse_translatable_index,
 )
-from sphinx.util.pycompat import indent
 
 if False:
     # For type annotation
