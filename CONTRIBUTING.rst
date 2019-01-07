@@ -91,13 +91,13 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Checkout the appropriate branch.
 
-   For changes that should be included in the next minor release (namely bug
+   For changes that should be included in the next patch release (namely bug
    fixes), use the ``X.Y`` branch. ::
 
        git checkout X.Y
 
    For new features or other substantial changes that should wait until the
-   next major release, use the ``master`` branch  (see `Branch Model`_ for
+   next minor release, use the ``master`` branch  (see `Branch Model`_ for
    detail).
 
 #. Setup a virtual environment.
@@ -323,9 +323,9 @@ Sphinx project uses following branches for developing.
 
 ``X.Y``
     Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
-    stable release.  Only bug fixes and stable changes are allowed.  Only the
-    most recent stable release is currently retained. When a new version is
-    released, the old release branch will be deleted and replaced by an
+    patch release.  Only bug fixes and stable changes are allowed.  Only the
+    most recent patch release is currently retained. When a new minor version
+    is released, the old release branch will be deleted and replaced by an
     equivalent tag.
 
 
@@ -360,22 +360,20 @@ Deprecation policy
 ------------------
 
 A feature release may deprecate certain features from previous releases. If a
-feature is deprecated in feature release 1.A, it will continue to work in all
-1.A.x versions (for all versions of x) but raise warnings. Deprecated features
-will be removed in the first 1.B release, or 1.B.1 for features deprecated in
-the last 1.A.x feature release to ensure deprecations are done over at least 2
-feature releases.
+feature is deprecated in feature release A.0, it will continue to work in all
+A.x versions (for all versions of x) but raise warnings. Deprecated features
+will be removed in the after the next major release; version C.0.  It means
+the deprecated feature will work during 2 major releases at least.
 
 So, for example, if we decided to start the deprecation of a function in
-Sphinx 1.4:
+Sphinx 2.x:
 
-* Sphinx 1.4.x will contain a backwards-compatible replica of the function
-  which will raise a ``RemovedInSphinx16Warning``.
+* Sphinx 2.x will contain a backwards-compatible replica of the function
+  which will raise a ``RemovedInSphinx40Warning``.
 
-* Sphinx 1.5 (the version that follows 1.4) will still contain the
-  backwards-compatible replica.
+* Sphinx 3.x will still contain the backwards-compatible replica.
 
-* Sphinx 1.6 will remove the feature outright.
+* Sphinx 4.0 will remove the feature outright.
 
 The warnings are displayed by default. You can turn off display of these
 warnings with:
