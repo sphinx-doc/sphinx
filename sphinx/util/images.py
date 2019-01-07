@@ -81,6 +81,8 @@ def guess_mimetype(filename='', content=None, default=None):
     if ext in mime_suffixes:
         return mime_suffixes[ext]
     elif content:
+        # TODO: When the content argument is removed, make filename a required
+        # argument.
         warnings.warn('The content argument of guess_mimetype() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return guess_mimetype_for_stream(BytesIO(content), default=default)
