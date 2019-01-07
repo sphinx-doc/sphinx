@@ -420,6 +420,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.walk()``
 
+   * - ``sphinx.util.pycompat.NoneType``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.typing.NoneType``
+
    * - ``sphinx.util.pycompat.TextIOWrapper``
      - 2.0
      - 4.0

@@ -120,6 +120,7 @@ Deprecated
 * ``sphinx.util.osutil.EPIPE``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
+* ``sphinx.util.pycompat.NoneType``
 * ``sphinx.util.pycompat.TextIOWrapper``
 * ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.htmlescape``

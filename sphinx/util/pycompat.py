@@ -18,7 +18,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import terminal_safe
-
+from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
@@ -27,8 +27,6 @@ if False:
 
 logger = logging.getLogger(__name__)
 
-
-NoneType = type(None)
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
@@ -95,6 +93,7 @@ def execfile_(filepath, _globals, open=open):
 
 deprecated_alias('sphinx.util.pycompat',
                  {
+                     'NoneType': NoneType,  # type: ignore
                      'TextIOWrapper': io.TextIOWrapper,
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
