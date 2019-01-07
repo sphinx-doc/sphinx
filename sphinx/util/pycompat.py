@@ -17,6 +17,8 @@ import warnings
 from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.console import terminal_safe
+
 
 if False:
     # For type annotation
@@ -34,12 +36,6 @@ NoneType = type(None)
 # sys_encoding: some kind of default system encoding; should be used with
 # a lenient error handler
 sys_encoding = sys.getdefaultencoding()
-
-
-# terminal_safe(): safely encode a string for printing to the terminal
-def terminal_safe(s):
-    # type: (str) -> str
-    return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
 # convert_with_2to3():
@@ -102,6 +98,7 @@ deprecated_alias('sphinx.util.pycompat',
                      'TextIOWrapper': io.TextIOWrapper,
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
+                     'terminal_safe': terminal_safe,
                      'u': '',
                  },
                  RemovedInSphinx40Warning)

@@ -27,6 +27,12 @@ _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}  # type: Dict[str, str]
 
 
+def terminal_safe(s):
+    # type: (str) -> str
+    """safely encode a string for printing to the terminal."""
+    return s.encode('ascii', 'backslashreplace').decode('ascii')
+
+
 def get_terminal_width():
     # type: () -> int
     """Borrowed from the py lib."""
