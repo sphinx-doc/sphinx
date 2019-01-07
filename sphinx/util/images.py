@@ -21,12 +21,9 @@ import imagesize
 from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
-    from PIL import Image        # check for the Python Imaging Library
+    from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+    Image = None
 
 if False:
     # For type annotation
@@ -53,7 +50,7 @@ def get_image_size(filename):
         if size[0] == -1:
             size = None
 
-        if size is None and Image:  # fallback to PIL
+        if size is None and Image:  # fallback to Pillow
             im = Image.open(filename)
             size = im.size
             try:
@@ -81,6 +78,8 @@ def guess_mimetype(filename='', content=None, default=None):
     if ext in mime_suffixes:
         return mime_suffixes[ext]
     elif content:
+        # TODO: When the content argument is removed, make filename a required
+        # argument.
         warnings.warn('The content argument of guess_mimetype() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return guess_mimetype_for_stream(BytesIO(content), default=default)
