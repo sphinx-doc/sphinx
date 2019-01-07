@@ -127,7 +127,7 @@ def test_math_number_all_mathjax(app, status, warning):
 def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'test.tex').text()
+    content = (app.outdir / 'python.tex').text()
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
              r'\\end{equation\*}')
@@ -170,7 +170,7 @@ def test_math_eqref_format_html(app, status, warning):
 def test_math_eqref_format_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'test.tex').text()
+    content = (app.outdir / 'python.tex').text()
     macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
              r'Eq.\\ref{equation:math:foo}.')
     assert re.search(macro, content, re.S)

@@ -51,6 +51,7 @@ Incompatible changes
   time of ``\sphinxtableofcontents``.  This means that custom user definitions
   from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
   to insert custom user definitions.  See :ref:`latex-macros`.
+* quickstart: Simplify generated ``conf.py``
 
 Deprecated
 ----------
@@ -162,6 +163,8 @@ Bugs fixed
   if passed as language option?
 * #5179: LaTeX: (lualatex only) escaping of ``>`` by ``\textgreater{}`` is not
   enough as ``\textgreater{}\textgreater{}`` applies TeX-ligature
+* LaTeX: project name is not escaped if :confval:`latex_documents` omitted
+* LaTeX: authors are not shown if :confval:`latex_documents` omitted
 * HTML: Invalid HTML5 file is generated for a glossary having multiple terms for
   one description (refs: #4611)
 

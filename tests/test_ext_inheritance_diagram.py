@@ -56,7 +56,7 @@ def test_inheritance_diagram_svg_html(app, status, warning):
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'Python.tex').text()
+    content = (app.outdir / 'python.tex').text()
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\sphinxincludegraphics\\[\\]{inheritance-\\w+.pdf}\n'

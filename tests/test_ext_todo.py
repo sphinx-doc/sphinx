@@ -105,7 +105,7 @@ def test_todo_valid_link(app, status, warning):
     # Ensure the LaTeX output is built.
     app.builder.build_all()
 
-    content = (app.outdir / 'TodoTests.tex').text()
+    content = (app.outdir / 'python.tex').text()
 
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links

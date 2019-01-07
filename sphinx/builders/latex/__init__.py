@@ -34,7 +34,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename
+from sphinx.util.osutil import SEP, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import (
     ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, LaTeXWriter, LaTeXTranslator
@@ -468,6 +468,16 @@ def default_latex_use_xindy(config):
     return config.latex_engine in {'xelatex', 'lualatex'}
 
 
+def default_latex_documents(config):
+    # type: (Config) -> List[Tuple[str, str, str, str, str]]
+    """ Better default latex_documents settings. """
+    return [(config.master_doc,
+             make_filename_from_project(config.project) + '.tex',
+             texescape.escape_abbr(texescape.escape(config.project)),
+             texescape.escape_abbr(texescape.escape(config.author)),
+             'manual')]
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(LaTeXBuilder)
@@ -478,10 +488,7 @@ def setup(app):
 
     app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
-    app.add_config_value('latex_documents',
-                         lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
-                                        self.project, '', 'manual')],
-                         None)
+    app.add_config_value('latex_documents', default_latex_documents, None)
     app.add_config_value('latex_logo', None, None, [str])
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_use_latex_multicolumn', False, None)

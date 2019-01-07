@@ -42,11 +42,6 @@ html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 applehelp_bundle_id = 'org.sphinx-doc.Sphinx.help'
 applehelp_disable_external_tools = True
 
-latex_documents = [
-    ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-     'Georg Brandl \\and someone else', 'manual'),
-]
-
 latex_additional_files = ['svgimg.svg']
 
 coverage_c_path = ['special/*.h']
