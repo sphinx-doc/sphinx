@@ -272,7 +272,7 @@ Coding Guide
   generated output.
 
 * When adding a new configuration variable, be sure to document it and update
-  :file:`sphinx/quickstart.py` if it's important enough.
+  :file:`sphinx/cmd/quickstart.py` if it's important enough.
 
 * Add appropriate unit tests.
 
