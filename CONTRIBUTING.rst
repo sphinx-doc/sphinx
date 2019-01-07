@@ -274,9 +274,6 @@ Coding Guide
 * When adding a new configuration variable, be sure to document it and update
   :file:`sphinx/quickstart.py` if it's important enough.
 
-* Use the included :program:`utils/check_sources.py` script to check for
-  common formatting issues (trailing whitespace, lengthy lines, etc).
-
 * Add appropriate unit tests.
 
 
