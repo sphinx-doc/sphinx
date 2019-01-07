@@ -445,6 +445,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``textwrap.indent()``
 
+   * - ``sphinx.util.pycompat.sys_encoding``
+     - 2.0
+     - 4.0
+     - ``sys.getdefaultencoding()``
+
    * - ``sphinx.util.pycompat.terminal_safe()``
      - 2.0
      - 4.0

@@ -31,11 +31,6 @@ logger = logging.getLogger(__name__)
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
-# sys_encoding: some kind of default system encoding; should be used with
-# a lenient error handler
-sys_encoding = sys.getdefaultencoding()
-
-
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath):
@@ -98,6 +93,7 @@ deprecated_alias('sphinx.util.pycompat',
                      'htmlescape': html.escape,
                      'indent': textwrap.indent,
                      'terminal_safe': terminal_safe,
+                     'sys_encoding': sys.getdefaultencoding(),
                      'u': '',
                  },
                  RemovedInSphinx40Warning)

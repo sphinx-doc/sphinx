@@ -125,6 +125,7 @@ Deprecated
 * ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.htmlescape``
 * ``sphinx.util.pycompat.indent``
+* ``sphinx.util.pycompat.sys_encoding``
 * ``sphinx.util.pycompat.terminal_safe()``
 * ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.ExtBabel``
