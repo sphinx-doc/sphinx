@@ -655,7 +655,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if incr:
             self.playorder += 1
         self.tocid += 1
-        return NavPoint(self.esc('navPoint%d' % self.tocid), self.playorder,
+        return NavPoint('navPoint%d' % self.tocid, self.playorder,
                         node['text'], node['refuri'], [])
 
     def build_navpoints(self, nodes):
