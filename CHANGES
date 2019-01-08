@@ -60,7 +60,7 @@ Deprecated
   configuration files which should be converted to Python 3.
 * The arguments of ``EpubBuilder.build_mimetype()``,
   ``EpubBuilder.build_container()``, ``EpubBuilder.bulid_content()``,
-  ``EpubBuilder.build_toc()``
+  ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and

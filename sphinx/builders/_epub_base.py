@@ -733,13 +733,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         path.join(outdir, outname),
                         self.toc_metadata(level, navpoints))
 
-    def build_epub(self, outdir, outname):
+    def build_epub(self, outdir=None, outname=None):
         # type: (str, str) -> None
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_epub() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+            outname = self.config.epub_basename + '.epub'
+
         logger.info(__('writing %s file...'), outname)
         epub_filename = path.join(outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
