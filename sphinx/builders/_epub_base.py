@@ -706,9 +706,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['navpoints'] = navpoints
         return metadata
 
-    def build_toc(self, outdir, outname):
+    def build_toc(self, outdir=None, outname='toc.ncx'):
         # type: (str, str) -> None
         """Write the metainfo file toc.ncx."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_toc() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
 
         if self.config.epub_tocscope == 'default':

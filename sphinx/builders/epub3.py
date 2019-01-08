@@ -82,7 +82,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.build_container()
         self.build_content()
         self.build_navigation_doc(self.outdir, 'nav.xhtml')
-        self.build_toc(self.outdir, 'toc.ncx')
+        self.build_toc()
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def validate_config_value(self):
