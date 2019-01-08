@@ -519,11 +519,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['guides'] = []
         return metadata
 
-    def build_content(self, outdir, outname):
+    def build_content(self, outdir=None, outname='content.opf'):
         # type: (str, str) -> None
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_content() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         metadata = self.content_metadata()
 
