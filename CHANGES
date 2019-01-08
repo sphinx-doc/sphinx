@@ -61,6 +61,7 @@ Deprecated
 * The arguments of ``EpubBuilder.build_mimetype()``,
   ``EpubBuilder.build_container()``, ``EpubBuilder.bulid_content()``,
   ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
+* The arguments of ``Epub3Builder.build_navigation_doc()``
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
