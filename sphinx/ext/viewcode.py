@@ -16,7 +16,7 @@ from docutils import nodes
 import sphinx
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
@@ -158,7 +158,7 @@ def collect_pages(app):
 
     for modname, entry in status_iterator(
             sorted(env._viewcode_modules.items()),  # type: ignore
-            'highlighting module code... ', "blue",
+            __('highlighting module code... '), "blue",
             len(env._viewcode_modules),  # type: ignore
             app.verbosity, lambda x: x[0]):
         if not entry:

@@ -403,7 +403,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, self.imagedir))
-        for src in status_iterator(self.images, 'copying images... ', "brown",
+        for src in status_iterator(self.images, __('copying images... '), "brown",
                                    len(self.images), self.app.verbosity):
             dest = self.images[src]
             try:
