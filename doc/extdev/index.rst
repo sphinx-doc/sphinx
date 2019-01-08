@@ -242,6 +242,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - arguments of ``EpubBuilder.build_mimetype()``
+     - 2.0
+     - 4.0
+     - N/A
+
    * - ``nodetype`` argument of
        ``sphinx.search.WordCollector.is_meta_keywords()``
      - 2.0

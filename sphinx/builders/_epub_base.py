@@ -10,6 +10,7 @@
 
 import os
 import re
+import warnings
 from collections import namedtuple
 from os import path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
@@ -19,6 +20,7 @@ from docutils.utils import smartquotes
 
 from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import status_iterator
@@ -470,9 +472,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         addctx['doctype'] = self.doctype
         super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
 
-    def build_mimetype(self, outdir, outname):
+    def build_mimetype(self, outdir=None, outname='mimetype'):
         # type: (str, str) -> None
         """Write the metainfo file mimetype."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_mimetype() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         copy_asset_file(path.join(self.template_dir, 'mimetype'),
                         path.join(outdir, outname))
