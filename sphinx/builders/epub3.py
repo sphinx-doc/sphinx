@@ -79,7 +79,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         self.validate_config_value()
         self.get_toc()
         self.build_mimetype()
-        self.build_container(self.outdir, 'META-INF/container.xml')
+        self.build_container()
         self.build_content(self.outdir, 'content.opf')
         self.build_navigation_doc(self.outdir, 'nav.xhtml')
         self.build_toc(self.outdir, 'toc.ncx')

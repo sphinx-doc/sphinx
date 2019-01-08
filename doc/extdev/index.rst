@@ -242,7 +242,8 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
-   * - arguments of ``EpubBuilder.build_mimetype()``
+   * - arguments of ``EpubBuilder.build_mimetype()``,
+       ``EpubBuilder.build_container()``.
      - 2.0
      - 4.0
      - N/A

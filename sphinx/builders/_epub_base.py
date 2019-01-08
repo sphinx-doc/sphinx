@@ -485,9 +485,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         copy_asset_file(path.join(self.template_dir, 'mimetype'),
                         path.join(outdir, outname))
 
-    def build_container(self, outdir, outname):
+    def build_container(self, outdir=None, outname='META-INF/container.xml'):
         # type: (str, str) -> None
         """Write the metainfo file META-INF/container.xml."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_container() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         filename = path.join(outdir, outname)
         ensuredir(path.dirname(filename))
