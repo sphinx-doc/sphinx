@@ -881,7 +881,7 @@ class StandaloneHTMLBuilder(Builder):
                 elif not path.isfile(icontarget):
                     copyfile(path.join(self.confdir, self.config.html_favicon),
                              icontarget)
-            logger.info('done')
+            logger.info(__('done'))
         except OSError as err:
             logger.warning(__('cannot copy static file %r'), err)
 

@@ -276,7 +276,7 @@ class LaTeXBuilder(Builder):
 
             doctree.settings = docsettings
             docwriter.write(doctree, destination)
-            logger.info("done")
+            logger.info(__("done"))
 
     def get_contentsname(self, indexfile):
         # type: (str) -> str
