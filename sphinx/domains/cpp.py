@@ -3438,17 +3438,20 @@ class ASTConcept(ASTBase):
 
 
 class ASTBaseClass(ASTBase):
-    def __init__(self, name, visibility, virtual, pack):
-        # type: (Any, str, bool, bool) -> None
+    def __init__(self, name, visibility, virtual, pack, defaultVisibility):
+        # type: (Any, str, bool, bool, str) -> None
         self.name = name
         self.visibility = visibility
         self.virtual = virtual
         self.pack = pack
 
+        self.appendVisibilty = self.visibility != defaultVisibility
+
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
         res = []
-        if self.visibility != 'private':
+
+        if self.appendVisibilty:
             res.append(self.visibility)
             res.append(' ')
         if self.virtual:
@@ -3461,7 +3464,7 @@ class ASTBaseClass(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        if self.visibility != 'private':
+        if self.appendVisibilty:
             signode += addnodes.desc_annotation(self.visibility,
                                                 self.visibility)
             signode += nodes.Text(' ')
@@ -3701,6 +3704,8 @@ class ASTDeclaration(ASTBase):
             pass
         elif self.objectType == 'class':
             mainDeclNode += addnodes.desc_annotation('class ', 'class ')
+        elif self.objectType == 'struct':
+            mainDeclNode += addnodes.desc_annotation('struct ', 'struct ')
         elif self.objectType == 'union':
             mainDeclNode += addnodes.desc_annotation('union ', 'union ')
         elif self.objectType == 'enum':
@@ -4024,8 +4029,9 @@ class Symbol:
                                                     recurseInAnon=recurseInAnon):
                         # if we are in the scope of a constructor but wants to
                         # reference the class we need to walk one extra up
-                        if (len(names) == 1 and ancestorLookupType == 'class' and matchSelf and
-                                parentSymbol.parent and
+                        if (len(names) == 1 and
+                                ancestorLookupType in ('class', 'struct') and
+                                matchSelf and parentSymbol.parent and
                                 parentSymbol.parent.identOrOp == firstName.identOrOp):
                             pass
                         else:
@@ -5930,8 +5936,9 @@ class DefinitionParser:
         initializer = self._parse_initializer('member')
         return ASTConcept(nestedName, initializer)
 
-    def _parse_class(self):
-        # type: () -> ASTClass
+    def _parse_class_or_struct(self, objectType):
+        # type: (str) -> ASTClass
+        defaultVisibility = 'private' if objectType == 'class' else 'public'
         name = self._parse_nested_name()
         self.skip_ws()
         final = self.skip_word_and_ws('final')
@@ -5940,7 +5947,7 @@ class DefinitionParser:
         if self.skip_string(':'):
             while 1:
                 self.skip_ws()
-                visibility = 'private'
+                visibility = defaultVisibility
                 virtual = False
                 pack = False
                 if self.skip_word_and_ws('virtual'):
@@ -5953,7 +5960,8 @@ class DefinitionParser:
                 baseName = self._parse_nested_name()
                 self.skip_ws()
                 pack = self.skip_string('...')
-                bases.append(ASTBaseClass(baseName, visibility, virtual, pack))
+                bases.append(ASTBaseClass(baseName, visibility, virtual, pack,
+                                          defaultVisibility))
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
@@ -6177,7 +6185,8 @@ class DefinitionParser:
     def parse_declaration(self, objectType):
         # type: (str) -> ASTDeclaration
         if objectType not in ('type', 'concept', 'member',
-                              'function', 'class', 'union', 'enum', 'enumerator'):
+                              'function', 'class', 'struct', 'union',
+                              'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
         visibility = None
         templatePrefix = None
@@ -6187,7 +6196,8 @@ class DefinitionParser:
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'concept', 'member', 'function', 'class'):
+        if objectType in ('type', 'concept', 'member', 'function',
+                          'class', 'struct'):
             templatePrefix = self._parse_template_declaration_prefix(objectType)
 
         if objectType == 'type':
@@ -6214,8 +6224,8 @@ class DefinitionParser:
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
             declaration = self._parse_type(named=True, outer='function')
-        elif objectType == 'class':
-            declaration = self._parse_class()
+        elif objectType in ('class', 'struct'):
+            declaration = self._parse_class_or_struct(objectType)
         elif objectType == 'union':
             declaration = self._parse_union()
         elif objectType == 'enum':
@@ -6563,6 +6573,16 @@ class CPPClassObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("class")
+
+
+class CPPStructObject(CPPObject):
+    def get_index_text(self, name):
+        # type: (str) -> str
+        return _('%s (C++ struct)') % name
+
+    def parse_definition(self, parser):
+        # type: (Any) -> Any
+        return parser.parse_declaration("struct")
 
 
 class CPPUnionObject(CPPObject):
@@ -6917,6 +6937,7 @@ class CPPDomain(Domain):
     label = 'C++'
     object_types = {
         'class':      ObjType(_('class'),      'class',             'type', 'identifier'),
+        'struct':     ObjType(_('struct'),     'struct',            'type', 'identifier'),
         'union':      ObjType(_('union'),      'union',             'type', 'identifier'),
         'function':   ObjType(_('function'),   'function',  'func', 'type', 'identifier'),
         'member':     ObjType(_('member'),     'member',    'var'),
@@ -6928,6 +6949,7 @@ class CPPDomain(Domain):
 
     directives = {
         'class': CPPClassObject,
+        'struct': CPPStructObject,
         'union': CPPUnionObject,
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
@@ -6946,6 +6968,7 @@ class CPPDomain(Domain):
     roles = {
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
+        'struct': CPPXRefRole(),
         'union': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),

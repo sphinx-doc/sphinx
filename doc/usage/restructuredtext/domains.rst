@@ -549,7 +549,7 @@ visibility statement (``public``, ``private`` or ``protected``).
 
 .. rst:directive:: .. cpp:class:: class specifier
 
-   Describe a class/struct, possibly with specification of inheritance, e.g.,::
+   Describe a class, possibly with specification of inheritance, e.g.,::
 
       .. cpp:class:: MyClass : public MyBase, MyOtherBase
 
@@ -573,6 +573,24 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T> \
                      std::array<T, 42>
+
+.. rst:directive:: .. cpp:struct:: struct specifier
+
+   Describe a struct. This is nearly identical to the :rst:dir:`cpp:class`
+   directive, except that it will be rendered using the *struct* keyword instead
+   of the *class* keyword::
+
+      .. cpp:struct:: MyStruct 
+
+   This directive supports all of the features of the :rst:dir:`cpp:class`
+   directive, including inheritance and templates::
+
+      .. cpp:struct:: MyStruct : MyBaseStruct, private MyOtherBaseStruct
+
+      .. cpp:struct:: template<typename T> \
+                      MyTemplatedStruct
+
+   .. versionadded:: 2.0
 
 .. rst:directive:: .. cpp:function:: (member) function prototype
 
@@ -1017,6 +1035,7 @@ These roles link to the given declaration types:
 
 .. rst:role:: cpp:any
               cpp:class
+              cpp:struct
               cpp:func
               cpp:member
               cpp:var

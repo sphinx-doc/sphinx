@@ -245,6 +245,7 @@ def test_expressions():
           {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE"})
     exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
     check('class', "template<int T = 42> A", {2: "I_iE1A"})
+    check('struct', "template<int T = 42> A", {2: "I_iE1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
 
     exprCheck('operator()()', 'clclE')
@@ -530,6 +531,31 @@ def test_class_definitions():
           {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
 
 
+def test_struct_definitions():
+    check('struct', 'public A', {1: "A", 2: "1A"}, output='A')
+    check('struct', 'private A', {1: "A", 2: "1A"})
+    check('struct', 'A final', {1: 'A', 2: '1A'})
+
+    # test bases
+    check('struct', 'A', {1: "A", 2: "1A"})
+    check('struct', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
+    check('struct', 'A : B', {1: "A", 2: "1A"})
+    check('struct', 'A : private B', {1: "A", 2: "1A"})
+    check('struct', 'A : public B', {1: "A", 2: "1A"}, output='A : B')
+    check('struct', 'A : B, C', {1: "A", 2: "1A"})
+    check('struct', 'A : B, protected C, D', {1: "A", 2: "1A"})
+    check('struct', 'A : virtual public B', {1: 'A', 2: '1A'}, output='A : virtual B')
+    check('struct', 'A : B, virtual C', {1: 'A', 2: '1A'})
+    check('struct', 'A : private virtual B', {1: 'A', 2: '1A'})
+    check('struct', 'A : B, C...', {1: 'A', 2: '1A'})
+    check('struct', 'A : B..., C', {1: 'A', 2: '1A'})
+
+    # from #4094
+    check('struct', 'template<class, class = std::void_t<>> has_var', {2: 'I00E7has_var'})
+    check('struct', 'template<class T> has_var<T, std::void_t<decltype(&T::var)>>',
+          {2: 'I0E7has_varI1TNSt6void_tIDTadN1T3varEEEEE'})
+
+
 def test_union_definitions():
     check('union', 'A', {2: "1A"})
 
@@ -547,6 +573,7 @@ def test_enum_definitions():
 
 def test_anon_definitions():
     check('class', '@a', {3: "Ut1_a"})
+    check('struct', '@a', {3: "Ut1_a"})
     check('union', '@a', {3: "Ut1_a"})
     check('enum', '@a', {3: "Ut1_a"})
     check('class', '@1', {3: "Ut1_1"})
@@ -554,8 +581,10 @@ def test_anon_definitions():
 
 def test_templates():
     check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> A<T>")
+    check('struct', "A<T>", {2: "IE1AI1TE"}, output="template<> A<T>")
     # first just check which objects support templating
     check('class', "template<> A", {2: "IE1A"})
+    check('struct', "template<> A", {2: "IE1A"})
     check('function', "template<> void A()", {2: "IE1Av"})
     check('member', "template<> A a", {2: "IE1a"})
     check('type', "template<> a = A", {2: "IE1a"})
@@ -565,6 +594,7 @@ def test_templates():
         parse('enumerator', "template<> A")
     # then all the real tests
     check('class', "template<typename T1, typename T2> A", {2: "I00E1A"})
+    check('struct', "template<typename T1, typename T2> A", {2: "I00E1A"})
     check('type', "template<> a", {2: "IE1a"})
 
     check('class', "template<typename T> A", {2: "I0E1A"})
@@ -586,6 +616,26 @@ def test_templates():
     check('class', "template<int = 42> A", {2: "I_iE1A"})
 
     check('class', "template<> A<NS::B<>>", {2: "IE1AIN2NS1BIEEE"})
+
+    check('struct', "template<typename T> A", {2: "I0E1A"})
+    check('struct', "template<class T> A", {2: "I0E1A"})
+    check('struct', "template<typename ...T> A", {2: "IDpE1A"})
+    check('struct', "template<typename...> A", {2: "IDpE1A"})
+    check('struct', "template<typename = Test> A", {2: "I0E1A"})
+    check('struct', "template<typename T = Test> A", {2: "I0E1A"})
+
+    check('struct', "template<template<typename> typename T> A", {2: "II0E0E1A"})
+    check('struct', "template<template<typename> typename> A", {2: "II0E0E1A"})
+    check('struct', "template<template<typename> typename ...T> A", {2: "II0EDpE1A"})
+    check('struct', "template<template<typename> typename...> A", {2: "II0EDpE1A"})
+
+    check('struct', "template<int> A", {2: "I_iE1A"})
+    check('struct', "template<int T> A", {2: "I_iE1A"})
+    check('struct', "template<int... T> A", {2: "I_DpiE1A"})
+    check('struct', "template<int T = 42> A", {2: "I_iE1A"})
+    check('struct', "template<int = 42> A", {2: "I_iE1A"})
+
+    check('struct', "template<> A<NS::B<>>", {2: "IE1AIN2NS1BIEEE"})
 
     # from #2058
     check('function',
@@ -611,6 +661,17 @@ def test_templates():
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE'})
 
     check('class', 'template<> Concept{U} A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
+
+    check('struct', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
+    check('struct', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
+    check('struct', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar<id_0, id_1, id_2>',
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE'})
+    check('struct', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar<id_0, id_1, id_2...>',
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE'})
+
+    check('struct', 'template<> Concept{U} A<int>::B', {2: 'IEI0EX7ConceptI1UEEN1AIiE1BE'})
 
     check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
