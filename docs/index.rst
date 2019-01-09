@@ -10,18 +10,18 @@ It will offer standard text book knowledge accompanied by, but also presented vi
 Chapters
 ^^^^^^^^
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+   :numbered:
 
-   1. Philosophical Foundations
-   2. Computer stuff
-   3. Conducting Experiments
-   4. Analysing Experimental Data
-   5. Reporting the Results of Scientific Experiments
-   6. Abbendum
+   chapter_phil/Philosophical Foundations
+   chapter_comp/Computer stuff
+   chapter_exp/Conducting Experiments
+   chapter_ana/Analysing Experimental Data
+   chapter_res/Reporting the Results of Scientific Experiments
+   chapter_abb/Abbendum
    license
    help
    How to contribute
-
 
 Indices and tables
 ==================
