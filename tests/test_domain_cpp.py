@@ -25,7 +25,7 @@ def parse(name, string):
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
     parser.allowFallbackExpressionParsing = False
-    ast = parser.parse_declaration(name)
+    ast = parser.parse_declaration(name, name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
@@ -526,11 +526,12 @@ def test_class_definitions():
     check('class', 'A', {1: "A", 2: "1A"})
     check('class', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
     check('class', 'A : B', {1: "A", 2: "1A"})
-    check('class', 'A : private B', {1: "A", 2: "1A"}, output='A : B')
+    check('class', 'A : private B', {1: "A", 2: "1A"})
     check('class', 'A : public B', {1: "A", 2: "1A"})
     check('class', 'A : B, C', {1: "A", 2: "1A"})
     check('class', 'A : B, protected C, D', {1: "A", 2: "1A"})
-    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : virtual B')
+    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : private virtual B')
+    check('class', 'A : private virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, virtual C', {1: 'A', 2: '1A'})
     check('class', 'A : public virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, C...', {1: 'A', 2: '1A'})

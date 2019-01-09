@@ -3471,7 +3471,8 @@ class ASTBaseClass(ASTBase):
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
         res = []
-        if self.visibility != 'private':
+
+        if self.visibility is not None:
             res.append(self.visibility)
             res.append(' ')
         if self.virtual:
@@ -3484,7 +3485,7 @@ class ASTBaseClass(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        if self.visibility != 'private':
+        if self.visibility is not None:
             signode += addnodes.desc_annotation(self.visibility,
                                                 self.visibility)
             signode += nodes.Text(' ')
@@ -3624,9 +3625,10 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBase):
-    def __init__(self, objectType, visibility, templatePrefix, declaration):
-        # type: (str, str, ASTTemplateDeclarationPrefix, Any) -> None
+    def __init__(self, objectType, directiveType, visibility, templatePrefix, declaration):
+        # type: (str, str, str, ASTTemplateDeclarationPrefix, Any) -> None
         self.objectType = objectType
+        self.directiveType = directiveType
         self.visibility = visibility
         self.templatePrefix = templatePrefix
         self.declaration = declaration
@@ -3634,8 +3636,6 @@ class ASTDeclaration(ASTBase):
         self.symbol = None  # type: Symbol
         # set by CPPObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol = None  # type: Symbol
-        # set by CPPEnumObject.parse_definition
-        self.scoped = None  # type: str
 
     def clone(self):
         # type: () -> ASTDeclaration
@@ -3643,8 +3643,8 @@ class ASTDeclaration(ASTBase):
             templatePrefixClone = self.templatePrefix.clone()
         else:
             templatePrefixClone = None
-        return ASTDeclaration(self.objectType, self.visibility,
-                              templatePrefixClone,
+        return ASTDeclaration(self.objectType, self.directiveType,
+                              self.visibility, templatePrefixClone,
                               self.declaration.clone())
 
     @property
@@ -3725,14 +3725,20 @@ class ASTDeclaration(ASTBase):
         elif self.objectType == 'function':
             pass
         elif self.objectType == 'class':
-            mainDeclNode += addnodes.desc_annotation('class ', 'class ')
+            assert self.directiveType in ('class', 'struct')
+            prefix = self.directiveType + ' '
+            mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'union':
             mainDeclNode += addnodes.desc_annotation('union ', 'union ')
         elif self.objectType == 'enum':
-            prefix = 'enum '
-            if self.scoped:
-                prefix += self.scoped
-                prefix += ' '
+            if self.directiveType == 'enum':
+                prefix = 'enum '
+            elif self.directiveType == 'enum-class':
+                prefix = 'enum class '
+            elif self.directiveType == 'enum-struct':
+                prefix = 'enum struct '
+            else:
+                assert False  # wrong directiveType used
             mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'enumerator':
             mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
@@ -3844,7 +3850,7 @@ class Symbol:
                     continue
                 # only add a declaration if we our self are from a declaration
                 if self.declaration:
-                    decl = ASTDeclaration('templateParam', None, None, p)
+                    decl = ASTDeclaration('templateParam', None, None, None, p)
                 else:
                     decl = None
                 nne = ASTNestedNameElement(p.get_identifier(), None)
@@ -3859,7 +3865,7 @@ class Symbol:
                 if nn is None:
                     continue
                 # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, p)
+                decl = ASTDeclaration('functionParam', None, None, None, p)
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname)
@@ -5997,7 +6003,7 @@ class DefinitionParser:
         if self.skip_string(':'):
             while 1:
                 self.skip_ws()
-                visibility = 'private'
+                visibility = None
                 virtual = False
                 pack = False
                 if self.skip_word_and_ws('virtual'):
@@ -6231,11 +6237,15 @@ class DefinitionParser:
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)
         return templatePrefix
 
-    def parse_declaration(self, objectType):
-        # type: (str) -> ASTDeclaration
-        if objectType not in ('type', 'concept', 'member',
-                              'function', 'class', 'union', 'enum', 'enumerator'):
+    def parse_declaration(self, objectType, directiveType):
+        # type: (str, str) -> ASTDeclaration
+        if objectType not in ('class', 'union', 'function', 'member', 'type',
+                              'concept', 'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
+        if directiveType not in ('class', 'struct', 'union', 'function', 'member', 'var',
+                                 'type', 'concept',
+                                 'enum', 'enum-struct', 'enum-class', 'enumerator'):
+            raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
         visibility = None
         templatePrefix = None
         declaration = None  # type: Any
@@ -6285,7 +6295,7 @@ class DefinitionParser:
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
                                                           isMember=objectType == 'member')
-        return ASTDeclaration(objectType, visibility,
+        return ASTDeclaration(objectType, directiveType, visibility,
                               templatePrefix, declaration)
 
     def parse_namespace_object(self):
@@ -6315,7 +6325,7 @@ class DefinitionParser:
         except DefinitionError as e1:
             try:
                 self.pos = pos
-                res2 = self.parse_declaration('function')
+                res2 = self.parse_declaration('function', 'function')
                 # if there are '()' left, just skip them
                 self.skip_ws()
                 self.skip_string('()')
@@ -6405,7 +6415,7 @@ class CPPObject(ObjectDescription):
             # TODO: maybe issue a warning, enumerators in non-enums is weird,
             # but it is somewhat equivalent to unscoped enums, without the enum
             return
-        if parentDecl.scoped:
+        if parentDecl.directiveType != 'enum':
             return
 
         targetSymbol = parentSymbol.parent
@@ -6496,7 +6506,7 @@ class CPPObject(ObjectDescription):
 
     def parse_definition(self, parser):
         # type: (DefinitionParser) -> ASTDeclaration
-        return parser.parse_declaration(self.object_type)
+        return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(self, signode, ast, options):
         # type: (addnodes.desc_signature, Any, Dict) -> None
@@ -6614,20 +6624,6 @@ class CPPUnionObject(CPPObject):
 
 class CPPEnumObject(CPPObject):
     object_type = 'enum'
-
-    def parse_definition(self, parser):
-        # type: (DefinitionParser) -> ASTDeclaration
-        ast = super().parse_definition(parser)
-        # self.objtype is set by ObjectDescription in run()
-        if self.objtype == "enum":
-            ast.scoped = None
-        elif self.objtype == "enum-struct":
-            ast.scoped = "struct"
-        elif self.objtype == "enum-class":
-            ast.scoped = "class"
-        else:
-            assert False
-        return ast
 
 
 class CPPEnumeratorObject(CPPObject):
@@ -6968,6 +6964,7 @@ class CPPDomain(Domain):
     directives = {
         # declarations
         'class': CPPClassObject,
+        'struct': CPPClassObject,
         'union': CPPUnionObject,
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
@@ -6988,6 +6985,7 @@ class CPPDomain(Domain):
     roles = {
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
+        'struct': CPPXRefRole(),
         'union': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),

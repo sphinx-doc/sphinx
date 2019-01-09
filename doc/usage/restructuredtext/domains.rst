@@ -548,10 +548,15 @@ The following directives are available. All declarations can start with a
 visibility statement (``public``, ``private`` or ``protected``).
 
 .. rst:directive:: .. cpp:class:: class specifier
+                   .. cpp:struct:: class specifier
 
    Describe a class/struct, possibly with specification of inheritance, e.g.,::
 
       .. cpp:class:: MyClass : public MyBase, MyOtherBase
+
+   The difference between :rst:dir:`cpp:class` and :rst:dir:`cpp:struct` is
+   only cosmetic: the prefix rendered in the output, and the specifier shown
+   in the index.
 
    The class can be directly declared inside a nested scope, e.g.,::
 
@@ -573,6 +578,9 @@ visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T> \
                      std::array<T, 42>
+
+   .. versionadded:: 2.0
+      The :rst:dir:`cpp:struct` directive.
 
 .. rst:directive:: .. cpp:function:: (member) function prototype
 
@@ -1037,6 +1045,7 @@ These roles link to the given declaration types:
 
 .. rst:role:: cpp:any
               cpp:class
+              cpp:struct
               cpp:func
               cpp:member
               cpp:var
@@ -1047,6 +1056,9 @@ These roles link to the given declaration types:
 
    Reference a C++ declaration by name (see below for details).  The name must
    be properly qualified relative to the position of the link.
+
+   .. versionadded:: 2.0
+      The :rst:role:`cpp:struct` role as alias for the :rst:role:`cpp:class` role.
 
 .. admonition:: Note on References with Templates Parameters/Arguments
 
