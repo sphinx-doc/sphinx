@@ -22,7 +22,7 @@ Configuration
 
 To configure your Sphinx project for Markdown support, proceed as follows:
 
-#. Install the Markdown parser *recommonmark* from its source on GitHub::
+#. Install the Markdown parser *recommonmark*::
 
       pip install --upgrade recommonmark
 
