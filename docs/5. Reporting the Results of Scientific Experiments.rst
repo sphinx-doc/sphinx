@@ -1,7 +1,0 @@
-Reporting the Results of Scientific Experiments
-===============================================
-
-Pandoc intro / simple markup forms
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Loop of submission, review, and revision
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
