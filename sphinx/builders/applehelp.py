@@ -22,7 +22,7 @@ from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import Matcher
-from sphinx.util.osutil import copyfile, ensuredir, make_filename
+from sphinx.util.osutil import ensuredir, make_filename
 
 if False:
     # For type annotation
@@ -128,13 +128,17 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         resources_dir = path.join(contents_dir, 'Resources')
         language_dir = path.join(resources_dir,
                                  self.config.applehelp_locale + '.lproj')
+        ensuredir(language_dir)
 
-        for d in [contents_dir, resources_dir, language_dir]:
-            ensuredir(d)
+        self.build_info_plist(contents_dir)
+        self.copy_applehelp_icon(resources_dir)
+        self.build_access_page(language_dir)
+        self.build_helpindex(language_dir)
+        self.do_codesign()
 
-        # Construct the Info.plist file
-        toc = self.config.master_doc + self.out_suffix
-
+    def build_info_plist(self, contents_dir):
+        # type: (str) -> None
+        """Construct the Info.plist file."""
         info_plist = {
             'CFBundleDevelopmentRegion': self.config.applehelp_dev_region,
             'CFBundleIdentifier': self.config.applehelp_bundle_id,
@@ -151,8 +155,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         }
 
         if self.config.applehelp_icon is not None:
-            info_plist['HPDBookIconPath'] \
-                = path.basename(self.config.applehelp_icon)
+            info_plist['HPDBookIconPath'] = path.basename(self.config.applehelp_icon)
 
         if self.config.applehelp_kb_url is not None:
             info_plist['HPDBookKBProduct'] = self.config.applehelp_kb_product
@@ -162,34 +165,38 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         logger.info(bold(__('writing Info.plist... ')), nonl=True)
-        with open(path.join(contents_dir, 'Info.plist'), 'wb') as fb:
-            plistlib.dump(info_plist, fb)
+        with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
+            plistlib.dump(info_plist, f)
         logger.info(__('done'))
 
-        # Copy the icon, if one is supplied
+    def copy_applehelp_icon(self, resources_dir):
+        # type: (str) -> None
+        """Copy the icon, if one is supplied."""
         if self.config.applehelp_icon:
             logger.info(bold(__('copying icon... ')), nonl=True)
 
             try:
-                copyfile(path.join(self.srcdir, self.config.applehelp_icon),
-                         path.join(resources_dir, info_plist['HPDBookIconPath']))
-
+                applehelp_icon = path.join(self.srcdir, self.config.applehelp_icon)
+                copy_asset(applehelp_icon, resources_dir)
                 logger.info(__('done'))
             except Exception as err:
-                logger.warning(__('cannot copy icon file %r: %s'),
-                               path.join(self.srcdir, self.config.applehelp_icon), err)
-                del info_plist['HPDBookIconPath']
+                logger.warning(__('cannot copy icon file %r: %s'), applehelp_icon, err)
 
-        # Build the access page
+    def build_access_page(self, language_dir):
+        # type: (str) -> None
+        """Build the access page."""
         logger.info(bold(__('building access page...')), nonl=True)
-        with open(path.join(language_dir, '_access.html'), 'w') as ft:
-            ft.write(access_page_template % {
+        with open(path.join(language_dir, '_access.html'), 'w') as f:
+            toc = self.config.master_doc + self.out_suffix
+            f.write(access_page_template % {
                 'toc': html.escape(toc, quote=True),
                 'title': html.escape(self.config.applehelp_title)
             })
         logger.info(__('done'))
 
-        # Generate the help index
+    def build_helpindex(self, language_dir):
+        # type: (str) -> None
+        """Generate the help index."""
         logger.info(bold(__('generating help index... ')), nonl=True)
 
         args = [
@@ -231,7 +238,9 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             except OSError:
                 raise AppleHelpIndexerFailed(__('Command not found: %s') % args[0])
 
-        # If we've been asked to, sign the bundle
+    def do_codesign(self):
+        # type: () -> None
+        """If we've been asked to, sign the bundle."""
         if self.config.applehelp_codesign_identity:
             logger.info(bold(__('signing help book... ')), nonl=True)
 
