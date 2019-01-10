@@ -1059,8 +1059,6 @@
   \let\normalsize\footnotesize\let\@parboxrestore\relax
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
-% needed to create wrapper environments of fancyvrb's Verbatim
-\newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
 % serves to implement line highlighting and line wrapping
 \newcommand\sphinxFancyVerbFormatLine[1]{%
@@ -1165,8 +1163,7 @@
     \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
-  % workaround to fancyvrb's check of \@currenvir
-  \let\VerbatimEnvironment\sphinxVerbatimEnvironment
+  \VerbatimEnvironment
   % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
@@ -1213,8 +1210,7 @@
 }
 \newenvironment {sphinxVerbatimNoFrame}
   {\spx@opt@verbatimwithframefalse
-   % needed for fancyvrb as literal code will end in \end{sphinxVerbatimNoFrame}
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimNoFrame}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 \newenvironment {sphinxVerbatimintable}
@@ -1227,7 +1223,7 @@
    \let\caption\sphinxfigcaption
    % reduce above caption skip
    \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 
