@@ -8,19 +8,19 @@
     :license: BSD, see LICENSE for details.
 """
 
-import html
 import pipes
 import plistlib
 import shlex
 import subprocess
 from os import path, environ
 
+from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.fileutil import copy_asset
+from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import ensuredir, make_filename
 
@@ -31,22 +31,7 @@ if False:
 
 
 logger = logging.getLogger(__name__)
-
-# False access page (used because helpd expects strict XHTML)
-access_page_template = '''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"\
- "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>%(title)s</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content="0;url=%(toc)s" />
-  </head>
-  <body>
-  </body>
-</html>
-'''
+template_dir = path.join(package_dir, 'templates', 'applehelp')
 
 
 class AppleHelpIndexerFailed(SphinxError):
@@ -177,7 +162,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
             try:
                 applehelp_icon = path.join(self.srcdir, self.config.applehelp_icon)
-                copy_asset(applehelp_icon, resources_dir)
+                copy_asset_file(applehelp_icon, resources_dir)
                 logger.info(__('done'))
             except Exception as err:
                 logger.warning(__('cannot copy icon file %r: %s'), applehelp_icon, err)
@@ -186,12 +171,11 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         # type: (str) -> None
         """Build the access page."""
         logger.info(bold(__('building access page...')), nonl=True)
-        with open(path.join(language_dir, '_access.html'), 'w') as f:
-            toc = self.config.master_doc + self.out_suffix
-            f.write(access_page_template % {
-                'toc': html.escape(toc, quote=True),
-                'title': html.escape(self.config.applehelp_title)
-            })
+        context = {
+            'toc': self.config.master_doc + self.out_suffix,
+            'title': self.config.applehelp_title,
+        }
+        copy_asset_file(path.join(template_dir, '_access.html_t'), language_dir, context)
         logger.info(__('done'))
 
     def build_helpindex(self, language_dir):
@@ -220,7 +204,6 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         if self.config.applehelp_disable_external_tools:
             logger.info(__('skipping'))
-
             logger.warning(__('you will need to index this help book with:\n  %s'),
                            ' '.join([pipes.quote(arg) for arg in args]))
         else:
