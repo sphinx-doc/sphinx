@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pipes
 import plistlib
 import shlex
 import subprocess
@@ -205,7 +204,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         if self.config.applehelp_disable_external_tools:
             logger.info(__('skipping'))
             logger.warning(__('you will need to index this help book with:\n  %s'),
-                           ' '.join([pipes.quote(arg) for arg in args]))
+                           ' '.join([shlex.quote(arg) for arg in args]))
         else:
             try:
                 p = subprocess.Popen(args,
@@ -240,7 +239,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             if self.config.applehelp_disable_external_tools:
                 logger.info(__('skipping'))
                 logger.warning(__('you will need to sign this help book with:\n  %s'),
-                               ' '.join([pipes.quote(arg) for arg in args]))
+                               ' '.join([shlex.quote(arg) for arg in args]))
             else:
                 try:
                     p = subprocess.Popen(args,
