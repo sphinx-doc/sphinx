@@ -12,6 +12,7 @@ import plistlib
 import shlex
 import subprocess
 from os import path, environ
+from subprocess import CalledProcessError, PIPE, STDOUT
 
 from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -207,18 +208,12 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                            ' '.join([shlex.quote(arg) for arg in args]))
         else:
             try:
-                p = subprocess.Popen(args,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT)
-
-                output = p.communicate()[0]
-
-                if p.returncode != 0:
-                    raise AppleHelpIndexerFailed(output)
-                else:
-                    logger.info(__('done'))
+                subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=True)
+                logger.info(__('done'))
             except OSError:
                 raise AppleHelpIndexerFailed(__('Command not found: %s') % args[0])
+            except CalledProcessError as exc:
+                raise AppleHelpCodeSigningFailed(exc.stdout)
 
     def do_codesign(self):
         # type: () -> None
@@ -242,18 +237,12 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                                ' '.join([shlex.quote(arg) for arg in args]))
             else:
                 try:
-                    p = subprocess.Popen(args,
-                                         stdout=subprocess.PIPE,
-                                         stderr=subprocess.STDOUT)
-
-                    output = p.communicate()[0]
-
-                    if p.returncode != 0:
-                        raise AppleHelpCodeSigningFailed(output)
-                    else:
-                        logger.info(__('done'))
+                    subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=True)
+                    logger.info(__('done'))
                 except OSError:
                     raise AppleHelpCodeSigningFailed(__('Command not found: %s') % args[0])
+                except CalledProcessError as exc:
+                    raise AppleHelpCodeSigningFailed(exc.stdout)
 
 
 def setup(app):
