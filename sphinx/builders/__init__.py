@@ -403,7 +403,7 @@ class Builder:
         Store all environment docnames in the canonical format (ie using SEP as
         a separator in place of os.path.sep).
         """
-        logger.info(bold('updating environment: '), nonl=True)
+        logger.info(bold(__('updating environment: ')), nonl=True)
 
         self.env.find_files(self.config, self)
         updated = (self.env.config_status != CONFIG_OK)
@@ -422,7 +422,7 @@ class Builder:
         if changed:
             reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '')
             logger.info('[%s] ', reason, nonl=True)
-        logger.info('%s added, %s changed, %s removed',
+        logger.info(__('%s added, %s changed, %s removed'),
                     len(added), len(changed), len(removed))
 
         # clear all files no longer present
@@ -461,7 +461,7 @@ class Builder:
 
     def _read_serial(self, docnames):
         # type: (List[str]) -> None
-        for docname in status_iterator(docnames, 'reading sources... ', "purple",
+        for docname in status_iterator(docnames, __('reading sources... '), "purple",
                                        len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
             self.app.emit('env-purge-doc', self.env, docname)
@@ -491,12 +491,12 @@ class Builder:
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        for chunk in status_iterator(chunks, 'reading sources... ', "purple",
+        for chunk in status_iterator(chunks, __('reading sources... '), "purple",
                                      len(chunks), self.app.verbosity):
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
-        logger.info(bold('waiting for workers...'))
+        logger.info(bold(__('waiting for workers...')))
         tasks.join()
 
     def read_doc(self, docname):

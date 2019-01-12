@@ -541,8 +541,8 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
-Directives
-~~~~~~~~~~
+Directives for Declaring Entities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following directives are available. All declarations can start with a
 visibility statement (``public``, ``private`` or ``protected``).
@@ -792,6 +792,41 @@ This will be rendered as:
       .. cpp:var:: double b
 
 Explicit ref: :cpp:var:`Data::@data::a`. Short-hand ref: :cpp:var:`Data::a`.
+
+
+Aliasing Declarations
+~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes it may be helpful list declarations elsewhere than their main documentation,
+e.g., when creating a synopsis of a class interface.
+The following directive can be used for this purpose.
+
+.. rst:directive:: .. cpp:alias:: name or function signature
+
+   Insert one or more alias declarations. Each entity can be specified
+   as they can in the :rst:role:`cpp:any` role.
+   If the name of a function is given (as opposed to the complete signature),
+   then all overloads of the function will be listed.
+
+   For example::
+
+       .. cpp:alias:: Data::a
+                      overload_example::C::f
+
+   becomes
+
+   .. cpp:alias:: Data::a
+                  overload_example::C::f
+
+   whereas::
+
+       .. cpp:alias:: void overload_example::C::f(double d) const
+                      void overload_example::C::f(double d)
+
+   becomes
+
+    .. cpp:alias:: void overload_example::C::f(double d) const
+                   void overload_example::C::f(double d)
 
 
 Constrained Templates

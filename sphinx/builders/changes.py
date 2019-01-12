@@ -67,7 +67,7 @@ class ChangesBuilder(Builder):
         if not changesets:
             logger.info(bold(__('no changes in version %s.') % version))
             return
-        logger.info(bold('writing summary file...'))
+        logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
             if isinstance(changeset.descname, tuple):
                 descname = changeset.descname[0]

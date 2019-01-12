@@ -22,18 +22,14 @@ Configuration
 
 To configure your Sphinx project for Markdown support, proceed as follows:
 
-#. Install the Markdown parser *recommonmark* from its source on GitHub::
+#. Install the Markdown parser *recommonmark*::
 
-      pip install git+https://github.com/rtfd/recommonmark
+      pip install --upgrade recommonmark
 
    .. note::
 
       The configuration as explained here requires recommonmark version
-      0.5.0.dev or higher, which is at the time of writing not available on
-      PyPI.  If you want to use a released recommonmark version, follow the
-      instructions in the `Sphinx 1.8 documentation`__.
-
-__ https://www.sphinx-doc.org/en/1.8/usage/markdown.html
+      0.5.0 or later.
 
 #. Add *recommonmark* to the
    :confval:`list of configured extensions <extensions>`::

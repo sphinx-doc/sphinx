@@ -179,7 +179,7 @@ def fetch_inventory(app, uri, inv):
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
             if inv != newinv:
-                logger.info('intersphinx inventory has moved: %s -> %s', inv, newinv)
+                logger.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
@@ -214,7 +214,7 @@ def load_mappings(app):
             if '://' not in inv or uri not in inventories.cache \
                     or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
-                logger.info('loading intersphinx inventory from %s...', safe_inv_url)
+                logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
                 except Exception as err:
@@ -229,8 +229,8 @@ def load_mappings(app):
         if failures == []:
             pass
         elif len(failures) < len(invs):
-            logger.info("encountered some issues with some of the inventories,"
-                        " but they had working alternatives:")
+            logger.info(__("encountered some issues with some of the inventories,"
+                           " but they had working alternatives:"))
             for fail in failures:
                 logger.info(*fail)
         else:

@@ -58,6 +58,10 @@ Deprecated
 
 * Support for evaluating Python 2 syntax is deprecated. This includes
   configuration files which should be converted to Python 3.
+* The arguments of ``EpubBuilder.build_mimetype()``,
+  ``EpubBuilder.build_container()``, ``EpubBuilder.bulid_content()``,
+  ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
+* The arguments of ``Epub3Builder.build_navigation_doc()``
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
@@ -71,6 +75,7 @@ Deprecated
   ``IndexBuilder.feed()`` method is deprecated.
 * ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
+* ``sphinx.builders.epub3.Epub3Builder.validate_config_value()``
 * ``sphinx.builders.html.SingleFileHTMLBuilder``
 * ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
 * ``sphinx.cmd.quickstart.term_decode()``
@@ -147,6 +152,8 @@ Features added
   (``added``, ``changed`` and ``deprecated``, respectively) in addition to the
   generic ``versionmodified`` class.
 * #5841: apidoc: Add --extensions option to sphinx-apidoc
+* #4981: C++, added an alias directive for inserting lists of declarations,
+  that references existing declarations (e.g., for making a synopsis).
 
 Bugs fixed
 ----------
