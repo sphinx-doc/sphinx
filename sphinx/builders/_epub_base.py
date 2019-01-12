@@ -10,6 +10,7 @@
 
 import os
 import re
+import warnings
 from collections import namedtuple
 from os import path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
@@ -19,6 +20,7 @@ from docutils.utils import smartquotes
 
 from sphinx import addnodes
 from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import status_iterator
@@ -470,16 +472,28 @@ class EpubBuilder(StandaloneHTMLBuilder):
         addctx['doctype'] = self.doctype
         super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
 
-    def build_mimetype(self, outdir, outname):
+    def build_mimetype(self, outdir=None, outname='mimetype'):
         # type: (str, str) -> None
         """Write the metainfo file mimetype."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_mimetype() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         copy_asset_file(path.join(self.template_dir, 'mimetype'),
                         path.join(outdir, outname))
 
-    def build_container(self, outdir, outname):
+    def build_container(self, outdir=None, outname='META-INF/container.xml'):
         # type: (str, str) -> None
         """Write the metainfo file META-INF/container.xml."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_container() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         filename = path.join(outdir, outname)
         ensuredir(path.dirname(filename))
@@ -505,11 +519,17 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['guides'] = []
         return metadata
 
-    def build_content(self, outdir, outname):
+    def build_content(self, outdir=None, outname='content.opf'):
         # type: (str, str) -> None
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_content() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
         metadata = self.content_metadata()
 
@@ -686,9 +706,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['navpoints'] = navpoints
         return metadata
 
-    def build_toc(self, outdir, outname):
+    def build_toc(self, outdir=None, outname='toc.ncx'):
         # type: (str, str) -> None
         """Write the metainfo file toc.ncx."""
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_toc() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
 
         if self.config.epub_tocscope == 'default':
@@ -707,13 +733,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         path.join(outdir, outname),
                         self.toc_metadata(level, navpoints))
 
-    def build_epub(self, outdir, outname):
+    def build_epub(self, outdir=None, outname=None):
         # type: (str, str) -> None
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
+        if outdir:
+            warnings.warn('The arguments of EpubBuilder.build_epub() is deprecated.',
+                          RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+            outname = self.config.epub_basename + '.epub'
+
         logger.info(__('writing %s file...'), outname)
         epub_filename = path.join(outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:

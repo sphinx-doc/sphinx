@@ -9,12 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
 from collections import namedtuple
 from os import path
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
 from sphinx.util import logging, xmlname_checker
 from sphinx.util.fileutil import copy_asset_file
@@ -78,12 +80,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """Create the metainfo files and finally the epub."""
         self.validate_config_value()
         self.get_toc()
-        self.build_mimetype(self.outdir, 'mimetype')
-        self.build_container(self.outdir, 'META-INF/container.xml')
-        self.build_content(self.outdir, 'content.opf')
-        self.build_navigation_doc(self.outdir, 'nav.xhtml')
-        self.build_toc(self.outdir, 'toc.ncx')
-        self.build_epub(self.outdir, self.config.epub_basename + '.epub')
+        self.build_mimetype()
+        self.build_container()
+        self.build_content()
+        self.build_navigation_doc()
+        self.build_toc()
+        self.build_epub()
 
     def validate_config_value(self):
         # type: () -> None
@@ -202,9 +204,15 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['navlist'] = navlist
         return metadata
 
-    def build_navigation_doc(self, outdir, outname):
+    def build_navigation_doc(self, outdir=None, outname='nav.xhtml'):
         # type: (str, str) -> None
         """Write the metainfo file nav.xhtml."""
+        if outdir:
+            warnings.warn('The arguments of Epub3Builder.build_navigation_doc() '
+                          'is deprecated.', RemovedInSphinx40Warning, stacklevel=2)
+        else:
+            outdir = self.outdir
+
         logger.info(__('writing %s file...'), outname)
 
         if self.config.epub_tocscope == 'default':
