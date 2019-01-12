@@ -28,7 +28,7 @@ def test_build(request, rootdir, sphinx_test_tempdir):
         # each test expect result of db value at previous test case.
         'builddir': sphinx_test_tempdir / 'websupport'
     }
-    marker = request.node.get_marker('support')
+    marker = request.node.get_closest_marker('support')
     if marker:
         settings.update(marker.kwargs)
 
