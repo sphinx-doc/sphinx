@@ -577,7 +577,7 @@ _id_explicit_cast = {
 
 
 class NoOldIdError(Exception):
-    # Used to avoid implementing unneeded id generation for old id schmes.
+    # Used to avoid implementing unneeded id generation for old id schemes.
     @property
     def description(self):
         # type: () -> str
@@ -2626,6 +2626,7 @@ class ASTDeclSpecsSimple(ASTBase):
 
 class ASTDeclSpecs(ASTBase):
     def __init__(self, outer, leftSpecs, rightSpecs, trailing):
+        # type: (Any, ASTDeclSpecsSimple, ASTDeclSpecsSimple, Any) -> None
         # leftSpecs and rightSpecs are used for output
         # allSpecs are used for id generation
         self.outer = outer
@@ -2663,8 +2664,6 @@ class ASTDeclSpecs(ASTBase):
         res = []  # type: List[str]
         l = transform(self.leftSpecs)
         if len(l) > 0:
-            if len(res) > 0:
-                res.append(" ")
             res.append(l)
         if self.trailingTypeSpec:
             if len(res) > 0:
