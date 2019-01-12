@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import re
+from os import path
 from zipfile import ZipFile
 
 from six import iteritems, BytesIO, StringIO
@@ -45,7 +46,7 @@ class ModuleAnalyzer(object):
                 obj = cls(f, modname, filename)
                 cls.cache['file', filename] = obj
         except Exception as err:
-            if '.egg/' in filename:
+            if '.egg' + path.sep in filename:
                 obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
             else:
                 raise PycodeError('error opening %r' % filename, err)
@@ -54,7 +55,8 @@ class ModuleAnalyzer(object):
     @classmethod
     def for_egg(cls, filename, modname):
         # type: (unicode, unicode) -> ModuleAnalyzer
-        eggpath, relpath = re.split('(?<=\\.egg)/', filename)
+        SEP = re.escape(path.sep)
+        eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
         try:
             with ZipFile(eggpath) as egg:
                 code = egg.read(relpath).decode('utf-8')

@@ -24,6 +24,7 @@ Bugs fixed
 * #5755: C++, fix duplicate declaration error on function templates with constraints
   in the return type.
 * C++, parse unary right fold expressions and binary fold expressions.
+* pycode could not handle egg files on windows
 
 Testing
 --------
