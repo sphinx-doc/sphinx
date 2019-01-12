@@ -59,7 +59,6 @@ describe('jQuery extensions', function() {
             '</text>' +
           '</svg>' +
         '</span>');
-      $("#svg-highlight-test").html($("#svg-highlight-test").html());
       jQuery(document.body).append(highlightTestSvg);
       highlightTestSvg.highlightText(cyrillicTerm, 'highlighted');
       highlightTestSvg.highlightText(umlautTerm, 'highlighted');

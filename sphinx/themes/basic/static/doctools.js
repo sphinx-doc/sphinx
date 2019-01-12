@@ -94,7 +94,6 @@ jQuery.fn.highlightText = function(text, className) {
           rect.width.baseVal.value = bbox.width;
           rect.height.baseVal.value = bbox.height;
           rect.setAttribute('class', className);
-          var parentOfText = node.parentNode.parentNode;
           addItems.push({
               "parent": node.parentNode,
               "target": rect});
