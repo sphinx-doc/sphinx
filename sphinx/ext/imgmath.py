@@ -11,10 +11,11 @@
 import posixpath
 import re
 import shutil
+import subprocess
 import tempfile
 from hashlib import sha1
 from os import path
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError, PIPE
 
 from docutils import nodes
 
@@ -23,7 +24,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir, cd
+from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
 
@@ -132,38 +133,31 @@ def compile_math(latex, builder):
     command.extend(builder.config.imgmath_latex_args)
     command.append('math.tex')
 
-    with cd(tempdir):
-        try:
-            p = Popen(command, stdout=PIPE, stderr=PIPE)
-        except FileNotFoundError:
-            logger.warning(__('LaTeX command %r cannot be run (needed for math '
-                              'display), check the imgmath_latex setting'),
-                           builder.config.imgmath_latex)
-            raise InvokeError
-
-    stdout, stderr = p.communicate()
-    if p.returncode != 0:
-        raise MathExtError('latex exited with error', stderr, stdout)
-
-    return path.join(tempdir, 'math.dvi')
+    try:
+        subprocess.run(command, stdout=PIPE, stderr=PIPE, cwd=tempdir, check=True)
+        return path.join(tempdir, 'math.dvi')
+    except OSError:
+        logger.warning(__('LaTeX command %r cannot be run (needed for math '
+                          'display), check the imgmath_latex setting'),
+                       builder.config.imgmath_latex)
+        raise InvokeError
+    except CalledProcessError as exc:
+        raise MathExtError('latex exited with error', exc.stderr, exc.stdout)
 
 
 def convert_dvi_to_image(command, name):
     # type: (List[str], str) -> Tuple[bytes, bytes]
     """Convert DVI file to specific image format."""
     try:
-        p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except FileNotFoundError:
+        ret = subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        return ret.stdout, ret.stderr
+    except OSError:
         logger.warning(__('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting'),
                        name, command[0], name)
         raise InvokeError
-
-    stdout, stderr = p.communicate()
-    if p.returncode != 0:
-        raise MathExtError('%s exited with error' % name, stderr, stdout)
-
-    return stdout, stderr
+    except CalledProcessError as exc:
+        raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout)
 
 
 def convert_dvi_to_png(dvipath, builder):

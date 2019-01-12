@@ -13,6 +13,7 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
+from subprocess import PIPE
 from tempfile import gettempdir
 
 import pytest
@@ -211,10 +212,7 @@ def if_graphviz_found(app):
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
     try:
         if graphviz_dot:
-            dot = subprocess.Popen([graphviz_dot, '-V'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)  # show version
-            dot.communicate()
+            subprocess.run([graphviz_dot, '-V'], stdout=PIPE, stderr=PIPE)  # show version
             return
     except OSError:  # No such file or directory
         pass

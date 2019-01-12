@@ -11,7 +11,8 @@
 import gettext
 import os
 import re
-from subprocess import Popen, PIPE
+import subprocess
+from subprocess import CalledProcessError, PIPE
 
 import pytest
 
@@ -40,32 +41,26 @@ def test_msgfmt(app):
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     with cd(app.outdir):
         try:
-            p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
-                       '--locale', 'en_US'],
-                      stdout=PIPE, stderr=PIPE)
+            args = ['msginit', '--no-translator', '-i', 'markup.pot', '--locale', 'en_US']
+            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
         except OSError:
             pytest.skip()  # most likely msginit was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, 'msginit exited with return code %s' % \
-                    p.returncode
+        except CalledProcessError as exc:
+            print(exc.stdout)
+            print(exc.stderr)
+            assert False, 'msginit exited with return code %s' % exc.returncode
+
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
-            p = Popen(['msgfmt', 'en_US.po', '-o',
-                       os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
-                      stdout=PIPE, stderr=PIPE)
+            args = ['msgfmt', 'en_US.po', '-o', os.path.join('en', 'LC_MESSAGES', 'test_root.mo')]
+            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
         except OSError:
             pytest.skip()  # most likely msgfmt was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, 'msgfmt exited with return code %s' % \
-                    p.returncode
+        except CalledProcessError as exc:
+            print(exc.stdout)
+            print(exc.stderr)
+            assert False, 'msgfmt exited with return code %s' % exc.returncode
+
         mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
         assert mo.isfile(), 'msgfmt failed'
 
