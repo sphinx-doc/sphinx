@@ -62,19 +62,21 @@ describe('jQuery extensions', function() {
       jQuery(document.body).append(highlightTestSvg);
       highlightTestSvg.highlightText(cyrillicTerm, 'highlighted');
       highlightTestSvg.highlightText(umlautTerm, 'highlighted');
+      /* Note wild cards and ``toMatch``; allowing for some variability
+         seems to be necessary, even between different FF versions */
       var expectedSvgString =
         '<svg xmlns="http://www.w3.org/2000/svg" height="50" width="500">' +
-          '<rect x="-0.5" y="3" width="271.683" height="16" class="highlighted">' +
+          '<rect x=".*" y=".*" width=".*" height=".*" class="highlighted">' +
           '</rect>' +
-          '<rect x="-0.5" y="3" width="271.683" height="16" class="highlighted">' +
+          '<rect x=".*" y=".*" width=".*" height=".*" class="highlighted">' +
           '</rect>' +
-          '<text x="0" y="15">' +
+          '<text x=".*" y=".*">' +
             'This is the ' +
             '<tspan>шеллы</tspan> and ' +
             '<tspan>Gänsefüßchen</tspan> test!' +
           '</text>' +
         '</svg>';
-      expect(highlightTestSvg.html()).toEqual(expectedSvgString);
+      expect(highlightTestSvg.html()).toMatch(new RegExp(expectedSvgString));
     });
 
   });
