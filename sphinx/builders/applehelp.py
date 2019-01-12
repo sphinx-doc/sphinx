@@ -213,7 +213,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             except OSError:
                 raise AppleHelpIndexerFailed(__('Command not found: %s') % args[0])
             except CalledProcessError as exc:
-                raise AppleHelpCodeSigningFailed(exc.stdout)
+                raise AppleHelpIndexerFailed(exc.stdout)
 
     def do_codesign(self):
         # type: () -> None
