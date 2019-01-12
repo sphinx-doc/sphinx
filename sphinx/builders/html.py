@@ -29,7 +29,9 @@ from docutils.utils import relative_path
 from sphinx import package_dir, __display_version__
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
@@ -39,20 +41,19 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import jsonimpl, logging, status_iterator
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import patmatch, Matcher, DOTFILES
-from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, Iterable, Iterator, List, Set, Type, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
@@ -1216,180 +1217,6 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         self.globalcontext['no_search_suffix'] = True
 
 
-class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    A StandaloneHTMLBuilder subclass that puts the whole document tree on one
-    HTML page.
-    """
-    name = 'singlehtml'
-    epilog = __('The HTML page is in %(outdir)s.')
-
-    copysource = False
-
-    def get_outdated_docs(self):  # type: ignore
-        # type: () -> Union[str, List[str]]
-        return 'all documents'
-
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
-        if docname in self.env.all_docs:
-            # all references are on the same page...
-            return self.config.master_doc + self.out_suffix + \
-                '#document-' + docname
-        else:
-            # chances are this is a html_additional_page
-            return docname + self.out_suffix
-
-    def get_relative_uri(self, from_, to, typ=None):
-        # type: (str, str, str) -> str
-        # ignore source
-        return self.get_target_uri(to, typ)
-
-    def fix_refuris(self, tree):
-        # type: (nodes.Node) -> None
-        # fix refuris with double anchor
-        fname = self.config.master_doc + self.out_suffix
-        for refnode in tree.traverse(nodes.reference):
-            if 'refuri' not in refnode:
-                continue
-            refuri = refnode['refuri']
-            hashindex = refuri.find('#')
-            if hashindex < 0:
-                continue
-            hashindex = refuri.find('#', hashindex + 1)
-            if hashindex >= 0:
-                refnode['refuri'] = fname + refuri[hashindex:]
-
-    def _get_local_toctree(self, docname, collapse=True, **kwds):
-        # type: (str, bool, Any) -> str
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = False
-        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
-        if toctree is not None:
-            self.fix_refuris(toctree)
-        return self.render_partial(toctree)['fragment']
-
-    def assemble_doctree(self):
-        # type: () -> nodes.document
-        master = self.config.master_doc
-        tree = self.env.get_doctree(master)
-        tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
-        tree['docname'] = master
-        self.env.resolve_references(tree, master, self)
-        self.fix_refuris(tree)
-        return tree
-
-    def assemble_toc_secnumbers(self):
-        # type: () -> Dict[str, Dict[str, Tuple[int, ...]]]
-        # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
-        # Merge all secnumbers to single secnumber.
-        #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
-        #       tuple of docname and refid.
-        #
-        #       There are related codes in inline_all_toctres() and
-        #       HTMLTranslter#add_secnumber().
-        new_secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
-        for docname, secnums in self.env.toc_secnumbers.items():
-            for id, secnum in secnums.items():
-                alias = "%s/%s" % (docname, id)
-                new_secnumbers[alias] = secnum
-
-        return {self.config.master_doc: new_secnumbers}
-
-    def assemble_toc_fignumbers(self):
-        # type: () -> Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]
-        # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
-        # Merge all fignumbers to single fignumber.
-        #
-        # Note: current Sphinx has refid confliction in singlehtml mode.
-        #       To avoid the problem, it replaces key of secnumbers to
-        #       tuple of docname and refid.
-        #
-        #       There are related codes in inline_all_toctres() and
-        #       HTMLTranslter#add_fignumber().
-        new_fignumbers = {}  # type: Dict[str, Dict[str, Tuple[int, ...]]]
-        # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
-        for docname, fignumlist in self.env.toc_fignumbers.items():
-            for figtype, fignums in fignumlist.items():
-                alias = "%s/%s" % (docname, figtype)
-                new_fignumbers.setdefault(alias, {})
-                for id, fignum in fignums.items():
-                    new_fignumbers[alias][id] = fignum
-
-        return {self.config.master_doc: new_fignumbers}
-
-    def get_doc_context(self, docname, body, metatags):
-        # type: (str, str, str) -> Dict
-        # no relation links...
-        toctree = TocTree(self.env).get_toctree_for(self.config.master_doc, self, False)
-        # if there is no toctree, toc is None
-        if toctree:
-            self.fix_refuris(toctree)
-            toc = self.render_partial(toctree)['fragment']
-            display_toc = True
-        else:
-            toc = ''
-            display_toc = False
-        return {
-            'parents': [],
-            'prev': None,
-            'next': None,
-            'docstitle': None,
-            'title': self.config.html_title,
-            'meta': None,
-            'body': body,
-            'metatags': metatags,
-            'rellinks': [],
-            'sourcename': '',
-            'toc': toc,
-            'display_toc': display_toc,
-        }
-
-    def write(self, *ignored):
-        # type: (Any) -> None
-        docnames = self.env.all_docs
-
-        logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)  # type: ignore
-        logger.info(__('done'))
-
-        logger.info(bold(__('assembling single document... ')), nonl=True)
-        doctree = self.assemble_doctree()
-        self.env.toc_secnumbers = self.assemble_toc_secnumbers()
-        self.env.toc_fignumbers = self.assemble_toc_fignumbers()
-        logger.info('')
-        logger.info(bold(__('writing... ')), nonl=True)
-        self.write_doc_serialized(self.config.master_doc, doctree)
-        self.write_doc(self.config.master_doc, doctree)
-        logger.info(__('done'))
-
-    def finish(self):
-        # type: () -> None
-        # no indices or search pages are supported
-        logger.info(bold(__('writing additional files...')), nonl=1)
-
-        # additional pages from conf.py
-        for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=1)
-            self.handle_page(pagename, {}, template)
-
-        if self.config.html_use_opensearch:
-            logger.info(' opensearch', nonl=1)
-            fn = path.join(self.outdir, '_static', 'opensearch.xml')
-            self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
-
-        logger.info('')
-
-        self.copy_image_files()
-        self.copy_download_files()
-        self.copy_static_files()
-        self.copy_extra_files()
-        self.write_buildinfo()
-        self.dump_inventory()
-
-
 class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     """
     An abstract builder that serializes the generated HTML.
@@ -1604,12 +1431,21 @@ def validate_math_renderer(app):
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
+# for compatibility
+from sphinx.builders.singlehtml import SingleFileHTMLBuilder  # NOQA
+
+deprecated_alias('sphinx.builders.html',
+                 {
+                     'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
+                 },
+                 RemovedInSphinx40Warning)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     # builders
     app.add_builder(StandaloneHTMLBuilder)
     app.add_builder(DirectoryHTMLBuilder)
-    app.add_builder(SingleFileHTMLBuilder)
     app.add_builder(PickleHTMLBuilder)
     app.add_builder(JSONHTMLBuilder)
 
@@ -1654,8 +1490,6 @@ def setup(app):
     app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_math_renderer', None, 'env')
-
-    app.add_config_value('singlehtml_sidebars', lambda self: self.html_sidebars, 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)

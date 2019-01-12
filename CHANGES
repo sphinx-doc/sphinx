@@ -76,6 +76,7 @@ Deprecated
 * ``sphinx.addnodes.abbreviation``
 * ``sphinx.application.Sphinx._setting_up_extension``
 * ``sphinx.builders.epub3.Epub3Builder.validate_config_value()``
+* ``sphinx.builders.html.SingleFileHTMLBuilder``
 * ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
 * ``sphinx.cmd.quickstart.term_decode()``
 * ``sphinx.cmd.quickstart.TERM_ENCODING``

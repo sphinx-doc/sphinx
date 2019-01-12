@@ -74,6 +74,7 @@ builtin_extensions = (
     'sphinx.builders.linkcheck',
     'sphinx.builders.manpage',
     'sphinx.builders.qthelp',
+    'sphinx.builders.singlehtml',
     'sphinx.builders.texinfo',
     'sphinx.builders.text',
     'sphinx.builders.websupport',
