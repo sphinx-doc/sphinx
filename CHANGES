@@ -25,6 +25,7 @@ Bugs fixed
   in the return type.
 * C++, parse unary right fold expressions and binary fold expressions.
 * pycode could not handle egg files on windows
+* #5928: KeyError: 'DOCUTILSCONFIG' when running build
 
 Testing
 --------
