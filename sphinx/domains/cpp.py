@@ -22,6 +22,8 @@ from sphinx.domains import Domain, ObjType
 from sphinx.environment import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
+from sphinx.transforms import SphinxTransform
+from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField
 from sphinx.util.docutils import SphinxDirective
@@ -642,12 +644,12 @@ class ASTBase:
 
     def __repr__(self):
         # type: () -> str
-        return '<%s %s>' % (self.__class__.__name__, self)
+        return '<%s>' % self.__class__.__name__
 
 
 def _verify_description_mode(mode):
     # type: (str) -> None
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'param'):
+    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param'):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -2226,7 +2228,7 @@ class ASTNestedName(ASTBase):
         elif mode == 'param':
             name = str(self)
             signode += nodes.emphasis(name, name)
-        elif mode == 'markType' or mode == 'lastIsName':
+        elif mode == 'markType' or mode == 'lastIsName' or mode == 'markName':
             # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
@@ -3720,6 +3722,14 @@ class ASTNamespace(ASTBase):
         self.nestedName = nestedName
         self.templatePrefix = templatePrefix
 
+    def _stringify(self, transform):
+        # type: (Callable[[Any], str]) -> str
+        res = []
+        if self.templatePrefix:
+            res.append(transform(self.templatePrefix))
+        res.append(transform(self.nestedName))
+        return ''.join(res)
+
 
 class SymbolLookupResult:
     def __init__(self, symbols, parentSymbol, identOrOp, templateParams, templateArgs):
@@ -4312,7 +4322,7 @@ class Symbol:
 
     def find_name(self, nestedName, templateDecls, typ, templateShorthand,
                   matchSelf, recurseInAnon):
-        # type: (ASTNestedName, List[Any], str, bool, bool, bool) -> Symbol
+        # type: (ASTNestedName, List[Any], str, bool, bool, bool) -> List[Symbol]
         # templateShorthand: missing template parameter lists for templates is ok
 
         def onMissingQualifiedSymbol(parentSymbol, identOrOp, templateParams, templateArgs):
@@ -4335,18 +4345,19 @@ class Symbol:
             # if it was a part of the qualification that could not be found
             return None
 
-        # TODO: hmm, what if multiple symbols match?
-        try:
-            return next(lookupResult.symbols)
-        except StopIteration:
-            pass
+        res = list(lookupResult.symbols)
+        if len(res) != 0:
+            return res
 
         # try without template params and args
         symbol = lookupResult.parentSymbol._find_first_named_symbol(
             lookupResult.identOrOp, None, None,
             templateShorthand=templateShorthand, matchSelf=matchSelf,
             recurseInAnon=recurseInAnon, correctPrimaryTemplateArgs=False)
-        return symbol
+        if symbol is not None:
+            return [symbol]
+        else:
+            return None
 
     def find_declaration(self, declaration, typ, templateShorthand,
                          matchSelf, recurseInAnon):
@@ -4386,6 +4397,8 @@ class Symbol:
                              docname='fakeDocnameForQuery')
         queryId = declaration.get_newest_id()
         for symbol in symbols:
+            if symbol.declaration is None:
+                continue
             candId = symbol.declaration.get_newest_id()
             if candId == queryId:
                 querySymbol.remove()
@@ -6695,6 +6708,143 @@ class CPPNamespacePopObject(SphinxDirective):
         return []
 
 
+class AliasNode(nodes.Element):
+    def __init__(self, sig, warnEnv):
+        """
+        :param sig: The name or function signature to alias.
+        :param warnEnv: An object which must have the following attributes:
+            env: a Sphinx environment
+            whatever DefinitionParser requires of warnEnv
+        """
+        super().__init__()
+        self.sig = sig
+        env = warnEnv.env
+        if 'cpp:parent_symbol' not in env.temp_data:
+            root = env.domaindata['cpp']['root_symbol']
+            env.temp_data['cpp:parent_symbol'] = root
+        self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
+        try:
+            parser = DefinitionParser(sig, warnEnv, warnEnv.env.config)
+            self.ast, self.isShorthand = parser.parse_xref_object()
+            parser.assert_end()
+        except DefinitionError as e:
+            warnEnv.warn(e)
+            self.ast = None
+
+
+class AliasTransform(SphinxTransform):
+    default_priority = ReferencesResolver.default_priority - 1
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        for node in self.document.traverse(AliasNode):
+            sig = node.sig
+            ast = node.ast
+            if ast is None:
+                # could not be parsed, so stop here
+                signode = addnodes.desc_signature(sig, '')
+                signode['first'] = False
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+                node.replace_self(signode)
+                continue
+
+            isShorthand = node.isShorthand
+            parentKey = node.parentKey
+            rootSymbol = self.env.domains['cpp'].data['root_symbol']
+            parentSymbol = rootSymbol.direct_lookup(parentKey)
+            if not parentSymbol:
+                print("Target: ", sig)
+                print("ParentKey: ", parentKey)
+                print(rootSymbol.dump(1))
+            assert parentSymbol  # should be there
+
+            symbols = []  # type: List[Symbol]
+            if isShorthand:
+                ns = ast  # type: ASTNamespace
+                name = ns.nestedName
+                if ns.templatePrefix:
+                    templateDecls = ns.templatePrefix.templates
+                else:
+                    templateDecls = []
+                symbols = parentSymbol.find_name(name, templateDecls, 'any',
+                                                 templateShorthand=True,
+                                                 matchSelf=True, recurseInAnon=True)
+                if symbols is None:
+                    symbols = []
+            else:
+                decl = ast  # type: ASTDeclaration
+                name = decl.name
+                s = parentSymbol.find_declaration(decl, 'any',
+                                                  templateShorthand=True,
+                                                  matchSelf=True, recurseInAnon=True)
+                if s is not None:
+                    symbols.append(s)
+
+            symbols = [s for s in symbols if s.declaration is not None]
+
+            if len(symbols) == 0:
+                signode = addnodes.desc_signature(sig, '')
+                signode['first'] = False
+                node.append(signode)
+                signode.clear()
+                signode += addnodes.desc_name(sig, sig)
+
+                logger.warning("Could not find C++ declaration for alias '%s'." % ast,
+                               location=node)
+                node.replace_self(signode)
+            else:
+                nodes = []
+                options = dict()
+                options['tparam-line-spec'] = False
+                for s in symbols:
+                    signode = addnodes.desc_signature(sig, '')
+                    signode['first'] = False
+                    nodes.append(signode)
+                    s.declaration.describe_signature(signode, 'markName', self.env, options)
+                node.replace_self(nodes)
+
+
+class CPPAliasObject(ObjectDescription):
+    option_spec = {}  # type: Dict
+
+    def warn(self, msg):
+        # type: (Union[str, Exception]) -> None
+        self.state_machine.reporter.warning(msg, line=self.lineno)
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        """
+        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        Each alias signature may expand into multiple real signatures (an overload set).
+        The code is therefore based on the ObjectDescription version.
+        """
+        if ':' in self.name:
+            self.domain, self.objtype = self.name.split(':', 1)
+        else:
+            self.domain, self.objtype = '', self.name
+
+        node = addnodes.desc()
+        node.document = self.state.document
+        node['domain'] = self.domain
+        # 'desctype' is a backwards compatible attribute
+        node['objtype'] = node['desctype'] = self.objtype
+        node['noindex'] = True
+
+        self.names = []  # type: List[str]
+        signatures = self.get_signatures()
+        for i, sig in enumerate(signatures):
+            node.append(AliasNode(sig, self))
+
+        contentnode = addnodes.desc_content()
+        node.append(contentnode)
+        self.before_content()
+        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        self.env.temp_data['object'] = None
+        self.after_content()
+        return [node]
+
+
 class CPPXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
@@ -6790,7 +6940,8 @@ class CPPDomain(Domain):
         'enumerator': CPPEnumeratorObject,
         'namespace': CPPNamespaceObject,
         'namespace-push': CPPNamespacePushObject,
-        'namespace-pop': CPPNamespacePopObject
+        'namespace-pop': CPPNamespacePopObject,
+        'alias': CPPAliasObject
     }
     roles = {
         'any': CPPXRefRole(),
@@ -6917,9 +7068,11 @@ class CPPDomain(Domain):
                 templateDecls = ns.templatePrefix.templates
             else:
                 templateDecls = []
-            s = parentSymbol.find_name(name, templateDecls, typ,
-                                       templateShorthand=True,
-                                       matchSelf=True, recurseInAnon=True)
+            symbols = parentSymbol.find_name(name, templateDecls, typ,
+                                             templateShorthand=True,
+                                             matchSelf=True, recurseInAnon=True)
+            # just refer to the arbitrarily first symbol
+            s = None if symbols is None else symbols[0]
         else:
             decl = ast  # type: ASTDeclaration
             name = decl.name
@@ -7058,6 +7211,7 @@ def setup(app):
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_post_transform(AliasTransform)
 
     return {
         'version': 'builtin',
