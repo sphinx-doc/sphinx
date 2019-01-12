@@ -35,7 +35,7 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils
-from sphinx.util import import_object
+from sphinx.util import import_object, progress_message
 from sphinx.util import logging
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.build_phase import BuildPhase
@@ -230,8 +230,8 @@ class Sphinx:
         self.preload_builder(buildername)
 
         if not path.isdir(outdir):
-            logger.info(__('making output directory...'))
-            ensuredir(outdir)
+            with progress_message(__('making output directory')):
+                ensuredir(outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
@@ -294,11 +294,10 @@ class Sphinx:
             self.env.find_files(self.config, self.builder)
         else:
             try:
-                logger.info(bold(__('loading pickled environment... ')), nonl=True)
-                with open(filename, 'rb') as f:
-                    self.env = pickle.load(f)
-                    self.env.setup(self)
-                logger.info(__('done'))
+                with progress_message(__('loading pickled environment')):
+                    with open(filename, 'rb') as f:
+                        self.env = pickle.load(f)
+                        self.env.setup(self)
             except Exception as err:
                 logger.info(__('failed: %s'), err)
                 self._init_env(freshenv=True)
