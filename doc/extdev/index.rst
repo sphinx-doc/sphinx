@@ -275,6 +275,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``docutils.nodes.abbreviation``
 
+   * - ``sphinx.builders.epub3.Epub3Builder.validate_config_value()``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.epub3.validate_config_values()``
+
    * - ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
      - 2.0
      - 4.0
