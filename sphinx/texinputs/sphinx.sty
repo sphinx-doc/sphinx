@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/12/16 v1.8.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2019/01/12 v1.8.4 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -716,10 +716,38 @@
       \setbox\spx@image@box\box\voidb@x % clear memory
       \includegraphics[#1,width=\linewidth]{#2}%
     \else
+      \setbox\spx@image@box\box\voidb@x % clear memory
       \includegraphics[#1]{#2}%
     \fi
   \fi
 }
+% \sphinxsafeincludegraphics resizes images larger than the line width,
+% or taller than about the text height (whether or not height/width options
+% were used). This is requested to avoid a crash with \MakeFramed as used by
+% sphinxShadowBox (topic/contents) and sphinxheavybox (admonitions), and also
+% by sphinxVerbatim (but a priori no image inclusion there).
+\newdimen\spx@image@maxheight
+% default maximal setting will get reduced by sphinxShadowBox/sphinxheavybox
+\AtBeginDocument{\spx@image@maxheight\textheight}
+\newcommand*{\sphinxsafeincludegraphics}[2][]{%
+    \gdef\spx@includegraphics@options{#1}%
+    \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
+    \in@false
+    \ifdim \wd\spx@image@box>\linewidth
+      \g@addto@macro\spx@includegraphics@options{,width=\linewidth}%
+      \in@true
+    \fi
+    % no rotation, no need to worry about depth
+    \ifdim \ht\spx@image@box>\spx@image@maxheight
+      \g@addto@macro\spx@includegraphics@options{,height=\spx@image@maxheight}%
+      \in@true
+    \fi
+    \ifin@
+      \g@addto@macro\spx@includegraphics@options{,keepaspectratio}%
+    \fi
+    \setbox\spx@image@box\box\voidb@x % clear memory
+    \expandafter\includegraphics\expandafter[\spx@includegraphics@options]{#2}%
+}%
 
 
 %% FIGURE IN TABLE
@@ -1339,6 +1367,12 @@
 % could nest if LaTeX writer authorized it
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
+   \advance\spx@image@maxheight
+   -\dimexpr2\sphinxshadowrule
+           +2\sphinxshadowsep
+           +\sphinxshadowsize
+           +\baselineskip\relax
+   \let\sphinxincludegraphics\sphinxsafeincludegraphics
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
@@ -1421,6 +1455,11 @@
 \newenvironment{sphinxheavybox}{\par
    \setlength{\FrameRule}{\spx@notice@border}%
    \setlength{\FrameSep}{\dimexpr.6\baselineskip-\FrameRule\relax}
+   \advance\spx@image@maxheight
+   -\dimexpr2\FrameRule
+           +2\FrameSep
+           +\baselineskip\relax % will happen again if nested, needed indeed!
+   \let\sphinxincludegraphics\sphinxsafeincludegraphics
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
