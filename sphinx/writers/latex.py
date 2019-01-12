@@ -22,10 +22,9 @@ from docutils import nodes, writers
 
 from sphinx import addnodes
 from sphinx import highlighting
-from sphinx.builders.latex.nodes import (
-    HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
 )
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
@@ -2603,4 +2602,22 @@ class LaTeXTranslator(SphinxTranslator):
 
 
 # Import old modules here for compatibility
-import sphinx.builders.latex.compat  # NOQA
+from sphinx.builders.latex.transforms import URI_SCHEMES, ShowUrlsTransform  # NOQA
+from sphinx.builders.latex.util import ExtBabel  # NOQA
+
+
+deprecated_alias('sphinx.writers.latex',
+                 {
+                     'ShowUrlsTransform': ShowUrlsTransform,
+                     'URI_SCHEMES': URI_SCHEMES,
+                 },
+                 RemovedInSphinx30Warning)
+deprecated_alias('sphinx.writers.latex',
+                 {
+                     'ExtBabel': ExtBabel,
+                 },
+                 RemovedInSphinx40Warning)
+
+# FIXME: Workaround to avoid circular import
+# refs: https://github.com/sphinx-doc/sphinx/issues/5433
+from sphinx.builders.latex.nodes import HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext  # NOQA
