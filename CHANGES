@@ -175,6 +175,7 @@ Bugs fixed
 * LaTeX: authors are not shown if :confval:`latex_documents` omitted
 * HTML: Invalid HTML5 file is generated for a glossary having multiple terms for
   one description (refs: #4611)
+* QtHelp: OS dependent path separator is used in .qhp file
 
 Testing
 --------

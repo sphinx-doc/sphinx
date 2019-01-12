@@ -24,7 +24,7 @@ from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import NodeMatcher
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import canon_path, make_filename
 from sphinx.util.template import SphinxRenderer
 
 if False:
@@ -260,7 +260,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             for fn in sorted(files):
                 if (resourcedir and not fn.endswith('.js')) or fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
-                    project_files.append(filename)
+                    project_files.append(canon_path(filename))
 
         return project_files
 
