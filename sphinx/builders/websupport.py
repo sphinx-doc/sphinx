@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.websupport
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Builder for the web support package.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,7 +15,7 @@ if False:
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     try:
         from sphinxcontrib.websupport.builder import WebSupportBuilder
         app.add_builder(WebSupportBuilder)

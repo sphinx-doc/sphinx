@@ -26,18 +26,27 @@
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= fvset %>
 <%= geometry %>
-<%= usepackages %>
+
+<%- for name, option in packages %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= hyperref %>
 <%= contentsname %>
-<%= numfig_format %>
-<%= translatablestrings %>
-<%= pageautorefname %>
+\usepackage{sphinxmessages}
 <%= tocdepth %>
 <%= secnumdepth %>
 <%= preamble %>
@@ -46,12 +55,27 @@
 \date{<%= date %>}
 \release{<%= release %>}
 \author{<%= author %>}
-\newcommand{\sphinxlogo}{<%= logo %>}
-\renewcommand{\releasename}{<%= releasename %>}
+<%- if logofilename %>
+\newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
+<%- else %>
+\newcommand{\sphinxlogo}{\vbox{}}
+<%- endif %>
+<%- if releasename or release %>
+\renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
+<%- else %>
+\renewcommand{\releasename}{}
+<%- endif %>
 <%= makeindex %>
+\begin{document}
+<%= shorthandoff %>
+\pagestyle{empty}
+<%= maketitle %>
+\pagestyle{plain}
+<%= tableofcontents %>
+\pagestyle{normal}
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
-\renewcommand{\indexname}{<%= indexname %>}
+\renewcommand{\indexname}{<%= _('Index') | e %>}
 <%= printindex %>
 \end{document}

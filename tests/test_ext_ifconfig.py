@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_ifconfig
     ~~~~~~~~~~~~~~~~~
 
     Test sphinx.ext.ifconfig extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

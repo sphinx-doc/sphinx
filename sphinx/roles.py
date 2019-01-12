@@ -1,18 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.roles
     ~~~~~~~~~~~~
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 from docutils import nodes, utils
-from six import iteritems
 
 from sphinx import addnodes
 from sphinx.errors import SphinxError
@@ -27,6 +25,7 @@ if False:
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 generic_docroles = {
@@ -45,7 +44,7 @@ generic_docroles = {
 
 # -- generic cross-reference role ----------------------------------------------
 
-class XRefRole(object):
+class XRefRole:
     """
     A generic cross-referencing role.  To create a callable that can be used as
     a role function, create an instance of this class.
@@ -69,12 +68,12 @@ class XRefRole(object):
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
 
-    nodeclass = addnodes.pending_xref  # type: Type[nodes.Node]
-    innernodeclass = nodes.literal
+    nodeclass = addnodes.pending_xref   # type: Type[nodes.Element]
+    innernodeclass = nodes.literal      # type: Type[nodes.TextElement]
 
     def __init__(self, fix_parens=False, lowercase=False,
                  nodeclass=None, innernodeclass=None, warn_dangling=False):
-        # type: (bool, bool, Type[nodes.Node], Type[nodes.Node], bool) -> None
+        # type: (bool, bool, Type[nodes.Element], Type[nodes.TextElement], bool) -> None
         self.fix_parens = fix_parens
         self.lowercase = lowercase
         self.warn_dangling = warn_dangling
@@ -84,7 +83,7 @@ class XRefRole(object):
             self.innernodeclass = innernodeclass
 
     def _fix_parens(self, env, has_explicit_title, title, target):
-        # type: (BuildEnvironment, bool, unicode, unicode) -> Tuple[unicode, unicode]
+        # type: (BuildEnvironment, bool, str, str) -> Tuple[str, str]
         if not has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -99,7 +98,7 @@ class XRefRole(object):
 
     def __call__(self, typ, rawtext, text, lineno, inliner,
                  options={}, content=[]):
-        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         env = inliner.document.settings.env
         if not typ:
             typ = env.temp_data.get('default_role')
@@ -110,7 +109,7 @@ class XRefRole(object):
         else:
             typ = typ.lower()
         if ':' not in typ:
-            domain, role = '', typ  # type: unicode, unicode
+            domain, role = '', typ
             classes = ['xref', role]
         else:
             domain, role = typ.split(':', 1)
@@ -121,8 +120,7 @@ class XRefRole(object):
             if self.fix_parens:
                 text, tgt = self._fix_parens(env, False, text, "")
             innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode,
-                                     is_ref=False)
+            return self.result_nodes(inliner.document, env, innernode, is_ref=False)
         # split title and target in role content
         has_explicit_title, title, target = split_explicit_title(text)
         title = utils.unescape(title)
@@ -137,9 +135,8 @@ class XRefRole(object):
         refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
                                  refexplicit=has_explicit_title)
         # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)  # type: ignore
-        title, target = self.process_link(
-            env, refnode, has_explicit_title, title, target)
+        set_role_source_info(inliner, lineno, refnode)
+        title, target = self.process_link(env, refnode, has_explicit_title, title, target)
         # now that the target and title are finally determined, set them
         refnode['reftarget'] = target
         refnode += self.innernodeclass(rawtext, title, classes=classes)
@@ -152,7 +149,7 @@ class XRefRole(object):
     # methods that can be overwritten
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
         """Called after parsing title and target text, and creating the
         reference node (given in *refnode*).  This method can alter the
         reference node and must return a new (or the same) ``(title, target)``
@@ -161,7 +158,7 @@ class XRefRole(object):
         return title, ws_re.sub(' ', target)
 
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.document, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
@@ -172,16 +169,15 @@ class XRefRole(object):
 
 class AnyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # type: (BuildEnvironment, nodes.reference, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
-        result = XRefRole.process_link(self, env, refnode, has_explicit_title,
-                                       title, target)
+        # type: (BuildEnvironment, nodes.Element, bool, str, str) -> Tuple[str, str]
+        result = super().process_link(env, refnode, has_explicit_title, title, target)
         # add all possible context info (i.e. std:program, py:module etc.)
         refnode.attributes.update(env.ref_context)
         return result
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
     if not typ:
@@ -201,7 +197,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
              targetid, '', None)]
-        anchor = ''  # type: unicode
+        anchor = ''
         anchorindex = target.find('#')
         if anchorindex > 0:
             target, anchor = target[:anchorindex], target[anchorindex:]
@@ -250,7 +246,7 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -260,8 +256,8 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
     text = utils.unescape(text)
     if typ == 'menuselection':
-        text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
-    spans = _amp_re.split(text)  # type: ignore
+        text = text.replace('-->', '\N{TRIANGULAR BULLET}')
+    spans = _amp_re.split(text)
 
     node = nodes.inline(rawtext=rawtext)
     for i, span in enumerate(spans):
@@ -289,7 +285,7 @@ parens_re = re.compile(r'(\\*{|\\*})')
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -341,20 +337,20 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     text = utils.unescape(text)
-    m = _abbr_re.search(text)  # type: ignore
+    m = _abbr_re.search(text)
     if m is None:
-        return [addnodes.abbreviation(text, text, **options)], []
+        return [nodes.abbreviation(text, text, **options)], []
     abbr = text[:m.start()].strip()
     expl = m.group(1)
     options = options.copy()
     options['explanation'] = expl
-    return [addnodes.abbreviation(abbr, abbr, **options)], []
+    return [nodes.abbreviation(abbr, abbr, **options)], []
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+    # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     # create new reference target
     env = inliner.document.settings.env
     targetid = 'index-%s' % env.new_serialno('index')
@@ -377,7 +373,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
-    set_role_source_info(inliner, lineno, indexnode)  # type: ignore
+    set_role_source_info(inliner, lineno, indexnode)
     textnode = nodes.Text(title, title)
     return [indexnode, targetnode, textnode], []
 
@@ -396,19 +392,19 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
-}
+}  # type: Dict[str, RoleFunction]
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     from docutils.parsers.rst import roles
 
-    for rolename, nodeclass in iteritems(generic_docroles):
+    for rolename, nodeclass in generic_docroles.items():
         generic = roles.GenericRole(rolename, nodeclass)
         role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
         roles.register_local_role(rolename, role)
 
-    for rolename, func in iteritems(specific_docroles):
+    for rolename, func in specific_docroles.items():
         roles.register_local_role(rolename, func)
 
     return {

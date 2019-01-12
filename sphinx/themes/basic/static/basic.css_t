@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- basic theme.
  *
- * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -79,6 +79,10 @@ div.sphinxsidebar input {
     border: 1px solid #98dbcc;
     font-family: sans-serif;
     font-size: 1em;
+}
+
+div.sphinxsidebar #searchbox form.search {
+    overflow: hidden;
 }
 
 div.sphinxsidebar #searchbox input[type="text"] {

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.addnodes
     ~~~~~~~~~~~~~~~
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,14 +12,15 @@ import warnings
 
 from docutils import nodes
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 
 if False:
     # For type annotation
-    from typing import List, Sequence  # NOQA
+    from typing import Any, Dict, List, Sequence  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
-class translatable(object):
+class translatable(nodes.Node):
     """Node which supports translation.
 
     The translation goes forward with following steps:
@@ -40,12 +40,12 @@ class translatable(object):
         raise NotImplementedError
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         """Apply translated message."""
         raise NotImplementedError
 
     def extract_original_messages(self):
-        # type: () -> Sequence[unicode]
+        # type: () -> Sequence[str]
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -53,7 +53,7 @@ class translatable(object):
         raise NotImplementedError
 
 
-class not_smartquotable(object):
+class not_smartquotable:
     """A node which does not support smart-quotes."""
     support_smartquotes = False
 
@@ -67,12 +67,12 @@ class toctree(nodes.General, nodes.Element, translatable):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         if 'rawcaption' in self:
             return [self['rawcaption']]
         else:
@@ -106,6 +106,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     It should only be used in a ``desc_signature`` with ``is_multiline`` set.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
+    sphinx_cpp_tagname = ''
 
 
 # nodes to use within a desc_signature or desc_signature_line
@@ -125,8 +126,8 @@ class desc_type(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
-        # type: () -> unicode
-        return ' -> ' + nodes.TextElement.astext(self)
+        # type: () -> str
+        return ' -> ' + super().astext()
 
 
 class desc_name(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -147,8 +148,8 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     child_text_separator = ', '
 
     def astext(self):
-        # type: () -> unicode
-        return '[' + nodes.TextElement.astext(self) + ']'
+        # type: () -> str
+        return '[' + super().astext() + ']'
 
 
 class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
@@ -205,10 +206,10 @@ class math(nodes.math):
         if key == 'latex' and 'latex' not in self.attributes:
             warnings.warn("math node for Sphinx was replaced by docutils'. "
                           "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
-            return nodes.math.__getitem__(self, key)
+            return super().__getitem__(key)
 
 
 class math_block(nodes.math_block):
@@ -224,10 +225,10 @@ class math_block(nodes.math_block):
         if key == 'latex' and 'latex' not in self.attributes:
             warnings.warn("displaymath node for Sphinx was replaced by docutils'. "
                           "Therefore please use ``node.astext()`` to get an equation instead.",
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             return self.astext()
         else:
-            return nodes.math_block.__getitem__(self, key)
+            return super().__getitem__(key)
 
 
 class displaymath(math_block):
@@ -251,8 +252,8 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
     *entrytype* is one of "single", "pair", "double", "triple".
 
-    *key* is categolziation characters (usually it is single character) for
-    general index page. For the detail of this, please see also:
+    *key* is categorization characters (usually a single character) for
+    general index page. For the details of this, please see also:
     :rst:dir:`glossary` and issue #2320.
     """
 
@@ -307,6 +308,7 @@ class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
     """Node for meta directive -- same as docutils' standard meta node,
     but pickleable.
     """
+    rawcontent = None
 
 
 # inline nodes
@@ -340,15 +342,65 @@ class literal_strong(nodes.strong, not_smartquotable):
     """
 
 
-class abbreviation(nodes.Inline, nodes.TextElement):
-    """Node for abbreviations with explanations."""
+class abbreviation(nodes.abbreviation):
+    """Node for abbreviations with explanations.
+
+    .. deprecated:: 2.0
+    """
+
+    def __init__(self, rawsource='', text='', *children, **attributes):
+        # type: (str, str, *nodes.Node, **Any) -> None
+        warnings.warn("abbrevition node for Sphinx was replaced by docutils'.",
+                      RemovedInSphinx40Warning, stacklevel=2)
+
+        super().__init__(rawsource, text, *children, **attributes)
 
 
 class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-# make the new nodes known to docutils; needed because the HTML writer will
-# choke at some point if these are not added
-nodes._add_node_class_names(k for k in globals().keys()
-                            if k != 'nodes' and k[0] != '_')
+def setup(app):
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_node(toctree)
+    app.add_node(desc)
+    app.add_node(desc_signature)
+    app.add_node(desc_signature_line)
+    app.add_node(desc_addname)
+    app.add_node(desc_type)
+    app.add_node(desc_returns)
+    app.add_node(desc_name)
+    app.add_node(desc_parameterlist)
+    app.add_node(desc_parameter)
+    app.add_node(desc_optional)
+    app.add_node(desc_annotation)
+    app.add_node(desc_content)
+    app.add_node(versionmodified)
+    app.add_node(seealso)
+    app.add_node(productionlist)
+    app.add_node(production)
+    app.add_node(displaymath)
+    app.add_node(index)
+    app.add_node(centered)
+    app.add_node(acks)
+    app.add_node(hlist)
+    app.add_node(hlistcol)
+    app.add_node(compact_paragraph)
+    app.add_node(glossary)
+    app.add_node(only)
+    app.add_node(start_of_file)
+    app.add_node(highlightlang)
+    app.add_node(tabular_col_spec)
+    app.add_node(meta)
+    app.add_node(pending_xref)
+    app.add_node(number_reference)
+    app.add_node(download_reference)
+    app.add_node(literal_emphasis)
+    app.add_node(literal_strong)
+    app.add_node(manpage)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

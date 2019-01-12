@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.collectors.title
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The title collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,18 +25,18 @@ class TitleCollector(EnvironmentCollector):
     """title collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.titles.pop(docname, None)
         env.longtitles.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Add a title node to the document (just copy the first section title),
         and store that title in the environment.
         """

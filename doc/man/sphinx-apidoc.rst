@@ -40,7 +40,7 @@ Options
 
 .. option:: -f, --force
 
-   Force overwritting of any existing generated files.
+   Force overwriting of any existing generated files.
 
 .. option:: -l, --follow-links
 
@@ -57,6 +57,10 @@ Options
 .. option:: -d <MAXDEPTH>
 
    Maximum depth for the generated table of contents file.
+
+.. option:: --tocfile
+
+   Filename for a table of contents file. Defaults to ``modules``.
 
 .. option:: -T, --no-toc
 

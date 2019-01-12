@@ -16,6 +16,8 @@ figures
 
    labeled figure
 
+   with a legend
+
 code-blocks
 -----------
 

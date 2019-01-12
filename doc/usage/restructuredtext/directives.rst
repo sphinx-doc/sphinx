@@ -654,7 +654,7 @@ Glossary
 .. rst:directive:: .. glossary::
 
    This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referencable with the
+   definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -1062,6 +1062,15 @@ or use Python raw strings (``r"raw"``).
          \end{eqnarray}
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
+
+.. seealso::
+
+   :ref:`math-support`
+      Rendering options for math with HTML builders.
+
+   :confval:`latex_engine`
+      Explains how to configure LaTeX builder to support Unicode literals in
+      math mark-up.
 
 
 Grammar production displays

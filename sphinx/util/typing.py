@@ -1,27 +1,31 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.typing
     ~~~~~~~~~~~~~~~~~~
 
     The composit types for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from typing import Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
-from six import PY3
 
 
-if PY3:
-    unicode = str
+# An entry of Directive.option_spec
+DirectiveOption = Callable[[str], Any]
+
+# Text like nodes which are initialized with text and rawsource
+TextlikeNode = Union[nodes.Text, nodes.TextElement]
 
 # common role functions
-RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
-                        Tuple[List[nodes.Node], List[nodes.Node]]]
+RoleFunction = Callable[[str, str, str, int, Inliner, Dict, List[str]],
+                        Tuple[List[nodes.Node], List[nodes.system_message]]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
-TitleGetter = Callable[[nodes.Node], unicode]
+TitleGetter = Callable[[nodes.Node], str]
+
+# inventory data on memory
+Inventory = Dict[str, Dict[str, Tuple[str, str, str, str]]]

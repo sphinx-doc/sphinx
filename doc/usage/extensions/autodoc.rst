@@ -45,6 +45,10 @@ docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 .. _NumPy:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
+
+Directives
+----------
+
 :mod:`autodoc` provides several directives that are versions of the usual
 :rst:dir:`py:module`, :rst:dir:`py:class` and so forth.  On parsing time, they
 import the corresponding module and extract the docstring of the given objects,
@@ -114,8 +118,17 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
         .. autoclass:: Noodle
            :members: eat, slurp
 
-   * If you want to make the ``members`` option (or other flag options described
-     below) the default, see :confval:`autodoc_default_flags`.
+   * If you want to make the ``members`` option (or other options described
+     below) the default, see :confval:`autodoc_default_options`.
+
+     .. tip::
+
+        You can use a negated form, :samp:`'no-{flag}'`, as an option of
+        autodoc directive, to disable it temporarily.  For example::
+
+           .. automodule:: foo
+              :no-undoc-members:
+
 
    * Members without docstrings will be left out, unless you give the
      ``undoc-members`` flag option::
@@ -297,6 +310,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       well-behaved decorating functions.
 
 
+Configuration
+-------------
+
 There are also new config values that you can set:
 
 .. confval:: autoclass_content
@@ -341,19 +357,38 @@ There are also new config values that you can set:
    This value is a list of autodoc directive flags that should be automatically
    applied to all autodoc directives.  The supported flags are ``'members'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'`` and ``'ignore-module-all'``.
-
-   If you set one of these flags in this config value, you can use a negated
-   form, :samp:`'no-{flag}'`, in an autodoc directive, to disable it once.
-   For example, if ``autodoc_default_flags`` is set to ``['members',
-   'undoc-members']``, and you write a directive like this::
-
-      .. automodule:: foo
-         :no-undoc-members:
-
-   the directive will be interpreted as if only ``:members:`` was given.
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``
+   and ``'exclude-members'``.
 
    .. versionadded:: 1.0
+
+   .. deprecated:: 1.8
+
+      Integrated into :confval:`autodoc_default_options`.
+
+.. confval:: autodoc_default_options
+
+   The default options for autodoc directives.  They are applied to all autodoc
+   directives automatically.  It must be a dictionary which maps option names
+   to the values.  For example::
+
+       autodoc_default_options = {
+           'members': 'var1, var2',
+           'member-order': 'bysource',
+           'special-members': '__init__',
+           'undoc-members': None,
+           'exclude-members': '__weakref__'
+       }
+
+   Setting ``None`` is equivalent to giving the option name in the list format
+   (i.e. it means "yes/true/on").
+
+   The supported options are ``'members'``, ``'member-order'``,
+   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'`` and
+   ``'exclude-members'``.
+
+   .. versionadded:: 1.8
 
 .. confval:: autodoc_docstring_signature
 
@@ -392,7 +427,7 @@ There are also new config values that you can set:
 
    This value controls the behavior of :option:`sphinx-build -W` during
    importing modules.
-   If ``False`` is given, autodoc forcely suppresses the error if the imported
+   If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
 
 .. confval:: autodoc_inherit_docstrings
@@ -404,6 +439,16 @@ There are also new config values that you can set:
    The default is ``True``.
 
    .. versionadded:: 1.7
+
+.. confval:: suppress_warnings
+   :noindex:
+
+   :mod:`autodoc` supports to suppress warning messages via
+   :confval:`suppress_warnings`.  It allows following warnings types in
+   addition:
+
+   * autodoc
+   * autodoc.import_object
 
 
 Docstring preprocessing

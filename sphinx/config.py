@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.config
     ~~~~~~~~~~~~~
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,11 +16,7 @@ from collections import OrderedDict
 from os import path, getenv
 from typing import Any, NamedTuple, Union
 
-from six import (
-    PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types, class_types
-)
-
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -31,52 +26,60 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Generator, Iterator, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
 
 CONFIG_FILENAME = 'conf.py'
-UNSERIALIZEABLE_TYPES = class_types + (types.ModuleType, types.FunctionType)
+UNSERIALIZABLE_TYPES = (type, types.ModuleType, types.FunctionType)
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
-
-if PY3:
-    unicode = str  # special alias for static typing...
 
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', Union[bool, unicode])])
+                                         ('rebuild', Union[bool, str])])
 
 
-#: represents the config value accepts any type of value.
-Any = object()
+def is_serializable(obj):
+    # type: (Any) -> bool
+    """Check if object is serializable or not."""
+    if isinstance(obj, UNSERIALIZABLE_TYPES):
+        return False
+    elif isinstance(obj, dict):
+        for key, value in obj.items():
+            if not is_serializable(key) or not is_serializable(value):
+                return False
+    elif isinstance(obj, (list, tuple, set)):
+        return all(is_serializable(i) for i in obj)
+
+    return True
 
 
-class ENUM(object):
+class ENUM:
     """represents the config value should be a one of candidates.
 
     Example:
         app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.candidates = candidates
 
     def match(self, value):
-        # type: (Union[unicode,List,Tuple]) -> bool
+        # type: (Union[str, List, Tuple]) -> bool
         if isinstance(value, (list, tuple)):
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
 
 
-string_classes = [text_type]  # type: List
-if PY2:
-    string_classes.append(binary_type)  # => [str, unicode]
+# RemovedInSphinx40Warning
+string_classes = [str]  # type: List
 
 
-class Config(object):
+class Config:
     """Configuration file abstraction.
 
     The config object makes the values of all config values available as
@@ -93,63 +96,63 @@ class Config(object):
     # If you add a value here, don't forget to include it in the
     # quickstart.py file template as well as in the docs!
 
-    config_values = dict(
+    config_values = {
         # general options
-        project = ('Python', 'env', []),
-        author = ('unknown', 'env', []),
-        copyright = ('', 'html', []),
-        version = ('', 'env', []),
-        release = ('', 'env', []),
-        today = ('', 'env', []),
+        'project': ('Python', 'env', []),
+        'author': ('unknown', 'env', []),
+        'copyright': ('', 'html', []),
+        'version': ('', 'env', []),
+        'release': ('', 'env', []),
+        'today': ('', 'env', []),
         # the real default is locale-dependent
-        today_fmt = (None, 'env', string_classes),
+        'today_fmt': (None, 'env', [str]),
 
-        language = (None, 'env', string_classes),
-        locale_dirs = (['locales'], 'env', []),
-        figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
+        'language': (None, 'env', [str]),
+        'locale_dirs': (['locales'], 'env', []),
+        'figure_language_filename': ('{root}.{language}{ext}', 'env', [str]),
 
-        master_doc = ('contents', 'env', []),
-        source_suffix = ({'.rst': 'restructuredtext'}, 'env', Any),
-        source_encoding = ('utf-8-sig', 'env', []),
-        source_parsers = ({}, 'env', []),
-        exclude_patterns = ([], 'env', []),
-        default_role = (None, 'env', string_classes),
-        add_function_parentheses = (True, 'env', []),
-        add_module_names = (True, 'env', []),
-        trim_footnote_reference_space = (False, 'env', []),
-        show_authors = (False, 'env', []),
-        pygments_style = (None, 'html', string_classes),
-        highlight_language = ('default', 'env', []),
-        highlight_options = ({}, 'env', []),
-        templates_path = ([], 'html', []),
-        template_bridge = (None, 'html', string_classes),
-        keep_warnings = (False, 'env', []),
-        suppress_warnings = ([], 'env', []),
-        modindex_common_prefix = ([], 'html', []),
-        rst_epilog = (None, 'env', string_classes),
-        rst_prolog = (None, 'env', string_classes),
-        trim_doctest_flags = (True, 'env', []),
-        primary_domain = ('py', 'env', [NoneType]),   # type: ignore
-        needs_sphinx = (None, None, string_classes),
-        needs_extensions = ({}, None, []),
-        manpages_url = (None, 'env', []),
-        nitpicky = (False, None, []),
-        nitpick_ignore = ([], None, []),
-        numfig = (False, 'env', []),
-        numfig_secnum_depth = (1, 'env', []),
-        numfig_format = ({}, 'env', []),  # will be initialized in init_numfig_format()
+        'master_doc': ('index', 'env', []),
+        'source_suffix': ({'.rst': 'restructuredtext'}, 'env', Any),
+        'source_encoding': ('utf-8-sig', 'env', []),
+        'source_parsers': ({}, 'env', []),
+        'exclude_patterns': ([], 'env', []),
+        'default_role': (None, 'env', [str]),
+        'add_function_parentheses': (True, 'env', []),
+        'add_module_names': (True, 'env', []),
+        'trim_footnote_reference_space': (False, 'env', []),
+        'show_authors': (False, 'env', []),
+        'pygments_style': (None, 'html', [str]),
+        'highlight_language': ('default', 'env', []),
+        'highlight_options': ({}, 'env', []),
+        'templates_path': ([], 'html', []),
+        'template_bridge': (None, 'html', [str]),
+        'keep_warnings': (False, 'env', []),
+        'suppress_warnings': ([], 'env', []),
+        'modindex_common_prefix': ([], 'html', []),
+        'rst_epilog': (None, 'env', [str]),
+        'rst_prolog': (None, 'env', [str]),
+        'trim_doctest_flags': (True, 'env', []),
+        'primary_domain': ('py', 'env', [NoneType]),   # type: ignore
+        'needs_sphinx': (None, None, [str]),
+        'needs_extensions': ({}, None, []),
+        'manpages_url': (None, 'env', []),
+        'nitpicky': (False, None, []),
+        'nitpick_ignore': ([], None, []),
+        'numfig': (False, 'env', []),
+        'numfig_secnum_depth': (1, 'env', []),
+        'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
 
-        math_number_all = (False, 'env', []),
-        math_eqref_format = (None, 'env', string_classes),
-        math_numfig = (True, 'env', []),
-        tls_verify = (True, 'env', []),
-        tls_cacerts = (None, 'env', []),
-        smartquotes = (True, 'env', []),
-        smartquotes_action = ('qDe', 'env', []),
-        smartquotes_excludes = ({'languages': ['ja'],
-                                 'builders': ['man', 'text']},
-                                'env', []),
-    )  # type: Dict[unicode, Tuple]
+        'math_number_all': (False, 'env', []),
+        'math_eqref_format': (None, 'env', [str]),
+        'math_numfig': (True, 'env', []),
+        'tls_verify': (True, 'env', []),
+        'tls_cacerts': (None, 'env', []),
+        'smartquotes': (True, 'env', []),
+        'smartquotes_action': ('qDe', 'env', []),
+        'smartquotes_excludes': ({'languages': ['ja'],
+                                  'builders': ['man', 'text']},
+                                 'env', []),
+    }  # type: Dict[str, Tuple]
 
     def __init__(self, *args):
         # type: (Any) -> None
@@ -157,10 +160,10 @@ class Config(object):
             # old style arguments: (dirname, filename, overrides, tags)
             warnings.warn('The argument of Config() class has been changed. '
                           'Use Config.read() to read configuration from conf.py.',
-                          RemovedInSphinx30Warning)
+                          RemovedInSphinx30Warning, stacklevel=2)
             dirname, filename, overrides, tags = args
             if dirname is None:
-                config = {}  # type: Dict[unicode, Any]
+                config = {}  # type: Dict[str, Any]
             else:
                 config = eval_config_file(path.join(dirname, filename), tags)
         else:
@@ -178,15 +181,15 @@ class Config(object):
         self.setup = config.get('setup', None)  # type: Callable
 
         if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], string_types):
+            if isinstance(overrides['extensions'], str):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])  # type: List[unicode]
+        self.extensions = config.get('extensions', [])  # type: List[str]
 
     @classmethod
     def read(cls, confdir, overrides=None, tags=None):
-        # type: (unicode, Dict, Tags) -> Config
+        # type: (str, Dict, Tags) -> Config
         """Create a Config object from configuration file."""
         filename = path.join(confdir, CONFIG_FILENAME)
         namespace = eval_config_file(filename, tags)
@@ -195,18 +198,18 @@ class Config(object):
     def check_types(self):
         # type: () -> None
         warnings.warn('Config.check_types() is deprecated. Use check_confval_types() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         check_confval_types(None, self)
 
     def check_unicode(self):
         # type: () -> None
         warnings.warn('Config.check_unicode() is deprecated. Use check_unicode() instead.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
         check_unicode(self)
 
     def convert_overrides(self, name, value):
-        # type: (unicode, Any) -> Any
-        if not isinstance(value, string_types):
+        # type: (str, Any) -> Any
+        if not isinstance(value, str):
             return value
         else:
             defvalue = self.values[name][0]
@@ -218,7 +221,7 @@ class Config(object):
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
                 return value.split(',')
-            elif isinstance(defvalue, integer_types):
+            elif isinstance(defvalue, int):
                 try:
                     return int(value)
                 except ValueError:
@@ -226,7 +229,7 @@ class Config(object):
                                      (value, name))
             elif hasattr(defvalue, '__call__'):
                 return value
-            elif defvalue is not None and not isinstance(defvalue, string_types):
+            elif defvalue is not None and not isinstance(defvalue, str):
                 raise ValueError(__('cannot override config setting %r with unsupported '
                                     'type, ignoring') % name)
             else:
@@ -250,7 +253,7 @@ class Config(object):
     def init_values(self):
         # type: () -> None
         config = self._raw_config
-        for valname, value in iteritems(self.overrides):
+        for valname, value in self.overrides.items():
             try:
                 if '.' in valname:
                     realvalname, key = valname.split('.', 1)
@@ -260,7 +263,7 @@ class Config(object):
                     logger.warning(__('unknown config value %r in override, ignoring'),
                                    valname)
                     continue
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     config[valname] = self.convert_overrides(valname, value)
                 else:
                     config[valname] = value
@@ -268,10 +271,10 @@ class Config(object):
                 logger.warning("%s", exc)
         for name in config:
             if name in self.values:
-                self.__dict__[name] = config[name]  # type: ignore
+                self.__dict__[name] = config[name]
 
     def __getattr__(self, name):
-        # type: (unicode) -> Any
+        # type: (str) -> Any
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
@@ -282,36 +285,36 @@ class Config(object):
         return default
 
     def __getitem__(self, name):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return getattr(self, name)
 
     def __setitem__(self, name, value):
-        # type: (unicode, Any) -> None
+        # type: (str, Any) -> None
         setattr(self, name, value)
 
     def __delitem__(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         delattr(self, name)
 
     def __contains__(self, name):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         return name in self.values
 
     def __iter__(self):
         # type: () -> Generator[ConfigValue, None, None]
-        for name, value in iteritems(self.values):
-            yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
+        for name, value in self.values.items():
+            yield ConfigValue(name, getattr(self, name), value[1])
 
     def add(self, name, default, rebuild, types):
-        # type: (unicode, Any, Union[bool, unicode], Any) -> None
+        # type: (str, Any, Union[bool, str], Any) -> None
         if name in self.values:
             raise ExtensionError(__('Config value %r already present') % name)
         else:
             self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):
-        # type: (Union[unicode, List[unicode]]) -> Iterator[ConfigValue]
-        if isinstance(rebuild, string_types):
+        # type: (Union[str, List[str]]) -> Iterator[ConfigValue]
+        if isinstance(rebuild, str):
             rebuild = [rebuild]
         return (value for value in self if value.rebuild in rebuild)
 
@@ -320,17 +323,17 @@ class Config(object):
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {}
-        for key, value in iteritems(self.__dict__):
-            if key.startswith('_') or isinstance(value, UNSERIALIZEABLE_TYPES):
+        for key, value in self.__dict__.items():
+            if key.startswith('_') or not is_serializable(value):
                 pass
             else:
                 __dict__[key] = value
 
         # create a picklable copy of values list
         __dict__['values'] = {}
-        for key, value in iteritems(self.values):  # type: ignore
+        for key, value in self.values.items():
             real_value = getattr(self, key)
-            if isinstance(real_value, UNSERIALIZEABLE_TYPES):
+            if not is_serializable(real_value):
                 # omit unserializable value
                 real_value = None
 
@@ -345,9 +348,9 @@ class Config(object):
 
 
 def eval_config_file(filename, tags):
-    # type: (unicode, Tags) -> Dict[unicode, Any]
+    # type: (str, Tags) -> Dict[str, Any]
     """Evaluate a config file."""
-    namespace = {}  # type: Dict[unicode, Any]
+    namespace = {}  # type: Dict[str, Any]
     namespace['__file__'] = filename
     namespace['tags'] = tags
 
@@ -356,9 +359,7 @@ def eval_config_file(filename, tags):
         try:
             execfile_(filename, namespace)
         except SyntaxError as err:
-            msg = __("There is a syntax error in your configuration file: %s")
-            if PY3:
-                msg += __("\nDid you change the syntax from 2.x to 3.x?")
+            msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err)
         except SystemExit:
             msg = __("The configuration file (or one of the modules it imports) "
@@ -379,7 +380,7 @@ def convert_source_suffix(app, config):
     * new style: a dict which maps from fileext to filetype
     """
     source_suffix = config.source_suffix
-    if isinstance(source_suffix, string_types):
+    if isinstance(source_suffix, str):
         # if str, considers as default filetype (None)
         #
         # The default filetype is determined on later step.
@@ -392,8 +393,8 @@ def convert_source_suffix(app, config):
         # if dict, convert it to OrderedDict
         config.source_suffix = OrderedDict(config.source_suffix)  # type: ignore
     else:
-        logger.warning(__("The config value `source_suffix' expected to "
-                          "a string, list of strings or dictionary. "
+        logger.warning(__("The config value `source_suffix' expects "
+                          "a string, list of strings, or dictionary. "
                           "But `%r' is given." % source_suffix))
 
 
@@ -421,7 +422,7 @@ def correct_copyright_year(app, config):
         for k in ('copyright', 'epub_copyright'):
             if k in config:
                 replace = r'\g<1>%s' % format_date('%Y')
-                config[k] = copyright_year_re.sub(replace, config[k])  # type: ignore
+                config[k] = copyright_year_re.sub(replace, config[k])
 
 
 def check_confval_types(app, config):
@@ -460,11 +461,18 @@ def check_confval_types(app, config):
                 continue  # at least we share a non-trivial base class
 
             if annotations:
-                msg = __("The config value `{name}' has type `{current.__name__}', "
-                         "expected to {permitted}.")
+                msg = __("The config value `{name}' has type `{current.__name__}'; "
+                         "expected {permitted}.")
+                wrapped_annotations = ["`{}'".format(c.__name__) for c in annotations]
+                if len(wrapped_annotations) > 2:
+                    permitted = "{}, or {}".format(
+                        ", ".join(wrapped_annotations[:-1]),
+                        wrapped_annotations[-1])
+                else:
+                    permitted = " or ".join(wrapped_annotations)
                 logger.warning(msg.format(name=confval.name,
                                           current=type(confval.value),
-                                          permitted=str([c.__name__ for c in annotations])))
+                                          permitted=permitted))
             else:
                 msg = __("The config value `{name}' has type `{current.__name__}', "
                          "defaults to `{default.__name__}'.")
@@ -478,21 +486,49 @@ def check_unicode(config):
     """check all string values for non-ASCII characters in bytestrings,
     since that can result in UnicodeErrors all over the place
     """
+    warnings.warn('sphinx.config.check_unicode() is deprecated.',
+                  RemovedInSphinx40Warning)
+
     nonascii_re = re.compile(br'[\x80-\xff]')
 
-    for name, value in iteritems(config._raw_config):
-        if isinstance(value, binary_type) and nonascii_re.search(value):
+    for name, value in config._raw_config.items():
+        if isinstance(value, bytes) and nonascii_re.search(value):
             logger.warning(__('the config value %r is set to a string with non-ASCII '
                               'characters; this can lead to Unicode errors occurring. '
-                              'Please use Unicode strings, e.g. %r.'), name, u'Content')
+                              'Please use Unicode strings, e.g. %r.'), name, 'Content')
+
+
+def check_primary_domain(app, config):
+    # type: (Sphinx, Config) -> None
+    primary_domain = config.primary_domain
+    if primary_domain and not app.registry.has_domain(primary_domain):
+        logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
+        config.primary_domain = None  # type: ignore
+
+
+def check_master_doc(app, env, added, changed, removed):
+    # type: (Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]) -> Set[str]
+    """Adjust master_doc to 'contents' to support an old project which does not have
+    no master_doc setting.
+    """
+    if (app.config.master_doc == 'index' and
+            'index' not in app.project.docnames and
+            'contents' in app.project.docnames):
+        logger.warning(__('Since v2.0, Sphinx uses "index" as master_doc by default. '
+                          'Please add "master_doc = \'contents\'" to your conf.py.'))
+        app.config.master_doc = "contents"  # type: ignore
+
+    return changed
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', convert_source_suffix)
     app.connect('config-inited', init_numfig_format)
     app.connect('config-inited', correct_copyright_year)
     app.connect('config-inited', check_confval_types)
+    app.connect('config-inited', check_primary_domain)
+    app.connect('env-get-outdated', check_master_doc)
 
     return {
         'version': 'builtin',

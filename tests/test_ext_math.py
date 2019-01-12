@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_math
     ~~~~~~~~~~~~~
 
     Test math extensions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,12 +22,10 @@ from sphinx.testing.util import assert_node
 def has_binary(binary):
     try:
         subprocess.check_output([binary])
-    except OSError as e:
-        if e.errno == errno.ENOENT:
-            # handle file not found error.
-            return False
-        else:
-            return True
+    except FileNotFoundError:
+        return False
+    except OSError:
+        pass
     return True
 
 
@@ -42,14 +39,14 @@ def test_jsmath(app, status, warning):
     assert '<div class="math notranslate nohighlight">\na^2 + b^2 = c^2</div>' in content
     assert ('<div class="math notranslate nohighlight">\n\\begin{split}a + 1 &lt; '
             'b\\end{split}</div>' in content)
-    assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-foo">'
+    assert ('<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-foo">'
             '\ne^{i\\pi} = 1</div>' in content)
-    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
-            u'title="Permalink to this equation">\xb6</a></span>'
-            u'<div class="math notranslate nohighlight" id="equation-math-0">\n'
-            u'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert ('<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
+            'title="Permalink to this equation">\xb6</a></span>'
+            '<div class="math notranslate nohighlight" id="equation-math-0">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math notranslate nohighlight">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math notranslate nohighlight">\na + 1 &lt; b</div>' in content
 
@@ -97,7 +94,7 @@ def test_mathjax_options(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
     assert ('<script async="async" integrity="sha384-0123456789" type="text/javascript" '
-            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?'
+            'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?'
             'config=TeX-AMS-MML_HTMLorMML"></script>' in content)
 
 
@@ -130,7 +127,7 @@ def test_math_number_all_mathjax(app, status, warning):
 def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'test.tex').text()
+    content = (app.outdir / 'python.tex').text()
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
              r'\\end{equation\*}')
@@ -173,7 +170,7 @@ def test_math_eqref_format_html(app, status, warning):
 def test_math_eqref_format_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'test.tex').text()
+    content = (app.outdir / 'python.tex').text()
     macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
              r'Eq.\\ref{equation:math:foo}.')
     assert re.search(macro, content, re.S)
@@ -255,7 +252,7 @@ def test_math_compat(app, status, warning):
                      [nodes.math_block, "E = mc^2"]))
 
 
-@pytest.mark.sphinx('html', testroot='basic',
+@pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.mathjax'],
                                    'mathjax_config': {'extensions': ['tex2jax.js']}})
 def test_mathjax_config(app, status, warning):
@@ -265,3 +262,22 @@ def test_mathjax_config(app, status, warning):
     assert ('<script type="text/x-mathjax-config">'
             'MathJax.Hub.Config({"extensions": ["tex2jax.js"]})'
             '</script>' in content)
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_is_not_installed_if_no_equations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert 'MathJax.js' not in content
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'extensions': ['sphinx.ext.jsmath'],
+                                   'jsmath_path': 'jsmath.js'})
+def test_jsmath_is_not_installed_if_no_equations(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    assert 'jsmath.js' not in content

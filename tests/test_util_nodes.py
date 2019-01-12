@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     test_util_nodes
     ~~~~~~~~~~~~~~~
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
+from typing import Any
 
 import pytest
 from docutils import frontend
@@ -17,7 +17,7 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 
 from sphinx.transforms import ApplySourceWorkaround
-from sphinx.util.nodes import extract_messages, clean_astext
+from sphinx.util.nodes import NodeMatcher, extract_messages, clean_astext
 
 
 def _transform(doctree):
@@ -48,6 +48,42 @@ def assert_node_count(messages, node_type, expect_count):
     assert count == expect_count, (
         "Count of %r in the %r is %d instead of %d"
         % (node_type, node_list, count, expect_count))
+
+
+def test_NodeMatcher():
+    doctree = nodes.document(None, None)
+    doctree += nodes.paragraph('', 'Hello')
+    doctree += nodes.paragraph('', 'Sphinx', block=1)
+    doctree += nodes.paragraph('', 'World', block=2)
+    doctree += nodes.literal_block('', 'blah blah blah', block=3)
+
+    # search by node class
+    matcher = NodeMatcher(nodes.paragraph)
+    assert len(doctree.traverse(matcher)) == 3
+
+    # search by multiple node classes
+    matcher = NodeMatcher(nodes.paragraph, nodes.literal_block)
+    assert len(doctree.traverse(matcher)) == 4
+
+    # search by node attribute
+    matcher = NodeMatcher(block=1)
+    assert len(doctree.traverse(matcher)) == 1
+
+    # search by node attribute (Any)
+    matcher = NodeMatcher(block=Any)
+    assert len(doctree.traverse(matcher)) == 3
+
+    # search by both class and attribute
+    matcher = NodeMatcher(nodes.paragraph, block=Any)
+    assert len(doctree.traverse(matcher)) == 2
+
+    # mismatched
+    matcher = NodeMatcher(nodes.title)
+    assert len(doctree.traverse(matcher)) == 0
+
+    # search with Any does not match to Text node
+    matcher = NodeMatcher(blah=Any)
+    assert len(doctree.traverse(matcher)) == 0
 
 
 @pytest.mark.parametrize(

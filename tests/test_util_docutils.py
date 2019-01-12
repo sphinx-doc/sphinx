@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_util_docutils
     ~~~~~~~~~~~~~~~~~~
 
     Tests util.utils functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

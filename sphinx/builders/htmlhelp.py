@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.htmlhelp
     ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -6,29 +5,31 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
-import codecs
+import html
 import os
+import warnings
 from os import path
 
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import htmlescape
+from sphinx.util.nodes import NodeMatcher
+from sphinx.util.osutil import make_filename_from_project
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from typing import Any, Dict, IO, List, Match, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -133,8 +134,9 @@ that  the  their  then  there  these  they  this  to
 was  will  with
 """.split()
 
-# The following list includes only languages supported by Sphinx.
-# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+# The following list includes only languages supported by Sphinx. See
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
+# for more.
 chm_locales = {
     # lang:   LCID,  encoding
     'ca':    (0x403, 'cp1252'),
@@ -169,6 +171,20 @@ chm_locales = {
 }
 
 
+def chm_htmlescape(s, quote=True):
+    # type: (str, bool) -> str
+    """
+    chm_htmlescape() is a wrapper of html.escape().
+    .hhc/.hhk files don't recognize hex escaping, we need convert
+    hex escaping to decimal escaping. for example: ``&#x27;`` -> ``&#39;``
+    html.escape() may generates a hex escaping ``&#x27;`` for single
+    quote ``'``, this wrapper fixes this.
+    """
+    s = html.escape(s, quote)
+    s = s.replace('&#x27;', '&#39;')    # re-escape as decimal
+    return s
+
+
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that also outputs Windows HTML help project, contents and
@@ -195,23 +211,25 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
-        # the output files for HTML help must be .html only
+        # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
+        super().init()
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
-        # type: (unicode, unicode, unicode) -> IO
+        # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
-                           self.encoding, 'xmlcharrefreplace')
+        warnings.warn('HTMLHelpBuilder.open_file() is deprecated.',
+                      RemovedInSphinx40Warning)
+        return open(path.join(outdir, basename), mode, encoding=self.encoding,
+                    errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
-        # type: (unicode, unicode, Dict, unicode) -> None
+        # type: (str, str, Dict, str) -> None
         ctx['encoding'] = self.encoding
 
     def handle_finish(self):
@@ -219,23 +237,25 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
                 node['target'] = '_blank'
 
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super().write_doc(docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('dumping stopword list...'))
-        with self.open_file(outdir, outname + '.stp') as f:
+        filename = path.join(outdir, outname + '.stp')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
         logger.info(__('writing project file...'))
-        with self.open_file(outdir, outname + '.hhp') as f:
+        filename = path.join(outdir, outname + '.hhp')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write(project_template % {
                 'outname': outname,
                 'title': self.config.html_title,
@@ -258,7 +278,8 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                               file=f)
 
         logger.info(__('writing TOC file...'))
-        with self.open_file(outdir, outname + '.hhc') as f:
+        filename = path.join(outdir, outname + '.hhc')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write(contents_header)
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
@@ -278,7 +299,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"', '&quot;')
+                    title = chm_htmlescape(node.astext(), True)
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -291,27 +312,24 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     for subnode in node:
                         write_toc(subnode, ullevel)
 
-            def istoctree(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, addnodes.compact_paragraph) and \
-                    'toctree' in node
-            for node in tocdoc.traverse(istoctree):
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
                 write_toc(node)
             f.write(contents_footer)
 
         logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
-        with self.open_file(outdir, outname + '.hhk') as f:
+        filename = path.join(outdir, outname + '.hhk')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
-                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
+                # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
                 def write_param(name, value):
-                    # type: (unicode, unicode) -> None
-                    item = '    <param name="%s" value="%s">\n' % \
-                        (name, value)
+                    # type: (str, str) -> None
+                    item = '    <param name="%s" value="%s">\n' % (name, value)
                     f.write(item)
-                title = htmlescape(title)
+                title = chm_htmlescape(title, True)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
@@ -335,12 +353,20 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('</UL>\n')
 
 
+def default_htmlhelp_basename(config):
+    # type: (Config) -> str
+    """Better default htmlhelp_basename setting."""
+    return make_filename_from_project(config.project) + 'doc'
+
+
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 
-    app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_basename', default_htmlhelp_basename, None)
+    app.add_config_value('htmlhelp_file_suffix', None, 'html', [str])
+    app.add_config_value('htmlhelp_link_suffix', None, 'html', [str])
 
     return {
         'version': 'builtin',

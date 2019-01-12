@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.imgconverter
     ~~~~~~~~~~~~~~~~~~~~~~~
 
     Image converter extension for Sphinx
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import locale
@@ -15,7 +14,6 @@ from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
-from sphinx.util.osutil import ENOENT, EPIPE, EINVAL
 
 if False:
     # For type annotation
@@ -40,7 +38,7 @@ class ImagemagickConverter(ImageConverter):
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except (OSError, IOError):
+        except OSError:
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
                            self.config.image_converter)
@@ -48,9 +46,7 @@ class ImagemagickConverter(ImageConverter):
 
         try:
             stdout, stderr = p.communicate()
-        except (OSError, IOError) as err:
-            if err.errno not in (EPIPE, EINVAL):
-                raise
+        except BrokenPipeError:
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:
@@ -63,7 +59,7 @@ class ImagemagickConverter(ImageConverter):
         return True
 
     def convert(self, _from, _to):
-        # type: (unicode, unicode) -> bool
+        # type: (str, str) -> bool
         """Converts the image to expected one."""
         try:
             if _from.lower().endswith('.gif'):
@@ -75,9 +71,7 @@ class ImagemagickConverter(ImageConverter):
                     [_from, _to])
             logger.debug('Invoking %r ...', args)
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except OSError as err:
-            if err.errno != ENOENT:  # No such file or directory
-                raise
+        except FileNotFoundError:
             logger.warning(__('convert command %r cannot be run.'
                               'check the image_converter setting'),
                            self.config.image_converter)
@@ -85,9 +79,7 @@ class ImagemagickConverter(ImageConverter):
 
         try:
             stdout, stderr = p.communicate()
-        except (OSError, IOError) as err:
-            if err.errno not in (EPIPE, EINVAL):
-                raise
+        except BrokenPipeError:
             stdout, stderr = p.stdout.read(), p.stderr.read()
             p.wait()
         if p.returncode != 0:
@@ -99,7 +91,7 @@ class ImagemagickConverter(ImageConverter):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(ImagemagickConverter)
     app.add_config_value('image_converter', 'convert', 'env')
     app.add_config_value('image_converter_args', [], 'env')

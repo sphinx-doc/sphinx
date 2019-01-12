@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_applehelp
     ~~~~~~~~~~~~~~~~~~~~
@@ -7,7 +6,7 @@
     test the HTML itself; that's already handled by
     :file:`test_build_html.py`.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,12 +16,6 @@ import pytest
 
 from sphinx.testing.path import path
 
-# Use plistlib.load in 3.4 and above
-try:
-    read_plist = plistlib.load
-except AttributeError:
-    read_plist = plistlib.readPlist
-
 
 def check_structure(outdir):
     contentsdir = outdir / 'Contents'
@@ -30,7 +23,7 @@ def check_structure(outdir):
     assert (contentsdir / 'Info.plist').isfile()
 
     with open(contentsdir / 'Info.plist', 'rb') as f:
-        plist = read_plist(f)
+        plist = plistlib.load(f)
     assert plist
     assert len(plist)
     assert plist.get('CFBundleIdentifier', None) == 'org.sphinx-doc.Sphinx.help'

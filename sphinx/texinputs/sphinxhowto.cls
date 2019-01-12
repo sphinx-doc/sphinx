@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2017/03/26 v1.6 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2018/12/23 v2.0 Document class (Sphinx howto)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -30,7 +30,7 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
+\newcommand{\sphinxmaketitle}{%
   \noindent\rule{\textwidth}{1pt}\par
     \begingroup % for PDF information dictionary
        \def\endgraf{ }\def\and{\& }%
@@ -57,21 +57,17 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\newcommand{\sphinxtableofcontents}{
+\newcommand{\sphinxtableofcontents}{%
   \begingroup
-    \parskip = 0mm
+    \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \rule{\textwidth}{1pt}
-  \vspace{12pt}
+  \noindent\rule{\textwidth}{1pt}\par
+  \vspace{12pt}%
 }  
-
-\@ifundefined{fancyhf}{
-  \pagestyle{plain}}{
-  \pagestyle{normal}}		% start this way; change for
-\pagenumbering{arabic}		% ToC & chapters
-
-\thispagestyle{empty}
+\newcommand\sphinxtableofcontentshook{}
+\pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.

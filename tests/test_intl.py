@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_intl
     ~~~~~~~~~
@@ -6,10 +5,9 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import pickle
@@ -18,7 +16,6 @@ import re
 import pytest
 from babel.messages import pofile, mofile
 from docutils import nodes
-from six import string_types
 
 from sphinx.testing.util import (
     path, etree_parse, strip_escseq,
@@ -78,20 +75,7 @@ def _info(app):
 
 
 def elem_gettexts(elem):
-    def itertext(self):
-        # this function copied from Python-2.7 'ElementTree.itertext'.
-        # for compatibility to Python-2.6
-        tag = self.tag
-        if not isinstance(tag, string_types) and tag is not None:
-            return
-        if self.text:
-            yield self.text
-        for e in self:
-            for s in itertext(e):
-                yield s
-            if e.tail:
-                yield e.tail
-    return [_f for _f in [s.strip() for s in itertext(elem)] if _f]
+    return [_f for _f in [s.strip() for s in elem.itertext()] if _f]
 
 
 def elem_getref(elem):
@@ -120,8 +104,8 @@ def assert_count(expected_expr, result, count):
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_toctree(app):
     app.build()
-    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
-    assert_startswith(result, u"CONTENTS\n********\n\nTABLE OF CONTENTS\n")
+    result = (app.outdir / 'index.txt').text()
+    assert_startswith(result, "CONTENTS\n********\n\nTABLE OF CONTENTS\n")
 
 
 @sphinx_intl
@@ -131,8 +115,8 @@ def test_text_emit_warnings(app, warning):
     app.build()
     # test warnings in translation
     warnings = getwarning(warning)
-    warning_expr = u'.*/warnings.txt:4: ' \
-                   u'WARNING: Inline literal start-string without end-string.\n'
+    warning_expr = ('.*/warnings.txt:4:<translated>:1: '
+                   'WARNING: Inline literal start-string without end-string.\n')
     assert_re_search(warning_expr, warnings)
 
 
@@ -142,10 +126,10 @@ def test_text_emit_warnings(app, warning):
 def test_text_warning_node(app):
     app.build()
     # test warnings in translation
-    result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
-    expect = (u"3. I18N WITH REST WARNINGS"
-              u"\n**************************\n"
-              u"\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
+    result = (app.outdir / 'warnings.txt').text()
+    expect = ("3. I18N WITH REST WARNINGS"
+              "\n**************************\n"
+              "\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
     assert result == expect
 
 
@@ -156,10 +140,10 @@ def test_text_warning_node(app):
 def test_text_title_underline(app):
     app.build()
     # --- simple translation; check title underlines
-    result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"2. Datei mit UTF-8"
-              u"\n******************\n"  # underline matches new translation
-              u"\nThis file has umlauts: äöü.\n")
+    result = (app.outdir / 'bom.txt').text()
+    expect = ("2. Datei mit UTF-8"
+              "\n******************\n"  # underline matches new translation
+              "\nThis file has umlauts: äöü.\n")
     assert result == expect
 
 
@@ -169,8 +153,8 @@ def test_text_title_underline(app):
 def test_text_subdirs(app):
     app.build()
     # --- check translation in subdirs
-    result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
-    assert_startswith(result, u"1. subdir contents\n******************\n")
+    result = (app.outdir / 'subdir' / 'index.txt').text()
+    assert_startswith(result, "1. subdir contents\n******************\n")
 
 
 @sphinx_intl
@@ -179,47 +163,47 @@ def test_text_subdirs(app):
 def test_text_inconsistency_warnings(app, warning):
     app.build()
     # --- check warnings for inconsistency in number of references
-    result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"8. I18N WITH REFS INCONSISTENCY"
-              u"\n*******************************\n"
-              u"\n* FOR CITATION [ref3].\n"
-              u"\n* reference FOR reference.\n"
-              u"\n* ORPHAN REFERENCE: I18N WITH REFS INCONSISTENCY.\n"
-              u"\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
-              u"\n[ref2] THIS IS A CITATION.\n"
-              u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
+    result = (app.outdir / 'refs_inconsistency.txt').text()
+    expect = ("8. I18N WITH REFS INCONSISTENCY"
+              "\n*******************************\n"
+              "\n* FOR CITATION [ref3].\n"
+              "\n* reference FOR reference.\n"
+              "\n* ORPHAN REFERENCE: I18N WITH REFS INCONSISTENCY.\n"
+              "\n[1] THIS IS A AUTO NUMBERED FOOTNOTE.\n"
+              "\n[ref2] THIS IS A CITATION.\n"
+              "\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
 
     warnings = getwarning(warning)
-    warning_fmt = u'.*/refs_inconsistency.txt:\\d+: ' \
-                  u'WARNING: inconsistent %(reftype)s in translated message.' \
-                  u' original: %(original)s, translated: %(translated)s\n'
+    warning_fmt = ('.*/refs_inconsistency.txt:\\d+: '
+                   'WARNING: inconsistent %(reftype)s in translated message.'
+                   ' original: %(original)s, translated: %(translated)s\n')
     expected_warning_expr = (
         warning_fmt % {
-            u'reftype': u'footnote references',
-            u'original': u"\\[u?'\\[#\\]_'\\]",
-            u'translated': u"\\[\\]"
+            'reftype': 'footnote references',
+            'original': "\\['\\[#\\]_'\\]",
+            'translated': "\\[\\]"
         } +
         warning_fmt % {
-            u'reftype': u'footnote references',
-            u'original': u"\\[u?'\\[100\\]_'\\]",
-            u'translated': u"\\[\\]"
+            'reftype': 'footnote references',
+            'original': "\\['\\[100\\]_'\\]",
+            'translated': "\\[\\]"
         } +
         warning_fmt % {
-            u'reftype': u'references',
-            u'original': u"\\[u?'reference_'\\]",
-            u'translated': u"\\[u?'reference_', u?'reference_'\\]"
+            'reftype': 'references',
+            'original': "\\['reference_'\\]",
+            'translated': "\\['reference_', 'reference_'\\]"
         } +
         warning_fmt % {
-            u'reftype': u'references',
-            u'original': u"\\[\\]",
-            u'translated': u"\\[u?'`I18N WITH REFS INCONSISTENCY`_'\\]"
+            'reftype': 'references',
+            'original': "\\[\\]",
+            'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]"
         })
     assert_re_search(expected_warning_expr, warnings)
 
     expected_citation_warning_expr = (
-        u'.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
-        u'.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
+        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
+        '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert_re_search(expected_citation_warning_expr, warnings)
 
 
@@ -229,19 +213,19 @@ def test_text_inconsistency_warnings(app, warning):
 def test_text_literalblock_warnings(app, warning):
     app.build()
     # --- check warning for literal block
-    result = (app.outdir / 'literalblock.txt').text(encoding='utf-8')
-    expect = (u"9. I18N WITH LITERAL BLOCK"
-              u"\n**************************\n"
-              u"\nCORRECT LITERAL BLOCK:\n"
-              u"\n   this is"
-              u"\n   literal block\n"
-              u"\nMISSING LITERAL BLOCK:\n"
-              u"\n<SYSTEM MESSAGE:")
+    result = (app.outdir / 'literalblock.txt').text()
+    expect = ("9. I18N WITH LITERAL BLOCK"
+              "\n**************************\n"
+              "\nCORRECT LITERAL BLOCK:\n"
+              "\n   this is"
+              "\n   literal block\n"
+              "\nMISSING LITERAL BLOCK:\n"
+              "\n<SYSTEM MESSAGE:")
     assert_startswith(result, expect)
 
     warnings = getwarning(warning)
-    expected_warning_expr = u'.*/literalblock.txt:\\d+: ' \
-                            u'WARNING: Literal block expected; none found.'
+    expected_warning_expr = ('.*/literalblock.txt:\\d+: '
+                             'WARNING: Literal block expected; none found.')
     assert_re_search(expected_warning_expr, warnings)
 
 
@@ -251,18 +235,17 @@ def test_text_literalblock_warnings(app, warning):
 def test_text_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #975, #2198, #2205
-    result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
-    expect = (u"13. I18N WITH DEFINITION TERMS"
-              u"\n******************************\n"
-              u"\nSOME TERM"
-              u"\n   THE CORRESPONDING DEFINITION\n"
-              u"\nSOME *TERM* WITH LINK"
-              u"\n   THE CORRESPONDING DEFINITION #2\n"
-              u"\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
-              u"\n   THE CORRESPONDING DEFINITION\n"
-              u"\nSOME TERM WITH : CLASSIFIER[]"
-              u"\n   THE CORRESPONDING DEFINITION\n"
-              )
+    result = (app.outdir / 'definition_terms.txt').text()
+    expect = ("13. I18N WITH DEFINITION TERMS"
+              "\n******************************\n"
+              "\nSOME TERM"
+              "\n   THE CORRESPONDING DEFINITION\n"
+              "\nSOME *TERM* WITH LINK"
+              "\n   THE CORRESPONDING DEFINITION #2\n"
+              "\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
+              "\n   THE CORRESPONDING DEFINITION\n"
+              "\nSOME TERM WITH : CLASSIFIER[]"
+              "\n   THE CORRESPONDING DEFINITION\n")
     assert result == expect
 
 
@@ -272,14 +255,14 @@ def test_text_definition_terms(app):
 def test_text_glossary_term(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
-    result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
-    expect = (u"18. I18N WITH GLOSSARY TERMS"
-              u"\n****************************\n"
-              u"\nSOME NEW TERM"
-              u"\n   THE CORRESPONDING GLOSSARY\n"
-              u"\nSOME OTHER NEW TERM"
-              u"\n   THE CORRESPONDING GLOSSARY #2\n"
-              u"\nLINK TO *SOME NEW TERM*.\n")
+    result = (app.outdir / 'glossary_terms.txt').text()
+    expect = ("18. I18N WITH GLOSSARY TERMS"
+              "\n****************************\n"
+              "\nSOME NEW TERM"
+              "\n   THE CORRESPONDING GLOSSARY\n"
+              "\nSOME OTHER NEW TERM"
+              "\n   THE CORRESPONDING GLOSSARY #2\n"
+              "\nLINK TO *SOME NEW TERM*.\n")
     assert result == expect
     warnings = getwarning(warning)
     assert 'term not in glossary' not in warnings
@@ -291,18 +274,18 @@ def test_text_glossary_term(app, warning):
 def test_text_glossary_term_inconsistencies(app, warning):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
-    result = (app.outdir / 'glossary_terms_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
-              u"\n******************************************\n"
-              u"\n1. LINK TO *SOME NEW TERM*.\n")
+    result = (app.outdir / 'glossary_terms_inconsistency.txt').text()
+    expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
+              "\n******************************************\n"
+              "\n1. LINK TO *SOME NEW TERM*.\n")
     assert result == expect
 
     warnings = getwarning(warning)
     expected_warning_expr = (
-        u'.*/glossary_terms_inconsistency.txt:\\d+: '
-        u'WARNING: inconsistent term references in translated message.'
-        u" original: \\[u?':term:`Some term`', u?':term:`Some other term`'\\],"
-        u" translated: \\[u?':term:`SOME NEW TERM`'\\]\n")
+        '.*/glossary_terms_inconsistency.txt:\\d+: '
+        'WARNING: inconsistent term references in translated message.'
+        " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
+        " translated: \\[':term:`SOME NEW TERM`'\\]\n")
     assert_re_search(expected_warning_expr, warnings)
 
 
@@ -324,7 +307,7 @@ def test_gettext_section(app):
 def test_text_section(app):
     app.build()
     # --- section
-    result = (app.outdir / 'section.txt').text(encoding='utf-8')
+    result = (app.outdir / 'section.txt').text()
     expect = read_po(app.srcdir / 'section.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -336,13 +319,13 @@ def test_text_section(app):
 def test_text_seealso(app):
     app.build()
     # --- seealso
-    result = (app.outdir / 'seealso.txt').text(encoding='utf-8')
-    expect = (u"12. I18N WITH SEEALSO"
-              u"\n*********************\n"
-              u"\nSee also: SHORT TEXT 1\n"
-              u"\nSee also: LONG TEXT 1\n"
-              u"\nSee also: SHORT TEXT 2\n"
-              u"\n  LONG TEXT 2\n")
+    result = (app.outdir / 'seealso.txt').text()
+    expect = ("12. I18N WITH SEEALSO"
+              "\n*********************\n"
+              "\nSee also: SHORT TEXT 1\n"
+              "\nSee also: LONG TEXT 1\n"
+              "\nSee also: SHORT TEXT 2\n"
+              "\n  LONG TEXT 2\n")
     assert result == expect
 
 
@@ -352,40 +335,39 @@ def test_text_seealso(app):
 def test_text_figure_captions(app):
     app.build()
     # --- figure captions: regression test for #940
-    result = (app.outdir / 'figure.txt').text(encoding='utf-8')
-    expect = (u"14. I18N WITH FIGURE CAPTION"
-              u"\n****************************\n"
-              u"\n   [image]MY CAPTION OF THE FIGURE\n"
-              u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
-              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
-              u"\n"
-              u"\n14.1. FIGURE IN THE BLOCK"
-              u"\n=========================\n"
-              u"\nBLOCK\n"
-              u"\n      [image]MY CAPTION OF THE FIGURE\n"
-              u"\n      MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
-              u"\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
-              u"\n"
-              u"\n"
-              u"14.2. IMAGE URL AND ALT\n"
-              u"=======================\n"
-              u"\n"
-              u"[image: i18n][image]\n"
-              u"\n"
-              u"   [image: img][image]\n"
-              u"\n"
-              u"\n"
-              u"14.3. IMAGE ON SUBSTITUTION\n"
-              u"===========================\n"
-              u"\n"
-              u"\n"
-              u"14.4. IMAGE UNDER NOTE\n"
-              u"======================\n"
-              u"\n"
-              u"Note: [image: i18n under note][image]\n"
-              u"\n"
-              u"     [image: img under note][image]\n"
-              )
+    result = (app.outdir / 'figure.txt').text()
+    expect = ("14. I18N WITH FIGURE CAPTION"
+              "\n****************************\n"
+              "\n   [image]MY CAPTION OF THE FIGURE\n"
+              "\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
+              "\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
+              "\n"
+              "\n14.1. FIGURE IN THE BLOCK"
+              "\n=========================\n"
+              "\nBLOCK\n"
+              "\n      [image]MY CAPTION OF THE FIGURE\n"
+              "\n      MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
+              "\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
+              "\n"
+              "\n"
+              "14.2. IMAGE URL AND ALT\n"
+              "=======================\n"
+              "\n"
+              "[image: i18n][image]\n"
+              "\n"
+              "   [image: img][image]\n"
+              "\n"
+              "\n"
+              "14.3. IMAGE ON SUBSTITUTION\n"
+              "===========================\n"
+              "\n"
+              "\n"
+              "14.4. IMAGE UNDER NOTE\n"
+              "======================\n"
+              "\n"
+              "Note: [image: i18n under note][image]\n"
+              "\n"
+              "     [image: img under note][image]\n")
     assert result == expect
 
 
@@ -395,15 +377,15 @@ def test_text_figure_captions(app):
 def test_text_rubric(app):
     app.build()
     # --- rubric: regression test for pull request #190
-    result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
-    expect = (u"I18N WITH RUBRIC"
-              u"\n****************\n"
-              u"\n-[ RUBRIC TITLE ]-\n"
-              u"\n"
-              u"\nRUBRIC IN THE BLOCK"
-              u"\n===================\n"
-              u"\nBLOCK\n"
-              u"\n   -[ RUBRIC TITLE ]-\n")
+    result = (app.outdir / 'rubric.txt').text()
+    expect = ("I18N WITH RUBRIC"
+              "\n****************\n"
+              "\n-[ RUBRIC TITLE ]-\n"
+              "\n"
+              "\nRUBRIC IN THE BLOCK"
+              "\n===================\n"
+              "\nBLOCK\n"
+              "\n   -[ RUBRIC TITLE ]-\n")
     assert result == expect
 
 
@@ -413,26 +395,26 @@ def test_text_rubric(app):
 def test_text_docfields(app):
     app.build()
     # --- docfields
-    result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
-    expect = (u"21. I18N WITH DOCFIELDS"
-              u"\n***********************\n"
-              u"\nclass Cls1\n"
-              u"\n   Parameters:"
-              u"\n      **param** -- DESCRIPTION OF PARAMETER param\n"
-              u"\nclass Cls2\n"
-              u"\n   Parameters:"
-              u"\n      * **foo** -- DESCRIPTION OF PARAMETER foo\n"
-              u"\n      * **bar** -- DESCRIPTION OF PARAMETER bar\n"
-              u"\nclass Cls3(values)\n"
-              u"\n   Raises:"
-              u"\n      **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
-              u"\nclass Cls4(values)\n"
-              u"\n   Raises:"
-              u"\n      * **TypeError** -- IF THE VALUES ARE NOT VALID\n"
-              u"\n      * **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
-              u"\nclass Cls5\n"
-              u"\n   Returns:"
-              u'\n      A NEW "Cls3" INSTANCE\n')
+    result = (app.outdir / 'docfields.txt').text()
+    expect = ("21. I18N WITH DOCFIELDS"
+              "\n***********************\n"
+              "\nclass Cls1\n"
+              "\n   Parameters:"
+              "\n      **param** -- DESCRIPTION OF PARAMETER param\n"
+              "\nclass Cls2\n"
+              "\n   Parameters:"
+              "\n      * **foo** -- DESCRIPTION OF PARAMETER foo\n"
+              "\n      * **bar** -- DESCRIPTION OF PARAMETER bar\n"
+              "\nclass Cls3(values)\n"
+              "\n   Raises:"
+              "\n      **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
+              "\nclass Cls4(values)\n"
+              "\n   Raises:"
+              "\n      * **TypeError** -- IF THE VALUES ARE NOT VALID\n"
+              "\n      * **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
+              "\nclass Cls5\n"
+              "\n   Returns:"
+              '\n      A NEW "Cls3" INSTANCE\n')
     assert result == expect
 
 
@@ -444,7 +426,7 @@ def test_text_admonitions(app):
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
     # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
-    result = (app.outdir / 'admonitions.txt').text(encoding='utf-8')
+    result = (app.outdir / 'admonitions.txt').text()
     directives = (
         "attention", "caution", "danger", "error", "hint",
         "important", "note", "tip", "warning", "admonition")
@@ -462,8 +444,8 @@ def test_text_admonitions(app):
 def test_gettext_toctree(app):
     app.build()
     # --- toctree
-    expect = read_po(app.srcdir / 'contents.po')
-    actual = read_po(app.outdir / 'contents.pot')
+    expect = read_po(app.srcdir / 'index.po')
+    actual = read_po(app.outdir / 'index.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
 
@@ -486,7 +468,7 @@ def test_gettext_table(app):
 def test_text_table(app):
     app.build()
     # --- toctree
-    result = (app.outdir / 'table.txt').text(encoding='utf-8')
+    result = (app.outdir / 'table.txt').text()
     expect = read_po(app.srcdir / 'table.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -510,7 +492,7 @@ def test_gettext_topic(app):
 def test_text_topic(app):
     app.build()
     # --- topic
-    result = (app.outdir / 'topic.txt').text(encoding='utf-8')
+    result = (app.outdir / 'topic.txt').text()
     expect = read_po(app.srcdir / 'topic.po')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.string in result
@@ -629,7 +611,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
 def test_html_meta(app):
     app.build()
     # --- test for meta
-    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
     expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
     assert expected_expr in result
     expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
@@ -643,7 +625,7 @@ def test_html_footnotes(app):
     app.build()
     # --- test for #955 cant-build-html-with-footnotes-when-using
     # expect no error by build
-    (app.outdir / 'footnote.html').text(encoding='utf-8')
+    (app.outdir / 'footnote.html').text()
 
 
 @sphinx_intl
@@ -652,7 +634,7 @@ def test_html_footnotes(app):
 def test_html_undefined_refs(app):
     app.build()
     # --- links to undefined reference
-    result = (app.outdir / 'refs_inconsistency.html').text(encoding='utf-8')
+    result = (app.outdir / 'refs_inconsistency.html').text()
 
     expected_expr = ('<a class="reference external" '
                      'href="http://www.example.com">reference</a>')
@@ -674,7 +656,7 @@ def test_html_undefined_refs(app):
 def test_html_index_entries(app):
     app.build()
     # --- index entries: regression test for #976
-    result = (app.outdir / 'genindex.html').text(encoding='utf-8')
+    result = (app.outdir / 'genindex.html').text()
 
     def wrap(tag, keyword):
         start_tag = "<%s[^>]*>" % tag
@@ -712,7 +694,7 @@ def test_html_index_entries(app):
 def test_html_versionchanges(app):
     app.build()
     # --- versionchanges
-    result = (app.outdir / 'versionchange.html').text(encoding='utf-8')
+    result = (app.outdir / 'versionchange.html').text()
 
     def get_content(result, name):
         matched = re.search(r'<div class="%s">\n*(.*?)</div>' % name,
@@ -723,21 +705,21 @@ def test_html_versionchanges(app):
             return ''
 
     expect1 = (
-        u"""<p><span class="versionmodified">Deprecated since version 1.0: </span>"""
-        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
-        u"""<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
+        """<p><span class="versionmodified deprecated">Deprecated since version 1.0: </span>"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
+        """<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
     matched_content = get_content(result, "deprecated")
     assert expect1 == matched_content
 
     expect2 = (
-        u"""<p><span class="versionmodified">New in version 1.0: </span>"""
-        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
+        """<p><span class="versionmodified added">New in version 1.0: </span>"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
 
     expect3 = (
-        u"""<p><span class="versionmodified">Changed in version 1.0: </span>"""
-        u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
+        """<p><span class="versionmodified changed">Changed in version 1.0: </span>"""
+        """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
     matched_content = get_content(result, "versionchanged")
     assert expect3 == matched_content
 
@@ -749,7 +731,7 @@ def test_html_docfields(app):
     app.build()
     # --- docfields
     # expect no error by build
-    (app.outdir / 'docfields.html').text(encoding='utf-8')
+    (app.outdir / 'docfields.html').text()
 
 
 @sphinx_intl
@@ -758,7 +740,7 @@ def test_html_docfields(app):
 def test_html_template(app):
     app.build()
     # --- gettext template
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'contents.html').text()
     assert "WELCOME" in result
     assert "SPHINX 2013.120" in result
 
@@ -794,8 +776,12 @@ def test_xml_footnotes(app, warning):
     assert_elem(
         para0[0],
         ['I18N WITH FOOTNOTE', 'INCLUDE THIS CONTENTS',
-         '2', '[ref]', '1', '100', '*', '.'],
+         '2', '[ref]', '1', '100', '*', '. SECOND FOOTNOTE_REF', '100', '.'],
         ['i18n-with-footnote', 'ref'])
+
+    # check node_id for footnote_references which refer same footnote (refs: #3002)
+    assert para0[0][4].text == para0[0][6].text == '100'
+    assert para0[0][4].attrib['ids'] != para0[0][6].attrib['ids']
 
     footnote0 = secs[0].findall('footnote')
     assert_elem(
@@ -827,7 +813,7 @@ def test_xml_footnotes(app, warning):
         ['ref'])
 
     warnings = getwarning(warning)
-    warning_expr = u'.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
+    warning_expr = '.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
     assert_not_re_search(warning_expr, warnings)
 
 
@@ -848,8 +834,8 @@ def test_xml_footnote_backlinks(app):
     footnote0 = secs[0].findall('footnote')
     for footnote in footnote0:
         ids = footnote.attrib.get('ids')
-        backrefs = footnote.attrib.get('backrefs')
-        assert refid2id[ids] == backrefs
+        backrefs = footnote.attrib.get('backrefs').split()
+        assert refid2id[ids] in backrefs
 
 
 @sphinx_intl
@@ -941,7 +927,7 @@ def test_xml_role_xref(app):
         para1,
         ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
          'SOME NEW TERM', '.'],
-        ['i18n-role-xref', 'contents',
+        ['i18n-role-xref', 'index',
          'glossary_terms#term-some-term'])
 
     para2 = sec2.findall('paragraph')
@@ -958,7 +944,7 @@ def test_xml_role_xref(app):
     assert_elem(
         para2[2],
         ['LINK TO', 'I18N WITH GLOSSARY TERMS', 'AND', 'CONTENTS', '.'],
-        ['glossary_terms', 'contents'])
+        ['glossary_terms', 'index'])
     assert_elem(
         para2[3],
         ['LINK TO', '--module', 'AND', '-m', '.'],
@@ -1052,7 +1038,7 @@ def test_xml_label_targets(app):
 def test_additional_targets_should_not_be_translated(app):
     app.build()
     # [literalblock.txt]
-    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+    result = (app.outdir / 'literalblock.html').text()
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
@@ -1088,7 +1074,7 @@ def test_additional_targets_should_not_be_translated(app):
 
     # [raw.txt]
 
-    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+    result = (app.outdir / 'raw.html').text()
 
     # raw block should not be translated
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
@@ -1096,7 +1082,7 @@ def test_additional_targets_should_not_be_translated(app):
 
     # [figure.txt]
 
-    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+    result = (app.outdir / 'figure.html').text()
 
     # alt and src for image block should not be translated
     expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
@@ -1126,7 +1112,7 @@ def test_additional_targets_should_not_be_translated(app):
 def test_additional_targets_should_be_translated(app):
     app.build()
     # [literalblock.txt]
-    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+    result = (app.outdir / 'literalblock.html').text()
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
@@ -1162,7 +1148,7 @@ def test_additional_targets_should_be_translated(app):
 
     # [raw.txt]
 
-    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+    result = (app.outdir / 'raw.html').text()
 
     # raw block should be translated
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
@@ -1170,7 +1156,7 @@ def test_additional_targets_should_be_translated(app):
 
     # [figure.txt]
 
-    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+    result = (app.outdir / 'figure.html').text()
 
     # alt and src for image block should be translated
     expected_expr = """<img alt="I18N -&gt; IMG" src="_images/img.png" />"""
@@ -1188,7 +1174,7 @@ def test_text_references(app, warning):
     app.builder.build_specific([app.srcdir / 'refs.txt'])
 
     warnings = warning.getvalue().replace(os.sep, '/')
-    warning_expr = u'refs.txt:\\d+: ERROR: Unknown target name:'
+    warning_expr = 'refs.txt:\\d+: ERROR: Unknown target name:'
     assert_count(warning_expr, warnings, 0)
 
 
@@ -1242,7 +1228,7 @@ def test_image_glob_intl(app):
     srcdir='test_intl_images',
     confoverrides={
         'language': 'xx',
-        'figure_language_filename': u'{root}{ext}.{language}',
+        'figure_language_filename': '{root}{ext}.{language}',
     }
 )
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")

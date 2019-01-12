@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_pycode
     ~~~~~~~~~~~
@@ -10,8 +9,7 @@
 """
 
 import os
-
-from six import PY2
+import sys
 
 import sphinx
 from sphinx.pycode import ModuleAnalyzer
@@ -23,20 +21,14 @@ def test_ModuleAnalyzer_for_string():
     analyzer = ModuleAnalyzer.for_string('print("Hello world")', 'module_name')
     assert analyzer.modname == 'module_name'
     assert analyzer.srcname == '<string>'
-    if PY2:
-        assert analyzer.encoding == 'ascii'
-    else:
-        assert analyzer.encoding is None
+    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_file():
     analyzer = ModuleAnalyzer.for_string(SPHINX_MODULE_PATH, 'sphinx')
     assert analyzer.modname == 'sphinx'
     assert analyzer.srcname == '<string>'
-    if PY2:
-        assert analyzer.encoding == 'ascii'
-    else:
-        assert analyzer.encoding is None
+    assert analyzer.encoding is None
 
 
 def test_ModuleAnalyzer_for_module():
@@ -45,6 +37,31 @@ def test_ModuleAnalyzer_for_module():
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
     assert analyzer.encoding == 'utf-8'
+
+
+def test_ModuleAnalyzer_for_file_in_egg(rootdir):
+    try:
+        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
+        sys.path.insert(0, path)
+
+        import sample
+        analyzer = ModuleAnalyzer.for_file(sample.__file__, 'sample')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
+    finally:
+        sys.path.pop(0)
+
+
+def test_ModuleAnalyzer_for_module_in_egg(rootdir):
+    try:
+        path = rootdir / 'test-pycode-egg' / 'sample-0.0.0-py3.7.egg'
+        sys.path.insert(0, path)
+
+        analyzer = ModuleAnalyzer.for_module('sample')
+        docs = analyzer.find_attr_docs()
+        assert docs == {('', 'CONSTANT'): ['constant on sample.py', '']}
+    finally:
+        sys.path.pop(0)
 
 
 def test_ModuleAnalyzer_find_tags():

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.jsdump
     ~~~~~~~~~~~~~~~~~~
@@ -6,15 +5,11 @@
     This module implements a simple JavaScript serializer.
     Uses the basestring encode function from simplejson by Bob Ippolito.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
-
-from six import iteritems, integer_types, string_types
-
-from sphinx.util.pycompat import u
 
 if False:
     # For type annotation
@@ -43,7 +38,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
-        # type: (Match) -> unicode
+        # type: (Match) -> str
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -57,12 +52,12 @@ def encode_string(s):
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
                 return '\\u%04x\\u%04x' % (s1, s2)
-    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'  # type: ignore
+    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
 
 def decode_string(s):
     # type: (str) -> str
-    return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
+    return ESCAPED.sub(lambda m: eval('"' + m.group() + '"'), s)
 
 
 reswords = set("""\
@@ -86,7 +81,7 @@ double   in   super""".split())
 def dumps(obj, key=False):
     # type: (Any, bool) -> str
     if key:
-        if not isinstance(obj, string_types):
+        if not isinstance(obj, str):
             obj = str(obj)
         if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
@@ -96,19 +91,19 @@ def dumps(obj, key=False):
         return 'null'
     elif obj is True or obj is False:
         return obj and 'true' or 'false'
-    elif isinstance(obj, integer_types + (float,)):  # type: ignore
+    elif isinstance(obj, (int, float)):
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(sorted('%s:%s' % (
             dumps(key, True),
             dumps(value)
-        ) for key, value in iteritems(obj)))
+        ) for key, value in obj.items()))
     elif isinstance(obj, set):
         return '[%s]' % ','.join(sorted(dumps(x) for x in obj))
     elif isinstance(obj, (tuple, list)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
-    elif isinstance(obj, string_types):
-        return encode_string(obj)  # type: ignore
+    elif isinstance(obj, str):
+        return encode_string(obj)
     raise TypeError(type(obj))
 
 

@@ -1,22 +1,21 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.compat
     ~~~~~~~~~~~~~~~~~~
 
     modules for backward compatibility
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from __future__ import absolute_import
 
 import sys
 import warnings
 
-from six import string_types, iteritems
+from docutils.utils import get_source_line
 
-from sphinx.deprecation import RemovedInSphinx30Warning
+from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.transforms import SphinxTransform
 from sphinx.util import import_object
 
 if False:
@@ -32,9 +31,9 @@ def deprecate_source_parsers(app, config):
         warnings.warn('The config variable "source_parsers" is deprecated. '
                       'Please use app.add_source_parser() API instead.',
                       RemovedInSphinx30Warning)
-        for suffix, parser in iteritems(config.source_parsers):
-            if isinstance(parser, string_types):
-                parser = import_object(parser, 'source parser')  # type: ignore
+        for suffix, parser in config.source_parsers.items():
+            if isinstance(parser, str):
+                parser = import_object(parser, 'source parser')
             app.add_source_parser(suffix, parser)
 
 
@@ -52,8 +51,24 @@ def register_application_for_autosummary(app):
         autosummary._app = app
 
 
+class IndexEntriesMigrator(SphinxTransform):
+    """Migrating indexentries from old style (4columns) to new style (5columns)."""
+    default_priority = 700
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        for node in self.document.traverse(addnodes.index):
+            for entries in node['entries']:
+                if len(entries) == 4:
+                    source, line = get_source_line(node)
+                    warnings.warn('An old styled index node found: %r at (%s:%s)' %
+                                  (node, source, line), RemovedInSphinx40Warning)
+                    entries.extend([None])
+
+
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
+    app.add_transform(IndexEntriesMigrator)
     app.connect('config-inited', deprecate_source_parsers)
     app.connect('builder-inited', register_application_for_autosummary)
 

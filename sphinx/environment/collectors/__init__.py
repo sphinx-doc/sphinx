@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.collectors
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The data collector components for sphinx.environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from six import itervalues
 
 if False:
     # For type annotation
@@ -19,7 +16,7 @@ if False:
     from sphinx.environment import BuildEnvironment  # NOQA
 
 
-class EnvironmentCollector(object):
+class EnvironmentCollector:
     """An EnvironmentCollector is a specific data collector from each document.
 
     It gathers data and stores :py:class:`BuildEnvironment
@@ -28,7 +25,7 @@ class EnvironmentCollector(object):
     entries and toctrees, etc.
     """
 
-    listener_ids = None  # type: Dict[unicode, int]
+    listener_ids = None  # type: Dict[str, int]
 
     def enable(self, app):
         # type: (Sphinx) -> None
@@ -44,32 +41,32 @@ class EnvironmentCollector(object):
     def disable(self, app):
         # type: (Sphinx) -> None
         assert self.listener_ids is not None
-        for listener_id in itervalues(self.listener_ids):
+        for listener_id in self.listener_ids.values():
             app.disconnect(listener_id)
         self.listener_ids = None
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         """Remove specified data of a document.
 
         This method is called on the removal of the document."""
         raise NotImplementedError
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
         object which coming from a subprocess in parallel builds."""
         raise NotImplementedError
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process a document and gather specific data from it.
 
         This method is called after the document is read."""
         raise NotImplementedError
 
     def get_updated_docs(self, app, env):
-        # type: (Sphinx, BuildEnvironment) -> List[unicode]
+        # type: (Sphinx, BuildEnvironment) -> List[str]
         """Return a list of docnames to re-read.
 
         This methods is called after reading the whole of documents (experimental).
@@ -77,7 +74,7 @@ class EnvironmentCollector(object):
         return []
 
     def get_outdated_docs(self, app, env, added, changed, removed):
-        # type: (Sphinx, BuildEnvironment, unicode, Set[unicode], Set[unicode], Set[unicode]) -> List[unicode]  # NOQA
+        # type: (Sphinx, BuildEnvironment, str, Set[str], Set[str], Set[str]) -> List[str]
         """Return a list of docnames to re-read.
 
         This methods is called before reading the documents.

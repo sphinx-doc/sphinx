@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.inventory
     ~~~~~~~~~~~~~~~~~~~~~
 
     Inventory utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import zlib
-
-from six import PY3
 
 from sphinx.util import logging
 
@@ -21,18 +18,14 @@ if False:
     from typing import Callable, Dict, IO, Iterator, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-    if PY3:
-        unicode = str
-
-    Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
+    from sphinx.util.typing import Inventory  # NOQA
 
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 
-class InventoryFileReader(object):
+class InventoryFileReader:
     """A file reader for inventory file.
 
     This reader supports mixture of texts and compressed texts.
@@ -52,13 +45,13 @@ class InventoryFileReader(object):
         self.buffer += chunk
 
     def readline(self):
-        # type: () -> unicode
+        # type: () -> str
         pos = self.buffer.find(b'\n')
         if pos != -1:
-            line = self.buffer[:pos].decode('utf-8')
+            line = self.buffer[:pos].decode()
             self.buffer = self.buffer[pos + 1:]
         elif self.eof:
-            line = self.buffer.decode('utf-8')
+            line = self.buffer.decode()
             self.buffer = b''
         else:
             self.read_buffer()
@@ -67,7 +60,7 @@ class InventoryFileReader(object):
         return line
 
     def readlines(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         while not self.eof:
             line = self.readline()
             if line:
@@ -83,21 +76,21 @@ class InventoryFileReader(object):
         yield decompressor.flush()
 
     def read_compressed_lines(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         buf = b''
         for chunk in self.read_compressed_chunks():
             buf += chunk
             pos = buf.find(b'\n')
             while pos != -1:
-                yield buf[:pos].decode('utf-8')
+                yield buf[:pos].decode()
                 buf = buf[pos + 1:]
                 pos = buf.find(b'\n')
 
 
-class InventoryFile(object):
+class InventoryFile:
     @classmethod
     def load(cls, stream, uri, joinfunc):
-        # type: (IO, unicode, Callable) -> Inventory
+        # type: (IO, str, Callable) -> Inventory
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
@@ -109,7 +102,7 @@ class InventoryFile(object):
 
     @classmethod
     def load_v1(cls, stream, uri, join):
-        # type: (InventoryFileReader, unicode, Callable) -> Inventory
+        # type: (InventoryFileReader, str, Callable) -> Inventory
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -128,7 +121,7 @@ class InventoryFile(object):
 
     @classmethod
     def load_v2(cls, stream, uri, join):
-        # type: (InventoryFileReader, unicode, Callable) -> Inventory
+        # type: (InventoryFileReader, str, Callable) -> Inventory
         invdata = {}  # type: Inventory
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -149,7 +142,7 @@ class InventoryFile(object):
                                             # for Python modules, and the first
                                             # one is correct
                 continue
-            if location.endswith(u'$'):
+            if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
             invdata.setdefault(type, {})[name] = (projname, version,
@@ -158,19 +151,19 @@ class InventoryFile(object):
 
     @classmethod
     def dump(cls, filename, env, builder):
-        # type: (unicode, BuildEnvironment, Builder) -> None
+        # type: (str, BuildEnvironment, Builder) -> None
         def escape(string):
-            # type: (unicode) -> unicode
+            # type: (str) -> str
             return re.sub("\\s+", " ", string)
 
         with open(os.path.join(filename), 'wb') as f:
             # header
-            f.write((u'# Sphinx inventory version 2\n'
-                     u'# Project: %s\n'
-                     u'# Version: %s\n'
-                     u'# The remainder of this file is compressed using zlib.\n' %
+            f.write(('# Sphinx inventory version 2\n'
+                     '# Project: %s\n'
+                     '# Version: %s\n'
+                     '# The remainder of this file is compressed using zlib.\n' %
                      (escape(env.config.project),
-                      escape(env.config.version))).encode('utf-8'))
+                      escape(env.config.version))).encode())
 
             # body
             compressor = zlib.compressobj(9)
@@ -184,8 +177,8 @@ class InventoryFile(object):
                     if anchor:
                         uri += '#' + anchor
                     if dispname == name:
-                        dispname = u'-'
-                    entry = (u'%s %s:%s %s %s %s\n' %
+                        dispname = '-'
+                    entry = ('%s %s:%s %s %s %s\n' %
                              (name, domainname, typ, prio, uri, dispname))
-                    f.write(compressor.compress(entry.encode('utf-8')))
+                    f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

@@ -762,7 +762,7 @@ Some directives support options:
 Anonymous Entities
 ~~~~~~~~~~~~~~~~~~
 
-C++ supposrts anonymous namespaces, classes, enums, and unions.
+C++ supports anonymous namespaces, classes, enums, and unions.
 For the sake of documentation they must be given some name that starts with ``@``,
 e.g., ``@42`` or ``@data``.
 These names can also be used in cross-references and (type) expressions,
@@ -850,8 +850,8 @@ Note however that no checking is performed with respect to parameter
 compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
 even though it would not be valid C++.
 
-Inline Expressions and Tpes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inline Expressions and Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. rst:role:: cpp:expr
               cpp:texpr
@@ -1005,19 +1005,45 @@ These roles link to the given declaration types:
    When a custom title is not needed it may be useful to use the roles for inline expressions,
    :rst:role:`cpp:expr` and :rst:role:`cpp:texpr`, where angle brackets do not need escaping.
 
-.. admonition:: Note on References to Overloaded Functions
-
-   It is currently impossible to link to a specific version of an overloaded
-   function.  Currently the C++ domain is the first domain that has basic
-   support for overloaded functions and until there is more data for comparison
-   we don't want to select a bad syntax to reference a specific overload.
-   Currently Sphinx will link to the first overloaded version of the function.
-
 Declarations without template parameters and template arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For linking to non-templated declarations the name must be a nested name, e.g.,
 ``f`` or ``MyClass::f``.
+
+
+Overloaded (member) functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a (member) function is referenced using just its name, the reference
+will point to an arbitrary matching overload.
+The :rst:role:`cpp:any` and :rst:role:`cpp:func` roles will an alternative
+format, which simply is a complete function declaration.
+This will resolve to the exact matching overload.
+As example, consider the following class declaration:
+
+.. cpp:namespace-push:: overload_example
+.. cpp:class:: C
+
+   .. cpp:function:: void f(double d) const
+   .. cpp:function:: void f(double d)
+   .. cpp:function:: void f(int i)
+   .. cpp:function:: void f()
+
+References using the :rst:role:`cpp:func` role:
+
+- Arbitrary overload: ``C::f``, :cpp:func:`C::f`
+- Also arbitrary overload: ``C::f()``, :cpp:func:`C::f()`
+- Specific overload: ``void C::f()``, :cpp:func:`void C::f()`
+- Specific overload: ``void C::f(int)``, :cpp:func:`void C::f(int)`
+- Specific overload: ``void C::f(double)``, :cpp:func:`void C::f(double)`
+- Specific overload: ``void C::f(double) const``, :cpp:func:`void C::f(double) const`
+
+Note that the :confval:`add_function_parentheses` configuration variable
+does not influence specific overload references.
+
+.. cpp:namespace-pop::
+
 
 Templated declarations
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -1033,19 +1059,25 @@ Assume the following declarations.
                      Inner
 
 In general the reference must include the template parameter declarations,
-e.g., ``template\<typename TOuter> Wrapper::Outer``
-(:cpp:class:`template\<typename TOuter> Wrapper::Outer`).  Currently the lookup
-only succeed if the template parameter identifiers are equal strings. That is,
-``template\<typename UOuter> Wrapper::Outer`` will not work.
+and template arguments for the prefix of qualified names. For example:
 
-The inner class template cannot be directly referenced, unless the current
-namespace is changed or the following shorthand is used.  If a template
-parameter list is omitted, then the lookup will assume either a template or a
-non-template, but not a partial template specialisation.  This means the
-following references work.
+- ``template\<typename TOuter> Wrapper::Outer``
+  (:cpp:class:`template\<typename TOuter> Wrapper::Outer`)
+- ``template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner``
+  (:cpp:class:`template\<typename TOuter> template\<typename TInner> Wrapper::Outer<TOuter>::Inner`)
 
-- ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
-- ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
+Currently the lookup only succeed if the template parameter identifiers are equal strings.
+That is, ``template\<typename UOuter> Wrapper::Outer`` will not work.
+
+As a shorthand notation, if a template parameter list is omitted,
+then the lookup will assume either a primary template or a non-template,
+but not a partial template specialisation.
+This means the following references work as well:
+
+- ``Wrapper::Outer``
+  (:cpp:class:`Wrapper::Outer`)
+- ``Wrapper::Outer::Inner``
+  (:cpp:class:`Wrapper::Outer::Inner`)
 - ``template\<typename TInner> Wrapper::Outer::Inner``
   (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
 
@@ -1123,7 +1155,7 @@ There is a set of directives allowing documenting command-line programs:
          Run a module as a script.
 
    The directive will create cross-reference targets for the given options,
-   referencable by :rst:role:`option` (in the example case, you'd use something
+   referenceable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
@@ -1131,7 +1163,7 @@ There is a set of directives allowing documenting command-line programs:
 .. rst:directive:: .. envvar:: name
 
    Describes an environment variable that the documented code or program uses
-   or defines.  Referencable by :rst:role:`envvar`.
+   or defines.  Referenceable by :rst:role:`envvar`.
 
 .. rst:directive:: .. program:: name
 

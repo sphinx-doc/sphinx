@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     utils.checks
     ~~~~~~~~~~~~
 
     Custom, Sphinx-only flake8 plugins.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,7 +59,7 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
 
     # line number correction
     offset = 1
-    if lines[0:1] == ['#!/usr/bin/env python\n']:
+    if lines[0:1] == ['#!/usr/bin/env python3\n']:
         lines = lines[1:]
         offset = 2
 
@@ -70,9 +69,6 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
     for lno, line in enumerate(lines):
         llist.append(line)
         if lno == 0:
-            if line != '# -*- coding: utf-8 -*-\n':
-                return 0, 'X101 missing coding declaration'
-        elif lno == 1:
             if line != '"""\n' and line != 'r"""\n':
                 return 0, 'X101 missing docstring begin (""")'
             else:
@@ -80,20 +76,20 @@ def sphinx_has_header(physical_line, filename, lines, line_number):
         elif doc_open:
             if line == '"""\n':
                 # end of docstring
-                if lno <= 4:
+                if lno <= 3:
                     return 0, 'X101 missing module name in docstring'
                 break
 
             if line != '\n' and line[:4] != '    ' and doc_open:
                 return 0, 'X101 missing correct docstring indentation'
 
-            if lno == 2:
+            if lno == 1:
                 mod_name_len = len(line.strip())
                 if line.strip() != mod_name:
-                    return 4, 'X101 wrong module name in docstring heading'
-            elif lno == 3:
+                    return 2, 'X101 wrong module name in docstring heading'
+            elif lno == 2:
                 if line.strip() != mod_name_len * '~':
-                    return (4, 'X101 wrong module name underline, should be '
+                    return (3, 'X101 wrong module name underline, should be '
                             '~~~...~')
     else:
         return 0, 'X101 missing end and/or start of docstring...'

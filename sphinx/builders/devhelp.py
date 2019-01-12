@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.devhelp
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -7,14 +6,14 @@
 
     .. _Devhelp: https://wiki.gnome.org/Apps/Devhelp
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import gzip
 import re
 from os import path
+from typing import Any
 
 from docutils import nodes
 
@@ -23,6 +22,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename
 
 try:
@@ -32,7 +32,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List  # NOQA
+    from typing import Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -60,7 +60,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
+        super().init()
         self.out_suffix = '.html'
         self.link_suffix = '.html'
 
@@ -69,7 +69,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         self.build_devhelp(self.outdir, self.config.devhelp_basename)
 
     def build_devhelp(self, outdir, outname):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         logger.info(__('dumping devhelp index...'))
 
         # Basic info
@@ -87,7 +87,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
             self.config.master_doc, self, prune_toctrees=False)
 
         def write_toc(node, parent):
-            # type: (nodes.Node, nodes.Node) -> None
+            # type: (nodes.Node, etree.Element) -> None
             if isinstance(node, addnodes.compact_paragraph) or \
                isinstance(node, nodes.bullet_list):
                 for subnode in node:
@@ -100,12 +100,8 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 parent.attrib['link'] = node['refuri']
                 parent.attrib['name'] = node.astext()
 
-        def istoctree(node):
-            # type: (nodes.Node) -> bool
-            return isinstance(node, addnodes.compact_paragraph) and \
-                'toctree' in node
-
-        for node in tocdoc.traverse(istoctree):
+        matcher = NodeMatcher(addnodes.compact_paragraph, toctree=Any)
+        for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
             write_toc(node, chapters)
 
         # Index
@@ -113,7 +109,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         index = IndexEntries(self.env).create_index(self)
 
         def write_index(title, refs, subitems):
-            # type: (unicode, List[Any], Any) -> None
+            # type: (str, List[Any], Any) -> None
             if len(refs) == 0:
                 pass
             elif len(refs) == 1:
@@ -137,12 +133,12 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Dump the XML file
         xmlfile = path.join(outdir, outname + '.devhelp.gz')
-        with gzip.open(xmlfile, 'w') as f:  # type: ignore
+        with gzip.open(xmlfile, 'w') as f:
             tree.write(f, 'utf-8')
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(DevhelpBuilder)
 

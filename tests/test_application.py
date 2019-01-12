@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_application
     ~~~~~~~~~~~~~~~~
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pytest
@@ -42,13 +41,14 @@ def test_events(app, status, warning):
 
 
 def test_emit_with_nonascii_name_node(app, status, warning):
-    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    warning = strip_escseq(warning.getvalue())
+    assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):
@@ -58,6 +58,8 @@ def test_extension_in_blacklist(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='add_source_parser')
+@pytest.mark.filterwarnings('ignore:The config variable "source_parsers"')
+@pytest.mark.filterwarnings('ignore:app.add_source_parser\\(\\) does not support suffix')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
 

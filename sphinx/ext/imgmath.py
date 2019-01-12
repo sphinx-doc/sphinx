@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.imgmath
     ~~~~~~~~~~~~~~~~~~
 
     Render math in HTML via dvipng or dvisvgm.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 import posixpath
 import re
 import shutil
@@ -19,24 +17,24 @@ from os import path
 from subprocess import Popen, PIPE
 
 from docutils import nodes
-from six import text_type
 
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
-from sphinx.util.osutil import ensuredir, ENOENT, cd
+from sphinx.util.osutil import ensuredir, cd
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.pycompat import sys_encoding
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Union  # NOQA
     from sphinx.addnodes import displaymath  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
+    from sphinx.writers.html import HTMLTranslator  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +43,12 @@ class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
-        # type: (unicode, unicode, unicode) -> None
+        # type: (str, bytes, bytes) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
             msg += '\n[stdout]\n' + stdout.decode(sys_encoding, 'replace')
-        SphinxError.__init__(self, msg)
+        super().__init__(msg)
 
 
 class InvokeError(SphinxError):
@@ -90,7 +88,7 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def generate_latex_macro(math, config):
-    # type: (unicode, Config) -> unicode
+    # type: (str, Config) -> str
     """Generate LaTeX macro."""
     fontsize = config.imgmath_font_size
     baselineskip = int(round(fontsize * 1.2))
@@ -105,7 +103,7 @@ def generate_latex_macro(math, config):
 
 
 def ensure_tempdir(builder):
-    # type: (Builder) -> unicode
+    # type: (Builder) -> str
     """Create temporary directory.
 
     use only one tempdir per build -- the use of a directory is cleaner
@@ -119,11 +117,11 @@ def ensure_tempdir(builder):
 
 
 def compile_math(latex, builder):
-    # type: (unicode, Builder) -> unicode
+    # type: (str, Builder) -> str
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.tex')
-    with codecs.open(filename, 'w', 'utf-8') as f:  # type: ignore
+    with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
     # build latex command; old versions of latex don't have the
@@ -137,9 +135,7 @@ def compile_math(latex, builder):
     with cd(tempdir):
         try:
             p = Popen(command, stdout=PIPE, stderr=PIPE)
-        except OSError as err:
-            if err.errno != ENOENT:   # No such file or directory
-                raise
+        except FileNotFoundError:
             logger.warning(__('LaTeX command %r cannot be run (needed for math '
                               'display), check the imgmath_latex setting'),
                            builder.config.imgmath_latex)
@@ -153,13 +149,11 @@ def compile_math(latex, builder):
 
 
 def convert_dvi_to_image(command, name):
-    # type: (List[unicode], unicode) -> Tuple[unicode, unicode]
+    # type: (List[str], str) -> Tuple[bytes, bytes]
     """Convert DVI file to specific image format."""
     try:
         p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except OSError as err:
-        if err.errno != ENOENT:   # No such file or directory
-            raise
+    except FileNotFoundError:
         logger.warning(__('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting'),
                        name, command[0], name)
@@ -173,7 +167,7 @@ def convert_dvi_to_image(command, name):
 
 
 def convert_dvi_to_png(dvipath, builder):
-    # type: (unicode, Builder) -> Tuple[unicode, int]
+    # type: (str, Builder) -> Tuple[str, int]
     """Convert DVI file to PNG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.png')
@@ -190,7 +184,7 @@ def convert_dvi_to_png(dvipath, builder):
     depth = None
     if builder.config.imgmath_use_preview:
         for line in stdout.splitlines():
-            matched = depth_re.match(line)  # type: ignore
+            matched = depth_re.match(line)
             if matched:
                 depth = int(matched.group(1))
                 write_png_depth(filename, depth)
@@ -200,7 +194,7 @@ def convert_dvi_to_png(dvipath, builder):
 
 
 def convert_dvi_to_svg(dvipath, builder):
-    # type: (unicode, Builder) -> Tuple[unicode, int]
+    # type: (str, Builder) -> Tuple[str, int]
     """Convert DVI file to SVG image."""
     tempdir = ensure_tempdir(builder)
     filename = path.join(tempdir, 'math.svg')
@@ -215,7 +209,7 @@ def convert_dvi_to_svg(dvipath, builder):
 
 
 def render_math(self, math):
-    # type: (nodes.NodeVisitor, unicode) -> Tuple[unicode, int]
+    # type: (HTMLTranslator, str) -> Tuple[str, int]
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -235,7 +229,7 @@ def render_math(self, math):
 
     latex = generate_latex_macro(math, self.builder.config)
 
-    filename = "%s.%s" % (sha1(latex.encode('utf-8')).hexdigest(), image_format)
+    filename = "%s.%s" % (sha1(latex.encode()).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', filename)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
     if path.isfile(outfn):
@@ -251,7 +245,7 @@ def render_math(self, math):
     try:
         dvipath = compile_math(latex, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_latex = True
+        self.builder._imgmath_warned_latex = True  # type: ignore
         return None, None
 
     # .dvi -> .png/.svg
@@ -261,7 +255,7 @@ def render_math(self, math):
         elif image_format == 'svg':
             imgpath, depth = convert_dvi_to_svg(dvipath, self.builder)
     except InvokeError:
-        self.builder._imgmath_warned_image_translator = True
+        self.builder._imgmath_warned_image_translator = True  # type: ignore
         return None, None
 
     # Move generated image on tempdir to build dir
@@ -284,18 +278,18 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    # type: (nodes.NodeVisitor, nodes.math) -> unicode
+    # type: (HTMLTranslator, Union[nodes.math, nodes.math_block]) -> str
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node.astext()).strip()
     return ''
 
 
 def html_visit_math(self, node):
-    # type: (nodes.NodeVisitor, nodes.math) -> None
+    # type: (HTMLTranslator, nodes.math) -> None
     try:
         fname, depth = render_math(self, '$' + node.astext() + '$')
     except MathExtError as exc:
-        msg = text_type(exc)
+        msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)
@@ -314,16 +308,15 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
-    # type: (nodes.NodeVisitor, nodes.math_block) -> None
+    # type: (HTMLTranslator, nodes.math_block) -> None
     if node['nowrap']:
         latex = node.astext()
     else:
-        latex = wrap_displaymath(node.astext(), None,
-                                 self.builder.config.math_number_all)
+        latex = wrap_displaymath(node.astext(), None, False)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
-        msg = text_type(exc)
+        msg = str(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node.astext())
         sm.walkabout(self)
@@ -347,7 +340,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

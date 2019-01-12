@@ -4,7 +4,7 @@
  *
  * Sphinx JavaScript utilities for the full-text search.
  *
- * :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -55,6 +55,14 @@ var Search = {
   _index : null,
   _queued_query : null,
   _pulse_status : -1,
+
+  htmlToText : function(htmlString) {
+      var htmlElement = document.createElement('span');
+      htmlElement.innerHTML = htmlString;
+      $(htmlElement).find('.headerlink').remove();
+      docContent = $(htmlElement).find('[role=main]')[0];
+      return docContent.textContent || docContent.innerText;
+  },
 
   init : function() {
       var params = $.getQueryParameters();
@@ -138,7 +146,6 @@ var Search = {
    */
   query : function(query) {
     var i;
-    var stopwords = DOCUMENTATION_OPTIONS.SEARCH_LANGUAGE_STOP_WORDS;
 
     // stem the searchterms and add them to the correct list
     var stemmer = new Stemmer();
@@ -260,11 +267,7 @@ var Search = {
             displayNextItem();
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          var suffix = DOCUMENTATION_OPTIONS.SOURCELINK_SUFFIX;
-          if (suffix === undefined) {
-            suffix = '.txt';
-          }
-          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].slice(-suffix.length) === suffix ? '' : suffix),
+          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + item[0] + DOCUMENTATION_OPTIONS.FILE_SUFFIX,
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
@@ -457,7 +460,8 @@ var Search = {
    * words. the first one is used to find the occurrence, the
    * latter for highlighting it.
    */
-  makeSearchSummary : function(text, keywords, hlwords) {
+  makeSearchSummary : function(htmlText, keywords, hlwords) {
+    var text = Search.htmlToText(htmlText);
     var textLower = text.toLowerCase();
     var start = 0;
     $.each(keywords, function() {

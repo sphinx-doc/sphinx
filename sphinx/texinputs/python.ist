@@ -4,6 +4,9 @@ heading_prefix "  \\bigletter "
 
 preamble "\\begin{sphinxtheindex}
 \\let\\bigletter\\sphinxstyleindexlettergroup
+\\let\\spxpagem \\sphinxstyleindexpagemain
+\\let\\spxentry \\sphinxstyleindexentry
+\\let\\spxextra \\sphinxstyleindexextra
 
 "
 

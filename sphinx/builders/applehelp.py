@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.applehelp
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Build Apple help books.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
-import codecs
+import html
 import pipes
 import plistlib
 import shlex
@@ -18,7 +16,6 @@ import subprocess
 from os import path, environ
 
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.config import string_classes
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
@@ -26,7 +23,6 @@ from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
-from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
@@ -35,13 +31,6 @@ if False:
 
 
 logger = logging.getLogger(__name__)
-
-# Use plistlib.dump in 3.4 and above
-try:
-    write_plist = plistlib.dump  # type: ignore
-except AttributeError:
-    write_plist = plistlib.writePlist
-
 
 # False access page (used because helpd expects strict XHTML)
 access_page_template = '''\
@@ -95,7 +84,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        super(AppleHelpBuilder, self).init()
+        super().init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
         self.link_suffix = '.html'
@@ -114,7 +103,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         # type: () -> None
-        super(AppleHelpBuilder, self).handle_finish()
+        super().handle_finish()
 
         self.finish_tasks.add_task(self.copy_localized_files)
         self.finish_tasks.add_task(self.build_helpbook)
@@ -173,8 +162,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         logger.info(bold(__('writing Info.plist... ')), nonl=True)
-        with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
-            write_plist(info_plist, f)
+        with open(path.join(contents_dir, 'Info.plist'), 'wb') as fb:
+            plistlib.dump(info_plist, fb)
         logger.info(__('done'))
 
         # Copy the icon, if one is supplied
@@ -193,10 +182,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         logger.info(bold(__('building access page...')), nonl=True)
-        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:  # type: ignore
-            f.write(access_page_template % {
-                'toc': htmlescape(toc, quote=True),
-                'title': htmlescape(self.config.applehelp_title)
+        with open(path.join(language_dir, '_access.html'), 'w') as ft:
+            ft.write(access_page_template % {
+                'toc': html.escape(toc, quote=True),
+                'title': html.escape(self.config.applehelp_title)
             })
         logger.info(__('done'))
 
@@ -277,23 +266,23 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(AppleHelpBuilder)
 
     app.add_config_value('applehelp_bundle_name',
                          lambda self: make_filename(self.project), 'applehelp')
-    app.add_config_value('applehelp_bundle_id', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_bundle_id', None, 'applehelp', [str])
     app.add_config_value('applehelp_dev_region', 'en-us', 'applehelp')
     app.add_config_value('applehelp_bundle_version', '1', 'applehelp')
-    app.add_config_value('applehelp_icon', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_icon', None, 'applehelp', [str])
     app.add_config_value('applehelp_kb_product',
                          lambda self: '%s-%s' % (make_filename(self.project), self.release),
                          'applehelp')
-    app.add_config_value('applehelp_kb_url', None, 'applehelp', string_classes)
-    app.add_config_value('applehelp_remote_url', None, 'applehelp', string_classes)
-    app.add_config_value('applehelp_index_anchors', False, 'applehelp', string_classes)
-    app.add_config_value('applehelp_min_term_length', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_kb_url', None, 'applehelp', [str])
+    app.add_config_value('applehelp_remote_url', None, 'applehelp', [str])
+    app.add_config_value('applehelp_index_anchors', False, 'applehelp', [str])
+    app.add_config_value('applehelp_min_term_length', None, 'applehelp', [str])
     app.add_config_value('applehelp_stopwords',
                          lambda self: self.language or 'en', 'applehelp')
     app.add_config_value('applehelp_locale', lambda self: self.language or 'en', 'applehelp')

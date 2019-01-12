@@ -1,15 +1,18 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.texescape
     ~~~~~~~~~~~~~~~~~~~~~
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import unicode_literals
+import re
+
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
 
 tex_replacements = [
     # map TeX special chars
@@ -37,6 +40,7 @@ tex_replacements = [
     ('→', r'\(\rightarrow\)'),
     ('‣', r'\(\rightarrow\)'),
     ('✓', r'\(\checkmark\)'),
+    ('✔', r'\(\pmb{\checkmark}\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
@@ -65,61 +69,25 @@ tex_replacements = [
     ('₇', r'\(\sb{\text{7}}\)'),
     ('₈', r'\(\sb{\text{8}}\)'),
     ('₉', r'\(\sb{\text{9}}\)'),
-    # map Greek alphabet
-    ('α', r'\(\alpha\)'),
-    ('β', r'\(\beta\)'),
-    ('γ', r'\(\gamma\)'),
-    ('δ', r'\(\delta\)'),
-    ('ε', r'\(\epsilon\)'),
-    ('ζ', r'\(\zeta\)'),
-    ('η', r'\(\eta\)'),
-    ('θ', r'\(\theta\)'),
-    ('ι', r'\(\iota\)'),
-    ('κ', r'\(\kappa\)'),
-    ('λ', r'\(\lambda\)'),
-    ('μ', r'\(\mu\)'),
-    ('ν', r'\(\nu\)'),
-    ('ξ', r'\(\xi\)'),
-    ('ο', r'o'),
-    ('π', r'\(\pi\)'),
-    ('ρ', r'\(\rho\)'),
-    ('σ', r'\(\sigma\)'),
-    ('τ', r'\(\tau\)'),
-    ('υ', '\\(\\upsilon\\)'),
-    ('φ', r'\(\phi\)'),
-    ('χ', r'\(\chi\)'),
-    ('ψ', r'\(\psi\)'),
-    ('ω', r'\(\omega\)'),
-    ('Α', r'A'),
-    ('Β', r'B'),
-    ('Γ', r'\(\Gamma\)'),
-    ('Δ', r'\(\Delta\)'),
-    ('Ε', r'E'),
-    ('Ζ', r'Z'),
-    ('Η', r'H'),
-    ('Θ', r'\(\Theta\)'),
-    ('Ι', r'I'),
-    ('Κ', r'K'),
-    ('Λ', r'\(\Lambda\)'),
-    ('Μ', r'M'),
-    ('Ν', r'N'),
-    ('Ξ', r'\(\Xi\)'),
-    ('Ο', r'O'),
-    ('Π', r'\(\Pi\)'),
-    ('Ρ', r'P'),
-    ('Σ', r'\(\Sigma\)'),
-    ('Τ', r'T'),
-    ('Υ', '\\(\\Upsilon\\)'),
-    ('Φ', r'\(\Phi\)'),
-    ('Χ', r'X'),
-    ('Ψ', r'\(\Psi\)'),
-    ('Ω', r'\(\Omega\)'),
-    ('Ω', r'\(\Omega\)'),
+    # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
+    # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]
 
-tex_escape_map = {}
+tex_escape_map = {}  # type: Dict[int, str]
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
+
+
+def escape(s):
+    # type: (str) -> str
+    """Escape text for LaTeX output."""
+    return s.translate(tex_escape_map)
+
+
+def escape_abbr(text):
+    # type: (str) -> str
+    """Adjust spacing after abbreviations. Works with @ letter or other."""
+    return re.sub(r'\.(?=\s|$)', r'.\@{}', text)
 
 
 def init():

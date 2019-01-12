@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     test_autosummary
     ~~~~~~~~~~~~~~~~
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+from io import StringIO
+
 import pytest
-from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature, import_by_name, extract_summary
 from sphinx.testing.util import etree_parse
@@ -51,8 +51,8 @@ def test_mangle_signature():
     TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
             if '::' in x]
     for inp, outp in TEST:
-        res = mangle_signature(inp).strip().replace(u"\u00a0", " ")
-        assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
+        res = mangle_signature(inp).strip().replace("\u00a0", " ")
+        assert res == outp, ("'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
 def test_extract_summary(capsys):
@@ -140,7 +140,7 @@ def test_get_items_summary(make_app, app_params):
         'C.prop_attr2': 'This is a attribute docstring',
         'C.C2': 'This is a nested inner class docstring',
     }
-    for key, expected in iteritems(expected_values):
+    for key, expected in expected_values.items():
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)
 
@@ -200,7 +200,7 @@ def test_autosummary_generate(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.builder.build_all()
-    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result

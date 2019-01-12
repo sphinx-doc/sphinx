@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """
     test_domain_cpp
     ~~~~~~~~~~~~~~~
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+import sys
 
 import pytest
-from six import text_type
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
@@ -21,7 +20,7 @@ from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
 
 
 def parse(name, string):
-    class Config(object):
+    class Config:
         cpp_id_attributes = ["id_attr"]
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
@@ -39,10 +38,10 @@ def check(name, input, idDict, output=None):
     if output is None:
         output = input
     ast = parse(name, input)
-    res = text_type(ast)
+    res = str(ast)
     if res != output:
         print("")
-        print("Input:    ", text_type(input))
+        print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
@@ -73,19 +72,19 @@ def check(name, input, idDict, output=None):
         res.append(idExpected[i] == idActual[i])
 
     if not all(res):
-        print("input:    %s" % text_type(input).rjust(20))
+        print("input:    %s" % input.rjust(20))
         for i in range(1, _max_id + 1):
             if res[i]:
                 continue
             print("Error in id version %d." % i)
-            print("result:   %s" % str(idActual[i]))
-            print("expected: %s" % str(idExpected[i]))
+            print("result:   %s" % idActual[i])
+            print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
 
 
 def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
+    # see https://en.cppreference.com/w/cpp/language/types
     for t, id_v2 in cppDomain._id_fundamental_v2.items():
         def makeIdV1():
             if t == 'decltype(auto)':
@@ -123,11 +122,37 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     for suffix in ['', 'f', 'F', 'l', 'L']:
-        expr = '5.0' + suffix
-        exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                '5e42', '5e+42', '5e-42',
+                '5.', '5.e42', '5.e+42', '5.e-42',
+                '.5', '.5e42', '.5e+42', '.5e-42',
+                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+            expr = e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                'ApF', 'Ap+F', 'Ap-F',
+                'A.', 'A.pF', 'A.p+F', 'A.p-F',
+                '.A', '.ApF', '.Ap+F', '.Ap-F',
+                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+            expr = "0x" + e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
-    # TODO: test the rest
+    # character literals
+    for p, t in [('', 'c'), ('u8', 'c'), ('u', 'Ds'), ('U', 'Di'), ('L', 'w')]:
+        exprCheck(p + "'a'", t + "97")
+        exprCheck(p + "'\\n'", t + "10")
+        exprCheck(p + "'\\012'", t + "10")
+        exprCheck(p + "'\\0'", t + "0")
+        exprCheck(p + "'\\x0a'", t + "10")
+        exprCheck(p + "'\\x0A'", t + "10")
+        exprCheck(p + "'\\u0a42'", t + "2626")
+        exprCheck(p + "'\\u0A42'", t + "2626")
+        if sys.maxunicode > 65535:
+            exprCheck(p + "'\\U0001f34c'", t + "127820")
+            exprCheck(p + "'\\U0001F34C'", t + "127820")
+
+    # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')
@@ -158,6 +183,17 @@ def test_expressions():
     exprCheck('sizeof -42', 'szngL42E')
     exprCheck('alignof(T)', 'at1T')
     exprCheck('noexcept(-42)', 'nxngL42E')
+    # new-expression
+    exprCheck('new int', 'nw_iE')
+    exprCheck('new volatile int', 'nw_ViE')
+    exprCheck('new int[42]', 'nw_AL42E_iE')
+    exprCheck('new int()', 'nw_ipiE')
+    exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    # delete-expression
+    exprCheck('delete p', 'dl1p')
+    exprCheck('delete [] p', 'da1p')
+    exprCheck('::delete p', 'dl1p')
+    exprCheck('::delete [] p', 'da1p')
     # cast
     exprCheck('(int)2', 'cviL2E')
     # binary op
@@ -652,6 +688,12 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    # position: declarator
+    check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
+    check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
+          output='int *[[attr]] volatile const i')
+    check('member', 'int &[[attr]] i', {1: 'i__iR', 2: '1i'})
+    check('member', 'int *[[attr]] *i', {1: 'i__iPP', 2: '1i'})
 
 
 # def test_print():
@@ -772,7 +814,7 @@ not found in `{test}`
         assert result, expect
         return set(result.group('classes').split())
 
-    class RoleClasses(object):
+    class RoleClasses:
         """Collect the classes from the layout that was generated for a given role."""
 
         def __init__(self, role, root, contents):

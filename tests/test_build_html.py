@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_build_html
     ~~~~~~~~~~~~~~~
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,10 +15,9 @@ from itertools import cycle, chain
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
-from six import PY3
 
 from sphinx.errors import ConfigError
-from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
 
@@ -30,10 +28,10 @@ ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
-file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+file '%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
-%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry ''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
@@ -44,10 +42,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: a suitable image for html builder not found: foo.\\*
 %(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
-
-if PY3:
-    ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
-    HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
 etree_cache = {}
@@ -151,19 +145,18 @@ def test_html_warnings(app, warning):
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
-        (".//a[@href='../_downloads/img.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//img[@src='../_images/img.png']", ''),
         (".//p", 'This is an include file.'),
         (".//pre/span", 'line 1'),
         (".//pre/span", 'line 2'),
     ],
     'includes.html': [
-        (".//pre", u'Max Strauß'),
-        (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
-        (".//pre/span", u'"quotes"'),
-        (".//pre/span", u"'included'"),
-        (".//pre/span[@class='s2']", u'üöä'),
+        (".//pre", 'Max Strauß'),
+        (".//a[@class='reference download internal']", ''),
+        (".//pre/span", '"quotes"'),
+        (".//pre/span", "'included'"),
+        (".//pre/span[@class='s2']", 'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
@@ -171,7 +164,7 @@ def test_html_warnings(app, warning):
         (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text notranslate']//pre",
-         u'^foo = "Including Unicode characters: üöä"\\n$'),
+         '^foo = "Including Unicode characters: üöä"\\n$'),
         (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
@@ -211,7 +204,7 @@ def test_html_warnings(app, warning):
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
         (".//li/kbd", r'^kbd\\n$'),
-        (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/span", 'File \N{TRIANGULAR BULLET} Close'),
         (".//li/code/span[@class='pre']", '^a/$'),
         (".//li/code/em/span[@class='pre']", '^varpart$'),
         (".//li/code/em/span[@class='pre']", '^i$'),
@@ -249,7 +242,7 @@ def test_html_warnings(app, warning):
         # footnote reference
         (".//a[@class='footnote-reference']", r'\[1\]'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -272,12 +265,12 @@ def test_html_warnings(app, warning):
         # tests for numeric labels
         (".//a[@href='#id1'][@class='reference internal']/span", 'Testing various markup'),
         # tests for smartypants
-        (".//li", u'Smart “quotes” in English ‘text’.'),
-        (".//li", u'Smart — long and – short dashes.'),
-        (".//li", u'Ellipsis…'),
+        (".//li", 'Smart “quotes” in English ‘text’.'),
+        (".//li", 'Smart — long and – short dashes.'),
+        (".//li", 'Ellipsis…'),
         (".//li//code//span[@class='pre']", 'foo--"bar"...'),
-        (".//p", u'Этот «абзац» должен использовать „русские“ кавычки.'),
-        (".//p", u'Il dit : « C’est “super” ! »'),
+        (".//p", 'Этот «абзац» должен использовать „русские“ кавычки.'),
+        (".//p", 'Il dit : « C’est “super” ! »'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
@@ -348,7 +341,7 @@ def test_html_warnings(app, warning):
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//td[@class='label']", r'\[Ref1\]'),
@@ -419,6 +412,31 @@ def test_html_warnings(app, warning):
 def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_download(app):
+    app.build()
+
+    # subdir/includes.html
+    result = (app.outdir / 'subdir' / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="../(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    filename = matched.group(1)
+
+    # includes.html
+    result = (app.outdir / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    assert matched.group(1) == filename
 
 
 @pytest.mark.sphinx('html', testroot='build-html-translator')
@@ -567,7 +585,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index)
-    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    (app.srcdir / 'index.rst').write_text(index)
     app.builder.build_all()
 
     warnings = warning.getvalue()
@@ -665,7 +683,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index)
-    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    (app.srcdir / 'index.rst').write_text(index)
 
     if not app.outdir.listdir():
         app.build()
@@ -1387,3 +1405,23 @@ def test_html_math_renderer_is_mismatched(make_app, app_params):
         assert False
     except ConfigError as exc:
         assert str(exc) == "Unknown math_renderer 'imgmath' is given."
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_pygments_style_default(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'Alabaster'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'pygments_style': 'sphinx'})
+def test_html_pygments_style_manually(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'
+
+
+@pytest.mark.sphinx('html', testroot='basic',
+                    confoverrides={'html_theme': 'classic'})
+def test_html_pygments_for_classic_theme(app):
+    style = app.builder.highlighter.formatter_args.get('style')
+    assert style.__name__ == 'SphinxStyle'

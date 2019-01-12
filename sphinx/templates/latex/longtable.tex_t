@@ -8,6 +8,7 @@
 <%- endif -%>
 <%= table.get_colspec() %>
 <%- if table.caption -%>
+\sphinxthelongtablecaptionisattop
 \caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
 \hline
 <% elif labels -%>

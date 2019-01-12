@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_smartquotes
     ~~~~~~~~~~~~~~~~
 
     Test smart quotes.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +18,7 @@ def test_basic(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.html').text()
-    assert u'<p>– “Sphinx” is a tool that makes it easy …</p>' in content
+    assert '<p>– “Sphinx” is a tool that makes it easy …</p>' in content
 
 
 @pytest.mark.sphinx(buildername='text', testroot='smartquotes', freshenv=True)
@@ -27,7 +26,7 @@ def test_text_builder(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.txt').text()
-    assert u'-- "Sphinx" is a tool that makes it easy ...' in content
+    assert '-- "Sphinx" is a tool that makes it easy ...' in content
 
 
 @pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True)
@@ -35,15 +34,15 @@ def test_man_builder(app, status, warning):
     app.build()
 
     content = (app.outdir / 'python.1').text()
-    assert u'\\-\\- "Sphinx" is a tool that makes it easy ...' in content
+    assert '\\-\\- "Sphinx" is a tool that makes it easy ...' in content
 
 
 @pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)
 def test_latex_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'test.tex').text()
-    assert u'\\textendash{} “Sphinx” is a tool that makes it easy …' in content
+    content = (app.outdir / 'python.tex').text()
+    assert '\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
@@ -52,7 +51,7 @@ def test_ja_html_builder(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.html').text()
-    assert u'<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
@@ -61,7 +60,7 @@ def test_smartquotes_disabled(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.html').text()
-    assert u'<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 14),
@@ -72,7 +71,7 @@ def test_smartquotes_action(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.html').text()
-    assert u'<p>-- “Sphinx” is a tool that makes it easy ...</p>' in content
+    assert '<p>-- “Sphinx” is a tool that makes it easy ...</p>' in content
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
@@ -81,7 +80,7 @@ def test_smartquotes_excludes_language(app, status, warning):
     app.build()
 
     content = (app.outdir / 'index.html').text()
-    assert u'<p>– 「Sphinx」 is a tool that makes it easy …</p>' in content
+    assert '<p>– 「Sphinx」 is a tool that makes it easy …</p>' in content
 
 
 @pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True,
@@ -90,4 +89,4 @@ def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
 
     content = (app.outdir / 'python.1').text()
-    assert u'– “Sphinx” is a tool that makes it easy …' in content
+    assert '– “Sphinx” is a tool that makes it easy …' in content
