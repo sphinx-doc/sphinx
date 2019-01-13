@@ -74,7 +74,7 @@ The latex_elements configuration setting
 
 A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
 into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
-`separately <latexsphinxsetup_>`_.
+:ref:`separately <latexsphinxsetup>`.
 
 * Keys that you may want to override include:
 
