@@ -316,7 +316,8 @@ def read_doc(app, env, filename):
         pub = Publisher(reader=reader,
                         parser=parser,
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxFileInput)
+                        source_class=SphinxFileInput,
+                        destination=NullOutput())
         pub.process_programmatic_settings(None, env.settings, None)
         pub.set_source(source_path=filename)
 
