@@ -27,7 +27,6 @@ def test_qthelp_basic(app, status, warning):
     assert '<file>genindex.html</file>' in qhp
     assert '<file>index.html</file>' in qhp
     assert '<file>_static/basic.css</file>' in qhp
-    assert '<file>_static/down.png</file>' in qhp
 
     qhcp = (app.outdir / 'Python.qhcp').text()
     assert '<title>Python  documentation</title>' in qhcp
