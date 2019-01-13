@@ -183,6 +183,8 @@ Bugs fixed
 Testing
 --------
 
+* Stop to use ``SPHINX_TEST_TEMPDIR`` envvar
+
 Release 1.8.4 (in development)
 ==============================
 

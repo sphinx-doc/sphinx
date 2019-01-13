@@ -14,7 +14,6 @@ import sys
 from collections import namedtuple
 from io import StringIO
 from subprocess import PIPE
-from tempfile import gettempdir
 
 import pytest
 
@@ -221,11 +220,15 @@ def if_graphviz_found(app):
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir():
+def sphinx_test_tempdir(tmpdir_factory):
     """
     temporary directory that wrapped with `path` class.
     """
-    return util.path(os.environ.get('SPHINX_TEST_TEMPDIR', gettempdir())).abspath()
+    tmpdir = os.environ.get('SPHINX_TEST_TEMPDIR')  # RemovedInSphinx40Warning
+    if tmpdir is None:
+        tmpdir = tmpdir_factory.getbasetemp()
+
+    return util.path(tmpdir).abspath()
 
 
 @pytest.fixture

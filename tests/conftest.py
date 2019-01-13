@@ -7,7 +7,6 @@
 """
 
 import os
-import shutil
 
 import docutils
 import pytest
@@ -30,24 +29,6 @@ def rootdir():
 def pytest_report_header(config):
     return ("libraries: Sphinx-%s, docutils-%s" %
             (sphinx.__display_version__, docutils.__version__))
-
-
-def _initialize_test_directory(session):
-    testroot = os.path.join(str(session.config.rootdir), 'tests')
-    tempdir = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR',
-                              os.path.join(testroot, 'build')))
-    os.environ['SPHINX_TEST_TEMPDIR'] = tempdir
-
-    print('Temporary files will be placed in %s.' % tempdir)
-
-    if os.path.exists(tempdir):
-        shutil.rmtree(tempdir)
-
-    os.makedirs(tempdir)
-
-
-def pytest_sessionstart(session):
-    _initialize_test_directory(session)
 
 
 def pytest_assertrepr_compare(op, left, right):
