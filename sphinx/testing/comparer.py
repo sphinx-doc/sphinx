@@ -9,8 +9,6 @@
 """
 import difflib
 import pathlib
-
-# For type annotation
 from typing import List, Union
 
 
@@ -80,10 +78,7 @@ class PathComparer:
             self.path,
         )
 
-    def _diff(self,
-              lhs: Union[str, pathlib.Path],
-              rhs: Union[str, pathlib.Path],
-              ) -> List[str]:
+    def _diff(self, lhs: pathlib.Path, rhs: pathlib.Path) -> List[str]:
         if lhs == rhs:
             return []
 
