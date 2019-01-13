@@ -919,7 +919,7 @@ class ASTFoldExpr(ASTBase):
         # type: (int) -> str
         assert version >= 3
         if version == 3:
-            return text_type(self)
+            return str(self)
         # https://github.com/itanium-cxx-abi/cxx-abi/pull/67
         res = []
         if self.leftExpr is None:  # (... op expr)
