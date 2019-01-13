@@ -91,16 +91,19 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Checkout the appropriate branch.
 
-   Sphinx uses Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
+   Sphinx adopts Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
 
    For changes that preserves backwards-compatibility of API and features,
-   it should be included in the next MINOR release, use the ``X.Y`` branch. ::
+   they should be included in the next MINOR release, use the ``X.Y`` branch.
+   ::
 
        git checkout X.Y
 
    For incompatible or other substantial changes that should wait until the
-   next MAJOR release, use the ``master`` branch  (see `Branch Model`_ for
-   detail).
+   next MAJOR release, use the ``master`` branch.
+
+   For urgent release, a new PATCH branch must be branched from the newest
+   release tag (see `Branch Model`_ for detail).
 
 #. Setup a virtual environment.
 
@@ -319,7 +322,8 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
 
 ``master``
     Development for MAJOR version.
-    All incompatible behavior and public API changes are allowed.
+    All changes including incompatible behaviors and public API updates are
+    allowed.
 
 ``X.Y``
     Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
@@ -336,7 +340,9 @@ Versioning 2.0.0 (refs: https://semver.org/ ).
     version is used for urgent bug fix.
 
     ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
-    release tag (ex. v2.3.0) when a urgent release is needed.
+    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
+    release is needed. When new PATCH version is released, the branch will be
+    deleted and replaced by an equivalent tag (ex. v2.3.1).
 
 
 Deprecating a feature
@@ -369,8 +375,8 @@ silence any warnings generated when running the tests.
 Deprecation policy
 ------------------
 
-A MAJOR and MINOR releases may deprecate certain features from previous
-releases. If a feature is deprecated in MINOR release A.x, it will continue to
+MAJOR and MINOR releases may deprecate certain features from previous
+releases. If a feature is deprecated in a release A.x, it will continue to
 work in all A.x.x versions (for all versions of x). It will continue to work
 in all B.x.x versions but raise deprecation warnings. Deprecated features
 will be removed at the C.0.0. It means the deprecated feature will work during
