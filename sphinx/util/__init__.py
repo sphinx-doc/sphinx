@@ -9,6 +9,7 @@
 """
 
 import fnmatch
+import functools
 import os
 import posixpath
 import re
@@ -673,6 +674,34 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
         yield item
     if l > 0:
         logger.info('')
+
+
+class progress_message:
+    def __init__(self, message):
+        # type: (str) -> None
+        self.message = message
+
+    def __enter__(self):
+        # type: () -> None
+        logger.info(bold(self.message + '... '), nonl=True)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # type: (Any, Any, Any) -> bool
+        if exc_type:
+            logger.info(__('failed'))
+        else:
+            logger.info(__('done'))
+
+        return False
+
+    def __call__(self, f):
+        # type: (Callable) -> Callable
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            with self:
+                return f(*args, **kwargs)
+
+        return wrapper
 
 
 def epoch_to_rfc1123(epoch):
