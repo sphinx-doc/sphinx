@@ -170,7 +170,7 @@ def using_user_docutils_conf(confdir):
         yield
     finally:
         if docutilsconfig is None:
-            os.environ.pop('DOCUTILSCONFIG')
+            os.environ.pop('DOCUTILSCONFIG', None)
         else:
             os.environ['DOCUTILSCONFIG'] = docutilsconfig
 

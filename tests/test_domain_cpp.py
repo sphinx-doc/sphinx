@@ -104,9 +104,12 @@ def test_fundamental_types():
 
 
 def test_expressions():
-    def exprCheck(expr, id):
+    def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
-        check('class', 'template<> C<a[%s]>' % expr, {2: ids % expr, 3: ids % id})
+        idDict = {2: ids % expr, 3: ids % id}
+        if id4 is not None:
+            idDict[4] = ids % id4
+        check('class', 'template<> C<a[%s]>' % expr, idDict)
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -153,7 +156,9 @@ def test_expressions():
             exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
-    exprCheck('(... + Ns)', '(... + Ns)')
+    exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
+    exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
+    exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')
     # postfix
@@ -242,7 +247,7 @@ def test_expressions():
     # a < expression that starts with something that could be a template
     exprCheck('A < 42', 'lt1AL42E')
     check('function', 'template<> void f(A<B, 2> &v)',
-          {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE"})
+          {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE", 4: "IE1fvR1AI1BXL2EEE"})
     exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
     check('class', "template<int T = 42> A", {2: "I_iE1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
@@ -426,7 +431,7 @@ def test_function_definitions():
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
-          {1: "result__i.std::error_categoryCR", 2: "6resultiRNSt14error_categoryE"})
+          {1: "result__i.std::error_categoryCR", 2: "6resultiRKNSt14error_categoryE"})
     check("function", "int *f()", {1: "f", 2: "1fv"})
     # tests derived from issue #1753 (skip to keep sanity)
     check("function", "f(int (&array)[10])", {2: "1fRA10_i", 3: "1fRAL10E_i"})
@@ -476,6 +481,10 @@ def test_function_definitions():
     check('function', 'void f(void (C::*)() const &)', {2: '1fM1CKRFvvE'})
     check('function', 'int C::* f(int, double)', {2: '1fid'})
     check('function', 'void f(int C::* *)', {2: '1fPM1Ci'})
+
+    # exceptions from return type mangling
+    check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
+    check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
 
 
 def test_operators():
@@ -556,7 +565,7 @@ def test_templates():
     check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> A<T>")
     # first just check which objects support templating
     check('class', "template<> A", {2: "IE1A"})
-    check('function', "template<> void A()", {2: "IE1Av"})
+    check('function', "template<> void A()", {2: "IE1Av", 4: "IE1Avv"})
     check('member', "template<> A a", {2: "IE1a"})
     check('type', "template<> a = A", {2: "IE1a"})
     with pytest.raises(DefinitionError):
@@ -594,6 +603,10 @@ def test_templates():
           "std::basic_ostream<Char, Traits> &os, "
           "const c_string_view_base<const Char, Traits> &str)",
           {2: "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
+              "RK18c_string_view_baseIK4Char6TraitsE",
+           4: "I00Els"
+              "RNSt13basic_ostreamI4Char6TraitsEE"
+              "RNSt13basic_ostreamI4Char6TraitsEE"
               "RK18c_string_view_baseIK4Char6TraitsE"})
 
     # template introductions
@@ -617,9 +630,11 @@ def test_templates():
     check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
     check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
-          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv'})
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv',
+           4: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEvv'})
     check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
-          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv'})
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv',
+           4: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEvv'})
     check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
     check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
@@ -646,7 +661,8 @@ def test_template_args():
           "template<typename F> "
           "void allow(F *f, typename func<F, B, G != 1>::type tt)",
           {2: "I0E5allowP1FN4funcI1F1BXG != 1EE4typeE",
-           3: "I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE"})
+           3: "I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE",
+           4: "I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",

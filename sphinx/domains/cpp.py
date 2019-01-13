@@ -365,8 +365,8 @@ _keywords = [
     'while', 'xor', 'xor_eq'
 ]
 
-_max_id = 3
-_id_prefix = [None, '', '_CPPv2', '_CPPv3']
+_max_id = 4
+_id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
 
 # ------------------------------------------------------------------------------
 # Id v1 constants
@@ -892,6 +892,7 @@ class ASTParenExpr(ASTBase):
 
 class ASTFoldExpr(ASTBase):
     def __init__(self, leftExpr, op, rightExpr):
+        # type: (Any, str, Any) -> None
         assert leftExpr is not None or rightExpr is not None
         self.leftExpr = leftExpr
         self.op = op
@@ -918,9 +919,23 @@ class ASTFoldExpr(ASTBase):
         # type: (int) -> str
         assert version >= 3
         if version == 3:
-            return str(self)
-        # TODO: find the right mangling scheme
-        assert False
+            return text_type(self)
+        # https://github.com/itanium-cxx-abi/cxx-abi/pull/67
+        res = []
+        if self.leftExpr is None:  # (... op expr)
+            res.append('fl')
+        elif self.rightExpr is None:  # (expr op ...)
+            res.append('fr')
+        else:  # (expr op ... op expr)
+            # we don't check where the parameter pack is,
+            # we just always call this a binary left fold
+            res.append('fL')
+        res.append(_id_operator_v2[self.op])
+        if self.leftExpr:
+            res.append(self.leftExpr.get_id(version))
+        if self.rightExpr:
+            res.append(self.rightExpr.get_id(version))
+        return ''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('('))
@@ -2635,11 +2650,12 @@ class ASTDeclSpecs(ASTBase):
                 res.append('C')
             return ''.join(res)
         res = []
-        if self.leftSpecs.volatile or self.rightSpecs.volatile:
+        if self.allSpecs.volatile:
             res.append('V')
-        if self.leftSpecs.const or self.rightSpecs.volatile:
+        if self.allSpecs.const:
             res.append('K')
-        res.append(self.trailingTypeSpec.get_id(version))
+        if self.trailingTypeSpec is not None:
+            res.append(self.trailingTypeSpec.get_id(version))
         return ''.join(res)
 
     def _stringify(self, transform):
@@ -3286,6 +3302,14 @@ class ASTType(ASTBase):
             if objectType == 'function':  # also modifiers
                 modifiers = self.decl.get_modifiers_id(version)
                 res.append(symbol.get_full_nested_name().get_id(version, modifiers))
+                if version >= 4:
+                    # with templates we need to mangle the return type in as well
+                    templ = symbol.declaration.templatePrefix
+                    if templ is not None:
+                        typeId = self.decl.get_ptr_suffix_id(version)
+                        returnTypeId = self.declSpecs.get_id(version)
+                        res.append(typeId)
+                        res.append(returnTypeId)
                 res.append(self.decl.get_param_id(version))
             elif objectType == 'type':  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
@@ -4753,13 +4777,45 @@ class DefinitionParser:
             if not self.skip_string(')'):
                 self.fail("Expected ')' in end of fold expression.")
             return ASTFoldExpr(None, op, rightExpr)
-        # TODO: actually try to parse fold expression
-        # fall back to a paren expression
-        res = self._parse_expression(inTemplate=False)
+        # try first parsing a unary right fold, or a binary fold
+        pos = self.pos
+        try:
+            self.skip_ws()
+            leftExpr = self._parse_cast_expression()
+            self.skip_ws()
+            if not self.match(_fold_operator_re):
+                self.fail("Expected fold operator after left expression in fold expression.")
+            op = self.matched_text
+            self.skip_ws()
+            if not self.skip_string_and_ws('...'):
+                self.fail("Expected '...' after fold operator in fold expression.")
+        except DefinitionError as eFold:
+            self.pos = pos
+            # fall back to a paren expression
+            try:
+                res = self._parse_expression(inTemplate=False)
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    self.fail("Expected ')' in end of parenthesized expression.")
+            except DefinitionError as eExpr:
+                raise self._make_multi_error([
+                    (eFold, "If fold expression"),
+                    (eExpr, "If parenthesized expression")
+                ], "Error in fold expression or parenthesized expression.")
+            return ASTParenExpr(res)
+        # now it definitely is a fold expression
+        if self.skip_string(')'):
+            return ASTFoldExpr(leftExpr, op, None)
+        if not self.match(_fold_operator_re):
+            self.fail("Expected fold operator or ')' after '...' in fold expression.")
+        if op != self.matched_text:
+            self.fail("Operators are different in binary fold: '%s' and '%s'."
+                      % (op, self.matched_text))
+        rightExpr = self._parse_cast_expression()
         self.skip_ws()
         if not self.skip_string(')'):
-            self.fail("Expected ')' in end of fold expression or parenthesized expression.")
-        return ASTParenExpr(res)
+            self.fail("Expected ')' to end binary fold expression.")
+        return ASTFoldExpr(leftExpr, op, rightExpr)
 
     def _parse_primary_expression(self):
         # literal
@@ -5068,7 +5124,7 @@ class DefinitionParser:
             try:
                 typ = self._parse_type(False)
                 if not self.skip_string(')'):
-                    raise DefinitionError("Expected ')' in cast expression.")
+                    self.fail("Expected ')' in cast expression.")
                 expr = self._parse_cast_expression()
                 return ASTCastExpr(typ, expr)
             except DefinitionError as exCast:
@@ -6488,7 +6544,7 @@ class CPPObject(ObjectDescription):
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
             self.env.temp_data['cpp:last_symbol'] = e.symbol
-            self.warn("Duplicate declaration.")
+            self.warn("Duplicate declaration, %s" % sig)
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
