@@ -10,6 +10,7 @@
 
 import re
 from io import StringIO
+from os import path
 from zipfile import ZipFile
 
 from sphinx.errors import PycodeError
@@ -40,7 +41,7 @@ class ModuleAnalyzer:
                 obj = cls(f, modname, filename)
                 cls.cache['file', filename] = obj
         except Exception as err:
-            if '.egg/' in filename:
+            if '.egg' + path.sep in filename:
                 obj = cls.cache['file', filename] = cls.for_egg(filename, modname)
             else:
                 raise PycodeError('error opening %r' % filename, err)
@@ -48,8 +49,14 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_egg(cls, filename, modname):
+<<<<<<< HEAD
         # type: (str, str) -> ModuleAnalyzer
         eggpath, relpath = re.split('(?<=\\.egg)/', filename)
+=======
+        # type: (unicode, unicode) -> ModuleAnalyzer
+        SEP = re.escape(path.sep)
+        eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
+>>>>>>> 1.8
         try:
             with ZipFile(eggpath) as egg:
                 code = egg.read(relpath).decode()
