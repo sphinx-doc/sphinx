@@ -265,7 +265,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method, compare):
-        # type: (str, bool) -> None
+        # type: (Union[str, Callable], bool) -> None
         """This sets the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -273,9 +273,13 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        if method not in versioning_conditions:
-            raise ValueError('invalid versioning method: %r' % method)
-        condition = versioning_conditions[method]
+        if callable(method):
+            condition = method
+        else:
+            if method not in versioning_conditions:
+                raise ValueError('invalid versioning method: %r' % method)
+            condition = versioning_conditions[method]
+
         if self.versioning_condition not in (None, condition):
             raise SphinxError(__('This environment is incompatible with the '
                                  'selected builder, please choose another '
