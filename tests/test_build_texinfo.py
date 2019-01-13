@@ -10,7 +10,8 @@
 
 import os
 import re
-from subprocess import Popen, PIPE
+import subprocess
+from subprocess import CalledProcessError, PIPE
 
 import pytest
 from test_build_html import ENV_WARNINGS
@@ -52,23 +53,15 @@ def test_texinfo(app, status, warning):
             '@anchor{markup testing-various-markup}@anchor{13}' in result)
     assert 'Footnotes' not in result
     # now, try to run makeinfo over it
-    cwd = os.getcwd()
-    os.chdir(app.outdir)
     try:
-        try:
-            p = Popen(['makeinfo', '--no-split', 'sphinxtests.texi'],
-                      stdout=PIPE, stderr=PIPE)
-        except OSError:
-            raise pytest.skip.Exception  # most likely makeinfo was not found
-        else:
-            stdout, stderr = p.communicate()
-            retcode = p.returncode
-            if retcode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, 'makeinfo exited with return code %s' % retcode
-    finally:
-        os.chdir(cwd)
+        args = ['makeinfo', '--no-split', 'sphinxtests.texi']
+        subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
+    except OSError:
+        raise pytest.skip.Exception  # most likely makeinfo was not found
+    except CalledProcessError as exc:
+        print(exc.stdout)
+        print(exc.stderr)
+        assert False, 'makeinfo exited with return code %s' % exc.retcode
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')

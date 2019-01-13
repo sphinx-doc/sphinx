@@ -12,8 +12,10 @@
 # (Otherwise getting the version out of it from setup.py is impossible.)
 
 import os
+import subprocess
 import warnings
 from os import path
+from subprocess import PIPE
 
 from .deprecation import RemovedInNextVersionWarning
 
@@ -53,11 +55,9 @@ if __version__.endswith('+'):
     __display_version__ = __version__
     __version__ = __version__[:-1]  # remove '+' for PEP-440 version spec.
     try:
-        import subprocess
-        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h'],
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        if out:
-            __display_version__ += '/' + out.decode().strip()
+        ret = subprocess.run(['git', 'show', '-s', '--pretty=format:%h'],
+                             stdout=PIPE, stderr=PIPE, encoding='ascii')
+        if ret.stdout:
+            __display_version__ += '/' + ret.stdout.strip()
     except Exception:
         pass

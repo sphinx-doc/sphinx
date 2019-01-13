@@ -11,9 +11,10 @@
 
 import posixpath
 import re
+import subprocess
 from hashlib import sha1
 from os import path
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError, PIPE
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -243,31 +244,24 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
+
     try:
-        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE, cwd=cwd)
-    except FileNotFoundError:
+        ret = subprocess.run(dot_args, input=code.encode(), stdout=PIPE, stderr=PIPE,
+                             cwd=cwd, check=True)
+        if not path.isfile(outfn):
+            raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
+                                   '[stdout]\n%r') % (ret.stderr, ret.stdout))
+        return relfn, outfn
+    except OSError:
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}  # type: ignore
         self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore
         return None, None
-    try:
-        # Graphviz may close standard input when an error occurs,
-        # resulting in a broken pipe on communicate()
-        stdout, stderr = p.communicate(code.encode())
-    except BrokenPipeError:
-        # in this case, read the standard output and standard error streams
-        # directly, to get the error message(s)
-        stdout, stderr = p.stdout.read(), p.stderr.read()
-        p.wait()
-    if p.returncode != 0:
-        raise GraphvizError(__('dot exited with error:\n[stderr]\n%s\n'
-                               '[stdout]\n%s') % (stderr, stdout))
-    if not path.isfile(outfn):
-        raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%s\n'
-                               '[stdout]\n%s') % (stderr, stdout))
-    return relfn, outfn
+    except CalledProcessError as exc:
+        raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
+                               '[stdout]\n%r') % (exc.stderr, exc.stdout))
 
 
 def render_dot_html(self, node, code, options, prefix='graphviz',

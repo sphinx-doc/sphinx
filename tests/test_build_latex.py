@@ -10,9 +10,10 @@
 
 import os
 import re
+import subprocess
 from itertools import product
 from shutil import copyfile
-from subprocess import Popen, PIPE
+from subprocess import CalledProcessError, PIPE
 
 import pytest
 from test_build_html import ENV_WARNINGS
@@ -22,7 +23,7 @@ from sphinx.config import Config
 from sphinx.errors import SphinxError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import docutils
-from sphinx.util.osutil import cd, ensuredir
+from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 
@@ -43,43 +44,32 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        p = Popen(['kpsewhich'] + list(filenames), stdout=PIPE)
-    except OSError:
-        # no kpsewhich... either no tex distribution is installed or it is
-        # a "strange" one -- don't bother running latex
-        return False
-    else:
-        p.communicate()
-        if p.returncode != 0:
-            # not found
-            return False
-        # found
+        subprocess.run(['kpsewhich'] + list(filenames), stdout=PIPE, stderr=PIPE, check=True)
         return True
+    except (OSError, CalledProcessError):
+        return False  # command not found or exit with non-zero
 
 
 # compile latex document with app.config.latex_engine
 def compile_latex_document(app, filename='python.tex'):
     # now, try to run latex over it
-    with cd(app.outdir):
-        try:
-            ensuredir(app.config.latex_engine)
-            # keep a copy of latex file for this engine in case test fails
-            copyfile(filename, app.config.latex_engine + '/' + filename)
-            p = Popen([app.config.latex_engine,
-                       '--halt-on-error',
-                       '--interaction=nonstopmode',
-                       '-output-directory=%s' % app.config.latex_engine,
-                       filename],
-                      stdout=PIPE, stderr=PIPE)
-        except OSError:  # most likely the latex executable was not found
-            raise pytest.skip.Exception
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, '%s exited with return code %s' % (
-                    app.config.latex_engine, p.returncode)
+    try:
+        ensuredir(app.config.latex_engine)
+        # keep a copy of latex file for this engine in case test fails
+        copyfile(filename, app.config.latex_engine + '/' + filename)
+        args = [app.config.latex_engine,
+                '--halt-on-error',
+                '--interaction=nonstopmode',
+                '-output-directory=%s' % app.config.latex_engine,
+                filename]
+        subprocess.run(args, stdout=PIPE, stderr=PIPE, cwd=app.outdir, check=True)
+    except OSError:  # most likely the latex executable was not found
+        raise pytest.skip.Exception
+    except CalledProcessError as exc:
+        print(exc.stdout)
+        print(exc.stderr)
+        assert False, '%s exited with return code %s' % (app.config.latex_engine,
+                                                         exc.returncode)
 
 
 def skip_if_requested(testfunc):

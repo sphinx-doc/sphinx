@@ -9,7 +9,8 @@
 """
 
 import os
-from subprocess import Popen, PIPE
+import subprocess
+from subprocess import CalledProcessError, PIPE
 from xml.etree import ElementTree
 
 import pytest
@@ -18,13 +19,10 @@ import pytest
 # check given command is runnable
 def runnable(command):
     try:
-        p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except OSError:
-        # command not found
-        return False
-    else:
-        p.communicate()
-        return p.returncode == 0
+        subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        return True
+    except (OSError, CalledProcessError):
+        return False  # command not found or exit with non-zero
 
 
 class EPUBElementTree:
@@ -377,10 +375,10 @@ def test_run_epubcheck(app):
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
     if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                  stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            print(stdout)
-            print(stderr)
-            assert False, 'epubcheck exited with return code %s' % p.returncode
+        try:
+            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+                           stdout=PIPE, stderr=PIPE, check=True)
+        except CalledProcessError as exc:
+            print(exc.stdout)
+            print(exc.stderr)
+            assert False, 'epubcheck exited with return code %s' % exc.returncode
