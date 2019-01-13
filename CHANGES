@@ -26,6 +26,7 @@ Bugs fixed
 * C++, parse unary right fold expressions and binary fold expressions.
 * pycode could not handle egg files on windows
 * #5928: KeyError: 'DOCUTILSCONFIG' when running build
+* #5231: "make html" does not read and build "po" files in "locale" dir
 
 Testing
 --------
