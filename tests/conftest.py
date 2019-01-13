@@ -14,6 +14,7 @@ import pytest
 
 import sphinx
 from sphinx.testing.path import path
+from sphinx.testing import comparer
 
 pytest_plugins = 'sphinx.testing.fixtures'
 
@@ -47,3 +48,7 @@ def _initialize_test_directory(session):
 
 def pytest_sessionstart(session):
     _initialize_test_directory(session)
+
+
+def pytest_assertrepr_compare(op, left, right):
+    comparer.pytest_assertrepr_compare(op, left, right)
