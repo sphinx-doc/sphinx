@@ -1,5 +1,17 @@
-import pathlib
+"""
+    sphinx.testing.comparer
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    Sphinx test comparer for pytest
+
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+"""
 import difflib
+import pathlib
+
+# For type annotation
+from typing import List, Union
 
 
 class PathComparer:
@@ -22,7 +34,7 @@ class PathComparer:
     >>> 'C:\\to\\index' == PathComparer('D:/to/index')
     False
     """
-    def __init__(self, path):
+    def __init__(self, path: Union[str, pathlib.Path]):
         """
         :param str path: path string, it will be cast as pathlib.Path.
         """
@@ -37,7 +49,7 @@ class PathComparer:
     def __eq__(self, other):
         return not bool(self.ldiff(other))
 
-    def diff(self, other):
+    def diff(self, other: Union[str, pathlib.Path]) -> List[str]:
         """compare self and other.
 
         When different is not exist, return empty list.
@@ -68,15 +80,18 @@ class PathComparer:
             self.path,
         )
 
-    def _diff(self, l, r):
-        if l == r:
+    def _diff(self,
+              lhs: Union[str, pathlib.Path],
+              rhs: Union[str, pathlib.Path],
+              ) -> List[str]:
+        if lhs == rhs:
             return []
 
-        if l.drive or r.drive:
+        if lhs.drive or rhs.drive:
             # If either has a drive letter compare by absolute path
-            s_path, o_path = l.absolute().as_posix(), r.absolute().as_posix()
+            s_path, o_path = lhs.absolute().as_posix(), rhs.absolute().as_posix()
         else:
-            s_path, o_path = l.as_posix(), r.as_posix()
+            s_path, o_path = lhs.as_posix(), rhs.as_posix()
 
         if s_path == o_path:
             return []
