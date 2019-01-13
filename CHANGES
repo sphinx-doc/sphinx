@@ -211,6 +211,8 @@ Bugs fixed
 * C++, parse unary right fold expressions and binary fold expressions.
 * pycode could not handle egg files on windows
 * #5928: KeyError: 'DOCUTILSCONFIG' when running build
+* #5936: LaTeX: PDF build broken by inclusion of image taller than page height
+  in an admonition
 
 Testing
 --------
