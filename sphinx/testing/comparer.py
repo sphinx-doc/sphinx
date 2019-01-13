@@ -68,13 +68,13 @@ class PathComparer:
         """
         return self.ldiff(other)
 
-    def ldiff(self, other):
+    def ldiff(self, other: Union[str, pathlib.Path]) -> List[str]:
         return self._diff(
             self.path,
             pathlib.Path(other),
         )
 
-    def rdiff(self, other):
+    def rdiff(self, other: Union[str, pathlib.Path]) -> List[str]:
         return self._diff(
             pathlib.Path(other),
             self.path,
