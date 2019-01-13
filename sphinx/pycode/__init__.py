@@ -49,14 +49,9 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_egg(cls, filename, modname):
-<<<<<<< HEAD
         # type: (str, str) -> ModuleAnalyzer
-        eggpath, relpath = re.split('(?<=\\.egg)/', filename)
-=======
-        # type: (unicode, unicode) -> ModuleAnalyzer
         SEP = re.escape(path.sep)
         eggpath, relpath = re.split('(?<=\\.egg)' + SEP, filename)
->>>>>>> 1.8
         try:
             with ZipFile(eggpath) as egg:
                 code = egg.read(relpath).decode()
