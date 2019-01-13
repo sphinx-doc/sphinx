@@ -11,6 +11,7 @@ import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.testing.comparer import PathComparer
 
 
 @pytest.mark.sphinx('dummy')
@@ -84,7 +85,7 @@ def test_env_relfn2path(app):
 
     # relative filename and a document in subdir
     relfn, absfn = app.env.relfn2path('logo.jpg', 'subdir/index')
-    assert relfn == 'subdir/logo.jpg'
+    assert relfn == PathComparer('subdir/logo.jpg')
     assert absfn == app.srcdir / 'subdir' / 'logo.jpg'
 
     # absolute filename and a document in subdir
@@ -105,7 +106,7 @@ def test_env_relfn2path(app):
     # omit docname (w/ current docname)
     app.env.temp_data['docname'] = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
-    assert relfn == 'subdir/images/logo.jpg'
+    assert relfn == PathComparer('subdir/images/logo.jpg')
     assert absfn == app.srcdir / 'subdir' / 'images' / 'logo.jpg'
 
     # omit docname (w/o current docname)
