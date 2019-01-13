@@ -10,6 +10,8 @@
 
 import re
 
+from sphinx.util.osutil import canon_path
+
 if False:
     # For type annotation
     from typing import Callable, Dict, List, Match, Pattern  # NOQA
@@ -85,6 +87,7 @@ class Matcher:
 
     def match(self, string):
         # type: (str) -> bool
+        string = canon_path(string)
         return any(pat(string) for pat in self.patterns)
 
 
