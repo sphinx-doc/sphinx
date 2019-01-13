@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import errno
 import re
 import subprocess
 import warnings
@@ -27,28 +26,6 @@ def has_binary(binary):
     except OSError:
         pass
     return True
-
-
-@pytest.mark.sphinx(
-    'html', testroot='ext-math',
-    confoverrides = {'extensions': ['sphinx.ext.jsmath'], 'jsmath_path': 'dummy.js'})
-def test_jsmath(app, status, warning):
-    app.builder.build_all()
-    content = (app.outdir / 'math.html').text()
-
-    assert '<div class="math notranslate nohighlight">\na^2 + b^2 = c^2</div>' in content
-    assert ('<div class="math notranslate nohighlight">\n\\begin{split}a + 1 &lt; '
-            'b\\end{split}</div>' in content)
-    assert ('<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            'title="Permalink to this equation">\xb6</a></span>'
-            '<div class="math notranslate nohighlight" id="equation-foo">'
-            '\ne^{i\\pi} = 1</div>' in content)
-    assert ('<span class="eqno">(2)<a class="headerlink" href="#equation-math-0" '
-            'title="Permalink to this equation">\xb6</a></span>'
-            '<div class="math notranslate nohighlight" id="equation-math-0">\n'
-            'e^{ix} = \\cos x + i\\sin x</div>' in content)
-    assert '<div class="math notranslate nohighlight">\nn \\in \\mathbb N</div>' in content
-    assert '<div class="math notranslate nohighlight">\na + 1 &lt; b</div>' in content
 
 
 @pytest.mark.skipif(not has_binary('dvipng'),
@@ -194,23 +171,6 @@ def test_mathjax_numfig_html(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
-                    confoverrides={'extensions': ['sphinx.ext.jsmath'],
-                                   'jsmath_path': 'dummy.js',
-                                   'numfig': True,
-                                   'math_numfig': True})
-def test_jsmath_numfig_html(app, status, warning):
-    app.builder.build_all()
-
-    content = (app.outdir / 'math.html').text()
-    html = '<span class="eqno">(1.2)<a class="headerlink" href="#equation-math-0"'
-    assert html in content
-    html = ('<p>Referencing equation <a class="reference internal" '
-            'href="#equation-foo">(1.1)</a> and '
-            '<a class="reference internal" href="#equation-foo">(1.1)</a>.</p>')
-    assert html in content
-
-
-@pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.imgmath'],
                                    'numfig': True,
                                    'numfig_secnum_depth': 0,
@@ -271,13 +231,3 @@ def test_mathjax_is_not_installed_if_no_equations(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
     assert 'MathJax.js' not in content
-
-
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.jsmath'],
-                                   'jsmath_path': 'jsmath.js'})
-def test_jsmath_is_not_installed_if_no_equations(app, status, warning):
-    app.builder.build_all()
-
-    content = (app.outdir / 'index.html').text()
-    assert 'jsmath.js' not in content

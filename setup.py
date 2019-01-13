@@ -15,6 +15,7 @@ if sys.version_info < (3, 5):
     sys.exit(1)
 
 install_requires = [
+    'sphinxcontrib-jsmath',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.12',
