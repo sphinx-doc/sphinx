@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: '<what happen when you do on which document project>'
+labels: 'bug'
 assignees: ''
 
 ---
@@ -12,27 +12,27 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+```
+<Paste your command-line here which cause the problem>
+```
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Your project**
+Link to your sphinx project, or attach zipped small project sample.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Environment info**
+- OS: [e.g. Unix/Linux/Mac/Win/other with version]
+- Python version: [e.g. 3.7.1]
+- Sphinx version: [e.g. 1.8.2]
+- Extra tools: [e.g. Browser, tex or something else]
 
 **Additional context**
 Add any other context about the problem here.
+
+- [e.g. URL or Ticket]
+
