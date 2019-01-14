@@ -424,21 +424,32 @@ def escape_abbr(text):
     return re.sub(r'\.(?=\s|$)', r'.\@', text)
 
 
-def rstdim_to_latexdim(width_str):
-    # type: (unicode) -> unicode
+def rstdim_to_latexdim(width_str, scale = 100):
+    # type: (unicode, int) -> unicode
     """Convert `width_str` with rst length to LaTeX length."""
     match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
     res = width_str
     amount, unit = match.groups()[:2]
-    float(amount)  # validate amount is float
-    if unit in ('', "px"):
-        res = "%s\\sphinxpxdimen" % amount
-    elif unit == 'pt':
-        res = '%sbp' % amount  # convert to 'bp'
-    elif unit == "%":
-        res = "%.3f\\linewidth" % (float(amount) / 100.0)
+    if scale == 100:
+        float(amount)  # validate amount is float
+        if unit in ('', "px"):
+            res = "%s\\sphinxpxdimen" % amount
+        elif unit == 'pt':
+            res = '%sbp' % amount  # convert to 'bp'
+        elif unit == "%":
+            res = "%.3f\\linewidth" % (float(amount) / 100.0)
+    else:
+        amount = float(amount) * scale / 100.0
+        if unit in ('', "px"):
+            res = "%.5f\\sphinxpxdimen" % amount
+        elif unit == 'pt':
+            res = '%.5fbp' % amount
+        elif unit == "%":
+            res = "%.5f\\linewidth" % (amount / 100.0)
+        else:
+            res = "%.5f%s" % (amount, unit)
     return res
 
 
@@ -1624,10 +1635,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         pass
 
-    def latex_image_length(self, width_str):
-        # type: (nodes.Node) -> unicode
+    def latex_image_length(self, width_str, scale = 100):
+        # type: (nodes.Node, int) -> unicode
         try:
-            return rstdim_to_latexdim(width_str)
+            return rstdim_to_latexdim(width_str, scale)
         except ValueError:
             logger.warning(__('dimension unit %s is invalid. Ignored.'), width_str)
             return None
@@ -1646,20 +1657,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:
-            w = self.latex_image_length(attrs['width'])
+            if 'scale' in attrs:
+                w = self.latex_image_length(attrs['width'], attrs['scale'])
+            else:
+                w = self.latex_image_length(attrs['width'])
             if w:
                 include_graphics_options.append('width=%s' % w)
         if 'height' in attrs:
-            h = self.latex_image_length(attrs['height'])
+            if 'scale' in attrs:
+                h = self.latex_image_length(attrs['height'], attrs['scale'])
+            else:
+                h = self.latex_image_length(attrs['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
         if 'scale' in attrs:
-            if include_graphics_options:
-                # unfortunately passing "height=1cm,scale=2.0" to \includegraphics
-                # does not result in a height of 2cm. We must scale afterwards.
-                pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
-                post.append('}')
-            else:
+            if not include_graphics_options:
                 # if no "width" nor "height", \sphinxincludegraphics will fit
                 # to the available text width if oversized after rescaling.
                 include_graphics_options.append('scale=%s'
