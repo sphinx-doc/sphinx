@@ -441,15 +441,15 @@ def rstdim_to_latexdim(width_str, scale = 100):
         elif unit == "%":
             res = "%.3f\\linewidth" % (float(amount) / 100.0)
     else:
-        amount = float(amount) * scale / 100.0
+        amount_float = float(amount) * scale / 100.0
         if unit in ('', "px"):
-            res = "%.5f\\sphinxpxdimen" % amount
+            res = "%.5f\\sphinxpxdimen" % amount_float
         elif unit == 'pt':
-            res = '%.5fbp' % amount
+            res = '%.5fbp' % amount_float
         elif unit == "%":
-            res = "%.5f\\linewidth" % (amount / 100.0)
+            res = "%.5f\\linewidth" % (amount_float / 100.0)
         else:
-            res = "%.5f%s" % (amount, unit)
+            res = "%.5f%s" % (amount_float, unit)
     return res
 
 
