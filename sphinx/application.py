@@ -77,7 +77,6 @@ builtin_extensions = (
     'sphinx.builders.singlehtml',
     'sphinx.builders.texinfo',
     'sphinx.builders.text',
-    'sphinx.builders.websupport',
     'sphinx.builders.xml',
     'sphinx.config',
     'sphinx.domains.c',

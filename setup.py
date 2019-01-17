@@ -33,10 +33,6 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    'websupport': [
-        'sqlalchemy>=0.9',
-        'whoosh>=2.0',
-    ],
     'test': [
         'mock',
         'pytest',
