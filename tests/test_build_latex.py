@@ -1225,7 +1225,7 @@ def test_latex_image_in_parsed_literal(app, status, warning):
 
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
-            '{\\scalebox{2.000000}{\\sphinxincludegraphics[height=1cm]{{pic}.png}}}'
+            '{\\sphinxincludegraphics[height=2.00000cm]{{pic}.png}}'
             '}AFTER') in result
 
 
