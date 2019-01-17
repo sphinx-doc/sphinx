@@ -121,7 +121,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def log(self, level, msg, *args, **kwargs):  # type: ignore
+    def log(self, level, msg, *args, **kwargs):
         # type: (Union[int, str], str, Any, Any) -> None
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
