@@ -33,9 +33,7 @@ matrix:
       node_js:
         - 10.7
       env: IS_PYTHON=false
-      before_script:
-        - export DISPLAY=:99.0
-        - sh -e /etc/init.d/xvfb start
+      services: xvfb
 
 install:
   - if [ $IS_PYTHON = true ]; then pip install -U tox codecov; fi
