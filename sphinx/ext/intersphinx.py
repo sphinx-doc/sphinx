@@ -244,7 +244,7 @@ def load_mappings(app):
             # files; remote ones only if the cache time is expired
             if '://' not in inv or uri not in inventories.cache \
                     or inventories.cache[uri][1] < cache_time:
-                safe_inv_url = _get_safe_url(inv)  # type: ignore
+                safe_inv_url = _get_safe_url(inv)
                 logger.info('loading intersphinx inventory from %s...', safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)

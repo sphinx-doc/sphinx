@@ -522,7 +522,7 @@ class HTML5Translator(BaseTranslator):
             self.context.append('</a>')
         elif 'filename' in node:
             atts['class'] += ' internal'
-            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])
+            atts['href'] = posixpath.join(self.builder.dlpath, node['filename'])  # type: ignore  # NOQA
             self.body.append(self.starttag(node, 'a', '', **atts))
             self.context.append('</a>')
         else:
