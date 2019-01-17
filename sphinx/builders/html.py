@@ -20,10 +20,9 @@ from os import path
 
 import docutils
 from docutils import nodes
-from docutils.core import Publisher
+from docutils.core import publish_parts
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.readers.doctree import Reader as DoctreeReader
 from docutils.utils import relative_path
 
 from sphinx import package_dir, __display_version__
@@ -249,9 +248,6 @@ class StandaloneHTMLBuilder(Builder):
     imgpath = None          # type: str
     domain_indices = []     # type: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]]  # NOQA
 
-    # cached publisher object for snippets
-    _publisher = None
-
     def __init__(self, app):
         # type: (Sphinx) -> None
         super().__init__(app)
@@ -457,23 +453,12 @@ class StandaloneHTMLBuilder(Builder):
         doc = new_document('<partial node>')
         doc.append(node)
 
-        if self._publisher is None:
-            self._publisher = Publisher(
-                source_class = DocTreeInput,
-                destination_class=StringOutput)
-            self._publisher.set_components('standalone',
-                                           'restructuredtext', 'pseudoxml')
-
-        pub = self._publisher
-
-        pub.reader = DoctreeReader()
-        pub.writer = HTMLWriter(self)
-        pub.process_programmatic_settings(
-            None, {'output_encoding': 'unicode'}, None)
-        pub.set_source(doc, None)
-        pub.set_destination(None, None)
-        pub.publish()
-        return pub.writer.parts
+        writer = HTMLWriter(self)
+        return publish_parts(reader_name='doctree',
+                             writer=writer,
+                             source_class=DocTreeInput,
+                             settings_overrides={'output_encoding': 'unicode'},
+                             source=doc)
 
     def prepare_writing(self, docnames):
         # type: (Set[str]) -> None
