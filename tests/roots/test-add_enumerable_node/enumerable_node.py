@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from sphinx.util.nodes import split_explicit_title
 
 
 class my_figure(nodes.figure):

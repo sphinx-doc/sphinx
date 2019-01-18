@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- sphinx13 theme.
  *
- * :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -140,11 +140,41 @@ div.sphinxsidebar .logo img {
     vertical-align: middle;
 }
 
+div.sphinxsidebar .download a img {
+    vertical-align: middle;
+}
+
+div.subscribeformwrapper {
+    display: block;
+    overflow: auto;
+    margin-bottom: 1.2em;
+}
+
 div.sphinxsidebar input {
     border: 1px solid #aaa;
     font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
                  'Verdana', sans-serif;
-    font-size: 1em;
+}
+
+div.sphinxsidebar .subscribeform {
+    margin-top: 0;
+}
+
+div.sphinxsidebar .subscribeform input {
+    border: 1px solid #aaa;
+    font-size: 0.9em;
+    float: left;
+    padding: 0.25em 0.5em;
+    box-sizing: border-box;
+}
+
+div.sphinxsidebar .subscribeform input[type="text"] {
+    width: 60%;
+}
+
+div.sphinxsidebar .subscribeform input[type="submit"] {
+    width: 40%;
+    border-left: none;
 }
 
 div.sphinxsidebar h3 {
@@ -276,12 +306,16 @@ cite, code, tt {
     letter-spacing: -0.02em;
 }
 
+table.deprecated code.literal {
+    word-break: break-all;
+}
+
 tt {
     background-color: #f2f2f2;
     border: 1px solid #ddd;
     border-radius: 2px;
     color: #333;
-    padding: 1px;
+    padding: 1px 0.2em;
 }
 
 tt.descname, tt.descclassname, tt.xref {

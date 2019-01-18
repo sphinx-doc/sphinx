@@ -1,30 +1,29 @@
-# -*- coding: utf-8 -*-
 """
     test_intersphinx
     ~~~~~~~~~~~~~~~~
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import unittest
+from io import BytesIO
 
-from docutils import nodes
 import mock
 import pytest
 import requests
-from io import BytesIO
-import os
+from docutils import nodes
+from test_util_inventory import inventory_v2, inventory_v2_not_having_version
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import (
-    load_mappings, missing_reference, _strip_basic_auth,
-    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, debug
+    load_mappings, missing_reference, normalize_intersphinx_mapping, _strip_basic_auth,
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME, inspect_main
 )
-from test_util_inventory import inventory_v2
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -47,7 +46,7 @@ def reference_check(app, *args, **kwds):
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
+    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode()
 
     # same uri and inv, not redirected
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
@@ -100,6 +99,7 @@ def test_missing_reference(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
@@ -175,6 +175,7 @@ def test_missing_reference_pydomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -194,11 +195,12 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'https://docs.python.org/': inv_file,
+        'cmd': ('https://docs.python.org/', inv_file),
     }
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -213,6 +215,12 @@ def test_missing_reference_stddomain(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'ls -l'
 
+    # refers inventory by name
+    kwargs = {}
+    node, contnode = fake_node('std', 'option', 'cmd:ls -l', '-l', **kwargs)
+    rn = missing_reference(app, app.env, node, contnode)
+    assert rn.astext() == '-l'
+
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
 def test_missing_reference_cppdomain(tempdir, app, status, warning):
@@ -224,14 +232,22 @@ def test_missing_reference_cppdomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()
     html = (app.outdir / 'index.html').text()
     assert ('<a class="reference external"'
             ' href="https://docs.python.org/index.html#cpp_foo_bar"'
-            ' title="(in foo v2.0)"><code class="xref cpp cpp-class docutils literal">'
+            ' title="(in foo v2.0)">'
+            '<code class="xref cpp cpp-class docutils literal notranslate">'
             '<span class="pre">Bar</span></code></a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#foons"'
+            ' title="(in foo v2.0)">foons</a>' in html)
+    assert ('<a class="reference external"'
+            ' href="https://docs.python.org/index.html#foons_bartype"'
+            ' title="(in foo v2.0)">bartype</a>' in html)
 
 
 def test_missing_reference_jsdomain(tempdir, app, status, warning):
@@ -243,6 +259,7 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     app.config.intersphinx_cache_limit = 0
 
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -256,6 +273,26 @@ def test_missing_reference_jsdomain(tempdir, app, status, warning):
     node, contnode = fake_node('js', 'meth', 'baz', 'baz()', **kwargs)
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'baz()'
+
+
+@pytest.mark.xfail(os.name != 'posix', reason="Path separator mismatch issue")
+def test_inventory_not_having_version(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2_not_having_version)
+    app.config.intersphinx_mapping = {
+        'https://docs.python.org/': inv_file,
+    }
+    app.config.intersphinx_cache_limit = 0
+
+    # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
+    assert isinstance(rn, nodes.reference)
+    assert rn['refuri'] == 'https://docs.python.org/foo.html#module-module1'
+    assert rn['reftitle'] == '(in foo)'
+    assert rn[0].astext() == 'Long Module desc'
 
 
 def test_load_mappings_warnings(tempdir, app, status, warning):
@@ -276,8 +313,43 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
 
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
+    normalize_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert warning.getvalue().count('\n') == 1
+
+
+def test_load_mappings_fallback(tempdir, app, status, warning):
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+    app.config.intersphinx_cache_limit = 0
+
+    # connect to invalid path
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
+    }
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+    assert "failed to reach any of the inventories" in warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert rn is None
+
+    # clear messages
+    status.truncate(0)
+    warning.truncate(0)
+
+    # add fallbacks to mapping
+    app.config.intersphinx_mapping = {
+        'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
+                                                       inv_file)),
+    }
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+    assert "encountered some issues with some of the inventories" in status.getvalue()
+    assert "" == warning.getvalue()
+
+    rn = reference_check(app, 'py', 'func', 'module1.func', 'foo')
+    assert isinstance(rn, nodes.reference)
 
 
 class TestStripBasicAuth(unittest.TestCase):
@@ -329,10 +401,10 @@ def test_getsafeurl_unauthed():
     assert expected == actual
 
 
-def test_debug_noargs(capsys):
-    """debug interface, without arguments"""
+def test_inspect_main_noargs(capsys):
+    """inspect_main interface, without arguments"""
     with pytest.raises(SystemExit):
-        debug(['sphinx/ext/intersphinx.py'])
+        inspect_main([])
 
     expected = (
         "Print out an inventory file.\n"
@@ -343,12 +415,12 @@ def test_debug_noargs(capsys):
     assert stderr == expected + "\n"
 
 
-def test_debug_file(capsys, tempdir):
-    """debug interface, with file argument"""
+def test_inspect_main_file(capsys, tempdir):
+    """inspect_main interface, with file argument"""
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
 
-    debug(['sphinx/ext/intersphinx.py', str(inv_file)])
+    inspect_main([str(inv_file)])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")
@@ -356,8 +428,8 @@ def test_debug_file(capsys, tempdir):
 
 
 @mock.patch('requests.get')
-def test_debug_url(fake_get, capsys):
-    """debug interface, with url argument"""
+def test_inspect_main_url(fake_get, capsys):
+    """inspect_main interface, with url argument"""
     raw = BytesIO(inventory_v2)
     real_read = raw.read
 
@@ -372,7 +444,7 @@ def test_debug_url(fake_get, capsys):
     resp.raw = raw
     fake_get.return_value = resp
 
-    debug(['sphinx/ext/intersphinx.py', url])
+    inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith("c:function\n")

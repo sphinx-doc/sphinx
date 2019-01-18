@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.console
     ~~~~~~~~~~~~~~~~~~~
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
-import sys
 import re
+import sys
 
 try:
     # check if colorama is installed to support color on Windows
@@ -87,9 +86,21 @@ def coloron():
     codes.update(_orig_codes)
 
 
-def colorize(name, text):
-    # type: (str, unicode) -> unicode
-    return codes.get(name, '') + text + codes.get('reset', '')
+def colorize(name, text, input_mode=False):
+    # type: (str, str, bool) -> str
+    def escseq(name):
+        # Wrap escape sequence with ``\1`` and ``\2`` to let readline know
+        # it is non-printable characters
+        # ref: https://tiswww.case.edu/php/chet/readline/readline.html
+        #
+        # Note: This hack does not work well in Windows (see #5059)
+        escape = codes.get(name, '')
+        if input_mode and escape and sys.platform != 'win32':
+            return '\1' + escape + '\2'
+        else:
+            return escape
+
+    return escseq(name) + text + escseq('reset')
 
 
 def strip_colors(s):
@@ -100,7 +111,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return colorize(name, text)
     globals()[name] = inner
 

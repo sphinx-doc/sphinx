@@ -1,13 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from __future__ import print_function
-
+import argparse
 import os
 import re
 import sys
-import argparse
-from datetime import datetime
 from contextlib import contextmanager
+from datetime import datetime
 
 script_dir = os.path.dirname(__file__)
 package_dir = os.path.abspath(os.path.join(script_dir, '..'))
@@ -16,11 +14,7 @@ RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 
 
 def stringify_version(version_info, in_develop=True):
-    if version_info[2] == 0:
-        version = '.'.join(str(v) for v in version_info[:2])
-    else:
-        version = '.'.join(str(v) for v in version_info[:3])
-
+    version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
         version += version_info[3][0] + str(version_info[4])
 
@@ -81,14 +75,14 @@ def processing(message):
         yield
     except Skip as exc:
         print('skip: %s' % exc)
-    except:
+    except Exception:
         print('error')
         raise
     else:
         print('done')
 
 
-class Changes(object):
+class Changes:
     def __init__(self, path):
         self.path = path
         self.fetch_version()

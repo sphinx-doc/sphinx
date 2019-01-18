@@ -1,0 +1,356 @@
+.. highlight:: rest
+
+:mod:`sphinx.ext.doctest` -- Test snippets in the documentation
+===============================================================
+
+.. module:: sphinx.ext.doctest
+   :synopsis: Test snippets in the documentation.
+
+.. index:: pair: automatic; testing
+           single: doctest
+           pair: testing; snippets
+
+
+This extension allows you to test snippets in the documentation in a natural
+way.  It works by collecting specially-marked up code blocks and running them as
+doctest tests.
+
+Within one document, test code is partitioned in *groups*, where each group
+consists of:
+
+* zero or more *setup code* blocks (e.g. importing the module to test)
+* one or more *test* blocks
+
+When building the docs with the ``doctest`` builder, groups are collected for
+each document and run one after the other, first executing setup code blocks,
+then the test blocks in the order they appear in the file.
+
+There are two kinds of test blocks:
+
+* *doctest-style* blocks mimic interactive sessions by interleaving Python code
+  (including the interpreter prompt) and output.
+
+* *code-output-style* blocks consist of an ordinary piece of Python code, and
+  optionally, a piece of output for that code.
+
+
+Directives
+----------
+
+The *group* argument below is interpreted as follows: if it is empty, the block
+is assigned to the group named ``default``.  If it is ``*``, the block is
+assigned to all groups (including the ``default`` group).  Otherwise, it must be
+a comma-separated list of group names.
+
+.. rst:directive:: .. testsetup:: [group]
+
+   A setup code block.  This code is not shown in the output for other builders,
+   but executed before the doctests of the group(s) it belongs to.
+
+
+.. rst:directive:: .. testcleanup:: [group]
+
+   A cleanup code block.  This code is not shown in the output for other
+   builders, but executed after the doctests of the group(s) it belongs to.
+
+   .. versionadded:: 1.1
+
+
+.. rst:directive:: .. doctest:: [group]
+
+   A doctest-style code block.  You can use standard :mod:`doctest` flags for
+   controlling how actual output is compared with what you give as output.  The
+   default set of flags is specified by the :confval:`doctest_default_flags`
+   configuration variable.
+
+   This directive supports three options:
+
+   * ``hide``, a flag option, hides the doctest block in other builders.  By
+     default it is shown as a highlighted doctest block.
+
+   * ``options``, a string option, can be used to give a comma-separated list of
+     doctest flags that apply to each example in the tests.  (You still can give
+     explicit flags per example, with doctest comments, but they will show up in
+     other builders too.)
+
+   * ``pyversion``, a string option, can be used to specify the required Python
+     version for the example to be tested. For instance, in the following case
+     the example will be tested only for Python versions greater than 3.3::
+
+         .. doctest::
+            :pyversion: > 3.3
+
+     The following operands are supported:
+
+     * ``~=``: Compatible release clause
+     * ``==``: Version matching clause
+     * ``!=``: Version exclusion clause
+     * ``<=``, ``>=``: Inclusive ordered comparison clause
+     * ``<``, ``>``: Exclusive ordered comparison clause
+     * ``===``: Arbitrary equality clause.
+
+     ``pyversion`` option is followed `PEP-440: Version Specifiers
+     <https://www.python.org/dev/peps/pep-0440/#version-specifiers>`__.
+
+     .. versionadded:: 1.6
+
+     .. versionchanged:: 1.7
+
+        Supported PEP-440 operands and notations
+
+   Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
+   signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
+   when building presentation output (HTML, LaTeX etc.).
+
+   Also, you can give inline doctest options, like in doctest::
+
+      >>> datetime.date.now()   # doctest: +SKIP
+      datetime.date(2008, 1, 1)
+
+   They will be respected when the test is run, but stripped from presentation
+   output.
+
+
+.. rst:directive:: .. testcode:: [group]
+
+   A code block for a code-output-style test.
+
+   This directive supports one option:
+
+   * ``hide``, a flag option, hides the code block in other builders.  By
+     default it is shown as a highlighted code block.
+
+   .. note::
+
+      Code in a ``testcode`` block is always executed all at once, no matter how
+      many statements it contains.  Therefore, output will *not* be generated
+      for bare expressions -- use ``print``.  Example::
+
+          .. testcode::
+
+             1+1        # this will give no output!
+             print 2+2  # this will give output
+
+          .. testoutput::
+
+             4
+
+      Also, please be aware that since the doctest module does not support
+      mixing regular output and an exception message in the same snippet, this
+      applies to testcode/testoutput as well.
+
+
+.. rst:directive:: .. testoutput:: [group]
+
+   The corresponding output, or the exception message, for the last
+   :rst:dir:`testcode` block.
+
+   This directive supports two options:
+
+   * ``hide``, a flag option, hides the output block in other builders.  By
+     default it is shown as a literal block without highlighting.
+
+   * ``options``, a string option, can be used to give doctest flags
+     (comma-separated) just like in normal doctest blocks.
+
+   Example::
+
+      .. testcode::
+
+         print 'Output     text.'
+
+      .. testoutput::
+         :hide:
+         :options: -ELLIPSIS, +NORMALIZE_WHITESPACE
+
+         Output text.
+
+The following is an example for the usage of the directives.  The test via
+:rst:dir:`doctest` and the test via :rst:dir:`testcode` and
+:rst:dir:`testoutput` are equivalent. ::
+
+   The parrot module
+   =================
+
+   .. testsetup:: *
+
+      import parrot
+
+   The parrot module is a module about parrots.
+
+   Doctest example:
+
+   .. doctest::
+
+      >>> parrot.voom(3000)
+      This parrot wouldn't voom if you put 3000 volts through it!
+
+   Test-Output example:
+
+   .. testcode::
+
+      parrot.voom(3000)
+
+   This would output:
+
+   .. testoutput::
+
+      This parrot wouldn't voom if you put 3000 volts through it!
+
+
+Skipping tests conditionally
+----------------------------
+
+``skipif``, a string option, can be used to skip directives conditionally. This
+may be useful e.g. when a different set of tests should be run depending on the
+environment (hardware, network/VPN, optional dependencies or different versions
+of dependencies). The ``skipif`` option is supported by all of the doctest
+directives. Below are typical use cases for ``skipif`` when used for different
+directives:
+
+- :rst:dir:`testsetup` and :rst:dir:`testcleanup`
+
+  - conditionally skip test setup and/or cleanup
+  - customize setup/cleanup code per environment
+
+- :rst:dir:`doctest`
+
+  - conditionally skip both a test and its output verification
+
+- :rst:dir:`testcode`
+
+  - conditionally skip a test
+  - customize test code per environment
+
+- :rst:dir:`testoutput`
+
+  - conditionally skip output assertion for a skipped test
+  - expect different output depending on the environment
+
+The value of the ``skipif`` option is evaluated as a Python expression. If the
+result is a true value, the directive is omitted from the test run just as if
+it wasn't present in the file at all.
+
+Instead of repeating an expression, the :confval:`doctest_global_setup`
+configuration option can be used to assign it to a variable which can then be
+used instead.
+
+Here's an example which skips some tests if Pandas is not installed:
+
+.. code-block:: py
+   :caption: conf.py
+
+   extensions = ['sphinx.ext.doctest']
+   doctest_global_setup = '''
+   try:
+       import pandas as pd
+   except ImportError:
+       pd = None
+   '''
+
+.. code-block:: rst
+   :caption: contents.rst
+
+   .. testsetup::
+      :skipif: pd is None
+
+      data = pd.Series([42])
+
+   .. doctest::
+      :skipif: pd is None
+
+      >>> data.iloc[0]
+      42
+
+   .. testcode::
+      :skipif: pd is None
+
+      print(data.iloc[-1])
+
+   .. testoutput::
+      :skipif: pd is None
+
+      42
+
+
+Configuration
+-------------
+
+The doctest extension uses the following configuration values:
+
+.. confval:: doctest_default_flags
+
+   By default, these options are enabled:
+
+   - ``ELLIPSIS``, allowing you to put ellipses in the expected output that
+     match anything in the actual output;
+   - ``IGNORE_EXCEPTION_DETAIL``, causing everything following the leftmost
+     colon and any module information in the exception name to be ignored;
+   - ``DONT_ACCEPT_TRUE_FOR_1``, rejecting "True" in the output where "1" is
+     given -- the default behavior of accepting this substitution is a relic of
+     pre-Python 2.2 times.
+
+   .. versionadded:: 1.5
+
+.. confval:: doctest_path
+
+   A list of directories that will be added to :data:`sys.path` when the doctest
+   builder is used.  (Make sure it contains absolute paths.)
+
+.. confval:: doctest_global_setup
+
+   Python code that is treated like it were put in a ``testsetup`` directive for
+   *every* file that is tested, and for every group.  You can use this to
+   e.g. import modules you will always need in your doctests.
+
+   .. versionadded:: 0.6
+
+.. confval:: doctest_global_cleanup
+
+   Python code that is treated like it were put in a ``testcleanup`` directive
+   for *every* file that is tested, and for every group.  You can use this to
+   e.g. remove any temporary files that the tests leave behind.
+
+   .. versionadded:: 1.1
+
+.. confval:: doctest_test_doctest_blocks
+
+   If this is a nonempty string (the default is ``'default'``), standard reST
+   doctest blocks will be tested too.  They will be assigned to the group name
+   given.
+
+   reST doctest blocks are simply doctests put into a paragraph of their own,
+   like so::
+
+      Some documentation text.
+
+      >>> print 1
+      1
+
+      Some more documentation text.
+
+   (Note that no special ``::`` is used to introduce a doctest block; docutils
+   recognizes them from the leading ``>>>``.  Also, no additional indentation is
+   used, though it doesn't hurt.)
+
+   If this value is left at its default value, the above snippet is interpreted
+   by the doctest builder exactly like the following::
+
+      Some documentation text.
+
+      .. doctest::
+
+         >>> print 1
+         1
+
+      Some more documentation text.
+
+   This feature makes it easy for you to test doctests in docstrings included
+   with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
+   special directive.
+
+   Note though that you can't have blank lines in reST doctest blocks.  They
+   will be interpreted as one block ending and another one starting.  Also,
+   removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
+   :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags`
+   to achieve that in all code blocks with Python console content.

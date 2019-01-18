@@ -1,28 +1,25 @@
-# -*- coding: utf-8 -*-
 """
     test_util_logging
     ~~~~~~~~~~~~~~~~~
 
     Test logging util.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import codecs
+import os
+
+import pytest
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
+from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
 from sphinx.util.console import colorize
-from sphinx.util.logging import is_suppressed_warning
+from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
-
-import pytest
-from sphinx.testing.util import strip_escseq
-
-import os
 
 
 def test_info_and_warning(app, status, warning):
@@ -165,7 +162,42 @@ def test_warningiserror(app, status, warning):
     # if True, warning raises SphinxWarning exception
     app.warningiserror = True
     with pytest.raises(SphinxWarning):
-        logger.warning('message')
+        logger.warning('message: %s', 'arg')
+
+    # message contains format string (refs: #4070)
+    with pytest.raises(SphinxWarning):
+        logger.warning('%s')
+
+
+def test_info_location(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1', location='index')
+    assert 'index.txt: message1' in status.getvalue()
+
+    logger.info('message2', location=('index', 10))
+    assert 'index.txt:10: message2' in status.getvalue()
+
+    logger.info('message3', location=None)
+    assert '\nmessage3' in status.getvalue()
+
+    node = nodes.Node()
+    node.source, node.line = ('index.txt', 10)
+    logger.info('message4', location=node)
+    assert 'index.txt:10: message4' in status.getvalue()
+
+    node.source, node.line = ('index.txt', None)
+    logger.info('message5', location=node)
+    assert 'index.txt:: message5' in status.getvalue()
+
+    node.source, node.line = (None, 10)
+    logger.info('message6', location=node)
+    assert '<unknown>:10: message6' in status.getvalue()
+
+    node.source, node.line = (None, None)
+    logger.info('message7', location=node)
+    assert '\nmessage7' in status.getvalue()
 
 
 def test_warning_location(app, status, warning):
@@ -179,7 +211,7 @@ def test_warning_location(app, status, warning):
     assert 'index.txt:10: WARNING: message2' in warning.getvalue()
 
     logger.warning('message3', location=None)
-    assert colorize('darkred', 'WARNING: message3') in warning.getvalue()
+    assert colorize('red', 'WARNING: message3') in warning.getvalue()
 
     node = nodes.Node()
     node.source, node.line = ('index.txt', 10)
@@ -196,7 +228,7 @@ def test_warning_location(app, status, warning):
 
     node.source, node.line = (None, None)
     logger.warning('message7', location=node)
-    assert colorize('darkred', 'WARNING: message7') in warning.getvalue()
+    assert colorize('red', 'WARNING: message7') in warning.getvalue()
 
 
 def test_pending_warnings(app, status, warning):
@@ -232,7 +264,7 @@ def test_colored_logs(app, status, warning):
     assert colorize('darkgray', 'message1') in status.getvalue()
     assert 'message2\n' in status.getvalue()  # not colored
     assert 'message3\n' in status.getvalue()  # not colored
-    assert colorize('darkred', 'WARNING: message4') in warning.getvalue()
+    assert colorize('red', 'WARNING: message4') in warning.getvalue()
     assert 'WARNING: message5\n' in warning.getvalue()  # not colored
     assert colorize('darkred', 'WARNING: message6') in warning.getvalue()
 
@@ -270,5 +302,48 @@ def test_output_with_unencodable_char(app, status, warning):
     # info with UnicodeEncodeError
     status.truncate(0)
     status.seek(0)
-    logger.info(u"unicode \u206d...")
+    logger.info("unicode \u206d...")
     assert status.getvalue() == "unicode ?...\n"
+
+
+def test_skip_warningiserror(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    app.warningiserror = True
+    with logging.skip_warningiserror():
+        logger.warning('message')
+
+    # if False, warning raises SphinxWarning exception
+    with pytest.raises(SphinxWarning):
+        with logging.skip_warningiserror(False):
+            logger.warning('message')
+
+    # It also works during pending_warnings.
+    with logging.pending_warnings():
+        with logging.skip_warningiserror():
+            logger.warning('message')
+
+    with pytest.raises(SphinxWarning):
+        with logging.pending_warnings():
+            with logging.skip_warningiserror(False):
+                logger.warning('message')
+
+
+def test_prefixed_warnings(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.warning('message1')
+    with prefixed_warnings('PREFIX:'):
+        logger.warning('message2')
+        with prefixed_warnings('Another PREFIX:'):
+            logger.warning('message3')
+        logger.warning('message4')
+    logger.warning('message5')
+
+    assert 'WARNING: message1' in warning.getvalue()
+    assert 'WARNING: PREFIX: message2' in warning.getvalue()
+    assert 'WARNING: Another PREFIX: message3' in warning.getvalue()
+    assert 'WARNING: PREFIX: message4' in warning.getvalue()
+    assert 'WARNING: message5' in warning.getvalue()

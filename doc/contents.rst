@@ -8,22 +8,25 @@ Sphinx documentation contents
    :maxdepth: 2
 
    intro
-   tutorial
+
+   usage/installation
+   usage/quickstart
+   usage/restructuredtext/index
+   usage/markdown
+   usage/configuration
+   usage/builders/index
+   usage/extensions/index
+   usage/theming
+   usage/advanced/intl
+   usage/advanced/setuptools
+   usage/advanced/websupport/index
+
    man/index
-   rest
-   markup/index
-   domains
-   builders
-   config
-   intl
    theming
-   setuptools
    templating
    latex
-   markdown
-   extensions
    extdev/index
-   websupport
+   development/tutorials/index
 
    faq
    glossary
@@ -31,6 +34,7 @@ Sphinx documentation contents
    changes
    examples
    authors
+
 
 
 Indices and tables

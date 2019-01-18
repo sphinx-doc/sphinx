@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.intersphinx
     ~~~~~~~~~~~~~~~~~~~~~~
@@ -20,27 +19,23 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from __future__ import print_function
-
-import sys
-import time
 import functools
 import posixpath
+import sys
+import time
 from os import path
-
-from six import PY3, iteritems, string_types
-from six.moves.urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
 from docutils.utils import relative_path
 
 import sphinx
-from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.locale import _, __
 from sphinx.util import requests, logging
 from sphinx.util.inventory import InventoryFile
 
@@ -50,48 +45,46 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-
-    if PY3:
-        unicode = str
-
-    Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
+    from sphinx.util.typing import Inventory  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-class InventoryAdapter(object):
+class InventoryAdapter:
     """Inventory adapter for environment"""
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            self.env.intersphinx_cache = {}
-            self.env.intersphinx_inventory = {}
-            self.env.intersphinx_named_inventory = {}
+            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore
+            self.env.intersphinx_named_inventory = {}  # type: ignore
 
     @property
     def cache(self):
-        # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
-        return self.env.intersphinx_cache
+        # type: () -> Dict[str, Tuple[str, int, Inventory]]
+        return self.env.intersphinx_cache  # type: ignore
 
     @property
     def main_inventory(self):
         # type: () -> Inventory
-        return self.env.intersphinx_inventory
+        return self.env.intersphinx_inventory  # type: ignore
 
     @property
     def named_inventory(self):
-        # type: () -> Dict[unicode, Inventory]
-        return self.env.intersphinx_named_inventory
+        # type: () -> Dict[str, Inventory]
+        return self.env.intersphinx_named_inventory  # type: ignore
 
     def clear(self):
-        self.env.intersphinx_inventory.clear()
-        self.env.intersphinx_named_inventory.clear()
+        # type: () -> None
+        self.env.intersphinx_inventory.clear()  # type: ignore
+        self.env.intersphinx_named_inventory.clear()  # type: ignore
 
 
 def _strip_basic_auth(url):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Returns *url* with basic auth credentials removed. Also returns the
     basic auth username and password if they're present in *url*.
 
@@ -113,7 +106,7 @@ def _strip_basic_auth(url):
 
 
 def _read_from_url(url, config=None):
-    # type: (unicode, Config) -> IO
+    # type: (str, Config) -> IO
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -139,7 +132,7 @@ def _read_from_url(url, config=None):
 
 
 def _get_safe_url(url):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Gets version of *url* with basic auth passwords obscured. This function
     returns results suitable for printing and logging.
 
@@ -165,7 +158,7 @@ def _get_safe_url(url):
 
 
 def fetch_inventory(app, uri, inv):
-    # type: (Sphinx, unicode, Any) -> Any
+    # type: (Sphinx, str, Any) -> Any
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
@@ -179,14 +172,14 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
-                       inv, err.__class__, err)
-        return
+        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
+                    inv, err.__class__, err)
+        raise
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
             if inv != newinv:
-                logger.info('intersphinx inventory has moved: %s -> %s', inv, newinv)
+                logger.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
@@ -197,8 +190,9 @@ def fetch_inventory(app, uri, inv):
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
-        logger.warning('intersphinx inventory %r not readable due to %s: %s',
-                       inv, err.__class__.__name__, err)
+        err.args = ('intersphinx inventory %r not readable due to %s: %s',
+                    inv, err.__class__.__name__, err)
+        raise
     else:
         return invdata
 
@@ -210,28 +204,8 @@ def load_mappings(app):
     cache_time = now - app.config.intersphinx_cache_limit * 86400
     inventories = InventoryAdapter(app.builder.env)
     update = False
-    for key, value in iteritems(app.config.intersphinx_mapping):
-        name = None  # type: unicode
-        uri = None   # type: unicode
-        inv = None   # type: Union[unicode, Tuple[unicode, ...]]
-
-        if isinstance(value, (list, tuple)):
-            # new format
-            name, (uri, inv) = key, value  # type: ignore
-            if not isinstance(name, string_types):
-                logger.warning('intersphinx identifier %r is not string. Ignored', name)
-                continue
-        else:
-            # old format, no name
-            name, uri, inv = None, key, value
-        # we can safely assume that the uri<->inv mapping is not changed
-        # during partial rebuilds since a changed intersphinx_mapping
-        # setting will cause a full environment reread
-        if not isinstance(inv, tuple):
-            invs = (inv, )
-        else:
-            invs = inv  # type: ignore
-
+    for key, (name, (uri, invs)) in app.config.intersphinx_mapping.items():
+        failures = []
         for inv in invs:
             if not inv:
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
@@ -239,13 +213,31 @@ def load_mappings(app):
             # files; remote ones only if the cache time is expired
             if '://' not in inv or uri not in inventories.cache \
                     or inventories.cache[uri][1] < cache_time:
-                safe_inv_url = _get_safe_url(inv)  # type: ignore
-                logger.info('loading intersphinx inventory from %s...', safe_inv_url)
-                invdata = fetch_inventory(app, uri, inv)
+                safe_inv_url = _get_safe_url(inv)
+                logger.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
+                try:
+                    invdata = fetch_inventory(app, uri, inv)
+                except Exception as err:
+                    failures.append(err.args)
+                    continue
+
                 if invdata:
                     inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
+
+        if failures == []:
+            pass
+        elif len(failures) < len(invs):
+            logger.info(__("encountered some issues with some of the inventories,"
+                           " but they had working alternatives:"))
+            for fail in failures:
+                logger.info(*fail)
+        else:
+            logger.warning(__("failed to reach any of the inventories "
+                              "with the following issues:"))
+            for fail in failures:
+                logger.warning(*fail)
 
     if update:
         inventories.clear()
@@ -263,16 +255,16 @@ def load_mappings(app):
         for name, _x, invdata in named_vals + unnamed_vals:
             if name:
                 inventories.named_inventory[name] = invdata
-            for type, objects in iteritems(invdata):
+            for type, objects in invdata.items():
                 inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
 def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> None
+    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.TextElement) -> nodes.reference
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
     inventories = InventoryAdapter(env)
-    objtypes = None  # type: List[unicode]
+    objtypes = None  # type: List[str]
     if node['reftype'] == 'any':
         # we search anything!
         objtypes = ['%s:%s' % (domain.name, objtype)
@@ -283,10 +275,10 @@ def missing_reference(app, env, node, contnode):
         domain = node.get('refdomain')
         if not domain:
             # only objects in domains are in the inventory
-            return
+            return None
         objtypes = env.get_domain(domain).objtypes_for_role(node['reftype'])
         if not objtypes:
-            return
+            return None
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
     if 'std:cmdoption' in objtypes:
         # until Sphinx-1.6, cmdoptions are stored as std:option
@@ -304,6 +296,7 @@ def missing_reference(app, env, node, contnode):
             in_set = setname
             to_try.append((inventories.named_inventory[setname], newtarget))
             if domain:
+                node['reftarget'] = newtarget
                 full_qualified_name = env.get_domain(domain).get_full_qualified_name(node)
                 if full_qualified_name:
                     to_try.append((inventories.named_inventory[setname], full_qualified_name))
@@ -315,8 +308,11 @@ def missing_reference(app, env, node, contnode):
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], '.'), uri)
-            newnode = nodes.reference('', '', internal=False, refuri=uri,
-                                      reftitle=_('(in %s v%s)') % (proj, version))
+            if version:
+                reftitle = _('(in %s v%s)') % (proj, version)
+            else:
+                reftitle = _('(in %s)') % (proj,)
+            newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
@@ -338,49 +334,87 @@ def missing_reference(app, env, node, contnode):
         if len(contnode) and isinstance(contnode[0], nodes.Text):
             contnode[0] = nodes.Text(newtarget, contnode[0].rawsource)
 
+    return None
+
+
+def normalize_intersphinx_mapping(app, config):
+    # type: (Sphinx, Config) -> None
+    for key, value in config.intersphinx_mapping.copy().items():
+        try:
+            if isinstance(value, (list, tuple)):
+                # new format
+                name, (uri, inv) = key, value
+                if not isinstance(name, str):
+                    logger.warning(__('intersphinx identifier %r is not string. Ignored'),
+                                   name)
+                    config.intersphinx_mapping.pop(key)
+                    continue
+            else:
+                # old format, no name
+                name, uri, inv = None, key, value
+
+            if not isinstance(inv, tuple):
+                config.intersphinx_mapping[key] = (name, (uri, (inv,)))
+            else:
+                config.intersphinx_mapping[key] = (name, (uri, inv))
+        except Exception as exc:
+            logger.warning(__('Fail to read intersphinx_mapping[%s], Ignored: %r'), key, exc)
+            config.intersphinx_mapping.pop(key)
+
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.add_config_value('intersphinx_timeout', None, False)
-    app.connect('missing-reference', missing_reference)
+    app.connect('config-inited', normalize_intersphinx_mapping)
     app.connect('builder-inited', load_mappings)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    app.connect('missing-reference', missing_reference)
+    return {
+        'version': sphinx.__display_version__,
+        'env_version': 1,
+        'parallel_read_safe': True
+    }
 
 
-def debug(argv):
-    # type: (List[unicode]) -> None
+def inspect_main(argv):
+    # type: (List[str]) -> None
     """Debug functionality to print out an inventory"""
-    if len(argv) < 2:
+    if len(argv) < 1:
         print("Print out an inventory file.\n"
               "Error: must specify local path or URL to an inventory file.",
               file=sys.stderr)
         sys.exit(1)
 
-    class MockConfig(object):
+    class MockConfig:
         intersphinx_timeout = None  # type: int
         tls_verify = False
 
-    class MockApp(object):
+    class MockApp:
         srcdir = ''
         config = MockConfig()
 
         def warn(self, msg):
+            # type: (str) -> None
             print(msg, file=sys.stderr)
 
-    filename = argv[1]
-    invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
-    for key in sorted(invdata or {}):
-        print(key)
-        for entry, einfo in sorted(invdata[key].items()):
-            print('\t%-40s %s%s' % (entry,
-                                    einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
-                                    einfo[2]))
+    try:
+        filename = argv[0]
+        invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
+        for key in sorted(invdata or {}):
+            print(key)
+            for entry, einfo in sorted(invdata[key].items()):
+                print('\t%-40s %s%s' % (entry,
+                                        einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                        einfo[2]))
+    except ValueError as exc:
+        print(exc.args[0] % exc.args[1:])
+    except Exception as exc:
+        print('Unknown error: %r' % exc)
 
 
 if __name__ == '__main__':
     import logging  # type: ignore
-    logging.basicConfig()
+    logging.basicConfig()  # type: ignore
 
-    debug(argv=sys.argv[1:])  # type: ignore
+    inspect_main(argv=sys.argv[1:])

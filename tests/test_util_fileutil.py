@@ -1,22 +1,22 @@
-# -*- coding: utf-8 -*-
 """
     test_util_fileutil
     ~~~~~~~~~~~~~~~~~~
 
     Tests sphinx.util.fileutil functions.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util.fileutil import copy_asset, copy_asset_file
-from sphinx.jinja2glue import BuiltinTemplateLoader
 
 import mock
+
+from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.util.fileutil import copy_asset, copy_asset_file
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
     def __init__(self):
-        BuiltinTemplateLoader.__init__(self)
+        super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []
         builder.app.translater = None

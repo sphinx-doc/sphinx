@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_autosectionlabel
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Test sphinx.ext.autosectionlabel extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,6 +32,13 @@ def test_autosectionlabel_html(app, status, warning):
 
     html = ('<li><a class="reference internal" href="#for-unix-users">'
             '<span class="std std-ref">For UNIX users</span></a></li>')
+    assert re.search(html, content, re.S)
+
+    # for smart_quotes (refs: #4027)
+    html = ('<li><a class="reference internal" '
+            'href="#this-one-s-got-an-apostrophe">'
+            '<span class="std std-ref">This one’s got an apostrophe'
+            '</span></a></li>')
     assert re.search(html, content, re.S)
 
 

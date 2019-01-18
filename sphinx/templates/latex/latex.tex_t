@@ -13,24 +13,40 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
+<% if use_xindy -%>
+%% turn off hyperref patch of \index as sphinx.xdy xindy module takes care of
+%% suitable \hyperpage mark-up, working around hyperref-xindy incompatibility
+\PassOptionsToPackage{hyperindex=false}{hyperref}
+<% endif -%>
 <%= passoptionstopackages %>
+\PassOptionsToPackage{warn}{textcomp}
 <%= inputenc %>
 <%= utf8extra %>
 <%= cmappkg %>
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
+<%= fvset %>
 <%= geometry %>
-<%= usepackages %>
+
+<%- for name, option in packages %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= hyperref %>
 <%= contentsname %>
-<%= numfig_format %>
-<%= literalblockpto %>
-<%= pageautorefname %>
+\usepackage{sphinxmessages}
 <%= tocdepth %>
 <%= secnumdepth %>
 <%= preamble %>
@@ -39,12 +55,27 @@
 \date{<%= date %>}
 \release{<%= release %>}
 \author{<%= author %>}
-\newcommand{\sphinxlogo}{<%= logo %>}
-\renewcommand{\releasename}{<%= releasename %>}
+<%- if logofilename %>
+\newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
+<%- else %>
+\newcommand{\sphinxlogo}{\vbox{}}
+<%- endif %>
+<%- if releasename or release %>
+\renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
+<%- else %>
+\renewcommand{\releasename}{}
+<%- endif %>
 <%= makeindex %>
+\begin{document}
+<%= shorthandoff %>
+\pagestyle{empty}
+<%= maketitle %>
+\pagestyle{plain}
+<%= tableofcontents %>
+\pagestyle{normal}
 <%= body %>
 <%= atendofbody %>
 <%= indices %>
-\renewcommand{\indexname}{<%= indexname %>}
+\renewcommand{\indexname}{<%= _('Index') | e %>}
 <%= printindex %>
 \end{document}

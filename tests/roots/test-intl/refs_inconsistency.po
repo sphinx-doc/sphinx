@@ -19,8 +19,8 @@ msgstr ""
 msgid "i18n with refs inconsistency"
 msgstr "I18N WITH REFS INCONSISTENCY"
 
-msgid "[100]_ for [#]_ footnote [ref2]_."
-msgstr "FOR FOOTNOTE [ref2]_."
+msgid "[100]_ for [#]_ citation [ref2]_."
+msgstr "FOR CITATION [ref3]_."
 
 msgid "for reference_."
 msgstr "reference_ FOR reference_."
@@ -31,8 +31,8 @@ msgstr "ORPHAN REFERENCE: `I18N WITH REFS INCONSISTENCY`_."
 msgid "This is a auto numbered footnote."
 msgstr "THIS IS A AUTO NUMBERED FOOTNOTE."
 
-msgid "This is a named footnote."
-msgstr "THIS IS A NAMED FOOTNOTE."
+msgid "This is a citation."
+msgstr "THIS IS A CITATION."
 
 msgid "This is a numbered footnote."
 msgstr "THIS IS A NUMBERED FOOTNOTE."

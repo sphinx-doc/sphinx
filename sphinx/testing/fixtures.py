@@ -1,37 +1,38 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.testing.fixtures
     ~~~~~~~~~~~~~~~~~~~~~~~
 
     Sphinx test fixtures for pytest
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import os
 import subprocess
 import sys
 from collections import namedtuple
-from tempfile import gettempdir
+from io import StringIO
+from subprocess import PIPE
 
 import pytest
-from six import StringIO, string_types
 
 from . import util
 
 if False:
-    from typing import Dict, Union  # NOQA
+    # For type annotation
+    from typing import Any, Dict, Union  # NOQA
 
 
 @pytest.fixture(scope='session')
 def rootdir():
+    # type: () -> None
     return None
 
 
 @pytest.fixture
 def app_params(request, test_params, shared_result, sphinx_test_tempdir, rootdir):
+    # type: (Any, Any, Any, Any, Any) -> None
     """
     parameters that is specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
@@ -39,7 +40,10 @@ def app_params(request, test_params, shared_result, sphinx_test_tempdir, rootdir
 
     # ##### process pytest.mark.sphinx
 
-    markers = request.node.get_marker("sphinx")
+    if hasattr(request.node, 'iter_markers'):  # pytest-3.6.0 or newer
+        markers = request.node.iter_markers("sphinx")
+    else:
+        markers = request.node.get_marker("sphinx")
     pargs = {}
     kwargs = {}  # type: Dict[str, str]
 
@@ -86,15 +90,17 @@ def test_params(request):
        have same 'shared_result' value.
        **NOTE**: You can not specify shared_result and srcdir in same time.
     """
-    env = request.node.get_marker('test_params')
+    if hasattr(request.node, 'get_closest_marker'):  # pytest-3.6.0 or newer
+        env = request.node.get_closest_marker('test_params')
+    else:
+        env = request.node.get_marker('test_params')
     kwargs = env.kwargs if env else {}
     result = {
         'shared_result': None,
     }
     result.update(kwargs)
 
-    if (result['shared_result'] and
-            not isinstance(result['shared_result'], string_types)):
+    if (result['shared_result'] and not isinstance(result['shared_result'], str)):
         raise pytest.Exception('You can only provide a string type of value '
                                'for "shared_result" ')
     return result
@@ -137,12 +143,14 @@ def warning(app):
 
 
 @pytest.fixture()
-def make_app(test_params):
+def make_app(test_params, monkeypatch):
     """
     provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
+    monkeypatch.setattr('sphinx.application.abspath', lambda x: x)
+
     apps = []
     syspath = sys.path[:]
 
@@ -153,16 +161,16 @@ def make_app(test_params):
         app_ = util.SphinxTestApp(*args, **kwargs)  # type: Union[util.SphinxTestApp, util.SphinxTestAppWrapperForSkipBuilding]  # NOQA
         apps.append(app_)
         if test_params['shared_result']:
-            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = util.SphinxTestAppWrapperForSkipBuilding(app_)  # type: ignore
         return app_
     yield make
 
     sys.path[:] = syspath
-    for app_ in apps:
+    for app_ in reversed(apps):  # clean up applications from the new ones
         app_.cleanup()
 
 
-class SharedResult(object):
+class SharedResult:
     cache = {}  # type: Dict[str, Dict[str, str]]
 
     def store(self, key, app_):
@@ -203,10 +211,7 @@ def if_graphviz_found(app):
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
     try:
         if graphviz_dot:
-            dot = subprocess.Popen([graphviz_dot, '-V'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)  # show version
-            dot.communicate()
+            subprocess.run([graphviz_dot, '-V'], stdout=PIPE, stderr=PIPE)  # show version
             return
     except OSError:  # No such file or directory
         pass
@@ -215,11 +220,15 @@ def if_graphviz_found(app):
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir():
+def sphinx_test_tempdir(tmpdir_factory):
     """
     temporary directory that wrapped with `path` class.
     """
-    return util.path(os.environ.get('SPHINX_TEST_TEMPDIR', gettempdir())).abspath()
+    tmpdir = os.environ.get('SPHINX_TEST_TEMPDIR')  # RemovedInSphinx40Warning
+    if tmpdir is None:
+        tmpdir = tmpdir_factory.getbasetemp()
+
+    return util.path(tmpdir).abspath()
 
 
 @pytest.fixture

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_config
     ~~~~~~~~~~~
@@ -6,23 +5,22 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY3, iteritems
-import pytest
 import mock
+import pytest
 
 import sphinx
-from sphinx.config import Config
+from sphinx.config import Config, ENUM, check_confval_types
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 from sphinx.testing.path import path
 
 
-@pytest.mark.sphinx(confoverrides={
+@pytest.mark.sphinx(testroot='config', confoverrides={
     'master_doc': 'master',
     'nonexisting_value': 'True',
-    'latex_elements.docclass': 'scrartcl',
+    'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app, status, warning):
     cfg = app.config
@@ -34,7 +32,7 @@ def test_core_config(app, status, warning):
 
     # overrides
     assert cfg.master_doc == 'master'
-    assert cfg.latex_elements['docclass'] == 'scrartcl'
+    assert cfg.latex_elements['maketitle'] == 'blah blah blah'
     assert cfg.modindex_common_prefix == ['path1', 'path2']
 
     # simple default values
@@ -74,57 +72,70 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-def test_extension_values(app, status, warning):
-    cfg = app.config
+def test_extension_values():
+    config = Config()
 
-    # default value
-    assert cfg.value_from_ext == []
-    # non-default value
-    assert cfg.value_from_conf_py == 84
+    # check standard settings
+    assert config.master_doc == 'index'
 
-    # no duplicate values allowed
+    # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        app.add_config_value('html_title', 'x', True)
+        config.add('master_doc', 'index', 'env', None)
     assert 'already present' in str(excinfo.value)
+
+    # add a new config value
+    config.add('value_from_ext', [], 'env', None)
+    assert config.value_from_ext == []
+
+    # can't override it by add_config_value()
     with pytest.raises(ExtensionError) as excinfo:
-        app.add_config_value('value_from_ext', 'x', True)
+        config.add('value_from_ext', [], 'env', None)
     assert 'already present' in str(excinfo.value)
+
+
+def test_overrides():
+    config = Config({'value1': '1', 'value2': 2, 'value6': {'default': 6}},
+                    {'value2': 999, 'value3': '999', 'value5.attr1': 999, 'value6.attr1': 999,
+                     'value7': 'abc,def,ghi', 'value8': 'abc,def,ghi'})
+    config.add('value1', None, 'env', ())
+    config.add('value2', None, 'env', ())
+    config.add('value3', 0, 'env', ())
+    config.add('value4', 0, 'env', ())
+    config.add('value5', {'default': 0}, 'env', ())
+    config.add('value6', {'default': 0}, 'env', ())
+    config.add('value7', None, 'env', ())
+    config.add('value8', [], 'env', ())
+    config.init_values()
+
+    assert config.value1 == '1'
+    assert config.value2 == 999
+    assert config.value3 == 999
+    assert config.value4 == 0
+    assert config.value5 == {'attr1': 999}
+    assert config.value6 == {'default': 6, 'attr1': 999}
+    assert config.value7 == 'abc,def,ghi'
+    assert config.value8 == ['abc', 'def', 'ghi']
 
 
 @mock.patch("sphinx.config.logger")
 def test_errors_warnings(logger, tempdir):
     # test the error for syntax errors in the config file
-    (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    (tempdir / 'conf.py').write_text('project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config(tempdir, 'conf.py', {}, None)
+        Config.read(tempdir, {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tempdir / 'conf.py').write_text(
-        u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
-        encoding='utf-8')
-    cfg = Config(tempdir, 'conf.py', {}, None)
+    (tempdir / 'conf.py').write_text('project = u"Jägermeister"\n')
+    cfg = Config.read(tempdir, {}, None)
     cfg.init_values()
-    assert cfg.project == u'Jägermeister'
+    assert cfg.project == 'Jägermeister'
     assert logger.called is False
-
-    # test the warning for bytestrings with non-ascii content
-    # bytestrings with non-ascii content are a syntax error in python3 so we
-    # skip the test there
-    if PY3:
-        return
-    (tempdir / 'conf.py').write_text(
-        u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config(tempdir, 'conf.py', {}, None)
-
-    assert logger.warning.called is False
-    cfg.check_unicode()
-    assert logger.warning.called is True
 
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tempdir / 'conf.py').write_text(u'setup = 1')
+    (tempdir / 'conf.py').write_text('setup = 1')
     with pytest.raises(ConfigError) as excinfo:
         make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
@@ -144,26 +155,20 @@ def make_app_with_empty_project(make_app, tempdir):
 def test_needs_sphinx(make_app_with_empty_project):
     make_app = make_app_with_empty_project
     # micro version
-    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
-    app.cleanup()
-    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
-    app.cleanup()
+    make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
-    app.cleanup()
-    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
-    app.cleanup()
+    make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
-    app.cleanup()
-    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
-    app.cleanup()
+    make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
+    make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     with pytest.raises(VersionRequirementError):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
@@ -174,9 +179,9 @@ def test_config_eol(logger, tempdir):
     configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config(tempdir, 'conf.py', {}, None)
+        cfg = Config.read(tempdir, {}, None)
         cfg.init_values()
-        assert cfg.project == u'spam'
+        assert cfg.project == 'spam'
         assert logger.called is False
 
 
@@ -195,48 +200,98 @@ def test_builtin_conf(app, status, warning):
         'warning')
 
 
-# See roots/test-config/conf.py.
-TYPECHECK_WARNINGS = {
-    'value1': True,
-    'value2': True,
-    'value3': False,
-    'value4': True,
-    'value5': False,
-    'value6': True,
-    'value7': False,
-    'value8': False,
-    'value9': False,
-    'value10': False,
-    'value11': False if PY3 else True,
-    'value12': False,
-    'value13': False,
-    'value14': False,
-    'value15': False,
-    'value16': False,
-}
+# example classes for type checking
+class A:
+    pass
 
 
-@pytest.mark.parametrize("key,should", iteritems(TYPECHECK_WARNINGS))
-@pytest.mark.sphinx(testroot='config')
-def test_check_types(warning, key, should):
-    warn = warning.getvalue()
-    if should:
-        assert key in warn, (
-            'override on "%s" should raise a type warning' % key
-        )
-    else:
-        assert key not in warn, (
-            'override on "%s" should NOT raise a type warning' % key
-        )
+class B(A):
+    pass
 
 
-@pytest.mark.sphinx(testroot='config')
-def test_check_enum(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           not in warning.getvalue()
+class C(A):
+    pass
 
 
-@pytest.mark.sphinx(testroot='config', confoverrides={'value17': 'invalid'})
-def test_check_enum_failed(app, status, warning):
-    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
-           "but `invalid` is given." in warning.getvalue()
+# name, default, annotation, actual, warned
+TYPECHECK_WARNINGS = [
+    ('value1', 'string', None, 123, True),                      # wrong type
+    ('value2', lambda _: [], None, 123, True),                  # lambda with wrong type
+    ('value3', lambda _: [], None, [], False),                  # lambda with correct type
+    ('value4', 100, None, True, True),                          # child type
+    ('value5', False, None, True, False),                       # parent type
+    ('value6', [], None, (), True),                             # other sequence type
+    ('value7', 'string', [list], ['foo'], False),               # explicit type annotation
+    ('value8', B(), None, C(), False),                          # sibling type
+    ('value9', None, None, 'foo', False),                       # no default or no annotations
+    ('value10', None, None, 123, False),                        # no default or no annotations
+    ('value11', None, [str], 'bar', False),                     # str
+    ('value12', 'string', None, 'bar', False),                  # str
+]
+
+
+@mock.patch("sphinx.config.logger")
+@pytest.mark.parametrize("name,default,annotation,actual,warned", TYPECHECK_WARNINGS)
+def test_check_types(logger, name, default, annotation, actual, warned):
+    config = Config({name: actual})
+    config.add(name, default, 'env', annotation or ())
+    config.init_values()
+    check_confval_types(None, config)
+    assert logger.warning.called == warned
+
+
+TYPECHECK_WARNING_MESSAGES = [
+    ('value1', 'string', [str], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str'."),
+    ('value1', 'string', [str, int], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str' or `int'."),
+    ('value1', 'string', [str, int, tuple], ['foo', 'bar'],
+        "The config value `value1' has type `list'; expected `str', `int', or `tuple'."),
+]
+
+
+@mock.patch("sphinx.config.logger")
+@pytest.mark.parametrize("name,default,annotation,actual,message", TYPECHECK_WARNING_MESSAGES)
+def test_conf_warning_message(logger, name, default, annotation, actual, message):
+    config = Config({name: actual})
+    config.add(name, default, False, annotation or ())
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_called()
+    assert logger.warning.call_args[0][0] == message
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum(logger):
+    config = Config()
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_not_called()  # not warned
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_failed(logger):
+    config = Config({'value': 'invalid'})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_called()
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_for_list(logger):
+    config = Config({'value': ['one', 'two']})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_not_called()  # not warned
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_enum_for_list_failed(logger):
+    config = Config({'value': ['one', 'two', 'invalid']})
+    config.add('value', 'default', False, ENUM('default', 'one', 'two'))
+    config.init_values()
+    check_confval_types(None, config)
+    logger.warning.assert_called()

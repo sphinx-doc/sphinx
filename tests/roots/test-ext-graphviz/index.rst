@@ -22,6 +22,11 @@ Hello |graph| graphviz world
 
 .. digraph:: bar
    :align: right
-   :caption: on right
+   :caption: on *right*
 
    foo -> bar
+
+.. digraph:: foo
+   :align: center
+
+   centered

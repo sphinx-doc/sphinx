@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.dummy
     ~~~~~~~~~~~~~~~~~~~~~
@@ -11,6 +10,7 @@
 
 
 from sphinx.builders import Builder
+from sphinx.locale import __
 
 if False:
     # For type annotation
@@ -21,6 +21,8 @@ if False:
 
 class DummyBuilder(Builder):
     name = 'dummy'
+    epilog = __('The dummy builder generates no files.')
+
     allow_parallel = True
 
     def init(self):
@@ -28,19 +30,19 @@ class DummyBuilder(Builder):
         pass
 
     def get_outdated_docs(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         return self.env.found_docs
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return ''
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         pass
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.Node) -> None
         pass
 
     def finish(self):
@@ -49,7 +51,7 @@ class DummyBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(DummyBuilder)
 
     return {

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.stemmer.porter
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14,7 +13,7 @@
 
     only differing from it at the points maked --DEPARTURE-- below.
 
-    See also http://www.tartarus.org/~martin/PorterStemmer
+    See also https://tartarus.org/martin/PorterStemmer/
 
     The algorithm as described in the paper could be exactly replicated
     by adjusting the points of DEPARTURE, but this is barely necessary,
@@ -29,7 +28,7 @@
 """
 
 
-class PorterStemmer(object):
+class PorterStemmer:
 
     def __init__(self):
         # type: () -> None
@@ -43,8 +42,7 @@ class PorterStemmer(object):
         should be done before stem(...) is called.
         """
 
-        self.b = ""     # type: unicode
-                        # buffer for word to be stemmed
+        self.b = ""     # buffer for word to be stemmed
         self.k = 0
         self.k0 = 0
         self.j = 0      # j is a general offset into the string
@@ -136,7 +134,7 @@ class PorterStemmer(object):
         return 1
 
     def ends(self, s):
-        # type: (unicode) -> int
+        # type: (str) -> int
         """ends(s) is TRUE <=> k0,...k ends with the string s."""
         length = len(s)
         if s[length - 1] != self.b[self.k]:  # tiny speed-up
@@ -149,7 +147,7 @@ class PorterStemmer(object):
         return 1
 
     def setto(self, s):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """setto(s) sets (j+1),...k to the characters in the string s,
         readjusting k."""
         length = len(s)
@@ -157,7 +155,7 @@ class PorterStemmer(object):
         self.k = self.j + length
 
     def r(self, s):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """r(s) is used further down."""
         if self.m() > 0:
             self.setto(s)
@@ -398,7 +396,7 @@ class PorterStemmer(object):
             self.k = self.k - 1
 
     def stem(self, p, i, j):
-        # type: (unicode, int, int) -> unicode
+        # type: (str, int, int) -> str
         """In stem(p,i,j), p is a char pointer, and the string to be stemmed
         is from p[i] to p[j] inclusive. Typically i is zero and j is the
         offset to the last character of a string, (p[j+1] == '\0'). The

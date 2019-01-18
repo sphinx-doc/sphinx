@@ -1,8 +1,0 @@
-.. toctree::
-
-   maxwidth
-   lineblock
-   nonascii_title
-   nonascii_table
-   nonascii_maxwidth
-   table

@@ -12,3 +12,9 @@ i18n with table
    text3   text4
    text5   text6
    ======= =======
+
+.. table:: 1. table caption
+
+   +-----+
+   |text1|
+   +-----+
