@@ -1300,6 +1300,13 @@ that use Sphinx's HTMLWriter class.
    * ``dict``  -- the ``jieba`` dictionary path if want to use
      custom dictionary.
 
+.. confval:: html_search_partial_matching
+
+   If true, the HTML search will consider words that contain a search term of
+   length three or longer a match. Default: ``True``.
+
+   .. versionadded:: 2.0
+
 .. confval:: html_search_scorer
 
    The name of a JavaScript file (relative to the configuration directory) that
