@@ -15,6 +15,7 @@ if sys.version_info < (3, 5):
     sys.exit(1)
 
 install_requires = [
+    'sphinxcontrib-devhelp',
     'sphinxcontrib-jsmath',
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',

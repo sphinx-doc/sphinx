@@ -117,7 +117,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 1.3
 
-.. module:: sphinx.builders.devhelp
+.. module:: sphinxcontrib.devhelp
 .. class:: DevhelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
@@ -129,6 +129,10 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.devhelp from sphinx.builders package.
 
 .. module:: sphinx.builders.epub3
 .. class:: Epub3Builder
