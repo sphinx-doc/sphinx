@@ -60,7 +60,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     "buildername",
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
+        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp',
         'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )

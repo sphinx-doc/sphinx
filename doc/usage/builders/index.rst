@@ -72,12 +72,16 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-.. module:: sphinx.builders.qthelp
+.. module:: sphinxcontrib.qthelp
 .. class:: QtHelpBuilder
 
    This builder produces the same output as the standalone HTML builder, but
    also generates `Qt help`_ collection support files that allow the Qt
    collection generator to compile them.
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.qthelp from sphinx.builders package.
 
    .. autoattribute:: name
 
