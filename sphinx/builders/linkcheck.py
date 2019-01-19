@@ -225,7 +225,7 @@ class CheckExternalLinksBuilder(Builder):
         if status == 'working' and info == 'old':
             return
         if lineno:
-            logger.info('(line %4d) ', lineno, nonl=1)
+            logger.info('(line %4d) ', lineno, nonl=True)
         if status == 'ignored':
             if info:
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)

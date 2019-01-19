@@ -179,15 +179,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def finish(self):
         # type: () -> None
         # no indices or search pages are supported
-        logger.info(bold(__('writing additional files...')), nonl=1)
+        logger.info(bold(__('writing additional files...')), nonl=True)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=1)
+            logger.info(' ' + pagename, nonl=True)
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:
-            logger.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 

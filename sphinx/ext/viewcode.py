@@ -153,9 +153,6 @@ def collect_pages(app):
 
     modnames = set(env._viewcode_modules)  # type: ignore
 
-#    app.builder.info(' (%d module code pages)' %
-#                     len(env._viewcode_modules), nonl=1)
-
     for modname, entry in status_iterator(
             sorted(env._viewcode_modules.items()),  # type: ignore
             __('highlighting module code... '), "blue",
