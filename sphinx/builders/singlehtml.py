@@ -16,7 +16,8 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util import progress_message
+from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 
 if False:
@@ -162,24 +163,32 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # type: (Any) -> None
         docnames = self.env.all_docs
 
-        logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)  # type: ignore
-        logger.info(__('done'))
+        with progress_message(__('preparing documents')):
+            self.prepare_writing(docnames)  # type: ignore
 
-        logger.info(bold(__('assembling single document... ')), nonl=True)
-        doctree = self.assemble_doctree()
-        self.env.toc_secnumbers = self.assemble_toc_secnumbers()
-        self.env.toc_fignumbers = self.assemble_toc_fignumbers()
-        logger.info('')
-        logger.info(bold(__('writing... ')), nonl=True)
-        self.write_doc_serialized(self.config.master_doc, doctree)
-        self.write_doc(self.config.master_doc, doctree)
-        logger.info(__('done'))
+        with progress_message(__('assembling single document')):
+            doctree = self.assemble_doctree()
+            self.env.toc_secnumbers = self.assemble_toc_secnumbers()
+            self.env.toc_fignumbers = self.assemble_toc_fignumbers()
+
+        with progress_message(__('writing')):
+            self.write_doc_serialized(self.config.master_doc, doctree)
+            self.write_doc(self.config.master_doc, doctree)
 
     def finish(self):
         # type: () -> None
+        self.write_additional_files()
+        self.copy_image_files()
+        self.copy_download_files()
+        self.copy_static_files()
+        self.copy_extra_files()
+        self.write_buildinfo()
+        self.dump_inventory()
+
+    @progress_message(__('writing additional files'))
+    def write_additional_files(self):
+        # type: () -> None
         # no indices or search pages are supported
-        logger.info(bold(__('writing additional files...')), nonl=True)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
@@ -190,15 +199,6 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             logger.info(' opensearch', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
-
-        logger.info('')
-
-        self.copy_image_files()
-        self.copy_download_files()
-        self.copy_static_files()
-        self.copy_extra_files()
-        self.write_buildinfo()
-        self.dump_inventory()
 
 
 def setup(app):
