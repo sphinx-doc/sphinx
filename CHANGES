@@ -22,6 +22,7 @@ Dependencies
 * Some packages are separated to sub packages:
 
   - sphinxcontrib.jsmath
+  - sphinxcontrib.qthelp
 
 Incompatible changes
 --------------------
