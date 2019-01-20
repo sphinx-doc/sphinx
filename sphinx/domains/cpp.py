@@ -577,7 +577,7 @@ _id_explicit_cast = {
 
 
 class NoOldIdError(Exception):
-    # Used to avoid implementing unneeded id generation for old id schmes.
+    # Used to avoid implementing unneeded id generation for old id schemes.
     @property
     def description(self):
         # type: () -> str
@@ -626,7 +626,7 @@ class ASTBase:
     __hash__ = None  # type: Callable[[], int]
 
     def clone(self):
-        # type: () -> ASTBase
+        # type: () -> Any
         """Clone a definition expression node."""
         return deepcopy(self)
 
@@ -2626,6 +2626,7 @@ class ASTDeclSpecsSimple(ASTBase):
 
 class ASTDeclSpecs(ASTBase):
     def __init__(self, outer, leftSpecs, rightSpecs, trailing):
+        # type: (Any, ASTDeclSpecsSimple, ASTDeclSpecsSimple, Any) -> None
         # leftSpecs and rightSpecs are used for output
         # allSpecs are used for id generation
         self.outer = outer
@@ -2663,8 +2664,6 @@ class ASTDeclSpecs(ASTBase):
         res = []  # type: List[str]
         l = transform(self.leftSpecs)
         if len(l) > 0:
-            if len(res) > 0:
-                res.append(" ")
             res.append(l)
         if self.trailingTypeSpec:
             if len(res) > 0:
@@ -3463,7 +3462,7 @@ class ASTConcept(ASTBase):
 
 class ASTBaseClass(ASTBase):
     def __init__(self, name, visibility, virtual, pack):
-        # type: (Any, str, bool, bool) -> None
+        # type: (ASTNestedName, str, bool, bool) -> None
         self.name = name
         self.visibility = visibility
         self.virtual = virtual
@@ -3472,7 +3471,8 @@ class ASTBaseClass(ASTBase):
     def _stringify(self, transform):
         # type: (Callable[[Any], str]) -> str
         res = []
-        if self.visibility != 'private':
+
+        if self.visibility is not None:
             res.append(self.visibility)
             res.append(' ')
         if self.virtual:
@@ -3485,7 +3485,7 @@ class ASTBaseClass(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, str, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        if self.visibility != 'private':
+        if self.visibility is not None:
             signode += addnodes.desc_annotation(self.visibility,
                                                 self.visibility)
             signode += nodes.Text(' ')
@@ -3499,7 +3499,7 @@ class ASTBaseClass(ASTBase):
 
 class ASTClass(ASTBase):
     def __init__(self, name, final, bases):
-        # type: (Any, bool, List[Any]) -> None
+        # type: (ASTNestedName, bool, List[ASTBaseClass]) -> None
         self.name = name
         self.final = final
         self.bases = bases
@@ -3625,16 +3625,17 @@ class ASTEnumerator(ASTBase):
 
 
 class ASTDeclaration(ASTBase):
-    def __init__(self, objectType, visibility, templatePrefix, declaration):
-        # type: (str, str, Any, Any) -> None
+    def __init__(self, objectType, directiveType, visibility, templatePrefix, declaration):
+        # type: (str, str, str, ASTTemplateDeclarationPrefix, Any) -> None
         self.objectType = objectType
+        self.directiveType = directiveType
         self.visibility = visibility
         self.templatePrefix = templatePrefix
         self.declaration = declaration
 
         self.symbol = None  # type: Symbol
         # set by CPPObject._add_enumerator_to_parent
-        self.enumeratorScopedSymbol = None  # type: Any
+        self.enumeratorScopedSymbol = None  # type: Symbol
 
     def clone(self):
         # type: () -> ASTDeclaration
@@ -3642,8 +3643,8 @@ class ASTDeclaration(ASTBase):
             templatePrefixClone = self.templatePrefix.clone()
         else:
             templatePrefixClone = None
-        return ASTDeclaration(self.objectType, self.visibility,
-                              templatePrefixClone,
+        return ASTDeclaration(self.objectType, self.directiveType,
+                              self.visibility, templatePrefixClone,
                               self.declaration.clone())
 
     @property
@@ -3724,14 +3725,20 @@ class ASTDeclaration(ASTBase):
         elif self.objectType == 'function':
             pass
         elif self.objectType == 'class':
-            mainDeclNode += addnodes.desc_annotation('class ', 'class ')
+            assert self.directiveType in ('class', 'struct')
+            prefix = self.directiveType + ' '
+            mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'union':
             mainDeclNode += addnodes.desc_annotation('union ', 'union ')
         elif self.objectType == 'enum':
-            prefix = 'enum '
-            if self.scoped:  # type: ignore
-                prefix += self.scoped  # type: ignore
-                prefix += ' '
+            if self.directiveType == 'enum':
+                prefix = 'enum '
+            elif self.directiveType == 'enum-class':
+                prefix = 'enum class '
+            elif self.directiveType == 'enum-struct':
+                prefix = 'enum struct '
+            else:
+                assert False  # wrong directiveType used
             mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'enumerator':
             mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
@@ -3843,7 +3850,7 @@ class Symbol:
                     continue
                 # only add a declaration if we our self are from a declaration
                 if self.declaration:
-                    decl = ASTDeclaration('templateParam', None, None, p)
+                    decl = ASTDeclaration('templateParam', None, None, None, p)
                 else:
                     decl = None
                 nne = ASTNestedNameElement(p.get_identifier(), None)
@@ -3858,7 +3865,7 @@ class Symbol:
                 if nn is None:
                     continue
                 # (comparing to the template params: we have checked that we are a declaration)
-                decl = ASTDeclaration('functionParam', None, None, p)
+                decl = ASTDeclaration('functionParam', None, None, None, p)
                 assert not nn.rooted
                 assert len(nn.names) == 1
                 self._add_symbols(nn, [], decl, self.docname)
@@ -5996,7 +6003,7 @@ class DefinitionParser:
         if self.skip_string(':'):
             while 1:
                 self.skip_ws()
-                visibility = 'private'
+                visibility = None
                 virtual = False
                 pack = False
                 if self.skip_word_and_ws('virtual'):
@@ -6230,11 +6237,15 @@ class DefinitionParser:
             templatePrefix = ASTTemplateDeclarationPrefix(newTemplates)
         return templatePrefix
 
-    def parse_declaration(self, objectType):
-        # type: (str) -> ASTDeclaration
-        if objectType not in ('type', 'concept', 'member',
-                              'function', 'class', 'union', 'enum', 'enumerator'):
+    def parse_declaration(self, objectType, directiveType):
+        # type: (str, str) -> ASTDeclaration
+        if objectType not in ('class', 'union', 'function', 'member', 'type',
+                              'concept', 'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
+        if directiveType not in ('class', 'struct', 'union', 'function', 'member', 'var',
+                                 'type', 'concept',
+                                 'enum', 'enum-struct', 'enum-class', 'enumerator'):
+            raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
         visibility = None
         templatePrefix = None
         declaration = None  # type: Any
@@ -6284,7 +6295,7 @@ class DefinitionParser:
                                                           templatePrefix,
                                                           fullSpecShorthand=False,
                                                           isMember=objectType == 'member')
-        return ASTDeclaration(objectType, visibility,
+        return ASTDeclaration(objectType, directiveType, visibility,
                               templatePrefix, declaration)
 
     def parse_namespace_object(self):
@@ -6314,7 +6325,7 @@ class DefinitionParser:
         except DefinitionError as e1:
             try:
                 self.pos = pos
-                res2 = self.parse_declaration('function')
+                res2 = self.parse_declaration('function', 'function')
                 # if there are '()' left, just skip them
                 self.skip_ws()
                 self.skip_string('()')
@@ -6378,7 +6389,7 @@ class CPPObject(ObjectDescription):
         self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def _add_enumerator_to_parent(self, ast):
-        # type: (Any) -> None
+        # type: (ASTDeclaration) -> None
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
         #                     && it's unscoped,
@@ -6404,7 +6415,7 @@ class CPPObject(ObjectDescription):
             # TODO: maybe issue a warning, enumerators in non-enums is weird,
             # but it is somewhat equivalent to unscoped enums, without the enum
             return
-        if parentDecl.scoped:
+        if parentDecl.directiveType != 'enum':
             return
 
         targetSymbol = parentSymbol.parent
@@ -6420,7 +6431,7 @@ class CPPObject(ObjectDescription):
                docname=self.env.docname)
 
     def add_target_and_index(self, ast, sig, signode):
-        # type: (Any, str, addnodes.desc_signature) -> None
+        # type: (ASTDeclaration, str, addnodes.desc_signature) -> None
         # general note: name must be lstrip(':')'ed, to remove "::"
         ids = []
         for i in range(1, _max_id + 1):
@@ -6479,13 +6490,23 @@ class CPPObject(ObjectDescription):
             signode['first'] = (not self.names)  # hmm, what is this about?
             self.state.document.note_explicit_target(signode)
 
-    def get_index_text(self, name):
-        # type: (str) -> str
+    @property
+    def object_type(self):
+        # type: () -> str
         raise NotImplementedError()
 
+    @property
+    def display_object_type(self):
+        # type: () -> str
+        return self.object_type
+
+    def get_index_text(self, name):
+        # type: (str) -> str
+        return _('%s (C++ %s)') % (name, self.display_object_type)
+
     def parse_definition(self, parser):
-        # type: (Any) -> Any
-        raise NotImplementedError()
+        # type: (DefinitionParser) -> ASTDeclaration
+        return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(self, signode, ast, options):
         # type: (addnodes.desc_signature, Any, Dict) -> None
@@ -6521,7 +6542,7 @@ class CPPObject(ObjectDescription):
         return super().run()
 
     def handle_signature(self, sig, signode):
-        # type: (str, addnodes.desc_signature) -> Any
+        # type: (str, addnodes.desc_signature) -> ASTDeclaration
         parentSymbol = self.env.temp_data['cpp:parent_symbol']
 
         parser = DefinitionParser(sig, self, self.env.config)
@@ -6572,93 +6593,41 @@ class CPPObject(ObjectDescription):
 
 
 class CPPTypeObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ type)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("type")
+    object_type = 'type'
 
 
 class CPPConceptObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ concept)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("concept")
+    object_type = 'concept'
 
 
 class CPPMemberObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ member)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("member")
+    object_type = 'member'
 
 
 class CPPFunctionObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ function)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("function")
+    object_type = 'function'
 
 
 class CPPClassObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ class)') % name
+    object_type = 'class'
 
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("class")
+    @property
+    def display_object_type(self):
+        # the distinction between class and struct is only cosmetic
+        assert self.objtype in ('class', 'struct')
+        return self.objtype
 
 
 class CPPUnionObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ union)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("union")
+    object_type = 'union'
 
 
 class CPPEnumObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ enum)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        ast = parser.parse_declaration("enum")
-        # self.objtype is set by ObjectDescription in run()
-        if self.objtype == "enum":
-            ast.scoped = None
-        elif self.objtype == "enum-struct":
-            ast.scoped = "struct"
-        elif self.objtype == "enum-class":
-            ast.scoped = "class"
-        else:
-            assert False
-        return ast
+    object_type = 'enum'
 
 
 class CPPEnumeratorObject(CPPObject):
-    def get_index_text(self, name):
-        # type: (str) -> str
-        return _('%s (C++ enumerator)') % name
-
-    def parse_definition(self, parser):
-        # type: (Any) -> Any
-        return parser.parse_declaration("enumerator")
+    object_type = 'enumerator'
 
 
 class CPPNamespaceObject(SphinxDirective):
@@ -6968,7 +6937,17 @@ class CPPExprRole:
 
 
 class CPPDomain(Domain):
-    """C++ language domain."""
+    """C++ language domain.
+
+    There are two 'object type' attributes being used::
+
+    - Each object created from directives gets an assigned .objtype from ObjectDescription.run.
+      This is simply the directive name.
+    - Each declaration (see the distinction in the directives dict below) has a nested .ast of
+      type ASTDeclaration. That object has .objectType which corresponds to the keys in the
+      object_types dict below. They are the core different types of declarations in C++ that
+      one can document.
+    """
     name = 'cpp'
     label = 'C++'
     object_types = {
@@ -6983,7 +6962,9 @@ class CPPDomain(Domain):
     }
 
     directives = {
+        # declarations
         'class': CPPClassObject,
+        'struct': CPPClassObject,
         'union': CPPUnionObject,
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
@@ -6994,14 +6975,17 @@ class CPPDomain(Domain):
         'enum-struct': CPPEnumObject,
         'enum-class': CPPEnumObject,
         'enumerator': CPPEnumeratorObject,
+        # scope control
         'namespace': CPPNamespaceObject,
         'namespace-push': CPPNamespacePushObject,
         'namespace-pop': CPPNamespacePopObject,
+        # other
         'alias': CPPAliasObject
     }
     roles = {
         'any': CPPXRefRole(),
         'class': CPPXRefRole(),
+        'struct': CPPXRefRole(),
         'union': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),
