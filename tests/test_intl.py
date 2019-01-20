@@ -61,7 +61,9 @@ def build_mo():
                 if not mo.parent.exists():
                     mo.parent.makedirs()
 
-                write_mo(mo, read_po(po))
+                if not mo.exists() or mo.stat().st_mtime < po.stat().st_mtime:
+                    # compile .mo file only if needed
+                    write_mo(mo, read_po(po))
     return builder
 
 
