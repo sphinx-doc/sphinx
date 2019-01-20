@@ -692,7 +692,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def gen_indices(self):
         # type: () -> None
-        logger.info(bold(__('generating indices...')), nonl=1)
+        logger.info(bold(__('generating indices...')), nonl=True)
 
         # the global general index
         if self.use_index:
@@ -710,21 +710,21 @@ class StandaloneHTMLBuilder(Builder):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
-        logger.info(bold(__('writing additional pages...')), nonl=1)
+        logger.info(bold(__('writing additional pages...')), nonl=True)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=1)
+            logger.info(' ' + pagename, nonl=True)
             self.handle_page(pagename, {}, template)
 
         # the search page
         if self.search:
-            logger.info(' search', nonl=1)
+            logger.info(' search', nonl=True)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            logger.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=True)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
@@ -745,7 +745,7 @@ class StandaloneHTMLBuilder(Builder):
             'genindexcounts': indexcounts,
             'split_index': self.config.html_split_index,
         }
-        logger.info(' genindex', nonl=1)
+        logger.info(' genindex', nonl=True)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -768,7 +768,7 @@ class StandaloneHTMLBuilder(Builder):
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(' ' + indexname, nonl=1)
+            logger.info(' ' + indexname, nonl=True)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self):

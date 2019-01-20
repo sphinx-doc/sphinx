@@ -250,7 +250,7 @@ class LaTeXBuilder(Builder):
                 toctree_only = entry[5]
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
-            logger.info(__("processing %s..."), targetname, nonl=1)
+            logger.info(__("processing %s..."), targetname, nonl=True)
             toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
             if toctrees:
                 if toctrees[0].get('maxdepth') > 0:
@@ -267,7 +267,7 @@ class LaTeXBuilder(Builder):
             self.post_process_images(doctree)
             self.update_doc_context(title, author)
 
-            logger.info(__("writing... "), nonl=1)
+            logger.info(__("writing... "), nonl=True)
             docsettings.author = author
             docsettings.title = title
             docsettings.contentsname = self.get_contentsname(docname)
@@ -298,7 +298,7 @@ class LaTeXBuilder(Builder):
         # type: (str, bool, List[str]) -> nodes.document
         from docutils import nodes  # NOQA
         self.docnames = set([indexfile] + appendices)
-        logger.info(darkgreen(indexfile) + " ", nonl=1)
+        logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -388,9 +388,9 @@ class LaTeXBuilder(Builder):
 
         # copy additional files
         if self.config.latex_additional_files:
-            logger.info(bold(__('copying additional files...')), nonl=1)
+            logger.info(bold(__('copying additional files...')), nonl=True)
             for filename in self.config.latex_additional_files:
-                logger.info(' ' + filename, nonl=1)
+                logger.info(' ' + filename, nonl=True)
                 copy_asset_file(path.join(self.confdir, filename), self.outdir)
             logger.info('')
 

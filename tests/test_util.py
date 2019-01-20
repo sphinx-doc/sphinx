@@ -18,8 +18,8 @@ import sphinx
 from sphinx.errors import PycodeError
 from sphinx.testing.util import strip_escseq
 from sphinx.util import (
-    display_chunk, encode_uri, ensuredir, get_module_source, parselinenos, status_iterator,
-    xmlname_checker
+    SkipProgressMessage, display_chunk, encode_uri, ensuredir, get_module_source,
+    parselinenos, progress_message, status_iterator, xmlname_checker
 )
 from sphinx.util import logging
 
@@ -121,6 +121,44 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+
+
+def test_progress_message(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    # standard case
+    with progress_message('testing'):
+        logger.info('blah ', nonl=True)
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... blah done\n' in output
+
+    # skipping case
+    with progress_message('testing'):
+        raise SkipProgressMessage('Reason: %s', 'error')
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... skipped\nReason: error\n' in output
+
+    # error case
+    try:
+        with progress_message('testing'):
+            raise
+    except Exception:
+        pass
+
+    output = strip_escseq(status.getvalue())
+    assert 'testing... failed\n' in output
+
+    # decorator
+    @progress_message('testing')
+    def func():
+        logger.info('in func ', nonl=True)
+
+    func()
+    output = strip_escseq(status.getvalue())
+    assert 'testing... in func done\n' in output
 
 
 def test_xmlname_check():

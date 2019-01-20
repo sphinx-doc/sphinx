@@ -48,7 +48,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Type, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -676,6 +676,10 @@ def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
         logger.info('')
 
 
+class SkipProgressMessage(Exception):
+    pass
+
+
 class progress_message:
     def __init__(self, message):
         # type: (str) -> None
@@ -686,8 +690,13 @@ class progress_message:
         logger.info(bold(self.message + '... '), nonl=True)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # type: (Any, Any, Any) -> bool
-        if exc_type:
+        # type: (Type[Exception], Exception, Any) -> bool
+        if isinstance(exc_value, SkipProgressMessage):
+            logger.info(__('skipped'))
+            if exc_value.args:
+                logger.info(*exc_value.args)
+            return True
+        elif exc_type:
             logger.info(__('failed'))
         else:
             logger.info(__('done'))
