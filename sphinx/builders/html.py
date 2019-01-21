@@ -549,7 +549,6 @@ class StandaloneHTMLBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
             'has_source': self.config.html_copy_source,
-            'search_partial_matching': self.config.html_search_partial_matching,
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,

@@ -159,6 +159,8 @@ Features added
 * #5841: apidoc: Add --extensions option to sphinx-apidoc
 * #4981: C++, added an alias directive for inserting lists of declarations,
   that references existing declarations (e.g., for making a synopsis).
+* #1341 the HTML search considers words that contain a search term of length
+  three or longer a match.
 
 Bugs fixed
 ----------

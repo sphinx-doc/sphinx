@@ -392,7 +392,7 @@ var Search = {
         {files: titleterms[word], score: Scorer.title}
       ];
       // add support for partial matches
-      if (DOCUMENTATION_OPTIONS.PARTIAL_SEARCH_MATCHING && word.length > 2) {
+      if (word.length > 2) {
         for (var w in terms) {
           if (w.match(word)) {
             _o.push({files: terms[w], score: Scorer.partialTerm})

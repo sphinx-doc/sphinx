@@ -141,7 +141,6 @@ class Config:
         'numfig': (False, 'env', []),
         'numfig_secnum_depth': (1, 'env', []),
         'numfig_format': ({}, 'env', []),  # will be initialized in init_numfig_format()
-        'html_search_partial_matching': (True, 'html', []),
 
         'math_number_all': (False, 'env', []),
         'math_eqref_format': (None, 'env', [str]),
