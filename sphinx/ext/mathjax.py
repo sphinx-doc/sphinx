@@ -104,6 +104,6 @@ def setup(app):
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.add_config_value('mathjax_config', None, 'html')
-    app.connect('env-check-consistency', install_mathjax)
+    app.connect('env-updated', install_mathjax)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
