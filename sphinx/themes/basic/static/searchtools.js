@@ -394,12 +394,12 @@ var Search = {
       // add support for partial matches
       if (word.length > 2) {
         for (var w in terms) {
-          if (w.match(word)) {
+          if (w.match(word) && !terms[word]) {
             _o.push({files: terms[w], score: Scorer.partialTerm})
           }
         }
         for (var w in titleterms) {
-          if (w.match(word)) {
+          if (w.match(word) && !titleterms[word]) {
               _o.push({files: titleterms[w], score: Scorer.partialTitle})
           }
         }
