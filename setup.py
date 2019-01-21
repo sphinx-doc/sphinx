@@ -16,6 +16,7 @@ if sys.version_info < (3, 5):
 
 install_requires = [
     'sphinxcontrib-jsmath',
+    'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.12',

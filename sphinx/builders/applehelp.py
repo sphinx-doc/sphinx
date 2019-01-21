@@ -19,7 +19,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore
+from sphinx.util import SkipProgressMessage, progress_message
 from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import ensuredir, make_filename
@@ -79,8 +79,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                                  'building Apple Help output'))
 
         self.bundle_path = path.join(self.outdir,
-                                     self.config.applehelp_bundle_name +
-                                     '.help')
+                                     self.config.applehelp_bundle_name + '.help')
         self.outdir = path.join(self.bundle_path,
                                 'Contents',
                                 'Resources',
@@ -93,19 +92,16 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.finish_tasks.add_task(self.copy_localized_files)
         self.finish_tasks.add_task(self.build_helpbook)
 
+    @progress_message(__('copying localized files'))
     def copy_localized_files(self):
         # type: () -> None
         source_dir = path.join(self.confdir, self.config.applehelp_locale + '.lproj')
         target_dir = self.outdir
 
         if path.isdir(source_dir):
-            logger.info(bold(__('copying localized files... ')), nonl=True)
-
             excluded = Matcher(self.config.exclude_patterns + ['**/.*'])
             copy_asset(source_dir, target_dir, excluded,
                        context=self.globalcontext, renderer=self.templates)
-
-            logger.info(__('done'))
 
     def build_helpbook(self):
         # type: () -> None
@@ -119,8 +115,11 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.copy_applehelp_icon(resources_dir)
         self.build_access_page(language_dir)
         self.build_helpindex(language_dir)
-        self.do_codesign()
 
+        if self.config.applehelp_codesign_identity:
+            self.do_codesign()
+
+    @progress_message(__('writing Info.plist'))
     def build_info_plist(self, contents_dir):
         # type: (str) -> None
         """Construct the Info.plist file."""
@@ -149,40 +148,35 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         if self.config.applehelp_remote_url is not None:
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
-        logger.info(bold(__('writing Info.plist... ')), nonl=True)
         with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
             plistlib.dump(info_plist, f)
-        logger.info(__('done'))
 
     def copy_applehelp_icon(self, resources_dir):
         # type: (str) -> None
         """Copy the icon, if one is supplied."""
         if self.config.applehelp_icon:
-            logger.info(bold(__('copying icon... ')), nonl=True)
 
             try:
-                applehelp_icon = path.join(self.srcdir, self.config.applehelp_icon)
-                copy_asset_file(applehelp_icon, resources_dir)
-                logger.info(__('done'))
+                with progress_message(__('copying icon... ')):
+                    applehelp_icon = path.join(self.srcdir, self.config.applehelp_icon)
+                    copy_asset_file(applehelp_icon, resources_dir)
             except Exception as err:
                 logger.warning(__('cannot copy icon file %r: %s'), applehelp_icon, err)
 
+    @progress_message(__('building access page'))
     def build_access_page(self, language_dir):
         # type: (str) -> None
         """Build the access page."""
-        logger.info(bold(__('building access page...')), nonl=True)
         context = {
             'toc': self.config.master_doc + self.out_suffix,
             'title': self.config.applehelp_title,
         }
         copy_asset_file(path.join(template_dir, '_access.html_t'), language_dir, context)
-        logger.info(__('done'))
 
+    @progress_message(__('generating help index'))
     def build_helpindex(self, language_dir):
         # type: (str) -> None
         """Generate the help index."""
-        logger.info(bold(__('generating help index... ')), nonl=True)
-
         args = [
             self.config.applehelp_indexer_path,
             '-Cf',
@@ -203,46 +197,40 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             args += ['-l', self.config.applehelp_locale]
 
         if self.config.applehelp_disable_external_tools:
-            logger.info(__('skipping'))
-            logger.warning(__('you will need to index this help book with:\n  %s'),
-                           ' '.join([shlex.quote(arg) for arg in args]))
+            raise SkipProgressMessage(__('you will need to index this help book with:\n  %s'),
+                                      ' '.join([shlex.quote(arg) for arg in args]))
         else:
             try:
                 subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=True)
-                logger.info(__('done'))
             except OSError:
                 raise AppleHelpIndexerFailed(__('Command not found: %s') % args[0])
             except CalledProcessError as exc:
                 raise AppleHelpIndexerFailed(exc.stdout)
 
+    @progress_message(__('signing help book'))
     def do_codesign(self):
         # type: () -> None
         """If we've been asked to, sign the bundle."""
-        if self.config.applehelp_codesign_identity:
-            logger.info(bold(__('signing help book... ')), nonl=True)
+        args = [
+            self.config.applehelp_codesign_path,
+            '-s', self.config.applehelp_codesign_identity,
+            '-f'
+        ]
 
-            args = [
-                self.config.applehelp_codesign_path,
-                '-s', self.config.applehelp_codesign_identity,
-                '-f'
-            ]
+        args += self.config.applehelp_codesign_flags
 
-            args += self.config.applehelp_codesign_flags
+        args.append(self.bundle_path)
 
-            args.append(self.bundle_path)
-
-            if self.config.applehelp_disable_external_tools:
-                logger.info(__('skipping'))
-                logger.warning(__('you will need to sign this help book with:\n  %s'),
-                               ' '.join([shlex.quote(arg) for arg in args]))
-            else:
-                try:
-                    subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=True)
-                    logger.info(__('done'))
-                except OSError:
-                    raise AppleHelpCodeSigningFailed(__('Command not found: %s') % args[0])
-                except CalledProcessError as exc:
-                    raise AppleHelpCodeSigningFailed(exc.stdout)
+        if self.config.applehelp_disable_external_tools:
+            raise SkipProgressMessage(__('you will need to sign this help book with:\n  %s'),
+                                      ' '.join([shlex.quote(arg) for arg in args]))
+        else:
+            try:
+                subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=True)
+            except OSError:
+                raise AppleHelpCodeSigningFailed(__('Command not found: %s') % args[0])
+            except CalledProcessError as exc:
+                raise AppleHelpCodeSigningFailed(exc.stdout)
 
 
 def setup(app):

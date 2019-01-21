@@ -113,11 +113,11 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            logger.info(__("processing %s..."), targetname, nonl=1)
+            logger.info(__("processing %s..."), targetname, nonl=True)
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=(self.config.texinfo_appendices or []))
-            logger.info(__("writing... "), nonl=1)
+            logger.info(__("writing... "), nonl=True)
             self.post_process_images(doctree)
             docwriter = TexinfoWriter(self)
             settings = OptionParser(
@@ -139,7 +139,7 @@ class TexinfoBuilder(Builder):
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (str, bool, List[str]) -> nodes.document
         self.docnames = set([indexfile] + appendices)
-        logger.info(darkgreen(indexfile) + " ", nonl=1)
+        logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -186,7 +186,7 @@ class TexinfoBuilder(Builder):
         logger.info(bold(__('copying Texinfo support files... ')), nonl=True)
         # copy Makefile
         fn = path.join(self.outdir, 'Makefile')
-        logger.info(fn, nonl=1)
+        logger.info(fn, nonl=True)
         try:
             copy_asset_file(os.path.join(template_dir, 'Makefile'), fn)
         except OSError as err:

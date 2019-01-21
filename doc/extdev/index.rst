@@ -290,6 +290,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``open()``
 
+   * - ``sphinx.builders.qthelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.qthelp``
+
    * - ``sphinx.cmd.quickstart.term_decode()``
      - 2.0
      - 4.0

@@ -22,6 +22,7 @@ Dependencies
 * Some packages are separated to sub packages:
 
   - sphinxcontrib.jsmath
+  - sphinxcontrib.qthelp
 
 Incompatible changes
 --------------------
@@ -57,6 +58,8 @@ Incompatible changes
   to insert custom user definitions.  See :ref:`latex-macros`.
 * quickstart: Simplify generated ``conf.py``
 * websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
+* C++, the visibility of base classes is now always rendered as present in the
+  input. That is, ``private`` is now shown, where it was ellided before.
 
 Deprecated
 ----------
@@ -159,6 +162,7 @@ Features added
 * #5841: apidoc: Add --extensions option to sphinx-apidoc
 * #4981: C++, added an alias directive for inserting lists of declarations,
   that references existing declarations (e.g., for making a synopsis).
+* C++: add ``cpp:struct`` to complement ``cpp:class``.
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
 
@@ -221,6 +225,7 @@ Bugs fixed
   in an admonition
 * #5231: "make html" does not read and build "po" files in "locale" dir
 * #5954: ``:scale:`` image option may break PDF build if image in an admonition
+* #5966: mathjax has not been loaded on incremental build
 
 Testing
 --------

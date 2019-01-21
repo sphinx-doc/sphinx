@@ -25,7 +25,7 @@ def parse(name, string):
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
     parser.allowFallbackExpressionParsing = False
-    ast = parser.parse_declaration(name)
+    ast = parser.parse_declaration(name, name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
@@ -194,6 +194,7 @@ def test_expressions():
     exprCheck('new int[42]', 'nw_AL42E_iE')
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    exprCheck('::new int', 'nw_iE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -334,6 +335,8 @@ def test_member_definitions():
 
 
 def test_function_definitions():
+    check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
+    check('function', 'void f(std::size_t)', {1: "f__std::s", 2: "1fNSt6size_tE"})
     check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
     check('function', 'A::operator bool() const',
           {1: "A::castto-b-operatorC", 2: "NK1AcvbEv"})
@@ -523,11 +526,12 @@ def test_class_definitions():
     check('class', 'A', {1: "A", 2: "1A"})
     check('class', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
     check('class', 'A : B', {1: "A", 2: "1A"})
-    check('class', 'A : private B', {1: "A", 2: "1A"}, output='A : B')
+    check('class', 'A : private B', {1: "A", 2: "1A"})
     check('class', 'A : public B', {1: "A", 2: "1A"})
     check('class', 'A : B, C', {1: "A", 2: "1A"})
     check('class', 'A : B, protected C, D', {1: "A", 2: "1A"})
-    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : virtual B')
+    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : private virtual B')
+    check('class', 'A : private virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, virtual C', {1: 'A', 2: '1A'})
     check('class', 'A : public virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, C...', {1: 'A', 2: '1A'})
@@ -559,6 +563,7 @@ def test_anon_definitions():
     check('union', '@a', {3: "Ut1_a"})
     check('enum', '@a', {3: "Ut1_a"})
     check('class', '@1', {3: "Ut1_1"})
+    check('class', '@a::A', {3: "NUt1_a1AE"})
 
 
 def test_templates():
@@ -704,6 +709,9 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    check('function', '[[attr1]] [[attr2]] void f()',
+          {1: 'f', 2: '1fv'},
+          output='[[attr1]] [[attr2]] void f()')
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
