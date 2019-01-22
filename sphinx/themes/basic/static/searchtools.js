@@ -428,7 +428,11 @@ var Search = {
       var valid = true;
 
       // check if all requirements are matched
-      if (fileMap[file].length != searchterms.length)
+      var filteredTerms = // as search terms with length < 3 are discarded: ignore
+        searchterms.filter(function(term){return term.length > 2}).length
+      var allRequirementsMatched = fileMap[file].length != searchterms.length &&
+        fileMap[file].length != filteredTerms
+      if (allRequirementsMatched)
           continue;
 
       // ensure that none of the excluded terms is in the search result
