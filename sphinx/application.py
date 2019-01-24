@@ -65,7 +65,6 @@ builtin_extensions = (
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
     'sphinx.builders.epub3',
-    'sphinx.builders.devhelp',
     'sphinx.builders.dummy',
     'sphinx.builders.gettext',
     'sphinx.builders.html',
@@ -107,6 +106,7 @@ builtin_extensions = (
     'sphinx.environment.collectors.toctree',
     'sphinx.environment.collectors.indexentries',
     # 1st party extensions
+    'sphinxcontrib.devhelp',
     'sphinxcontrib.qthelp',
     # Strictly, alabaster theme is not a builtin extension,
     # but it is loaded automatically to use it as default theme.
