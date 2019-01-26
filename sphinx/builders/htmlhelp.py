@@ -26,7 +26,8 @@ from sphinx.util import logging
 from sphinx.util import progress_message
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import NodeMatcher
-from sphinx.util.osutil import make_filename_from_project
+from sphinx.util.osutil import make_filename_from_project, relpath
+from sphinx.util.template import SphinxRenderer
 
 if False:
     # For type annotation
@@ -73,28 +74,6 @@ template_dir = path.join(package_dir, 'templates', 'htmlhelp')
 #    0x100000   Zoom/Font   x
 #    0x200000   TOC Next
 #    0x400000   TOC Prev
-
-project_template = '''\
-[OPTIONS]
-Binary TOC=No
-Binary Index=No
-Compiled file=%(outname)s.chm
-Contents file=%(outname)s.hhc
-Default Window=%(outname)s
-Default topic=%(master_doc)s
-Display compile progress=No
-Full text search stop list file=%(outname)s.stp
-Full-text search=Yes
-Index file=%(outname)s.hhk
-Language=%(lcid)#x
-Title=%(title)s
-
-[WINDOWS]
-%(outname)s="%(title)s","%(outname)s.hhc","%(outname)s.hhk",\
-"%(master_doc)s","%(master_doc)s",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
-
-[FILES]
-'''
 
 contents_header = '''\
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
@@ -222,6 +201,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def handle_finish(self):
         # type: () -> None
         self.copy_stopword_list()
+        self.build_project_file()
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
@@ -232,6 +212,11 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 node['target'] = '_blank'
 
         super().write_doc(docname, doctree)
+
+    def render(self, name, context):
+        # type: (str, Dict) -> str
+        template = SphinxRenderer(template_dir)
+        return template.render(name, context)
 
     @progress_message(__('copying stopword list'))
     def copy_stopword_list(self):
@@ -249,32 +234,37 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         filename = path.join(self.outdir, self.config.htmlhelp_basename + '.stp')
         copy_asset_file(template, filename)
 
-    def build_hhx(self, outdir, outname):
-        # type: (str, str) -> None
-        logger.info(__('writing project file...'))
-        filename = path.join(outdir, outname + '.hhp')
+    @progress_message(__('writing project file'))
+    def build_project_file(self):
+        # type: () -> None
+        """Create a project file (.hhp) on outdir."""
+        # scan project files
+        project_files = []  # type: List[str]
+        for root, dirs, files in os.walk(self.outdir):
+            dirs.sort()
+            files.sort()
+            in_staticdir = root.startswith(path.join(self.outdir, '_static'))
+            for fn in sorted(files):
+                if (in_staticdir and not fn.endswith('.js')) or fn.endswith('.html'):
+                    fn = relpath(path.join(root, fn), self.outdir)
+                    project_files.append(fn.replace(os.sep, '\\'))
+
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.hhp')
         with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
-            f.write(project_template % {
-                'outname': outname,
+            context = {
+                'outname': self.config.htmlhelp_basename,
                 'title': self.config.html_title,
                 'version': self.config.version,
                 'project': self.config.project,
                 'lcid': self.lcid,
-                'master_doc': self.config.master_doc + self.out_suffix
-            })
-            if not outdir.endswith(os.sep):
-                outdir += os.sep
-            olen = len(outdir)
-            for root, dirs, files in os.walk(outdir):
-                dirs.sort()
-                files.sort()
-                staticdir = root.startswith(path.join(outdir, '_static'))
-                for fn in sorted(files):
-                    if (staticdir and not fn.endswith('.js')) or \
-                       fn.endswith('.html'):
-                        print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
-                              file=f)
+                'master_doc': self.config.master_doc + self.out_suffix,
+                'files': project_files,
+            }
+            body = self.render('project.hhp', context)
+            f.write(body)
 
+    def build_hhx(self, outdir, outname):
+        # type: (str, str) -> None
         logger.info(__('writing TOC file...'))
         filename = path.join(outdir, outname + '.hhc')
         with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:

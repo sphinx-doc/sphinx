@@ -19,6 +19,29 @@ from sphinx.config import Config
 
 
 @pytest.mark.sphinx('htmlhelp', testroot='basic')
+def test_build_htmlhelp(app, status, warning):
+    app.build()
+
+    hhp = (app.outdir / 'pythondoc.hhp').text()
+    assert 'Compiled file=pythondoc.chm' in hhp
+    assert 'Contents file=pythondoc.hhc' in hhp
+    assert 'Default Window=pythondoc' in hhp
+    assert 'Default topic=index.html' in hhp
+    assert 'Full text search stop list file=pythondoc.stp' in hhp
+    assert 'Index file=pythondoc.hhk' in hhp
+    assert 'Language=0x409' in hhp
+    assert 'Title=Python  documentation' in hhp
+    assert ('pythondoc="Python  documentation","pythondoc.hhc",'
+            '"pythondoc.hhk","index.html","index.html",,,,,'
+            '0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0' in hhp)
+
+    files = ['genindex.html', 'index.html', '_static\\alabaster.css', '_static\\basic.css',
+             '_static\\custom.css', '_static\\file.png', '_static\\minus.png',
+             '_static\\plus.png', '_static\\pygments.css']
+    assert '[FILES]\n%s' % '\n'.join(files) in hhp
+
+
+@pytest.mark.sphinx('htmlhelp', testroot='basic')
 def test_default_htmlhelp_file_suffix(app, warning):
     assert app.builder.out_suffix == '.html'
 
