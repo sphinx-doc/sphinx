@@ -227,6 +227,7 @@ Bugs fixed
 * #5966: mathjax has not been loaded on incremental build
 * #5960: LaTeX: modified PDF layout since September 2018 TeXLive update of
   :file:`parskip.sty`
+* #5958: versionadded directive causes crash with Python 3.5.0
 
 Testing
 --------
