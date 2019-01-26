@@ -14,17 +14,13 @@
 """
 
 import re
-import xml.etree.cElementTree as ElementTree
 from hashlib import md5
 
 import pytest
-from html5lib import getTreeBuilder, HTMLParser
+from html5lib import HTMLParser
 from test_build_html import flat_dict, tail_check, check_xpath
 
 from sphinx.util.docutils import is_html5_writer_available
-
-TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
-HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 
 etree_cache = {}
@@ -37,7 +33,7 @@ def cached_etree_parse():
         if fname in etree_cache:
             return etree_cache[fname]
         with (fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+            etree = HTMLParser(namespaceHTMLElements=False).parse(fp)
             etree_cache.clear()
             etree_cache[fname] = etree
             return etree
