@@ -75,24 +75,6 @@ template_dir = path.join(package_dir, 'templates', 'htmlhelp')
 #    0x200000   TOC Next
 #    0x400000   TOC Prev
 
-contents_header = '''\
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<HTML>
-<HEAD>
-<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
-<!-- Sitemap 1.0 -->
-</HEAD><BODY>
-<OBJECT type="text/site properties">
-        <param name="Window Styles" value="0x801227">
-        <param name="ImageType" value="Folder">
-</OBJECT>
-<UL>
-'''
-
-contents_footer = '''\
-</UL></BODY></HTML>
-'''
-
 object_sitemap = '''\
 <OBJECT type="text/sitemap">
     <param name="Name" value="%s">
@@ -151,6 +133,63 @@ def chm_htmlescape(s, quote=True):
     return s
 
 
+class ToCTreeVisitor(nodes.NodeVisitor):
+    def __init__(self, document):
+        # type: (nodes.document) -> None
+        super().__init__(document)
+        self.body = []  # type: List[str]
+        self.depth = 0
+
+    def append(self, text):
+        # type: (str) -> None
+        indent = '  ' * (self.depth - 1)
+        self.body.append(indent + text)
+
+    def astext(self):
+        # type: () -> str
+        return '\n'.join(self.body)
+
+    def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def unknown_departure(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_bullet_list(self, node):
+        # type: (nodes.Element) -> None
+        if self.depth > 0:
+            self.append('<UL>')
+
+        self.depth += 1
+
+    def depart_bullet_list(self, node):
+        # type: (nodes.Element) -> None
+        self.depth -= 1
+        if self.depth > 0:
+            self.append('</UL>')
+
+    def visit_list_item(self, node):
+        # type: (nodes.Element) -> None
+        self.append('<LI>')
+        self.depth += 1
+
+    def depart_list_item(self, node):
+        # type: (nodes.Element) -> None
+        self.depth -= 1
+        self.append('</LI>')
+
+    def visit_reference(self, node):
+        # type: (nodes.Element) -> None
+        title = chm_htmlescape(node.astext(), True)
+        self.append('<OBJECT type="text/sitemap">')
+        self.append('  <PARAM name="Name" value="%s" />' % title)
+        self.append('  <PARAM name="Local" value="%s" />' % node['refuri'])
+        self.append('</OBJECT>')
+        raise nodes.SkipNode
+
+
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that also outputs Windows HTML help project, contents and
@@ -202,6 +241,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         # type: () -> None
         self.copy_stopword_list()
         self.build_project_file()
+        self.build_toc_file()
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
@@ -263,48 +303,30 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             body = self.render('project.hhp', context)
             f.write(body)
 
+    @progress_message(__('writing TOC file'))
+    def build_toc_file(self):
+        # type: () -> None
+        """Create a ToC file (.hhp) on outdir."""
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.hhc')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
+            toctree = self.env.get_and_resolve_doctree(self.config.master_doc, self,
+                                                       prune_toctrees=False)
+            visitor = ToCTreeVisitor(toctree)
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in toctree.traverse(matcher):  # type: addnodes.compact_paragraph
+                node.walkabout(visitor)
+
+            context = {
+                'body': visitor.astext(),
+                'suffix': self.out_suffix,
+                'short_title': self.config.html_short_title,
+                'master_doc': self.config.master_doc,
+                'domain_indices': self.domain_indices,
+            }
+            f.write(self.render('project.hhc', context))
+
     def build_hhx(self, outdir, outname):
         # type: (str, str) -> None
-        logger.info(__('writing TOC file...'))
-        filename = path.join(outdir, outname + '.hhc')
-        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
-            f.write(contents_header)
-            # special books
-            f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
-                                                self.config.master_doc + self.out_suffix))
-            for indexname, indexcls, content, collapse in self.domain_indices:
-                f.write('<LI> ' + object_sitemap % (indexcls.localname,
-                                                    '%s.html' % indexname))
-            # the TOC
-            tocdoc = self.env.get_and_resolve_doctree(
-                self.config.master_doc, self, prune_toctrees=False)
-
-            def write_toc(node, ullevel=0):
-                # type: (nodes.Node, int) -> None
-                if isinstance(node, nodes.list_item):
-                    f.write('<LI> ')
-                    for subnode in node:
-                        write_toc(subnode, ullevel)
-                elif isinstance(node, nodes.reference):
-                    link = node['refuri']
-                    title = chm_htmlescape(node.astext(), True)
-                    f.write(object_sitemap % (title, link))
-                elif isinstance(node, nodes.bullet_list):
-                    if ullevel != 0:
-                        f.write('<UL>\n')
-                    for subnode in node:
-                        write_toc(subnode, ullevel + 1)
-                    if ullevel != 0:
-                        f.write('</UL>\n')
-                elif isinstance(node, addnodes.compact_paragraph):
-                    for subnode in node:
-                        write_toc(subnode, ullevel)
-
-            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
-            for node in tocdoc.traverse(matcher):  # type: addnodes.compact_paragraph
-                write_toc(node)
-            f.write(contents_footer)
-
         logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
         filename = path.join(outdir, outname + '.hhk')
