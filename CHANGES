@@ -21,6 +21,7 @@ Dependencies
 * The sphinxcontrib-websupport package is no longer a dependency
 * Some packages are separated to sub packages:
 
+  - sphinxcontrib.applehelp
   - sphinxcontrib.devhelp
   - sphinxcontrib.jsmath
   - sphinxcontrib.qthelp
