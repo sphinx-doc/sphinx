@@ -10,19 +10,15 @@
 
 import os
 import re
-import xml.etree.cElementTree as ElementTree
 from itertools import cycle, chain
 
 import pytest
-from html5lib import getTreeBuilder, HTMLParser
+from html5lib import HTMLParser
 
 from sphinx.errors import ConfigError
 from sphinx.testing.util import strip_escseq
 from sphinx.util.inventory import InventoryFile
 
-
-TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
-HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -53,7 +49,7 @@ def cached_etree_parse():
         if fname in etree_cache:
             return etree_cache[fname]
         with (fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+            etree = HTMLParser(namespaceHTMLElements=False).parse(fp)
             etree_cache.clear()
             etree_cache[fname] = etree
             return etree
