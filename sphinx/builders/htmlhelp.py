@@ -17,11 +17,14 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util import progress_message
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import NodeMatcher
 from sphinx.util.osutil import make_filename_from_project
 
@@ -33,6 +36,8 @@ if False:
 
 
 logger = logging.getLogger(__name__)
+
+template_dir = path.join(package_dir, 'templates', 'htmlhelp')
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -115,24 +120,6 @@ object_sitemap = '''\
     <param name="Local" value="%s">
 </OBJECT>
 '''
-
-# List of words the full text search facility shouldn't index.  This
-# becomes file outname.stp.  Note that this list must be pretty small!
-# Different versions of the MS docs claim the file has a maximum size of
-# 256 or 512 bytes (including \r\n at the end of each line).
-# Note that "and", "or", "not" and "near" are operators in the search
-# language, so no point indexing them even if we wanted to.
-stopwords = """
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split()
 
 # The following list includes only languages supported by Sphinx. See
 # https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
@@ -234,6 +221,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         # type: () -> None
+        self.copy_stopword_list()
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
@@ -245,14 +233,24 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
         super().write_doc(docname, doctree)
 
+    @progress_message(__('copying stopword list'))
+    def copy_stopword_list(self):
+        # type: () -> None
+        """Copy a stopword list (.stp) to outdir.
+
+        The stopword list contains a list of words the full text search facility
+        shouldn't index.  Note that this list must be pretty small.  Different
+        versions of the MS docs claim the file has a maximum size of 256 or 512
+        bytes (including \r\n at the end of each line).  Note that "and", "or",
+        "not" and "near" are operators in the search language, so no point
+        indexing them even if we wanted to.
+        """
+        template = path.join(template_dir, 'project.stp')
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.stp')
+        copy_asset_file(template, filename)
+
     def build_hhx(self, outdir, outname):
         # type: (str, str) -> None
-        logger.info(__('dumping stopword list...'))
-        filename = path.join(outdir, outname + '.stp')
-        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
-            for word in sorted(stopwords):
-                print(word, file=f)
-
         logger.info(__('writing project file...'))
         filename = path.join(outdir, outname + '.hhp')
         with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
