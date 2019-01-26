@@ -14,8 +14,8 @@
 """
 
 import re
-import xml.etree.cElementTree as ElementTree
 from hashlib import md5
+from xml.etree import ElementTree
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser

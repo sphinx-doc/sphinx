@@ -10,8 +10,8 @@
 
 import os
 import re
-import xml.etree.cElementTree as ElementTree
 from itertools import cycle, chain
+from xml.etree import ElementTree
 
 import pytest
 from html5lib import getTreeBuilder, HTMLParser
