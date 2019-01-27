@@ -443,8 +443,12 @@ var Search = {
       var valid = true;
 
       // check if all requirements are matched
-      if (fileMap[file].length != searchterms.length)
-          continue;
+      var filteredTermCount = // as search terms with length < 3 are discarded: ignore
+        searchterms.filter(function(term){return term.length > 2}).length
+      if (
+        fileMap[file].length != searchterms.length &&
+        fileMap[file].length != filteredTermCount
+      ) continue;
 
       // ensure that none of the excluded terms is in the search result
       for (i = 0; i < excluded.length; i++) {

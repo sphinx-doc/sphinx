@@ -188,6 +188,8 @@ Bugs fixed
 * HTML: Invalid HTML5 file is generated for a glossary having multiple terms for
   one description (refs: #4611)
 * QtHelp: OS dependent path separator is used in .qhp file
+* HTML search: search always returns nothing when multiple search terms are
+  used and one term is shorter than three characters
 
 Testing
 --------
