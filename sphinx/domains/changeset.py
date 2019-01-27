@@ -8,7 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from typing import NamedTuple, cast
+from collections import namedtuple
+from typing import cast
 
 from docutils import nodes
 
@@ -48,12 +49,9 @@ locale.versionlabels = DeprecatedDict(
 )
 
 
-ChangeSet = NamedTuple('ChangeSet', [('type', str),
-                                     ('docname', str),
-                                     ('lineno', int),
-                                     ('module', str),
-                                     ('descname', str),
-                                     ('content', str)])
+# TODO: move to typing.NamedTuple after dropping py35 support (see #5958)
+ChangeSet = namedtuple('ChangeSet',
+                       ['type', 'docname', 'lineno', 'module', 'descname', 'content'])
 
 
 class VersionChange(SphinxDirective):

@@ -537,6 +537,12 @@ dl.glossary dt {
     font-style: oblique;
 }
 
+.classifier:before {
+    font-style: normal;
+    margin: 0.5em;
+    content: ":";
+}
+
 abbr, acronym {
     border-bottom: dotted 1px;
     cursor: help;
