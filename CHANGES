@@ -164,6 +164,8 @@ Features added
 * #4981: C++, added an alias directive for inserting lists of declarations,
   that references existing declarations (e.g., for making a synopsis).
 * C++: add ``cpp:struct`` to complement ``cpp:class``.
+* #1341 the HTML search considers words that contain a search term of length
+  three or longer a match.
 
 Bugs fixed
 ----------

@@ -6,5 +6,5 @@ var DOCUMENTATION_OPTIONS = {
     FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
     HAS_SOURCE: {{ has_source|lower }},
     SOURCELINK_SUFFIX: '{{ sourcelink_suffix }}',
-    NAVIGATION_WITH_KEYS: {{ 'true' if theme_navigation_with_keys|tobool else 'false'}},
+    NAVIGATION_WITH_KEYS: {{ 'true' if theme_navigation_with_keys|tobool else 'false'}}
 };
