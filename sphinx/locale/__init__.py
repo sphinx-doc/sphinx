@@ -255,17 +255,18 @@ def get_translation(catalog, namespace='general'):
         import os
         from sphinx.locale import get_translation
 
-        _ = get_translation(__name__)
+        EXTENSION_NAME = 'myextension'  # name of both *.pot, *.po and *.mo files
+        _ = get_translation(EXTENSION_NAME)
         text = _('Hello Sphinx!')
 
 
         def setup(app):
             package_dir = path.abspath(path.dirname(__file__))
             locale_dir = os.path.join(package_dir, 'locales')
-            app.add_message_catalog(__name__, locale_dir)
+            app.add_message_catalog(EXTENSION_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
-    ``${package_dir}/locales/${language}/LC_MESSAGES/${__name__}.mo``
+    ``${package_dir}/locales/${language}/LC_MESSAGES/myextension.mo``
     The :confval:`language` is used for the searching.
 
     .. versionadded:: 1.8
