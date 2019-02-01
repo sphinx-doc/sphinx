@@ -33,6 +33,7 @@ Bugs fixed
 * #5960: LaTeX: modified PDF layout since September 2018 TeXLive update of
   :file:`parskip.sty`
 * #5958: versionadded directive causes crash with Python 3.5.0
+* #5995: autodoc: autodoc_mock_imports conflict with metaclass on Python 3.7
 
 Testing
 --------
