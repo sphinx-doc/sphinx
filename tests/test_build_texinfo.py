@@ -15,10 +15,12 @@ import re
 from subprocess import Popen, PIPE
 
 import pytest
+from mock import Mock
 from six import PY3
 from test_build_html import ENV_WARNINGS
 
 from sphinx.testing.util import remove_unicode_literals, strip_escseq
+from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
@@ -93,3 +95,20 @@ def test_texinfo_citation(app, status, warning):
             'This is a citation\n') in output
     assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
             'This is a multiline citation\n') in output
+
+
+@pytest.mark.sphinx('texinfo')
+def test_texinfo_escape_id(app, status, warning):
+    settings = Mock(title='',
+                    texinfo_dir_entry='',
+                    texinfo_elements={})
+    document = new_document('', settings)
+    translator = app.builder.create_translator(document, app.builder)
+
+    assert translator.escape_id('Hello world') == 'Hello world'
+    assert translator.escape_id('Hello    world') == 'Hello world'
+    assert translator.escape_id('Hello   Sphinx   world') == 'Hello Sphinx world'
+    assert translator.escape_id('Hello:world') == 'Hello world'
+    assert translator.escape_id('Hello(world)') == 'Hello world'
+    assert translator.escape_id('Hello world.') == 'Hello world'
+    assert translator.escape_id('.') == '.'
