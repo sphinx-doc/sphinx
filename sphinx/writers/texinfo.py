@@ -387,6 +387,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         bad_chars = ',:()'
         for bc in bad_chars:
             s = s.replace(bc, ' ')
+        if re.search('[^ .]', s):
+            # remove DOTs if name contains other characters
+            s = s.replace('.', ' ')
         s = ' '.join(s.split()).strip()
         return self.escape(s)
 

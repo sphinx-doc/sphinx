@@ -110,5 +110,5 @@ def test_texinfo_escape_id(app, status, warning):
     assert translator.escape_id('Hello   Sphinx   world') == 'Hello Sphinx world'
     assert translator.escape_id('Hello:world') == 'Hello world'
     assert translator.escape_id('Hello(world)') == 'Hello world'
-    assert translator.escape_id('Hello world.') == 'Hello world.'
+    assert translator.escape_id('Hello world.') == 'Hello world'
     assert translator.escape_id('.') == '.'
