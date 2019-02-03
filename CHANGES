@@ -1,20 +1,9 @@
-Release 1.8.4 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.8.4 (released Feb 03, 2019)
+=====================================
 
 Bugs fixed
 ----------
+
 * #3707: latex: no bold checkmark (✔) available.
 * #5605: with the documentation language set to Chinese, English words could not
   be searched.
@@ -36,9 +25,6 @@ Bugs fixed
 * #5958: versionadded directive causes crash with Python 3.5.0
 * #5995: autodoc: autodoc_mock_imports conflict with metaclass on Python 3.7
 * #5871: texinfo: a section title ``.`` is not allowed
-
-Testing
---------
 
 Release 1.8.3 (released Dec 26, 2018)
 =====================================
