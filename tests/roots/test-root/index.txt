@@ -24,7 +24,6 @@ Contents:
    math
    autodoc
    extensions
-   extensions
    footnote
    lists
    otherext
