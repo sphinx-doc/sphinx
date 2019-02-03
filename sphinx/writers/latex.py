@@ -1876,10 +1876,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
             return
 
-        if 'refuri' in node:
+        if 'refuri' in node or 'refid' in node or 'refname' in node:
+            # skip indirect targets (external hyperlink and internal links)
             return
-        if node.get('refid'):
-            add_target(node['refid'])
         for id in node['ids']:
             add_target(id)
 

@@ -1336,3 +1336,7 @@ def test_latex_labels(app, status, warning):
     assert ('\\subsection{otherdoc}\n'
             r'\label{\detokenize{otherdoc:otherdoc}}'
             r'\label{\detokenize{otherdoc::doc}}' in result)
+
+
+    # Embeded standalone hyperlink reference (refs: #5948)
+    assert result.count(r'\label{\detokenize{index:section1}}') == 1
