@@ -57,7 +57,7 @@ class _MockObject(object):
 
     def __mro_entries__(self, bases):
         # type: (Tuple) -> Tuple
-        return bases
+        return (self.__class__,)
 
     def __getitem__(self, key):
         # type: (str) -> _MockObject

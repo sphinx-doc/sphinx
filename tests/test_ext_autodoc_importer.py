@@ -9,6 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import abc
+import sys
+
+import pytest
+
 from sphinx.ext.autodoc.importer import _MockObject
 
 
@@ -29,3 +34,21 @@ def test_MockObject():
     assert isinstance(obj, SubClass)
     assert obj.method() == "string"
     assert isinstance(obj.other_method(), SubClass)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
+def test_abc_MockObject():
+    mock = _MockObject()
+
+    class Base:
+        @abc.abstractmethod
+        def __init__(self):
+            pass
+
+    class Derived(Base, mock.SubClass):
+        pass
+
+    obj = Derived()
+    assert isinstance(obj, Base)
+    assert isinstance(obj, _MockObject)
+    assert isinstance(obj.some_method(), Derived)
