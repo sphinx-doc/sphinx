@@ -166,6 +166,7 @@ Features added
 * C++: add ``cpp:struct`` to complement ``cpp:class``.
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
+* #4611: epub: Show warning for duplicated ToC entries
 
 Bugs fixed
 ----------
