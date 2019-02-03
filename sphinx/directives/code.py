@@ -47,9 +47,11 @@ class Highlight(SphinxDirective):
 
     def run(self):
         # type: () -> List[nodes.Node]
+        language = self.arguments[0].strip()
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
-        return [addnodes.highlightlang(lang=self.arguments[0].strip(),
-                                       linenothreshold=linenothreshold)]
+
+        self.env.temp_data['highlight_language'] = language
+        return [addnodes.highlightlang(lang=language, linenothreshold=linenothreshold)]
 
 
 class HighlightLang(Highlight):
@@ -110,8 +112,8 @@ class CodeBlock(SphinxDirective):
     """
 
     has_content = True
-    required_arguments = 1
-    optional_arguments = 0
+    required_arguments = 0
+    optional_arguments = 1
     final_argument_whitespace = False
     option_spec = {
         'linenos': directives.flag,
@@ -152,10 +154,20 @@ class CodeBlock(SphinxDirective):
             code = '\n'.join(lines)
 
         literal = nodes.literal_block(code, code)  # type: nodes.Element
-        literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
         literal['classes'] += self.options.get('class', [])
+        if self.arguments:
+            # highlight language specified
+            literal['language'] = self.arguments[0]
+            literal['force_highlighting'] = True
+        else:
+            # no highlight language specified.  Then this directive refers the current
+            # highlight setting via ``highlight`` directive or ``highlight_language``
+            # configuration.
+            literal['language'] = self.env.temp_data.get('highlight_language',
+                                                         self.config.highlight_language)
+            literal['force_highlighting'] = False
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines

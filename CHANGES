@@ -167,6 +167,8 @@ Features added
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
 * #4611: epub: Show warning for duplicated ToC entries
+* #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
+  omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
 
 Bugs fixed
 ----------
