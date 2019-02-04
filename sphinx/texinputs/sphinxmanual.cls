@@ -55,7 +55,7 @@
       {\LARGE
         \begin{tabular}[t]{c}
           \@author
-        \end{tabular}
+        \end{tabular}\kern-\tabcolsep
         \par}
       \vfill\vfill
       {\large
