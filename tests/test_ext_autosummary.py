@@ -203,7 +203,7 @@ def test_autosummary_latex_table_colspec(app, status, warning):
     result = (app.outdir / 'python.tex').text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
-    assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
+    assert r'\begin{longtable}[c]{\X{1}{2}\X{1}{2}}' in result
     assert r'p{0.5\linewidth}' not in result
 
 
