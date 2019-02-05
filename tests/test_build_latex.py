@@ -1391,15 +1391,9 @@ def test_default_latex_documents():
 
 @skip_if_requested
 @skip_if_stylefiles_notfound
-@pytest.mark.sphinx('latex', testroot='latex-includegraphics',
-    confoverrides={'latex_documents': [
-                       ('index', 'python.tex', 'Test PDF build',
-                        'Georg Brandl', 'howto')
-                   ]})
+@pytest.mark.sphinx('latex', testroot='latex-includegraphics')
 def test_includegraphics_oversized(app, status, warning):
     app.builder.build_all()
     print(status.getvalue())
     print(warning.getvalue())
     compile_latex_document(app)
-    result = (app.outdir / 'pdflatex/python-dimensions.txt').text(encoding='utf8')
-    print(result)
