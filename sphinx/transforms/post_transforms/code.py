@@ -89,7 +89,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         if 'language' not in node:
             node['language'] = setting.language
             node['force_highlighting'] = False
-        else:
+        elif 'force_highlighting' not in node:
             node['force_highlighting'] = True
         if 'linenos' not in node:
             lines = node.astext().count('\n')

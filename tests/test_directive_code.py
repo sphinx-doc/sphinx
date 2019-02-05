@@ -11,6 +11,7 @@
 import os
 
 import pytest
+from docutils import nodes
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
@@ -552,3 +553,15 @@ def test_literalinclude_pydecorators(app, status, warning):
         '    pass\n'
     )
     assert actual == expect
+
+
+@pytest.mark.sphinx('dummy', testroot='directive-code')
+def test_code_block_highlighted(app, status, warning):
+    app.builder.build(['highlight'])
+    doctree = app.env.get_doctree('highlight')
+    codeblocks = doctree.traverse(nodes.literal_block)
+
+    assert codeblocks[0]['language'] == 'default'
+    assert codeblocks[1]['language'] == 'python2'
+    assert codeblocks[2]['language'] == 'python3'
+    assert codeblocks[3]['language'] == 'python2'

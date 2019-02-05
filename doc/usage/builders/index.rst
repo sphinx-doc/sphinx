@@ -91,7 +91,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. _Qt help: https://doc.qt.io/qt-4.8/qthelp-framework.html
 
-.. module:: sphinx.builders.applehelp
+.. module:: sphinxcontrib.applehelp
 .. class:: AppleHelpBuilder
 
    This builder produces an Apple Help Book based on the same output as the
@@ -116,6 +116,10 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.applehelp from sphinx.builders package.
 
 .. module:: sphinxcontrib.devhelp
 .. class:: DevhelpBuilder
