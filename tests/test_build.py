@@ -61,7 +61,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
         'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp',
-        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
+        'changes', 'xml', 'pseudoxml', 'linkcheck',
     ],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
