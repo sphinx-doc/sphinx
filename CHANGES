@@ -173,7 +173,10 @@ Features added
 * #4611: epub: Show warning for duplicated ToC entries
 * #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
   omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
-
+* #6016: HTML search: A placeholder for the search summary prevents search
+  result links from changing their position when the search terminates.  This
+  makes navigating search results easier.
+  
 Bugs fixed
 ----------
 
