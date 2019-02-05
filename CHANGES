@@ -169,6 +169,7 @@ Features added
 * C++: add ``cpp:struct`` to complement ``cpp:class``.
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
+* #4611: epub: Show warning for duplicated ToC entries
 
 Bugs fixed
 ----------
@@ -199,7 +200,7 @@ Testing
 
 * Stop to use ``SPHINX_TEST_TEMPDIR`` envvar
 
-Release 1.8.4 (in development)
+Release 1.8.5 (in development)
 ==============================
 
 Dependencies
@@ -216,6 +217,18 @@ Features added
 
 Bugs fixed
 ----------
+
+* LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
+
+Testing
+--------
+
+Release 1.8.4 (released Feb 03, 2019)
+=====================================
+
+Bugs fixed
+----------
+
 * #3707: latex: no bold checkmark (✔) available.
 * #5605: with the documentation language set to Chinese, English words could not
   be searched.
@@ -234,10 +247,10 @@ Bugs fixed
 * #5966: mathjax has not been loaded on incremental build
 * #5960: LaTeX: modified PDF layout since September 2018 TeXLive update of
   :file:`parskip.sty`
+* #5948: LaTeX: duplicated labels are generated for sections
 * #5958: versionadded directive causes crash with Python 3.5.0
-
-Testing
---------
+* #5995: autodoc: autodoc_mock_imports conflict with metaclass on Python 3.7
+* #5871: texinfo: a section title ``.`` is not allowed
 
 Release 1.8.3 (released Dec 26, 2018)
 =====================================

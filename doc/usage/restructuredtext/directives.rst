@@ -523,15 +523,15 @@ __ http://pygments.org/docs/lexers/
 
              some ruby code
 
-  .. versionchanged:: 1.1
-     The ``emphasize-lines`` option has been added.
+   .. versionchanged:: 1.1
+      The ``emphasize-lines`` option has been added.
 
-  .. versionchanged:: 1.3
-     The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-     been added.
+   .. versionchanged:: 1.3
+      The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
+      been added.
 
-  .. versionchanged:: 1.6.6
-     LaTeX supports the ``emphasize-lines`` option.
+   .. versionchanged:: 1.6.6
+      LaTeX supports the ``emphasize-lines`` option.
 
 .. rst:directive:: .. literalinclude:: filename
 

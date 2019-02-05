@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import abc
 import sys
 
 import pytest
@@ -60,3 +61,21 @@ def test_mock_does_not_follow_upper_modules():
     with mock(['sphinx.unknown.module']):
         with pytest.raises(ImportError):
             __import__('sphinx.unknown')
+
+
+@pytest.mark.skipif(sys.version_info < (3, 7), reason='Only for py37 or above')
+def test_abc_MockObject():
+    mock = _MockObject()
+
+    class Base:
+        @abc.abstractmethod
+        def __init__(self):
+            pass
+
+    class Derived(Base, mock.SubClass):
+        pass
+
+    obj = Derived()
+    assert isinstance(obj, Base)
+    assert isinstance(obj, _MockObject)
+    assert isinstance(obj.some_method(), Derived)
