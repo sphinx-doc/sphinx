@@ -271,13 +271,24 @@ class CheckExternalLinksBuilder(Builder):
         # type: (str, nodes.Node) -> None
         logger.info('')
         n = 0
-        for node in doctree.traverse(nodes.reference):
-            if 'refuri' not in node:
+
+        # reference nodes
+        for refnode in doctree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
                 continue
-            uri = node['refuri']
-            lineno = get_node_line(node)
+            uri = refnode['refuri']
+            lineno = get_node_line(refnode)
             self.wqueue.put((uri, docname, lineno), False)
             n += 1
+
+        # image nodes
+        for imgnode in doctree.traverse(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                lineno = get_node_line(imgnode)
+                self.wqueue.put((uri, docname, lineno), False)
+                n += 1
+
         done = 0
         while done < n:
             self.process_result(self.rqueue.get())

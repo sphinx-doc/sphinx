@@ -167,6 +167,7 @@ Features added
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
 * #4611: epub: Show warning for duplicated ToC entries
+* #5196: linkcheck also checks remote images exist
 
 Bugs fixed
 ----------
