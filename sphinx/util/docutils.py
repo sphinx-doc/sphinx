@@ -23,7 +23,7 @@ from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles, convert_directive_function
 from docutils.statemachine import StateMachine
-from docutils.utils import Reporter
+from docutils.utils import Reporter, unescape
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import ExtensionError
@@ -36,7 +36,8 @@ report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(
 if False:
     # For type annotation
     from types import ModuleType  # NOQA
-    from typing import Any, Callable, Generator, List, Set, Tuple, Type  # NOQA
+    from typing import Any, Callable, Dict, Generator, List, Set, Tuple, Type  # NOQA
+    from docutils.parsers.rst.states import Inliner  # NOQA
     from docutils.statemachine import State, StringList  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -375,6 +376,44 @@ class SphinxDirective(Directive):
         # type: () -> BuildEnvironment
         """Reference to the :class:`.BuildEnvironment` object."""
         return self.state.document.settings.env
+
+    @property
+    def config(self):
+        # type: () -> Config
+        """Reference to the :class:`.Config` object."""
+        return self.env.config
+
+
+class SphinxRole:
+    """A base class for Sphinx roles.
+
+    This class provides helper methods for Sphinx roles.
+
+    .. note:: The subclasses of this class might not work with docutils.
+              This class is strongly coupled with Sphinx.
+    """
+
+    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        self.type = typ
+        self.rawtext = rawtext
+        self.text = unescape(text)
+        self.lineno = lineno
+        self.inliner = inliner
+        self.options = options
+        self.content = content
+
+        return self.run()
+
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        raise NotImplementedError
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        """Reference to the :class:`.BuildEnvironment` object."""
+        return self.inliner.document.settings.env
 
     @property
     def config(self):
