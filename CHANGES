@@ -62,6 +62,9 @@ Incompatible changes
 * websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
 * C++, the visibility of base classes is now always rendered as present in the
   input. That is, ``private`` is now shown, where it was ellided before.
+* LaTeX: graphics inclusion of oversized images rescales to not exceed
+  the text width and height, even if width and/or height option were used.
+  (refs: #5956)
 
 Deprecated
 ----------
