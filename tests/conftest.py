@@ -27,8 +27,12 @@ def rootdir():
 
 
 def pytest_report_header(config):
-    return ("libraries: Sphinx-%s, docutils-%s" %
-            (sphinx.__display_version__, docutils.__version__))
+    header = ("libraries: Sphinx-%s, docutils-%s" %
+              (sphinx.__display_version__, docutils.__version__))
+    if hasattr(config, '_tmp_path_factory'):
+        header += "\nbase tempdir: %s" % config._tmp_path_factory.getbasetemp()
+
+    return header
 
 
 def pytest_assertrepr_compare(op, left, right):
