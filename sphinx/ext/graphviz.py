@@ -216,7 +216,9 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
-    hashkey = (code + str(options) + str(graphviz_dot) +
+    options_for_hash = options.copy()
+    options_for_hash = path.basename(options_for_hash.pop('docname', ''))
+    hashkey = (code + str(options_for_hash) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode('utf-8')
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
