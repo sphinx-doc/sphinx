@@ -18,7 +18,7 @@ Documentation using the alabaster theme
 * `Click <http://click.pocoo.org/>`__ (customized)
 * `coala <https://docs.coala.io/>`__ (customized)
 * `CodePy <https://documen.tician.de/codepy/>`__
-* `Eve <https://docs.python-eve.org/>`__
+* `Eve <https://docs.python-eve.org/>`__ (Python REST API framework)
 * `Fabric <https://docs.fabfile.org/>`__
 * `Fityk <https://fityk.nieto.pl/>`__
 * `Flask <http://flask.pocoo.org/docs/>`__
@@ -180,7 +180,6 @@ Documentation using sphinx_rtd_theme
 * `Databricks <https://docs.databricks.com/>`__ (customized)
 * `Dataiku DSS <https://doc.dataiku.com/>`__
 * `DNF <https://dnf.readthedocs.io/>`__
-* `Docutils <https://docutils.readthedocs.io/en/sphinx-docs/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <http://docs.electrum.org/>`__
 * `Elemental <http://libelemental.org/documentation/dev/>`__
@@ -189,7 +188,7 @@ Documentation using sphinx_rtd_theme
 * `Faker <https://faker.readthedocs.io/>`__
 * `Fidimag <https://fidimag.readthedocs.io/>`__
 * `Flake8 <http://flake8.pycqa.org/>`__
-` `Flatpak <http://docs.flatpak.org/>`__
+* `Flatpak <http://docs.flatpak.org/>`__
 * `FluidDyn <https://fluiddyn.readthedocs.io/>`__
 * `Fluidsim <https://fluidsim.readthedocs.io/>`__
 * `GeoNode <http://docs.geonode.org/>`__
@@ -207,7 +206,6 @@ Documentation using sphinx_rtd_theme
 * `Jupyter Notebook <https://jupyter-notebook.readthedocs.io/>`__
 * `Lasagne <https://lasagne.readthedocs.io/>`__
 * `latexindent.pl <https://latexindentpl.readthedocs.io/>`__
-* `LimaCharlie.io <https://doc.limacharlie.io/>`__
 * `Linguistica <https://linguistica-uchicago.github.io/lxa5/>`__
 * `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__
 * `MathJax <https://docs.mathjax.org/>`__
@@ -269,7 +267,6 @@ Documentation using sphinx_rtd_theme
 * `uWSGI <https://uwsgi-docs.readthedocs.io/>`__
 * `virtualenv <https://virtualenv.readthedocs.io/>`__
 * `Wagtail <https://docs.wagtail.io/>`__
-* `Wazo <http://documentation.wazo.community/>`__
 * `Web Application Attack and Audit Framework (w3af) <http://docs.w3af.org/>`__
 * `Weblate <https://docs.weblate.org/>`__
 * `x265 <https://x265.readthedocs.io/>`__
