@@ -502,12 +502,16 @@ General configuration
 
 .. confval:: tls_cacerts
 
-   A path to a certification file of CA or a path to directory which
-   contains the certificates.  This also allows a dictionary mapping
-   hostname to the path to certificate file.
+   A path to a certification file of CA or a path to directory which contains
+   the certificates.  This also allows a dictionary mapping hostname to the
+   path to certificate file.  Default is the value of environment variable
+   ``SSL_CERT_FILE``.
    The certificates are used to verify server certifications.
 
    .. versionadded:: 1.5
+
+   .. versionchanged:: 2.0
+      ``$SSL_CERT_FILE`` is used to default.
 
 .. confval:: today
              today_fmt

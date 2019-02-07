@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import os
 import mock
 import pytest
 
@@ -198,6 +199,25 @@ def test_builtin_conf(app, status, warning):
     assert 'primary_domain' not in warnings, (
         'override to None on builtin "primary_domain" should NOT raise a type '
         'warning')
+
+
+def test_tls_cacerts():
+    try:
+        cert_file = os.environ.pop('SSL_CERT_FILE', None)
+
+        config = Config()
+        assert config.tls_cacerts is None
+
+        os.environ['SSL_CERT_FILE'] = '/path/to/cert'
+        config = Config()
+        assert config.tls_cacerts == '/path/to/cert'
+    except Exception:
+        if cert_file:
+            os.environ['SSL_CERT_FILE'] = cert_file
+        else:
+            os.environ.pop('SSL_CERT_FILE', None)
+
+
 
 
 # example classes for type checking

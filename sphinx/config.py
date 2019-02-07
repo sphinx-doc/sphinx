@@ -79,6 +79,11 @@ class ENUM:
 string_classes = [str]  # type: List
 
 
+def default_tls_cacerts(config):
+    # type: (Config) -> str
+    return getenv('SSL_CERT_FILE')
+
+
 class Config:
     """Configuration file abstraction.
 
@@ -146,7 +151,7 @@ class Config:
         'math_eqref_format': (None, 'env', [str]),
         'math_numfig': (True, 'env', []),
         'tls_verify': (True, 'env', []),
-        'tls_cacerts': (None, 'env', []),
+        'tls_cacerts': (default_tls_cacerts, 'env', []),
         'smartquotes': (True, 'env', []),
         'smartquotes_action': ('qDe', 'env', []),
         'smartquotes_excludes': ({'languages': ['ja'],
