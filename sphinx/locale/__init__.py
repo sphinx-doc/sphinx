@@ -266,7 +266,9 @@ def get_translation(catalog, namespace='general'):
 
     With this code, sphinx searches a message catalog from
     ``${package_dir}/locales/${language}/LC_MESSAGES/${__name__}.mo``
-    The :confval:`language` is used for the searching.
+    (ex. ``sphinxcontrib.applehelp.mo``).  Of course, you can use
+    arbitrary catalog name instead of ``__name__``.  The
+    :confval:`language` is used for the searching.
 
     .. versionadded:: 1.8
     """

@@ -21,6 +21,7 @@ Dependencies
 * The sphinxcontrib-websupport package is no longer a dependency
 * Some packages are separated to sub packages:
 
+  - sphinxcontrib.applehelp
   - sphinxcontrib.devhelp
   - sphinxcontrib.jsmath
   - sphinxcontrib.qthelp
@@ -61,6 +62,9 @@ Incompatible changes
 * websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
 * C++, the visibility of base classes is now always rendered as present in the
   input. That is, ``private`` is now shown, where it was ellided before.
+* LaTeX: graphics inclusion of oversized images rescales to not exceed
+  the text width and height, even if width and/or height option were used.
+  (refs: #5956)
 
 Deprecated
 ----------
@@ -167,8 +171,13 @@ Features added
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
 * #4611: epub: Show warning for duplicated ToC entries
+* #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
+  omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
+* #6016: HTML search: A placeholder for the search summary prevents search
+  result links from changing their position when the search terminates.  This
+  makes navigating search results easier.
 * #5196: linkcheck also checks remote images exist
-
+  
 Bugs fixed
 ----------
 
@@ -215,6 +224,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
 
 Testing
 --------

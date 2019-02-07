@@ -275,6 +275,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``docutils.nodes.abbreviation``
 
+   * - ``sphinx.builders.applehelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.applehelp``
+
    * - ``sphinx.builders.devhelp``
      - 2.0
      - 4.0
