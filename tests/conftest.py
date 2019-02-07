@@ -24,7 +24,7 @@ collect_ignore = ['roots']
 
 @pytest.fixture(scope='session')
 def rootdir():
-    return path(os.path.dirname(__file__)).abspath() / 'roots'
+    return path(__file__).parent.abspath() / 'roots'
 
 
 def pytest_report_header(config):
