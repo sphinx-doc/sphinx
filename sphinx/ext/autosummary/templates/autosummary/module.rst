@@ -34,3 +34,27 @@
    {%- endfor %}
    {% endif %}
    {% endblock %}
+
+{% block modules %}
+{% if modules %}
+.. rubric:: modules
+
+.. autosummary::
+   :toctree: modules
+{% for item in modules %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
+
+{% block packages %}
+{% if packages %}
+.. rubric:: packages
+
+.. autosummary::
+   :toctree: packages
+{% for item in packages %}
+   {{ item }}
+{%- endfor %}
+{% endif %}
+{% endblock %}

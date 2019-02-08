@@ -236,6 +236,19 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class.  Only available
    for classes.
 
+.. data:: modules
+
+   List containing names of "public" modules in the package.  Only available for
+   modules that are packages.
+
+   .. versionadded:: 2.0.0
+
+.. data:: packages
+
+   List containing names of "public" sub-packages in the package.  Only available for
+   modules that are packages.
+
+   .. versionadded:: 2.0.0
 
 Additionally, the following filters are available
 
