@@ -65,6 +65,7 @@ Incompatible changes
 * LaTeX: graphics inclusion of oversized images rescales to not exceed
   the text width and height, even if width and/or height option were used.
   (refs: #5956)
+* epub: ``epub_title`` defaults to the :confval:`project` option
 
 Deprecated
 ----------
