@@ -9,6 +9,7 @@
 """
 
 from io import StringIO
+import os
 
 import pytest
 
@@ -177,7 +178,6 @@ def test_escaping(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
 def test_autosummary_generate(app, status, warning):
     app.builder.build_all()
-
     module = (app.srcdir / 'generated' / 'autosummary_dummy_module.rst').text()
     assert ('   .. autosummary::\n'
             '   \n'
@@ -195,6 +195,64 @@ def test_autosummary_generate(app, status, warning):
             '   \n'
             '      ~Foo.baz\n'
             '   \n' in Foo)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-package')
+def test_autosummary_generate_package(app, status, warning):
+    app.builder.build_all()
+
+    # Check generated .rst files
+    root = app.srcdir / 'generated'
+    n = len(root)+1
+    generated = set()
+    for path, subdirs, files in os.walk(str(root)):
+        base = path[n:]
+        for name in files:
+            generated.add(os.path.join(base, name))
+        for name in subdirs:
+            generated.add(os.path.join(base, name))
+    expected = set(['package.rst', 'modules', 'packages',
+                    os.path.join('modules', 'package.module.rst'),
+                    os.path.join('packages', 'package.subpackage.rst'),
+                    os.path.join('packages', 'modules'),
+                    os.path.join('packages', 'modules', 'package.subpackage.module.rst'),
+                    ])
+    assert generated == expected
+
+    content = (root / 'package.rst').text()
+    assert '.. automodule:: package' in content
+    assert '.. rubric:: modules' in content
+    assert ('.. autosummary::\n'
+            '   :toctree: modules\n'
+            '\n'
+            '   package.module\n' in content)
+    assert '.. rubric:: packages' in content
+    assert ('.. autosummary::\n'
+            '   :toctree: packages\n'
+            '\n'
+            '   package.subpackage\n' in content)
+
+    content = (root / 'packages' / 'package.subpackage.rst').text()
+    assert '.. automodule:: package.subpackage' in content
+    assert '.. rubric:: modules' in content
+    assert ('.. autosummary::\n'
+            '   :toctree: modules\n'
+            '\n'
+            '   package.subpackage.module\n' in content)
+
+    modules = [('modules', 'package.module.rst'),
+               ('packages', 'modules', 'package.subpackage.module.rst')]
+    for module in modules:
+        path = root
+        for sub in module:
+            path /= sub
+        content = path.text()
+        assert '.. automodule:: '+module[-1][:-4] in content
+        assert '   .. rubric:: Classes' in content
+        assert ('   .. autosummary::\n'
+                '   \n'
+                '      Foo\n'
+                '   \n' in content)
 
 
 @pytest.mark.sphinx('latex', **default_kw)
