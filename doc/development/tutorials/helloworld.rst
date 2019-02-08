@@ -55,22 +55,9 @@ Writing the extension
 
 Open :file:`helloworld.py` and paste the following code in it:
 
-.. code-block:: python
-
-   from docutils import nodes
-   from docutils.parsers.rst import Directive
-
-
-   class HelloWorld(Directive):
-
-       def run(self):
-           paragraph_node = nodes.paragraph(text='Hello World!')
-           return [paragraph_node]
-
-
-   def setup(app):
-       app.add_directive("helloworld", HelloWorld)
-
+.. literalinclude:: examples/helloworld.py
+   :language: python
+   :linenos:
 
 Some essential things are happening in this example, and you will see them for
 all directives.
@@ -79,13 +66,10 @@ all directives.
 
 Our new directive is declared in the ``HelloWorld`` class.
 
-.. code-block:: python
-
-   class HelloWorld(Directive):
-
-       def run(self):
-           paragraph_node = nodes.paragraph(text='Hello World!')
-           return [paragraph_node]
+.. literalinclude:: examples/helloworld.py
+   :language: python
+   :linenos:
+   :lines: 5-9
 
 This class extends the docutils_' ``Directive`` class. All extensions that
 create directives should extend this class.
@@ -115,10 +99,10 @@ the ``text`` parameter.
 This function is a requirement. We use it to plug our new directive into
 Sphinx.
 
-.. code-block:: python
-
-   def setup(app):
-       app.add_directive("helloworld", HelloWorld)
+.. literalinclude:: examples/helloworld.py
+   :language: python
+   :linenos:
+   :lines: 12-
 
 The simplest thing you can do it call the :meth:`~Sphinx.add_directive`
 method, which is what we've done here. For this particular call, the first

@@ -78,127 +78,9 @@ Writing the extension
 Open :file:`todo.py` and paste the following code in it, all of which we will
 explain in detail shortly:
 
-.. code-block:: python
-
-   from docutils import nodes
-   from docutils.parsers.rst import Directive
-   from sphinx.locale import _
-
-
-   class todo(nodes.Admonition, nodes.Element):
-       pass
-
-
-   class todolist(nodes.General, nodes.Element):
-       pass
-
-
-   def visit_todo_node(self, node):
-       self.visit_admonition(node)
-
-
-   def depart_todo_node(self, node):
-       self.depart_admonition(node)
-
-
-   class TodolistDirective(Directive):
-
-       def run(self):
-           return [todolist('')]
-
-
-   class TodoDirective(Directive):
-
-       # this enables content in the directive
-       has_content = True
-
-       def run(self):
-           env = self.state.document.settings.env
-
-           targetid = 'todo-%d' % env.new_serialno('todo')
-           targetnode = nodes.target('', '', ids=[targetid])
-
-           todo_node = todo('\n'.join(self.content))
-           todo_node += nodes.title(_('Todo'), _('Todo'))
-           self.state.nested_parse(self.content, self.content_offset, todo_node)
-
-           if not hasattr(env, 'todo_all_todos'):
-               env.todo_all_todos = []
-
-           env.todo_all_todos.append({
-               'docname': env.docname,
-               'lineno': self.lineno,
-               'todo': todo_node.deepcopy(),
-               'target': targetnode,
-           })
-
-           return [targetnode, todo_node]
-
-
-   def purge_todos(app, env, docname):
-       if not hasattr(env, 'todo_all_todos'):
-           return
-       env.todo_all_todos = [todo for todo in env.todo_all_todos
-                             if todo['docname'] != docname]
-
-
-   def process_todo_nodes(app, doctree, fromdocname):
-       if not app.config.todo_include_todos:
-           for node in doctree.traverse(todo):
-               node.parent.remove(node)
-
-       # Replace all todolist nodes with a list of the collected todos.
-       # Augment each todo with a backlink to the original location.
-       env = app.builder.env
-
-       for node in doctree.traverse(todolist):
-           if not app.config.todo_include_todos:
-               node.replace_self([])
-               continue
-
-           content = []
-
-           for todo_info in env.todo_all_todos:
-               para = nodes.paragraph()
-               filename = env.doc2path(todo_info['docname'], base=None)
-               description = (
-                   _('(The original entry is located in %s, line %d and can be found ') %
-                   (filename, todo_info['lineno']))
-               para += nodes.Text(description, description)
-
-               # Create a reference
-               newnode = nodes.reference('', '')
-               innernode = nodes.emphasis(_('here'), _('here'))
-               newnode['refdocname'] = todo_info['docname']
-               newnode['refuri'] = app.builder.get_relative_uri(
-                   fromdocname, todo_info['docname'])
-               newnode['refuri'] += '#' + todo_info['target']['refid']
-               newnode.append(innernode)
-               para += newnode
-               para += nodes.Text('.)', '.)')
-
-               # Insert into the todolist
-               content.append(todo_info['todo'])
-               content.append(para)
-
-           node.replace_self(content)
-
-
-   def setup(app):
-       app.add_config_value('todo_include_todos', False, 'html')
-
-       app.add_node(todolist)
-       app.add_node(todo,
-                    html=(visit_todo_node, depart_todo_node),
-                    latex=(visit_todo_node, depart_todo_node),
-                    text=(visit_todo_node, depart_todo_node))
-
-       app.add_directive('todo', TodoDirective)
-       app.add_directive('todolist', TodolistDirective)
-       app.connect('doctree-resolved', process_todo_nodes)
-       app.connect('env-purge-doc', purge_todos)
-
-       return {'version': '0.1'}   # identifies the version of our extension
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
 
 This is far more extensive extension than the one detailed in :doc:`helloworld`,
 however, we will will look at each piece step-by-step to explain what's
@@ -208,21 +90,10 @@ happening.
 
 Let's start with the node classes:
 
-.. todo:: Use literal-include
-
-.. code-block:: python
-
-   class todo(nodes.Admonition, nodes.Element):
-       pass
-
-   class todolist(nodes.General, nodes.Element):
-       pass
-
-   def visit_todo_node(self, node):
-       self.visit_admonition(node)
-
-   def depart_todo_node(self, node):
-       self.depart_admonition(node)
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 6-19
 
 Node classes usually don't have to do anything except inherit from the standard
 docutils classes defined in :mod:`docutils.nodes`.  ``todo`` inherits from
@@ -246,46 +117,20 @@ the class should have attributes that configure the allowed markup, and a
 
 Looking first at the ``TodolistDirective`` directive:
 
-.. code-block:: python
-
-   class TodolistDirective(Directive):
-
-       def run(self):
-           return [todolist('')]
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 22-25
 
 It's very simple, creating and returning an instance of our ``todolist`` node
 class.  The ``TodolistDirective`` directive itself has neither content nor
 arguments that need to be handled. That brings us to the ``TodoDirective``
 directive:
 
-.. code-block:: python
-
-   class TodoDirective(Directive):
-
-       # this enables content in the directive
-       has_content = True
-
-       def run(self):
-           env = self.state.document.settings.env
-
-           targetid = "todo-%d" % env.new_serialno('todo')
-           targetnode = nodes.target('', '', ids=[targetid])
-
-           todo_node = todo('\n'.join(self.content))
-           todo_node += nodes.title(_('Todo'), _('Todo'))
-           self.state.nested_parse(self.content, self.content_offset, todo_node)
-
-           if not hasattr(env, 'todo_all_todos'):
-               env.todo_all_todos = []
-
-           env.todo_all_todos.append({
-               'docname': env.docname,
-               'lineno': self.lineno,
-               'todo': todo_node.deepcopy(),
-               'target': targetnode,
-           })
-
-           return [targetnode, todo_node]
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 28-53
 
 Several important things are covered here. First, as you can see, you can refer
 to the :ref:`build environment instance <important-objects>` using
@@ -337,13 +182,10 @@ here.
 Let's look at the event handlers used in the above example.  First, the one for
 the :event:`env-purge-doc` event:
 
-.. code-block:: python
-
-   def purge_todos(app, env, docname):
-       if not hasattr(env, 'todo_all_todos'):
-           return
-       env.todo_all_todos = [todo for todo in env.todo_all_todos
-                             if todo['docname'] != docname]
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 56-61
 
 Since we store information from source files in the environment, which is
 persistent, it may become out of date when the source file changes.  Therefore,
@@ -355,48 +197,10 @@ added again during parsing.
 
 The other handler belongs to the :event:`doctree-resolved` event:
 
-.. code-block:: python
-
-   def process_todo_nodes(app, doctree, fromdocname):
-       if not app.config.todo_include_todos:
-           for node in doctree.traverse(todo):
-               node.parent.remove(node)
-
-       # Replace all todolist nodes with a list of the collected todos.
-       # Augment each todo with a backlink to the original location.
-       env = app.builder.env
-
-       for node in doctree.traverse(todolist):
-           if not app.config.todo_include_todos:
-               node.replace_self([])
-               continue
-
-           content = []
-
-           for todo_info in env.todo_all_todos:
-               para = nodes.paragraph()
-               filename = env.doc2path(todo_info['docname'], base=None)
-               description = (
-                   _('(The original entry is located in %s, line %d and can be found ') %
-                   (filename, todo_info['lineno']))
-               para += nodes.Text(description, description)
-
-               # Create a reference
-               newnode = nodes.reference('', '')
-               innernode = nodes.emphasis(_('here'), _('here'))
-               newnode['refdocname'] = todo_info['docname']
-               newnode['refuri'] = app.builder.get_relative_uri(
-                   fromdocname, todo_info['docname'])
-               newnode['refuri'] += '#' + todo_info['target']['refid']
-               newnode.append(innernode)
-               para += newnode
-               para += nodes.Text('.)', '.)')
-
-               # Insert into the todolist
-               content.append(todo_info['todo'])
-               content.append(para)
-
-           node.replace_self(content)
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 64-103
 
 The :event:`doctree-resolved` event is emitted at the end of :ref:`phase 3
 <build-phases>` and allows custom resolving to be done. The handler we have
@@ -420,23 +224,10 @@ As noted :doc:`previously <helloworld>`, the ``setup`` function is a requirement
 and is used to plug directives into Sphinx. However, we also use it to hook up
 the other parts of our extension. Let's look at our ``setup`` function:
 
-.. code-block:: python
-
-   def setup(app):
-       app.add_config_value('todo_include_todos', False, 'html')
-
-       app.add_node(todolist)
-       app.add_node(todo,
-                    html=(visit_todo_node, depart_todo_node),
-                    latex=(visit_todo_node, depart_todo_node),
-                    text=(visit_todo_node, depart_todo_node))
-
-       app.add_directive('todo', TodoDirective)
-       app.add_directive('todolist', TodolistDirective)
-       app.connect('doctree-resolved', process_todo_nodes)
-       app.connect('env-purge-doc', purge_todos)
-
-       return {'version': '0.1'}   # identifies the version of our extension
+.. literalinclude:: examples/todo.py
+   :language: python
+   :linenos:
+   :lines: 106-
 
 The calls in this function refer to the classes and functions we added earlier.
 What the individual calls do is the following:
