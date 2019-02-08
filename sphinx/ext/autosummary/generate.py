@@ -22,8 +22,8 @@ import locale
 import os
 import pydoc
 import re
-import sys
 import pkgutil
+import sys
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
