@@ -17,12 +17,12 @@
     :license: BSD, see LICENSE for details.
 """
 
+import pkgutil
 import argparse
 import locale
 import os
 import pydoc
 import re
-import pkgutil
 import sys
 
 from jinja2 import FileSystemLoader, TemplateNotFound
