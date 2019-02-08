@@ -1,39 +1,54 @@
-Developing a "Hello world" directive
+Developing a "Hello world" extension
 ====================================
 
-The objective of this tutorial is to create a very basic extension that adds a new
-directive that outputs a paragraph containing `hello world`.
+The objective of this tutorial is to create a very basic extension that adds a
+new directive. This directive will output a paragraph containing `hello world`.
 
-Only basic information is provided in this tutorial. For more information,
-refer to the :doc:`other tutorials <index>` that go into more
-details.
+Only basic information is provided in this tutorial. For more information, refer
+to the :doc:`other tutorials <index>` that go into more details.
 
-.. warning:: For this extension, you will need some basic understanding of docutils_
+.. warning::
+   For this extension, you will need some basic understanding of docutils_
    and Python.
 
-Creating a new extension file
------------------------------
 
-Your extension file could be in any folder of your project. In our case,
-let's do the following:
+Overview
+--------
 
-#. Create an :file:`_ext` folder in :file:`source`.
+We want the extension to add the following to Sphinx:
+
+* A ``helloworld`` directive, that will simply output the text `hello world`.
+
+
+Prerequisites
+-------------
+
+We will not be distributing this plugin via `PyPI`_ and will instead include it
+as part of an existing project. This means you will need to use an existing
+project or create a new one using :program:`sphinx-quickstart`.
+
+We assume you are using separate source (:file:`source`) and build
+(:file:`build`) folders. Your extension file could be in any folder of your
+project. In our case, let's do the following:
+
+#. Create an :file:`_ext` folder in :file:`source`
 #. Create a new Python file in the :file:`_ext` folder called
-   :file:`helloworld.py`.
+   :file:`helloworld.py`
 
-   Here is an example of the folder structure you might obtain:
+Here is an example of the folder structure you might obtain:
 
-   .. code-block:: text
+.. code-block:: text
 
-         └── source
-             ├── _ext
-             │   └── helloworld.py
-             ├── _static
-             ├── _themes
-             ├── conf.py
-             ├── somefolder
-             ├── somefile.rst
-             └── someotherfile.rst
+      └── source
+          ├── _ext
+          │   └── helloworld.py
+          ├── _static
+          ├── conf.py
+          ├── somefolder
+          ├── index.rst
+          ├── somefile.rst
+          └── someotherfile.rst
+
 
 Writing the extension
 ---------------------
@@ -47,6 +62,7 @@ Open :file:`helloworld.py` and paste the following code in it:
 
 
    class HelloWorld(Directive):
+
        def run(self):
            paragraph_node = nodes.paragraph(text='Hello World!')
            return [paragraph_node]
@@ -56,30 +72,33 @@ Open :file:`helloworld.py` and paste the following code in it:
        app.add_directive("helloworld", HelloWorld)
 
 
-Some essential things are happening in this example, and you will see them
-in all directives:
+Some essential things are happening in this example, and you will see them for
+all directives.
 
-.. rubric:: Directive declaration
+.. rubric:: The directive class
 
-Our new directive is declared in the ``HelloWorld`` class, it extends
-docutils_' ``Directive`` class. All extensions that create directives
-should extend this class.
+Our new directive is declared in the ``HelloWorld`` class.
 
-.. rubric:: ``run`` method
+.. code-block:: python
 
-This method is a requirement and it is part of every directive. It contains
-the main logic of the directive and it returns a list of docutils nodes to
-be processed by Sphinx.
+   class HelloWorld(Directive):
+
+       def run(self):
+           paragraph_node = nodes.paragraph(text='Hello World!')
+           return [paragraph_node]
+
+This class extends the docutils_' ``Directive`` class. All extensions that
+create directives should extend this class.
 
 .. seealso::
 
-   :doc:`todo`
+   `The docutils documentation on creating directives <docutils directives>`_
 
-.. rubric:: docutils nodes
-
-The ``run`` method returns a list of nodes. Nodes are docutils' way of
-representing the content of a document. There are many types of nodes
-available: text, paragraph, reference, table, etc.
+This class contains a ``run`` method.  This method is a requirement and it is
+part of every directive.  It contains the main logic of the directive and it
+returns a list of docutils nodes to be processed by Sphinx. These nodes are
+docutils' way of representing the content of a document. There are many types of
+nodes available: text, paragraph, reference, table, etc.
 
 .. seealso::
 
@@ -89,74 +108,93 @@ The ``nodes.paragraph`` class creates a new paragraph node. A paragraph
 node typically contains some text that we can set during instantiation using
 the ``text`` parameter.
 
-.. rubric:: ``setup`` function
+.. rubric:: The ``setup`` function
+
+.. currentmodule:: sphinx.application
 
 This function is a requirement. We use it to plug our new directive into
 Sphinx.
-The simplest thing you can do it call the ``app.add_directive`` method.
 
-.. note::
+.. code-block:: python
 
-   The first argument is the name of the directive itself as used in an rST file.
+   def setup(app):
+       app.add_directive("helloworld", HelloWorld)
 
-   In our case, we would use ``helloworld``:
+The simplest thing you can do it call the :meth:`~Sphinx.add_directive`
+method, which is what we've done here. For this particular call, the first
+argument is the name of the directive itself as used in an rST file. In this
+case, we would use ``helloworld``. For example:
 
-   .. code-block:: rst
+.. code-block:: rst
 
-      Some intro text here...
+   Some intro text here...
 
-      .. helloworld::
+   .. helloworld::
 
-      Some more text here...
+   Some more text here...
 
 
-Updating the conf.py file
--------------------------
+Using the extension
+-------------------
 
-The extension file has to be declared in your :file:`conf.py` file to make
-Sphinx aware of it:
+The extension has to be declared in your :file:`conf.py` file to make Sphinx
+aware of it. There are two steps necessary here:
 
-#. Open :file:`conf.py`. It is in the :file:`source` folder by default.
-#. Add ``sys.path.append(os.path.abspath("./_ext"))`` before
-   the ``extensions`` variable declaration (if it exists).
-#. Update or create the ``extensions`` list and add the
-   extension file name to the list:
+#. Add the :file:`_ext` directory to the `Python path`_ using
+   ``sys.path.append``. This should be placed at the top of the file.
 
-   .. code-block:: python
+#. Update or create the :confval:`extensions` list and add the extension file
+   name to the list
 
-      extensions.append('helloworld')
+For example:
 
-You can now use the extension.
+.. code-block:: python
 
-.. admonition:: Example
+   import os
+   import sys
 
-   .. code-block:: rst
+   sys.path.append(os.path.abspath("./_ext"))
 
-      Some intro text here...
+   extensions = ['helloworld']
 
-      .. helloworld::
+.. tip::
 
-      Some more text here...
+   We're not distributing this extension as a `Python package`_, we need to
+   modify the `Python path`_ so Sphinx can find our extension. This is why we
+   need the call to ``sys.path.append``.
 
-   The sample above would generate:
+You can now use the extension in a file. For example:
 
-   .. code-block:: text
+.. code-block:: rst
 
-      Some intro text here...
+   Some intro text here...
 
-      Hello World!
+   .. helloworld::
 
-      Some more text here...
+   Some more text here...
+
+The sample above would generate:
+
+.. code-block:: text
+
+   Some intro text here...
+
+   Hello World!
+
+   Some more text here...
+
+
+Further reading
+---------------
 
 This is the very basic principle of an extension that creates a new directive.
 
 For a more advanced example, refer to :doc:`todo`.
 
-Further reading
----------------
-
-You can create your own nodes if needed, refer to the
-:doc:`todo` for more information.
 
 .. _docutils: http://docutils.sourceforge.net/
-.. _`docutils nodes`: http://docutils.sourceforge.net/docs/ref/doctree.html
+.. _docutils directives: http://docutils.sourceforge.net/docs/howto/rst-directives.html
+.. _docutils nodes: http://docutils.sourceforge.net/docs/ref/doctree.html
+.. _PyPI: https://pypi.org/
+.. _Python package: https://packaging.python.org/
+.. _Python path: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH
