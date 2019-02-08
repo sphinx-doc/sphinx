@@ -17,10 +17,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pkgutil
 import argparse
 import locale
 import os
+import pkgutil
 import pydoc
 import re
 import sys
@@ -198,7 +198,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 out_dict['modules'], out_dict['all_modules'] = [], []
                 out_dict['packages'], out_dict['all_packages'] = [], []
                 for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
-                    fullname = name+'.'+modname
+                    fullname = name + '.' + modname
                     try:
                         import_by_name(fullname)
                     except ImportError as e:
