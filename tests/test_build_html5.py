@@ -20,6 +20,7 @@ import pytest
 from html5lib import HTMLParser
 from test_build_html import flat_dict, tail_check, check_xpath
 
+from sphinx.util import docutils
 from sphinx.util.docutils import is_html5_writer_available
 
 
@@ -319,6 +320,8 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
     'html_context.hckey_co': 'hcval_co',
     'html_experimental_html5_writer': True})
@@ -345,6 +348,8 @@ def test_html_download(app):
     assert matched.group(1) == filename
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='roles-download',
                     confoverrides={'html_experimental_html5_writer': True})
 def test_html_download_role(app, status, warning):
