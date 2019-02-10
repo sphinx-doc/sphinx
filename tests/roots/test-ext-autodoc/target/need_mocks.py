@@ -15,6 +15,11 @@ def decoratedFunction():
     return None
 
 
+def func(arg: missing_module.Class):
+    """a function takes mocked object as an argument"""
+    pass
+
+
 class TestAutodoc(object):
     """TestAutodoc docstring."""
     @missing_name
