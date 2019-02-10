@@ -1511,6 +1511,12 @@ def test_autodoc_default_options(app):
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
 
+    # with :members: = True
+    app.config.autodoc_default_options = {'members': True}
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
     # with :members: and :undoc-members:
     app.config.autodoc_default_options = {
         'members': None,
