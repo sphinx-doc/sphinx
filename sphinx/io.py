@@ -21,7 +21,7 @@ from typing import Any, Union  # NOQA
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
-    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
+    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds, FigureAligner,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
     UnreferencedFootnotesDetector, SphinxSmartQuotes, DoctreeReadEvent, ManpageLink
 )
@@ -96,7 +96,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     """
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
-                  HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
+                  HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds, FigureAligner,
                   RemoveTranslatableInline, FilterSystemMessages, RefOnlyBulletListTransform,
                   UnreferencedFootnotesDetector, SphinxSmartQuotes, ManpageLink,
                   SphinxDomains, SubstitutionDefinitionsRemover, DoctreeReadEvent,

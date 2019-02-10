@@ -21,7 +21,7 @@ def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="figure" .*?>\s*'
+    html = (r'<div class="figure align-center" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
             r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -52,7 +52,7 @@ def test_graphviz_svg_html(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
 
-    html = (r'<div class=\"figure\" .*?>\n'
+    html = (r'<div class=\"figure align-center\" .*?>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
             r'\s*<p class=\"warning\">digraph foo {\n'
             r'bar -&gt; baz\n'
