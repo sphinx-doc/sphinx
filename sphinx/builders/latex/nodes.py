@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.latex.nodes
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Additional nodes for LaTeX writer.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -35,3 +34,12 @@ class math_reference(nodes.Inline, nodes.Referential, nodes.TextElement):
 class thebibliography(nodes.container):
     """A node for wrapping bibliographies."""
     pass
+
+
+HYPERLINK_SUPPORT_NODES = (
+    nodes.figure,
+    nodes.literal_block,
+    nodes.table,
+    nodes.section,
+    captioned_literal_block,
+)

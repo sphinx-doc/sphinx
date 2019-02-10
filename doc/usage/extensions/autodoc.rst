@@ -383,9 +383,10 @@ There are also new config values that you can set:
    Setting ``None`` is equivalent to giving the option name in the list format
    (i.e. it means "yes/true/on").
 
-   The supported options are ``'members'``, ``'undoc-members'``,
-   ``'private-members'``, ``'special-members'``, ``'inherited-members'``,
-   ``'show-inheritance'``, ``'ignore-module-all'`` and ``'exclude-members'``.
+   The supported options are ``'members'``, ``'member-order'``,
+   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
+   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'`` and
+   ``'exclude-members'``.
 
    .. versionadded:: 1.8
 
@@ -426,7 +427,7 @@ There are also new config values that you can set:
 
    This value controls the behavior of :option:`sphinx-build -W` during
    importing modules.
-   If ``False`` is given, autodoc forcely suppresses the error if the imported
+   If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
 
 .. confval:: autodoc_inherit_docstrings

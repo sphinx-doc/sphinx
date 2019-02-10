@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.make_mode
     ~~~~~~~~~~~~~~~~
@@ -11,7 +10,7 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,12 +27,12 @@ class Make(make_mode.Make):
     def __init__(self, *args):
         warnings.warn('sphinx.make_mode.Make is deprecated. '
                       'Please use sphinx.cmd.make_mode.Make instead.',
-                      RemovedInSphinx30Warning)
-        super(Make, self).__init__(*args)
+                      RemovedInSphinx30Warning, stacklevel=2)
+        super().__init__(*args)
 
 
 def run_make_mode(args):
     warnings.warn('sphinx.make_mode.run_make_mode() is deprecated. '
                   'Please use sphinx.cmd.make_mode.run_make_mode() instead.',
-                  RemovedInSphinx30Warning)
+                  RemovedInSphinx30Warning, stacklevel=2)
     return make_mode.run_make_mode(args)

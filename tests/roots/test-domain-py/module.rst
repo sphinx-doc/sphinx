@@ -38,3 +38,10 @@ module
    :type  y: tuple(str, float)
    :rtype:   list
 
+.. py:attribute:: attr1
+
+   :type: ModTopLevel
+
+.. py:attribute:: attr2
+
+   :type: :doc:`index`

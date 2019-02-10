@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.template
     ~~~~~~~~~~~~~~~~~~~~
 
     Templates utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,6 +15,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
 from sphinx.locale import get_translator
+from sphinx.util import texescape
 
 if False:
     # For type annotation
@@ -23,7 +23,7 @@ if False:
     from jinja2.loaders import BaseLoader  # NOQA
 
 
-class BaseRenderer(object):
+class BaseRenderer:
     def __init__(self, loader=None):
         # type: (BaseLoader) -> None
         self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
@@ -31,23 +31,23 @@ class BaseRenderer(object):
         self.env.install_gettext_translations(get_translator())  # type: ignore
 
     def render(self, template_name, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.env.get_template(template_name).render(context)
 
     def render_string(self, source, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.env.from_string(source).render(context)
 
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path):
-        # type: (unicode) -> None
+        # type: (str) -> None
         loader = SphinxFileSystemLoader(search_path)
-        super(FileRenderer, self).__init__(loader)
+        super().__init__(loader)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
         return cls(dirname).render(basename, context)
@@ -55,14 +55,14 @@ class FileRenderer(BaseRenderer):
 
 class SphinxRenderer(FileRenderer):
     def __init__(self, template_path=None):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
-        super(SphinxRenderer, self).__init__(template_path)
+        super().__init__(template_path)
 
     @classmethod
     def render_from_file(cls, filename, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return FileRenderer.render_from_file(filename, context)
 
 
@@ -70,7 +70,12 @@ class LaTeXRenderer(SphinxRenderer):
     def __init__(self):
         # type: () -> None
         template_path = os.path.join(package_dir, 'templates', 'latex')
-        super(LaTeXRenderer, self).__init__(template_path)
+        super().__init__(template_path)
+
+        # use texescape as escape filter
+        self.env.filters['e'] = texescape.escape
+        self.env.filters['escape'] = texescape.escape
+        self.env.filters['eabbr'] = texescape.escape_abbr
 
         # use JSP/eRuby like tagging instead because curly bracket; the default
         # tagging of jinja2 is not good for LaTeX sources.

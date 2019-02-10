@@ -1,18 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.build_phase
     ~~~~~~~~~~~~~~~~~~~~~~~
 
     Build phase of Sphinx application.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-try:
-    from enum import IntEnum
-except ImportError:  # py27
-    IntEnum = object  # type: ignore
+from enum import IntEnum
 
 
 class BuildPhase(IntEnum):

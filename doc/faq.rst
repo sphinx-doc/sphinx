@@ -20,7 +20,7 @@ How do I...
    the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
-   Use themes, see :doc:`theming`.
+   Use themes, see :doc:`/usage/theming`.
 
 ... add global substitutions or includes?
    Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
@@ -30,7 +30,7 @@ How do I...
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :ref:`extension tutorial <exttut>`.
+   See the :doc:`/development/tutorials/index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
@@ -205,7 +205,7 @@ The following list gives some hints for the creation of epub files:
 .. _Epubcheck: https://github.com/IDPF/epubcheck
 .. _Calibre: https://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
-.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+.. _Bookworm: https://www.oreilly.com/bookworm/index.html
 .. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:

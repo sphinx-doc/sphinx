@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_html5
     ~~~~~~~~~~~~~~~~
@@ -10,20 +9,19 @@
 
     https://github.com/sphinx-doc/sphinx/pull/2805/files
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import xml.etree.cElementTree as ElementTree
+import re
+from hashlib import md5
 
 import pytest
-from html5lib import getTreeBuilder, HTMLParser
+from html5lib import HTMLParser
 from test_build_html import flat_dict, tail_check, check_xpath
 
+from sphinx.util import docutils
 from sphinx.util.docutils import is_html5_writer_available
-
-TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
-HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 
 etree_cache = {}
@@ -36,7 +34,7 @@ def cached_etree_parse():
         if fname in etree_cache:
             return etree_cache[fname]
         with (fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+            etree = HTMLParser(namespaceHTMLElements=False).parse(fp)
             etree_cache.clear()
             etree_cache[fname] = etree
             return etree
@@ -58,19 +56,18 @@ def cached_etree_parse():
         (".//img[@src='../_images/rimg.png']", ''),
     ],
     'subdir/includes.html': [
-        (".//a[@href='../_downloads/img.png']", ''),
+        (".//a[@class='reference download internal']", ''),
         (".//img[@src='../_images/img.png']", ''),
         (".//p", 'This is an include file.'),
         (".//pre/span", 'line 1'),
         (".//pre/span", 'line 2'),
     ],
     'includes.html': [
-        (".//pre", u'Max Strauß'),
-        (".//a[@href='_downloads/img.png']", ''),
-        (".//a[@href='_downloads/img1.png']", ''),
-        (".//pre/span", u'"quotes"'),
-        (".//pre/span", u"'included'"),
-        (".//pre/span[@class='s2']", u'üöä'),
+        (".//pre", 'Max Strauß'),
+        (".//a[@class='reference download internal']", ''),
+        (".//pre/span", '"quotes"'),
+        (".//pre/span", "'included'"),
+        (".//pre/span[@class='s2']", 'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text notranslate']//pre",
@@ -78,7 +75,7 @@ def cached_etree_parse():
         (".//div[@class='inc-lines highlight-text notranslate']//pre",
          r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text notranslate']//pre",
-         u'^foo = "Including Unicode characters: üöä"\\n$'),
+         '^foo = "Including Unicode characters: üöä"\\n$'),
         (".//div[@class='inc-preappend highlight-text notranslate']//pre",
          r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python notranslate']//span",
@@ -118,7 +115,7 @@ def cached_etree_parse():
         (".//li/p/strong", r'^program\\n$'),
         (".//li/p/em", r'^dfn\\n$'),
         (".//li/p/kbd", r'^kbd\\n$'),
-        (".//li/p/span", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/p/span", 'File \N{TRIANGULAR BULLET} Close'),
         (".//li/p/code/span[@class='pre']", '^a/$'),
         (".//li/p/code/em/span[@class='pre']", '^varpart$'),
         (".//li/p/code/em/span[@class='pre']", '^i$'),
@@ -156,7 +153,7 @@ def cached_etree_parse():
         # footnote reference
         (".//a[@class='footnote-reference brackets']", r'1'),
         # created by reference lookup
-        (".//a[@href='contents.html#ref1']", ''),
+        (".//a[@href='index.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='admonition-title']", 'See also'),
         # a ``hlist`` directive
@@ -248,7 +245,7 @@ def cached_etree_parse():
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
          '-p'),
     ],
-    'contents.html': [
+    'index.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
@@ -323,17 +320,49 @@ def test_html5_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co',
+    'html_experimental_html5_writer': True})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_download(app):
+    app.build()
+
+    # subdir/includes.html
+    result = (app.outdir / 'subdir' / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="../(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    filename = matched.group(1)
+
+    # includes.html
+    result = (app.outdir / 'includes.html').text()
+    pattern = ('<a class="reference download internal" download="" '
+               'href="(_downloads/.*/img.png)">')
+    matched = re.search(pattern, result)
+    assert matched
+    assert (app.outdir / matched.group(1)).exists()
+    assert matched.group(1) == filename
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='roles-download',
                     confoverrides={'html_experimental_html5_writer': True})
 def test_html_download_role(app, status, warning):
     app.build()
-    assert (app.outdir / '_downloads' / 'dummy.dat').exists()
+    digest = md5((app.srcdir / 'dummy.dat').encode()).hexdigest()
+    assert (app.outdir / '_downloads' / digest / 'dummy.dat').exists()
 
     content = (app.outdir / 'index.html').text()
-    assert ('<li><p><a class="reference download internal" download="" '
-            'href="_downloads/dummy.dat">'
-            '<code class="xref download docutils literal notranslate">'
-            '<span class="pre">dummy.dat</span></code></a></p></li>' in content)
+    assert (('<li><p><a class="reference download internal" download="" '
+             'href="_downloads/%s/dummy.dat">'
+             '<code class="xref download docutils literal notranslate">'
+             '<span class="pre">dummy.dat</span></code></a></p></li>' % digest)
+            in content)
     assert ('<li><p><code class="xref download docutils literal notranslate">'
             '<span class="pre">not_found.dat</span></code></p></li>' in content)
     assert ('<li><p><a class="reference download external" download="" '

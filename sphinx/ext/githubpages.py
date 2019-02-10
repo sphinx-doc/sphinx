@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.githubpages
     ~~~~~~~~~~~~~~~~~~~~~~
 
     To publish HTML docs at GitHub Pages, create .nojekyll file.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,6 +27,6 @@ def create_nojekyll(app, env):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('env-updated', create_nojekyll)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

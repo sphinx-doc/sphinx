@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.collectors.indexentries
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Index entries collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -29,16 +26,16 @@ class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.indexentries.pop(docname, None)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         for docname in docnames:
             env.indexentries[docname] = other.indexentries[docname]
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         docname = app.env.docname
         entries = app.env.indexentries[docname] = []
         for node in doctree.traverse(addnodes.index):
@@ -46,7 +43,7 @@ class IndexEntriesCollector(EnvironmentCollector):
                 for entry in node['entries']:
                     split_index_msg(entry[0], entry[1])
             except ValueError as exc:
-                logger.warning(text_type(exc), location=node)
+                logger.warning(str(exc), location=node)
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_viewcode
     ~~~~~~~~~~~~~~~~~
 
     Test sphinx.ext.viewcode extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +24,7 @@ def test_viewcode(app, status, warning):
         warnings
     )
 
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
     assert result.count('href="_modules/spam/mod1.html#func1"') == 2
     assert result.count('href="_modules/spam/mod2.html#func2"') == 2
     assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
@@ -38,7 +37,7 @@ def test_viewcode(app, status, warning):
     # the next assert fails, until the autodoc bug gets fixed
     assert result.count('this is the class attribute class_attr') == 2
 
-    result = (app.outdir / '_modules/spam/mod1.html').text(encoding='utf-8')
+    result = (app.outdir / '_modules/spam/mod1.html').text()
     result = re.sub('<span class=".*?">', '<span>', result)  # filter pygments classes
     assert ('<div class="viewcode-block" id="Class1"><a class="viewcode-back" '
             'href="../../index.html#spam.Class1">[docs]</a>'
@@ -54,7 +53,7 @@ def test_viewcode(app, status, warning):
 def test_linkcode(app, status, warning):
     app.builder.build(['objects'])
 
-    stuff = (app.outdir / 'objects.html').text(encoding='utf-8')
+    stuff = (app.outdir / 'objects.html').text()
 
     assert 'http://foobar/source/foolib.py' in stuff
     assert 'http://foobar/js/' in stuff
@@ -68,10 +67,10 @@ def test_local_source_files(app, status, warning):
         if modname == 'not_a_package':
             source = (app.srcdir / 'not_a_package/__init__.py').text()
             tags = {
-                'func1': ('def', 3, 3),
-                'Class1': ('class', 3, 3),
-                'not_a_package.submodule.func1': ('def', 3, 3),
-                'not_a_package.submodule.Class1': ('class', 3, 3),
+                'func1': ('def', 1, 1),
+                'Class1': ('class', 1, 1),
+                'not_a_package.submodule.func1': ('def', 1, 1),
+                'not_a_package.submodule.Class1': ('class', 1, 1),
             }
         else:
             source = (app.srcdir / 'not_a_package/submodule.py').text()
@@ -94,7 +93,7 @@ def test_local_source_files(app, status, warning):
         warnings
     )
 
-    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    result = (app.outdir / 'index.html').text()
     assert result.count('href="_modules/not_a_package.html#func1"') == 1
     assert result.count('href="_modules/not_a_package.html#not_a_package.submodule.func1"') == 1
     assert result.count('href="_modules/not_a_package/submodule.html#Class1"') == 1

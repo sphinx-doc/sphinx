@@ -16,6 +16,8 @@ figures
 
    labeled figure
 
+   with a legend
+
 code-blocks
 -----------
 
@@ -66,3 +68,5 @@ subsubsection
 .. toctree::
 
    otherdoc
+
+* Embeded standalone hyperlink reference(refs: #5948): `subsection <section1_>`_.

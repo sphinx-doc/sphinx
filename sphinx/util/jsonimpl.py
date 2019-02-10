@@ -1,18 +1,15 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.jsonimpl
     ~~~~~~~~~~~~~~~~~~~~
 
     JSON serializer implementation wrapper.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import json
-
-from six import text_type
-from six.moves import UserString
+from collections import UserString
 
 if False:
     # For type annotation
@@ -22,10 +19,10 @@ if False:
 class SphinxJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that forces translation proxies."""
     def default(self, obj):
-        # type: (Any) -> unicode
+        # type: (Any) -> str
         if isinstance(obj, UserString):
-            return text_type(obj)
-        return json.JSONEncoder.default(self, obj)
+            return str(obj)
+        return super().default(obj)
 
 
 def dump(obj, fp, *args, **kwds):
@@ -35,7 +32,7 @@ def dump(obj, fp, *args, **kwds):
 
 
 def dumps(obj, *args, **kwds):
-    # type: (Any, Any, Any) -> unicode
+    # type: (Any, Any, Any) -> str
     kwds['cls'] = SphinxJSONEncoder
     return json.dumps(obj, *args, **kwds)
 

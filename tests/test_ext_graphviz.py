@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_graphviz
     ~~~~~~~~~~~~~~~~~
 
     Test sphinx.ext.graphviz extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,7 +21,7 @@ def test_graphviz_png_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="figure" .*?>\s*'
+    html = (r'<div class="figure align-center" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
             r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
@@ -35,7 +34,7 @@ def test_graphviz_png_html(app, status, warning):
 
     html = (r'<div class="figure align-right" .*?>\s*'
             r'<div class="graphviz"><img .*?/></div>\s*<p class="caption">'
-            r'<span class="caption-text">on right</span>.*</p>\s*</div>')
+            r'<span class="caption-text">on <em>right</em></span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
     html = (r'<div align=\"center\" class=\"align-center\">'
@@ -53,7 +52,7 @@ def test_graphviz_svg_html(app, status, warning):
 
     content = (app.outdir / 'index.html').text()
 
-    html = (r'<div class=\"figure\" .*?>\n'
+    html = (r'<div class=\"figure align-center\" .*?>\n'
             r'<div class="graphviz"><object data=\".*\.svg\".*>\n'
             r'\s*<p class=\"warning\">digraph foo {\n'
             r'bar -&gt; baz\n'
@@ -73,7 +72,7 @@ def test_graphviz_svg_html(app, status, warning):
             r'foo -&gt; bar\n'
             r'}</p></object></div>\n'
             r'<p class=\"caption\"><span class=\"caption-text\">'
-            r'on right</span>.*</p>\n'
+            r'on <em>right</em></span>.*</p>\n'
             r'</div>')
     assert re.search(html, content, re.S)
 
@@ -91,7 +90,7 @@ def test_graphviz_svg_html(app, status, warning):
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
-    content = (app.outdir / 'SphinxTests.tex').text()
+    content = (app.outdir / 'python.tex').text()
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
@@ -102,7 +101,8 @@ def test_graphviz_latex(app, status, warning):
 
     macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
-             '\\\\caption{on right}\\\\label{.*}\\\\end{wrapfigure}')
+             '\\\\caption{on \\\\sphinxstyleemphasis{right}}'
+             '\\\\label{.*}\\\\end{wrapfigure}')
     assert re.search(macro, content, re.S)
 
     macro = (r'\{\\hfill'

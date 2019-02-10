@@ -4,7 +4,7 @@
 
 .. image:: https://img.shields.io/pypi/v/sphinx.svg
    :target: https://pypi.org/project/Sphinx/
-   :alt: Package on PyPi
+   :alt: Package on PyPI
 
 .. image:: https://readthedocs.org/projects/sphinx/badge/?version=master
    :target: http://www.sphinx-doc.org/

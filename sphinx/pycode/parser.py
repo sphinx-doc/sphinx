@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.pycode.parser
     ~~~~~~~~~~~~~~~~~~~~
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import ast
@@ -17,15 +16,13 @@ import tokenize
 from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
 
-from six import PY2, text_type
-
 if False:
     # For type annotation
     from typing import Any, Dict, IO, List, Tuple  # NOQA
 
-comment_re = re.compile(u'^\\s*#: ?(.*)\r?\n?$')
-indent_re = re.compile(u'^\\s*$')
-emptyline_re = re.compile(u'^\\s*(#.*)?$')
+comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
+indent_re = re.compile('^\\s*$')
+emptyline_re = re.compile('^\\s*(#.*)?$')
 
 
 if sys.version_info >= (3, 6):
@@ -35,7 +32,7 @@ else:
 
 
 def filter_whitespace(code):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
 
@@ -49,7 +46,7 @@ def get_assign_targets(node):
 
 
 def get_lvar_names(node, self=None):
-    # type: (ast.AST, ast.expr) -> List[unicode]
+    # type: (ast.AST, ast.arg) -> List[str]
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -59,10 +56,7 @@ def get_lvar_names(node, self=None):
         # => TypeError
     """
     if self:
-        if PY2:
-            self_id = self.id  # type: ignore
-        else:
-            self_id = self.arg
+        self_id = self.arg
 
     node_name = node.__class__.__name__
     if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
@@ -95,23 +89,23 @@ def get_lvar_names(node, self=None):
 
 
 def dedent_docstring(s):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Remove common leading indentation from docstring."""
     def dummy():
         # type: () -> None
         # dummy function to mock `inspect.getdoc`.
         pass
 
-    dummy.__doc__ = s  # type: ignore
+    dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
     return docstring.lstrip("\r\n").rstrip("\r\n")
 
 
-class Token(object):
+class Token:
     """Better token wrapper for tokenize module."""
 
     def __init__(self, kind, value, start, end, source):
-        # type: (int, Any, Tuple[int, int], Tuple[int, int], unicode) -> None  # NOQA
+        # type: (int, Any, Tuple[int, int], Tuple[int, int], str) -> None
         self.kind = kind
         self.value = value
         self.start = start
@@ -131,10 +125,6 @@ class Token(object):
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def __ne__(self, other):
-        # type: (Any) -> bool
-        return not (self == other)
-
     def match(self, *conditions):
         # type: (Any) -> bool
         return any(self == candidate for candidate in conditions)
@@ -145,17 +135,17 @@ class Token(object):
                                              self.value.strip())
 
 
-class TokenProcessor(object):
+class TokenProcessor:
     def __init__(self, buffers):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         lines = iter(buffers)
         self.buffers = buffers
-        self.tokens = tokenize.generate_tokens(lambda: next(lines))  # type: ignore  # NOQA
+        self.tokens = tokenize.generate_tokens(lambda: next(lines))
         self.current = None     # type: Token
         self.previous = None    # type: Token
 
     def get_line(self, lineno):
-        # type: (int) -> unicode
+        # type: (int) -> str
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
@@ -202,9 +192,9 @@ class AfterCommentParser(TokenProcessor):
     """
 
     def __init__(self, lines):
-        # type: (List[unicode]) -> None
-        super(AfterCommentParser, self).__init__(lines)
-        self.comment = None  # type: unicode
+        # type: (List[str]) -> None
+        super().__init__(lines)
+        self.comment = None  # type: str
 
     def fetch_rvalue(self):
         # type: () -> List[Token]
@@ -246,20 +236,20 @@ class VariableCommentPicker(ast.NodeVisitor):
     """Python source code parser to pick up variable comments."""
 
     def __init__(self, buffers, encoding):
-        # type: (List[unicode], unicode) -> None
+        # type: (List[str], str) -> None
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context = []               # type: List[unicode]
-        self.current_classes = []       # type: List[unicode]
+        self.context = []               # type: List[str]
+        self.current_classes = []       # type: List[str]
         self.current_function = None    # type: ast.FunctionDef
-        self.comments = {}              # type: Dict[Tuple[unicode, unicode], unicode]
+        self.comments = {}              # type: Dict[Tuple[str, str], str]
         self.previous = None            # type: ast.AST
-        self.deforders = {}             # type: Dict[unicode, int]
-        super(VariableCommentPicker, self).__init__()
+        self.deforders = {}             # type: Dict[str, int]
+        super().__init__()
 
     def add_entry(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
@@ -272,7 +262,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.deforders[".".join(definition)] = next(self.counter)
 
     def add_variable_comment(self, name, comment):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
@@ -285,7 +275,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         self.comments[(context, name)] = comment
 
     def get_self(self):
-        # type: () -> ast.expr
+        # type: () -> ast.arg
         """Returns the name of first argument if in function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
@@ -293,14 +283,14 @@ class VariableCommentPicker(ast.NodeVisitor):
             return None
 
     def get_line(self, lineno):
-        # type: (int) -> unicode
+        # type: (int) -> str
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
     def visit(self, node):
         # type: (ast.AST) -> None
         """Updates self.previous to ."""
-        super(VariableCommentPicker, self).visit(node)
+        super().visit(node)
         self.previous = node
 
     def visit_Assign(self, node):
@@ -357,7 +347,7 @@ class VariableCommentPicker(ast.NodeVisitor):
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
-                    if isinstance(node.value.s, text_type):
+                    if isinstance(node.value.s, str):
                         docstring = node.value.s
                     else:
                         docstring = node.value.s.decode(self.encoding or 'utf-8')
@@ -394,15 +384,15 @@ class VariableCommentPicker(ast.NodeVisitor):
 
 class DefinitionFinder(TokenProcessor):
     def __init__(self, lines):
-        # type: (List[unicode]) -> None
-        super(DefinitionFinder, self).__init__(lines)
+        # type: (List[str]) -> None
+        super().__init__(lines)
         self.decorator = None   # type: Token
-        self.context = []       # type: List[unicode]
+        self.context = []       # type: List[str]
         self.indents = []       # type: List
-        self.definitions = {}   # type: Dict[unicode, Tuple[unicode, int, int]]
+        self.definitions = {}   # type: Dict[str, Tuple[str, int, int]]
 
     def add_definition(self, name, entry):
-        # type: (unicode, Tuple[unicode, int, int]) -> None
+        # type: (str, Tuple[str, int, int]) -> None
         if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
             # ignore definition of inner function
             pass
@@ -431,7 +421,7 @@ class DefinitionFinder(TokenProcessor):
                 self.finalize_block()
 
     def parse_definition(self, typ):
-        # type: (unicode) -> None
+        # type: (str) -> None
         name = self.fetch_token()
         self.context.append(name.value)
         funcname = '.'.join(self.context)
@@ -464,19 +454,19 @@ class DefinitionFinder(TokenProcessor):
             self.context.pop()
 
 
-class Parser(object):
+class Parser:
     """Python source code parser to pick up variable comments.
 
     This is a better wrapper for ``VariableCommentPicker``.
     """
 
     def __init__(self, code, encoding='utf-8'):
-        # type: (unicode, unicode) -> None
+        # type: (str, str) -> None
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.comments = {}          # type: Dict[Tuple[unicode, unicode], unicode]
-        self.deforders = {}         # type: Dict[unicode, int]
-        self.definitions = {}       # type: Dict[unicode, Tuple[unicode, int, int]]
+        self.comments = {}          # type: Dict[Tuple[str, str], str]
+        self.deforders = {}         # type: Dict[str, int]
+        self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
 
     def parse(self):
         # type: () -> None
@@ -487,7 +477,7 @@ class Parser(object):
     def parse_comments(self):
         # type: () -> None
         """Parse the code and pick up comments."""
-        tree = ast.parse(self.code.encode('utf-8'))
+        tree = ast.parse(self.code.encode())
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
         self.comments = picker.comments

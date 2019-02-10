@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.events
     ~~~~~~~~~~~~~
@@ -7,14 +6,11 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 from collections import OrderedDict, defaultdict
-
-from six import itervalues
 
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
@@ -42,24 +38,24 @@ core_events = {
     'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
-}  # type: Dict[unicode, unicode]
+}
 
 
-class EventManager(object):
+class EventManager:
     def __init__(self):
         # type: () -> None
         self.events = core_events.copy()
-        self.listeners = defaultdict(OrderedDict)  # type: Dict[unicode, Dict[int, Callable]]
+        self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
         self.next_listener_id = 0
 
     def add(self, name):
-        # type: (unicode) -> None
+        # type: (str) -> None
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
     def connect(self, name, callback):
-        # type: (unicode, Callable) -> int
+        # type: (str, Callable) -> int
         if name not in self.events:
             raise ExtensionError(__('Unknown event name: %s') % name)
 
@@ -70,18 +66,18 @@ class EventManager(object):
 
     def disconnect(self, listener_id):
         # type: (int) -> None
-        for event in itervalues(self.listeners):
+        for event in self.listeners.values():
             event.pop(listener_id, None)
 
     def emit(self, name, *args):
-        # type: (unicode, Any) -> List
+        # type: (str, Any) -> List
         results = []
-        for callback in itervalues(self.listeners[name]):
+        for callback in self.listeners[name].values():
             results.append(callback(*args))
         return results
 
     def emit_firstresult(self, name, *args):
-        # type: (unicode, Any) -> Any
+        # type: (str, Any) -> Any
         for result in self.emit(name, *args):
             if result is not None:
                 return result

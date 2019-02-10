@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.extlinks
     ~~~~~~~~~~~~~~~~~~~
@@ -20,12 +19,11 @@
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes, utils
-from six import iteritems
 
 import sphinx
 from sphinx.util.nodes import split_explicit_title
@@ -39,9 +37,9 @@ if False:
 
 
 def make_link_role(base_url, prefix):
-    # type: (unicode, unicode) -> RoleFunction
+    # type: (str, str) -> RoleFunction
     def role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
-        # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
         try:
@@ -64,12 +62,12 @@ def make_link_role(base_url, prefix):
 
 def setup_link_roles(app):
     # type: (Sphinx) -> None
-    for name, (base_url, prefix) in iteritems(app.config.extlinks):
+    for name, (base_url, prefix) in app.config.extlinks.items():
         app.add_role(name, make_link_role(base_url, prefix))
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

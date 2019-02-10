@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.viewcode
     ~~~~~~~~~~~~~~~~~~~
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,12 +12,11 @@ import traceback
 import warnings
 
 from docutils import nodes
-from six import iteritems, text_type
 
 import sphinx
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
@@ -34,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_full_modname(app, modname, attribute):
-    # type: (Sphinx, str, unicode) -> unicode
+    # type: (Sphinx, str, str) -> str
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -75,12 +73,8 @@ def doctree_read(app, doctree):
                 env._viewcode_modules[modname] = False  # type: ignore
                 return
 
-            if not isinstance(analyzer.code, text_type):
-                code = analyzer.code.decode(analyzer.encoding)
-            else:
-                code = analyzer.code
-
             analyzer.find_tags()
+            code = analyzer.code
             tags = analyzer.tags
         else:
             code, tags = code_tags
@@ -96,7 +90,7 @@ def doctree_read(app, doctree):
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
             continue
-        names = set()  # type: Set[unicode]
+        names = set()  # type: Set[str]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -120,18 +114,16 @@ def doctree_read(app, doctree):
                 continue
             names.add(fullname)
             pagename = '_modules/' + modname.replace('.', '/')
+            inline = nodes.inline('', _('[source]'), classes=['viewcode-link'])
             onlynode = addnodes.only(expr='html')
-            onlynode += addnodes.pending_xref(
-                '', reftype='viewcode', refdomain='std', refexplicit=False,
-                reftarget=pagename, refid=fullname,
-                refdoc=env.docname)
-            onlynode[0] += nodes.inline('', _('[source]'),
-                                        classes=['viewcode-link'])
+            onlynode += addnodes.pending_xref('', inline, reftype='viewcode', refdomain='std',
+                                              refexplicit=False, reftarget=pagename,
+                                              refid=fullname, refdoc=env.docname)
             signode += onlynode
 
 
 def env_merge_info(app, env, docnames, other):
-    # type: (Sphinx, BuildEnvironment, Iterable[unicode], BuildEnvironment) -> None
+    # type: (Sphinx, BuildEnvironment, Iterable[str], BuildEnvironment) -> None
     if not hasattr(other, '_viewcode_modules'):
         return
     # create a _viewcode_modules dict on the main environment
@@ -142,15 +134,17 @@ def env_merge_info(app, env, docnames, other):
 
 
 def missing_reference(app, env, node, contnode):
-    # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> nodes.Node
+    # type: (Sphinx, BuildEnvironment, nodes.Element, nodes.Node) -> nodes.Node
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
                             node['refid'], contnode)
 
+    return None
+
 
 def collect_pages(app):
-    # type: (Sphinx) -> Iterator[Tuple[unicode, Dict[unicode, Any], unicode]]
+    # type: (Sphinx) -> Iterator[Tuple[str, Dict[str, Any], str]]
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -159,12 +153,9 @@ def collect_pages(app):
 
     modnames = set(env._viewcode_modules)  # type: ignore
 
-#    app.builder.info(' (%d module code pages)' %
-#                     len(env._viewcode_modules), nonl=1)
-
     for modname, entry in status_iterator(
-            sorted(iteritems(env._viewcode_modules)),  # type: ignore
-            'highlighting module code... ', "blue",
+            sorted(env._viewcode_modules.items()),  # type: ignore
+            __('highlighting module code... '), "blue",
             len(env._viewcode_modules),  # type: ignore
             app.verbosity, lambda x: x[0]):
         if not entry:
@@ -188,7 +179,7 @@ def collect_pages(app):
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
         maxindex = len(lines) - 1
-        for name, docname in iteritems(used):
+        for name, docname in used.items():
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
@@ -215,7 +206,7 @@ def collect_pages(app):
             'title': modname,
             'body': (_('<h1>Source code for %s</h1>') % modname +
                      '\n'.join(lines)),
-        }  # type: Dict[unicode, Any]
+        }
         yield (pagename, context, 'page.html')
 
     if not modnames:
@@ -252,11 +243,11 @@ def migrate_viewcode_import(app, config):
     if config.viewcode_import is not None:
         warnings.warn('viewcode_import was renamed to viewcode_follow_imported_members. '
                       'Please update your configuration.',
-                      RemovedInSphinx30Warning)
+                      RemovedInSphinx30Warning, stacklevel=2)
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_config_value('viewcode_import', None, False)
     app.add_config_value('viewcode_enable_epub', False, False)
     app.add_config_value('viewcode_follow_imported_members', True, False)

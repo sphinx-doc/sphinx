@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.napoleon.iterators
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -7,7 +6,7 @@
     A collection of helpful iterators.
 
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +17,7 @@ if False:
     from typing import Any, Iterable  # NOQA
 
 
-class peek_iter(object):
+class peek_iter:
     """An iterator object that supports peeking ahead.
 
     Parameters
@@ -232,7 +231,7 @@ class modify_iter(peek_iter):
         if not callable(self.modifier):
             raise TypeError('modify_iter(o, modifier): '
                             'modifier must be callable')
-        super(modify_iter, self).__init__(*args)
+        super().__init__(*args)
 
     def _fillcache(self, n):
         # type: (int) -> None

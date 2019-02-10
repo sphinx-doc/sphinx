@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_util_inspect
     ~~~~~~~~~~~~~~~
 
     Tests util.inspect functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import functools
@@ -13,7 +12,6 @@ import sys
 from textwrap import dedent
 
 import pytest
-from six import PY3
 
 from sphinx.util import inspect
 
@@ -25,15 +23,11 @@ def test_getargspec():
     spec = inspect.getargspec(func)
     assert spec.args == ['a', 'b', 'c', 'd']
     assert spec.varargs == 'e'
-    if PY3:
-        assert spec.varkw == 'f'
-        assert spec.defaults == (1, 2)
-        assert spec.kwonlyargs == []
-        assert spec.kwonlydefaults is None
-        assert spec.annotations == {}
-    else:
-        assert spec.keywords == 'f'
-        assert spec.defaults == [1, 2]
+    assert spec.varkw == 'f'
+    assert spec.defaults == (1, 2)
+    assert spec.kwonlyargs == []
+    assert spec.kwonlydefaults is None
+    assert spec.annotations == {}
 
 
 def test_getargspec_partial():
@@ -42,19 +36,13 @@ def test_getargspec_partial():
 
     partial = functools.partial(func1, 10, c=11)
     spec = inspect.getargspec(partial)
-    if PY3:
-        assert spec.args == ['b']
-        assert spec.varargs is None
-        assert spec.varkw == 'f'
-        assert spec.defaults is None
-        assert spec.kwonlyargs == ['c', 'd']
-        assert spec.kwonlydefaults == {'c': 11, 'd': 2}
-        assert spec.annotations == {}
-    else:
-        assert spec.args == ['b', 'd']
-        assert spec.varargs == 'e'
-        assert spec.keywords == 'f'
-        assert spec.defaults == [2]
+    assert spec.args == ['b']
+    assert spec.varargs is None
+    assert spec.varkw == 'f'
+    assert spec.defaults is None
+    assert spec.kwonlyargs == ['c', 'd']
+    assert spec.kwonlydefaults == {'c': 11, 'd': 2}
+    assert spec.annotations == {}
 
 
 def test_getargspec_partial2():
@@ -62,19 +50,8 @@ def test_getargspec_partial2():
         pass
     p = functools.partial(fun, 10, c=11)
 
-    if PY3:
-        # Python 3's partial is rather cleverer than Python 2's, and we
-        # have to jump through some hoops to define an equivalent function
-        # in a way that won't confuse Python 2's parser:
-        ns = {}
-        exec(dedent("""
-            def f_expected(b, *, c=11, d=2):
-                    pass
-        """), ns)
-        f_expected = ns["f_expected"]
-    else:
-        def f_expected(b, d=2):
-            pass
+    def f_expected(b, *, c=11, d=2):
+        pass
     expected = inspect.getargspec(f_expected)
 
     assert expected == inspect.getargspec(p)
@@ -105,13 +82,8 @@ def test_getargspec_bound_methods():
         pass
 
     assert expected_unbound == inspect.getargspec(Foo.method)
-    if PY3 and sys.version_info >= (3, 4, 4):
-        # On py2, the inspect functions don't properly handle bound
-        # methods (they include a spurious 'self' argument)
-        assert expected_bound == inspect.getargspec(bound_method)
-        # On py2, the inspect functions can't properly handle wrapped
-        # functions (no __wrapped__ support)
-        assert expected_bound == inspect.getargspec(wrapped_bound_method)
+    assert expected_bound == inspect.getargspec(bound_method)
+    assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
 def test_Signature():
@@ -143,10 +115,7 @@ def test_Signature_partial():
     p = functools.partial(fun, 10, c=11)
 
     sig = inspect.Signature(p).format_args()
-    if sys.version_info < (3,):
-        assert sig == '(b, d=2)'
-    else:
-        assert sig == '(b, *, c=11, d=2)'
+    assert sig == '(b, *, c=11, d=2)'
 
 
 def test_Signature_methods():
@@ -193,20 +162,13 @@ def test_Signature_methods():
 
     # wrapped bound method
     sig = inspect.Signature(wrapped_bound_method).format_args()
-    if sys.version_info < (3,):
-        assert sig == '(*args, **kwargs)'
-    elif sys.version_info < (3, 4, 4):
-        assert sig == '(self, arg1, **kwargs)'
-    else:
-        assert sig == '(arg1, **kwargs)'
+    assert sig == '(arg1, **kwargs)'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='functools.partialmethod is available on py34 or above')
 def test_Signature_partialmethod():
     from functools import partialmethod
 
-    class Foo(object):
+    class Foo:
         def meth1(self, arg1, arg2, arg3=None, arg4=None):
             pass
 
@@ -228,11 +190,9 @@ def test_Signature_partialmethod():
     assert sig == '()'
 
 
-@pytest.mark.skipif(sys.version_info < (3, 4),
-                    reason='type annotation test is available on py34 or above')
 def test_Signature_annotations():
-    from typing_test_data import (
-        f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, Node)
+    from typing_test_data import (f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
+                                  f11, f12, f13, f14, f15, f16, f17, Node)
 
     # Class annotations
     sig = inspect.Signature(f0).format_args()
@@ -297,6 +257,18 @@ def test_Signature_annotations():
     sig = inspect.Signature(f14).format_args()
     assert sig == '() -> Any'
 
+    # ForwardRef
+    sig = inspect.Signature(f15).format_args()
+    assert sig == '(x: Unknown, y: int) -> Any'
+
+    # keyword only arguments (1)
+    sig = inspect.Signature(f16).format_args()
+    assert sig == '(arg1, arg2, *, arg3=None, arg4=None)'
+
+    # keyword only arguments (2)
+    sig = inspect.Signature(f17).format_args()
+    assert sig == '(*, arg3, arg4)'
+
     # type hints by string
     sig = inspect.Signature(Node.children).format_args()
     if (3, 5, 0) <= sys.version_info < (3, 5, 3):
@@ -309,7 +281,7 @@ def test_Signature_annotations():
 
 
 def test_safe_getattr_with_default():
-    class Foo(object):
+    class Foo:
         def __getattr__(self, item):
             raise Exception
 
@@ -321,7 +293,7 @@ def test_safe_getattr_with_default():
 
 
 def test_safe_getattr_with_exception():
-    class Foo(object):
+    class Foo:
         def __getattr__(self, item):
             raise Exception
 
@@ -336,7 +308,7 @@ def test_safe_getattr_with_exception():
 
 
 def test_safe_getattr_with_property_exception():
-    class Foo(object):
+    class Foo:
         @property
         def bar(self):
             raise Exception
@@ -352,7 +324,7 @@ def test_safe_getattr_with_property_exception():
 
 
 def test_safe_getattr_with___dict___override():
-    class Foo(object):
+    class Foo:
         @property
         def __dict__(self):
             raise Exception
@@ -376,41 +348,29 @@ def test_dictionary_sorting():
 def test_set_sorting():
     set_ = set("gfedcba")
     description = inspect.object_description(set_)
-    if PY3:
-        assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
-    else:
-        assert description == "set(['a', 'b', 'c', 'd', 'e', 'f', 'g'])"
+    assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
 
 
 def test_set_sorting_fallback():
     set_ = set((None, 1))
     description = inspect.object_description(set_)
-    if PY3:
-        assert description in ("{1, None}", "{None, 1}")
-    else:
-        assert description in ("set([1, None])", "set([None, 1])")
+    assert description in ("{1, None}", "{None, 1}")
 
 
 def test_frozenset_sorting():
     frozenset_ = frozenset("gfedcba")
     description = inspect.object_description(frozenset_)
-    if PY3:
-        assert description == "frozenset({'a', 'b', 'c', 'd', 'e', 'f', 'g'})"
-    else:
-        assert description == "frozenset(['a', 'b', 'c', 'd', 'e', 'f', 'g'])"
+    assert description == "frozenset({'a', 'b', 'c', 'd', 'e', 'f', 'g'})"
 
 
 def test_frozenset_sorting_fallback():
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
-    if PY3:
-        assert description in ("frozenset({1, None})", "frozenset({None, 1})")
-    else:
-        assert description in ("frozenset([1, None])", "frozenset([None, 1])")
+    assert description in ("frozenset({1, None})", "frozenset({None, 1})")
 
 
 def test_dict_customtype():
-    class CustomType(object):
+    class CustomType:
         def __init__(self, value):
             self._value = value
 
@@ -437,10 +397,5 @@ def test_isstaticmethod():
 
     assert inspect.isstaticmethod(Foo.method1, Foo, 'method1') is True
     assert inspect.isstaticmethod(Foo.method2, Foo, 'method2') is False
-
-    if sys.version_info < (3, 0):
-        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is False
-        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
-    else:
-        assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
-        assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False
+    assert inspect.isstaticmethod(Bar.method1, Bar, 'method1') is True
+    assert inspect.isstaticmethod(Bar.method2, Bar, 'method2') is False

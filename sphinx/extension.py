@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.extension
     ~~~~~~~~~~~~~~~~
 
     Utilities for Sphinx extensions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from six import iteritems
 
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
@@ -24,9 +21,9 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-class Extension(object):
+class Extension:
     def __init__(self, name, module, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -49,7 +46,7 @@ def verify_needs_extensions(app, config):
     if config.needs_extensions is None:
         return
 
-    for extname, reqversion in iteritems(config.needs_extensions):
+    for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
             logger.warning(__('The %s extension is required by needs_extensions settings, '
@@ -64,7 +61,7 @@ def verify_needs_extensions(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', verify_needs_extensions)
 
     return {

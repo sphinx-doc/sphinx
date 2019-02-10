@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.matching
     ~~~~~~~~~~~~~~~~~~~~
 
     Pattern-matching utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+
+from sphinx.util.osutil import canon_path
 
 if False:
     # For type annotation
@@ -17,14 +18,14 @@ if False:
 
 
 def _translate_pattern(pat):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''  # type: unicode
+    res = ''  # type: str
     while i < n:
         c = pat[i]
         i += 1
@@ -64,11 +65,11 @@ def _translate_pattern(pat):
 
 
 def compile_matchers(patterns):
-    # type: (List[unicode]) -> List[Callable[[unicode], Match[unicode]]]
+    # type: (List[str]) -> List[Callable[[str], Match[str]]]
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
-class Matcher(object):
+class Matcher:
     """A pattern matcher for Multiple shell-style glob patterns.
 
     Note: this modifies the patterns to work with copy_asset().
@@ -76,27 +77,28 @@ class Matcher(object):
     """
 
     def __init__(self, patterns):
-        # type: (List[unicode]) -> None
+        # type: (List[str]) -> None
         expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(patterns + expanded)
 
     def __call__(self, string):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
         return self.match(string)
 
     def match(self, string):
-        # type: (unicode) -> bool
+        # type: (str) -> bool
+        string = canon_path(string)
         return any(pat(string) for pat in self.patterns)
 
 
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache = {}  # type: Dict[unicode, Pattern]
+_pat_cache = {}  # type: Dict[str, Pattern]
 
 
 def patmatch(name, pat):
-    # type: (unicode, unicode) -> Match[unicode]
+    # type: (str, str) -> Match[str]
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
@@ -104,7 +106,7 @@ def patmatch(name, pat):
 
 
 def patfilter(names, pat):
-    # type: (List[unicode], unicode) -> List[unicode]
+    # type: (List[str], str) -> List[str]
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

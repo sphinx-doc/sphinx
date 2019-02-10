@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     test_util_i18n
     ~~~~~~~~~~~~~~
 
     Test i18n util.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import datetime
 import os
@@ -144,6 +142,7 @@ def test_get_catalogs_from_multiple_locale_dirs(tempdir):
     assert domains == ['test1', 'test1', 'test2']
 
 
+@pytest.mark.filterwarnings('ignore:gettext_compact argument')
 def test_get_catalogs_with_compact(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
@@ -154,7 +153,7 @@ def test_get_catalogs_with_compact(tempdir):
 
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', gettext_compact=True)
     domains = set(c.domain for c in catalogs)
-    assert domains == set(['test1', 'test2', 'sub'])
+    assert domains == set(['test1', 'test2', 'sub/test3', 'sub/test4'])
 
 
 def test_get_catalogs_excluded(tempdir):
@@ -177,7 +176,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='unknown') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
-    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == '2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
 
     # raw string

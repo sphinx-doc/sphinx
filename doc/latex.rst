@@ -8,9 +8,6 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
-For details of the LaTeX/PDF builder command line invocation, refer to
-:py:class:`~sphinx.builders.latex.LaTeXBuilder`.
-
 .. raw:: latex
 
    \begingroup
@@ -29,15 +26,24 @@ For details of the LaTeX/PDF builder command line invocation, refer to
          cautionBgColor={named}{LightCyan}}
    \relax
 
-.. _latex-basic:
-
-Basic customization
--------------------
-
 The *latex* target does not benefit from prepared themes.
 
-Basic customization is obtained via usage of the :ref:`latex-options`. For
-example::
+The :ref:`latex-options`, and particularly among them the
+:ref:`latex_elements <latex_elements_confval>` variable
+provides much of the interface for customization.
+
+For some details of the LaTeX/PDF builder command line
+invocation, refer to :py:class:`~sphinx.builders.latex.LaTeXBuilder`.
+
+.. _latex-basic:
+
+Example
+-------
+
+Keep in mind that backslashes must be doubled in Python string literals to
+avoid interpretation as escape sequences, or use raw strings (as is done here).
+
+::
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -59,49 +65,412 @@ example::
    }
    latex_show_urls = 'footnote'
 
-.. the above was tested on Sphinx's own 1.5a2 documentation with good effect!
-
 .. highlight:: latex
 
-If the size of the ``'preamble'`` contents becomes inconvenient, one may move
-all needed macros into some file :file:`mystyle.tex.txt` of the project source
-repertory, and get LaTeX to import it at run time::
+.. _latex_elements_confval:
 
-   'preamble': r'\input{mystyle.tex.txt}',
-   # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
-   'preamble': r'\usepackage{mystyle}',
+The latex_elements configuration setting
+----------------------------------------
 
-It is then needed to set appropriately :confval:`latex_additional_files`, for
-example::
+A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
+into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
+:ref:`separately <latexsphinxsetup>`.
 
-   latex_additional_files = ["mystyle.sty"]
+* Keys that you may want to override include:
+
+  ``'papersize'``
+     Paper size option of the document class (``'a4paper'`` or
+     ``'letterpaper'``), default ``'letterpaper'``.
+
+  ``'pointsize'``
+     Point size option of the document class (``'10pt'``, ``'11pt'`` or
+     ``'12pt'``), default ``'10pt'``.
+
+  ``'pxunit'``
+     the value of the ``px`` when used in image attributes ``width`` and
+     ``height``. The default value is ``'0.75bp'`` which achieves
+     ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
+     example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
+     leads to TeX computing a more precise value, due to the smaller unit
+     used in the specification); for ``72px=1in``, simply use ``'1bp'``; for
+     ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
+
+     .. versionadded:: 1.5
+
+  ``'passoptionstopackages'``
+     A string which will be positioned early in the preamble, designed to
+     contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
+
+     .. versionadded:: 1.4
+
+  ``'babel'``
+     "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
+     suitable document language string is passed as class option, and
+     ``english`` is used if no language.) For Japanese documents, the
+     default is the empty string.
+
+     With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
+     `polyglossia`_, but one should be aware that current `babel`_ has
+     improved its support for Unicode engines in recent years and for some
+     languages it may make sense to prefer ``babel`` over ``polyglossia``.
+
+     .. hint::
+
+        After modifiying a core LaTeX key like this one, clean up the LaTeX
+        build repertory before next PDF build, else left-over auxiliary
+        files are likely to break the build.
+
+     .. _`polyglossia`: https://ctan.org/pkg/polyglossia
+     .. _`babel`: https://ctan.org/pkg/babel
+
+     .. versionchanged:: 1.5
+        For :confval:`latex_engine` set to ``'xelatex'``, the default
+        is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
+     .. versionchanged:: 1.6
+        ``'lualatex'`` uses same default setting as ``'xelatex'``
+     .. versionchanged:: 1.7.6
+        For French, ``xelatex`` and ``lualatex`` default to using
+        ``babel``, not ``polyglossia``.
+
+  ``'fontpkg'``
+     Font package inclusion, the default is ``'\\usepackage{times}'`` which
+     uses Times for text, Helvetica for sans serif and Courier for monospace.
+
+     .. versionchanged:: 1.2
+        Defaults to ``''`` when the :confval:`language` uses the Cyrillic
+        script.
+     .. versionchanged:: 2.0
+        Support for individual Greek and Cyrillic letters:
+
+        - In order to support occasional Cyrillic (физика частиц)
+          or Greek letters (Σωματιδιακή φυσική) in
+          a document whose language is English or a  Latin European
+          one, the default set-up is enhanced (only for ``'pdflatex'``
+          engine) to do:
+
+          .. code-block:: latex
+
+             \substitutefont{LGR}{\rmdefault}{cmr}
+             \substitutefont{LGR}{\sfdefault}{cmss}
+             \substitutefont{LGR}{\ttdefault}{cmtt}
+             \substitutefont{X2}{\rmdefault}{cmr}
+             \substitutefont{X2}{\sfdefault}{cmss}
+             \substitutefont{X2}{\ttdefault}{cmtt}
+
+          but this is activated only under the condition that the
+          ``'fontenc'`` key is configured to load the ``LGR`` (Greek)
+          and/or ``X2`` (Cyrillic) pdflatex-font encodings (if the
+          :confval:`language` is set to a Cyrillic language, this
+          ``'fontpkg'`` key must be used as "times" package has no direct
+          support for it; then keep only ``LGR`` lines from the above,
+          if support is needed for Greek in the text).
+
+          The ``\substitutefont`` command is from the eponymous LaTeX
+          package, which is loaded by Sphinx if needed (on Ubuntu xenial it
+          is part of ``texlive-latex-extra`` which is a Sphinx
+          requirement).
+
+          Only if the document actually does contain Unicode Greek letters
+          (in text) or Cyrillic letters, will the above default set-up
+          cause additional requirements for the PDF build.  On Ubuntu
+          xenial, ``texlive-lang-greek``, ``texlive-lang-cyrillic``, and
+          (with the above choice of fonts) the ``cm-super`` (or
+          ``cm-super-minimal``) package.
+
+        - For ``'xelatex'`` and ``'lualatex'``, the default is to
+          use the FreeFont family:  this OpenType font family
+          supports both Cyrillic and Greek scripts and is available as
+          separate Ubuntu xenial package ``fonts-freefont-otf``, it is not
+          needed to install the big package ``texlive-fonts-extra``.
+
+        - ``'platex'`` (Japanese documents) engine supports individual
+          Cyrillic and Greek letters with no need of extra user set-up.
+
+  ``'fncychap'``
+     Inclusion of the "fncychap" package (which makes fancy chapter titles),
+     default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
+     (this option is slightly customized by Sphinx),
+     ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
+     the "Bjarne" style uses numbers spelled out in English).  Other
+     "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
+     "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
+
+     The default is ``''`` for Japanese documents.
+
+  ``'preamble'``
+     Additional preamble content, default empty.  One may move all needed
+     macros into some file :file:`mystyle.tex.txt` of the project source
+     repertory, and get LaTeX to import it at run time::
+
+       'preamble': r'\input{mystyle.tex.txt}',
+       # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
+       'preamble': r'\usepackage{mystyle}',
+
+     It is then needed to set appropriately
+     :confval:`latex_additional_files`, for example::
+
+        latex_additional_files = ["mystyle.sty"]
+
+
+  ``'figure_align'``
+     Latex figure float alignment, default 'htbp' (here, top, bottom, page).
+     Whenever an image doesn't fit into the current page, it will be
+     'floated' into the next page but may be preceded by any other text.
+     If you don't like this behavior, use 'H' which will disable floating
+     and position figures strictly in the order they appear in the source.
+
+     .. versionadded:: 1.3
+
+  ``'atendofbody'``
+     Additional document content (right before the indices), default empty.
+
+     .. versionadded:: 1.5
+
+  ``'footer'``
+     Additional footer content (before the indices), default empty.
+
+     .. deprecated:: 1.5
+        Use ``'atendofbody'`` key instead.
+
+* Keys that don't need to be overridden unless in special cases are:
+
+  ``'extraclassoptions'``
+     The default is the empty string. Example: ``'extraclassoptions':
+     'openany'`` will allow chapters (for documents of the ``'manual'``
+     type) to start on any page.
+
+     .. versionadded:: 1.2
+     .. versionchanged:: 1.6
+        Added this documentation.
+
+  ``'maxlistdepth'``
+     LaTeX allows by default at most 6 levels for nesting list and
+     quote-like environments, with at most 4 enumerated lists, and 4 bullet
+     lists. Setting this key for example to ``'10'`` (as a string) will
+     allow up to 10 nested levels (of all sorts). Leaving it to the empty
+     string means to obey the LaTeX default.
+
+     .. warning::
+
+        - Using this key may prove incompatible with some LaTeX packages
+          or special document classes which do their own list customization.
+
+        - The key setting is silently *ignored* if ``\usepackage{enumitem}``
+          is executed inside the document preamble. Use then rather the
+          dedicated commands of this LaTeX package.
+
+     .. versionadded:: 1.5
+
+  ``'inputenc'``
+     "inputenc" package inclusion, defaults to
+     ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
+     Otherwise empty.
+
+     .. versionchanged:: 1.4.3
+        Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
+        compilers.
+
+  ``'cmappkg'``
+     "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
+
+     .. versionadded:: 1.2
+
+  ``'fontenc'``
+     "fontenc" package inclusion, defaults to
+     ``'\\usepackage[T1]{fontenc}'``.
+
+     If ``'pdflatex'`` is the :confval:`latex_engine`, one can add ``LGR``
+     for support of Greek letters in the document, and also ``X2`` (or
+     ``T2A``) for Cyrillic letters, like this:
+
+     .. code-block:: latex
+
+        r'\usepackage[LGR,X2,T1]{fontenc}'
+
+     .. attention::
+
+        Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
+        mark-up.  This is not the case anymore, and the above must be used
+        (only in case of ``'pdflatex'`` engine) if the source contains such
+        Unicode Greek.
+
+        On Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
+        (for the latter, only if the ``'fontpkg'`` setting is left to its
+        default) are needed for ``LGR`` to work.  In place of ``cm-super``
+        one can install smaller ``cm-super-minimal``, but it requires the
+        LaTeX document to execute ``\usepackage[10pt]{type1ec}`` before
+        loading ``fontenc``.  Thus, use this key with this extra at its
+        start if needed.
+
+     .. versionchanged:: 1.5
+        Defaults to ``'\\usepackage{fontspec}'`` when
+        :confval:`latex_engine` is ``'xelatex'``.
+     .. versionchanged:: 1.6
+        ``'lualatex'`` uses ``fontspec`` per default like ``'xelatex'``.
+     .. versionchanged:: 2.0
+        ``'lualatex'`` executes
+        ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
+        ligatures.
+     .. versionchanged:: 2.0
+        Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
+        occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
+        is provided natively by ``'platex'`` and only requires suitable
+        font with ``'xelatex'/'lualatex'``).
+
+  ``'textgreek'``
+     The default (``'pdflatex'`` only) is
+     ``'\\usepackage{textalpha}'``, but only if ``'fontenc'`` was
+     modified by user to include ``LGR`` option.  If not, the key
+     value will be forced to be the empty string.
+
+     This is needed for ``pdfLaTeX`` to support Unicode input of Greek
+     letters such as φύσις.  Expert users may want to load the ``textalpha``
+     package with its option ``normalize-symbols``.
+
+     .. hint::
+
+        Unicode Greek (but no further Unicode symbols) in :rst:dir:`math`
+        can be supported by ``'pdflatex'`` from setting this key to
+        ``r'\usepackage{textalpha,alphabeta}'``.  Then ``:math:`α``` (U+03B1)
+        will render as :math:`\alpha`.  For wider Unicode support in math
+        input, see the discussion of :confval:`latex_engine`.
+
+     With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
+     key is ignored.
+
+     .. versionadded:: 2.0
+  ``'geometry'``
+     "geometry" package inclusion, the default definition is:
+
+       ``'\\usepackage{geometry}'``
+
+     with an additional ``[dvipdfm]`` for Japanese documents.
+     The Sphinx LaTeX style file executes:
+
+       ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+
+     which can be customized via corresponding :ref:`'sphinxsetup' options
+     <latexsphinxsetup>`.
+
+     .. versionadded:: 1.5
+
+     .. versionchanged:: 1.5.2
+        ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
+
+     .. versionadded:: 1.5.3
+        The :ref:`'sphinxsetup' keys for the margins
+        <latexsphinxsetuphmargin>`.
+
+     .. versionchanged:: 1.5.3
+        The location in the LaTeX file has been moved to after
+        ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+        insertion of ``'fontpkg'`` key. This is in order to handle the paper
+        layout options in a special way for Japanese documents: the text
+        width will be set to an integer multiple of the *zenkaku* width, and
+        the text height to an integer multiple of the baseline. See the
+        :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
+
+  ``'hyperref'``
+     "hyperref" package inclusion; also loads package "hypcap" and issues
+     ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
+     loaded and before executing the contents of ``'preamble'`` key.
+
+     .. attention::
+
+        Loading of packages "hyperref" and "hypcap" is mandatory.
+
+     .. versionadded:: 1.5
+        Previously this was done from inside :file:`sphinx.sty`.
+
+  ``'maketitle'``
+     "maketitle" call, default ``'\\sphinxmaketitle'``. Override
+     if you want to generate a differently styled title page.
+
+     .. hint::
+
+        If the key value is set to
+        ``r'\newcommand\sphinxbackoftitlepage{<Extra
+        material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
+        typeset on back of title page (``'manual'`` docclass only).
+
+     .. versionchanged:: 1.8.3
+        Original ``\maketitle`` from document class is not overwritten,
+        hence is re-usable as part of some custom setting for this key.
+     .. versionadded:: 1.8.3
+        ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
+        inside ``'preamble'`` key rather than this one.
+
+  ``'releasename'``
+     value that prefixes ``'release'`` element on title page, default
+     ``'Release'``. As for *title* and *author* used in the tuples of
+     :confval:`latex_documents`, it is inserted as LaTeX markup.
+
+  ``'tableofcontents'``
+     "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
+     wrapper of unmodified ``\tableofcontents``, which may itself be
+     customized by user loaded packages.)
+     Override if
+     you want to generate a different table of contents or put content
+     between the title page and the TOC.
+
+     .. versionchanged:: 1.5
+        Previously the meaning of ``\tableofcontents`` itself was modified
+        by Sphinx. This created an incompatibility with dedicated packages
+        modifying it also such as "tocloft" or "etoc".
+
+  ``'transition'``
+     Commands used to display transitions, default
+     ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``.  Override if you want to
+     display transitions differently.
+
+     .. versionadded:: 1.2
+     .. versionchanged:: 1.6
+        Remove unneeded ``{}`` after ``\\hrule``.
+
+  ``'printindex'``
+     "printindex" call, the last thing in the file, default
+     ``'\\printindex'``.  Override if you want to generate the index
+     differently or append some content after the index. For example
+     ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
+     index is full of long entries.
+
+  ``'fvset'``
+     Customization of ``fancyvrb`` LaTeX package.  Sphinx does by default
+     ``'fvset': '\\fvset{fontsize=\\small}'``, to adjust for the large
+     character width of the monospace font, used in code-blocks.
+     You may need to modify this if you use custom fonts.
+
+     .. versionadded:: 1.8
+     .. versionchanged:: 2.0
+        Due to new default font choice for ``'xelatex'`` and ``'lualatex'``
+        (FreeFont), Sphinx does ``\\fvset{fontsize=\\small}`` also with these
+        engines (and not ``\\fvset{fontsize=auto}``).
+
+* Keys that are set by other options and therefore should not be overridden
+  are:
+
+  ``'docclass'``
+  ``'classoptions'``
+  ``'title'``
+  ``'release'``
+  ``'author'``
+  ``'makeindex'``
+
 
 .. _latexsphinxsetup:
 
-The LaTeX style file options
-----------------------------
+\\'sphinxsetup\\' key
+---------------------
 
-Additional customization is possible via LaTeX options of the Sphinx style
-file.
-
-The sphinxsetup interface
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``'sphinxsetup'`` key of :confval:`latex_elements` provides a convenient
-interface::
+The ``'sphinxsetup'`` key of :ref:`latex_elements <latex_elements_confval>`
+provides a LaTeX-type customization interface::
 
    latex_elements = {
        'sphinxsetup': 'key1=value1, key2=value2, ...',
    }
 
-- some values may be LaTeX macros, then the backslashes must be
-  Python-escaped, or the whole must be a Python raw string,
-- LaTeX boolean keys require *lowercase* ``true`` or ``false`` values,
-- spaces around the commas and equal signs are ignored, spaces inside LaTeX
-  macros may be significant.
-
-If non-empty, it will be passed as argument to the ``\sphinxsetup`` macro
-inside the document preamble, like this::
+It defaults to empty.  If non-empty, it will be passed as argument to the
+``\sphinxsetup`` macro inside the document preamble, like this::
 
    \usepackage{sphinx}
    \sphinxsetup{key1=value1, key2=value2,...}
@@ -112,7 +481,7 @@ inside the document preamble, like this::
 
    It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
    directly into the body of the document, via the help of the :rst:dir:`raw`
-   directive.  Here is how this present chapter in PDF is styled::
+   directive.  Here is how this present chapter is styled in the PDF output::
 
      .. raw:: latex
 
@@ -147,8 +516,9 @@ inside the document preamble, like this::
       }
 
 
-The available styling options
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LaTeX boolean keys require *lowercase* ``true`` or ``false`` values.
+Spaces around the commas and equal signs are ignored, spaces inside LaTeX
+macros may be significant.
 
 .. _latexsphinxsetuphmargin:
 
@@ -209,7 +579,7 @@ The available styling options
        the default changed from ``false`` to ``true``.
 
 ``verbatimcontinuedalign``, ``verbatimcontinuesalign``
-    default ``c``. Horizontal position relative to the framed contents:
+    default ``r``. Horizontal position relative to the framed contents:
     either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
 
     .. versionadded:: 1.7
@@ -354,9 +724,9 @@ The available styling options
                                ``attentionBgColor``, ``dangerBgColor``,
                                ``errorBgColor``
 
-.. |warningborders| replace:: ``warningBorder``, ``cautionBorder``,
-                              ``attentionBorder``, ``dangerBorder``,
-                              ``errorBorder``
+.. |warningborders| replace:: ``warningborder``, ``cautionborder``,
+                              ``attentionborder``, ``dangerborder``,
+                              ``errorborder``
 
 LaTeX macros and environments
 -----------------------------
@@ -364,6 +734,8 @@ LaTeX macros and environments
 Here are some macros from the package file :file:`sphinx.sty` and class files
 :file:`sphinxhowto.cls`, :file:`sphinxmanual.cls`, which have public names
 thus allowing redefinitions. Check the respective files for the defaults.
+
+.. _latex-macros:
 
 Macros
 ~~~~~~
@@ -390,13 +762,32 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
-  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
-  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
+  wrapper (defined differently in :file:`sphinxhowto.cls` and in
+  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro
+  ``\sphinxtableofcontentshook`` is executed during its expansion right before
+  ``\tableofcontents`` itself.
 
   .. versionchanged:: 1.5
      formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
-- the ``\maketitle`` command is redefined by the class files
-  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls`.
+  .. versionchanged:: 2.0
+     hard-coded redefinitions of ``\l@section`` and ``\l@subsection`` formerly
+     done during loading of ``'manual'`` docclass are now executed later via
+     ``\sphinxtableofcontentshook``.  This macro is also executed by the
+     ``'howto'`` docclass, but defaults to empty with it.
+- a custom ``\sphinxmaketitle`` is defined in the class files
+  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls` and is used as
+  default setting of ``'maketitle'`` :confval:`latex_elements` key.
+
+  .. versionchanged:: 1.8.3
+     formerly, ``\maketitle`` from LaTeX document class was modified by
+     Sphinx.
+- for ``'manual'`` docclass a macro ``\sphinxbackoftitlepage``, if it is
+  defined, gets executed at end of ``\sphinxmaketitle``, before the final
+  ``\clearpage``.  Use either the ``'maketitle'`` key or the ``'preamble'`` key
+  of :confval:`latex_elements` to add a custom definition of
+  ``\sphinxbackoftitlepage``.
+
+  .. versionadded:: 1.8.3
 - the citation reference is typeset via ``\sphinxcite`` which is a wrapper
   of standard ``\cite``.
 

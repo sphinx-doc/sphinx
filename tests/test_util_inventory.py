@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_util_inventory
     ~~~~~~~~~~~~~~~~~~~
@@ -11,8 +10,7 @@
 
 import posixpath
 import zlib
-
-from six import BytesIO
+from io import BytesIO
 
 from sphinx.ext.intersphinx import InventoryFile
 
@@ -22,14 +20,14 @@ inventory_v1 = '''\
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''.encode('utf-8')
+'''.encode()
 
 inventory_v2 = '''\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-'''.encode('utf-8') + zlib.compress('''\
+'''.encode() + zlib.compress('''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
@@ -48,16 +46,16 @@ foo.bar js:class 1 index.html#foo.bar -
 foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
-'''.encode('utf-8'))
+'''.encode())
 
 inventory_v2_not_having_version = '''\
 # Sphinx inventory version 2
 # Project: foo
-# Version: 
+# Version:
 # The remainder of this file is compressed with zlib.
-'''.encode('utf-8') + zlib.compress('''\
+'''.encode() + zlib.compress('''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
-'''.encode('utf-8'))
+'''.encode())
 
 
 def test_read_inventory_v1():

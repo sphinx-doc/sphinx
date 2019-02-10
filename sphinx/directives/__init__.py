@@ -1,20 +1,21 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.directives
     ~~~~~~~~~~~~~~~~~
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
+from typing import List, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
+from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util.docutils import SphinxDirective
 
@@ -32,10 +33,12 @@ from sphinx.directives.patches import (  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List  # NOQA
+    from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.docfields import Field  # NOQA
+    from sphinx.util.typing import DirectiveOption  # NOQA
 
 
 # RE to strip backslash escapes
@@ -56,16 +59,16 @@ class ObjectDescription(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {
         'noindex': directives.flag,
-    }
+    }  # type: Dict[str, DirectiveOption]
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
-    doc_field_types = []    # type: List[Any]
-    domain = None           # type: unicode
-    objtype = None          # type: unicode
+    doc_field_types = []    # type: List[Field]
+    domain = None           # type: str
+    objtype = None          # type: str
     indexnode = None        # type: addnodes.index
 
     def get_signatures(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         """
         Retrieve the signatures to document from the directive arguments.  By
         default, signatures are given as arguments, one per line.
@@ -77,7 +80,7 @@ class ObjectDescription(SphinxDirective):
         return [strip_backslash_re.sub(r'\1', line.strip()) for line in lines]
 
     def handle_signature(self, sig, signode):
-        # type: (unicode, addnodes.desc_signature) -> Any
+        # type: (str, addnodes.desc_signature) -> Any
         """
         Parse the signature *sig* into individual nodes and append them to
         *signode*. If ValueError is raised, parsing is aborted and the whole
@@ -90,7 +93,7 @@ class ObjectDescription(SphinxDirective):
         raise ValueError
 
     def add_target_and_index(self, name, sig, signode):
-        # type: (Any, unicode, addnodes.desc_signature) -> None
+        # type: (Any, str, addnodes.desc_signature) -> None
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -146,7 +149,7 @@ class ObjectDescription(SphinxDirective):
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
 
-        self.names = []  # type: List[unicode]
+        self.names = []  # type: List[str]
         signatures = self.get_signatures()
         for i, sig in enumerate(signatures):
             # add a signature node for each signature in the current unit
@@ -199,22 +202,22 @@ class DefaultRole(SphinxDirective):
     def run(self):
         # type: () -> List[nodes.Node]
         if not self.arguments:
-            if '' in roles._roles:
-                # restore the "default" default role
-                del roles._roles['']
+            docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
         role, messages = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
-        if role is None:
-            error = self.state.reporter.error(
-                'Unknown interpreted text role "%s".' % role_name,
-                nodes.literal_block(self.block_text, self.block_text),
-                line=self.lineno)
-            return messages + [error]
-        roles._roles[''] = role
-        self.env.temp_data['default_role'] = role_name
-        return messages
+        if role:
+            docutils.register_role('', role)
+            self.env.temp_data['default_role'] = role_name
+        else:
+            literal_block = nodes.literal_block(self.block_text, self.block_text)
+            reporter = self.state.reporter
+            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
+                                   literal_block, line=self.lineno)
+            messages += [error]
+
+        return cast(List[nodes.Node], messages)
 
 
 class DefaultDomain(SphinxDirective):
@@ -233,7 +236,7 @@ class DefaultDomain(SphinxDirective):
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
-        #     for domain in itervalues(env.domains):
+        #     for domain in env.domains.values():
         #         if domain.label.lower() == domain_name:
         #             domain_name = domain.name
         #             break
@@ -242,7 +245,7 @@ class DefaultDomain(SphinxDirective):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

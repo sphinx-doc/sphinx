@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_markup
     ~~~~~~~~~~~
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,6 +17,7 @@ from docutils.parsers.rst import Parser as RstParser
 from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.testing.util import assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
@@ -34,6 +34,7 @@ def settings(app):
     settings.smart_quotes = True
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
+    settings.contentsname = 'dummy'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -76,7 +77,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
-        html_translator = ForgivingHTMLTranslator(app.builder, document)
+        html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
         assert re.match(html_expected, html_translated), 'from ' + rst
@@ -87,6 +88,9 @@ def verify_re_html(app, parse):
 def verify_re_latex(app, parse):
     def verify(rst, latex_expected):
         document = parse(rst)
+        app.builder = LaTeXBuilder(app)
+        app.builder.set_environment(app.env)
+        app.builder.init()
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
@@ -158,14 +162,14 @@ def get_verifier(verify, verify_re):
         # interpolation of arrows in menuselection
         'verify',
         ':menuselection:`a --> b`',
-        (u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
+        ('<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
         '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
     ),
     (
         # interpolation of ampersands in menuselection
         'verify',
         ':menuselection:`&Foo -&&- &Bar`',
-        (u'<p><span class="menuselection"><span class="accelerator">F</span>oo '
+        ('<p><span class="menuselection"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -173,7 +177,7 @@ def get_verifier(verify, verify_re):
         # interpolation of ampersands in guilabel
         'verify',
         ':guilabel:`&Foo -&&- &Bar`',
-        (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
+        ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
@@ -189,8 +193,8 @@ def get_verifier(verify, verify_re):
         # verify smarty-pants quotes
         'verify',
         '"John"',
-        u'<p>“John”</p>',
-        u"“John”",
+        '<p>“John”</p>',
+        "“John”",
     ),
     (
         # ... but not in literal text
@@ -210,26 +214,48 @@ def get_verifier(verify, verify_re):
     (
         # correct escaping in normal mode
         'verify',
-        u'Γ\\\\∞$',
+        'Γ\\\\∞$',
         None,
-        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+        'Γ\\textbackslash{}\\(\\infty\\)\\$',
     ),
     (
         # in verbatim code fragments
         'verify',
-        u'::\n\n @Γ\\∞${}',
+        '::\n\n @Γ\\∞${}',
         None,
-        (u'\\fvset{hllines={, ,}}%\n'
-         u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-         u'\\end{sphinxVerbatim}'),
+        ('\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         '@Γ\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         '\\end{sphinxVerbatim}'),
     ),
     (
         # in URIs
         'verify_re',
-        u'`test <http://example.com/~me/>`_',
+        '`test <http://example.com/~me/>`_',
         None,
         r'\\sphinxhref{http://example.com/~me/}{test}.*',
+    ),
+    (
+        # description list: simple
+        'verify',
+        'term\n    description',
+        '<dl class="docutils">\n<dt>term</dt><dd>description</dd>\n</dl>',
+        None,
+    ),
+    (
+        # description list: with classifiers
+        'verify',
+        'term : class1 : class2\n    description',
+        ('<dl class="docutils">\n<dt>term<span class="classifier">class1</span>'
+         '<span class="classifier">class2</span></dt><dd>description</dd>\n</dl>'),
+        None,
+    ),
+    (
+        # glossary (description list): multiple terms
+        'verify',
+        '.. glossary::\n\n   term1\n   term2\n       description',
+        ('<dl class="glossary docutils">\n<dt id="term-term1">term1</dt>'
+         '<dt id="term-term2">term2</dt><dd>description</dd>\n</dl>'),
+        None,
     ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):

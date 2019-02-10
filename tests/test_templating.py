@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_templating
     ~~~~~~~~~~~~~~~~
 
     Test templating.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,8 +20,7 @@ def test_layout_overloading(make_app, app_params):
     setup_documenters(app)
     app.builder.build_update()
 
-    result = (app.outdir / 'contents.html').text(encoding='utf-8')
-
+    result = (app.outdir / 'index.html').text()
     assert '<!-- layout overloading -->' in result
 
 
@@ -33,7 +31,5 @@ def test_autosummary_class_template_overloading(make_app, app_params):
     setup_documenters(app)
     app.builder.build_update()
 
-    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').text(
-        encoding='utf-8')
-
+    result = (app.outdir / 'generated' / 'sphinx.application.TemplateBridge.html').text()
     assert 'autosummary/class.rst method block overloading' in result

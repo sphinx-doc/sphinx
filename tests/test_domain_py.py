@@ -1,18 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     test_domain_py
     ~~~~~~~~~~~~~~
 
     Tests the Python Domain
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import pytest
 from docutils import nodes
 from mock import Mock
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist, PythonDomain
@@ -31,22 +29,22 @@ def parse(sig):
 
 def test_function_signatures():
     rv = parse('func(a=1) -> int object')
-    assert text_type(rv) == u'a=1'
+    assert rv == 'a=1'
 
     rv = parse('func(a=1, [b=None])')
-    assert text_type(rv) == u'a=1, [b=None]'
+    assert rv == 'a=1, [b=None]'
 
     rv = parse('func(a=1[, b=None])')
-    assert text_type(rv) == u'a=1, [b=None]'
+    assert rv == 'a=1, [b=None]'
 
     rv = parse("compile(source : string, filename, symbol='file')")
-    assert text_type(rv) == u"source : string, filename, symbol='file'"
+    assert rv == "source : string, filename, symbol='file'"
 
     rv = parse('func(a=[], [b=None])')
-    assert text_type(rv) == u'a=[], [b=None]'
+    assert rv == 'a=[], [b=None]'
 
     rv = parse('func(a=[][, b=None])')
-    assert text_type(rv) == u'a=[], [b=None]'
+    assert rv == 'a=[], [b=None]'
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
@@ -70,26 +68,20 @@ def test_domain_py_xrefs(app, status, warning):
 
     doctree = app.env.get_doctree('roles')
     refnodes = list(doctree.traverse(addnodes.pending_xref))
-    assert_refnode(refnodes[0], None, None, u'TopLevel', u'class')
-    assert_refnode(refnodes[1], None, None, u'top_level', u'meth')
-    assert_refnode(refnodes[2], None, u'NestedParentA', u'child_1', u'meth')
-    assert_refnode(refnodes[3], None, u'NestedParentA',
-                   u'NestedChildA.subchild_2', u'meth')
-    assert_refnode(refnodes[4], None, u'NestedParentA', u'child_2', u'meth')
-    assert_refnode(refnodes[5], False, u'NestedParentA', u'any_child', domain='')
-    assert_refnode(refnodes[6], None, u'NestedParentA', u'NestedChildA',
-                   u'class')
-    assert_refnode(refnodes[7], None, u'NestedParentA.NestedChildA',
-                   u'subchild_2', u'meth')
-    assert_refnode(refnodes[8], None, u'NestedParentA.NestedChildA',
-                   u'NestedParentA.child_1', u'meth')
-    assert_refnode(refnodes[9], None, u'NestedParentA',
-                   u'NestedChildA.subchild_1', u'meth')
-    assert_refnode(refnodes[10], None, u'NestedParentB', u'child_1', u'meth')
-    assert_refnode(refnodes[11], None, u'NestedParentB', u'NestedParentB',
-                   u'class')
-    assert_refnode(refnodes[12], None, None, u'NestedParentA.NestedChildA',
-                   u'class')
+    assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
+    assert_refnode(refnodes[1], None, None, 'top_level', 'meth')
+    assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'meth')
+    assert_refnode(refnodes[3], None, 'NestedParentA', 'NestedChildA.subchild_2', 'meth')
+    assert_refnode(refnodes[4], None, 'NestedParentA', 'child_2', 'meth')
+    assert_refnode(refnodes[5], False, 'NestedParentA', 'any_child', domain='')
+    assert_refnode(refnodes[6], None, 'NestedParentA', 'NestedChildA', 'class')
+    assert_refnode(refnodes[7], None, 'NestedParentA.NestedChildA', 'subchild_2', 'meth')
+    assert_refnode(refnodes[8], None, 'NestedParentA.NestedChildA',
+                   'NestedParentA.child_1', 'meth')
+    assert_refnode(refnodes[9], None, 'NestedParentA', 'NestedChildA.subchild_1', 'meth')
+    assert_refnode(refnodes[10], None, 'NestedParentB', 'child_1', 'meth')
+    assert_refnode(refnodes[11], None, 'NestedParentB', 'NestedParentB', 'class')
+    assert_refnode(refnodes[12], None, None, 'NestedParentA.NestedChildA', 'class')
     assert len(refnodes) == 13
 
     doctree = app.env.get_doctree('module')
@@ -113,7 +105,10 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[9], False, False, 'str', 'class')
     assert_refnode(refnodes[10], False, False, 'float', 'class')
     assert_refnode(refnodes[11], False, False, 'list', 'class')
-    assert len(refnodes) == 12
+    assert_refnode(refnodes[11], False, False, 'list', 'class')
+    assert_refnode(refnodes[12], False, False, 'ModTopLevel', 'class')
+    assert_refnode(refnodes[13], False, False, 'index', 'doc', domain='std')
+    assert len(refnodes) == 14
 
     doctree = app.env.get_doctree('module_option')
     refnodes = list(doctree.traverse(addnodes.pending_xref))
@@ -166,20 +161,19 @@ def test_domain_py_find_obj(app, status, warning):
 
     app.builder.build_all()
 
-    assert (find_obj(None, None, u'NONEXISTANT', u'class') ==
-            [])
-    assert (find_obj(None, None, u'NestedParentA', u'class') ==
-            [(u'NestedParentA', (u'roles', u'class'))])
-    assert (find_obj(None, None, u'NestedParentA.NestedChildA', u'class') ==
-            [(u'NestedParentA.NestedChildA', (u'roles', u'class'))])
-    assert (find_obj(None, 'NestedParentA', u'NestedChildA', u'class') ==
-            [(u'NestedParentA.NestedChildA', (u'roles', u'class'))])
-    assert (find_obj(None, None, u'NestedParentA.NestedChildA.subchild_1', u'meth') ==
-            [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
-    assert (find_obj(None, u'NestedParentA', u'NestedChildA.subchild_1', u'meth') ==
-            [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
-    assert (find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'meth') ==
-            [(u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))])
+    assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
+    assert (find_obj(None, None, 'NestedParentA', 'class') ==
+            [('NestedParentA', ('roles', 'class'))])
+    assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
+            [('NestedParentA.NestedChildA', ('roles', 'class'))])
+    assert (find_obj(None, 'NestedParentA', 'NestedChildA', 'class') ==
+            [('NestedParentA.NestedChildA', ('roles', 'class'))])
+    assert (find_obj(None, None, 'NestedParentA.NestedChildA.subchild_1', 'meth') ==
+            [('NestedParentA.NestedChildA.subchild_1', ('roles', 'method'))])
+    assert (find_obj(None, 'NestedParentA', 'NestedChildA.subchild_1', 'meth') ==
+            [('NestedParentA.NestedChildA.subchild_1', ('roles', 'method'))])
+    assert (find_obj(None, 'NestedParentA.NestedChildA', 'subchild_1', 'meth') ==
+            [('NestedParentA.NestedChildA.subchild_1', ('roles', 'method'))])
 
 
 def test_get_full_qualified_name():

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 from distutils import log
@@ -16,7 +15,10 @@ if sys.version_info < (3, 5):
     sys.exit(1)
 
 install_requires = [
-    'six>=1.5',
+    'sphinxcontrib-applehelp',
+    'sphinxcontrib-devhelp',
+    'sphinxcontrib-jsmath',
+    'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.12',
@@ -24,7 +26,7 @@ install_requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests>=2.0.0',
+    'requests>=2.5.0',
     'setuptools',
     'packaging',
 ]
@@ -34,10 +36,6 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    'websupport': [
-        'sqlalchemy>=0.9',
-        'whoosh>=2.0',
-    ],
     'test': [
         'mock',
         'pytest',
@@ -45,8 +43,8 @@ extras_require = {
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy',
-        'typed_ast',
+        'mypy>=0.590',
+        'docutils-stubs',
     ],
 }
 
@@ -56,7 +54,7 @@ extras_require = {
 cmdclass = {}
 
 
-class Tee(object):
+class Tee:
     def __init__(self, stream):
         self.stream = stream
         self.buffer = StringIO()
@@ -133,7 +131,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file, 'r') as infile:
+                with open(po_file) as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:
@@ -153,11 +151,11 @@ else:
 
                 with open(js_file, 'wt') as outfile:
                     outfile.write('Documentation.addTranslations(')
-                    dump(dict(
-                        messages=jscatalog,
-                        plural_expr=catalog.plural_expr,
-                        locale=str(catalog.locale)
-                    ), outfile, sort_keys=True)
+                    dump({
+                        'messages': jscatalog,
+                        'plural_expr': catalog.plural_expr,
+                        'locale': str(catalog.locale)
+                    }, outfile, sort_keys=True)
                     outfile.write(');')
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs

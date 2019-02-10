@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.math
     ~~~~~~~~~~~~~~~~
 
     Utility functions for math.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,31 +12,29 @@
 if False:
     # For type annotation
     from docutils import nodes  # NOQA
-    from docutils.writers.html4css1 import Writer  # NOQA
+    from sphinx.builders.html import HTMLTranslator  # NOQA
 
 
 def get_node_equation_number(writer, node):
-    # type: (Writer, nodes.Node) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> str
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = u"%s/%s" % (writer.docnames[-1], figtype)
+            key = "%s/%s" % (writer.docnames[-1], figtype)
         else:
             key = figtype
 
         id = node['ids'][0]
         number = writer.builder.fignumbers.get(key, {}).get(id, ())
-        number = '.'.join(map(str, number))
+        return '.'.join(map(str, number))
     else:
-        number = node['number']
-
-    return number
+        return node['number']
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def is_equation(part):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return part.strip()
 
     if label is None:
