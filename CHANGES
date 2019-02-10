@@ -177,6 +177,7 @@ Features added
 * #6016: HTML search: A placeholder for the search summary prevents search
   result links from changing their position when the search terminates.  This
   makes navigating search results easier.
+* #5196: linkcheck also checks remote images exist
   
 Bugs fixed
 ----------
