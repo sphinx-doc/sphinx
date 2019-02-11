@@ -2,12 +2,13 @@ Developing a "Hello world" extension
 ====================================
 
 The objective of this tutorial is to create a very basic extension that adds a
-new directive. This directive will output a paragraph containing `hello world`.
+new directive. This directive will output a paragraph containing "hello world".
 
 Only basic information is provided in this tutorial. For more information, refer
 to the :doc:`other tutorials <index>` that go into more details.
 
 .. warning::
+
    For this extension, you will need some basic understanding of docutils_
    and Python.
 
@@ -17,7 +18,7 @@ Overview
 
 We want the extension to add the following to Sphinx:
 
-* A ``helloworld`` directive, that will simply output the text `hello world`.
+* A ``helloworld`` directive, that will simply output the text "hello world".
 
 
 Prerequisites
@@ -104,10 +105,10 @@ Sphinx.
    :linenos:
    :lines: 12-
 
-The simplest thing you can do it call the :meth:`~Sphinx.add_directive`
-method, which is what we've done here. For this particular call, the first
-argument is the name of the directive itself as used in an rST file. In this
-case, we would use ``helloworld``. For example:
+The simplest thing you can do it call the :meth:`~Sphinx.add_directive` method,
+which is what we've done here. For this particular call, the first argument is
+the name of the directive itself as used in a reST file. In this case, we would
+use ``helloworld``. For example:
 
 .. code-block:: rst
 
@@ -116,6 +117,10 @@ case, we would use ``helloworld``. For example:
    .. helloworld::
 
    Some more text here...
+
+We also return the :ref:`extension metadata <ext-metadata>` that indicates the
+version of our extension, along with the fact that it is safe to use the
+extension for both parallel reading and writing.
 
 
 Using the extension

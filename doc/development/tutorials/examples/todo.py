@@ -117,4 +117,8 @@ def setup(app):
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
 
-    return {'version': '0.1'}   # identifies the version of our extension
+    return {
+        'version': '0.1',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

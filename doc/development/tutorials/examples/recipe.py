@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import docutils
 from docutils import nodes
 from docutils.parsers import rst
@@ -18,33 +20,27 @@ class RecipeDirective(ObjectDescription):
     has_content = True
     required_arguments = 1
     option_spec = {
-        'contains': directives.unchanged_required
+        'contains': directives.unchanged_required,
     }
 
     def handle_signature(self, sig, signode):
         signode += addnodes.desc_name(text=sig)
-        signode += addnodes.desc_type(text='Recipe')
         return sig
 
     def add_target_and_index(self, name_cls, sig, signode):
         signode['ids'].append('recipe' + '-' + sig)
         if 'noindex' not in self.options:
-            name = '{}.{}.{}'.format('rcp', type(self).__name__, sig)
-            imap = self.env.domaindata['rcp']['obj2ingredient']
-            imap[name] = list(self.options.get('contains').split(' '))
-            objs = self.env.domaindata['rcp']['objects']
-            objs.append((name,
-                         sig,
-                         'Recipe',
-                         self.env.docname,
-                         'recipe' + '-' + sig,
-                         0))
+            ingredients = [
+                x.strip() for x in self.options.get('contains').split(',')]
+
+            recipes = self.env.get_domain('recipe')
+            recipes.add_recipe(sig, ingredients)
 
 
 class IngredientIndex(Index):
-    """A custom directive that creates an ingredient matrix."""
+    """A custom index that creates an ingredient matrix."""
 
-    name = 'ing'
+    name = 'ingredient'
     localname = 'Ingredient Index'
     shortname = 'Ingredient'
 
@@ -52,69 +48,39 @@ class IngredientIndex(Index):
         super(IngredientIndex, self).__init__(*args, **kwargs)
 
     def generate(self, docnames=None):
-        """Return entries for the index given by *name*.
+        content = defaultdict(list)
 
-        If *docnames* is given, restrict to entries referring to these
-        docnames.  The return value is a tuple of ``(content, collapse)``,
-        where:
+        recipes = {name: (dispname, typ, docname, anchor)
+                   for name, dispname, typ, docname, anchor, _
+                   in self.domain.get_objects()}
+        recipe_ingredients = self.domain.data['recipe_ingredients']
+        ingredient_recipes = defaultdict(list)
 
-        *collapse* is a boolean that determines if sub-entries should
-        start collapsed (for output formats that support collapsing
-        sub-entries).
+        # flip from recipe_ingredients to ingredient_recipes
+        for recipe_name, ingredients in recipe_ingredients.items():
+            for ingredient in ingredients:
+                ingredient_recipes[ingredient].append(recipe_name)
 
-        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
-        is the "heading" for the given *entries*, usually the starting letter.
+        # convert the mapping of ingredient to recipes to produce the expected
+        # output, shown below, using the ingredient name as a key to group
+        #
+        # name, subtype, docname, anchor, extra, qualifier, description
+        for ingredient, recipe_names in ingredient_recipes.items():
+            for recipe_name in recipe_names:
+                dispname, typ, docname, anchor = recipes[recipe_name]
+                content[ingredient].append(
+                    (dispname, 0, docname, anchor, docname, '', typ))
 
-        *entries* is a sequence of single entries, where a single entry is a
-        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
+        # convert the dict to the sorted list of tuples expected
+        content = sorted(content.items())
 
-        The items in this sequence have the following meaning:
-
-        - `name` -- the name of the index entry to be displayed
-        - `subtype` -- sub-entry related type:
-          - ``0`` -- normal entry
-          - ``1`` -- entry with sub-entries
-          - ``2`` -- sub-entry
-        - `docname` -- docname where the entry is located
-        - `anchor` -- anchor for the entry within `docname`
-        - `extra` -- extra info for the entry
-        - `qualifier` -- qualifier for the description
-        - `descr` -- description for the entry
-
-        Qualifier and description are not rendered by some builders, such as
-        the LaTeX builder.
-        """
-
-        content = {}
-
-        objs = {name: (dispname, typ, docname, anchor)
-                for name, dispname, typ, docname, anchor, prio
-                in self.domain.get_objects()}
-
-        imap = {}
-        ingr = self.domain.data['obj2ingredient']
-        for name, ingr in ingr.items():
-            for ig in ingr:
-                imap.setdefault(ig,[])
-                imap[ig].append(name)
-
-        for ingredient in imap.keys():
-            lis = content.setdefault(ingredient, [])
-            objlis = imap[ingredient]
-            for objname in objlis:
-                dispname, typ, docname, anchor = objs[objname]
-                lis.append((
-                    dispname, 0, docname,
-                    anchor,
-                    docname, '', typ
-                ))
-        re = [(k, v) for k, v in sorted(content.items())]
-
-        return (re, True)
+        return content, True
 
 
 class RecipeIndex(Index):
-    name = 'rcp'
+    """A custom index that creates an recipe matrix."""
+
+    name = 'recipe'
     localname = 'Recipe Index'
     shortname = 'Recipe'
 
@@ -122,92 +88,54 @@ class RecipeIndex(Index):
         super(RecipeIndex, self).__init__(*args, **kwargs)
 
     def generate(self, docnames=None):
-        """Return entries for the index given by *name*.
+        content = defaultdict(list)
 
-        If *docnames* is given, restrict to entries referring to these
-        docnames.  The return value is a tuple of ``(content, collapse)``,
-        where:
+        # sort the list of recipes in alphabetical order
+        recipes = self.domain.get_objects()
+        recipes = sorted(recipes, key=lambda recipe: recipe[0])
 
-        *collapse* is a boolean that determines if sub-entries should
-        start collapsed (for output formats that support collapsing
-        sub-entries).
+        # generate the expected output, shown below, from the above using the
+        # first letter of the recipe as a key to group thing
+        #
+        # name, subtype, docname, anchor, extra, qualifier, description
+        for name, dispname, typ, docname, anchor, _ in recipes:
+            content[dispname[0].lower()].append(
+                (dispname, 0, docname, anchor, docname, '', typ))
 
-        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
-        is the "heading" for the given *entries*, usually the starting letter.
+        # convert the dict to the sorted list of tuples expected
+        content = sorted(content.items())
 
-        *entries* is a sequence of single entries, where a single entry is a
-        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
-
-        The items in this sequence have the following meaning:
-
-        - `name` -- the name of the index entry to be displayed
-        - `subtype` -- sub-entry related type:
-          - ``0`` -- normal entry
-          - ``1`` -- entry with sub-entries
-          - ``2`` -- sub-entry
-        - `docname` -- docname where the entry is located
-        - `anchor` -- anchor for the entry within `docname`
-        - `extra` -- extra info for the entry
-        - `qualifier` -- qualifier for the description
-        - `descr` -- description for the entry
-
-        Qualifier and description are not rendered by some builders, such as
-        the LaTeX builder.
-        """
-
-        content = {}
-        items = ((name, dispname, typ, docname, anchor)
-                 for name, dispname, typ, docname, anchor, prio
-                 in self.domain.get_objects())
-        items = sorted(items, key=lambda item: item[0])
-        for name, dispname, typ, docname, anchor in items:
-            lis = content.setdefault('Recipe', [])
-            lis.append((
-                dispname, 0, docname,
-                anchor,
-                docname, '', typ
-            ))
-        re = [(k, v) for k, v in sorted(content.items())]
-
-        return (re, True)
+        return content, True
 
 
 class RecipeDomain(Domain):
 
-    name = 'rcp'
+    name = 'recipe'
     label = 'Recipe Sample'
-
     roles = {
-        'reref': XRefRole()
+        'ref': XRefRole()
     }
-
     directives = {
         'recipe': RecipeDirective,
     }
-
     indices = {
         RecipeIndex,
         IngredientIndex
     }
-
     initial_data = {
-        'objects': [],  # object list
-        'obj2ingredient': {},  # name -> object
+        'recipes': [],  # object list
+        'recipe_ingredients': {},  # name -> object
     }
 
     def get_full_qualified_name(self, node):
-        """Return full qualified name for a given node"""
-        return "{}.{}.{}".format('rcp',
-                                 type(node).__name__,
-                                 node.arguments[0])
+        return '{}.{}'.format('recipe', node.arguments[0])
 
     def get_objects(self):
-        for obj in self.data['objects']:
+        for obj in self.data['recipes']:
             yield(obj)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
-
         match = [(docname, anchor)
                  for name, sig, typ, docname, anchor, prio
                  in self.get_objects() if sig == target]
@@ -219,21 +147,25 @@ class RecipeDomain(Domain):
             return make_refnode(builder, fromdocname, todocname, targ,
                                 contnode, targ)
         else:
-            print("Awww, found nothing")
+            print('Awww, found nothing')
             return None
+
+    def add_recipe(self, signature, ingredients):
+        """Add a new recipe to the domain."""
+        name = '{}.{}'.format('recipe', signature)
+        anchor = 'recipe-{}'.format(signature)
+
+        self.data['recipe_ingredients'][name] = ingredients
+        # name, dispname, type, docname, anchor, priority
+        self.data['recipes'].append(
+            (name, signature, 'Recipe', self.env.docname, anchor, 0))
 
 
 def setup(app):
     app.add_domain(RecipeDomain)
 
-    StandardDomain.initial_data['labels']['recipeindex'] = (
-        'rcp-rcp', '', 'Recipe Index')
-    StandardDomain.initial_data['labels']['ingredientindex'] = (
-        'rcp-ing', '', 'Ingredient Index')
-
-    StandardDomain.initial_data['anonlabels']['recipeindex'] = (
-        'rcp-rcp', '')
-    StandardDomain.initial_data['anonlabels']['ingredientindex'] = (
-        'rcp-ing', '')
-
-    return {'version': '0.1'}   # identifies the version of our extension
+    return {
+        'version': '0.1',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

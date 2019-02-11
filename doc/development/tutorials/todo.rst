@@ -174,10 +174,10 @@ The node structure that the directive returns looks like this::
 
 .. rubric:: The event handlers
 
-Event handlers are one of Sphinx's most powerful features, providing a way to do
-hook into any part of the documentation process. There are many hooks available,
-as detailed in :doc:`/extdev/appapi`, and we're going to use a subset of them
-here.
+Event handlers are one of Sphinx's most powerful features, providing a way to
+do hook into any part of the documentation process. There are many events
+provided by Sphinx itself, as detailed in :ref:`the API guide <events>`, and
+we're going to use a subset of them here.
 
 Let's look at the event handlers used in the above example.  First, the one for
 the :event:`env-purge-doc` event:
@@ -203,18 +203,19 @@ The other handler belongs to the :event:`doctree-resolved` event:
    :lines: 64-103
 
 The :event:`doctree-resolved` event is emitted at the end of :ref:`phase 3
-<build-phases>` and allows custom resolving to be done. The handler we have
-written for this event is a bit more involved.  If the ``todo_include_todos``
-config value (which we'll describe shortly) is false, all ``todo`` and
-``todolist`` nodes are removed from the documents. If not, ``todo`` nodes just
-stay where and how they are.  ``todolist`` nodes are replaced by a list of todo
-entries, complete with backlinks to the location where they come from.  The list
-items are composed of the nodes from the ``todo`` entry and docutils nodes
-created on the fly: a paragraph for each entry, containing text that gives the
-location, and a link (reference node containing an italic node) with the
-backreference.  The reference URI is built by ``app.builder.get_relative_uri``
-which creates a suitable URI depending on the used builder, and appending the
-todo node's (the target's) ID as the anchor name.
+(resolving) <build-phases>` and allows custom resolving to be done. The handler
+we have written for this event is a bit more involved. If the
+``todo_include_todos`` config value (which we'll describe shortly) is false,
+all ``todo`` and ``todolist`` nodes are removed from the documents. If not,
+``todo`` nodes just stay where and how they are.  ``todolist`` nodes are
+replaced by a list of todo entries, complete with backlinks to the location
+where they come from.  The list items are composed of the nodes from the
+``todo`` entry and docutils nodes created on the fly: a paragraph for each
+entry, containing text that gives the location, and a link (reference node
+containing an italic node) with the backreference. The reference URI is built
+by :meth:`sphinx.builders.Builder.get_relative_uri`` which creates a suitable
+URI depending on the used builder, and appending the todo node's (the target's)
+ID as the anchor name.
 
 .. rubric:: The ``setup`` function
 
@@ -238,13 +239,13 @@ What the individual calls do is the following:
 
   If the third argument was ``'html'``, HTML documents would be full rebuild if the
   config value changed its value.  This is needed for config values that
-  influence reading (build :ref:`phase 1 <build-phases>`).
+  influence reading (build :ref:`phase 1 (reading) <build-phases>`).
 
 * :meth:`~Sphinx.add_node` adds a new *node class* to the build system.  It also
   can specify visitor functions for each supported output format.  These visitor
-  functions are needed when the new nodes stay until :ref:`phase 4 <build-phases>`
-  -- since the ``todolist`` node is always replaced in :ref:`phase 3 <build-phases>`,
-  it doesn't need any.
+  functions are needed when the new nodes stay until :ref:`phase 4 (writing)
+  <build-phases>`. Since the ``todolist`` node is always replaced in
+  :ref:`phase 3 (resolving) <build-phases>`, it doesn't need any.
 
 * :meth:`~Sphinx.add_directive` adds a new *directive*, given by name and class.
 
@@ -279,7 +280,7 @@ For example:
 
    sys.path.append(os.path.abspath("./_ext"))
 
-   extensions = ['helloworld']
+   extensions = ['todo']
 
    todo_include_todos = False
 

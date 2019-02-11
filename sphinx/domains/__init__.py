@@ -91,32 +91,54 @@ class Index:
 
     def generate(self, docnames=None):
         # type: (Iterable[str]) -> Tuple[List[Tuple[str, List[IndexEntry]]], bool]
-        """Return entries for the index given by *name*.  If *docnames* is
-        given, restrict to entries referring to these docnames.
+        """Get entries for the index.
 
-        The return value is a tuple of ``(content, collapse)``, where *collapse*
-        is a boolean that determines if sub-entries should start collapsed (for
-        output formats that support collapsing sub-entries).
+        If ``docnames`` is given, restrict to entries referring to these
+        docnames.
 
-        *content* is a sequence of ``(letter, entries)`` tuples, where *letter*
-        is the "heading" for the given *entries*, usually the starting letter.
+        The return value is a tuple of ``(content, collapse)``:
 
-        *entries* is a sequence of single entries, where a single entry is a
-        sequence ``[name, subtype, docname, anchor, extra, qualifier, descr]``.
-        The items in this sequence have the following meaning:
+        ``collapse``
+          A boolean that determines if sub-entries should start collapsed (for
+          output formats that support collapsing sub-entries).
 
-        - `name` -- the name of the index entry to be displayed
-        - `subtype` -- sub-entry related type:
-          0 -- normal entry
-          1 -- entry with sub-entries
-          2 -- sub-entry
-        - `docname` -- docname where the entry is located
-        - `anchor` -- anchor for the entry within `docname`
-        - `extra` -- extra info for the entry
-        - `qualifier` -- qualifier for the description
-        - `descr` -- description for the entry
+        ``content``:
+          A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
+          "heading" for the given ``entries``, usually the starting letter, and
+          ``entries`` is a sequence of single entries. Each entry is a sequence
+          ``[name, subtype, docname, anchor, extra, qualifier, descr]``. The
+          items in this sequence have the following meaning:
 
-        Qualifier and description are not rendered e.g. in LaTeX output.
+          ``name``
+            The name of the index entry to be displayed.
+
+          ``subtype``
+            The sub-entry related type. One of:
+
+            ``0``
+              A normal entry.
+            ``1``
+              An entry with sub-entries.
+            ``2``
+              A sub-entry.
+
+          ``docname``
+            *docname* where the entry is located.
+
+          ``anchor``
+            Anchor for the entry within ``docname``
+
+          ``extra``
+            Extra info for the entry.
+
+          ``qualifier``
+            Qualifier for the description.
+
+          ``descr``
+            Description for the entry.
+
+        Qualifier and description are not rendered for some output formats such
+        as LaTeX.
         """
         raise NotImplementedError
 
@@ -318,21 +340,37 @@ class Domain:
 
     def get_objects(self):
         # type: () -> Iterable[Tuple[str, str, str, str, str, int]]
-        """Return an iterable of "object descriptions", which are tuples with
-        five items:
+        """Return an iterable of "object descriptions".
 
-        * `name`     -- fully qualified name
-        * `dispname` -- name to display when searching/linking
-        * `type`     -- object type, a key in ``self.object_types``
-        * `docname`  -- the document where it is to be found
-        * `anchor`   -- the anchor name for the object
-        * `priority` -- how "important" the object is (determines placement
-          in search results)
+        Object descriptions are tuples with six items:
 
-          - 1: default priority (placed before full-text matches)
-          - 0: object is important (placed before default-priority objects)
-          - 2: object is unimportant (placed after full-text matches)
-          - -1: object should not show up in search at all
+        ``name``
+          Fully qualified name.
+
+        ``dispname``
+          Name to display when searching/linking.
+
+        ``type``
+          Object type, a key in ``self.object_types``.
+
+        ``docname``
+          The document where it is to be found.
+
+        ``anchor``
+          The anchor name for the object.
+
+        ``priority``
+          How "important" the object is (determines placement in search
+          results). One of:
+
+          ``1``
+            Default priority (placed before full-text matches).
+          ``0``
+            Object is important (placed before default-priority objects).
+          ``2``
+            Object is unimportant (placed after full-text matches).
+          ``-1``
+            Object should not show up in search at all.
         """
         return []
 
