@@ -1,5 +1,4 @@
 # Literally included file using Python highlighting
-# -*- coding: utf-8 -*-
 
 @class_decorator
 @other_decorator()

@@ -1,48 +1,66 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.jinja2glue
     ~~~~~~~~~~~~~~~~~
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 from pprint import pformat
-
-from six import string_types
-from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
-    contextfunction
-from jinja2.utils import open_if_exists
-from jinja2.sandbox import SandboxedEnvironment
 from typing import Any, Callable, Iterator, Tuple  # NOQA
 
+from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
+    contextfunction
+from jinja2.sandbox import SandboxedEnvironment
+from jinja2.utils import open_if_exists
+
 from sphinx.application import TemplateBridge
+from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Iterator, Tuple, Union  # NOQA
     from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.theming import Theme  # NOQA
 
 
 def _tobool(val):
-    # type: (unicode) -> bool
-    if isinstance(val, string_types):
+    # type: (str) -> bool
+    if isinstance(val, str):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
 
 def _toint(val):
-    # type: (unicode) -> int
+    # type: (str) -> int
     try:
         return int(val)
     except ValueError:
         return 0
+
+
+def _todim(val):
+    # type: (Union[int, str]) -> str
+    """
+    Make val a css dimension. In particular the following transformations
+    are performed:
+
+    - None -> 'initial' (default CSS value)
+    - 0 -> '0'
+    - ints and string representations of ints are interpreted as pixels.
+
+    Everything else is returned unchanged.
+    """
+    if val is None:
+        return 'initial'
+    elif str(val).isdigit():
+        return '0' if int(val) == 0 else '%spx' % val
+    return val  # type: ignore
 
 
 def _slice_index(values, slices):
@@ -68,7 +86,7 @@ def _slice_index(values, slices):
 
 
 def accesskey(context, key):
-    # type: (Any, unicode) -> unicode
+    # type: (Any, str) -> str
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
         context.vars['_accesskeys'] = {}
@@ -78,7 +96,7 @@ def accesskey(context, key):
     return ''
 
 
-class idgen(object):
+class idgen:
     def __init__(self):
         # type: () -> None
         self.id = 0
@@ -94,6 +112,17 @@ class idgen(object):
     next = __next__  # Python 2/Jinja compatibility
 
 
+@contextfunction
+def warning(context, message, *args, **kwargs):
+    # type: (Dict, str, Any, Any) -> str
+    if 'pagename' in context:
+        filename = context.get('pagename') + context.get('file_suffix', '')
+        message = 'in rendering %s: %s' % (filename, message)
+    logger = logging.getLogger('sphinx.themes')
+    logger.warning(message, *args, **kwargs)
+    return ''  # return empty string not to output any values
+
+
 class SphinxFileSystemLoader(FileSystemLoader):
     """
     FileSystemLoader subclass that is not so strict about '..'  entries in
@@ -101,7 +130,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
     """
 
     def get_source(self, environment, template):
-        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, str) -> Tuple[str, str, Callable]
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -130,7 +159,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # TemplateBridge interface
 
     def init(self, builder, theme=None, dirs=None):
-        # type: (Builder, Theme, List[unicode]) -> None
+        # type: (Builder, Theme, List[str]) -> None
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
@@ -164,19 +193,21 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['todim'] = _todim
         self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
+        self.environment.globals['warning'] = warning
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
             self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
 
     def render(self, template, context):  # type: ignore
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.environment.get_template(template).render(context)
 
     def render_string(self, source, context):
-        # type: (unicode, Dict) -> unicode
+        # type: (str, Dict) -> str
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self):
@@ -186,7 +217,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # Loader interface
 
     def get_source(self, environment, template):
-        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, str) -> Tuple[str, str, Callable]
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

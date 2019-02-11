@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_pycode_parser
     ~~~~~~~~~~~~~~~~~~
@@ -9,8 +8,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
+
 import pytest
-from six import PY2
 
 from sphinx.pycode.parser import Parser
 
@@ -94,6 +94,20 @@ def test_comment_picker_location():
                                ('Foo', 'attr3'): 'comment for attr3(3)'}
 
 
+@pytest.mark.skipif(sys.version_info < (3, 6), reason='tests for py36+ syntax')
+def test_annotated_assignment_py36():
+    source = ('a: str = "Sphinx"  #: comment\n'
+              'b: int = 1\n'
+              '"""string on next line"""\n'
+              'c: int  #: comment')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('', 'a'): 'comment',
+                               ('', 'b'): 'string on next line',
+                               ('', 'c'): 'comment'}
+    assert parser.definitions == {}
+
+
 def test_complex_assignment():
     source = ('a = 1 + 1; b = a  #: compound statement\n'
               'c, d = (1, 1)  #: unpack assignment\n'
@@ -119,7 +133,6 @@ def test_complex_assignment():
     assert parser.definitions == {}
 
 
-@pytest.mark.skipif(PY2, reason='tests for py3 syntax')
 def test_complex_assignment_py3():
     source = ('a, *b, c = (1, 2, 3, 4)  #: unpack assignment\n'
               'd, *self.attr = (5, 6, 7)  #: unpack assignment2\n'
@@ -299,3 +312,12 @@ def test_decorators():
                                   'func3': ('def', 7, 9),
                                   'Foo': ('class', 11, 15),
                                   'Foo.method': ('def', 13, 15)}
+
+
+def test_formfeed_char():
+    source = ('class Foo:\n'
+              '\f\n'
+              '    attr = 1234  #: comment\n')
+    parser = Parser(source)
+    parser.parse()
+    assert parser.comments == {('Foo', 'attr'): 'comment'}

@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     test_writer_latex
     ~~~~~~~~~~~~~~~~
 
     Test the LaTeX writer
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
-from sphinx.writers.latex import rstdim_to_latexdim
 
 import pytest
+
+from sphinx.writers.latex import rstdim_to_latexdim
 
 
 def test_rstdim_to_latexdim():

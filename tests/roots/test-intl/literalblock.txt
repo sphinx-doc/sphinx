@@ -44,6 +44,11 @@ code blocks
    }
 
 
+* ::
+
+      literal-block
+      in list
+
 doctest blocks
 ==============
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 project = 'Sphinx templating <Tests>'
 source_suffix = '.txt'
 keep_warnings = True
@@ -9,4 +7,3 @@ exclude_patterns = ['_build']
 
 extensions = ['sphinx.ext.autosummary']
 autosummary_generate = ['autosummary_templating']
-

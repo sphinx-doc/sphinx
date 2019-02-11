@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_napoleon_iterators
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -6,12 +5,13 @@
     Tests for :mod:`sphinx.ext.napoleon.iterators` module.
 
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 from unittest import TestCase
+
+from sphinx.ext.napoleon.iterators import peek_iter, modify_iter
 
 
 class BaseIteratorsTest(TestCase):
@@ -340,7 +340,7 @@ class ModifyIterTest(BaseIteratorsTest):
         self.assertEqual(expected, [i for i in it])
 
     def test_modifier_rstrip_unicode(self):
-        a = [u'', u'  ', u'  a  ', u'b  ', u'  c', u'  ', u'']
+        a = ['', '  ', '  a  ', 'b  ', '  c', '  ', '']
         it = modify_iter(a, modifier=lambda s: s.rstrip())
-        expected = [u'', u'', u'  a', u'b', u'  c', u'', u'']
+        expected = ['', '', '  a', 'b', '  c', '', '']
         self.assertEqual(expected, [i for i in it])

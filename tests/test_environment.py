@@ -1,49 +1,26 @@
-# -*- coding: utf-8 -*-
 """
     test_env
     ~~~~~~~~
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import pytest
 
-from sphinx.testing.util import SphinxTestApp, path
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
-
-app = env = None
-
-
-@pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir, sphinx_test_tempdir):
-    global app, env
-    srcdir = sphinx_test_tempdir / 'root-envtest'
-    if not srcdir.exists():
-        (rootdir/'test-root').copytree(srcdir)
-    app = SphinxTestApp(srcdir=srcdir)
-    env = app.env
-    yield
-    app.cleanup()
+from sphinx.testing.comparer import PathComparer
 
 
-# Tests are run in the order they appear in the file, therefore we can
-# afford to not run update() in the setup but in its own test
-
-def test_first_update():
-    updated = env.update(app.config, app.srcdir, app.doctreedir)
-    assert set(updated) == env.found_docs == set(env.all_docs)
-    # test if exclude_patterns works ok
-    assert 'subdir/excluded' not in env.found_docs
-
-
-def test_images():
+@pytest.mark.sphinx('dummy')
+def test_images(app):
+    app.build()
     assert ('image file not readable: foo.png'
             in app._warning.getvalue())
 
-    tree = env.get_doctree('images')
+    tree = app.env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.set_environment(app.env)
     htmlbuilder.init()
@@ -67,44 +44,10 @@ def test_images():
              'svgimg.pdf', 'img.foo.png'])
 
 
-def test_second_update():
-    # delete, add and "edit" (change saved mtime) some files and update again
-    env.all_docs['contents'] = 0
-    root = path(app.srcdir)
-    # important: using "autodoc" because it is the last one to be included in
-    # the contents.txt toctree; otherwise section numbers would shift
-    (root / 'autodoc.txt').unlink()
-    (root / 'new.txt').write_text('New file\n========\n')
-    updated = env.update(app.config, app.srcdir, app.doctreedir)
-    # "includes" and "images" are in there because they contain references
-    # to nonexisting downloadable or image files, which are given another
-    # chance to exist
-    assert set(updated) == set(['contents', 'new', 'includes', 'images'])
-    assert 'autodoc' not in env.all_docs
-    assert 'autodoc' not in env.found_docs
-
-
-def test_env_read_docs():
-    """By default, docnames are read in alphanumeric order"""
-    def on_env_read_docs_1(app, env, docnames):
-        pass
-
-    app.connect('env-before-read-docs', on_env_read_docs_1)
-
-    read_docnames = env.update(app.config, app.srcdir, app.doctreedir)
-    assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
-
-    def on_env_read_docs_2(app, env, docnames):
-        docnames.remove('images')
-
-    app.connect('env-before-read-docs', on_env_read_docs_2)
-
-    read_docnames = env.update(app.config, app.srcdir, app.doctreedir)
-    assert len(read_docnames) == 2
-
-
-def test_object_inventory():
-    refs = env.domaindata['py']['objects']
+@pytest.mark.sphinx('dummy')
+def test_object_inventory(app):
+    app.build()
+    refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
     assert refs['func_without_module'] == ('objects', 'function')
@@ -121,8 +64,52 @@ def test_object_inventory():
     assert 'func_in_module' not in refs
     assert 'func_noindex' not in refs
 
-    assert env.domaindata['py']['modules']['mod'] == \
+    assert app.env.domaindata['py']['modules']['mod'] == \
         ('objects', 'Module synopsis.', 'UNIX', False)
 
-    assert env.domains['py'].data is env.domaindata['py']
-    assert env.domains['c'].data is env.domaindata['c']
+    assert app.env.domains['py'].data is app.env.domaindata['py']
+    assert app.env.domains['c'].data is app.env.domaindata['c']
+
+
+@pytest.mark.sphinx('dummy', testroot='basic')
+def test_env_relfn2path(app):
+    # relative filename and root document
+    relfn, absfn = app.env.relfn2path('logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # absolute filename and root document
+    relfn, absfn = app.env.relfn2path('/logo.jpg', 'index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # relative filename and a document in subdir
+    relfn, absfn = app.env.relfn2path('logo.jpg', 'subdir/index')
+    assert relfn == PathComparer('subdir/logo.jpg')
+    assert absfn == app.srcdir / 'subdir' / 'logo.jpg'
+
+    # absolute filename and a document in subdir
+    relfn, absfn = app.env.relfn2path('/logo.jpg', 'subdir/index')
+    assert relfn == 'logo.jpg'
+    assert absfn == app.srcdir / 'logo.jpg'
+
+    # relative filename having subdir
+    relfn, absfn = app.env.relfn2path('images/logo.jpg', 'index')
+    assert relfn == 'images/logo.jpg'
+    assert absfn == app.srcdir / 'images' / 'logo.jpg'
+
+    # relative path traversal
+    relfn, absfn = app.env.relfn2path('../logo.jpg', 'index')
+    assert relfn == '../logo.jpg'
+    assert absfn == app.srcdir.parent / 'logo.jpg'
+
+    # omit docname (w/ current docname)
+    app.env.temp_data['docname'] = 'subdir/document'
+    relfn, absfn = app.env.relfn2path('images/logo.jpg')
+    assert relfn == PathComparer('subdir/images/logo.jpg')
+    assert absfn == app.srcdir / 'subdir' / 'images' / 'logo.jpg'
+
+    # omit docname (w/o current docname)
+    app.env.temp_data.clear()
+    with pytest.raises(KeyError):
+        app.env.relfn2path('images/logo.jpg')

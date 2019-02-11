@@ -21,6 +21,9 @@ Linux
 FreeBSD
 ^^^^^^^
 
+This one's got an apostrophe
+----------------------------
+
 References
 ==========
 
@@ -30,3 +33,4 @@ References
 * :ref:`For UNIX users`
 * :ref:`Linux`
 * :ref:`FreeBSD`
+* :ref:`This one's got an apostrophe`

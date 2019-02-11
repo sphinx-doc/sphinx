@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-master_doc = 'index'
 exclude_patterns = ['_build']
 
 rst_epilog = '''
@@ -10,4 +7,3 @@ rst_epilog = '''
     :align: middle
     :alt: alternative_text
 '''
-

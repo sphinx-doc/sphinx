@@ -5,7 +5,7 @@ Just testing a few autodoc possibilities...
 
 .. automodule:: util
 
-.. automodule:: test_autodoc
+.. automodule:: autodoc_target
    :members:
 
 .. autofunction:: function
@@ -34,7 +34,7 @@ Just testing a few autodoc possibilities...
    .. autoclass:: MarkupError
 
 
-.. currentmodule:: test_autodoc
+.. currentmodule:: autodoc_target
 
 .. autoclass:: InstAttCls
    :members:
@@ -45,5 +45,3 @@ Just testing a few autodoc possibilities...
    :members: ca1, ia1
 
    Specific members (2 total)
-
-.. automodule:: autodoc_missing_imports

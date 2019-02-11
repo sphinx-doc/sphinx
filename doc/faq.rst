@@ -11,29 +11,26 @@ How do I...
 
 ... create PDF files without LaTeX?
    `rinohtype`_ provides a PDF builder that can be used as a drop-in
-   replacement for the LaTeX builder.  Alternatively, you can use `rst2pdf`_
-   version 0.12 or greater which comes with built-in Sphinx integration.  See
-   the :ref:`builders` section for details.
+   replacement for the LaTeX builder.
 
    .. _rinohtype: https://github.com/brechtm/rinohtype
-   .. _rst2pdf: https://github.com/rst2pdf/rst2pdf
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
    the :rst:dir:`toctree` directive where you want to start numbering.
 
 ... customize the look of the built HTML files?
-   Use themes, see :doc:`theming`.
+   Use themes, see :doc:`/usage/theming`.
 
 ... add global substitutions or includes?
-   Add them in the :confval:`rst_epilog` config value.
+   Add them in the :confval:`rst_prolog` or :confval:`rst_epilog` config value.
 
 ... display the whole TOC tree in the sidebar?
    Use the :data:`toctree` callable in a custom layout template, probably in the
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :ref:`extension tutorial <exttut>`.
+   See the :doc:`/development/tutorials/index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
@@ -58,7 +55,7 @@ Read the Docs
     Sphinx. They will host sphinx documentation, along with supporting a number
     of other features including version support, PDF generation, and more. The
     `Getting Started
-    <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
+    <https://read-the-docs.readthedocs.io/en/latest/getting_started.html>`_
     guide is a good place to start.
 
 Epydoc
@@ -75,9 +72,9 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   <https://pypi.org/project/Sphinx-PyPI-upload/>`_ that automatically
    uploads Sphinx documentation to the PyPI package documentation area at
-   http://pythonhosted.org/.
+   https://pythonhosted.org/.
 
 GitHub Pages
    Directories starting with underscores are ignored by default which breaks
@@ -106,7 +103,7 @@ Google Analytics
 
       {% block footer %}
       {{ super() }}
-      <div class="footer">This page uses <a href="http://analytics.google.com/">
+      <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
       <script type="text/javascript">
@@ -122,7 +119,7 @@ Google Analytics
       {% endblock %}
 
 
-.. _api role: http://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
+.. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 
 
@@ -208,7 +205,7 @@ The following list gives some hints for the creation of epub files:
 .. _Epubcheck: https://github.com/IDPF/epubcheck
 .. _Calibre: https://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
-.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+.. _Bookworm: https://www.oreilly.com/bookworm/index.html
 .. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:

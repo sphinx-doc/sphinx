@@ -1,28 +1,31 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.i18n
     ~~~~~~~~~~~~~~~~
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import gettext
-import io
 import os
 import re
-from os import path
-from datetime import datetime
+import warnings
 from collections import namedtuple
+from datetime import datetime
+from os import path
 
 import babel.dates
-from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
+from babel.messages.pofile import read_po
 
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.errors import SphinxError
+from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, walk
+from sphinx.util.matching import Matcher
+from sphinx.util.osutil import SEP, relpath
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,22 +41,22 @@ class CatalogInfo(LocaleFileInfoBase):
 
     @property
     def po_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.po'
 
     @property
     def mo_file(self):
-        # type: () -> unicode
+        # type: () -> str
         return self.domain + '.mo'
 
     @property
     def po_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.po_file)
 
     @property
     def mo_path(self):
-        # type: () -> unicode
+        # type: () -> str
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self):
@@ -63,23 +66,23 @@ class CatalogInfo(LocaleFileInfoBase):
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
-        # type: (unicode) -> None
-        with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
+        # type: (str) -> None
+        with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception as exc:
-                logger.warning('reading error: %s, %s', self.po_path, exc)
+                logger.warning(__('reading error: %s, %s'), self.po_path, exc)
                 return
 
-        with io.open(self.mo_path, 'wb') as file_mo:
+        with open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception as exc:
-                logger.warning('writing error: %s, %s', self.mo_path, exc)
+                logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
 
 
 def find_catalog(docname, compaction):
-    # type: (unicode, bool) -> unicode
+    # type: (str, bool) -> str
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -89,20 +92,21 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
-    # type: (unicode, unicode, List[unicode], unicode, bool) -> List[unicode]
+    # type: (str, str, List[str], str, bool) -> List[str]
     if not(lang and locale_dirs):
         return []
 
     domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
              for dir_ in locale_dirs]
-    files = [path.relpath(f, srcdir) for f in files if f]  # type: ignore
-    return files  # type: ignore
+    files = [relpath(f, srcdir) for f in files if f]
+    return files
 
 
-def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
-                              charset='utf-8', force_all=False):
-    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool) -> Set[CatalogInfo]
+def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=None,
+                              charset='utf-8', force_all=False,
+                              excluded=Matcher([])):
+    # type: (List[str], str, List[str], bool, str, bool, Matcher) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -111,14 +115,15 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
     :param str locale: a language as `'en'`
     :param list domains: list of domain names to get. If empty list or None
        is specified, get all domain names. default is None.
-    :param boolean gettext_compact:
-       * False: keep domains directory structure (default).
-       * True: domains in the sub directory will be merged into 1 file.
     :param boolean force_all:
        Set True if you want to get all catalogs rather than updated catalogs.
        default is False.
     :return: [CatalogInfo(), ...]
     """
+    if gettext_compact is not None:
+        warnings.warn('gettext_compact argument for find_catalog_source_files() '
+                      'is deprecated.', RemovedInSphinx30Warning, stacklevel=2)
+
     catalogs = set()  # type: Set[CatalogInfo]
 
     if not locale:
@@ -133,14 +138,13 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
         if not path.exists(base_dir):
             continue  # locale path is not found
 
-        for dirpath, dirnames, filenames in walk(base_dir, followlinks=True):
+        for dirpath, dirnames, filenames in os.walk(base_dir, followlinks=True):
             filenames = [f for f in filenames if f.endswith('.po')]
             for filename in filenames:
+                if excluded(path.join(relpath(dirpath, base_dir), filename)):
+                    continue
                 base = path.splitext(filename)[0]
-                domain = path.relpath(path.join(dirpath, base), base_dir)
-                if gettext_compact and path.sep in domain:
-                    domain = path.split(domain)[0]
-                domain = domain.replace(path.sep, SEP)
+                domain = relpath(path.join(dirpath, base), base_dir).replace(path.sep, SEP)
                 if domains and domain not in domains:
                     continue
                 cat = CatalogInfo(base_dir, domain, charset)
@@ -152,37 +156,48 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
 
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
 date_format_mappings = {
-    '%a': 'EEE',     # Weekday as locale’s abbreviated name.
-    '%A': 'EEEE',    # Weekday as locale’s full name.
-    '%b': 'MMM',     # Month as locale’s abbreviated name.
-    '%B': 'MMMM',    # Month as locale’s full name.
-    '%c': 'medium',  # Locale’s appropriate date and time representation.
-    '%d': 'dd',      # Day of the month as a zero-padded decimal number.
-    '%H': 'HH',      # Hour (24-hour clock) as a decimal number [00,23].
-    '%I': 'hh',      # Hour (12-hour clock) as a decimal number [01,12].
-    '%j': 'DDD',     # Day of the year as a zero-padded decimal number.
-    '%m': 'MM',      # Month as a zero-padded decimal number.
-    '%M': 'mm',      # Minute as a decimal number [00,59].
-    '%p': 'a',       # Locale’s equivalent of either AM or PM.
-    '%S': 'ss',      # Second as a decimal number.
-    '%U': 'WW',      # Week number of the year (Sunday as the first day of the week)
-                     # as a zero padded decimal number. All days in a new year preceding
-                     # the first Sunday are considered to be in week 0.
-    '%w': 'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
-    '%W': 'WW',      # Week number of the year (Monday as the first day of the week)
-                     # as a decimal number. All days in a new year preceding the first
-                     # Monday are considered to be in week 0.
-    '%x': 'medium',  # Locale’s appropriate date representation.
-    '%X': 'medium',  # Locale’s appropriate time representation.
-    '%y': 'YY',      # Year without century as a zero-padded decimal number.
-    '%Y': 'YYYY',    # Year with century as a decimal number.
-    '%Z': 'zzzz',    # Time zone name (no characters if no time zone exists).
-    '%%': '%',
+    '%a':  'EEE',     # Weekday as locale’s abbreviated name.
+    '%A':  'EEEE',    # Weekday as locale’s full name.
+    '%b':  'MMM',     # Month as locale’s abbreviated name.
+    '%B':  'MMMM',    # Month as locale’s full name.
+    '%c':  'medium',  # Locale’s appropriate date and time representation.
+    '%-d': 'd',       # Day of the month as a decimal number.
+    '%d':  'dd',      # Day of the month as a zero-padded decimal number.
+    '%-H': 'H',       # Hour (24-hour clock) as a decimal number [0,23].
+    '%H':  'HH',      # Hour (24-hour clock) as a zero-padded decimal number [00,23].
+    '%-I': 'h',       # Hour (12-hour clock) as a decimal number [1,12].
+    '%I':  'hh',      # Hour (12-hour clock) as a zero-padded decimal number [01,12].
+    '%-j': 'D',       # Day of the year as a decimal number.
+    '%j':  'DDD',     # Day of the year as a zero-padded decimal number.
+    '%-m': 'M',       # Month as a decimal number.
+    '%m':  'MM',      # Month as a zero-padded decimal number.
+    '%-M': 'm',       # Minute as a decimal number [0,59].
+    '%M':  'mm',      # Minute as a zero-padded decimal number [00,59].
+    '%p':  'a',       # Locale’s equivalent of either AM or PM.
+    '%-S': 's',       # Second as a decimal number.
+    '%S':  'ss',      # Second as a zero-padded decimal number.
+    '%U':  'WW',      # Week number of the year (Sunday as the first day of the week)
+                      # as a zero padded decimal number. All days in a new year preceding
+                      # the first Sunday are considered to be in week 0.
+    '%w':  'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
+    '%-W': 'W',       # Week number of the year (Monday as the first day of the week)
+                      # as a decimal number. All days in a new year preceding the first
+                      # Monday are considered to be in week 0.
+    '%W':  'WW',      # Week number of the year (Monday as the first day of the week)
+                      # as a zero-padded decimal number.
+    '%x':  'medium',  # Locale’s appropriate date representation.
+    '%X':  'medium',  # Locale’s appropriate time representation.
+    '%y':  'YY',      # Year without century as a zero-padded decimal number.
+    '%Y':  'YYYY',    # Year with century as a decimal number.
+    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%%':  '%',
 }
+
+date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
-    # type: (datetime, unicode, unicode, Callable) -> unicode
+    # type: (datetime, str, str, Callable) -> str
     if locale is None:
         locale = 'en'
 
@@ -197,13 +212,13 @@ def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
         # fallback to English
         return formatter(date, format, locale='en')
     except AttributeError:
-        logger.warning('Invalid date format. Quote the string by single quote '
-                       'if you want to output it directly: %s', format)
+        logger.warning(__('Invalid date format. Quote the string by single quote '
+                          'if you want to output it directly: %s'), format)
         return format
 
 
 def format_date(format, date=None, language=None):
-    # type: (str, datetime, unicode) -> unicode
+    # type: (str, datetime, str) -> str
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -214,7 +229,7 @@ def format_date(format, date=None, language=None):
             date = datetime.now()
 
     result = []
-    tokens = re.split('(%.)', format)
+    tokens = date_format_re.split(format)
     for token in tokens:
         if token in date_format_mappings:
             babel_format = date_format_mappings.get(token, '')
@@ -238,7 +253,7 @@ def format_date(format, date=None, language=None):
 
 
 def get_image_filename_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 
@@ -258,7 +273,7 @@ def get_image_filename_for_language(filename, env):
 
 
 def search_image_for_language(filename, env):
-    # type: (unicode, BuildEnvironment) -> unicode
+    # type: (str, BuildEnvironment) -> str
     if not env.config.language:
         return filename
 

@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.logging
     ~~~~~~~~~~~~~~~~~~~
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import logging
 import logging.handlers
-from contextlib import contextmanager
 from collections import defaultdict
+from contextlib import contextmanager
 
-from six import PY2, StringIO
 from docutils import nodes
 from docutils.utils import get_source_line
 
@@ -24,7 +21,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, Generator, IO, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -50,21 +47,28 @@ VERBOSITY_MAP.update({
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
-COLOR_MAP.update({
-    logging.ERROR: 'darkred',
-    logging.WARNING: 'darkred',
-    logging.DEBUG: 'darkgray',
-})
+COLOR_MAP = defaultdict(lambda: 'blue',
+                        {
+                            logging.ERROR: 'darkred',
+                            logging.WARNING: 'red',
+                            logging.DEBUG: 'darkgray'
+                        })
 
 
 def getLogger(name):
     # type: (str) -> SphinxLoggerAdapter
-    """Get logger wrapped by SphinxLoggerAdapter.
+    """Get logger wrapped by :class:`sphinx.util.logging.SphinxLoggerAdapter`.
 
-    Sphinx logger always uses ``sphinx.*`` namesapce to be independent from
-    settings of root logger.  It enables to log stably even if 3rd party
-    extension or imported application resets logger settings.
+    Sphinx logger always uses ``sphinx.*`` namespace to be independent from
+    settings of root logger.  It ensures logging is consistent even if a
+    third-party extension or imported application resets logger settings.
+
+    Example usage::
+
+        >>> from sphinx.util import logging
+        >>> logger = logging.getLogger(__name__)
+        >>> logger.info('Hello, this is an extension!')
+        Hello, this is an extension!
     """
     # add sphinx prefix to name forcely
     logger = logging.getLogger(NAMESPACE + '.' + name)
@@ -82,40 +86,55 @@ def convert_serializable(records):
         r.msg = r.getMessage()
         r.args = ()
 
+        location = getattr(r, 'location', None)
+        if isinstance(location, nodes.Node):
+            r.location = get_node_location(location)  # type: ignore
 
-class SphinxWarningLogRecord(logging.LogRecord):
+
+class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+    prefix = ''
     location = None  # type: Any
 
     def getMessage(self):
         # type: () -> str
-        message = super(SphinxWarningLogRecord, self).getMessage()
+        message = super().getMessage()
         location = getattr(self, 'location', None)
         if location:
-            message = '%s: WARNING: %s' % (location, message)
-        elif 'WARNING:' not in message:
-            message = 'WARNING: %s' % message
+            message = '%s: %s%s' % (location, self.prefix, message)
+        elif self.prefix not in message:
+            message = self.prefix + message
 
         return message
+
+
+class SphinxInfoLogRecord(SphinxLogRecord):
+    """Info log record class supporting location"""
+    prefix = ''  # do not show any prefix for INFO messages
+
+
+class SphinxWarningLogRecord(SphinxLogRecord):
+    """Warning log record class supporting location"""
+    prefix = 'WARNING: '
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def log(self, level, msg, *args, **kwargs):  # type: ignore
-        # type: (Union[int, str], unicode, Any, Any) -> None
+    def log(self, level, msg, *args, **kwargs):
+        # type: (Union[int, str], str, Any, Any) -> None
         if isinstance(level, int):
-            super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
+            super().log(level, msg, *args, **kwargs)
         else:
             levelno = LEVEL_NAMES[level]
-            super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
+            super().log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
-        # type: (unicode, Dict) -> Tuple[unicode, Dict]
+        # type: (str, Dict) -> Tuple[str, Dict]
         extra = kwargs.setdefault('extra', {})
         if 'type' in kwargs:
             extra['type'] = kwargs.pop('type')
@@ -132,7 +151,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
     def handle(self, record):
         # type: (logging.LogRecord) -> None
-        self.logger.handle(record)  # type: ignore
+        self.logger.handle(record)
 
 
 class WarningStreamHandler(logging.StreamHandler):
@@ -140,28 +159,7 @@ class WarningStreamHandler(logging.StreamHandler):
     pass
 
 
-class NewLineStreamHandlerPY2(logging.StreamHandler):
-    """StreamHandler which switches line terminator by record.nonl flag."""
-
-    def emit(self, record):
-        # type: (logging.LogRecord) -> None
-        try:
-            self.acquire()
-            stream = self.stream
-            if getattr(record, 'nonl', False):
-                # remove return code forcely when nonl=True
-                self.stream = StringIO()
-                super(NewLineStreamHandlerPY2, self).emit(record)
-                stream.write(self.stream.getvalue()[:-1])  # type: ignore
-                stream.flush()  # type: ignore
-            else:
-                super(NewLineStreamHandlerPY2, self).emit(record)
-        finally:
-            self.stream = stream
-            self.release()
-
-
-class NewLineStreamHandlerPY3(logging.StreamHandler):
+class NewLineStreamHandler(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record):
@@ -171,16 +169,10 @@ class NewLineStreamHandlerPY3(logging.StreamHandler):
             if getattr(record, 'nonl', False):
                 # skip appending terminator when nonl=True
                 self.terminator = ''
-            super(NewLineStreamHandlerPY3, self).emit(record)
+            super().emit(record)
         finally:
             self.terminator = '\n'
             self.release()
-
-
-if PY2:
-    NewLineStreamHandler = NewLineStreamHandlerPY2
-else:
-    NewLineStreamHandler = NewLineStreamHandlerPY3
 
 
 class MemoryHandler(logging.handlers.BufferingHandler):
@@ -188,7 +180,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
     def __init__(self):
         # type: () -> None
-        super(MemoryHandler, self).__init__(-1)
+        super().__init__(-1)
 
     def shouldFlush(self, record):
         # type: (logging.LogRecord) -> bool
@@ -213,7 +205,10 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 @contextmanager
 def pending_warnings():
     # type: () -> Generator
-    """contextmanager to pend logging warnings temporary."""
+    """Contextmanager to pend logging warnings temporary.
+
+    Similar to :func:`pending_logging`.
+    """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
     memhandler.setLevel(logging.WARNING)
@@ -239,7 +234,16 @@ def pending_warnings():
 @contextmanager
 def pending_logging():
     # type: () -> Generator
-    """contextmanager to pend logging all logs temporary."""
+    """Contextmanager to pend logging all logs temporary.
+
+    For example::
+
+        >>> with pending_logging():
+        >>>     logger.warning('Warning message!')  # not flushed yet
+        >>>     some_long_process()
+        >>>
+        Warning message!  # the warning is flushed here
+    """
     logger = logging.getLogger(NAMESPACE)
     memhandler = MemoryHandler()
 
@@ -281,7 +285,54 @@ def skip_warningiserror(skip=True):
                 handler.removeFilter(disabler)
 
 
-class LogCollector(object):
+@contextmanager
+def prefixed_warnings(prefix):
+    # type: (str) -> Generator
+    """Prepend prefix to all records for a while.
+
+    For example::
+
+        >>> with prefixed_warnings("prefix:"):
+        >>>     logger.warning('Warning message!')  # => prefix: Warning message!
+
+    .. versionadded:: 2.0
+    """
+    logger = logging.getLogger(NAMESPACE)
+    warning_handler = None
+    for handler in logger.handlers:
+        if isinstance(handler, WarningStreamHandler):
+            warning_handler = handler
+            break
+    else:
+        # warning stream not found
+        yield
+        return
+
+    prefix_filter = None
+    for _filter in warning_handler.filters:
+        if isinstance(_filter, MessagePrefixFilter):
+            prefix_filter = _filter
+            break
+
+    if prefix_filter:
+        # already prefixed
+        try:
+            previous = prefix_filter.prefix
+            prefix_filter.prefix = prefix
+            yield
+        finally:
+            prefix_filter.prefix = previous
+    else:
+        # not prefixed yet
+        try:
+            prefix_filter = MessagePrefixFilter(prefix)
+            warning_handler.addFilter(prefix_filter)
+            yield
+        finally:
+            warning_handler.removeFilter(prefix_filter)
+
+
+class LogCollector:
     def __init__(self):
         # type: () -> None
         self.logs = []  # type: List[logging.LogRecord]
@@ -307,7 +358,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
-    # type: (unicode, unicode, List[unicode]) -> bool
+    # type: (str, str, List[str]) -> bool
     """Check the warning is suppressed or not."""
     if type is None:
         return False
@@ -332,7 +383,7 @@ class WarningSuppressor(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningSuppressor, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -358,7 +409,7 @@ class WarningIsErrorFilter(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningIsErrorFilter, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -369,7 +420,7 @@ class WarningIsErrorFilter(logging.Filter):
             location = getattr(record, 'location', '')
             try:
                 message = record.msg % record.args
-            except TypeError:
+            except (TypeError, ValueError):
                 message = record.msg  # use record.msg itself
 
             if location:
@@ -389,21 +440,39 @@ class DisableWarningIsErrorFilter(logging.Filter):
         return True
 
 
-class WarningLogRecordTranslator(logging.Filter):
+class MessagePrefixFilter(logging.Filter):
+    """Prepend prefix to all records."""
+
+    def __init__(self, prefix):
+        # type: (str) -> None
+        self.prefix = prefix
+        super().__init__()
+
+    def filter(self, record):
+        # type: (logging.LogRecord) -> bool
+        if self.prefix:
+            record.msg = self.prefix + ' ' + record.msg
+        return True
+
+
+class SphinxLogRecordTranslator(logging.Filter):
     """Converts a log record to one Sphinx expects
 
-    * Make a instance of SphinxWarningLogRecord
+    * Make a instance of SphinxLogRecord
     * docname to path if location given
     """
+    LogRecordClass = None  # type: Type[logging.LogRecord]
+
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningLogRecordTranslator, self).__init__()
+        super().__init__()
 
     def filter(self, record):  # type: ignore
         # type: (SphinxWarningLogRecord) -> bool
         if isinstance(record, logging.LogRecord):
-            record.__class__ = SphinxWarningLogRecord  # force subclassing to handle location
+            # force subclassing to handle location
+            record.__class__ = self.LogRecordClass  # type: ignore
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
@@ -415,36 +484,51 @@ class WarningLogRecordTranslator(logging.Filter):
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
-            (source, line) = get_source_line(location)
-            if source and line:
-                record.location = "%s:%s" % (source, line)
-            elif source:
-                record.location = "%s:" % source
-            elif line:
-                record.location = "<unknown>:%s" % line
-            else:
-                record.location = None
+            record.location = get_node_location(location)
         elif location and ':' not in location:
             record.location = '%s' % self.app.env.doc2path(location)
 
         return True
 
 
+class InfoLogRecordTranslator(SphinxLogRecordTranslator):
+    """LogRecordTranslator for INFO level log records."""
+    LogRecordClass = SphinxInfoLogRecord
+
+
+class WarningLogRecordTranslator(SphinxLogRecordTranslator):
+    """LogRecordTranslator for WARNING level log records."""
+    LogRecordClass = SphinxWarningLogRecord
+
+
+def get_node_location(node):
+    # type: (nodes.Node) -> str
+    (source, line) = get_source_line(node)
+    if source and line:
+        return "%s:%s" % (source, line)
+    elif source:
+        return "%s:" % source
+    elif line:
+        return "<unknown>:%s" % line
+    else:
+        return None
+
+
 class ColorizeFormatter(logging.Formatter):
     def format(self, record):
         # type: (logging.LogRecord) -> str
-        message = super(ColorizeFormatter, self).format(record)
+        message = super().format(record)
         color = getattr(record, 'color', None)
         if color is None:
             color = COLOR_MAP.get(record.levelno)
 
         if color:
-            return colorize(color, message)  # type: ignore
+            return colorize(color, message)
         else:
             return message
 
 
-class SafeEncodingWriter(object):
+class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
     def __init__(self, stream):
         # type: (IO) -> None
@@ -452,7 +536,7 @@ class SafeEncodingWriter(object):
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         try:
             self.stream.write(data)
         except UnicodeEncodeError:
@@ -466,14 +550,14 @@ class SafeEncodingWriter(object):
             self.stream.flush()
 
 
-class LastMessagesWriter(object):
+class LastMessagesWriter:
     """Stream writer which memories last 10 messages to save trackback"""
     def __init__(self, app, stream):
         # type: (Sphinx, IO) -> None
         self.app = app
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.app.messagelog.append(data)
 
 
@@ -490,6 +574,7 @@ def setup(app, status, warning):
 
     info_handler = NewLineStreamHandler(SafeEncodingWriter(status))  # type: ignore
     info_handler.addFilter(InfoFilter())
+    info_handler.addFilter(InfoLogRecordTranslator(app))
     info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     info_handler.setFormatter(ColorizeFormatter())
 

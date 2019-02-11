@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2017/03/26 v1.6 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2018/12/23 v2.0 Document class (Sphinx howto)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -25,11 +25,12 @@
 % reset these counters in your preamble.
 %
 \setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}% i.e. section and subsection
 
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
+\newcommand{\sphinxmaketitle}{%
   \noindent\rule{\textwidth}{1pt}\par
     \begingroup % for PDF information dictionary
        \def\endgraf{ }\def\and{\& }%
@@ -45,7 +46,7 @@
     {\Large
       \begin{tabular}[t]{c}
         \@author
-      \end{tabular}}\par
+      \end{tabular}\kern-\tabcolsep}\par
     \vspace{25pt}
     \@date \par
     \py@authoraddress \par
@@ -56,21 +57,17 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\newcommand{\sphinxtableofcontents}{
+\newcommand{\sphinxtableofcontents}{%
   \begingroup
-    \parskip = 0mm
+    \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \rule{\textwidth}{1pt}
-  \vspace{12pt}
+  \noindent\rule{\textwidth}{1pt}\par
+  \vspace{12pt}%
 }  
-
-\@ifundefined{fancyhf}{
-  \pagestyle{plain}}{
-  \pagestyle{normal}}		% start this way; change for
-\pagenumbering{arabic}		% ToC & chapters
-
-\thispagestyle{empty}
+\newcommand\sphinxtableofcontentshook{}
+\pagenumbering{arabic}
 
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.
@@ -79,7 +76,7 @@
 %
 \newenvironment{sphinxthebibliography}[1]{%
   % \phantomsection % not needed here since TeXLive 2010's hyperref
-  \begin{thebibliography}{1}%
+  \begin{thebibliography}{#1}%
   \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\ifdefined\bibname\bibname\fi\fi}}{\end{thebibliography}}
 
 

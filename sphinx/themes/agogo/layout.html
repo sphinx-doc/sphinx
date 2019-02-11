@@ -5,7 +5,7 @@
     Sphinx layout template for the agogo theme, originally written
     by Andi Albrecht.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- extends "basic/layout.html" %}
@@ -43,7 +43,7 @@
         </div>
         <div class="sidebar">
           {%- block sidebartoc %}
-          <h3>{{ _('Table Of Contents') }}</h3>
+          <h3>{{ _('Table of Contents') }}</h3>
           {{ toctree() }}
           {%- endblock %}
           {%- block sidebarsearch %}
@@ -52,8 +52,6 @@
             <form class="search" action="{{ pathto('search') }}" method="get">
                 <input type="text" name="q" />
                 <input type="submit" value="{{ _('Go') }}" />
-                <input type="hidden" name="check_keywords" value="yes" />
-                <input type="hidden" name="area" value="default" />
             </form>
           </div>
           {%- endblock %}

@@ -1,3 +1,3 @@
 .. toctree::
 
-   contents
+   index

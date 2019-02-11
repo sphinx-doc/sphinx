@@ -2,8 +2,10 @@
 mod1
 """
 
+
 def decorator(f):
     return f
+
 
 @decorator
 def func1(a, b):
@@ -18,6 +20,7 @@ class Class1(object):
     """
     this is Class1
     """
+
 
 class Class3(object):
     """

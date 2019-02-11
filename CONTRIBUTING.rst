@@ -33,10 +33,10 @@ Bug Reports and Feature Requests
 
 If you have encountered a problem with Sphinx or have an idea for a new
 feature, please submit it to the `issue tracker`_ on GitHub or discuss it
-on the sphinx-dev mailing list.
+on the `sphinx-dev`_ mailing list.
 
 For bug reports, please include the output produced during the build process
-and also the log file Sphinx creates after it encounters an un-handled
+and also the log file Sphinx creates after it encounters an unhandled
 exception.  The location of this file should be shown towards the end of the
 error message.
 
@@ -45,6 +45,7 @@ issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
 .. _`issue tracker`: https://github.com/sphinx-doc/sphinx/issues
+.. _`sphinx-dev`: mailto:sphinx-dev@googlegroups.com
 
 
 Contributing to Sphinx
@@ -58,10 +59,10 @@ of the core developers before it is merged into the main repository.
 #. Check for open issues or open a fresh issue to start a discussion around a
    feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
+   free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
-   **master** branch for next major version, or **stable** branch for next
-   minor version.
+   ``master`` branch for next MAJOR version, or ``X.Y`` branch for next
+   MINOR version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
@@ -90,18 +91,28 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Checkout the appropriate branch.
 
-   For changes that should be included in the next minor release (namely bug
-   fixes), use the ``stable`` branch. ::
+   Sphinx adopts Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
 
-       git checkout stable
+   For changes that preserves backwards-compatibility of API and features,
+   they should be included in the next MINOR release, use the ``X.Y`` branch.
+   ::
 
-   For new features or other substantial changes that should wait until the
-   next major release, use the ``master`` branch.
+       git checkout X.Y
 
-#. Optional: setup a virtual environment. ::
+   For incompatible or other substantial changes that should wait until the
+   next MAJOR release, use the ``master`` branch.
 
-       virtualenv ~/sphinxenv
-       . ~/sphinxenv/bin/activate
+   For urgent release, a new PATCH branch must be branched from the newest
+   release tag (see `Branch Model`_ for detail).
+
+#. Setup a virtual environment.
+
+   This is not necessary for unit testing, thanks to ``tox``, but it is
+   necessary if you wish to run ``sphinx-build`` locally or run unit tests
+   without the help of ``tox``. ::
+
+       virtualenv ~/.venv
+       . ~/.venv/bin/activate
        pip install -e .
 
 #. Create a new working branch.  Choose any name you like. ::
@@ -112,44 +123,59 @@ These are the basic steps needed to start developing on Sphinx.
 
    For tips on working with the code, see the `Coding Guide`_.
 
-#. Test, test, test.  Possible steps:
+#. Test, test, test.
 
-   * Run the unit tests::
+   Testing is best done through ``tox``, which provides a number of targets and
+   allows testing against multiple different Python environments:
 
-       pip install .[test,websupport]
-       make test
+   * To list all possible targets::
 
-   * Again, it's useful to turn on deprecation warnings on so they're shown in
-     the test output::
+         tox -av
 
-       PYTHONWARNINGS=all make test
+   * To run unit tests for a specific Python version, such as 3.6::
 
-   * Arguments to pytest can be passed via tox, e.g. in order to run a
+         tox -e py36
+
+   * To run unit tests for a specific Python version and turn on deprecation
+     warnings on so they're shown in the test output::
+
+         PYTHONWARNINGS=all tox -e py36
+
+   * To run code style and type checks::
+
+         tox -e mypy
+         tox -e flake8
+
+   * Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
      particular test::
 
-       tox -e py27 tests/test_module.py::test_new_feature
+       tox -e py36 tests/test_module.py::test_new_feature
 
-   * Build the documentation and check the output for different builders::
+   * To build the documentation::
 
-       make docs target="clean html latexpdf"
+         tox -e docs
 
-   * Run code style checks and type checks (type checks require mypy)::
+   * To build the documentation in multiple formats::
 
-       make style-check
-       make type-check
+         tox -e docs -- -b html,latexpdf
 
-   * Run the unit tests under different Python environments using
-     :program:`tox`::
+   * To run JavaScript tests with `Karma <https://karma-runner.github.io>`_,
+     execute the following commands (requires `Node.js <https://nodejs.org>`_)::
 
-       pip install tox
-       tox -v
+      npm install
+      npm run test
 
-   * Add a new unit test in the ``tests`` directory if you can.
+   You can also test by installing dependencies in your local environment. ::
+
+       pip install .[test]
+
+   New unit tests should be included in the ``tests`` directory where
+   necessary:
 
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
-   * Tests that need a sphinx-build run should be integrated in one of the
+   * Tests that need a ``sphinx-build`` run should be integrated in one of the
      existing test modules if possible.  New tests that to ``@with_app`` and
      then ``build_all`` for a few assertions are not good since *the test suite
      should not take more than a minute to run*.
@@ -173,7 +199,7 @@ These are the basic steps needed to start developing on Sphinx.
        git push origin feature-xyz
 
 #. Submit a pull request from your branch to the respective branch (``master``
-   or ``stable``) on ``sphinx-doc/sphinx`` using the GitHub interface.
+   or ``X.Y``).
 
 #. Wait for a core developer to review your changes.
 
@@ -251,10 +277,7 @@ Coding Guide
   generated output.
 
 * When adding a new configuration variable, be sure to document it and update
-  :file:`sphinx/quickstart.py` if it's important enough.
-
-* Use the included :program:`utils/check_sources.py` script to check for
-  common formatting issues (trailing whitespace, lengthy lines, etc).
+  :file:`sphinx/cmd/quickstart.py` if it's important enough.
 
 * Add appropriate unit tests.
 
@@ -266,7 +289,7 @@ Debugging Tips
   code by running the command ``make clean`` or using the
   :option:`sphinx-build -E` option.
 
-* Use the :option:`sphinx-build -P` option to run Pdb on exceptions.
+* Use the :option:`sphinx-build -P` option to run ``pdb`` on exceptions.
 
 * Use ``node.pformat()`` and ``node.asdom().toxml()`` to generate a printable
   representation of the document structure.
@@ -287,8 +310,40 @@ Debugging Tips
   in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
   You can get the resulting JavaScript files using the following command::
 
-     $ npm install
-     $ node_modules/.bin/grunt build # -> dest/*.global.js
+     npm install
+     node_modules/.bin/grunt build # -> dest/*.global.js
+
+
+Branch Model
+------------
+
+Sphinx project uses following branches for developing that conforms to Semantic
+Versioning 2.0.0 (refs: https://semver.org/ ).
+
+``master``
+    Development for MAJOR version.
+    All changes including incompatible behaviors and public API updates are
+    allowed.
+
+``X.Y``
+    Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
+    MINOR release. All changes are allowed if the change preserves
+    backwards-compatibility of API and features.
+
+    Only the most recent ``MAJOR.MINOR`` branch is currently retained. When a
+    new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
+    deleted and replaced by an equivalent tag.
+
+``X.Y.Z``
+    Where ``X.Y.Z`` is the ``MAJOR.MINOR.PATCH`` release.  Only
+    backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
+    version is used for urgent bug fix.
+
+    ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
+    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
+    release is needed. When new PATCH version is released, the branch will be
+    deleted and replaced by an equivalent tag (ex. v2.3.1).
+
 
 Deprecating a feature
 ---------------------
@@ -303,37 +358,39 @@ There are a couple reasons that code in Sphinx might be deprecated:
   no longer needs to support the older version of Python that doesn't include
   the library, the library will be deprecated in Sphinx.
 
-As the :ref:`deprecation-policy` describes,
-the first release of Sphinx that deprecates a feature (``A.B``) should raise a
-``RemovedInSphinxXXWarning`` (where XX is the Sphinx version where the feature
-will be removed) when the deprecated feature is invoked. Assuming we have good
-test coverage, these warnings are converted to errors when running the test
-suite with warnings enabled: ``python -Wall tests/run.py``. Thus, when adding
-a ``RemovedInSphinxXXWarning`` you need to eliminate or silence any warnings
-generated when running the tests.
+As the :ref:`deprecation-policy` describes, the first release of Sphinx that
+deprecates a feature (``A.B``) should raise a ``RemovedInSphinxXXWarning``
+(where ``XX`` is the Sphinx version where the feature will be removed) when the
+deprecated feature is invoked. Assuming we have good test coverage, these
+warnings are converted to errors when running the test suite with warnings
+enabled::
+
+    pytest -Wall
+
+Thus, when adding a ``RemovedInSphinxXXWarning`` you need to eliminate or
+silence any warnings generated when running the tests.
 
 .. _deprecation-policy:
 
 Deprecation policy
 ------------------
 
-A feature release may deprecate certain features from previous releases. If a
-feature is deprecated in feature release 1.A, it will continue to work in all
-1.A.x versions (for all versions of x) but raise warnings. Deprecated features
-will be removed in the first 1.B release, or 1.B.1 for features deprecated in
-the last 1.A.x feature release to ensure deprecations are done over at least 2
-feature releases.
+MAJOR and MINOR releases may deprecate certain features from previous
+releases. If a feature is deprecated in a release A.x, it will continue to
+work in all A.x.x versions (for all versions of x). It will continue to work
+in all B.x.x versions but raise deprecation warnings. Deprecated features
+will be removed at the C.0.0. It means the deprecated feature will work during
+2 MAJOR releases at least.
 
 So, for example, if we decided to start the deprecation of a function in
-Sphinx 1.4:
+Sphinx 2.x:
 
-* Sphinx 1.4.x will contain a backwards-compatible replica of the function
-  which will raise a ``RemovedInSphinx16Warning``.
+* Sphinx 2.x will contain a backwards-compatible replica of the function
+  which will raise a ``RemovedInSphinx40Warning``.
 
-* Sphinx 1.5 (the version that follows 1.4) will still contain the
-  backwards-compatible replica.
+* Sphinx 3.x will still contain the backwards-compatible replica.
 
-* Sphinx 1.6 will remove the feature outright.
+* Sphinx 4.0 will remove the feature outright.
 
 The warnings are displayed by default. You can turn off display of these
 warnings with:
@@ -366,3 +423,6 @@ and other ``test_*.py`` files under ``tests`` directory.
 
 .. versionadded:: 1.6
    ``sphinx.testing`` as a experimental.
+
+.. versionadded:: 1.8
+   Sphinx also runs JavaScript tests.

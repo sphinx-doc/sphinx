@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_autosectionlabel
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Test sphinx.ext.autosectionlabel extension.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -55,6 +54,13 @@ def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
 
         assert 'WARNING: undefined label: linux' in warning.getvalue()
         assert 'WARNING: undefined label: freebsd' in warning.getvalue()
+
+    # for smart_quotes (refs: #4027)
+    html = ('<li><a class="reference internal" '
+            'href="#this-one-s-got-an-apostrophe">'
+            '<span class="std std-ref">This one’s got an apostrophe'
+            '</span></a></li>')
+    assert re.search(html, content, re.S)
 
 
 # Re-use test definition from above, just change the test root directory

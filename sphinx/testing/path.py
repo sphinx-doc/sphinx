@@ -1,80 +1,84 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.testing.path
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
-import sys
 import shutil
-from io import open
+import sys
 
-from six import PY2, text_type
+if False:
+    # For type annotation
+    import builtins  # NOQA
+    from typing import Any, Callable, IO, List  # NOQA
 
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-class path(text_type):
+class path(str):
     """
     Represents a path which behaves like a string.
     """
-    if PY2:
-        def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
-            if isinstance(s, str):
-                s = s.decode(encoding, errors)
-                return text_type.__new__(cls, s)  # type: ignore
-            return text_type.__new__(cls, s)  # type: ignore
 
     @property
     def parent(self):
+        # type: () -> path
         """
         The name of the directory the file or directory is in.
         """
         return self.__class__(os.path.dirname(self))
 
     def basename(self):
+        # type: () -> str
         return os.path.basename(self)
 
     def abspath(self):
+        # type: () -> path
         """
         Returns the absolute path.
         """
         return self.__class__(os.path.abspath(self))
 
     def isabs(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path is absolute.
         """
         return os.path.isabs(self)
 
     def isdir(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path is a directory.
         """
         return os.path.isdir(self)
 
     def isfile(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path is a file.
         """
         return os.path.isfile(self)
 
     def islink(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path is a symbolic link.
         """
         return os.path.islink(self)
 
     def ismount(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path is a mount point.
         """
         return os.path.ismount(self)
 
     def rmtree(self, ignore_errors=False, onerror=None):
+        # type: (bool, Callable) -> None
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -93,6 +97,7 @@ class path(text_type):
         shutil.rmtree(self, ignore_errors=ignore_errors, onerror=onerror)
 
     def copytree(self, destination, symlinks=False):
+        # type: (str, bool) -> None
         """
         Recursively copy a directory to the given `destination`. If the given
         `destination` does not exist it will be created.
@@ -105,6 +110,7 @@ class path(text_type):
         shutil.copytree(self, destination, symlinks=symlinks)
 
     def movetree(self, destination):
+        # type: (str) -> None
         """
         Recursively move the file or directory to the given `destination`
         similar to the  Unix "mv" command.
@@ -117,41 +123,45 @@ class path(text_type):
     move = movetree
 
     def unlink(self):
+        # type: () -> None
         """
         Removes a file.
         """
         os.unlink(self)
 
     def stat(self):
+        # type: () -> Any
         """
         Returns a stat of the file.
         """
         return os.stat(self)
 
     def utime(self, arg):
+        # type: (Any) -> None
         os.utime(self, arg)
 
     def open(self, mode='r', **kwargs):
+        # type: (str, Any) -> IO
         return open(self, mode, **kwargs)
 
     def write_text(self, text, encoding='utf-8', **kwargs):
+        # type: (str, str, Any) -> None
         """
         Writes the given `text` to the file.
         """
-        if isinstance(text, bytes):
-            text = text.decode(encoding)
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
     def text(self, encoding='utf-8', **kwargs):
+        # type: (str, Any) -> str
         """
         Returns the text in the file.
         """
-        mode = 'rU' if PY2 else 'r'
-        with open(self, mode=mode, encoding=encoding, **kwargs) as f:
+        with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
     def bytes(self):
+        # type: () -> builtins.bytes
         """
         Returns the bytes in the file.
         """
@@ -159,6 +169,7 @@ class path(text_type):
             return f.read()
 
     def write_bytes(self, bytes, append=False):
+        # type: (str, bool) -> None
         """
         Writes the given `bytes` to the file.
 
@@ -173,34 +184,40 @@ class path(text_type):
             f.write(bytes)
 
     def exists(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path exist.
         """
         return os.path.exists(self)
 
     def lexists(self):
+        # type: () -> bool
         """
         Returns ``True`` if the path exists unless it is a broken symbolic
         link.
         """
         return os.path.lexists(self)
 
-    def makedirs(self, mode=0o777):
+    def makedirs(self, mode=0o777, exist_ok=False):
+        # type: (int, bool) -> None
         """
         Recursively create directories.
         """
-        os.makedirs(self, mode)
+        os.makedirs(self, mode, exist_ok=exist_ok)
 
     def joinpath(self, *args):
+        # type: (Any) -> path
         """
         Joins the path with the argument given and returns the result.
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
     def listdir(self):
+        # type: () -> List[str]
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, text_type.__repr__(self))
+        # type: () -> str
+        return '%s(%s)' % (self.__class__.__name__, super().__repr__())

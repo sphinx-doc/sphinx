@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_versioning
     ~~~~~~~~~~~~~~~
 
     Test the versioning implementation.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,9 +14,8 @@ import pytest
 from docutils.parsers.rst.directives.html import MetaBody
 
 from sphinx import addnodes
-from sphinx.versioning import add_uids, merge_doctrees, get_ratio
-
 from sphinx.testing.util import SphinxTestApp
+from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
 
 app = original = original_uids = None
@@ -28,7 +26,7 @@ def setup_module(rootdir, sphinx_test_tempdir):
     global app, original, original_uids
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir/'test-versioning').copytree(srcdir)
+        (rootdir / 'test-versioning').copytree(srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)
@@ -129,6 +127,6 @@ def test_insert_similar():
     new_nodes = list(merge_doctrees(original, insert_similar, is_paragraph))
     uids = [n.uid for n in insert_similar.traverse(is_paragraph)]
     assert len(new_nodes) == 1
-    assert new_nodes[0].rawsource == u'Anyway I need more'
+    assert new_nodes[0].rawsource == 'Anyway I need more'
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]

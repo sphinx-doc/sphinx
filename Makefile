@@ -1,15 +1,7 @@
-PYTHON ?= python
+PYTHON ?= python3
 
 .PHONY: all
 all: clean-pyc clean-backupfiles style-check type-check test
-
-.PHONY: style-check
-style-check:
-	@flake8
-
-.PHONY: type-check
-type-check:
-	mypy sphinx/
 
 .PHONY: clean
 clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
@@ -59,25 +51,25 @@ clean-buildfiles:
 clean-mypyfiles:
 	rm -rf .mypy_cache/
 
+.PHONY: style-check
+style-check:
+	@flake8
+
+.PHONY: type-check
+type-check:
+	mypy sphinx
+
 .PHONY: pylint
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
-.PHONY: reindent
-reindent:
-	@echo "This target no longer does anything and will be removed imminently"
-
 .PHONY: test
 test:
-	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
-
-.PHONY: test-async
-test-async:
-	@cd tests; $(PYTHON) run.py -v $(TEST)
+	@$(PYTHON) -m pytest -v $(TEST)
 
 .PHONY: covertest
 covertest:
-	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
+	@$(PYTHON) -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 .PHONY: build
 build:
@@ -86,6 +78,6 @@ build:
 .PHONY: docs
 docs:
 ifndef target
-	  $(info You need to give a provide a target variable, e.g. `make docs target=html`.)
+	$(info You need to give a provide a target variable, e.g. `make docs target=html`.)
 endif
-	  $(MAKE) -C doc $(target)
+	$(MAKE) -C doc $(target)

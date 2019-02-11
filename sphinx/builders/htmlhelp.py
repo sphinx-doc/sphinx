@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.htmlhelp
     ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -6,31 +5,40 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
+import html
 import os
-import codecs
+import warnings
 from os import path
 
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import htmlescape
+from sphinx.util import progress_message
+from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.nodes import NodeMatcher
+from sphinx.util.osutil import make_filename_from_project, relpath
+from sphinx.util.template import SphinxRenderer
 
 if False:
     # For type annotation
-    from typing import Any, Dict, IO, List, Tuple  # NOQA
+    from typing import Any, Dict, IO, List, Match, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
 
 
 logger = logging.getLogger(__name__)
+
+template_dir = path.join(package_dir, 'templates', 'htmlhelp')
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -67,46 +75,6 @@ logger = logging.getLogger(__name__)
 #    0x200000   TOC Next
 #    0x400000   TOC Prev
 
-project_template = '''\
-[OPTIONS]
-Binary TOC=No
-Binary Index=No
-Compiled file=%(outname)s.chm
-Contents file=%(outname)s.hhc
-Default Window=%(outname)s
-Default topic=%(master_doc)s
-Display compile progress=No
-Full text search stop list file=%(outname)s.stp
-Full-text search=Yes
-Index file=%(outname)s.hhk
-Language=%(lcid)#x
-Title=%(title)s
-
-[WINDOWS]
-%(outname)s="%(title)s","%(outname)s.hhc","%(outname)s.hhk",\
-"%(master_doc)s","%(master_doc)s",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
-
-[FILES]
-'''
-
-contents_header = '''\
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<HTML>
-<HEAD>
-<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
-<!-- Sitemap 1.0 -->
-</HEAD><BODY>
-<OBJECT type="text/site properties">
-        <param name="Window Styles" value="0x801227">
-        <param name="ImageType" value="Folder">
-</OBJECT>
-<UL>
-'''
-
-contents_footer = '''\
-</UL></BODY></HTML>
-'''
-
 object_sitemap = '''\
 <OBJECT type="text/sitemap">
     <param name="Name" value="%s">
@@ -114,26 +82,9 @@ object_sitemap = '''\
 </OBJECT>
 '''
 
-# List of words the full text search facility shouldn't index.  This
-# becomes file outname.stp.  Note that this list must be pretty small!
-# Different versions of the MS docs claim the file has a maximum size of
-# 256 or 512 bytes (including \r\n at the end of each line).
-# Note that "and", "or", "not" and "near" are operators in the search
-# language, so no point indexing them even if we wanted to.
-stopwords = """
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split()
-
-# The following list includes only languages supported by Sphinx.
-# See http://msdn.microsoft.com/en-us/library/ms930130.aspx for more.
+# The following list includes only languages supported by Sphinx. See
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms930130(v=msdn.10)
+# for more.
 chm_locales = {
     # lang:   LCID,  encoding
     'ca':    (0x403, 'cp1252'),
@@ -168,12 +119,85 @@ chm_locales = {
 }
 
 
+def chm_htmlescape(s, quote=True):
+    # type: (str, bool) -> str
+    """
+    chm_htmlescape() is a wrapper of html.escape().
+    .hhc/.hhk files don't recognize hex escaping, we need convert
+    hex escaping to decimal escaping. for example: ``&#x27;`` -> ``&#39;``
+    html.escape() may generates a hex escaping ``&#x27;`` for single
+    quote ``'``, this wrapper fixes this.
+    """
+    s = html.escape(s, quote)
+    s = s.replace('&#x27;', '&#39;')    # re-escape as decimal
+    return s
+
+
+class ToCTreeVisitor(nodes.NodeVisitor):
+    def __init__(self, document):
+        # type: (nodes.document) -> None
+        super().__init__(document)
+        self.body = []  # type: List[str]
+        self.depth = 0
+
+    def append(self, text):
+        # type: (str) -> None
+        indent = '  ' * (self.depth - 1)
+        self.body.append(indent + text)
+
+    def astext(self):
+        # type: () -> str
+        return '\n'.join(self.body)
+
+    def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def unknown_departure(self, node):
+        # type: (nodes.Node) -> None
+        pass
+
+    def visit_bullet_list(self, node):
+        # type: (nodes.Element) -> None
+        if self.depth > 0:
+            self.append('<UL>')
+
+        self.depth += 1
+
+    def depart_bullet_list(self, node):
+        # type: (nodes.Element) -> None
+        self.depth -= 1
+        if self.depth > 0:
+            self.append('</UL>')
+
+    def visit_list_item(self, node):
+        # type: (nodes.Element) -> None
+        self.append('<LI>')
+        self.depth += 1
+
+    def depart_list_item(self, node):
+        # type: (nodes.Element) -> None
+        self.depth -= 1
+        self.append('</LI>')
+
+    def visit_reference(self, node):
+        # type: (nodes.Element) -> None
+        title = chm_htmlescape(node.astext(), True)
+        self.append('<OBJECT type="text/sitemap">')
+        self.append('  <PARAM name="Name" value="%s" />' % title)
+        self.append('  <PARAM name="Local" value="%s" />' % node['refuri'])
+        self.append('</OBJECT>')
+        raise nodes.SkipNode
+
+
 class HTMLHelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that also outputs Windows HTML help project, contents and
     index files.  Adapted from the original Doc/tools/prechm.py.
     """
     name = 'htmlhelp'
+    epilog = __('You can now run HTML Help Workshop with the .htp file in '
+                '%(outdir)s.')
 
     # don't copy the reST source
     copysource = False
@@ -192,121 +216,130 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def init(self):
         # type: () -> None
-        StandaloneHTMLBuilder.init(self)
-        # the output files for HTML help must be .html only
+        # the output files for HTML help is .html by default
         self.out_suffix = '.html'
         self.link_suffix = '.html'
+        super().init()
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
-        # type: (unicode, unicode, unicode) -> IO
+        # type: (str, str, str) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
-                           self.encoding, 'xmlcharrefreplace')
+        warnings.warn('HTMLHelpBuilder.open_file() is deprecated.',
+                      RemovedInSphinx40Warning)
+        return open(path.join(outdir, basename), mode, encoding=self.encoding,
+                    errors='xmlcharrefreplace')
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
-        # type: (unicode, unicode, Dict, unicode) -> None
+        # type: (str, str, Dict, str) -> None
         ctx['encoding'] = self.encoding
 
     def handle_finish(self):
         # type: () -> None
+        self.copy_stopword_list()
+        self.build_project_file()
+        self.build_toc_file()
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
                 node['target'] = '_blank'
 
-        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        super().write_doc(docname, doctree)
 
-    def build_hhx(self, outdir, outname):
-        # type: (unicode, unicode) -> None
-        logger.info('dumping stopword list...')
-        with self.open_file(outdir, outname + '.stp') as f:
-            for word in sorted(stopwords):
-                print(word, file=f)
+    def render(self, name, context):
+        # type: (str, Dict) -> str
+        template = SphinxRenderer(template_dir)
+        return template.render(name, context)
 
-        logger.info('writing project file...')
-        with self.open_file(outdir, outname + '.hhp') as f:
-            f.write(project_template % {
-                'outname': outname,
+    @progress_message(__('copying stopword list'))
+    def copy_stopword_list(self):
+        # type: () -> None
+        """Copy a stopword list (.stp) to outdir.
+
+        The stopword list contains a list of words the full text search facility
+        shouldn't index.  Note that this list must be pretty small.  Different
+        versions of the MS docs claim the file has a maximum size of 256 or 512
+        bytes (including \r\n at the end of each line).  Note that "and", "or",
+        "not" and "near" are operators in the search language, so no point
+        indexing them even if we wanted to.
+        """
+        template = path.join(template_dir, 'project.stp')
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.stp')
+        copy_asset_file(template, filename)
+
+    @progress_message(__('writing project file'))
+    def build_project_file(self):
+        # type: () -> None
+        """Create a project file (.hhp) on outdir."""
+        # scan project files
+        project_files = []  # type: List[str]
+        for root, dirs, files in os.walk(self.outdir):
+            dirs.sort()
+            files.sort()
+            in_staticdir = root.startswith(path.join(self.outdir, '_static'))
+            for fn in sorted(files):
+                if (in_staticdir and not fn.endswith('.js')) or fn.endswith('.html'):
+                    fn = relpath(path.join(root, fn), self.outdir)
+                    project_files.append(fn.replace(os.sep, '\\'))
+
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.hhp')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
+            context = {
+                'outname': self.config.htmlhelp_basename,
                 'title': self.config.html_title,
                 'version': self.config.version,
                 'project': self.config.project,
                 'lcid': self.lcid,
-                'master_doc': self.config.master_doc + self.out_suffix
-            })
-            if not outdir.endswith(os.sep):
-                outdir += os.sep
-            olen = len(outdir)
-            for root, dirs, files in os.walk(outdir):
-                staticdir = root.startswith(path.join(outdir, '_static'))
-                for fn in sorted(files):
-                    if (staticdir and not fn.endswith('.js')) or \
-                       fn.endswith('.html'):
-                        print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
-                              file=f)
+                'master_doc': self.config.master_doc + self.out_suffix,
+                'files': project_files,
+            }
+            body = self.render('project.hhp', context)
+            f.write(body)
 
-        logger.info('writing TOC file...')
-        with self.open_file(outdir, outname + '.hhc') as f:
-            f.write(contents_header)
-            # special books
-            f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
-                                                self.config.master_doc + self.out_suffix))
-            for indexname, indexcls, content, collapse in self.domain_indices:
-                f.write('<LI> ' + object_sitemap % (indexcls.localname,
-                                                    '%s.html' % indexname))
-            # the TOC
-            tocdoc = self.env.get_and_resolve_doctree(
-                self.config.master_doc, self, prune_toctrees=False)
+    @progress_message(__('writing TOC file'))
+    def build_toc_file(self):
+        # type: () -> None
+        """Create a ToC file (.hhp) on outdir."""
+        filename = path.join(self.outdir, self.config.htmlhelp_basename + '.hhc')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
+            toctree = self.env.get_and_resolve_doctree(self.config.master_doc, self,
+                                                       prune_toctrees=False)
+            visitor = ToCTreeVisitor(toctree)
+            matcher = NodeMatcher(addnodes.compact_paragraph, toctree=True)
+            for node in toctree.traverse(matcher):  # type: addnodes.compact_paragraph
+                node.walkabout(visitor)
 
-            def write_toc(node, ullevel=0):
-                # type: (nodes.Node, int) -> None
-                if isinstance(node, nodes.list_item):
-                    f.write('<LI> ')
-                    for subnode in node:
-                        write_toc(subnode, ullevel)
-                elif isinstance(node, nodes.reference):
-                    link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"', '&quot;')
-                    f.write(object_sitemap % (title, link))
-                elif isinstance(node, nodes.bullet_list):
-                    if ullevel != 0:
-                        f.write('<UL>\n')
-                    for subnode in node:
-                        write_toc(subnode, ullevel + 1)
-                    if ullevel != 0:
-                        f.write('</UL>\n')
-                elif isinstance(node, addnodes.compact_paragraph):
-                    for subnode in node:
-                        write_toc(subnode, ullevel)
+            context = {
+                'body': visitor.astext(),
+                'suffix': self.out_suffix,
+                'short_title': self.config.html_short_title,
+                'master_doc': self.config.master_doc,
+                'domain_indices': self.domain_indices,
+            }
+            f.write(self.render('project.hhc', context))
 
-            def istoctree(node):
-                # type: (nodes.Node) -> bool
-                return isinstance(node, addnodes.compact_paragraph) and \
-                    'toctree' in node
-            for node in tocdoc.traverse(istoctree):
-                write_toc(node)
-            f.write(contents_footer)
-
-        logger.info('writing index file...')
+    def build_hhx(self, outdir, outname):
+        # type: (str, str) -> None
+        logger.info(__('writing index file...'))
         index = IndexEntries(self.env).create_index(self)
-        with self.open_file(outdir, outname + '.hhk') as f:
+        filename = path.join(outdir, outname + '.hhk')
+        with open(filename, 'w', encoding=self.encoding, errors='xmlcharrefreplace') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
-                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
+                # type: (str, List[Tuple[str, str]], List[Tuple[str, List[Tuple[str, str]]]]) -> None  # NOQA
                 def write_param(name, value):
-                    # type: (unicode, unicode) -> None
-                    item = '    <param name="%s" value="%s">\n' % \
-                        (name, value)
+                    # type: (str, str) -> None
+                    item = '    <param name="%s" value="%s">\n' % (name, value)
                     f.write(item)
-                title = htmlescape(title)
+                title = chm_htmlescape(title, True)
                 f.write('<LI> <OBJECT type="text/sitemap">\n')
                 write_param('Keyword', title)
                 if len(refs) == 0:
@@ -330,12 +363,20 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write('</UL>\n')
 
 
+def default_htmlhelp_basename(config):
+    # type: (Config) -> str
+    """Better default htmlhelp_basename setting."""
+    return make_filename_from_project(config.project) + 'doc'
+
+
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 
-    app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('htmlhelp_basename', default_htmlhelp_basename, None)
+    app.add_config_value('htmlhelp_file_suffix', None, 'html', [str])
+    app.add_config_value('htmlhelp_link_suffix', None, 'html', [str])
 
     return {
         'version': 'builtin',
