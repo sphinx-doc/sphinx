@@ -186,7 +186,7 @@ Features added
 * #5924: githubpages: create CNAME file for custom domains when
   :confval:`html_baseurl` set
 * #4261: autosectionlabel: restrict the labeled sections by new config value;
-  :confval:`autosectionlabel_max_depth`
+  :confval:`autosectionlabel_maxdepth`
 
 
 Bugs fixed
