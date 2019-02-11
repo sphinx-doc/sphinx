@@ -6,7 +6,7 @@
 
 .. versionadded:: 1.4
 
-.. versionchaned:: 2.0
+.. versionchanged:: 2.0
    Support ``CNAME`` file
 
 This extension creates ``.nojekyll`` file on generated HTML directory to publish
