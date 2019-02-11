@@ -59,6 +59,8 @@ Incompatible changes
   from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
   to insert custom user definitions.  See :ref:`latex-macros`.
 * quickstart: Simplify generated ``conf.py``
+* #4148: quickstart: some questions are removed.  They are still able to specify
+  via command line options
 * websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
 * C++, the visibility of base classes is now always rendered as present in the
   input. That is, ``private`` is now shown, where it was ellided before.
