@@ -72,7 +72,7 @@ INSTANCEATTR = object()
 def members_option(arg):
     # type: (Any) -> Union[object, List[str]]
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg is None or arg is True:
         return ALL
     return [x.strip() for x in arg.split(',')]
 
