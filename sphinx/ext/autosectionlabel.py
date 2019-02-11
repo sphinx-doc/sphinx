@@ -30,7 +30,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-def node_get_depth(node):
+def get_node_depth(node):
     i = 0
     cur_node = node
     while cur_node.parent != node.document:
@@ -45,7 +45,7 @@ def register_sections_as_label(app, document):
     anonlabels = app.env.domaindata['std']['anonlabels']
     for node in document.traverse(nodes.section):
         if (app.config.autosectionlabel_max_depth and
-                node_get_depth(node) > app.config.autosectionlabel_max_depth):
+                get_node_depth(node) > app.config.autosectionlabel_max_depth):
             continue
         labelid = node['ids'][0]
         docname = app.env.docname
