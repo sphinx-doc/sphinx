@@ -20,7 +20,7 @@ from io import StringIO
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
-from sphinx.util.pycompat import NoneType
+from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation

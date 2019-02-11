@@ -37,7 +37,6 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils
 from sphinx.util import import_object, progress_message
 from sphinx.util import logging
-from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper

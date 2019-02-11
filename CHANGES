@@ -120,10 +120,13 @@ Deprecated
 * ``sphinx.util.osutil.EPIPE``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
+* ``sphinx.util.pycompat.NoneType``
 * ``sphinx.util.pycompat.TextIOWrapper``
 * ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.htmlescape``
 * ``sphinx.util.pycompat.indent``
+* ``sphinx.util.pycompat.sys_encoding``
+* ``sphinx.util.pycompat.terminal_safe()``
 * ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.ExtBabel``
 * ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
