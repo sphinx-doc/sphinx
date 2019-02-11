@@ -179,7 +179,10 @@ Features added
   result links from changing their position when the search terminates.  This
   makes navigating search results easier.
 * #5196: linkcheck also checks remote images exist
-  
+* #5924: githubpages: create CNAME file for custom domains when
+  :confval:`html_baseurl` set
+
+
 Bugs fixed
 ----------
 
