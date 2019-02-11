@@ -71,7 +71,7 @@ def test_autosectionlabel_prefix_document_html(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel',
-                    confoverrides={'autosectionlabel_maxdepth': 2})
+                    confoverrides={'autosectionlabel_maxdepth': 3})
 def test_autosectionlabel_maxdepth(app, status, warning):
     return test_autosectionlabel_html(app, status, warning,
                                       skipped_labels=True)

@@ -45,7 +45,7 @@ def register_sections_as_label(app, document):
     anonlabels = app.env.domaindata['std']['anonlabels']
     for node in document.traverse(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
-                get_node_depth(node) > app.config.autosectionlabel_maxdepth):
+                get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
             continue
         labelid = node['ids'][0]
         docname = app.env.docname
