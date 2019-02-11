@@ -25,7 +25,7 @@ from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
 )
-from sphinx.util.nodes import traverse_parent
+from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
 
 if False:
@@ -271,17 +271,24 @@ class CheckExternalLinksBuilder(Builder):
         # type: (str, nodes.Node) -> None
         logger.info('')
         n = 0
-        for node in doctree.traverse(nodes.reference):
-            if 'refuri' not in node:
+
+        # reference nodes
+        for refnode in doctree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
                 continue
-            uri = node['refuri']
-            lineno = None
-            for parent in traverse_parent(node):
-                if parent.line:
-                    lineno = parent.line
-                    break
+            uri = refnode['refuri']
+            lineno = get_node_line(refnode)
             self.wqueue.put((uri, docname, lineno), False)
             n += 1
+
+        # image nodes
+        for imgnode in doctree.traverse(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                lineno = get_node_line(imgnode)
+                self.wqueue.put((uri, docname, lineno), False)
+                n += 1
+
         done = 0
         while done < n:
             self.process_result(self.rqueue.get())

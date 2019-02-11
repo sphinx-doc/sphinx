@@ -155,6 +155,7 @@ Features added
 
 * #4182: autodoc: Support :confval:`suppress_warnings`
 * #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
+* #5394: autodoc: Display readable names in type annotations for mocked objects
 * #5459: autodoc: :confval:`autodoc_default_options` accepts ``True`` as a value
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
   :confval:`htmlhelp_link_suffix`
@@ -178,6 +179,7 @@ Features added
 * #6016: HTML search: A placeholder for the search summary prevents search
   result links from changing their position when the search terminates.  This
   makes navigating search results easier.
+* #5196: linkcheck also checks remote images exist
   
 Bugs fixed
 ----------
