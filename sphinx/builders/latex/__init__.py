@@ -439,7 +439,7 @@ def validate_config_values(app, config):
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r]. ignored.")
-            logger.warning(msg % key)
+            logger.warning(msg % (key,))
             config.latex_elements.pop(key)
 
 
