@@ -8,6 +8,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 from io import StringIO
 
 import pytest
@@ -229,3 +230,15 @@ def test_import_by_name():
     assert obj == sphinx.ext.autosummary.Autosummary.get_items
     assert parent is sphinx.ext.autosummary.Autosummary
     assert modname == 'sphinx.ext.autosummary'
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-mock_imports')
+def test_autosummary_mock_imports(app, status, warning):
+    try:
+        app.build()
+        assert warning.getvalue() == ''
+
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/foo')
+    finally:
+        sys.modules.pop('foo', None)  # unload foo module

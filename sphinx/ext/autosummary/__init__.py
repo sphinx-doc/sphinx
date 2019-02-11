@@ -72,7 +72,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
-from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc.importer import import_module, mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
@@ -286,7 +286,8 @@ class Autosummary(SphinxDirective):
                 display_name = name.split('.')[-1]
 
             try:
-                real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
+                with mock(self.config.autosummary_mock_imports):
+                    real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
                 logger.warning(__('failed to import %s'), name)
                 items.append((name, '', '', name))
@@ -702,10 +703,11 @@ def process_generate_options(app):
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
 
-    generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=logger.warning, info=logger.info,
-                              suffix=suffix, base_path=app.srcdir,
-                              app=app)
+    with mock(app.config.autosummary_mock_imports):
+        generate_autosummary_docs(genfiles, builder=app.builder,
+                                  warn=logger.warning, info=logger.info,
+                                  suffix=suffix, base_path=app.srcdir,
+                                  app=app)
 
 
 def setup(app):
@@ -729,4 +731,7 @@ def setup(app):
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
+    app.add_config_value('autosummary_mock_imports',
+                         lambda config: config.autodoc_mock_imports, 'env')
+
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
