@@ -27,6 +27,7 @@ This one's got an apostrophe
 References
 ==========
 
+* :ref:`test-ext-autosectionlabel`
 * :ref:`Introduce of Sphinx`
 * :ref:`Installation`
 * :ref:`For Windows users`
