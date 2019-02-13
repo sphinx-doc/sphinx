@@ -247,7 +247,7 @@ class TexinfoTranslator(SphinxTranslator):
         title = self.settings.title  # type: str
         if not title:
             title_node = self.document.next_node(nodes.title)
-            title = (title and title_node.astext()) or '<untitled>'
+            title = (title_node and title_node.astext()) or '<untitled>'
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename
         if not elements['filename']:
