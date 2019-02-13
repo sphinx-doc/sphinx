@@ -370,6 +370,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinxcontrib.jsmath``
 
+   * - ``sphinx.roles.abbr_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.Abbreviation``
+
    * - ``sphinx.testing.util.remove_unicode_literal()``
      - 2.0
      - 4.0

@@ -9,13 +9,16 @@
 """
 
 import re
+import warnings
 
 from docutils import nodes, utils
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.util import ws_re
+from sphinx.util.docutils import SphinxRole
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info
 
@@ -338,6 +341,8 @@ _abbr_re = re.compile(r'\((.*)\)$', re.S)
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    warnings.warn('abbr_role() is deprecated.  Please use Abbrevation class instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     text = utils.unescape(text)
     m = _abbr_re.search(text)
     if m is None:
@@ -347,6 +352,21 @@ def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     options = options.copy()
     options['explanation'] = expl
     return [nodes.abbreviation(abbr, abbr, **options)], []
+
+
+class Abbreviation(SphinxRole):
+    abbr_re = re.compile(r'\((.*)\)$', re.S)
+
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        matched = self.abbr_re.search(self.text)
+        if matched:
+            text = self.text[:matched.start()].strip()
+            self.options['explanation'] = matched.group(1)
+        else:
+            text = self.text
+
+        return [nodes.abbreviation(self.rawtext, text, **self.options)], []
 
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -390,7 +410,7 @@ specific_docroles = {
     'menuselection': menusel_role,
     'file': emph_literal_role,
     'samp': emph_literal_role,
-    'abbr': abbr_role,
+    'abbr': Abbreviation(),
     'index': index_role,
 }  # type: Dict[str, RoleFunction]
 

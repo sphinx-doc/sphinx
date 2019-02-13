@@ -114,6 +114,7 @@ Deprecated
 * ``sphinx.io.SphinxFileInput.supported``
 * ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
+* ``sphinx.roles.abbr_role()``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.attrdict``
 * ``sphinx.util.force_decode()``
