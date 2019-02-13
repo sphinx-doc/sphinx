@@ -143,6 +143,11 @@ also use this new config value:
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
+.. confval:: autosummary_mock_imports
+
+   This value contains a list of modules to be mocked up.  See
+   :confval:`autodoc_mock_imports` for more details.  It defaults to
+   :confval:`autodoc_mock_imports`.
 
 Customizing templates
 ---------------------
