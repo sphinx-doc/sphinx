@@ -151,7 +151,7 @@ class PyXrefMixin:
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
-        split_contnode = bool(contnode and contnode.astext() == target)  # type: ignore
+        split_contnode = bool(contnode and contnode.astext() == target)
 
         results = []
         for sub_target in filter(None, sub_targets):
