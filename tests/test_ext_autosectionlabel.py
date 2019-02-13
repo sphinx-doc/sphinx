@@ -38,12 +38,12 @@ def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
             '<span class="std std-ref">For UNIX users</span></a></p></li>')
     assert re.search(html, content, re.S)
 
-    html = ('<li><a class="reference internal" href="#linux">'
-            '<span class="std std-ref">Linux</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#linux">'
+            '<span class="std std-ref">Linux</span></a></p></li>')
     assert re.search(html, content, re.S)
 
-    html = ('<li><a class="reference internal" href="#freebsd">'
-            '<span class="std std-ref">FreeBSD</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#freebsd">'
+            '<span class="std std-ref">FreeBSD</span></a></p></li>')
     assert re.search(html, content, re.S)
 
     # for smart_quotes (refs: #4027)
@@ -62,6 +62,8 @@ def test_autosectionlabel_prefix_document_html(app, status, warning):
     test_autosectionlabel_html(app, status, warning)
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel',
                     confoverrides={'autosectionlabel_maxdepth': 3})
 def test_autosectionlabel_maxdepth(app, status, warning):
@@ -70,22 +72,22 @@ def test_autosectionlabel_maxdepth(app, status, warning):
     content = (app.outdir / 'index.html').text()
 
     # depth: 1
-    html = ('<li><a class="reference internal" href="#test-ext-autosectionlabel">'
-            '<span class=".*?">test-ext-autosectionlabel</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#test-ext-autosectionlabel">'
+            '<span class=".*?">test-ext-autosectionlabel</span></a></p></li>')
     assert re.search(html, content, re.S)
 
     # depth: 2
-    html = ('<li><a class="reference internal" href="#installation">'
-            '<span class="std std-ref">Installation</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#installation">'
+            '<span class="std std-ref">Installation</span></a></p></li>')
     assert re.search(html, content, re.S)
 
     # depth: 3
-    html = ('<li><a class="reference internal" href="#for-windows-users">'
-            '<span class="std std-ref">For Windows users</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#for-windows-users">'
+            '<span class="std std-ref">For Windows users</span></a></p></li>')
     assert re.search(html, content, re.S)
 
     # depth: 4
-    html = '<li><span class="xref std std-ref">Linux</span></li>'
+    html = '<li><p><span class="xref std std-ref">Linux</span></p></li>'
     assert re.search(html, content, re.S)
 
     assert 'WARNING: undefined label: linux' in warning.getvalue()
