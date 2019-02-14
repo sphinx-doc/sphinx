@@ -325,6 +325,9 @@ _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    warnings.warn('menusel_role() is deprecated. '
+                  'Please use MenuSelection or GUILabel class instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -355,6 +358,32 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
     node['classes'].append(typ)
     return [node], []
+
+
+class GUILabel(SphinxRole):
+    amp_re = re.compile(r'(?<!&)&(?![&\s])')
+
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        node = nodes.inline(rawtext=self.rawtext, classes=[self.name])
+        spans = self.amp_re.split(self.text)
+        node += nodes.Text(spans.pop(0))
+        for span in spans:
+            span = span.replace('&&', '&')
+
+            letter = nodes.Text(span[0])
+            accelerator = nodes.inline('', '', letter, classes=['accelerator'])
+            node += accelerator
+            node += nodes.Text(span[1:])
+
+        return [node], []
+
+
+class MenuSelection(GUILabel):
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        self.text = self.text.replace('-->', '\N{TRIANGULAR BULLET}')  # type: ignore
+        return super().run()
 
 
 _litvar_re = re.compile('{([^}]+)}')
@@ -507,8 +536,8 @@ specific_docroles = {
 
     'pep': PEP(),
     'rfc': RFC(),
-    'guilabel': menusel_role,
-    'menuselection': menusel_role,
+    'guilabel': GUILabel(),
+    'menuselection': MenuSelection(),
     'file': emph_literal_role,
     'samp': emph_literal_role,
     'abbr': Abbreviation(),
