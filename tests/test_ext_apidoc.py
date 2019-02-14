@@ -49,7 +49,6 @@ def apidoc_params(request):
 def test_simple(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
-    assert (outdir / 'autodoc_fodder.rst').isfile()
     assert (outdir / 'index.rst').isfile()
 
     app = make_app('text', srcdir=outdir)
@@ -273,7 +272,6 @@ def test_excludes_module_should_not_be_skipped(apidoc):
 def test_multibyte_parameters(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
-    assert (outdir / 'autodoc_fodder.rst').isfile()
     assert (outdir / 'index.rst').isfile()
 
     conf_py = (outdir / 'conf.py').text()

@@ -17,8 +17,6 @@ from sphinx.testing.comparer import PathComparer
 @pytest.mark.sphinx('dummy')
 def test_images(app):
     app.build()
-    assert ('image file not readable: foo.png'
-            in app._warning.getvalue())
 
     tree = app.env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)
