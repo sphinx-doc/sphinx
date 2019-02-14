@@ -603,6 +603,29 @@ def test_generate():
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_decorator(app):
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco1')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco1',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco1',
+        '   '
+    ]
+
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco2')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco2(condition, message)',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco2',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_exception(app):
     actual = do_autodoc(app, 'exception', 'target.CustomEx')
     assert list(actual) == [

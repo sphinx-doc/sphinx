@@ -237,6 +237,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
 
 .. rst:directive:: autofunction
+                   autodecorator
                    autodata
                    automethod
                    autoattribute
@@ -293,10 +294,11 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
-
    .. versionchanged:: 1.2
       :rst:dir:`autodata` and :rst:dir:`autoattribute` have an ``annotation``
       option.
+   .. versionchanged:: 2.0
+      :rst:dir:`autodecorator` added.
 
    .. note::
 
