@@ -421,6 +421,39 @@ class SphinxRole:
         """Reference to the :class:`.Config` object."""
         return self.env.config
 
+    def set_source_info(self, node, lineno=None):
+        # type: (nodes.Node, int) -> None
+        if lineno is None:
+            lineno = self.lineno
+
+        source_info = self.inliner.reporter.get_source_and_line(lineno)  # type: ignore
+        node.source, node.line = source_info
+
+
+class ReferenceRole(SphinxRole):
+    """A base class for reference roles.
+
+    The reference roles can accpet ``link title <target>`` style as a text for
+    the role.  The parsed result: link title and target will be stored to
+    ``self.title`` and ``self.target``.
+    """
+    # \x00 means the "<" was backslash-escaped
+    explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
+
+    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        matched = self.explicit_title_re.match(text)
+        if matched:
+            self.has_explicit_title = True
+            self.title = unescape(matched.group(1))
+            self.target = unescape(matched.group(2))
+        else:
+            self.has_explicit_title = False
+            self.title = unescape(text)
+            self.target = unescape(text)
+
+        return super().__call__(typ, rawtext, text, lineno, inliner, options, content)
+
 
 class SphinxTranslator(nodes.NodeVisitor):
     """A base class for Sphinx translators.
