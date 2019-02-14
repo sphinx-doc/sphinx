@@ -385,6 +385,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.roles.Index``
 
+   * - ``sphinx.roles.indexmarkup_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.PEP`` or ``sphinx.roles.RFC``
+
    * - ``sphinx.testing.util.remove_unicode_literal()``
      - 2.0
      - 4.0
