@@ -380,6 +380,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.roles.Abbreviation``
 
+   * - ``sphinx.roles.emph_literal_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.EmphasizedLiteral``
+
    * - ``sphinx.roles.menusel_role()``
      - 2.0
      - 4.0

@@ -185,24 +185,6 @@ def get_verifier(verify, verify_re):
         r'\\sphinxcode{\\sphinxupquote{code   sample}}',
     ),
     (
-        # correct interpretation of code with whitespace
-        'verify_re',
-        ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
-         'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
-    ),
-    (
-        # interpolation of braces in samp and file roles (HTML only)
-        'verify',
-        ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal notranslate">'
-         '<span class="pre">a</span>'
-         '<em><span class="pre">b</span></em>'
-         '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
-    ),
-    (
         # interpolation of arrows in menuselection
         'verify',
         ':menuselection:`a --> b`',
@@ -312,6 +294,36 @@ def get_verifier(verify, verify_re):
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
+
+
+def test_samp_role(parse):
+    # no braces
+    text = ':samp:`a{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "b"],
+                                                              "c")])
+    # nested braces
+    text = ':samp:`a{{b}}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "{b"],
+                                                              "}c")])
+
+    # half-opened braces
+    text = ':samp:`a{bc`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{bc"])
+
+    # escaped braces
+    text = ':samp:`a\\\\{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{b}c"])
+
+    # no braces (whitespaces are keeped as is)
+    text = ':samp:`code   sample`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "code   sample"])
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
