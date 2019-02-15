@@ -35,6 +35,7 @@ def settings(app):
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     settings.contentsname = 'dummy'
+    settings.rfc_base_url = 'http://tools.ietf.org/html/'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -132,6 +133,49 @@ def get_verifier(verify, verify_re):
 
 
 @pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+    (
+        # pep role
+        'verify',
+        ':pep:`8`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
+         '{\\sphinxstylestrong{PEP 8}}')
+    ),
+    (
+        # pep role with anchor
+        'verify',
+        ':pep:`8#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008#id1">'
+         '<strong>PEP 8#id1</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
+         '{http://www.python.org/dev/peps/pep-0008\\#id1}'
+         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+    ),
+    (
+        # rfc role
+        'verify',
+        ':rfc:`2324`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html}'
+         '{\\sphinxstylestrong{RFC 2324}}')
+    ),
+    (
+        # rfc role with anchor
+        'verify',
+        ':rfc:`2324#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html#id1">'
+         '<strong>RFC 2324#id1</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html\\#id1}'
+         '{\\sphinxstylestrong{RFC 2324\\#id1}}')
+    ),
     (
         # correct interpretation of code with whitespace
         'verify_re',
