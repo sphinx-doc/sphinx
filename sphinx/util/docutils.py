@@ -392,6 +392,15 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
+    name = None     #: The role name actually used in the document.
+    rawtext = None  #: A string containing the entire interpreted text input.
+    text = None     #: The interpreted text content.
+    lineno = None   #: The line number where the interpreted text begins.
+    inliner = None  #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options = None  #: A dictionary of directive options for customization
+                    #: (from the "role" directive).
+    content = None  #: A list of strings, the directive content for customization
+                    #: (from the "role" directive).
 
     def __call__(self, name, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
@@ -443,9 +452,13 @@ class ReferenceRole(SphinxRole):
     """A base class for reference roles.
 
     The reference roles can accpet ``link title <target>`` style as a text for
-    the role.  The parsed result: link title and target will be stored to
+    the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
+    has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    title = None                #: The link title for the interpreted text.
+    target = None               #: The link target for the interpreted text.
+
     # \x00 means the "<" was backslash-escaped
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
