@@ -392,8 +392,17 @@ class SphinxRole:
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
+    name = None     #: The role name actually used in the document.
+    rawtext = None  #: A string containing the entire interpreted text input.
+    text = None     #: The interpreted text content.
+    lineno = None   #: The line number where the interpreted text begins.
+    inliner = None  #: The ``docutils.parsers.rst.states.Inliner`` object.
+    options = None  #: A dictionary of directive options for customization
+                    #: (from the "role" directive).
+    content = None  #: A list of strings, the directive content for customization
+                    #: (from the "role" directive).
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, name, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         self.rawtext = rawtext
         self.text = unescape(text)
@@ -403,13 +412,13 @@ class SphinxRole:
         self.content = content
 
         # guess role type
-        if typ:
-            self.type = typ.lower()
+        if name:
+            self.name = name.lower()
         else:
-            self.type = self.env.temp_data.get('default_role')
-            if not self.type:
-                self.type = self.env.config.default_role
-            if not self.type:
+            self.name = self.env.temp_data.get('default_role')
+            if not self.name:
+                self.name = self.env.config.default_role
+            if not self.name:
                 raise SphinxError('cannot determine default role!')
 
         return self.run()
@@ -443,13 +452,17 @@ class ReferenceRole(SphinxRole):
     """A base class for reference roles.
 
     The reference roles can accpet ``link title <target>`` style as a text for
-    the role.  The parsed result: link title and target will be stored to
+    the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
     """
+    has_explicit_title = None   #: A boolean indicates the role has explicit title or not.
+    title = None                #: The link title for the interpreted text.
+    target = None               #: The link target for the interpreted text.
+
     # \x00 means the "<" was backslash-escaped
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, name, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         matched = self.explicit_title_re.match(text)
         if matched:
@@ -461,7 +474,7 @@ class ReferenceRole(SphinxRole):
             self.title = unescape(text)
             self.target = unescape(text)
 
-        return super().__call__(typ, rawtext, text, lineno, inliner, options, content)
+        return super().__call__(name, rawtext, text, lineno, inliner, options, content)
 
 
 class SphinxTranslator(nodes.NodeVisitor):
