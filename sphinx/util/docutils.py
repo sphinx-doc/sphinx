@@ -26,7 +26,7 @@ from docutils.statemachine import StateMachine
 from docutils.utils import Reporter, unescape
 
 from sphinx.deprecation import RemovedInSphinx30Warning
-from sphinx.errors import ExtensionError
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -395,13 +395,22 @@ class SphinxRole:
 
     def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
-        self.type = typ
         self.rawtext = rawtext
         self.text = unescape(text)
         self.lineno = lineno
         self.inliner = inliner
         self.options = options
         self.content = content
+
+        # guess role type
+        if typ:
+            self.type = typ.lower()
+        else:
+            self.type = self.env.temp_data.get('default_role')
+            if not self.type:
+                self.type = self.env.config.default_role
+            if not self.type:
+                raise SphinxError('cannot determine default role!')
 
         return self.run()
 

@@ -182,6 +182,8 @@ class AnyXRefRole(XRefRole):
 def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
+    warnings.warn('indexmarkup_role() is deprecated.  Please use PEP or RFC class instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -243,6 +245,80 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]
         return [indexnode, targetnode, rn], []
     else:
         raise ValueError('unknown role type: %s' % typ)
+
+
+class PEP(ReferenceRole):
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        target_id = 'index-%s' % self.env.new_serialno('index')
+        entries = [('single', _('Python Enhancement Proposals; PEP %s') % self.target,
+                    target_id, '', None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['pep'])
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = "PEP " + self.title
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error('invalid PEP number %s' % self.target,
+                                              line=self.lineno)
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self):
+        # type: () -> str
+        base_url = self.inliner.document.settings.pep_base_url
+        target, anchor = self.target.split('#', 1)
+        if anchor:
+            return base_url + 'pep-%04d#%s' % (int(target), anchor)
+        else:
+            return base_url + 'pep-%04d' % int(target)
+
+
+class RFC(ReferenceRole):
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+        target_id = 'index-%s' % self.env.new_serialno('index')
+        entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['rfc'])
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = "RFC " + self.title
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error('invalid RFC number %s' % self.target,
+                                              line=self.lineno)
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self):
+        # type: () -> str
+        target, anchor = self.target.split('#', 1)
+        base_url = (self.inliner.document.settings.rfc_base_url +
+                    self.inliner.rfc_url % int(target))
+        if anchor:
+            return base_url + '#' + anchor
+        else:
+            return base_url
 
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
@@ -430,8 +506,8 @@ specific_docroles = {
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
 
-    'pep': indexmarkup_role,
-    'rfc': indexmarkup_role,
+    'pep': PEP(),
+    'rfc': RFC(),
     'guilabel': menusel_role,
     'menuselection': menusel_role,
     'file': emph_literal_role,

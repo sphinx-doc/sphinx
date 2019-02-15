@@ -117,6 +117,7 @@ Deprecated
 * ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
 * ``sphinx.roles.abbr_role()``
 * ``sphinx.roles.index_role()``
+* ``sphinx.roles.indexmarkup_role()``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.attrdict``
 * ``sphinx.util.force_decode()``
