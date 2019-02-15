@@ -18,7 +18,7 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.util import ws_re
-from sphinx.util.docutils import SphinxRole
+from sphinx.util.docutils import ReferenceRole, SphinxRole
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
     set_role_source_info
 
@@ -371,6 +371,8 @@ class Abbreviation(SphinxRole):
 
 def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    warnings.warn('index_role() is deprecated.  Please use Index class instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     # create new reference target
     env = inliner.document.settings.env
     targetid = 'index-%s' % env.new_serialno('index')
@@ -398,6 +400,30 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [indexnode, targetnode, textnode], []
 
 
+class Index(ReferenceRole):
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        target_id = 'index-%s' % self.env.new_serialno('index')
+        if self.has_explicit_title:
+            # if an explicit target is given, process it as a full entry
+            title = self.title
+            entries = process_index_entry(self.target, target_id)
+        else:
+            # otherwise we just create a single entry
+            if self.target.startswith('!'):
+                title = self.title[1:]
+                entries = [('single', self.target[1:], target_id, 'main', None)]
+            else:
+                title = self.title
+                entries = [('single', self.target, target_id, '', None)]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        text = nodes.Text(title, title)
+        self.set_source_info(index)
+        return [index, target, text], []
+
+
 specific_docroles = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
@@ -411,7 +437,7 @@ specific_docroles = {
     'file': emph_literal_role,
     'samp': emph_literal_role,
     'abbr': Abbreviation(),
-    'index': index_role,
+    'index': Index(),
 }  # type: Dict[str, RoleFunction]
 
 
