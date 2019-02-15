@@ -277,11 +277,11 @@ class PEP(ReferenceRole):
     def build_uri(self):
         # type: () -> str
         base_url = self.inliner.document.settings.pep_base_url
-        target, anchor = self.target.split('#', 1)
-        if anchor:
-            return base_url + 'pep-%04d#%s' % (int(target), anchor)
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return base_url + 'pep-%04d#%s' % (int(ret[0]), ret[1])
         else:
-            return base_url + 'pep-%04d' % int(target)
+            return base_url + 'pep-%04d' % int(ret[0])
 
 
 class RFC(ReferenceRole):
@@ -312,13 +312,12 @@ class RFC(ReferenceRole):
 
     def build_uri(self):
         # type: () -> str
-        target, anchor = self.target.split('#', 1)
-        base_url = (self.inliner.document.settings.rfc_base_url +
-                    self.inliner.rfc_url % int(target))
-        if anchor:
-            return base_url + '#' + anchor
+        base_url = self.inliner.document.settings.rfc_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[1]
         else:
-            return base_url
+            return base_url + self.inliner.rfc_url % int(ret[0])
 
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
