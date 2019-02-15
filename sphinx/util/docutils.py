@@ -393,7 +393,7 @@ class SphinxRole:
               This class is strongly coupled with Sphinx.
     """
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, name, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         self.rawtext = rawtext
         self.text = unescape(text)
@@ -403,13 +403,13 @@ class SphinxRole:
         self.content = content
 
         # guess role type
-        if typ:
-            self.type = typ.lower()
+        if name:
+            self.name = name.lower()
         else:
-            self.type = self.env.temp_data.get('default_role')
-            if not self.type:
-                self.type = self.env.config.default_role
-            if not self.type:
+            self.name = self.env.temp_data.get('default_role')
+            if not self.name:
+                self.name = self.env.config.default_role
+            if not self.name:
                 raise SphinxError('cannot determine default role!')
 
         return self.run()
@@ -449,7 +449,7 @@ class ReferenceRole(SphinxRole):
     # \x00 means the "<" was backslash-escaped
     explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 
-    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    def __call__(self, name, rawtext, text, lineno, inliner, options={}, content=[]):
         # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         matched = self.explicit_title_re.match(text)
         if matched:
@@ -461,7 +461,7 @@ class ReferenceRole(SphinxRole):
             self.title = unescape(text)
             self.target = unescape(text)
 
-        return super().__call__(typ, rawtext, text, lineno, inliner, options, content)
+        return super().__call__(name, rawtext, text, lineno, inliner, options, content)
 
 
 class SphinxTranslator(nodes.NodeVisitor):
