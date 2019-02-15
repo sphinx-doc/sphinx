@@ -295,6 +295,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder``
 
+   * - ``sphinx.builders.htmlhelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.htmlhelp``
+
    * - ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
      - 2.0
      - 4.0

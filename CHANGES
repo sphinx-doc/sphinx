@@ -23,6 +23,7 @@ Dependencies
 
   - sphinxcontrib.applehelp
   - sphinxcontrib.devhelp
+  - sphinxcontrib.htmlhelp
   - sphinxcontrib.jsmath
   - sphinxcontrib.qthelp
 
