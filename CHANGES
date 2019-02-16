@@ -18,6 +18,7 @@ Bugs fixed
 
 * LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
 * #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
+* #6019: imgconverter: Including multipage PDF fails
 
 Testing
 --------
