@@ -516,7 +516,7 @@ Makefile to be used with sphinx-build.
     group = parser.add_argument_group(__('Structure options'))
     group.add_argument('--sep', action='store_true', default=None,
                        help=__('if specified, separate source and build dirs'))
-    group.add_argument('--dot', metavar='DOT',
+    group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 
     group = parser.add_argument_group(__('Project basic options'))
@@ -530,9 +530,9 @@ Makefile to be used with sphinx-build.
                        help=__('release of project'))
     group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
                        help=__('document language'))
-    group.add_argument('--suffix', metavar='SUFFIX',
+    group.add_argument('--suffix', metavar='SUFFIX', default='.rst',
                        help=__('source file suffix'))
-    group.add_argument('--master', metavar='MASTER',
+    group.add_argument('--master', metavar='MASTER', default='index',
                        help=__('master document name'))
     group.add_argument('--epub', action='store_true', default=False,
                        help=__('use epub'))
@@ -546,11 +546,11 @@ Makefile to be used with sphinx-build.
                        action='append', help=__('enable arbitrary extensions'))
 
     group = parser.add_argument_group(__('Makefile and Batchfile creation'))
-    group.add_argument('--makefile', action='store_true', dest='makefile', default=None,
+    group.add_argument('--makefile', action='store_true', dest='makefile', default=True,
                        help=__('create makefile'))
     group.add_argument('--no-makefile', action='store_false', dest='makefile',
                        help=__('do not create makefile'))
-    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=None,
+    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=True,
                        help=__('create batchfile'))
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
@@ -592,6 +592,13 @@ def main(argv=sys.argv[1:]):
     # delete None or False value
     d = dict((k, v) for k, v in d.items() if v is not None)
 
+    # handle use of CSV-style extension values
+    d.setdefault('extensions', [])
+    for ext in d['extensions'][:]:
+        if ',' in ext:
+            d['extensions'].remove(ext)
+            d['extensions'].extend(ext.split(','))
+
     try:
         if 'quiet' in d:
             if not set(['project', 'author']).issubset(d):
@@ -620,13 +627,6 @@ def main(argv=sys.argv[1:]):
         print()
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
-
-    # handle use of CSV-style extension values
-    d.setdefault('extensions', [])
-    for ext in d['extensions'][:]:
-        if ',' in ext:
-            d['extensions'].remove(ext)
-            d['extensions'].extend(ext.split(','))
 
     for variable in d.get('variables', []):
         try:
