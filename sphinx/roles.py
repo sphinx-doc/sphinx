@@ -393,6 +393,9 @@ parens_re = re.compile(r'(\\*{|\\*})')
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
+    warnings.warn('emph_literal_role() is deprecated. '
+                  'Please use EmphasizedLiteral class instead.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     env = inliner.document.settings.env
     if not typ:
         assert env.temp_data['default_role']
@@ -438,6 +441,58 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
         retnode += nodes.Text(text, text)
 
     return [retnode], []
+
+
+class EmphasizedLiteral(SphinxRole):
+    parens_re = re.compile(r'(\\\\|\\{|\\}|{|})')
+
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        children = self.parse(self.text)
+        node = nodes.literal(self.rawtext, '', *children,
+                             role=self.name.lower(), classes=[self.name])
+
+        return [node], []
+
+    def parse(self, text):
+        # type: (str) -> List[nodes.Node]
+        result = []  # type: List[nodes.Node]
+
+        stack = ['']
+        for part in self.parens_re.split(text):
+            if part == '\\\\':  # escaped backslash
+                stack[-1] += '\\'
+            elif part == '{':
+                if len(stack) >= 2 and stack[-2] == "{":  # nested
+                    stack[-1] += "{"
+                else:
+                    # start emphasis
+                    stack.append('{')
+                    stack.append('')
+            elif part == '}':
+                if len(stack) == 3 and stack[1] == "{" and len(stack[2]) > 0:
+                    # emphasized word found
+                    if stack[0]:
+                        result.append(nodes.Text(stack[0], stack[0]))
+                    result.append(nodes.emphasis(stack[2], stack[2]))
+                    stack = ['']
+                else:
+                    # emphasized word not found; the rparen is not a special symbol
+                    stack.append('}')
+                    stack = [''.join(stack)]
+            elif part == '\\{':  # escaped left-brace
+                stack[-1] += '{'
+            elif part == '\\}':  # escaped right-brace
+                stack[-1] += '}'
+            else:  # others (containing escaped braces)
+                stack[-1] += part
+
+        if ''.join(stack):
+            # remaining is treated as Text
+            text = ''.join(stack)
+            result.append(nodes.Text(text, text))
+
+        return result
 
 
 _abbr_re = re.compile(r'\((.*)\)$', re.S)
@@ -538,8 +593,8 @@ specific_docroles = {
     'rfc': RFC(),
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
-    'file': emph_literal_role,
-    'samp': emph_literal_role,
+    'file': EmphasizedLiteral(),
+    'samp': EmphasizedLiteral(),
     'abbr': Abbreviation(),
     'index': Index(),
 }  # type: Dict[str, RoleFunction]
