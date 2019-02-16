@@ -18,7 +18,8 @@ from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.testing.util import assert_node
+from sphinx.roles import XRefRole
+from sphinx.testing.util import Struct, assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
@@ -43,10 +44,26 @@ def settings(app):
 
 
 @pytest.fixture
-def parse(settings):
-    def parse_(rst):
-        document = utils.new_document(b'test data', settings)
+def new_document(settings):
+    def create():
+        document = utils.new_document('test data', settings)
         document['file'] = 'dummy'
+        return document
+
+    return create
+
+
+@pytest.fixture
+def inliner(new_document):
+    document = new_document()
+    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
+    return Struct(document=document, reporter=document.reporter)
+
+
+@pytest.fixture
+def parse(new_document):
+    def parse_(rst):
+        document = new_document()
         parser = RstParser()
         parser.parse(rst, document)
         SmartQuotes(document, startnode=None).apply()
@@ -344,6 +361,48 @@ def test_download_role(parse):
     assert_node(doctree[0][0], refdoc='dummy', refdomain='', reftype='download',
                 refexplicit=True, reftarget='sphinx.rst', refwarn=False)
     assert_node(doctree[0][0][0], classes=['xref', 'download'])
+
+
+def test_XRefRole(inliner):
+    role = XRefRole()
+
+    # implicit
+    doctrees, errors = role('ref', 'rawtext', 'text', 5, inliner, {}, [])
+    assert len(doctrees) == 1
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
+    assert errors == []
+
+    # explicit
+    doctrees, errors = role('ref', 'rawtext', 'title <target>', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'title'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='target',
+                refexplicit=True, refwarn=False)
+
+    # bang
+    doctrees, errors = role('ref', 'rawtext', '!title <target>', 5, inliner, {}, [])
+    assert_node(doctrees[0], [nodes.literal, 'title <target>'])
+
+    # refdomain
+    doctrees, errors = role('test:doc', 'rawtext', 'text', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='test', reftype='doc', reftarget='text',
+                refexplicit=False, refwarn=False)
+
+    # fix_parens
+    role = XRefRole(fix_parens=True)
+    doctrees, errors = role('ref', 'rawtext', 'text()', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text()'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
+
+    # lowercase
+    role = XRefRole(lowercase=True)
+    doctrees, errors = role('ref', 'rawtext', 'TEXT', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'TEXT'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
