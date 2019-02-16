@@ -116,6 +116,7 @@ Deprecated
 * ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
 * ``sphinx.roles.abbr_role()``
+* ``sphinx.roles.menusel_role()``
 * ``sphinx.roles.index_role()``
 * ``sphinx.roles.indexmarkup_role()``
 * ``sphinx.testing.util.remove_unicode_literal()``

@@ -226,6 +226,13 @@ def get_verifier(verify, verify_re):
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
     ),
     (
+        # no ampersands in guilabel
+        'verify',
+        ':guilabel:`Foo`',
+        '<p><span class="guilabel">Foo</span></p>',
+        r'\sphinxguilabel{Foo}',
+    ),
+    (
         # non-interpolation of dashes in option role
         'verify_re',
         ':option:`--with-option`',
