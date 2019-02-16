@@ -15,7 +15,6 @@ from docutils import nodes, utils
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.util import ws_re
 from sphinx.util.docutils import ReferenceRole, SphinxRole
@@ -47,7 +46,7 @@ generic_docroles = {
 
 # -- generic cross-reference role ----------------------------------------------
 
-class XRefRole:
+class XRefRole(ReferenceRole):
     """
     A generic cross-referencing role.  To create a callable that can be used as
     a role function, create an instance of this class.
@@ -85,8 +84,12 @@ class XRefRole:
         if innernodeclass is not None:
             self.innernodeclass = innernodeclass
 
+        super().__init__()
+
     def _fix_parens(self, env, has_explicit_title, title, target):
         # type: (BuildEnvironment, bool, str, str) -> Tuple[str, str]
+        warnings.warn('XRefRole._fix_parens() is deprecated.',
+                      RemovedInSphinx40Warning, stacklevel=2)
         if not has_explicit_title:
             if title.endswith('()'):
                 # remove parentheses
@@ -99,55 +102,70 @@ class XRefRole:
             target = target[:-2]
         return title, target
 
-    def __call__(self, typ, rawtext, text, lineno, inliner,
-                 options={}, content=[]):
-        # type: (str, str, str, int, Inliner, Dict, List[str]) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
-        env = inliner.document.settings.env
-        if not typ:
-            typ = env.temp_data.get('default_role')
-            if not typ:
-                typ = env.config.default_role
-            if not typ:
-                raise SphinxError('cannot determine default role!')
+    def update_title_and_target(self, title, target):
+        # type: (str, str) -> Tuple[str, str]
+        if not self.has_explicit_title:
+            if title.endswith('()'):
+                # remove parentheses
+                title = title[:-2]
+            if self.config.add_function_parentheses:
+                # add them back to all occurrences if configured
+                title += '()'
+        # remove parentheses from the target too
+        if target.endswith('()'):
+            target = target[:-2]
+        return title, target
+
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        if ':' not in self.name:
+            self.refdomain, self.reftype = '', self.name
+            self.classes = ['xref', self.reftype]
         else:
-            typ = typ.lower()
-        if ':' not in typ:
-            domain, role = '', typ
-            classes = ['xref', role]
+            self.refdomain, self.reftype = self.name.split(':', 1)
+            self.classes = ['xref', self.refdomain, '%s-%s' % (self.refdomain, self.reftype)]
+
+        if self.text.startswith('!'):
+            # if the first character is a bang, don't cross-reference at all
+            return self.create_non_xref_node()
         else:
-            domain, role = typ.split(':', 1)
-            classes = ['xref', domain, '%s-%s' % (domain, role)]
-        # if the first character is a bang, don't cross-reference at all
-        if text[0:1] == '!':
-            text = utils.unescape(text)[1:]
-            if self.fix_parens:
-                text, tgt = self._fix_parens(env, False, text, "")
-            innernode = self.innernodeclass(rawtext, text, classes=classes)
-            return self.result_nodes(inliner.document, env, innernode, is_ref=False)
-        # split title and target in role content
-        has_explicit_title, title, target = split_explicit_title(text)
-        title = utils.unescape(title)
-        target = utils.unescape(target)
-        # fix-up title and target
+            return self.create_xref_node()
+
+    def create_non_xref_node(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        text = utils.unescape(self.text[1:])
+        if self.fix_parens:
+            self.has_explicit_title = False  # treat as implicit
+            text, target = self.update_title_and_target(text, "")
+
+        node = self.innernodeclass(self.rawtext, text, classes=self.classes)
+        return self.result_nodes(self.inliner.document, self.env, node, is_ref=False)
+
+    def create_xref_node(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        target = self.target
+        title = self.title
         if self.lowercase:
             target = target.lower()
         if self.fix_parens:
-            title, target = self._fix_parens(
-                env, has_explicit_title, title, target)
+            title, target = self.update_title_and_target(title, target)
+
         # create the reference node
-        refnode = self.nodeclass(rawtext, reftype=role, refdomain=domain,
-                                 refexplicit=has_explicit_title)
-        # we may need the line number for warnings
-        set_role_source_info(inliner, lineno, refnode)
-        title, target = self.process_link(env, refnode, has_explicit_title, title, target)
-        # now that the target and title are finally determined, set them
+        options = {'refdoc': self.env.docname,
+                   'refdomain': self.refdomain,
+                   'reftype': self.reftype,
+                   'refexplicit': self.has_explicit_title,
+                   'refwarn': self.warn_dangling}
+        refnode = self.nodeclass(self.rawtext, **options)
+        self.set_source_info(refnode)
+
+        # determine the target and title for the class
+        title, target = self.process_link(self.env, refnode, self.has_explicit_title,
+                                          title, target)
         refnode['reftarget'] = target
-        refnode += self.innernodeclass(rawtext, title, classes=classes)
-        # we also need the source document
-        refnode['refdoc'] = env.docname
-        refnode['refwarn'] = self.warn_dangling
-        # result_nodes allow further modification of return values
-        return self.result_nodes(inliner.document, env, refnode, is_ref=True)
+        refnode += self.innernodeclass(self.rawtext, title, classes=self.classes)
+
+        return self.result_nodes(self.inliner.document, self.env, refnode, is_ref=True)
 
     # methods that can be overwritten
 
