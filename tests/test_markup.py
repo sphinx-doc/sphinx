@@ -326,6 +326,26 @@ def test_samp_role(parse):
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, "code   sample"])
 
 
+def test_download_role(parse):
+    # implicit
+    text = ':download:`sphinx.rst`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, addnodes.download_reference,
+                             nodes.literal, "sphinx.rst"])
+    assert_node(doctree[0][0], refdoc='dummy', refdomain='', reftype='download',
+                refexplicit=False, reftarget='sphinx.rst', refwarn=False)
+    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+
+    # explicit
+    text = ':download:`reftitle <sphinx.rst>`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, addnodes.download_reference,
+                             nodes.literal, "reftitle"])
+    assert_node(doctree[0][0], refdoc='dummy', refdomain='', reftype='download',
+                refexplicit=True, reftarget='sphinx.rst', refwarn=False)
+    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+
+
 @pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
