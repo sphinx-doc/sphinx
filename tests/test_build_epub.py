@@ -72,7 +72,7 @@ def test_build_epub(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
@@ -96,7 +96,7 @@ def test_build_epub(app):
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
-    assert metadata.find("./dc:title").text == 'Python  documentation'
+    assert metadata.find("./dc:title").text == 'Python'
     assert metadata.find("./dc:description").text == 'unknown'
     assert metadata.find("./dc:creator").text == 'unknown'
     assert metadata.find("./dc:contributor").text == 'unknown'
@@ -176,7 +176,7 @@ def test_nested_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -231,8 +231,7 @@ def test_escaped_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == ('need <b>"escaped"</b> '
-                                                        'project  documentation')
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
     def navinfo(elem):

@@ -112,8 +112,6 @@ def test_quickstart_defaults(tempdir):
     execfile_(conffile, ns)
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
-    assert ns['source_suffix'] == '.rst'
-    assert ns['master_doc'] == 'index'
     assert ns['project'] == 'Sphinx Test'
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
     assert ns['version'] == '0.1'
