@@ -172,6 +172,7 @@ Features added
 * #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
 * #5394: autodoc: Display readable names in type annotations for mocked objects
 * #5459: autodoc: :confval:`autodoc_default_options` accepts ``True`` as a value
+* #1148: autodoc: Add :rst:dir:`autodecorator` directive for decorators
 * #5635: autosummary: Add :confval:`autosummary_mock_imports` to mock external
   libraries on importing targets
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and

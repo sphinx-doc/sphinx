@@ -1032,6 +1032,23 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         pass
 
 
+class DecoratorDocumenter(FunctionDocumenter):
+    """
+    Specialized Documenter subclass for decorator functions.
+    """
+    objtype = 'decorator'
+
+    # must be lower than FunctionDocumenter
+    priority = -1
+
+    def format_args(self):
+        args = super().format_args()
+        if ',' in args:
+            return args
+        else:
+            return None
+
+
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
     """
     Specialized Documenter subclass for classes.
@@ -1461,6 +1478,7 @@ def setup(app):
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
+    app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)
