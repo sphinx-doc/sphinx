@@ -37,7 +37,6 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils
 from sphinx.util import import_object, progress_message
 from sphinx.util import logging
-from sphinx.util import pycompat  # noqa: F401
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
@@ -68,7 +67,6 @@ builtin_extensions = (
     'sphinx.builders.dummy',
     'sphinx.builders.gettext',
     'sphinx.builders.html',
-    'sphinx.builders.htmlhelp',
     'sphinx.builders.latex',
     'sphinx.builders.linkcheck',
     'sphinx.builders.manpage',
@@ -108,6 +106,7 @@ builtin_extensions = (
     # 1st party extensions
     'sphinxcontrib.applehelp',
     'sphinxcontrib.devhelp',
+    'sphinxcontrib.htmlhelp',
     'sphinxcontrib.qthelp',
     # Strictly, alabaster theme is not a builtin extension,
     # but it is loaded automatically to use it as default theme.

@@ -28,7 +28,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import texescape, logging, status_iterator
+from sphinx.util import texescape, logging, progress_message, status_iterator
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -250,33 +250,32 @@ class LaTeXBuilder(Builder):
                 toctree_only = entry[5]
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
-            logger.info(__("processing %s..."), targetname, nonl=True)
-            toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
-            if toctrees:
-                if toctrees[0].get('maxdepth') > 0:
-                    tocdepth = toctrees[0].get('maxdepth')
+            with progress_message(__("processing %s") % targetname):
+                toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
+                if toctrees:
+                    if toctrees[0].get('maxdepth') > 0:
+                        tocdepth = toctrees[0].get('maxdepth')
+                    else:
+                        tocdepth = None
                 else:
                     tocdepth = None
-            else:
-                tocdepth = None
-            doctree = self.assemble_doctree(
-                docname, toctree_only,
-                appendices=((docclass != 'howto') and self.config.latex_appendices or []))
-            doctree['tocdepth'] = tocdepth
-            self.apply_transforms(doctree)
-            self.post_process_images(doctree)
-            self.update_doc_context(title, author)
+                doctree = self.assemble_doctree(
+                    docname, toctree_only,
+                    appendices=((docclass != 'howto') and self.config.latex_appendices or []))
+                doctree['tocdepth'] = tocdepth
+                self.apply_transforms(doctree)
+                self.post_process_images(doctree)
+                self.update_doc_context(title, author)
 
-            logger.info(__("writing... "), nonl=True)
-            docsettings.author = author
-            docsettings.title = title
-            docsettings.contentsname = self.get_contentsname(docname)
-            docsettings.docname = docname
-            docsettings.docclass = docclass
+            with progress_message(__("writing")):
+                docsettings.author = author
+                docsettings.title = title
+                docsettings.contentsname = self.get_contentsname(docname)
+                docsettings.docname = docname
+                docsettings.docclass = docclass
 
-            doctree.settings = docsettings
-            docwriter.write(doctree, destination)
-            logger.info(__("done"))
+                doctree.settings = docsettings
+                docwriter.write(doctree, destination)
 
     def get_contentsname(self, indexfile):
         # type: (str) -> str
@@ -354,8 +353,15 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         self.copy_image_files()
         self.write_message_catalog()
+        self.copy_support_files()
 
-        # copy TeX support files from texinputs
+        if self.config.latex_additional_files:
+            self.copy_latex_additional_files()
+
+    @progress_message(__('copying TeX support files'))
+    def copy_support_files(self):
+        # type: () -> None
+        """copy TeX support files from texinputs."""
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
@@ -386,21 +392,19 @@ class LaTeXBuilder(Builder):
             copy_asset_file(path.join(staticdirname, 'Makefile_t'),
                             self.outdir, context=context)
 
-        # copy additional files
-        if self.config.latex_additional_files:
-            logger.info(bold(__('copying additional files...')), nonl=True)
-            for filename in self.config.latex_additional_files:
-                logger.info(' ' + filename, nonl=True)
-                copy_asset_file(path.join(self.confdir, filename), self.outdir)
-            logger.info('')
-
         # the logo is handled differently
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
             else:
                 copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
-        logger.info(__('done'))
+
+    @progress_message(__('copying additional files'))
+    def copy_latex_additional_files(self):
+        # type: () -> None
+        for filename in self.config.latex_additional_files:
+            logger.info(' ' + filename, nonl=True)
+            copy_asset_file(path.join(self.confdir, filename), self.outdir)
 
     def copy_image_files(self):
         # type: () -> None
@@ -439,7 +443,7 @@ def validate_config_values(app, config):
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r]. ignored.")
-            logger.warning(msg % key)
+            logger.warning(msg % (key,))
             config.latex_elements.pop(key)
 
 

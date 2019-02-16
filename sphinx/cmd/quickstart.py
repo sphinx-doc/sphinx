@@ -17,7 +17,6 @@ import time
 import warnings
 from collections import OrderedDict
 from os import path
-from urllib.parse import quote
 
 # try to import readline, unix specific enhancement
 try:
@@ -37,11 +36,10 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
     colorize, bold, red, turquoise, nocolor, color_terminal
 )
-from sphinx.util.osutil import ensuredir, make_filename
+from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if False:
@@ -375,25 +373,15 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
-    texescape.init()
-
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
-    d['PY3'] = True
-    d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = quote(d['project'].encode('idna'))
-    d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = d['author'].translate(texescape.tex_escape_map)
-    d['project_doc'] = d['project'] + ' Documentation'
-    d['project_doc_texescaped'] = (d['project'] + ' Documentation').\
-        translate(texescape.tex_escape_map)
 
     ensuredir(d['path'])
 

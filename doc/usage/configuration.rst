@@ -1331,6 +1331,12 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+   .. deprecated:: 2.0
+
+.. confval:: html4_writer
+
+   Output is processed with HTML4 writer.  Default is ``False``.
+
 Options for Single HTML output
 -------------------------------
 

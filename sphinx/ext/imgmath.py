@@ -12,6 +12,7 @@ import posixpath
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from hashlib import sha1
 from os import path
@@ -26,7 +27,6 @@ from sphinx.util import logging
 from sphinx.util.math import get_node_equation_number, wrap_displaymath
 from sphinx.util.osutil import ensuredir
 from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.pycompat import sys_encoding
 
 if False:
     # For type annotation
@@ -46,9 +46,9 @@ class MathExtError(SphinxError):
     def __init__(self, msg, stderr=None, stdout=None):
         # type: (str, bytes, bytes) -> None
         if stderr:
-            msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
+            msg += '\n[stderr]\n' + stderr.decode(sys.getdefaultencoding(), 'replace')
         if stdout:
-            msg += '\n[stdout]\n' + stdout.decode(sys_encoding, 'replace')
+            msg += '\n[stdout]\n' + stdout.decode(sys.getdefaultencoding(), 'replace')
         super().__init__(msg)
 
 

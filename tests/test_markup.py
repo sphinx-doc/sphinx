@@ -35,6 +35,7 @@ def settings(app):
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     settings.contentsname = 'dummy'
+    settings.rfc_base_url = 'http://tools.ietf.org/html/'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -133,30 +134,55 @@ def get_verifier(verify, verify_re):
 
 @pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
     (
+        # pep role
+        'verify',
+        ':pep:`8`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
+         '{\\sphinxstylestrong{PEP 8}}')
+    ),
+    (
+        # pep role with anchor
+        'verify',
+        ':pep:`8#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008#id1">'
+         '<strong>PEP 8#id1</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
+         '{http://www.python.org/dev/peps/pep-0008\\#id1}'
+         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+    ),
+    (
+        # rfc role
+        'verify',
+        ':rfc:`2324`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html}'
+         '{\\sphinxstylestrong{RFC 2324}}')
+    ),
+    (
+        # rfc role with anchor
+        'verify',
+        ':rfc:`2324#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html#id1">'
+         '<strong>RFC 2324#id1</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html\\#id1}'
+         '{\\sphinxstylestrong{RFC 2324\\#id1}}')
+    ),
+    (
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',
         ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
         r'\\sphinxcode{\\sphinxupquote{code   sample}}',
-    ),
-    (
-        # correct interpretation of code with whitespace
-        'verify_re',
-        ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
-         'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
-    ),
-    (
-        # interpolation of braces in samp and file roles (HTML only)
-        'verify',
-        ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal notranslate">'
-         '<span class="pre">a</span>'
-         '<em><span class="pre">b</span></em>'
-         '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
     ),
     (
         # interpolation of arrows in menuselection
@@ -180,6 +206,13 @@ def get_verifier(verify, verify_re):
         ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+    ),
+    (
+        # no ampersands in guilabel
+        'verify',
+        ':guilabel:`Foo`',
+        '<p><span class="guilabel">Foo</span></p>',
+        r'\sphinxguilabel{Foo}',
     ),
     (
         # non-interpolation of dashes in option role
@@ -261,6 +294,36 @@ def get_verifier(verify, verify_re):
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
+
+
+def test_samp_role(parse):
+    # no braces
+    text = ':samp:`a{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "b"],
+                                                              "c")])
+    # nested braces
+    text = ':samp:`a{{b}}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "{b"],
+                                                              "}c")])
+
+    # half-opened braces
+    text = ':samp:`a{bc`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{bc"])
+
+    # escaped braces
+    text = ':samp:`a\\\\{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{b}c"])
+
+    # no braces (whitespaces are keeped as is)
+    text = ':samp:`code   sample`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "code   sample"])
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')

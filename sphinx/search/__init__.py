@@ -18,8 +18,8 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.util import jsdump, rpartition
 from sphinx.search.jssplitter import splitter_code
+from sphinx.util import jsdump, rpartition
 
 if False:
     # For type annotation

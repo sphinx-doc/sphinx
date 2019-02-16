@@ -22,7 +22,8 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
-from sphinx.util.pycompat import execfile_, NoneType
+from sphinx.util.pycompat import execfile_
+from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation

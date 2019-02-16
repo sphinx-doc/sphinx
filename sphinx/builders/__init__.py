@@ -19,7 +19,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import i18n, import_object, logging, rst, status_iterator
+from sphinx.util import i18n, import_object, logging, rst, progress_message, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
@@ -351,16 +351,14 @@ class Builder:
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            logger.info(bold(__('pickling environment... ')), nonl=True)
-            with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
-                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
-            logger.info(__('done'))
+            with progress_message(__('pickling environment')):
+                with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                    pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
-            logger.info(bold(__('checking consistency... ')), nonl=True)
-            self.env.check_consistency()
-            logger.info(__('done'))
+            with progress_message(__('checking consistency')):
+                self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
@@ -559,9 +557,8 @@ class Builder:
                     docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)
-        logger.info(__('done'))
+        with progress_message(__('preparing documents')):
+            self.prepare_writing(docnames)
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process

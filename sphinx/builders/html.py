@@ -18,7 +18,6 @@ import warnings
 from hashlib import md5
 from os import path
 
-import docutils
 from docutils import nodes
 from docutils.core import publish_parts
 from docutils.frontend import OptionParser
@@ -58,7 +57,7 @@ if False:
     from sphinx.domains import Domain, Index, IndexEntry  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
-# Experimental HTML5 Writer
+# HTML5 Writer is avialable or not
 if is_html5_writer_available():
     from sphinx.writers.html5 import HTML5Translator
     html5_ready = True
@@ -242,8 +241,6 @@ class StandaloneHTMLBuilder(Builder):
     search = True  # for things like HTML help and Apple help: suppress search
     use_index = False
     download_support = True  # enable download role
-    # use html5 translator by default
-    default_html5_translator = False
 
     imgpath = None          # type: str
     domain_indices = []     # type: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]]  # NOQA
@@ -284,11 +281,6 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         self.use_index = self.get_builder_config('use_index', 'html')
-
-        if self.config.html_experimental_html5_writer and not html5_ready:
-            logger.warning(__('html_experimental_html5_writer is set, but current version '
-                              'is old. Docutils\' version should be 0.13 or newer, but %s.'),
-                           docutils.__version__)
 
     def create_build_info(self):
         # type: () -> BuildInfo
@@ -374,14 +366,10 @@ class StandaloneHTMLBuilder(Builder):
     @property
     def default_translator_class(self):  # type: ignore
         # type: () -> Type[nodes.NodeVisitor]
-        use_html5_writer = self.config.html_experimental_html5_writer
-        if use_html5_writer is None:
-            use_html5_writer = self.default_html5_translator
-
-        if use_html5_writer and html5_ready:
-            return HTML5Translator
-        else:
+        if not html5_ready or self.config.html4_writer:
             return HTMLTranslator
+        else:
+            return HTML5Translator
 
     @property
     def math_renderer_name(self):
@@ -562,7 +550,7 @@ class StandaloneHTMLBuilder(Builder):
             'parents': [],
             'logo': logo,
             'favicon': favicon,
-            'html5_doctype': self.config.html_experimental_html5_writer and html5_ready,
+            'html5_doctype': html5_ready and not self.config.html4_writer
         }
         if self.theme:
             self.globalcontext.update(
@@ -1440,9 +1428,9 @@ def setup(app):
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
-    app.add_config_value('html_experimental_html5_writer', None, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     app.add_config_value('html_math_renderer', None, 'env')
+    app.add_config_value('html4_writer', False, 'html')
 
     # event handlers
     app.connect('config-inited', convert_html_css_files)

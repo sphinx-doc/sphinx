@@ -285,6 +285,14 @@ def find_source_node(node):
     return None
 
 
+def get_node_line(node):
+    # type: (nodes.Element) -> int
+    for pnode in traverse_parent(node):
+        if pnode.line:
+            return pnode.line
+    return None
+
+
 def traverse_parent(node, cls=None):
     # type: (nodes.Element, Any) -> Iterable[nodes.Element]
     while node:
