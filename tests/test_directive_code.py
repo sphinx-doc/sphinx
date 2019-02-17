@@ -565,3 +565,52 @@ def test_code_block_highlighted(app, status, warning):
     assert codeblocks[1]['language'] == 'python2'
     assert codeblocks[2]['language'] == 'python3'
     assert codeblocks[3]['language'] == 'python2'
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
+def test_linenothreshold(app, status, warning):
+    app.builder.build(['linenothreshold'])
+    html = (app.outdir / 'linenothreshold.html').text()
+
+    lineos_head = '<td class="linenos"><div class="linenodiv"><pre>'
+    lineos_tail = '</pre></div></td>'
+
+    # code-block using linenothreshold
+    _, matched, html = html.partition(lineos_head +
+                                      '1\n'
+                                      '2\n'
+                                      '3\n'
+                                      '4\n'
+                                      '5\n'
+                                      '6' + lineos_tail)
+    assert matched
+
+    # code-block not using linenothreshold
+    html, matched, _ = html.partition(lineos_head +
+                                      '1\n'
+                                      '2' + lineos_tail)
+    assert not matched
+
+    # literal include using linenothreshold
+    _, matched, html = html.partition(lineos_head +
+                                      ' 1\n'
+                                      ' 2\n'
+                                      ' 3\n'
+                                      ' 4\n'
+                                      ' 5\n'
+                                      ' 6\n'
+                                      ' 7\n'
+                                      ' 8\n'
+                                      ' 9\n'
+                                      '10\n'
+                                      '11\n'
+                                      '12\n'
+                                      '13' + lineos_tail)
+    assert matched
+
+    # literal include not using linenothreshold
+    html, matched, _ = html.partition(lineos_head +
+                                      '1\n'
+                                      '2\n' 
+                                      '3' + lineos_tail)
+    assert not matched
