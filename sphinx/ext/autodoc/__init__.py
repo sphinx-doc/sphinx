@@ -1002,6 +1002,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             return None
         try:
             if (not isfunction(self.object) and
+                    not inspect.ismethod(self.object) and
                     not isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):

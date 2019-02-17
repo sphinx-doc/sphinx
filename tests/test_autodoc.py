@@ -1366,6 +1366,19 @@ def test_autofunction_for_callable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_method(app):
+    actual = do_autodoc(app, 'function', 'target.callable.method')
+    assert list(actual) == [
+        '',
+        '.. py:function:: method(arg1, arg2)',
+        '   :module: target.callable',
+        '',
+        '   docstring of Callable.method().',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_mocked_module_imports(app, warning):
     # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction,func'}

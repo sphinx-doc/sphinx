@@ -301,6 +301,15 @@ def traverse_parent(node, cls=None):
         node = node.parent
 
 
+def get_prev_node(node):
+    # type: (nodes.Node) -> nodes.Node
+    pos = node.parent.index(node)
+    if pos > 0:
+        return node.parent[pos - 1]
+    else:
+        return None
+
+
 def traverse_translatable_index(doctree):
     # type: (nodes.Element) -> Iterable[Tuple[nodes.Element, List[str]]]
     """Traverse translatable index node from a document tree."""
