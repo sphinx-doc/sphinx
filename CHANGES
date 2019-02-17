@@ -25,6 +25,7 @@ Dependencies
   - sphinxcontrib.devhelp
   - sphinxcontrib.htmlhelp
   - sphinxcontrib.jsmath
+  - sphinxcontrib.serializinghtml
   - sphinxcontrib.qthelp
 
 Incompatible changes
@@ -128,6 +129,7 @@ Deprecated
 * ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()``
 * ``sphinx.util.inspect.Parameter``
+* ``sphinx.util.jsonimpl``
 * ``sphinx.util.osutil.EEXIST``
 * ``sphinx.util.osutil.EINVAL``
 * ``sphinx.util.osutil.ENOENT``

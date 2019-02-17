@@ -299,7 +299,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. versionadded:: 1.1
 
 
-.. currentmodule:: sphinx.builders.html
+.. currentmodule:: sphinxcontrib.serializinghtml
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API

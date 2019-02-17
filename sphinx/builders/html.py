@@ -9,11 +9,9 @@
 """
 
 import html
-import pickle
 import posixpath
 import re
 import sys
-import types
 import warnings
 from hashlib import md5
 from os import path
@@ -25,7 +23,6 @@ from docutils.io import DocTreeInput, StringOutput
 from docutils.utils import relative_path
 
 from sphinx import package_dir, __display_version__
-from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.builders import Builder
 from sphinx.deprecation import (
     RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
@@ -38,15 +35,14 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import jsonimpl, logging, status_iterator
+from sphinx.util import logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import is_html5_writer_available, new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import patmatch, Matcher, DOTFILES
-from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
-    movefile, copyfile
+from sphinx.util.osutil import os_path, relative_uri, ensuredir, movefile, copyfile
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
 
 if False:
@@ -66,8 +62,6 @@ else:
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
-#: the filename for the "last build" file (for serializing builders)
-LAST_BUILD_FILENAME = 'last_build'
 
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
@@ -1157,140 +1151,6 @@ class StandaloneHTMLBuilder(Builder):
         logger.info(__('done'))
 
 
-class SerializingHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    An abstract builder that serializes the generated HTML.
-    """
-    #: the serializing implementation to use.  Set this to a module that
-    #: implements a `dump`, `load`, `dumps` and `loads` functions
-    #: (pickle, simplejson etc.)
-    implementation = None  # type: Any
-    implementation_dumps_unicode = False
-    #: additional arguments for dump()
-    additional_dump_args = ()  # type: Tuple
-
-    #: the filename for the global context file
-    globalcontext_filename = None  # type: str
-
-    supported_image_types = ['image/svg+xml', 'image/png',
-                             'image/gif', 'image/jpeg']
-
-    def init(self):
-        # type: () -> None
-        self.build_info = BuildInfo(self.config, self.tags)
-        self.imagedir = '_images'
-        self.current_docname = None
-        self.theme = None       # no theme necessary
-        self.templates = None   # no template bridge necessary
-        self.init_templates()
-        self.init_highlighter()
-        self.init_css_files()
-        self.init_js_files()
-        self.use_index = self.get_builder_config('use_index', 'html')
-
-    def get_target_uri(self, docname, typ=None):
-        # type: (str, str) -> str
-        if docname == 'index':
-            return ''
-        if docname.endswith(SEP + 'index'):
-            return docname[:-5]  # up to sep
-        return docname + SEP
-
-    def dump_context(self, context, filename):
-        # type: (Dict, str) -> None
-        if self.implementation_dumps_unicode:
-            with open(filename, 'w', encoding='utf-8') as ft:
-                self.implementation.dump(context, ft, *self.additional_dump_args)
-        else:
-            with open(filename, 'wb') as fb:
-                self.implementation.dump(context, fb, *self.additional_dump_args)
-
-    def handle_page(self, pagename, ctx, templatename='page.html',
-                    outfilename=None, event_arg=None):
-        # type: (str, Dict, str, str, Any) -> None
-        ctx['current_page_name'] = pagename
-        self.add_sidebars(pagename, ctx)
-
-        if not outfilename:
-            outfilename = path.join(self.outdir,
-                                    os_path(pagename) + self.out_suffix)
-
-        # we're not taking the return value here, since no template is
-        # actually rendered
-        self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
-
-        # make context object serializable
-        for key in list(ctx):
-            if isinstance(ctx[key], types.FunctionType):
-                del ctx[key]
-
-        ensuredir(path.dirname(outfilename))
-        self.dump_context(ctx, outfilename)
-
-        # if there is a source file, copy the source file for the
-        # "show source" link
-        if ctx.get('sourcename'):
-            source_name = path.join(self.outdir, '_sources',
-                                    os_path(ctx['sourcename']))
-            ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name)
-
-    def handle_finish(self):
-        # type: () -> None
-        # dump the global context
-        outfilename = path.join(self.outdir, self.globalcontext_filename)
-        self.dump_context(self.globalcontext, outfilename)
-
-        # super here to dump the search index
-        super().handle_finish()
-
-        # copy the environment file from the doctree dir to the output dir
-        # as needed by the web app
-        copyfile(path.join(self.doctreedir, ENV_PICKLE_FILENAME),
-                 path.join(self.outdir, ENV_PICKLE_FILENAME))
-
-        # touch 'last build' file, used by the web application to determine
-        # when to reload its environment and clear the cache
-        open(path.join(self.outdir, LAST_BUILD_FILENAME), 'w').close()
-
-
-class PickleHTMLBuilder(SerializingHTMLBuilder):
-    """
-    A Builder that dumps the generated HTML into pickle files.
-    """
-    name = 'pickle'
-    epilog = __('You can now process the pickle files in %(outdir)s.')
-
-    implementation = pickle
-    implementation_dumps_unicode = False
-    additional_dump_args = (pickle.HIGHEST_PROTOCOL,)
-    indexer_format = pickle
-    indexer_dumps_unicode = False
-    out_suffix = '.fpickle'
-    globalcontext_filename = 'globalcontext.pickle'
-    searchindex_filename = 'searchindex.pickle'
-
-
-# compatibility alias
-WebHTMLBuilder = PickleHTMLBuilder
-
-
-class JSONHTMLBuilder(SerializingHTMLBuilder):
-    """
-    A builder that dumps the generated HTML into JSON files.
-    """
-    name = 'json'
-    epilog = __('You can now process the JSON files in %(outdir)s.')
-
-    implementation = jsonimpl
-    implementation_dumps_unicode = True
-    indexer_format = jsonimpl
-    indexer_dumps_unicode = True
-    out_suffix = '.fjson'
-    globalcontext_filename = 'globalcontext.json'
-    searchindex_filename = 'searchindex.json'
-
-
 def convert_html_css_files(app, config):
     # type: (Sphinx, Config) -> None
     """This converts string styled html_css_files to tuple styled one."""
@@ -1374,11 +1234,19 @@ def validate_math_renderer(app):
 # for compatibility
 from sphinx.builders.dirhtml import DirectoryHTMLBuilder  # NOQA
 from sphinx.builders.singlehtml import SingleFileHTMLBuilder  # NOQA
+from sphinxcontrib.serializinghtml import (  # NOQA
+    LAST_BUILD_FILENAME, JSONHTMLBuilder, PickleHTMLBuilder, SerializingHTMLBuilder
+)
 
 deprecated_alias('sphinx.builders.html',
                  {
+                     'LAST_BUILD_FILENAME': LAST_BUILD_FILENAME,
                      'DirectoryHTMLBuilder': DirectoryHTMLBuilder,
+                     'JSONHTMLBuilder': JSONHTMLBuilder,
+                     'PickleHTMLBuilder': PickleHTMLBuilder,
+                     'SerializingHTMLBuilder': SerializingHTMLBuilder,
                      'SingleFileHTMLBuilder': SingleFileHTMLBuilder,
+                     'WebHTMLBuilder': PickleHTMLBuilder,
                  },
                  RemovedInSphinx40Warning)
 
@@ -1387,8 +1255,6 @@ def setup(app):
     # type: (Sphinx) -> Dict[str, Any]
     # builders
     app.add_builder(StandaloneHTMLBuilder)
-    app.add_builder(PickleHTMLBuilder)
-    app.add_builder(JSONHTMLBuilder)
 
     # config values
     app.add_config_value('html_theme', 'alabaster', 'html')
