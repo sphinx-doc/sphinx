@@ -20,6 +20,7 @@ Bugs fixed
 * #6026: LaTeX: A cross reference to definition list does not work
 * #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
 * #6019: imgconverter: Including multipage PDF fails
+* #6047: autodoc: ``autofunction`` emits a warning for method objects
 
 Testing
 --------
