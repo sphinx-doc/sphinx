@@ -28,7 +28,7 @@ from sphinx.deprecation import (
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
-                from sphinx.util import split_into, logging
+from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
