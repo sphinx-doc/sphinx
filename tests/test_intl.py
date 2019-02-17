@@ -10,7 +10,6 @@
 """
 
 import os
-import pickle
 import re
 
 import pytest
@@ -1188,9 +1187,9 @@ def test_text_references(app, warning):
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl(app):
     app.build()
-    # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
 
+    # index.rst
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0][1], nodes.image, uri='rimg.xx.png',
                 candidates={'*': 'rimg.xx.png'})
 
@@ -1210,8 +1209,7 @@ def test_image_glob_intl(app):
                             'image/png': 'img.png'})
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
-
+    doctree = app.env.get_doctree('subdir/index')
     assert_node(doctree[0][1], nodes.image, uri='subdir/rimg.xx.png',
                 candidates={'*': 'subdir/rimg.xx.png'})
 
@@ -1236,9 +1234,9 @@ def test_image_glob_intl(app):
 @pytest.mark.xfail(os.name != 'posix', reason="Not working on windows")
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
-    # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
 
+    # index.rst
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0][1], nodes.image, uri='rimg.png.xx',
                 candidates={'*': 'rimg.png.xx'})
 
@@ -1258,8 +1256,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
                             'image/png': 'img.png'})
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
-
+    doctree = app.env.get_doctree('subdir/index')
     assert_node(doctree[0][1], nodes.image, uri='subdir/rimg.png',
                 candidates={'*': 'subdir/rimg.png'})
 

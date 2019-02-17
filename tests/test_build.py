@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
 import sys
 from textwrap import dedent
 
@@ -110,7 +109,7 @@ def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -135,7 +134,7 @@ def test_image_glob(app, status, warning):
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+    doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
     sub = path('subdir')

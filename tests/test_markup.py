@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
 import re
 
 import pytest
@@ -408,8 +407,8 @@ def test_XRefRole(inliner):
 @pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
-    rst = pickle.loads((app.doctreedir / 'restructuredtext.doctree').bytes())
-    md = pickle.loads((app.doctreedir / 'markdown.doctree').bytes())
+    rst = app.env.get_doctree('restructuredtext')
+    md = app.env.get_doctree('markdown')
 
     # rst_prolog
     assert_node(rst[0], nodes.paragraph)
@@ -432,7 +431,7 @@ def test_rst_prolog(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
 def test_keep_warnings_is_True(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 2
     assert_node(doctree[0][1], nodes.system_message)
@@ -442,7 +441,7 @@ def test_keep_warnings_is_True(app, status, warning):
                     confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 1
 
@@ -450,7 +449,7 @@ def test_keep_warnings_is_False(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 5
 
@@ -470,7 +469,7 @@ def test_default_role1(app, status, warning):
     app.builder.build_all()
 
     # default-role: pep
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], addnodes.index)
@@ -478,7 +477,7 @@ def test_default_role1(app, status, warning):
     assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
 
     # no default-role
-    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    doctree = app.env.get_doctree('foo')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], nodes.title_reference)
@@ -491,7 +490,7 @@ def test_default_role2(app, status, warning):
     app.builder.build_all()
 
     # default-role directive is stronger than configratuion
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], addnodes.index)
@@ -499,7 +498,7 @@ def test_default_role2(app, status, warning):
     assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
 
     # default_role changes the default behavior
-    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    doctree = app.env.get_doctree('foo')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], nodes.inline, classes=["guilabel"])
