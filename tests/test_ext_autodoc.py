@@ -8,8 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
-
 import pytest
 
 from sphinx import addnodes
@@ -19,7 +17,7 @@ from sphinx import addnodes
 def test_autodoc(app, status, warning):
     app.builder.build_all()
 
-    content = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    content = app.env.get_doctree('index')
     assert isinstance(content[3], addnodes.desc)
     assert content[3][0].astext() == 'autodoc_dummy_module.test'
     assert content[3][1].astext() == 'Dummy function using dummy.*'
