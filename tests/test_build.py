@@ -57,11 +57,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
 #       (html, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'pickle', 'json', 'text',
-        'changes', 'xml', 'pseudoxml', 'linkcheck',
-    ],
+    ['dirhtml', 'singlehtml', 'text', 'changes', 'xml', 'pseudoxml', 'linkcheck'],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)

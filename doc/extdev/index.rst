@@ -290,10 +290,30 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.builders.epub3.validate_config_values()``
 
+   * - ``sphinx.builders.html.JSONHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.JSONHTMLBuilder``
+
+   * - ``sphinx.builders.html.PickleHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
+
+   * - ``sphinx.builders.html.SerializingHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.SerializingHTMLBuilder``
+
    * - ``sphinx.builders.html.SingleFileHTMLBuilder``
      - 2.0
      - 4.0
      - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder``
+
+   * - ``sphinx.builders.html.WebHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
 
    * - ``sphinx.builders.htmlhelp``
      - 2.0
@@ -424,6 +444,11 @@ The following is a list of deprecated interfaces.
      - 2.0
      - 3.0
      - N/A
+
+   * - ``sphinx.util.jsonimpl``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.serializinghtml.jsonimpl``
 
    * - ``sphinx.util.osutil.EEXIST``
      - 2.0
