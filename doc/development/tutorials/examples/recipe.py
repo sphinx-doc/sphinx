@@ -44,9 +44,6 @@ class IngredientIndex(Index):
     localname = 'Ingredient Index'
     shortname = 'Ingredient'
 
-    def __init__(self, *args, **kwargs):
-        super(IngredientIndex, self).__init__(*args, **kwargs)
-
     def generate(self, docnames=None):
         content = defaultdict(list)
 
@@ -83,9 +80,6 @@ class RecipeIndex(Index):
     name = 'recipe'
     localname = 'Recipe Index'
     shortname = 'Recipe'
-
-    def __init__(self, *args, **kwargs):
-        super(RecipeIndex, self).__init__(*args, **kwargs)
 
     def generate(self, docnames=None):
         content = defaultdict(list)

@@ -1,5 +1,7 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
+
+from sphinx.util.docutils import SphinxDirective
 from sphinx.locale import _
 
 
@@ -25,26 +27,24 @@ class TodolistDirective(Directive):
         return [todolist('')]
 
 
-class TodoDirective(Directive):
+class TodoDirective(SphinxDirective):
 
     # this enables content in the directive
     has_content = True
 
     def run(self):
-        env = self.state.document.settings.env
-
-        targetid = 'todo-%d' % env.new_serialno('todo')
+        targetid = 'todo-%d' % self.env.new_serialno('todo')
         targetnode = nodes.target('', '', ids=[targetid])
 
         todo_node = todo('\n'.join(self.content))
         todo_node += nodes.title(_('Todo'), _('Todo'))
         self.state.nested_parse(self.content, self.content_offset, todo_node)
 
-        if not hasattr(env, 'todo_all_todos'):
-            env.todo_all_todos = []
+        if not hasattr(self.env, 'todo_all_todos'):
+            self.env.todo_all_todos = []
 
-        env.todo_all_todos.append({
-            'docname': env.docname,
+        self.env.todo_all_todos.append({
+            'docname': self.env.docname,
             'lineno': self.lineno,
             'todo': todo_node.deepcopy(),
             'target': targetnode,

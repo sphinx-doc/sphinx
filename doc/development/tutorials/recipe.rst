@@ -103,7 +103,7 @@ reStructuredText in the body.
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 40-108
+   :lines: 40-102
 
 Both ``IngredientIndex`` and ``RecipeIndex`` are derived from :class:`Index`.
 They implement custom logic to generate a tuple of values that define the
@@ -126,7 +126,7 @@ creating here.
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 111-161
+   :lines: 105-155
 
 There are some interesting things to note about this ``recipe`` domain and domains
 in general. Firstly, we actually register our directives, roles and indices
@@ -164,7 +164,7 @@ hook the various parts of our extension into Sphinx. Let's look at the
 .. literalinclude:: examples/recipe.py
    :language: python
    :linenos:
-   :lines: 164-
+   :lines: 158-
 
 This looks a little different to what we're used to seeing. There are no calls
 to :meth:`~Sphinx.add_directive` or even :meth:`~Sphinx.add_role`. Instead, we
