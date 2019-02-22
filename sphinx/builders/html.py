@@ -109,24 +109,24 @@ class JSContainer(list):
     """The container for JavaScript scripts."""
     def insert(self, index, obj):
         # type: (int, str) -> None
-        warnings.warn('builder.script_files is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
+        warnings.warn('To modify script_files in the theme is deprecated. '
+                      'Please insert a <script> tag directly in your theme instead.',
+                      RemovedInSphinx30Warning, stacklevel=3)
         super().insert(index, obj)
 
     def extend(self, other):  # type: ignore
         # type: (List[str]) -> None
-        warnings.warn('builder.script_files is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
+        warnings.warn('To modify script_files in the theme is deprecated. '
+                      'Please insert a <script> tag directly in your theme instead.',
+                      RemovedInSphinx30Warning, stacklevel=3)
         for item in other:
             self.append(item)
 
     def __iadd__(self, other):  # type: ignore
         # type: (List[str]) -> JSContainer
-        warnings.warn('builder.script_files is deprecated. '
-                      'Please use app.add_js_file() instead.',
-                      RemovedInSphinx30Warning, stacklevel=2)
+        warnings.warn('To modify script_files in the theme is deprecated. '
+                      'Please insert a <script> tag directly in your theme instead.',
+                      RemovedInSphinx30Warning, stacklevel=3)
         for item in other:
             self.append(item)
         return self
