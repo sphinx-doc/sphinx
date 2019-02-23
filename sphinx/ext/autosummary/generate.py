@@ -152,10 +152,15 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
 
+        # https://docs.python.org/3/reference/import.html#packages
+        # ... any module that contains a __path__ attribute is
+        # considered a package ...
+        ispackage = hasattr(obj, '__path__')
+
         fn = os.path.join(path, name + suffix)
 
-        # skip it if it exists
-        if os.path.isfile(fn):
+        # skip it if it exists and is not a package
+        if os.path.isfile(fn) and not ispackage:
             continue
 
         new_files.append(fn)
@@ -189,14 +194,10 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                           if x in include_public or not x.startswith('_')]
                 return public, items
 
-            def get_package_members(out_dict, include_public=[], imported=True):
-                # https://docs.python.org/3/reference/import.html#packages
-                # ... any module that contains a __path__ attribute is
-                # considered a package
-                if not hasattr(obj, '__path__'):
-                    return
-                out_dict['modules'], out_dict['all_modules'] = [], []
-                out_dict['packages'], out_dict['all_packages'] = [], []
+            def get_package_members(obj, typ, include_public=[]):
+                # type: (Any, bool, List[str]) -> Tuple[List[str], List[str]]
+                items = []  # type: List[str]
+                pkg_required = typ == 'package'
                 for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
                     fullname = name + '.' + modname
                     try:
@@ -204,13 +205,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     except ImportError as e:
                         warn('[autosummary] failed to import %s: %s' % (fullname, e))
                         continue
-                    if ispkg:
-                        kpublic, kall = 'packages', 'all_packages'
-                    else:
-                        kpublic, kall = 'modules', 'all_modules'
-                    out_dict[kall].append(fullname)
-                    if include_public or not modname.startswith('_'):
-                        out_dict[kpublic].append(fullname)
+                    if ispkg == pkg_required:
+                        items.append(fullname)
+                public = [x for x in items
+                          if x in include_public or not x.split('.')[-1].startswith('_')]
+                return public, items
 
             ns = {}  # type: Dict[str, Any]
 
@@ -222,7 +221,12 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, 'class', imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj, 'exception', imported=imported_members)
-                get_package_members(ns, imported=imported_members)
+                if ispackage:
+                    ns['modules'], ns['all_modules'] = \
+                        get_package_members(obj, 'module')
+                    ns['packages'], ns['all_packages'] = \
+                        get_package_members(obj, 'package')
+                    print(ns['modules'], ns['all_modules'])
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
