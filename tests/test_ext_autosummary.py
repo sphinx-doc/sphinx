@@ -101,6 +101,7 @@ def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary.generate
     args, kwargs = app_params
     app = make_app(*args, **kwargs)
+
     sphinx.ext.autosummary.generate.setup_documenters(app)
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
@@ -197,62 +198,140 @@ def test_autosummary_generate(app, status, warning):
             '   \n' in Foo)
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-autosummary-package')
-def test_autosummary_generate_package(app, status, warning):
+def _assert_autosummary_generate_package(app):
     app.builder.build_all()
 
-    # Check generated .rst files
-    root = app.srcdir / 'generated'
-    n = len(root)+1
-    generated = set()
-    for path, subdirs, files in os.walk(str(root)):
-        base = path[n:]
-        for name in files:
-            generated.add(os.path.join(base, name))
-        for name in subdirs:
-            generated.add(os.path.join(base, name))
-    expected = set(['package.rst', 'modules', 'packages',
-                    os.path.join('modules', 'package.module.rst'),
-                    os.path.join('packages', 'package.subpackage.rst'),
-                    os.path.join('packages', 'modules'),
-                    os.path.join('packages', 'modules', 'package.subpackage.module.rst'),
-                    ])
-    assert generated == expected
+    # Prepare recursion
+    max_depth = 3
+    recursion_limit = app.config.autosummary_recursion_limit
+    assert recursion_limit <= max_depth
+    
+    unlimited = recursion_limit < 0
 
-    content = (root / 'package.rst').text()
-    assert '.. automodule:: package' in content
-    assert '.. rubric:: modules' in content
-    assert ('.. autosummary::\n'
-            '   :toctree: modules\n'
-            '\n'
-            '   package.module\n' in content)
-    assert '.. rubric:: packages' in content
-    assert ('.. autosummary::\n'
-            '   :toctree: packages\n'
-            '\n'
-            '   package.subpackage\n' in content)
+    # All packages, modules and classes have the same name
+    package_name = 'package'
+    module_name = 'module'
+    class_name = 'Foo'
+    extension = 'rst'
+    nsuffix = len(extension)+1
 
-    content = (root / 'packages' / 'package.subpackage.rst').text()
-    assert '.. automodule:: package.subpackage' in content
-    assert '.. rubric:: modules' in content
-    assert ('.. autosummary::\n'
-            '   :toctree: modules\n'
-            '\n'
-            '   package.subpackage.module\n' in content)
+    # Expected module.rst template formatting
+    package_rubic_name = 'packages'
+    module_rubic_name = 'modules'
+    package_rubic = '.. rubric:: ' + package_rubic_name
+    module_rubic = '.. rubric:: ' + module_rubic_name
+    package_summary = '.. autosummary::\n'\
+                      '   :toctree: {}\n'\
+                      '\n'\
+                      '   {{}}.{}\n'.format(package_rubic_name, package_name)
+    module_summary = '.. autosummary::\n'\
+                     '   :toctree: {}\n'\
+                     '\n'\
+                     '   {{}}.{}\n'.format(module_rubic_name, module_name)
+    class_summary = '   .. autosummary::\n'\
+                    '   \n'\
+                    '      {}\n'\
+                    '   \n'.format(class_name)
 
-    modules = [('modules', 'package.module.rst'),
-               ('packages', 'modules', 'package.subpackage.module.rst')]
-    for module in modules:
-        path = root
-        for sub in module:
-            path /= sub
-        content = path.text()
-        assert '.. automodule:: '+module[-1][:-4] in content
+    def assert_package_content(file):
+        pkgroot = file.basename()[:-nsuffix]
+        content = file.text()
+        expected = ['.. automodule:: ' + pkgroot]
+        unexpected = []
+        if has_modules:
+            lst = expected
+        else:
+            lst = unexpected
+        lst.append(module_rubic)
+        lst.append(module_summary.format(pkgroot))
+        if has_packages:
+            lst = expected
+        else:
+            lst = unexpected
+        lst.append(package_rubic)
+        lst.append(package_summary.format(pkgroot))
+        for text in expected:
+            assert text in content
+        for text in unexpected:
+            assert text not in content
+
+    def assert_module_content(file):
+        modname = file.basename()[:-nsuffix]
+        content = file.text()
+        assert '.. automodule:: '+modname in content
         assert '   .. rubric:: Classes' in content
-        assert ('   .. autosummary::\n'
-                '   \n'
-                '      Foo\n'
-                '   \n' in content)
+        assert class_summary in content
+
+    root = app.srcdir / 'generated'
+    depth = 0
+    pkgroot = ''
+    packages = []
+    modules = []
+    directories = []
+    while True:
+        limit_reached = (depth == recursion_limit) and not unlimited
+        last_package = depth == max_depth
+        has_packages = not limit_reached and not last_package
+        has_modules = not limit_reached
+
+        if pkgroot:
+            pkgroot = '.'.join((pkgroot, package_name))
+        else:
+            pkgroot = package_name
+        package = root / '.'.join((pkgroot, extension))
+        packages.append(package)
+        assert_package_content(package)
+
+        if limit_reached:
+            break
+
+        directories.append(root / module_rubic_name)
+        module = root / module_rubic_name / \
+            '.'.join((pkgroot, module_name, extension))
+        modules.append(module)
+        assert_module_content(module)
+
+        if last_package:
+            # The last package contains a module but no subpackage
+            break
+
+        directories.append(root / package_rubic_name)
+        root /= package_rubic_name
+        depth += 1
+
+    # Check generated files and directories
+    generated = []
+    root = app.srcdir / 'generated'
+    for dir, subdirs, files in os.walk(str(root)):
+        root = root / dir
+        for name in files:
+            generated.append(root / name)
+        for name in subdirs:
+            generated.append(root / name)
+    expected = directories + packages + modules
+    assert set(generated) == set(expected)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-package')
+def test_autosummary_generate_package(make_app, app_params):
+    import sphinx.ext.autosummary
+    import sphinx.ext.autosummary.generate
+    logger = sphinx.ext.autosummary.logger
+    args, kwargs = app_params
+    confoverrides = {'autosummary_recursion_limit': 0}
+    kwargs['confoverrides'] = confoverrides
+    # Try different recursion limits
+    # TODO: going from higher to lower limit
+    # currently fails because generated files
+    # are not deleted
+    for limit in 0, 1, 2, 3, -1:
+        logger.info('autosummary_recursion_limit = {}'.format(limit))
+        confoverrides['autosummary_recursion_limit'] = limit
+        app = make_app(*args, **kwargs)
+        _assert_autosummary_generate_package(app)
+        # Cleanup
+        # root = app.srcdir / 'generated'
+        # root.rmtree()
 
 
 @pytest.mark.sphinx('latex', **default_kw)
