@@ -94,9 +94,9 @@ def _underline(title, line='='):
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
                               base_path=None, builder=None, template_dir=None,
-                              imported_members=False, app=None):
+                              imported_members=False, recursion_limit=0,
+                              app=None):
     # type: (List[str], str, str, Callable, Callable, str, Builder, str, bool, Any) -> None
-
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -156,12 +156,28 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         # ... any module that contains a __path__ attribute is
         # considered a package ...
         ispackage = hasattr(obj, '__path__')
+        if ispackage:
+            depth = len(name.split('.')) - 1
+            recurse_package = depth < recursion_limit or recursion_limit < 0
+            if recurse_package:
+                info(__('[autosummary] add modules/packages from %s') % repr(name))
+        else:
+            recurse_package = False
 
         fn = os.path.join(path, name + suffix)
 
-        # skip it if it exists and is not a package
-        if os.path.isfile(fn) and not ispackage:
-            continue
+        # Skip it if it exists and not a package.
+        if os.path.isfile(fn):
+            if ispackage and recursion_limit != 0:
+                # Overwrite the file because submodules/packages
+                # could have been added/removed from the package
+                # or the recursion limit might have changed.
+                # Warning: this file could have been created by the user
+                # in which case it is lost.
+                warn('[autosummary] overwriting docs of package %s' % (repr(name)))
+                os.remove(fn)
+            else:
+                continue
 
         new_files.append(fn)
 
@@ -221,12 +237,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     get_members(obj, 'class', imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
                     get_members(obj, 'exception', imported=imported_members)
-                if ispackage:
+                if recurse_package:
                     ns['modules'], ns['all_modules'] = \
                         get_package_members(obj, 'module')
                     ns['packages'], ns['all_packages'] = \
                         get_package_members(obj, 'package')
-                    print(ns['modules'], ns['all_modules'])
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['inherited_members'] = \
@@ -261,7 +276,10 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         generate_autosummary_docs(new_files, output_dir=output_dir,
                                   suffix=suffix, warn=warn, info=info,
                                   base_path=base_path, builder=builder,
-                                  template_dir=template_dir, app=app)
+                                  template_dir=template_dir,
+                                  imported_members=imported_members,
+                                  recursion_limit=recursion_limit,
+                                  app=app)
 
 
 # -- Finding documented entries in files ---------------------------------------
@@ -442,6 +460,7 @@ def main(argv=sys.argv[1:]):
                               '.' + args.suffix,
                               template_dir=args.templates,
                               imported_members=args.imported_members,
+                              recursion_limit=args.recursion_limit,
                               app=app)
 
 
