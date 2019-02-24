@@ -154,8 +154,8 @@ class CodeBlock(SphinxDirective):
             code = '\n'.join(lines)
 
         literal = nodes.literal_block(code, code)  # type: nodes.Element
-        literal['linenos'] = 'linenos' in self.options or \
-                             'lineno-start' in self.options
+        if 'linenos' in self.options or 'lineno-start' in self.options:
+            literal['linenos'] = True
         literal['classes'] += self.options.get('class', [])
         if self.arguments:
             # highlight language specified
@@ -451,9 +451,9 @@ class LiteralInclude(SphinxDirective):
                 retnode['language'] = 'udiff'
             elif 'language' in self.options:
                 retnode['language'] = self.options['language']
-            retnode['linenos'] = ('linenos' in self.options or
-                                  'lineno-start' in self.options or
-                                  'lineno-match' in self.options)
+            if ('linenos' in self.options or 'lineno-start' in self.options or
+                    'lineno-match' in self.options):
+                retnode['linenos'] = True
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
             if 'emphasize-lines' in self.options:
