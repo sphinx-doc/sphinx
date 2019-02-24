@@ -13,7 +13,7 @@ those output e.g. by Epydoc and other API doc generation tools.  This is
 especially useful when your docstrings are long and detailed, and putting each
 one of them on a separate page makes them easier to read.
 
-The :mod:`sphinx.ext.autosummary` extension does this in two parts:
+The :mod:`sphinx.ext.autosummary` extension does this in three parts:
 
 1. There is an :rst:dir:`autosummary` directive for generating summary listings
    that contain links to the documented items, and short summary blurbs
@@ -25,6 +25,10 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    These files by default contain only the corresponding
    :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
 
+3. Optionally, the new :confval:`autosummary_recursion_limit` config value can be
+   used to generate "stub" files recursively for packages. Warning: this will overwrite
+   existing files for packages.
+
 .. rst:directive:: autosummary
 
    Insert a table that contains links to documented items, and a short summary
@@ -32,7 +36,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    The :rst:dir:`autosummary` directive can also optionally serve as a
    :rst:dir:`toctree` entry for the included items. Optionally, stub
-   ``.rst`` files for these items can also be automatically generated.
+   ``.rst`` files for these items can also be automatically generated
+   when :confval:`autosummary_generate` is `True`.
 
    For example, ::
 
@@ -51,6 +56,27 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
           environment.BuildEnvironment
           util.relative_uri
+
+       .. currentmodule:: sphinx.ext.autosummary
+
+   When :confval:`autosummary_recursion_limit != 0`, the :rst:dir:`autosummary`
+   directive recursively generates stub ``.rst`` files for packages.
+
+   For example, ::
+
+       .. currentmodule:: sphinx
+
+       .. autosummary::
+
+          autosummary
+
+   produces a table like this:
+
+       .. currentmodule:: sphinx.ext
+
+       .. autosummary::
+
+          autosummary
 
        .. currentmodule:: sphinx.ext.autosummary
 
@@ -136,13 +162,24 @@ also use this new config value:
 .. confval:: autosummary_generate
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each.
+   directives, and to generate stub pages for each. It is disabled by default.
 
    Can also be a list of documents for which stub pages should be generated.
 
    The new files will be placed in the directories specified in the
    ``:toctree:`` options of the directives.
 
+Packages can be explored recursively when generating stub pages.
+
+.. confval:: autosummary_recursion_limit
+
+   Integer that determines the maximal recursion depth.
+   
+    - ``autosummary_recursion_limit = -1``: no recursion limit
+    - ``autosummary_recursion_limit = 0``: disable recursion (default)
+    - ``autosummary_recursion_limit > 0``: limit recursion depth
+
+   .. versionadded:: 2.0
 
 Customizing templates
 ---------------------
@@ -241,14 +278,14 @@ The following variables available in the templates:
    List containing names of "public" modules in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.0.0
+   .. versionadded:: 2.0
 
 .. data:: packages
 
    List containing names of "public" sub-packages in the package.  Only available for
    modules that are packages.
 
-   .. versionadded:: 2.0.0
+   .. versionadded:: 2.0
 
 Additionally, the following filters are available
 
