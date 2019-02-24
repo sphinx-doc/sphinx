@@ -30,7 +30,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.nodes import clean_astext
+from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 
@@ -1752,9 +1752,15 @@ class LaTeXTranslator(SphinxTranslator):
         elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
             return
 
-        if 'refuri' in node or 'refid' in node or 'refname' in node:
-            # skip indirect targets (external hyperlink and internal links)
+        if 'refuri' in node:
             return
+        if node.get('refid'):
+            prev_node = get_prev_node(node)
+            if isinstance(prev_node, nodes.reference) and node['refid'] == prev_node['refid']:
+                # a target for a hyperlink reference having alias
+                pass
+            else:
+                add_target(node['refid'])
         for id in node['ids']:
             add_target(id)
 

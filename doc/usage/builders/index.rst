@@ -28,6 +28,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
+.. module:: sphinx.builders.dirhtml
 .. class:: DirectoryHTMLBuilder
 
    This is a subclass of the standard HTML builder.  Its output is a directory
@@ -45,6 +46,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 0.6
 
+.. module:: sphinx.builders.singlehtml
 .. class:: SingleFileHTMLBuilder
 
    This is an HTML builder that combines the whole project in one output file.
@@ -297,7 +299,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. versionadded:: 1.1
 
 
-.. currentmodule:: sphinx.builders.html
+.. currentmodule:: sphinxcontrib.serializinghtml
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API

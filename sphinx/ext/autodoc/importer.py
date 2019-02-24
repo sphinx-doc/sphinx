@@ -32,13 +32,18 @@ logger = logging.getLogger(__name__)
 class _MockObject:
     """Used by autodoc_mock_imports."""
 
+    __display_name__ = '_MockObject'
+
     def __new__(cls, *args, **kwargs):
         # type: (Any, Any) -> Any
-        if len(args) == 3 and isinstance(args[1], tuple) and args[1][-1].__class__ is cls:
-            # subclassing MockObject
-            return type(args[0], (_MockObject,), args[2], **kwargs)  # type: ignore
-        else:
-            return super(_MockObject, cls).__new__(cls)
+        if len(args) == 3 and isinstance(args[1], tuple):
+            superclass = args[1][-1].__class__
+            if superclass is cls:
+                # subclassing MockObject
+                return _make_subclass(args[0], superclass.__display_name__,
+                                      superclass=superclass, attributes=args[2])
+
+        return super(_MockObject, cls).__new__(cls)
 
     def __init__(self, *args, **kwargs):
         # type: (Any, Any) -> None
@@ -62,11 +67,11 @@ class _MockObject:
 
     def __getitem__(self, key):
         # type: (str) -> _MockObject
-        return self
+        return _make_subclass(key, self.__display_name__, self.__class__)()
 
     def __getattr__(self, key):
         # type: (str) -> _MockObject
-        return self
+        return _make_subclass(key, self.__display_name__, self.__class__)()
 
     def __call__(self, *args, **kw):
         # type: (Any, Any) -> Any
@@ -74,6 +79,18 @@ class _MockObject:
             # Appears to be a decorator, pass through unchanged
             return args[0]
         return self
+
+    def __repr__(self):
+        # type: () -> str
+        return self.__display_name__
+
+
+def _make_subclass(name, module, superclass=_MockObject, attributes=None):
+    # type: (str, str, Any, dict) -> Any
+    attrs = {'__module__': module, '__display_name__': module + '.' + name}
+    attrs.update(attributes or {})
+
+    return type(name, (superclass,), attrs)
 
 
 class _MockModule(ModuleType):
@@ -92,9 +109,11 @@ class _MockModule(ModuleType):
 
     def __getattr__(self, name):
         # type: (str) -> _MockObject
-        o = _MockObject()
-        o.__module__ = self.__name__
-        return o
+        return _make_subclass(name, self.__name__)()
+
+    def __repr__(self):
+        # type: () -> str
+        return self.__name__
 
 
 class _MockImporter(MetaPathFinder):

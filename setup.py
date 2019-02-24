@@ -18,6 +18,8 @@ install_requires = [
     'sphinxcontrib-applehelp',
     'sphinxcontrib-devhelp',
     'sphinxcontrib-jsmath',
+    'sphinxcontrib-htmlhelp',
+    'sphinxcontrib-serializinghtml',
     'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',

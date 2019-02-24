@@ -23,7 +23,7 @@ from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.docutils import new_document
 from sphinx.util.i18n import format_date
-from sphinx.util.nodes import apply_source_workaround, is_smartquotable
+from sphinx.util.nodes import NodeMatcher, apply_source_workaround, is_smartquotable
 
 if False:
     # For type annotation
@@ -307,6 +307,19 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                 logger.warning(__('Footnote [#] is not referenced.'),
                                type='ref', subtype='footnote',
                                location=node)
+
+
+class FigureAligner(SphinxTransform):
+    """
+    Align figures to center by default.
+    """
+    default_priority = 700
+
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        matcher = NodeMatcher(nodes.table, nodes.figure)
+        for node in self.document.traverse(matcher):  # type: nodes.Element
+            node.setdefault('align', 'center')
 
 
 class FilterSystemMessages(SphinxTransform):

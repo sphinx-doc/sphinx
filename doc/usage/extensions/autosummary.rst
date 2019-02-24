@@ -181,6 +181,12 @@ Packages can be explored recursively when generating stub pages.
 
    .. versionadded:: 2.0
 
+.. confval:: autosummary_mock_imports
+
+   This value contains a list of modules to be mocked up.  See
+   :confval:`autodoc_mock_imports` for more details.  It defaults to
+   :confval:`autodoc_mock_imports`.
+
 Customizing templates
 ---------------------
 

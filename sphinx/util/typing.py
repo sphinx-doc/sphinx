@@ -20,6 +20,9 @@ DirectiveOption = Callable[[str], Any]
 # Text like nodes which are initialized with text and rawsource
 TextlikeNode = Union[nodes.Text, nodes.TextElement]
 
+# type of None
+NoneType = type(None)
+
 # common role functions
 RoleFunction = Callable[[str, str, str, int, Inliner, Dict, List[str]],
                         Tuple[List[nodes.Node], List[nodes.system_message]]]

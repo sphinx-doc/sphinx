@@ -18,7 +18,8 @@ from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util import progress_message
+from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename_from_project
 from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
@@ -60,6 +61,7 @@ class ManualPageBuilder(Builder):
             return ''
         raise NoUri
 
+    @progress_message(__('writing'))
     def write(self, *ignored):
         # type: (Any) -> None
         docwriter = ManualPageWriter(self)
@@ -67,8 +69,6 @@ class ManualPageBuilder(Builder):
             defaults=self.env.settings,
             components=(docwriter,),
             read_config_files=True).get_default_values()  # type: Any
-
-        logger.info(bold(__('writing... ')), nonl=True)
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
@@ -105,7 +105,6 @@ class ManualPageBuilder(Builder):
                 pendingnode.replace_self(pendingnode.children)
 
             docwriter.write(largetree, destination)
-        logger.info('')
 
     def finish(self):
         # type: () -> None

@@ -54,9 +54,9 @@ class ImagemagickConverter(ImageConverter):
         # type: (str, str) -> bool
         """Converts the image to expected one."""
         try:
-            if _from.lower().endswith('.gif'):
-                # when target is GIF format, pick the first frame
-                _from += '[0]'
+            # append an index 0 to source filename to pick up the first frame
+            # (or first page) of image (ex. Animation GIF, PDF)
+            _from += '[0]'
 
             args = ([self.config.image_converter] +
                     self.config.image_converter_args +

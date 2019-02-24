@@ -269,7 +269,7 @@ def setup(app):
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')
-    app.add_config_value('epub_title', lambda self: self.html_title, 'epub')
+    app.add_config_value('epub_title', lambda self: self.project, 'epub')
     app.add_config_value('epub_author', lambda self: self.author, 'epub')
     app.add_config_value('epub_language', lambda self: self.language or 'en', 'epub')
     app.add_config_value('epub_publisher', lambda self: self.author, 'epub')

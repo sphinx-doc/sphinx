@@ -72,7 +72,7 @@ INSTANCEATTR = object()
 def members_option(arg):
     # type: (Any) -> Union[object, List[str]]
     """Used to convert the :members: option to auto directives."""
-    if arg is None:
+    if arg is None or arg is True:
         return ALL
     return [x.strip() for x in arg.split(',')]
 
@@ -1002,6 +1002,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             return None
         try:
             if (not isfunction(self.object) and
+                    not inspect.ismethod(self.object) and
                     not isbuiltin(self.object) and
                     not inspect.isclass(self.object) and
                     hasattr(self.object, '__call__')):
@@ -1030,6 +1031,23 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     def document_members(self, all_members=False):
         # type: (bool) -> None
         pass
+
+
+class DecoratorDocumenter(FunctionDocumenter):
+    """
+    Specialized Documenter subclass for decorator functions.
+    """
+    objtype = 'decorator'
+
+    # must be lower than FunctionDocumenter
+    priority = -1
+
+    def format_args(self):
+        args = super().format_args()
+        if ',' in args:
+            return args
+        else:
+            return None
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore
@@ -1461,6 +1479,7 @@ def setup(app):
     app.add_autodocumenter(ExceptionDocumenter)
     app.add_autodocumenter(DataDocumenter)
     app.add_autodocumenter(FunctionDocumenter)
+    app.add_autodocumenter(DecoratorDocumenter)
     app.add_autodocumenter(MethodDocumenter)
     app.add_autodocumenter(AttributeDocumenter)
     app.add_autodocumenter(InstanceAttributeDocumenter)

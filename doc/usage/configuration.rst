@@ -1331,6 +1331,12 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.6
 
+   .. deprecated:: 2.0
+
+.. confval:: html4_writer
+
+   Output is processed with HTML4 writer.  Default is ``False``.
+
 Options for Single HTML output
 -------------------------------
 
@@ -1561,7 +1567,11 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_title
 
    The title of the document.  It defaults to the :confval:`html_title` option
-   but can be set independently for epub creation.
+   but can be set independently for epub creation.  It defaults to the
+   :confval:`project` option.
+
+   .. versionchanged:: 2.0
+      It defaults to the ``project`` option.
 
 .. confval:: epub_description
 

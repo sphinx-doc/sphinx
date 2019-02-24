@@ -603,6 +603,29 @@ def test_generate():
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_decorator(app):
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco1')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco1',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco1',
+        '   '
+    ]
+
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco2')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco2(condition, message)',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco2',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_exception(app):
     actual = do_autodoc(app, 'exception', 'target.CustomEx')
     assert list(actual) == [
@@ -1343,9 +1366,22 @@ def test_autofunction_for_callable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_method(app):
+    actual = do_autodoc(app, 'function', 'target.callable.method')
+    assert list(actual) == [
+        '',
+        '.. py:function:: method(arg1, arg2)',
+        '   :module: target.callable',
+        '',
+        '   docstring of Callable.method().',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_mocked_module_imports(app, warning):
     # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction'}
+    options = {"members": 'TestAutodoc,decoratedFunction,func'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
@@ -1382,6 +1418,12 @@ def test_mocked_module_imports(app, warning):
         '   :module: target.need_mocks',
         '',
         '   decoratedFunction docstring',
+        '   ',
+        '',
+        '.. py:function:: func(arg: missing_module.Class)',
+        '   :module: target.need_mocks',
+        '',
+        '   a function takes mocked object as an argument',
         '   '
     ]
     assert warning.getvalue() == ''
@@ -1507,6 +1549,12 @@ def test_autodoc_default_options(app):
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :members: = True
+    app.config.autodoc_default_options = {'members': True}
     actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual
