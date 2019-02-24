@@ -1254,6 +1254,15 @@ def test_html_inventory(app):
                                            'The basic Sphinx documentation for testing')
 
 
+@pytest.mark.sphinx('html', testroot='images', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_anchor_for_figure(app):
+    app.builder.build_all()
+    content = (app.outdir / 'index.html').text()
+    assert ('<p class="caption"><span class="caption-text">The caption of pic</span>'
+            '<a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>'
+            in content)
+
+
 @pytest.mark.sphinx('html', testroot='directives-raw')
 def test_html_raw_directive(app, status, warning):
     app.builder.build_all()

@@ -455,9 +455,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.add_permalink_ref(node.parent, _('Permalink to this code'))
         elif isinstance(node.parent, nodes.figure):
-            image_nodes = node.parent.traverse(nodes.image)
-            target_node = image_nodes and image_nodes[0] or node.parent
-            self.add_permalink_ref(target_node, _('Permalink to this image'))
+            self.add_permalink_ref(node.parent, _('Permalink to this image'))
         elif node.parent.get('toctree'):
             self.add_permalink_ref(node.parent.parent, _('Permalink to this toctree'))
 
