@@ -509,6 +509,13 @@ General configuration
 
    .. versionadded:: 1.5
 
+   .. tip:: Sphinx uses requests_ as a HTTP library internally.
+            Therefore, Sphinx refers a certification file on the
+            directory pointed ``REQUESTS_CA_BUNDLE`` environment
+            variable if ``tls_cacerts`` not set.
+
+            .. _requests: http://docs.python-requests.org/en/master/
+
 .. confval:: today
              today_fmt
 
