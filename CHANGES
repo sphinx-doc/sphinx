@@ -17,6 +17,7 @@ Bugs fixed
 ----------
 
 * #6096: html: Anchor links are not added to figures
+* #5508: ``linenothreshold`` option for ``highlight`` directive was ignored
 
 Testing
 --------
