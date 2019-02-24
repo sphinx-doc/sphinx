@@ -91,12 +91,19 @@ def _underline(title, line='='):
 
 # -- Generating output ---------------------------------------------------------
 
-def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
-                              warn=_simple_warn, info=_simple_info,
-                              base_path=None, builder=None, template_dir=None,
-                              imported_members=False, recursion_limit=0,
-                              app=None):
-    # type: (List[str], str, str, Callable, Callable, str, Builder, str, bool, Any) -> None
+def generate_autosummary_docs(sources,                 # type: List[str]
+                              output_dir=None,         # type: str
+                              suffix='.rst',           # type: str
+                              warn=_simple_warn,       # type: Callable
+                              info=_simple_info,       # type: Callable
+                              base_path=None,          # type: str
+                              builder=None,            # type: Builder
+                              template_dir=None,       # type: str
+                              imported_members=False,  # type: bool
+                              recursion_limit=0,       # type: int
+                              app=None                 # type: Any
+                              ):
+    # type: (...) -> None
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -211,7 +218,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 return public, items
 
             def get_package_members(obj, typ, include_public=[]):
-                # type: (Any, bool, List[str]) -> Tuple[List[str], List[str]]
+                # type: (Any, str, List[str]) -> Tuple[List[str], List[str]]
                 items = []  # type: List[str]
                 pkg_required = typ == 'package'
                 for _, modname, ispkg in pkgutil.iter_modules(obj.__path__):
