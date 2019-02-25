@@ -1,15 +1,11 @@
 from collections import defaultdict
 
-import docutils
-from docutils import nodes
-from docutils.parsers import rst
 from docutils.parsers.rst import directives
-import sphinx
+
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain
 from sphinx.domains import Index
-from sphinx.domains.std import StandardDomain
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 

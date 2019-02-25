@@ -1,8 +1,8 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-from sphinx.util.docutils import SphinxDirective
 from sphinx.locale import _
+from sphinx.util.docutils import SphinxDirective
 
 
 class todo(nodes.Admonition, nodes.Element):
