@@ -88,7 +88,7 @@ MediaWiki
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
 
-   .. code-block:: html+django
+   .. code-block:: html+jinja
 
       {% extends "!layout.html" %}
 
@@ -126,10 +126,10 @@ Google Search
    1. Go to https://cse.google.com/cse/all to create the Google Search code
       snippet.
 
-   2. Copy the code snippet and paste it into ``_templates/searchbox`` in your
-      Sphinx project:
+   2. Copy the code snippet and paste it into ``_templates/searchbox.html`` in
+      your Sphinx project:
 
-      .. code-block:: html+django
+      .. code-block:: html+jinja
 
          <div>
             <h3>{{ _('Quick search') }}</h3>
