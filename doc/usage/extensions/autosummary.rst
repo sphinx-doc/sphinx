@@ -131,7 +131,7 @@ Generating stub pages automatically
 -----------------------------------
 
 If you do not want to create stub pages with :program:`sphinx-autogen`, you can
-also use this new config value:
+also use these config values:
 
 .. confval:: autosummary_generate
 
