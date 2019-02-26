@@ -1195,6 +1195,7 @@ Configuration Variables
 
 See :ref:`cpp-config`.
 
+.. _domains-std:
 
 The Standard Domain
 -------------------
