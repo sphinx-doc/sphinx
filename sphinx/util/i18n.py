@@ -24,14 +24,14 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import Matcher
-from sphinx.util.osutil import SEP, relpath
+from sphinx.util.osutil import SEP, canon_path, relpath
 
 
 logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Callable, List, Set  # NOQA
+    from typing import Callable, Generator, List, Set, Tuple  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
@@ -79,6 +79,51 @@ class CatalogInfo(LocaleFileInfoBase):
                 write_mo(file_mo, po)
             except Exception as exc:
                 logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
+
+
+class CatalogRepository:
+    """A repository for message catalogs."""
+
+    def __init__(self, basedir, locale_dirs, language, encoding):
+        # type: (str, List[str], str, str) -> None
+        self.basedir = basedir
+        self._locale_dirs = locale_dirs
+        self.language = language
+        self.encoding = encoding
+
+    @property
+    def locale_dirs(self):
+        # type: () -> Generator[str, None, None]
+        if not self.language:
+            return
+
+        for locale_dir in self._locale_dirs:
+            locale_dir = path.join(self.basedir, locale_dir)
+            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+                yield locale_dir
+
+    @property
+    def pofiles(self):
+        # type: () -> Generator[Tuple[str, str], None, None]
+        for locale_dir in self.locale_dirs:
+            basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            for root, dirnames, filenames in os.walk(basedir):
+                # skip dot-directories
+                for dirname in dirnames:
+                    if dirname.startswith('.'):
+                        dirnames.remove(dirname)
+
+                for filename in filenames:
+                    if filename.endswith('.po'):
+                        fullpath = path.join(root, filename)
+                        yield basedir, relpath(fullpath, basedir)
+
+    @property
+    def catalogs(self):
+        # type: () -> Generator[CatalogInfo, None, None]
+        for basedir, filename in self.pofiles:
+            domain = canon_path(path.splitext(filename)[0])
+            yield CatalogInfo(basedir, domain, self.encoding)
 
 
 def find_catalog(docname, compaction):

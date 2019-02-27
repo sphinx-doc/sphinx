@@ -255,3 +255,47 @@ def test_get_filename_for_language(app):
     app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
     with pytest.raises(SphinxError):
         i18n.get_image_filename_for_language('foo.png', app.env)
+
+
+def test_CatalogRepository(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / '.dotdir' / 'test5.po').write_text('#')
+    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'yy' / 'LC_MESSAGES' / 'test6.po').write_text('#')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test7.po').write_text('#')
+
+    # for language xx
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'xx', 'utf-8')
+    assert list(repo.locale_dirs) == [str(tempdir / 'loc1'),
+                                      str(tempdir / 'loc2')]
+    assert all(isinstance(c, i18n.CatalogInfo) for c in repo.catalogs)
+    assert sorted(c.domain for c in repo.catalogs) == ['sub/test3', 'sub/test4',
+                                                       'test1', 'test1', 'test2', 'test7']
+
+    # for language yy
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'yy', 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == ['test6']
+
+    # unknown languages
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], 'zz', 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # no languages
+    repo = i18n.CatalogRepository(tempdir, ['loc1', 'loc2'], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # unknown locale_dirs
+    repo = i18n.CatalogRepository(tempdir, ['loc3'], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
+
+    # no locale_dirs
+    repo = i18n.CatalogRepository(tempdir, [], None, 'utf-8')
+    assert sorted(c.domain for c in repo.catalogs) == []
