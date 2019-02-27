@@ -13,6 +13,8 @@ Incompatible changes
 Deprecated
 ----------
 
+* ``sphinx.ext.autosummary.autolink_role()``
+
 Features added
 --------------
 

@@ -234,6 +234,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autosummary.autolink_role()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autosummary.AutoLink``
+
    * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
        ``autodoc.DocstringSignatureMixin.get_doc()``,
        ``autodoc.DocstringSignatureMixin._find_signature()``, and

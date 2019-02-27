@@ -77,7 +77,7 @@ from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
 from sphinx.util.docutils import (
-    NullReporter, SphinxDirective, new_document, switch_source_input
+    NullReporter, SphinxDirective, SphinxRole, new_document, switch_source_input
 )
 from sphinx.util.matching import Matcher
 
@@ -642,6 +642,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+    warnings.warn('autolink_role() is deprecated.', RemovedInSphinx40Warning)
     env = inliner.document.settings.env
     pyobj_role = env.get_domain('py').role('obj')
     objects, msg = pyobj_role('obj', rawtext, etext, lineno, inliner, options, content)
@@ -658,6 +659,34 @@ def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
         objects[0] = nodes.emphasis(rawtext, literal.astext(), classes=literal['classes'])
 
     return objects, msg
+
+
+class AutoLink(SphinxRole):
+    """Smart linking role.
+
+    Expands to ':obj:`text`' if `text` is an object that can be imported;
+    otherwise expands to '*text*'.
+    """
+    def run(self):
+        # type: () -> Tuple[List[nodes.Node], List[nodes.system_message]]
+        pyobj_role = self.env.get_domain('py').role('obj')
+        objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
+                                     self.inliner, self.options, self.content)
+        if errors:
+            return objects, errors
+
+        assert len(objects) == 1
+        pending_xref = cast(addnodes.pending_xref, objects[0])
+        try:
+            # try to import object by name
+            prefixes = get_import_prefixes_from_env(self.env)
+            import_by_name(pending_xref['reftarget'], prefixes)
+        except ImportError:
+            literal = cast(nodes.literal, pending_xref[0])
+            objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
+                                        classes=literal['classes'])
+
+        return objects, errors
 
 
 def get_rst_suffix(app):
@@ -727,7 +756,7 @@ def setup(app):
                  man=(autosummary_noop, autosummary_noop),
                  texinfo=(autosummary_noop, autosummary_noop))
     app.add_directive('autosummary', Autosummary)
-    app.add_role('autolink', autolink_role)
+    app.add_role('autolink', AutoLink())
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True, [bool])
