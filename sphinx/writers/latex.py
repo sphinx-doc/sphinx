@@ -1987,6 +1987,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for id in node.get('ids'):
                 anchor = not self.in_caption
                 self.body += self.hypertarget(id, anchor=anchor)
+        if not self.is_inline(node):
+            self.body.append('\n')
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
@@ -2039,6 +2041,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         # type: (nodes.Node) -> None
         self.body.append(self.context.pop())
+        if not self.is_inline(node):
+            self.body.append('\n')
 
     def visit_number_reference(self, node):
         # type: (nodes.Node) -> None

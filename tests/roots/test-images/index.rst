@@ -15,6 +15,9 @@ test-image
 
 .. image:: testimäge.png
 
+.. image:: rimg.png
+   :target: https://www.sphinx-doc.org/
+
 .. a remote image
 .. image:: https://www.python.org/static/img/python-logo.png
 
