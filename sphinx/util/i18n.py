@@ -128,12 +128,23 @@ class CatalogRepository:
 
 def find_catalog(docname, compaction):
     # type: (str, bool) -> str
+    warnings.warn('find_catalog() is deprecated.',
+                  RemovedInSphinx40Warning, stacklevel=2)
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
         ret = docname
 
     return ret
+
+
+def docname_to_domain(docname, compation):
+    # type: (str, bool) -> str
+    """Convert docname to domain for catalogs."""
+    if compation:
+        return docname.split(SEP, 1)[0]
+    else:
+        return docname
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):

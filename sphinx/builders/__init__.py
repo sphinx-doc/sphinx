@@ -23,7 +23,7 @@ from sphinx.util import i18n, import_object, logging, rst, progress_message, sta
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
@@ -251,7 +251,7 @@ class Builder:
             # type: (str) -> str
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
-                return find_catalog(docname, self.config.gettext_compact)
+                return docname_to_domain(docname, self.config.gettext_compact)
             else:
                 return None
 

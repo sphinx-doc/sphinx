@@ -239,6 +239,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
 
+   * - ``sphinx.util.i18n.find_catalog()``
+     - 2.1
+     - 4.0
+     - ``sphinx.util.i18n.docname_to_domain()``
+
    * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
        ``autodoc.DocstringSignatureMixin.get_doc()``,
        ``autodoc.DocstringSignatureMixin._find_signature()``, and
