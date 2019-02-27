@@ -194,9 +194,7 @@ class GraphvizSimple(SphinxDirective):
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = {
-            'docname': path.splitext(self.state.document.current_source)[0],
-        }
+        node['options'] = {'docname': self.env.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:

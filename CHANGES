@@ -21,6 +21,7 @@ Bugs fixed
 * #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
 * #6019: imgconverter: Including multipage PDF fails
 * #6047: autodoc: ``autofunction`` emits a warning for method objects
+* #6028: graphviz: Ensure the graphviz filenames are reproducible
 
 Testing
 --------
