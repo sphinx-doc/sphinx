@@ -401,11 +401,13 @@ table.citation td {
     border-bottom: none;
 }
 
+th > p:first-child,
 td > p:first-child {
     margin-top: 0px;
 }
 
-td > p:only-child {
+th > p:last-child,
+td > p:last-child {
     margin-bottom: 0px;
 }
 
@@ -482,7 +484,7 @@ li > p:first-child {
     margin-top: 0px;
 }
 
-li > p:only-child {
+li > p:last-child {
     margin-bottom: 0px;
 }
 
