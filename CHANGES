@@ -18,6 +18,7 @@ Bugs fixed
 
 * #6096: html: Anchor links are not added to figures
 * #3620: html: Defer searchindex.js rather than loading it via ajax
+* #6113: html: Table cells and list items have large margins
 * #5508: ``linenothreshold`` option for ``highlight`` directive was ignored
 
 Testing
