@@ -298,8 +298,7 @@ class Builder:
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue
-            if not (path.isfile(filename) or
-                    any(path.isfile(filename + suffix) for suffix in suffixes)):
+            if not path.isfile(filename):
                 logger.warning(__('file %r given on command line does not exist, '
                                   'ignoring'), filename)
                 continue
