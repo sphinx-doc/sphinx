@@ -603,22 +603,26 @@ class PeekableIterator:
 
 def import_object(objname, source=None):
     # type: (str, str) -> Any
+    """Import python object by qualname."""
     try:
-        module, name = objname.rsplit('.', 1)
-    except ValueError as err:
-        raise ExtensionError('Invalid full object name %s' % objname +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
-    try:
-        return getattr(__import__(module, None, None, [name]), name)
-    except ImportError as err:
-        raise ExtensionError('Could not import %s' % module +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
-    except AttributeError as err:
-        raise ExtensionError('Could not find %s' % objname +
-                             (source and ' (needed for %s)' % source or ''),
-                             err)
+        objpath = objname.split('.')
+        modname = objpath.pop(0)
+        obj = __import__(modname)
+        for name in objpath:
+            modname += '.' + name
+            try:
+                obj = getattr(obj, name)
+            except AttributeError:
+                __import__(modname)
+                obj = getattr(obj, name)
+
+        return obj
+    except (AttributeError, ImportError) as exc:
+        if source:
+            raise ExtensionError('Could not import %s (needed for %s)' %
+                                 (objname, source), exc)
+        else:
+            raise ExtensionError('Could not import %s' % objname, exc)
 
 
 def encode_uri(uri):
