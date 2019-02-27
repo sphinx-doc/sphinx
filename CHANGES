@@ -15,6 +15,8 @@ Deprecated
 
 * ``sphinx.ext.autosummary.autolink_role()``
 * ``sphinx.util.i18n.find_catalog()``
+* ``sphinx.util.i18n.find_catalog_files()``
+* ``sphinx.util.i18n.find_catalog_source_files()``
 
 Features added
 --------------

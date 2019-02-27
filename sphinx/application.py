@@ -40,7 +40,7 @@ from sphinx.util import logging
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import directive_helper
-from sphinx.util.i18n import find_catalog_source_files
+from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
 from sphinx.util.osutil import abspath, ensuredir, relpath
 from sphinx.util.tags import Tags
@@ -265,21 +265,21 @@ class Sphinx:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language is not None:
+        if self.config.language is None:
+            self.translator, has_translation = locale.init([], None)
+        else:
             logger.info(bold(__('loading translations [%s]... ') % self.config.language),
                         nonl=True)
-            user_locale_dirs = [
-                path.join(self.srcdir, x) for x in self.config.locale_dirs]
+
             # compile mo files if sphinx.po file in user locale directories are updated
-            for catinfo in find_catalog_source_files(
-                    user_locale_dirs, self.config.language, domains=['sphinx'],
-                    charset=self.config.source_encoding):
-                catinfo.write_mo(self.config.language)
-            locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs
-        else:
-            locale_dirs = []
-        self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-        if self.config.language is not None:
+            repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                     self.config.language, self.config.source_encoding)
+            for catalog in repo.catalogs:
+                if catalog.domain == 'sphinx' and catalog.is_outdated():
+                    catalog.write_mo(self.config.language)
+
+            locale_dirs = [None, path.join(package_dir, 'locale')] + list(repo.locale_dirs)
+            self.translator, has_translation = locale.init(locale_dirs, self.config.language)
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
                 logger.info(__('done'))
