@@ -18,9 +18,11 @@ from typing import Any
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
-from sphinx.ext.autodoc.importer import mock, import_object, get_object_members
-from sphinx.ext.autodoc.importer import _MockImporter  # to keep compatibility  # NOQA
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
+from sphinx.ext.autodoc.importer import import_object, get_object_members
+from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import logging
@@ -1470,6 +1472,15 @@ def merge_autodoc_default_flags(app, config):
                 __("Ignoring invalid option in autodoc_default_flags: %r"),
                 option, type='autodoc'
             )
+
+
+from sphinx.ext.autodoc.mock import _MockImporter  # NOQA
+
+deprecated_alias('sphinx.ext.autodoc',
+                 {
+                     '_MockImporter': _MockImporter,
+                 },
+                 RemovedInSphinx40Warning)
 
 
 def setup(app):

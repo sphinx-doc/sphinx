@@ -1,6 +1,6 @@
 """
-    test_ext_autodoc_importer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    test_ext_autodoc_mock
+    ~~~~~~~~~~~~~~~~~~~~~
 
     Test the autodoc extension.
 
@@ -13,7 +13,7 @@ import sys
 
 import pytest
 
-from sphinx.ext.autodoc.importer import _MockModule, _MockObject, mock
+from sphinx.ext.autodoc.mock import _MockModule, _MockObject, mock
 
 
 def test_MockModule():

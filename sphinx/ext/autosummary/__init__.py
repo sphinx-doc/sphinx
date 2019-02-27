@@ -72,7 +72,8 @@ from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.ext.autodoc import get_documenters
 from sphinx.ext.autodoc.directive import DocumenterBridge, Options
-from sphinx.ext.autodoc.importer import import_module, mock
+from sphinx.ext.autodoc.importer import import_module
+from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.util import import_object, rst, logging
