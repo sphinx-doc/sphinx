@@ -1202,6 +1202,10 @@ def test_latex_images(app, status, warning):
     assert ('\\sphinxhref{https://www.sphinx-doc.org/}'
             '{\\sphinxincludegraphics{{rimg}.png}}\n\n' in result)
 
+    # a centerized image having target
+    assert ('\\sphinxhref{https://www.python.org/}{{\\hspace*{\\fill}'
+            '\\sphinxincludegraphics{{rimg}.png}\\hspace*{\\fill}}}\n\n' in result)
+
 
 @pytest.mark.sphinx('latex', testroot='latex-index')
 def test_latex_index(app, status, warning):

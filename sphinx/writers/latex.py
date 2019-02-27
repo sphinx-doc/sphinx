@@ -1655,7 +1655,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # in reverse order
         post = []   # type: List[unicode]
         include_graphics_options = []
-        is_inline = self.is_inline(node)
+        has_hyperlink = isinstance(node.parent, nodes.reference)
+        if has_hyperlink:
+            is_inline = self.is_inline(node.parent)
+        else:
+            is_inline = self.is_inline(node)
         if 'width' in attrs:
             if 'scale' in attrs:
                 w = self.latex_image_length(attrs['width'], attrs['scale'])
@@ -1697,7 +1701,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_parsed_literal:
             pre.append('{\\sphinxunactivateextrasandspace ')
             post.append('}')
-        if not is_inline:
+        if not is_inline and not has_hyperlink:
             pre.append('\n\\noindent')
             post.append('\n')
         pre.reverse()
