@@ -234,6 +234,21 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.importer.MockFinder``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.MockFinder``
+
+   * - ``sphinx.ext.autodoc.importer.MockLoader``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.MockLoader``
+
+   * - ``sphinx.ext.autodoc.importer.mock()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.mock()``
+
    * - ``sphinx.ext.autosummary.autolink_role()``
      - 2.1
      - 4.0
