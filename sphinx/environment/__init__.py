@@ -25,7 +25,7 @@ from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.util.i18n import find_catalog_files
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
 
 if False:
@@ -395,15 +395,13 @@ class BuildEnvironment:
             # move i18n process into the writing phase, and remove these lines.
             if builder.use_message_catalog:
                 # add catalog mo file dependency
+                repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                         self.config.language, self.config.source_encoding)
                 for docname in self.found_docs:
-                    catalog_files = find_catalog_files(
-                        docname,
-                        self.srcdir,
-                        self.config.locale_dirs,
-                        self.config.language,
-                        self.config.gettext_compact)
-                    for filename in catalog_files:
-                        self.dependencies[docname].add(filename)
+                    domain = docname_to_domain(docname, self.config.gettext_compact)
+                    for catalog in repo.catalogs:
+                        if catalog.domain == domain:
+                            self.dependencies[docname].add(catalog.mo_path)
         except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 

@@ -21,7 +21,7 @@ from sphinx.domains.std import make_glossary_term, split_term_classifiers
 from sphinx.locale import __, init as init_locale
 from sphinx.transforms import SphinxTransform
 from sphinx.util import split_index_msg, logging
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES, NodeMatcher,
     extract_messages, is_pending_meta, traverse_translatable_index,
@@ -94,7 +94,7 @@ class Locale(SphinxTransform):
         assert source.startswith(self.env.srcdir)
         docname = path.splitext(relative_path(path.join(self.env.srcdir, 'dummy'),
                                               source))[0]
-        textdomain = find_catalog(docname, self.config.gettext_compact)
+        textdomain = docname_to_domain(docname, self.config.gettext_compact)
 
         # fetch translations
         dirs = [path.join(self.env.srcdir, directory)

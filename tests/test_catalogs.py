@@ -17,18 +17,19 @@ from sphinx.testing.util import find_files
 @pytest.fixture
 def setup_test(app_params):
     srcdir = app_params.kwargs['srcdir']
-    locale_dir = srcdir / 'locale'
+    src_locale_dir = srcdir / 'xx' / 'LC_MESSAGES'
+    dest_locale_dir = srcdir / 'locale'
     # copy all catalogs into locale layout directory
-    for po in find_files(srcdir, '.po'):
-        copy_po = (locale_dir / 'en' / 'LC_MESSAGES' / po)
+    for po in find_files(src_locale_dir, '.po'):
+        copy_po = (dest_locale_dir / 'en' / 'LC_MESSAGES' / po)
         if not copy_po.parent.exists():
             copy_po.parent.makedirs()
-        shutil.copy(srcdir / po, copy_po)
+        shutil.copy(src_locale_dir / po, copy_po)
 
     yield
 
     # delete remnants left over after failed build
-    locale_dir.rmtree(True)
+    dest_locale_dir.rmtree(True)
     (srcdir / '_build').rmtree(True)
 
 
