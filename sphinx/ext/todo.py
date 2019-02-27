@@ -157,11 +157,80 @@ class TodoList(SphinxDirective):
         return [todolist('')]
 
 
+class TodoListProcessor:
+    def __init__(self, app, doctree, docname):
+        # type: (Sphinx, nodes.document, str) -> None
+        self.builder = app.builder
+        self.config = app.config
+        self.env = app.env
+        self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+
+        self.process(doctree, docname)
+
+    def process(self, doctree, docname):
+        # type: (nodes.document, str) -> None
+        todos = sum(self.domain.todos.values(), [])
+        for node in doctree.traverse(todolist):
+            if not self.config.todo_include_todos:
+                node.parent.remove(node)
+                continue
+
+            if node.get('ids'):
+                content = [nodes.target()]  # type: List[nodes.Element]
+            else:
+                content = []
+
+            for todo in todos:
+                # Create a copy of the todo node
+                new_todo = todo.deepcopy()
+                new_todo['ids'].clear()
+
+                # (Recursively) resolve references in the todo content
+                self.env.resolve_references(new_todo, todo['docname'], self.builder)  # type: ignore  # NOQA
+                content.append(new_todo)
+
+                todo_ref = self.create_todo_reference(todo, docname)
+                content.append(todo_ref)
+
+            node.replace_self(content)
+
+    def create_todo_reference(self, todo, docname):
+        # type: (todo_node, str) -> nodes.paragraph
+        if self.config.todo_link_only:
+            description = _('<<original entry>>')
+        else:
+            description = (_('(The <<original entry>> is located in %s, line %d.)') %
+                           (todo.source, todo.line))
+
+        prefix = description[:description.find('<<')]
+        suffix = description[description.find('>>') + 2:]
+
+        para = nodes.paragraph(classes=['todo-source'])
+        para += nodes.Text(prefix, prefix)
+
+        # Create a reference
+        linktext = nodes.emphasis(_('original entry'), _('original entry'))
+        reference = nodes.reference('', '', linktext, internal=True)
+        try:
+            reference['refuri'] = self.builder.get_relative_uri(docname, todo['docname'])
+            reference['refuri'] += '#' + todo['ids'][0]
+        except NoUri:
+            # ignore if no URI can be determined, e.g. for LaTeX output
+            pass
+
+        para += reference
+        para += nodes.Text(suffix, suffix)
+
+        return para
+
+
 def process_todo_nodes(app, doctree, fromdocname):
     # type: (Sphinx, nodes.document, str) -> None
     """Replace all todolist nodes with a list of the collected todos.
     Augment each todo with a backlink to the original location.
     """
+    warnings.warn('process_todo_nodes() is deprecated.', RemovedInSphinx40Warning)
+
     domain = cast(TodoDomain, app.env.get_domain('todo'))
     todos = sum(domain.todos.values(), [])
 
@@ -202,8 +271,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             todo_entry['ids'].clear()
 
             # (Recursively) resolve references in the todo content
-            app.env.resolve_references(todo_entry, todo_info['docname'],
-                                       app.builder)
+            app.env.resolve_references(todo_entry, todo_info['docname'], app.builder)  # type: ignore  # NOQA
 
             # Insert into the todolist
             content.append(todo_entry)
@@ -279,7 +347,7 @@ def setup(app):
     app.add_directive('todo', Todo)
     app.add_directive('todolist', TodoList)
     app.add_domain(TodoDomain)
-    app.connect('doctree-resolved', process_todo_nodes)
+    app.connect('doctree-resolved', TodoListProcessor)
     return {
         'version': sphinx.__display_version__,
         'env_version': 2,

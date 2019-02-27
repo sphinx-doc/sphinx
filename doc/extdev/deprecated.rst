@@ -31,6 +31,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.todo.TodoDomain``
 
+   * - ``sphinx.ext.todo.process_todo_nodes()``
+     - 2.2
+     - 4.0
+     - ``sphinx.ext.todo.TodoDomain``
+
    * - ``sphinx.ext.todo.process_todos()``
      - 2.2
      - 4.0
