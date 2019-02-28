@@ -315,7 +315,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 Configuration
 -------------
 
-There are also new config values that you can set:
+There are also config values that you can set:
 
 .. confval:: autoclass_content
 

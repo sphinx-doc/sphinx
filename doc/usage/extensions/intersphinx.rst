@@ -43,7 +43,7 @@ Configuration
 -------------
 
 To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
-:confval:`extensions` config value, and use these new config values to activate
+:confval:`extensions` config value, and use these config values to activate
 linking:
 
 .. confval:: intersphinx_mapping
