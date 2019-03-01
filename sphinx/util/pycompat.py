@@ -1,50 +1,40 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.pycompat
     ~~~~~~~~~~~~~~~~~~~~
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import html
+import io
 import sys
-from html import escape as htmlescape  # NOQA
-from io import TextIOWrapper  # NOQA
-from textwrap import indent  # type: ignore # NOQA
+import textwrap
+import warnings
 
-from six import text_type, exec_
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+from sphinx.locale import __
+from sphinx.util import logging
+from sphinx.util.console import terminal_safe
+from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
     from typing import Any, Callable, Generator  # NOQA
 
 
-NoneType = type(None)
+logger = logging.getLogger(__name__)
+
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
-# prefix for Unicode strings
-u = ''  # RemovedInSphinx40Warning
-
-
-# sys_encoding: some kind of default system encoding; should be used with
-# a lenient error handler
-sys_encoding = sys.getdefaultencoding()
-
-
-# terminal_safe(): safely encode a string for printing to the terminal
-def terminal_safe(s):
-    # type: (unicode) -> unicode
-    return s.encode('ascii', 'backslashreplace').decode('ascii')
-
-
 # convert_with_2to3():
 # support for running 2to3 over config files
 def convert_with_2to3(filepath):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     from lib2to3.refactor import RefactoringTool, get_fixers_from_package
     from lib2to3.pgen2.parse import ParseError
     fixers = get_fixers_from_package('lib2to3.fixes')
@@ -57,19 +47,23 @@ def convert_with_2to3(filepath):
         lineno, offset = err.context[1]
         # try to match ParseError details with SyntaxError details
         raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
-    return text_type(tree)
+    return str(tree)
 
 
 class UnicodeMixin:
     """Mixin class to handle defining the proper __str__/__unicode__
-    methods in Python 2 or 3."""
+    methods in Python 2 or 3.
 
+    .. deprecated:: 2.0
+    """
     def __str__(self):
+        warnings.warn('UnicodeMixin is deprecated',
+                      RemovedInSphinx40Warning, stacklevel=2)
         return self.__unicode__()
 
 
 def execfile_(filepath, _globals, open=open):
-    # type: (unicode, Any, Callable) -> None
+    # type: (str, Any, Callable) -> None
     from sphinx.util.osutil import fs_encoding
     with open(filepath, 'rb') as f:
         source = f.read()
@@ -79,11 +73,27 @@ def execfile_(filepath, _globals, open=open):
     try:
         code = compile(source, filepath_enc, 'exec')
     except SyntaxError:
-        if convert_with_2to3:
-            # maybe the file uses 2.x syntax; try to refactor to
-            # 3.x syntax using 2to3
-            source = convert_with_2to3(filepath)
-            code = compile(source, filepath_enc, 'exec')
-        else:
-            raise
-    exec_(code, _globals)
+        # maybe the file uses 2.x syntax; try to refactor to
+        # 3.x syntax using 2to3
+        source = convert_with_2to3(filepath)
+        code = compile(source, filepath_enc, 'exec')
+        # TODO: When support for evaluating Python 2 syntax is removed,
+        # deprecate convert_with_2to3().
+        logger.warning(__('Support for evaluating Python 2 syntax is deprecated '
+                          'and will be removed in Sphinx 4.0. '
+                          'Convert %s to Python 3 syntax.'),
+                       filepath)
+    exec(code, _globals)
+
+
+deprecated_alias('sphinx.util.pycompat',
+                 {
+                     'NoneType': NoneType,  # type: ignore
+                     'TextIOWrapper': io.TextIOWrapper,
+                     'htmlescape': html.escape,
+                     'indent': textwrap.indent,
+                     'terminal_safe': terminal_safe,
+                     'sys_encoding': sys.getdefaultencoding(),
+                     'u': '',
+                 },
+                 RemovedInSphinx40Warning)

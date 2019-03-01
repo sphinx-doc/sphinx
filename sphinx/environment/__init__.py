@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment
     ~~~~~~~~~~~~~~~~~~
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import os
 import pickle
-import sys
 import warnings
 from collections import defaultdict
 from copy import copy
@@ -27,9 +25,8 @@ from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict
 from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
-from sphinx.util.i18n import find_catalog_files
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.websupport import is_commentable
 
 if False:
     # For type annotation
@@ -56,7 +53,7 @@ default_settings = {
     'halt_level': 5,
     'file_insertion_enabled': True,
     'smartquotes_locales': [],
-}
+}  # type: Dict[str, Any]
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
@@ -78,8 +75,7 @@ CONFIG_CHANGED_REASON = {
 versioning_conditions = {
     'none': False,
     'text': is_translatable,
-    'commentable': is_commentable,
-}  # type: Dict[unicode, Union[bool, Callable]]
+}  # type: Dict[str, Union[bool, Callable]]
 
 
 class NoUri(Exception):
@@ -94,19 +90,19 @@ class BuildEnvironment:
     transformations to resolve links to them.
     """
 
-    domains = None  # type: Dict[unicode, Domain]
+    domains = None  # type: Dict[str, Domain]
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
     def __init__(self, app=None):
         # type: (Sphinx) -> None
         self.app = None             # type: Sphinx
-        self.doctreedir = None      # type: unicode
-        self.srcdir = None          # type: unicode
+        self.doctreedir = None      # type: str
+        self.srcdir = None          # type: str
         self.config = None          # type: Config
         self.config_status = None   # type: int
         self.project = None         # type: Project
-        self.version = None         # type: Dict[unicode, unicode]
+        self.version = None         # type: Dict[str, str]
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
@@ -122,60 +118,60 @@ class BuildEnvironment:
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
-        self.all_docs = {}          # type: Dict[unicode, float]
+        self.all_docs = {}          # type: Dict[str, float]
                                     # docname -> mtime at the time of reading
                                     # contains all read docnames
-        self.dependencies = defaultdict(set)    # type: Dict[unicode, Set[unicode]]
+        self.dependencies = defaultdict(set)    # type: Dict[str, Set[str]]
                                     # docname -> set of dependent file
                                     # names, relative to documentation root
-        self.included = defaultdict(set)        # type: Dict[unicode, Set[unicode]]
+        self.included = defaultdict(set)        # type: Dict[str, Set[str]]
                                     # docname -> set of included file
                                     # docnames included from other documents
-        self.reread_always = set()  # type: Set[unicode]
+        self.reread_always = set()  # type: Set[str]
                                     # docnames to re-read unconditionally on
                                     # next build
 
         # File metadata
-        self.metadata = defaultdict(dict)       # type: Dict[unicode, Dict[unicode, Any]]
+        self.metadata = defaultdict(dict)       # type: Dict[str, Dict[str, Any]]
                                                 # docname -> dict of metadata items
 
         # TOC inventory
-        self.titles = {}            # type: Dict[unicode, nodes.Node]
+        self.titles = {}            # type: Dict[str, nodes.title]
                                     # docname -> title node
-        self.longtitles = {}        # type: Dict[unicode, nodes.Node]
+        self.longtitles = {}        # type: Dict[str, nodes.title]
                                     # docname -> title node; only different if
                                     # set differently with title directive
-        self.tocs = {}              # type: Dict[unicode, nodes.Node]
+        self.tocs = {}              # type: Dict[str, nodes.bullet_list]
                                     # docname -> table of contents nodetree
-        self.toc_num_entries = {}   # type: Dict[unicode, int]
+        self.toc_num_entries = {}   # type: Dict[str, int]
                                     # docname -> number of real entries
 
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
-        self.toc_secnumbers = {}    # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]
+        self.toc_secnumbers = {}    # type: Dict[str, Dict[str, Tuple[int, ...]]]
                                     # docname -> dict of sectionid -> number
-        self.toc_fignumbers = {}    # type: Dict[unicode, Dict[unicode, Dict[unicode, Tuple[int, ...]]]]  # NOQA
+        self.toc_fignumbers = {}    # type: Dict[str, Dict[str, Dict[str, Tuple[int, ...]]]]
                                     # docname -> dict of figtype ->
                                     # dict of figureid -> number
 
-        self.toctree_includes = {}  # type: Dict[unicode, List[unicode]]
+        self.toctree_includes = {}  # type: Dict[str, List[str]]
                                     # docname -> list of toctree includefiles
-        self.files_to_rebuild = {}  # type: Dict[unicode, Set[unicode]]
+        self.files_to_rebuild = {}  # type: Dict[str, Set[str]]
                                     # docname -> set of files
                                     # (containing its TOCs) to rebuild too
-        self.glob_toctrees = set()  # type: Set[unicode]
+        self.glob_toctrees = set()  # type: Set[str]
                                     # docnames that have :glob: toctrees
-        self.numbered_toctrees = set()  # type: Set[unicode]
+        self.numbered_toctrees = set()  # type: Set[str]
                                         # docnames that have :numbered: toctrees
 
         # domain-specific inventories, here to be pickled
-        self.domaindata = {}        # type: Dict[unicode, Dict]
+        self.domaindata = {}        # type: Dict[str, Dict]
                                     # domainname -> domain-specific dict
 
         # Other inventories
-        self.indexentries = {}      # type: Dict[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]  # NOQA
+        self.indexentries = {}      # type: Dict[str, List[Tuple[str, str, str, str, str]]]
                                     # docname -> list of
-                                    # (type, unicode, target, aliasname)
+                                    # (type, str, target, aliasname)
 
         # these map absolute path -> (docnames, unique filename)
         self.images = FilenameUniqDict()    # type: FilenameUniqDict
@@ -183,14 +179,14 @@ class BuildEnvironment:
                                             # filename -> (set of docnames, destination)
 
         # the original URI for images
-        self.original_image_uri = {}  # type: Dict[unicode, unicode]
+        self.original_image_uri = {}  # type: Dict[str, str]
 
         # temporary data storage while reading a document
-        self.temp_data = {}         # type: Dict[unicode, Any]
+        self.temp_data = {}         # type: Dict[str, Any]
         # context for cross-references (e.g. current module or class)
         # this is similar to temp_data, but will for example be copied to
         # attributes of "any" cross references
-        self.ref_context = {}       # type: Dict[unicode, Any]
+        self.ref_context = {}       # type: Dict[str, Any]
 
         # set up environment
         if app:
@@ -267,7 +263,7 @@ class BuildEnvironment:
         self.settings.setdefault('smart_quotes', True)
 
     def set_versioning_method(self, method, compare):
-        # type: (unicode, bool) -> None
+        # type: (Union[str, Callable], bool) -> None
         """This sets the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -275,9 +271,14 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        if method not in versioning_conditions:
-            raise ValueError('invalid versioning method: %r' % method)
-        condition = versioning_conditions[method]
+        condition = None  # type: Union[bool, Callable]
+        if callable(method):
+            condition = method
+        else:
+            if method not in versioning_conditions:
+                raise ValueError('invalid versioning method: %r' % method)
+            condition = versioning_conditions[method]
+
         if self.versioning_condition not in (None, condition):
             raise SphinxError(__('This environment is incompatible with the '
                                  'selected builder, please choose another '
@@ -286,7 +287,7 @@ class BuildEnvironment:
         self.versioning_compare = compare
 
     def clear_doc(self, docname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Remove all traces of a source file in the inventory."""
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
@@ -297,7 +298,7 @@ class BuildEnvironment:
             domain.clear_doc(docname)
 
     def merge_info_from(self, docnames, other, app):
-        # type: (List[unicode], BuildEnvironment, Sphinx) -> None
+        # type: (List[str], BuildEnvironment, Sphinx) -> None
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
@@ -319,7 +320,7 @@ class BuildEnvironment:
         app.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename):
-        # type: (unicode) -> Optional[unicode]
+        # type: (str) -> Optional[str]
         """Return the docname for the filename if the file is document.
 
         *filename* should be absolute or relative to the source directory.
@@ -327,7 +328,7 @@ class BuildEnvironment:
         return self.project.path2doc(filename)
 
     def doc2path(self, docname, base=True, suffix=None):
-        # type: (unicode, Union[bool, unicode], unicode) -> unicode
+        # type: (str, Union[bool, str], str) -> str
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
@@ -351,7 +352,7 @@ class BuildEnvironment:
         return pathname
 
     def relfn2path(self, filename, docname=None):
-        # type: (unicode, unicode) -> Tuple[unicode, unicode]
+        # type: (str, str) -> Tuple[str, str]
         """Return paths to a file referenced from a document, relative to
         documentation root and absolute.
 
@@ -365,19 +366,13 @@ class BuildEnvironment:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=None))
             rel_fn = path.join(docdir, filename)
-        try:
-            # the path.abspath() might seem redundant, but otherwise artifacts
-            # such as ".." will remain in the path
-            return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
-        except UnicodeDecodeError:
-            # the source directory is a bytestring with non-ASCII characters;
-            # let's try to encode the rel_fn in the file system encoding
-            enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
-            return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
+        # the path.abspath() might seem redundant, but otherwise artifacts
+        # such as ".." will remain in the path
+        return rel_fn, path.abspath(path.join(self.srcdir, rel_fn))
 
     @property
     def found_docs(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         """contains all existing docnames."""
         return self.project.docnames
 
@@ -400,26 +395,24 @@ class BuildEnvironment:
             # move i18n process into the writing phase, and remove these lines.
             if builder.use_message_catalog:
                 # add catalog mo file dependency
+                repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                         self.config.language, self.config.source_encoding)
                 for docname in self.found_docs:
-                    catalog_files = find_catalog_files(
-                        docname,
-                        self.srcdir,
-                        self.config.locale_dirs,
-                        self.config.language,
-                        self.config.gettext_compact)
-                    for filename in catalog_files:
-                        self.dependencies[docname].add(filename)
-        except EnvironmentError as exc:
+                    domain = docname_to_domain(docname, self.config.gettext_compact)
+                    for catalog in repo.catalogs:
+                        if catalog.domain == domain:
+                            self.dependencies[docname].add(catalog.mo_path)
+        except OSError as exc:
             raise DocumentError(__('Failed to scan documents in %s: %r') % (self.srcdir, exc))
 
     def get_outdated_files(self, config_changed):
-        # type: (bool) -> Tuple[Set[unicode], Set[unicode], Set[unicode]]
+        # type: (bool) -> Tuple[Set[str], Set[str], Set[str]]
         """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
 
-        added = set()  # type: Set[unicode]
-        changed = set()  # type: Set[unicode]
+        added = set()  # type: Set[str]
+        changed = set()  # type: Set[str]
 
         if config_changed:
             # config values affect e.g. substitutions
@@ -456,7 +449,7 @@ class BuildEnvironment:
                         if depmtime > mtime:
                             changed.add(docname)
                             break
-                    except EnvironmentError:
+                    except OSError:
                         # give it another chance
                         changed.add(docname)
                         break
@@ -464,8 +457,8 @@ class BuildEnvironment:
         return added, changed, removed
 
     def check_dependents(self, app, already):
-        # type: (Sphinx, Set[unicode]) -> Iterator[unicode]
-        to_rewrite = []  # type: List[unicode]
+        # type: (Sphinx, Set[str]) -> Iterator[str]
+        to_rewrite = []  # type: List[str]
         for docnames in app.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
@@ -475,7 +468,7 @@ class BuildEnvironment:
     # --------- SINGLE FILE READING --------------------------------------------
 
     def prepare_settings(self, docname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Prepare to set up environment for reading."""
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
@@ -487,12 +480,12 @@ class BuildEnvironment:
 
     @property
     def docname(self):
-        # type: () -> unicode
+        # type: () -> str
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
 
     def new_serialno(self, category=''):
-        # type: (unicode) -> int
+        # type: (str) -> int
         """Return a serial number, e.g. for index entry targets.
 
         The number is guaranteed to be unique in the current document.
@@ -503,7 +496,7 @@ class BuildEnvironment:
         return cur
 
     def note_dependency(self, filename):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Add *filename* as a dependency of the current document.
 
         This means that the document will be rebuilt if this file changes.
@@ -513,7 +506,7 @@ class BuildEnvironment:
         self.dependencies[self.docname].add(filename)
 
     def note_included(self, filename):
-        # type: (unicode) -> None
+        # type: (str) -> None
         """Add *filename* as a included from other document.
 
         This means the document is not orphaned.
@@ -530,7 +523,7 @@ class BuildEnvironment:
         self.reread_always.add(self.docname)
 
     def get_domain(self, domainname):
-        # type: (unicode) -> Domain
+        # type: (str) -> Domain
         """Return the domain instance with the specified name.
 
         Raises an ExtensionError if the domain is not registered.
@@ -543,7 +536,7 @@ class BuildEnvironment:
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
     def get_doctree(self, docname):
-        # type: (unicode) -> nodes.Node
+        # type: (str) -> nodes.document
         """Read the doctree for a file from the pickle and return it."""
         filename = path.join(self.doctreedir, docname + '.doctree')
         with open(filename, 'rb') as f:
@@ -554,7 +547,7 @@ class BuildEnvironment:
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
-        # type: (unicode, Builder, nodes.Node, bool, bool) -> nodes.Node
+        # type: (str, Builder, nodes.document, bool, bool) -> nodes.document
         """Read the doctree from the pickle, resolve cross-references and
         toctrees and return it.
         """
@@ -578,7 +571,7 @@ class BuildEnvironment:
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
-        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
+        # type: (str, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -595,11 +588,11 @@ class BuildEnvironment:
                                      includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
-        # type: (nodes.Node, unicode, Builder) -> None
+        # type: (nodes.document, str, Builder) -> None
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree, docname):
-        # type: (nodes.Node, unicode) -> None
+        # type: (nodes.document, str) -> None
         """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
@@ -617,11 +610,11 @@ class BuildEnvironment:
         self.app.emit('doctree-resolved', doctree, docname)
 
     def collect_relations(self):
-        # type: () -> Dict[unicode, List[unicode]]
+        # type: () -> Dict[str, List[str]]
         traversed = set()
 
         def traverse_toctree(parent, docname):
-            # type: (unicode, unicode) -> Iterator[Tuple[unicode, unicode]]
+            # type: (str, str) -> Iterator[Tuple[str, str]]
             if parent == docname:
                 logger.warning(__('self referenced toctree found. Ignored.'), location=docname)
                 return
@@ -675,31 +668,31 @@ class BuildEnvironment:
     # --------- METHODS FOR COMPATIBILITY --------------------------------------
 
     def update(self, config, srcdir, doctreedir):
-        # type: (Config, unicode, unicode) -> List[unicode]
+        # type: (Config, str, str) -> List[str]
         warnings.warn('env.update() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder.read()
 
     def _read_serial(self, docnames, app):
-        # type: (List[unicode], Sphinx) -> None
+        # type: (List[str], Sphinx) -> None
         warnings.warn('env._read_serial() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_serial(docnames)
 
     def _read_parallel(self, docnames, app, nproc):
-        # type: (List[unicode], Sphinx, int) -> None
+        # type: (List[str], Sphinx, int) -> None
         warnings.warn('env._read_parallel() is deprecated. Please use builder.read() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.app.builder._read_parallel(docnames, nproc)
 
     def read_doc(self, docname, app=None):
-        # type: (unicode, Sphinx) -> None
+        # type: (str, Sphinx) -> None
         warnings.warn('env.read_doc() is deprecated. Please use builder.read_doc() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         self.app.builder.read_doc(docname)
 
     def write_doctree(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.document) -> None
         warnings.warn('env.write_doctree() is deprecated. '
                       'Please use builder.write_doctree() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -707,7 +700,7 @@ class BuildEnvironment:
 
     @property
     def _nitpick_ignore(self):
-        # type: () -> List[unicode]
+        # type: () -> List[str]
         warnings.warn('env._nitpick_ignore is deprecated. '
                       'Please use config.nitpick_ignore instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -724,7 +717,7 @@ class BuildEnvironment:
         except Exception as exc:
             # This can happen for example when the pickle is from a
             # different version of Sphinx.
-            raise IOError(exc)
+            raise OSError(exc)
         if app:
             env.app = app
             env.config.values = app.config.values
@@ -741,7 +734,7 @@ class BuildEnvironment:
 
     @classmethod
     def frompickle(cls, filename, app):
-        # type: (unicode, Sphinx) -> BuildEnvironment
+        # type: (str, Sphinx) -> BuildEnvironment
         warnings.warn('BuildEnvironment.frompickle() is deprecated. '
                       'Please use pickle.load() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -758,7 +751,7 @@ class BuildEnvironment:
 
     @classmethod
     def dumps(cls, env):
-        # type: (BuildEnvironment) -> unicode
+        # type: (BuildEnvironment) -> bytes
         warnings.warn('BuildEnvironment.dumps() is deprecated. '
                       'Please use pickle.dumps() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -767,7 +760,7 @@ class BuildEnvironment:
         return io.getvalue()
 
     def topickle(self, filename):
-        # type: (unicode) -> None
+        # type: (str) -> None
         warnings.warn('env.topickle() is deprecated. '
                       'Please use pickle.dump() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
@@ -776,14 +769,14 @@ class BuildEnvironment:
 
     @property
     def versionchanges(self):
-        # type: () -> Dict[unicode, List[Tuple[unicode, unicode, int, unicode, unicode, unicode]]]  # NOQA
+        # type: () -> Dict[str, List[Tuple[str, str, int, str, str, str]]]
         warnings.warn('env.versionchanges() is deprecated. '
                       'Please use ChangeSetDomain instead.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return self.domaindata['changeset']['changes']
 
     def note_versionchange(self, type, version, node, lineno):
-        # type: (unicode, unicode, nodes.Node, int) -> None
+        # type: (str, str, addnodes.versionmodified, int) -> None
         warnings.warn('env.note_versionchange() is deprecated. '
                       'Please use ChangeSetDomain.note_changeset() instead.',
                       RemovedInSphinx30Warning, stacklevel=2)

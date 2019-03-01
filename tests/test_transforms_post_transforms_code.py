@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """
     test_transforms_post_transforms_code
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -25,7 +24,7 @@ def test_trim_doctest_flags_html(app, status, warning):
 def test_trim_doctest_flags_latex(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    result = (app.outdir / 'python.tex').text(encoding='utf8')
     assert 'FOO' not in result
     assert 'BAR' in result
     assert 'BAZ' not in result

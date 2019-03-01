@@ -1,143 +1,27 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.ext.autodoc.importer
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Importer utilities for autodoc
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import contextlib
 import sys
 import traceback
 import warnings
 from collections import namedtuple
-from types import FunctionType, MethodType, ModuleType
 
+from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
 from sphinx.util import logging
 from sphinx.util.inspect import isenumclass, safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Generator, Iterator, List, Optional, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List  # NOQA
 
 logger = logging.getLogger(__name__)
-
-
-class _MockObject:
-    """Used by autodoc_mock_imports."""
-
-    def __new__(cls, *args, **kwargs):
-        # type: (Any, Any) -> Any
-        if len(args) == 3 and isinstance(args[1], tuple) and args[1][-1].__class__ is cls:
-            # subclassing MockObject
-            return type(args[0], (_MockObject,), args[2], **kwargs)  # type: ignore
-        else:
-            return super(_MockObject, cls).__new__(cls)
-
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
-        self.__qualname__ = ''
-
-    def __len__(self):
-        # type: () -> int
-        return 0
-
-    def __contains__(self, key):
-        # type: (str) -> bool
-        return False
-
-    def __iter__(self):
-        # type: () -> Iterator
-        return iter([])
-
-    def __mro_entries__(self, bases):
-        # type: (Tuple) -> Tuple
-        return bases
-
-    def __getitem__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __getattr__(self, key):
-        # type: (str) -> _MockObject
-        return self
-
-    def __call__(self, *args, **kw):
-        # type: (Any, Any) -> Any
-        if args and type(args[0]) in [FunctionType, MethodType]:
-            # Appears to be a decorator, pass through unchanged
-            return args[0]
-        return self
-
-
-class _MockModule(ModuleType):
-    """Used by autodoc_mock_imports."""
-    __file__ = '/dev/null'
-
-    def __init__(self, name, loader):
-        # type: (str, _MockImporter) -> None
-        self.__name__ = self.__package__ = name
-        self.__loader__ = loader
-        self.__all__ = []  # type: List[str]
-        self.__path__ = []  # type: List[str]
-
-    def __getattr__(self, name):
-        # type: (str) -> _MockObject
-        o = _MockObject()
-        o.__module__ = self.__name__
-        return o
-
-
-class _MockImporter:
-    def __init__(self, names):
-        # type: (List[str]) -> None
-        self.names = names
-        self.mocked_modules = []  # type: List[str]
-        # enable hook by adding itself to meta_path
-        sys.meta_path.insert(0, self)
-
-    def disable(self):
-        # type: () -> None
-        # remove `self` from `sys.meta_path` to disable import hook
-        sys.meta_path = [i for i in sys.meta_path if i is not self]
-        # remove mocked modules from sys.modules to avoid side effects after
-        # running auto-documenter
-        for m in self.mocked_modules:
-            if m in sys.modules:
-                del sys.modules[m]
-
-    def find_module(self, name, path=None):
-        # type: (str, str) -> Any
-        # check if name is (or is a descendant of) one of our base_packages
-        for n in self.names:
-            if n == name or name.startswith(n + '.'):
-                return self
-        return None
-
-    def load_module(self, name):
-        # type: (str) -> ModuleType
-        if name in sys.modules:
-            # module has already been imported, return it
-            return sys.modules[name]
-        else:
-            logger.debug('[autodoc] adding a mock module %s!', name)
-            module = _MockModule(name, self)
-            sys.modules[name] = module
-            self.mocked_modules.append(name)
-            return module
-
-
-@contextlib.contextmanager
-def mock(names):
-    # type: (List[str]) -> Generator
-    try:
-        importer = _MockImporter(names)
-        yield
-    finally:
-        importer.disable()
 
 
 def import_module(modname, warningiserror=False):
@@ -158,7 +42,7 @@ def import_module(modname, warningiserror=False):
 
 
 def import_object(modname, objpath, objtype='', attrgetter=safe_getattr, warningiserror=False):
-    # type: (str, List[unicode], str, Callable[[Any, unicode], Any], bool) -> Any
+    # type: (str, List[str], str, Callable[[Any, str], Any], bool) -> Any
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -225,7 +109,7 @@ Attribute = namedtuple('Attribute', ['name', 'directly_defined', 'value'])
 
 
 def get_object_members(subject, objpath, attrgetter, analyzer=None):
-    # type: (Any, List[unicode], Callable, Any) -> Dict[str, Attribute]  # NOQA
+    # type: (Any, List[str], Callable, Any) -> Dict[str, Attribute]  # NOQA
     """Get members and attributes of target object."""
     # the members directly defined in the class
     obj_dict = attrgetter(subject, '__dict__', {})
@@ -263,3 +147,19 @@ def get_object_members(subject, objpath, attrgetter, analyzer=None):
                 members[name] = Attribute(name, True, INSTANCEATTR)
 
     return members
+
+
+from sphinx.ext.autodoc.mock import (  # NOQA
+    _MockImporter, _MockModule, _MockObject, MockFinder, MockLoader, mock
+)
+
+deprecated_alias('sphinx.ext.autodoc.importer',
+                 {
+                     '_MockImporter': _MockImporter,
+                     '_MockModule': _MockModule,
+                     '_MockObject': _MockObject,
+                     'MockFinder': MockFinder,
+                     'MockLoader': MockLoader,
+                     'mock': mock,
+                 },
+                 RemovedInSphinx40Warning)

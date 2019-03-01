@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_ext_todo
     ~~~~~~~~~~~~~
 
     Test sphinx.ext.todo extension.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +12,11 @@ import re
 
 import pytest
 
+from sphinx.util import docutils
 
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):
@@ -27,18 +30,22 @@ def test_todo(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert re.search(html, content, re.S)
 
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in bar</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>')
     assert re.search(html, content, re.S)
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
+    assert re.search(html, content, re.S)
+
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in param field</p>')
     assert re.search(html, content, re.S)
 
     # check emitted warnings
@@ -46,8 +53,10 @@ def test_todo(app, status, warning):
     assert 'WARNING: TODO entry found: todo in bar' in warning.getvalue()
 
     # check handled event
-    assert len(todos) == 2
-    assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
+    assert len(todos) == 3
+    assert set(todo[1].astext() for todo in todos) == {'todo in foo',
+                                                       'todo in bar',
+                                                       'todo in param field'}
 
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
@@ -63,18 +72,18 @@ def test_todo_not_included(app, status, warning):
 
     # check todolist
     content = (app.outdir / 'index.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert not re.search(html, content, re.S)
 
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in bar</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in bar</p>')
     assert not re.search(html, content, re.S)
 
     # check todo
     content = (app.outdir / 'foo.html').text()
-    html = ('<p class="first admonition-title">Todo</p>\n'
-            '<p class="last">todo in foo</p>')
+    html = ('<p class="admonition-title">Todo</p>\n'
+            '<p>todo in foo</p>')
     assert not re.search(html, content, re.S)
 
     # check emitted warnings
@@ -82,8 +91,10 @@ def test_todo_not_included(app, status, warning):
     assert 'WARNING: TODO entry found: todo in bar' in warning.getvalue()
 
     # check handled event
-    assert len(todos) == 2
-    assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
+    assert len(todos) == 3
+    assert set(todo[1].astext() for todo in todos) == {'todo in foo',
+                                                       'todo in bar',
+                                                       'todo in param field'}
 
 
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
@@ -98,7 +109,7 @@ def test_todo_valid_link(app, status, warning):
     # Ensure the LaTeX output is built.
     app.builder.build_all()
 
-    content = (app.outdir / 'TodoTests.tex').text()
+    content = (app.outdir / 'python.tex').text()
 
     # Look for the link to foo. Note that there are two of them because the
     # source document uses todolist twice. We could equally well look for links
@@ -106,7 +117,7 @@ def test_todo_valid_link(app, status, warning):
     link = r'\{\\hyperref\[\\detokenize\{(.*?foo.*?)}]\{\\sphinxcrossref{' \
         r'\\sphinxstyleemphasis{original entry}}}}'
     m = re.findall(link, content)
-    assert len(m) == 2
+    assert len(m) == 4
     target = m[0]
 
     # Look for the targets of this link.

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_setup_command
     ~~~~~~~~~~~~~~~~~~~
 
     Test setup_command for distutils.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -79,7 +78,7 @@ def test_build_sphinx_multiple_invalid_builders(setup_command):
 
 @pytest.fixture
 def nonascii_srcdir(request, setup_command):
-    mb_name = u'\u65e5\u672c\u8a9e'
+    mb_name = '\u65e5\u672c\u8a9e'
     srcdir = (setup_command.pkgroot / 'doc')
     try:
         (srcdir / mb_name).makedirs()
@@ -99,7 +98,7 @@ def nonascii_srcdir(request, setup_command):
                             .. toctree::
 
                                %(mb_name)s/%(mb_name)s
-                            """ % locals())).encode('utf-8'))
+                            """ % locals())).encode())
 
 
 @pytest.mark.usefixtures('nonascii_srcdir')

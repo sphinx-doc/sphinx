@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.text
     ~~~~~~~~~~~~~~~~~~~~
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -37,15 +36,15 @@ class TextBuilder(Builder):
     allow_parallel = True
     default_translator_class = TextTranslator
 
-    current_docname = None  # type: unicode
+    current_docname = None  # type: str
 
     def init(self):
         # type: () -> None
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
+        self.secnumbers = {}  # type: Dict[str, Tuple[int, ...]]
 
     def get_outdated_docs(self):
-        # type: () -> Iterator[unicode]
+        # type: () -> Iterator[str]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -59,20 +58,20 @@ class TextBuilder(Builder):
                 srcmtime = path.getmtime(self.env.doc2path(docname))
                 if srcmtime > targetmtime:
                     yield docname
-            except EnvironmentError:
+            except OSError:
                 # source doesn't exist anymore
                 pass
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return ''
 
     def prepare_writing(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Set[str]) -> None
         self.writer = TextWriter(self)
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.Node) -> None
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -80,9 +79,9 @@ class TextBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with open(outfilename, 'w', encoding='utf-8') as f:  # type: ignore
+            with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
-        except (IOError, OSError) as err:
+        except OSError as err:
             logger.warning(__("error writing file %s: %s"), outfilename, err)
 
     def finish(self):
@@ -91,7 +90,7 @@ class TextBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.linkcheck
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,6 +25,7 @@ from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
 )
+from sphinx.util.nodes import get_node_line
 from sphinx.util.requests import is_ssl_error
 
 if False:
@@ -42,8 +42,8 @@ class AnchorCheckParser(HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor):
-        # type: (unicode) -> None
-        super(AnchorCheckParser, self).__init__()
+        # type: (str) -> None
+        super().__init__()
 
         self.search_anchor = search_anchor
         self.found = False
@@ -57,7 +57,7 @@ class AnchorCheckParser(HTMLParser):
 
 
 def check_anchor(response, anchor):
-    # type: (Response, unicode) -> bool
+    # type: (Response, str) -> bool
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """
@@ -85,9 +85,9 @@ class CheckExternalLinksBuilder(Builder):
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.anchors_ignore = [re.compile(x)
                                for x in self.app.config.linkcheck_anchors_ignore]
-        self.good = set()       # type: Set[unicode]
-        self.broken = {}        # type: Dict[unicode, unicode]
-        self.redirected = {}    # type: Dict[unicode, Tuple[unicode, int]]
+        self.good = set()       # type: Set[str]
+        self.broken = {}        # type: Dict[str, str]
+        self.redirected = {}    # type: Dict[str, Tuple[str, int]]
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
@@ -115,7 +115,7 @@ class CheckExternalLinksBuilder(Builder):
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
         def check_uri():
-            # type: () -> Tuple[unicode, unicode, int]
+            # type: () -> Tuple[str, str, int]
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
@@ -179,7 +179,7 @@ class CheckExternalLinksBuilder(Builder):
                     return 'redirected', new_url, 0
 
         def check():
-            # type: () -> Tuple[unicode, unicode, int]
+            # type: () -> Tuple[str, str, int]
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
@@ -218,14 +218,14 @@ class CheckExternalLinksBuilder(Builder):
             self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result):
-        # type: (Tuple[unicode, unicode, int, unicode, unicode, int]) -> None
+        # type: (Tuple[str, str, int, str, str, int]) -> None
         uri, docname, lineno, status, info, code = result
         if status == 'unchecked':
             return
         if status == 'working' and info == 'old':
             return
         if lineno:
-            logger.info('(line %4d) ', lineno, nonl=1)
+            logger.info('(line %4d) ', lineno, nonl=True)
         if status == 'ignored':
             if info:
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
@@ -256,33 +256,39 @@ class CheckExternalLinksBuilder(Builder):
             logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
 
     def get_target_uri(self, docname, typ=None):
-        # type: (unicode, unicode) -> unicode
+        # type: (str, str) -> str
         return ''
 
     def get_outdated_docs(self):
-        # type: () -> Set[unicode]
+        # type: () -> Set[str]
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
-        # type: (nodes.Node) -> None
+        # type: (Set[str]) -> None
         return
 
     def write_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+        # type: (str, nodes.Node) -> None
         logger.info('')
         n = 0
-        for node in doctree.traverse(nodes.reference):
-            if 'refuri' not in node:
+
+        # reference nodes
+        for refnode in doctree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
                 continue
-            uri = node['refuri']
-            lineno = None
-            while lineno is None:
-                node = node.parent
-                if node is None:
-                    break
-                lineno = node.line
+            uri = refnode['refuri']
+            lineno = get_node_line(refnode)
             self.wqueue.put((uri, docname, lineno), False)
             n += 1
+
+        # image nodes
+        for imgnode in doctree.traverse(nodes.image):
+            uri = imgnode['candidates'].get('?')
+            if uri and '://' in uri:
+                lineno = get_node_line(imgnode)
+                self.wqueue.put((uri, docname, lineno), False)
+                n += 1
+
         done = 0
         while done < n:
             self.process_result(self.rqueue.get())
@@ -292,9 +298,8 @@ class CheckExternalLinksBuilder(Builder):
             self.app.statuscode = 1
 
     def write_entry(self, what, docname, line, uri):
-        # type: (unicode, unicode, int, unicode) -> None
-        with open(path.join(self.outdir, 'output.txt'), 'a',  # type: ignore
-                  encoding='utf-8') as output:
+        # type: (str, str, int, str) -> None
+        with open(path.join(self.outdir, 'output.txt'), 'a', encoding='utf-8') as output:
             output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                                line, what, uri))
 
@@ -305,7 +310,7 @@ class CheckExternalLinksBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)

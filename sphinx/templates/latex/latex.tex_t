@@ -26,17 +26,27 @@
 <%= fontenc %>
 <%= amsmath %>
 <%= multilingual %>
+<%= substitutefont %>
+<%= textcyrillic %>
 <%= fontpkg %>
+<%= textgreek %>
 <%= fncychap %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= fvset %>
 <%= geometry %>
-<%= usepackages %>
+
+<%- for name, option in packages %>
+<%- if option %>
+\usepackage[<%= option %>]{<%= name %>}
+<%- else %>
+\usepackage{<%= name %>}
+<%- endif %>
+<%- endfor %>
+
 <%= hyperref %>
 <%= contentsname %>
-<%= numfig_format %>
-\input{sphinxmessages.sty}
+\usepackage{sphinxmessages}
 <%= tocdepth %>
 <%= secnumdepth %>
 <%= preamble %>
@@ -45,7 +55,11 @@
 \date{<%= date %>}
 \release{<%= release %>}
 \author{<%= author %>}
-\newcommand{\sphinxlogo}{<%= logo %>}
+<%- if logofilename %>
+\newcommand{\sphinxlogo}{\sphinxincludegraphics{<%= logofilename %>}\par}
+<%- else %>
+\newcommand{\sphinxlogo}{\vbox{}}
+<%- endif %>
 <%- if releasename or release %>
 \renewcommand{\releasename}{<%= releasename or _('Release') | e %>}
 <%- else %>

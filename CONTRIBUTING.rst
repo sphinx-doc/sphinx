@@ -61,8 +61,8 @@ of the core developers before it is merged into the main repository.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email the *sphinx-dev* mailing list.
 #. Fork `the repository`_ on GitHub to start making your changes to the
-   ``master`` branch for next major version, or ``X.Y`` branch for next
-   minor version (see `Branch Model`_).
+   ``master`` branch for next MAJOR version, or ``X.Y`` branch for next
+   MINOR version (see `Branch Model`_).
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
@@ -91,14 +91,19 @@ These are the basic steps needed to start developing on Sphinx.
 
 #. Checkout the appropriate branch.
 
-   For changes that should be included in the next minor release (namely bug
-   fixes), use the ``X.Y`` branch. ::
+   Sphinx adopts Semantic Versioning 2.0.0 (refs: https://semver.org/ ).
+
+   For changes that preserves backwards-compatibility of API and features,
+   they should be included in the next MINOR release, use the ``X.Y`` branch.
+   ::
 
        git checkout X.Y
 
-   For new features or other substantial changes that should wait until the
-   next major release, use the ``master`` branch  (see `Branch Model`_ for
-   detail).
+   For incompatible or other substantial changes that should wait until the
+   next MAJOR release, use the ``master`` branch.
+
+   For urgent release, a new PATCH branch must be branched from the newest
+   release tag (see `Branch Model`_ for detail).
 
 #. Setup a virtual environment.
 
@@ -272,10 +277,7 @@ Coding Guide
   generated output.
 
 * When adding a new configuration variable, be sure to document it and update
-  :file:`sphinx/quickstart.py` if it's important enough.
-
-* Use the included :program:`utils/check_sources.py` script to check for
-  common formatting issues (trailing whitespace, lengthy lines, etc).
+  :file:`sphinx/cmd/quickstart.py` if it's important enough.
 
 * Add appropriate unit tests.
 
@@ -315,18 +317,32 @@ Debugging Tips
 Branch Model
 ------------
 
-Sphinx project uses following branches for developing.
+Sphinx project uses following branches for developing that conforms to Semantic
+Versioning 2.0.0 (refs: https://semver.org/ ).
 
 ``master``
-    Used for main development.  All improvement and refactoring, bug fixes
-    are allowed.
+    Development for MAJOR version.
+    All changes including incompatible behaviors and public API updates are
+    allowed.
 
 ``X.Y``
     Where ``X.Y`` is the ``MAJOR.MINOR`` release.  Used to maintain current
-    stable release.  Only bug fixes and stable changes are allowed.  Only the
-    most recent stable release is currently retained. When a new version is
-    released, the old release branch will be deleted and replaced by an
-    equivalent tag.
+    MINOR release. All changes are allowed if the change preserves
+    backwards-compatibility of API and features.
+
+    Only the most recent ``MAJOR.MINOR`` branch is currently retained. When a
+    new MAJOR version is released, the old ``MAJOR.MINOR`` branch will be
+    deleted and replaced by an equivalent tag.
+
+``X.Y.Z``
+    Where ``X.Y.Z`` is the ``MAJOR.MINOR.PATCH`` release.  Only
+    backwards-compatible bug fixes are allowed. In Sphinx project, PATCH
+    version is used for urgent bug fix.
+
+    ``MAJOR.MINOR.PATCH`` branch will be branched from the ``v`` prefixed
+    release tag (ex. make 2.3.1 that branched from v2.3.0) when a urgent
+    release is needed. When new PATCH version is released, the branch will be
+    deleted and replaced by an equivalent tag (ex. v2.3.1).
 
 
 Deprecating a feature
@@ -359,23 +375,22 @@ silence any warnings generated when running the tests.
 Deprecation policy
 ------------------
 
-A feature release may deprecate certain features from previous releases. If a
-feature is deprecated in feature release 1.A, it will continue to work in all
-1.A.x versions (for all versions of x) but raise warnings. Deprecated features
-will be removed in the first 1.B release, or 1.B.1 for features deprecated in
-the last 1.A.x feature release to ensure deprecations are done over at least 2
-feature releases.
+MAJOR and MINOR releases may deprecate certain features from previous
+releases. If a feature is deprecated in a release A.x, it will continue to
+work in all A.x.x versions (for all versions of x). It will continue to work
+in all B.x.x versions but raise deprecation warnings. Deprecated features
+will be removed at the C.0.0. It means the deprecated feature will work during
+2 MAJOR releases at least.
 
 So, for example, if we decided to start the deprecation of a function in
-Sphinx 1.4:
+Sphinx 2.x:
 
-* Sphinx 1.4.x will contain a backwards-compatible replica of the function
-  which will raise a ``RemovedInSphinx16Warning``.
+* Sphinx 2.x will contain a backwards-compatible replica of the function
+  which will raise a ``RemovedInSphinx40Warning``.
 
-* Sphinx 1.5 (the version that follows 1.4) will still contain the
-  backwards-compatible replica.
+* Sphinx 3.x will still contain the backwards-compatible replica.
 
-* Sphinx 1.6 will remove the feature outright.
+* Sphinx 4.0 will remove the feature outright.
 
 The warnings are displayed by default. You can turn off display of these
 warnings with:

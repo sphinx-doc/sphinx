@@ -237,6 +237,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
 
 .. rst:directive:: autofunction
+                   autodecorator
                    autodata
                    automethod
                    autoattribute
@@ -293,10 +294,11 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
-
    .. versionchanged:: 1.2
       :rst:dir:`autodata` and :rst:dir:`autoattribute` have an ``annotation``
       option.
+   .. versionchanged:: 2.0
+      :rst:dir:`autodecorator` added.
 
    .. note::
 
@@ -376,12 +378,12 @@ There are also new config values that you can set:
            'members': 'var1, var2',
            'member-order': 'bysource',
            'special-members': '__init__',
-           'undoc-members': None,
+           'undoc-members': True,
            'exclude-members': '__weakref__'
        }
 
-   Setting ``None`` is equivalent to giving the option name in the list format
-   (i.e. it means "yes/true/on").
+   Setting ``None`` or ``True`` to the value is equivalent to giving only the
+   option name to the directives.
 
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
@@ -389,6 +391,9 @@ There are also new config values that you can set:
    ``'exclude-members'``.
 
    .. versionadded:: 1.8
+
+   .. versionchanged:: 2.0
+      Accepts ``True`` as a value.
 
 .. confval:: autodoc_docstring_signature
 
@@ -427,7 +432,7 @@ There are also new config values that you can set:
 
    This value controls the behavior of :option:`sphinx-build -W` during
    importing modules.
-   If ``False`` is given, autodoc forcely suppresses the error if the imported
+   If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
 
 .. confval:: autodoc_inherit_docstrings

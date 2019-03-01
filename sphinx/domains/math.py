@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.domains.math
     ~~~~~~~~~~~~~~~~~~~
 
     The math domain.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,6 +21,7 @@ from sphinx.util.nodes import make_refnode
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
+    from sphinx import addnodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 class MathReferenceRole(XRefRole):
     def result_nodes(self, document, env, node, is_ref):
-        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
+        # type: (nodes.document, BuildEnvironment, nodes.Element, bool) -> Tuple[List[nodes.Node], List[nodes.system_message]]  # NOQA
         node['refdomain'] = 'math'
         return [node], []
 
@@ -44,27 +44,28 @@ class MathDomain(Domain):
     initial_data = {
         'objects': {},  # labelid -> (docname, eqno)
         'has_equations': {},  # docname -> bool
-    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
+    }  # type: Dict[str, Dict[str, Tuple[str, int]]]
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
         displaymath: ('displaymath', None),
         nodes.math_block: ('displaymath', None),
-    }  # type: Dict[Type[nodes.Node], Tuple[unicode, Callable]]
+    }
     roles = {
         'numref': MathReferenceRole(),
     }
 
     def process_doc(self, env, docname, document):
-        # type: (BuildEnvironment, unicode, nodes.Node) -> None
+        # type: (BuildEnvironment, str, nodes.document) -> None
         def math_node(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, (nodes.math, nodes.math_block))
 
         self.data['has_equations'][docname] = any(document.traverse(math_node))
 
     def clear_doc(self, docname):
-        # type: (unicode) -> None
+        # type: (str) -> None
         for equation_id, (doc, eqno) in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][equation_id]
@@ -72,7 +73,7 @@ class MathDomain(Domain):
         self.data['has_equations'].pop(docname, None)
 
     def merge_domaindata(self, docnames, otherdata):
-        # type: (Iterable[unicode], Dict) -> None
+        # type: (Iterable[str], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.data['objects'][labelid] = (doc, eqno)
@@ -81,7 +82,7 @@ class MathDomain(Domain):
             self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
         assert typ in ('eq', 'numref')
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
@@ -106,19 +107,19 @@ class MathDomain(Domain):
             return None
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
+        # type: (BuildEnvironment, str, Builder, str, addnodes.pending_xref, nodes.Element) -> List[Tuple[str, nodes.Element]]  # NOQA
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []
         else:
-            return [refnode]
+            return [('eq', refnode)]
 
     def get_objects(self):
         # type: () -> List
         return []
 
     def add_equation(self, env, docname, labelid):
-        # type: (BuildEnvironment, unicode, unicode) -> int
+        # type: (BuildEnvironment, str, str) -> int
         equations = self.data['objects']
         if labelid in equations:
             path = env.doc2path(equations[labelid][0])
@@ -130,7 +131,7 @@ class MathDomain(Domain):
             return eqno
 
     def get_next_equation_number(self, docname):
-        # type: (unicode) -> int
+        # type: (str) -> int
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
 
@@ -140,7 +141,7 @@ class MathDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_domain(MathDomain)
     app.add_role('eq', MathReferenceRole(warn_dangling=True))
 

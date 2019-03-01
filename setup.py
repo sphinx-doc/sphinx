@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 from distutils import log
@@ -16,7 +15,12 @@ if sys.version_info < (3, 5):
     sys.exit(1)
 
 install_requires = [
-    'six>=1.5',
+    'sphinxcontrib-applehelp',
+    'sphinxcontrib-devhelp',
+    'sphinxcontrib-jsmath',
+    'sphinxcontrib-htmlhelp',
+    'sphinxcontrib-serializinghtml',
+    'sphinxcontrib-qthelp',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.12',
@@ -24,7 +28,7 @@ install_requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests>=2.0.0',
+    'requests>=2.5.0',
     'setuptools',
     'packaging',
 ]
@@ -34,10 +38,6 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
     ],
-    'websupport': [
-        'sqlalchemy>=0.9',
-        'whoosh>=2.0',
-    ],
     'test': [
         'mock',
         'pytest',
@@ -45,8 +45,8 @@ extras_require = {
         'html5lib',
         'flake8>=3.5.0',
         'flake8-import-order',
-        'mypy',
-        'typed_ast',
+        'mypy>=0.590',
+        'docutils-stubs',
     ],
 }
 
@@ -133,7 +133,7 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                with open(po_file, 'r') as infile:
+                with open(po_file) as infile:
                     catalog = read_po(infile, locale)
 
                 if catalog.fuzzy and not self.use_fuzzy:

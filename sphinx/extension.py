@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.extension
     ~~~~~~~~~~~~~~~~
 
     Utilities for Sphinx extensions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class Extension:
     def __init__(self, name, module, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.name = name
         self.module = module
         self.metadata = kwargs
@@ -62,7 +61,7 @@ def verify_needs_extensions(app, config):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.connect('config-inited', verify_needs_extensions)
 
     return {

@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2018/09/18 v1.8.1 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2018/12/23 v2.0 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -33,9 +33,9 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{%
-  \let\spx@tempa\relax
-  \ifHy@pageanchor\def\spx@tempa{\Hy@pageanchortrue}\fi
+\newcommand{\sphinxmaketitle}{%
+  \let\sphinxrestorepageanchorsetting\relax
+  \ifHy@pageanchor\def\sphinxrestorepageanchorsetting{\Hy@pageanchortrue}\fi
   \hypersetup{pageanchor=false}% avoid duplicate destination warnings
   \begin{titlepage}%
     \let\footnotesize\small
@@ -55,7 +55,7 @@
       {\LARGE
         \begin{tabular}[t]{c}
           \@author
-        \end{tabular}
+        \end{tabular}\kern-\tabcolsep
         \par}
       \vfill\vfill
       {\large
@@ -69,14 +69,17 @@
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
+  \clearpage
+  \ifdefined\sphinxbackoftitlepage\sphinxbackoftitlepage\fi
   \if@openright\cleardoublepage\else\clearpage\fi
-  \spx@tempa
+  \sphinxrestorepageanchorsetting
 }
 
 \newcommand{\sphinxtableofcontents}{%
   \pagenumbering{roman}%
   \begingroup
     \parskip \z@skip
+    \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
   % before resetting page counter, let's do the right thing.
@@ -87,8 +90,10 @@
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
 %
-\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}
-\renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}
+\newcommand{\sphinxtableofcontentshook}{%
+  \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.6em}}%
+  \renewcommand*\l@subsection{\@dottedtocline{2}{4.1em}{3.5em}}%
+}
 
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.

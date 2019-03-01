@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.highlighting
     ~~~~~~~~~~~~~~~~~~~
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import html
 import warnings
 
 from pygments import highlight
@@ -20,14 +20,12 @@ from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
     CLexer, TextLexer, RstLexer
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.ext import doctest
 from sphinx.locale import __
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 from sphinx.util import logging
-from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 
 if False:
@@ -46,14 +44,14 @@ lexers = {
     'pycon3': PythonConsoleLexer(python3=True, stripnl=False),
     'rest': RstLexer(stripnl=False),
     'c': CLexer(stripnl=False),
-}  # type: Dict[unicode, Lexer]
+}  # type: Dict[str, Lexer]
 for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')
 
 
-escape_hl_chars = {ord(u'\\'): u'\\PYGZbs{}',
-                   ord(u'{'): u'\\PYGZob{}',
-                   ord(u'}'): u'\\PYGZcb{}'}
+escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
+                   ord('{'): '\\PYGZob{}',
+                   ord('}'): '\\PYGZcb{}'}
 
 # used if Pygments is available
 # use textcomp quote to get a true single quote
@@ -69,7 +67,7 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter
 
     def __init__(self, dest='html', stylename='sphinx', trim_doctest_flags=None):
-        # type: (unicode, unicode, bool) -> None
+        # type: (str, str, bool) -> None
         self.dest = dest
         if stylename is None or stylename == 'sphinx':
             style = SphinxStyle
@@ -81,7 +79,7 @@ class PygmentsBridge:
                             stylename)
         else:
             style = get_style_by_name(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[unicode, Any]
+        self.formatter_args = {'style': style}  # type: Dict[str, Any]
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -95,15 +93,15 @@ class PygmentsBridge:
 
     def get_formatter(self, **kwargs):
         # type: (Any) -> Formatter
-        kwargs.update(self.formatter_args)  # type: ignore
+        kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
     def unhighlighted(self, source):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         warnings.warn('PygmentsBridge.unhighlighted() is now deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         if self.dest == 'html':
-            return '<pre>' + htmlescape(source) + '</pre>\n'
+            return '<pre>' + html.escape(source) + '</pre>\n'
         else:
             # first, escape highlighting characters like Pygments does
             source = source.translate(escape_hl_chars)
@@ -113,8 +111,8 @@ class PygmentsBridge:
                    source + '\\end{Verbatim}\n'
 
     def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
-        # type: (unicode, unicode, Any, Any, bool, Any) -> unicode
-        if not isinstance(source, text_type):
+        # type: (str, str, Any, Any, bool, Any) -> str
+        if not isinstance(source, str):
             source = source.decode()
 
         # find out which lexer to use
@@ -173,7 +171,7 @@ class PygmentsBridge:
             return hlsource.translate(tex_hl_escape_map_new)
 
     def get_stylesheet(self):
-        # type: () -> unicode
+        # type: () -> str
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')

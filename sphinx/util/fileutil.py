@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.fileutil
     ~~~~~~~~~~~~~~~~~~~~
 
     File utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import os
 import posixpath
@@ -25,7 +23,7 @@ if False:
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):
-    # type: (unicode, unicode, Dict, BaseRenderer) -> None
+    # type: (str, str, Dict, BaseRenderer) -> None
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -39,7 +37,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
     if not os.path.exists(source):
         return
 
-    if os.path.exists(destination) and os.path.isdir(destination):
+    if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
@@ -48,17 +46,17 @@ def copy_asset_file(source, destination, context=None, renderer=None):
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
-        with open(source, 'r', encoding='utf-8') as fsrc:  # type: ignore
+        with open(source, encoding='utf-8') as fsrc:
             if destination.lower().endswith('_t'):
                 destination = destination[:-2]
-            with open(destination, 'w', encoding='utf-8') as fdst:  # type: ignore
+            with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 
 
 def copy_asset(source, destination, excluded=lambda path: False, context=None, renderer=None):
-    # type: (unicode, unicode, Union[Callable[[unicode], bool], Matcher], Dict, BaseRenderer) -> None  # NOQA
+    # type: (str, str, Union[Callable[[str], bool], Matcher], Dict, BaseRenderer) -> None
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and

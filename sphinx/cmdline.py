@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.cmdline
     ~~~~~~~~~~~~~~
 
     sphinx-build command-line handling.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 import sys
 import warnings
@@ -45,8 +42,8 @@ def get_parser():
     return build.get_parser()
 
 
-def main(argv=sys.argv[1:]):  # type: ignore
-    # type: (List[unicode]) -> int
+def main(argv=sys.argv[1:]):
+    # type: (List[str]) -> int
     warnings.warn('sphinx.cmdline module is deprecated. Use sphinx.cmd.build instead.',
                   RemovedInSphinx30Warning, stacklevel=2)
     return build.main(argv)

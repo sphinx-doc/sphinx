@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.builders.latex.transforms
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Transforms for LaTeX builder.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from typing import cast
 
 from docutils import nodes
 
@@ -20,7 +21,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if False:
     # For type annotation
-    from typing import Dict, List, Set, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -30,8 +31,10 @@ class FootnoteDocnameUpdater(SphinxTransform):
     default_priority = 700
     TARGET_NODES = (nodes.footnote, nodes.footnote_reference)
 
-    def apply(self):
-        for node in self.document.traverse(NodeMatcher(*self.TARGET_NODES)):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
+        matcher = NodeMatcher(*self.TARGET_NODES)
+        for node in self.document.traverse(matcher):  # type: nodes.Element
             node['docname'] = self.env.docname
 
 
@@ -47,23 +50,24 @@ class ShowUrlsTransform(SphinxTransform):
     # references are expanded to footnotes (or not)
     expanded = False
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         try:
             # replace id_prefix temporarily
-            id_prefix = self.document.settings.id_prefix
-            self.document.settings.id_prefix = 'show_urls'
+            settings = self.document.settings  # type: Any
+            id_prefix = settings.id_prefix
+            settings.id_prefix = 'show_urls'
 
             self.expand_show_urls()
             if self.expanded:
                 self.renumber_footnotes()
         finally:
             # restore id_prefix
-            self.document.settings.id_prefix = id_prefix
+            settings.id_prefix = id_prefix
 
     def expand_show_urls(self):
         # type: () -> None
-        show_urls = self.document.settings.env.config.latex_show_urls
+        show_urls = self.config.latex_show_urls
         if show_urls is False or show_urls == 'no':
             return
 
@@ -86,7 +90,7 @@ class ShowUrlsTransform(SphinxTransform):
                         node.parent.insert(index + 1, textnode)
 
     def get_docname_for_node(self, node):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Node) -> str
         while node:
             if isinstance(node, nodes.document):
                 return self.env.path2doc(node['source'])
@@ -98,17 +102,17 @@ class ShowUrlsTransform(SphinxTransform):
         return None  # never reached here. only for type hinting
 
     def create_footnote(self, uri, docname):
-        # type: (unicode, unicode) -> Tuple[nodes.footnote, nodes.footnote_ref]
-        label = nodes.label('', '#')
-        para = nodes.paragraph()
-        para.append(nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True))
-        footnote = nodes.footnote(uri, label, para, auto=1, docname=docname)
+        # type: (str, str) -> Tuple[nodes.footnote, nodes.footnote_reference]
+        reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
+        footnote = nodes.footnote(uri, auto=1, docname=docname)
         footnote['names'].append('#')
+        footnote += nodes.label('', '#')
+        footnote += nodes.paragraph('', '', reference)
         self.document.note_autofootnote(footnote)
 
-        label = nodes.Text('#')
-        footnote_ref = nodes.footnote_reference('[#]_', label, auto=1,
+        footnote_ref = nodes.footnote_reference('[#]_', auto=1,
                                                 refid=footnote['ids'][0], docname=docname)
+        footnote_ref += nodes.Text('#')
         self.document.note_autofootnote_ref(footnote_ref)
         footnote.add_backref(footnote_ref['ids'][0])
 
@@ -128,10 +132,10 @@ class ShowUrlsTransform(SphinxTransform):
                     break
 
             # assign new footnote number
-            old_label = footnote[0].astext()
-            footnote[0].replace_self(nodes.label('', str(num)))
+            old_label = cast(nodes.label, footnote[0])
+            old_label.replace_self(nodes.label('', str(num)))
             if old_label in footnote['names']:
-                footnote['names'].remove(old_label)
+                footnote['names'].remove(old_label.astext())
             footnote['names'].append(str(num))
 
             # update footnote_references by new footnote number
@@ -148,9 +152,9 @@ class FootnoteCollector(nodes.NodeVisitor):
     def __init__(self, document):
         # type: (nodes.document) -> None
         self.auto_footnotes = []            # type: List[nodes.footnote]
-        self.used_footnote_numbers = set()  # type: Set[unicode]
+        self.used_footnote_numbers = set()  # type: Set[str]
         self.footnote_refs = []             # type: List[nodes.footnote_reference]
-        super(FootnoteCollector, self).__init__(document)
+        super().__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
@@ -342,7 +346,8 @@ class LaTeXFootnoteTransform(SphinxTransform):
 
     default_priority = 600
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         footnotes = list(self.document.traverse(nodes.footnote))
         for node in footnotes:
             node.parent.remove(node)
@@ -354,12 +359,12 @@ class LaTeXFootnoteTransform(SphinxTransform):
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
     def __init__(self, document, footnotes):
         # type: (nodes.document, List[nodes.footnote]) -> None
-        self.appeared = set()       # type: Set[Tuple[unicode, nodes.footnote]]
+        self.appeared = set()       # type: Set[Tuple[str, str]]
         self.footnotes = footnotes  # type: List[nodes.footnote]
-        self.pendings = []          # type: List[nodes.Node]
-        self.table_footnotes = []   # type: List[nodes.Node]
-        self.restricted = None      # type: nodes.Node
-        super(LaTeXFootnoteVisitor, self).__init__(document)
+        self.pendings = []          # type: List[nodes.footnote]
+        self.table_footnotes = []   # type: List[nodes.footnote]
+        self.restricted = None      # type: nodes.Element
+        super().__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
@@ -370,12 +375,12 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         pass
 
     def restrict(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         if self.restricted is None:
             self.restricted = node
 
     def unrestrict(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.Element) -> None
         if self.restricted == node:
             self.restricted = None
             pos = node.parent.index(node)
@@ -385,36 +390,36 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             self.pendings = []
 
     def visit_figure(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.figure) -> None
         self.restrict(node)
 
     def depart_figure(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.figure) -> None
         self.unrestrict(node)
 
     def visit_term(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.term) -> None
         self.restrict(node)
 
     def depart_term(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.term) -> None
         self.unrestrict(node)
 
     def visit_caption(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.caption) -> None
         self.restrict(node)
 
     def depart_caption(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.caption) -> None
         self.unrestrict(node)
 
     def visit_title(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.title) -> None
         if isinstance(node.parent, (nodes.section, nodes.table)):
             self.restrict(node)
 
     def depart_title(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.title) -> None
         if isinstance(node.parent, nodes.section):
             self.unrestrict(node)
         elif isinstance(node.parent, nodes.table):
@@ -423,17 +428,17 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             self.unrestrict(node)
 
     def visit_thead(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.thead) -> None
         self.restrict(node)
 
     def depart_thead(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.thead) -> None
         self.table_footnotes += self.pendings
         self.pendings = []
         self.unrestrict(node)
 
     def depart_table(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.table) -> None
         tbody = list(node.traverse(nodes.tbody))[0]
         for footnote in reversed(self.table_footnotes):
             fntext = footnotetext('', *footnote.children)
@@ -442,15 +447,15 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.table_footnotes = []
 
     def visit_footnote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footnote) -> None
         self.restrict(node)
 
     def depart_footnote(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footnote) -> None
         self.unrestrict(node)
 
     def visit_footnote_reference(self, node):
-        # type: (nodes.Node) -> None
+        # type: (nodes.footnote_reference) -> None
         number = node.astext().strip()
         docname = node['docname']
         if self.restricted:
@@ -472,7 +477,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def get_footnote_by_reference(self, node):
-        # type: (nodes.Node) -> nodes.Node
+        # type: (nodes.footnote_reference) -> nodes.footnote
         docname = node['docname']
         for footnote in self.footnotes:
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
@@ -513,8 +518,8 @@ class BibliographyTransform(SphinxTransform):
     """
     default_priority = 750
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         citations = thebibliography()
         for node in self.document.traverse(nodes.citation):
             node.parent.remove(node)
@@ -532,17 +537,17 @@ class CitationReferenceTransform(SphinxTransform):
     """
     default_priority = 5  # before ReferencesResolver
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='std', reftype='citation')
         citations = self.env.get_domain('std').data['citations']
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: addnodes.pending_xref
             docname, labelid, _ = citations.get(node['reftarget'], ('', '', 0))
             if docname:
-                citation_ref = nodes.citation_reference('', *node.children,
+                citation_ref = nodes.citation_reference('', '', *node.children,
                                                         docname=docname, refname=labelid)
                 node.replace_self(citation_ref)
 
@@ -555,8 +560,8 @@ class MathReferenceTransform(SphinxTransform):
     """
     default_priority = 5  # before ReferencesResolver
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
@@ -573,13 +578,13 @@ class LiteralBlockTransform(SphinxTransform):
     """Replace container nodes for literal_block by captioned_literal_block."""
     default_priority = 400
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 
         matcher = NodeMatcher(nodes.container, literal_block=True)
-        for node in self.document.traverse(matcher):
+        for node in self.document.traverse(matcher):  # type: nodes.container
             newnode = captioned_literal_block('', *node.children, **node.attributes)
             node.replace_self(newnode)
 
@@ -588,8 +593,8 @@ class DocumentTargetTransform(SphinxTransform):
     """Add :doc label to the first section of each document."""
     default_priority = 400
 
-    def apply(self):
-        # type: () -> None
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if self.app.builder.name != 'latex':
             return
 

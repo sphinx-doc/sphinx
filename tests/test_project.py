@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_project
     ~~~~~~~~~~~~
 
     Tests project module.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,6 +13,7 @@ from collections import OrderedDict
 import pytest
 
 from sphinx.project import Project
+from sphinx.testing.comparer import PathComparer
 
 
 def test_project_discover(rootdir):
@@ -58,8 +58,8 @@ def test_project_path2doc(app):
     assert project.path2doc('index.foo') is None  # unknown extension
     assert project.path2doc('index.foo.rst') == 'index.foo'
     assert project.path2doc('index') is None
-    assert project.path2doc('/path/to/index.rst') == '/path/to/index'
-    assert project.path2doc(app.srcdir / '/to/index.rst') == '/to/index'
+    assert project.path2doc('/path/to/index.rst') == PathComparer('/path/to/index')
+    assert project.path2doc(app.srcdir / '/to/index.rst') == PathComparer('/to/index')
 
 
 @pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')

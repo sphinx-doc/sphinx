@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 
@@ -11,8 +9,10 @@ from sphinx import addnodes
 
 sys.path.append(os.path.abspath('.'))
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.extlinks']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.extlinks']
 
 jsmath_path = 'dummy.js'
 
@@ -37,31 +37,10 @@ rst_epilog = '.. |subst| replace:: global substitution'
 html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
                         'customsb.html', 'searchbox.html'],
                  'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
-html_style = 'default.css'
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
-htmlhelp_basename = 'SphinxTestsdoc'
-
-applehelp_bundle_id = 'org.sphinx-doc.Sphinx.help'
-applehelp_disable_external_tools = True
-
-latex_documents = [
-    ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-     'Georg Brandl \\and someone else', 'manual'),
-]
-
 latex_additional_files = ['svgimg.svg']
-
-texinfo_documents = [
-    ('index', 'SphinxTests', 'Sphinx Tests',
-     'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
-]
-
-man_pages = [
-    ('index', 'SphinxTests', 'Sphinx Tests Documentation',
-     'Georg Brandl and someone else', 1),
-]
 
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}

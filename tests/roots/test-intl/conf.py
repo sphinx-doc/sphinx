@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 project = 'Sphinx intl <Tests>'
 source_suffix = '.txt'
 keep_warnings = True

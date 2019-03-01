@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_environment_indexentries
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Test the sphinx.environment.managers.indexentries.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,25 +30,25 @@ def test_create_single_index():
             ('single', 'pip; install', 'id3', '', None),
             ('single', 'pip; upgrade', 'id4', '', None),
             ('single', 'Sphinx', 'id5', '', None),
-            ('single', u'Ель', 'id6', '', None),
-            ('single', u'ёлка', 'id7', '', None),
-            ('single', u'‏תירבע‎', 'id8', '', None),
-            ('single', u'9-symbol', 'id9', '', None),
-            ('single', u'&-symbol', 'id10', '', None),
+            ('single', 'Ель', 'id6', '', None),
+            ('single', 'ёлка', 'id7', '', None),
+            ('single', '‏תירבע‎', 'id8', '', None),
+            ('single', '9-symbol', 'id9', '', None),
+            ('single', '&-symbol', 'id10', '', None),
         ],
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 6
-    assert index[0] == (u'Symbols', [(u'&-symbol', [[('', '#id10')], [], None]),
-                                     (u'9-symbol', [[('', '#id9')], [], None])])
-    assert index[1] == (u'D', [(u'docutils', [[('', '#id1')], [], None])])
-    assert index[2] == (u'P', [(u'pip', [[], [(u'install', [('', '#id3')]),
-                                              (u'upgrade', [('', '#id4')])], None]),
-                               (u'Python', [[('', '#id2')], [], None])])
-    assert index[3] == (u'S', [(u'Sphinx', [[('', '#id5')], [], None])])
-    assert index[4] == (u'Е', [(u'ёлка', [[('', '#id7')], [], None]),
-                               (u'Ель', [[('', '#id6')], [], None])])
-    assert index[5] == (u'ת', [(u'‏תירבע‎', [[('', '#id8')], [], None])])
+    assert index[0] == ('Symbols', [('&-symbol', [[('', '#id10')], [], None]),
+                                    ('9-symbol', [[('', '#id9')], [], None])])
+    assert index[1] == ('D', [('docutils', [[('', '#id1')], [], None])])
+    assert index[2] == ('P', [('pip', [[], [('install', [('', '#id3')]),
+                                            ('upgrade', [('', '#id4')])], None]),
+                              ('Python', [[('', '#id2')], [], None])])
+    assert index[3] == ('S', [('Sphinx', [[('', '#id5')], [], None])])
+    assert index[4] == ('Е', [('ёлка', [[('', '#id7')], [], None]),
+                               ('Ель', [[('', '#id6')], [], None])])
+    assert index[5] == ('ת', [('‏תירבע‎', [[('', '#id8')], [], None])])
 
 
 def test_create_pair_index():
@@ -63,15 +62,15 @@ def test_create_pair_index():
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 5
-    assert index[0] == (u'D',
-                        [(u'documentation tool', [[], [(u'Sphinx', [('', '#id3')])], None]),
-                         (u'docutils', [[], [(u'reStructuredText', [('', '#id1')])], None])])
-    assert index[1] == (u'I', [(u'interpreter', [[], [(u'Python', [('', '#id2')])], None])])
-    assert index[2] == (u'P', [(u'Python', [[], [(u'interpreter', [('', '#id2')])], None])])
-    assert index[3] == (u'R',
-                        [(u'reStructuredText', [[], [(u'docutils', [('', '#id1')])], None])])
-    assert index[4] == (u'S',
-                        [(u'Sphinx', [[], [(u'documentation tool', [('', '#id3')])], None])])
+    assert index[0] == ('D',
+                        [('documentation tool', [[], [('Sphinx', [('', '#id3')])], None]),
+                         ('docutils', [[], [('reStructuredText', [('', '#id1')])], None])])
+    assert index[1] == ('I', [('interpreter', [[], [('Python', [('', '#id2')])], None])])
+    assert index[2] == ('P', [('Python', [[], [('interpreter', [('', '#id2')])], None])])
+    assert index[3] == ('R',
+                        [('reStructuredText', [[], [('docutils', [('', '#id1')])], None])])
+    assert index[4] == ('S',
+                        [('Sphinx', [[], [('documentation tool', [('', '#id3')])], None])])
 
 
 def test_create_triple_index():
@@ -84,12 +83,12 @@ def test_create_triple_index():
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 5
-    assert index[0] == (u'B', [(u'bar', [[], [(u'baz, foo', [('', '#id1')])], None]),
-                               (u'baz', [[], [(u'foo bar', [('', '#id1')])], None])])
-    assert index[1] == (u'F', [(u'foo', [[], [(u'bar baz', [('', '#id1')])], None])])
-    assert index[2] == (u'P', [(u'Python', [[], [(u'Sphinx reST', [('', '#id2')])], None])])
-    assert index[3] == (u'R', [(u'reST', [[], [(u'Python Sphinx', [('', '#id2')])], None])])
-    assert index[4] == (u'S', [(u'Sphinx', [[], [(u'reST, Python', [('', '#id2')])], None])])
+    assert index[0] == ('B', [('bar', [[], [('baz, foo', [('', '#id1')])], None]),
+                              ('baz', [[], [('foo bar', [('', '#id1')])], None])])
+    assert index[1] == ('F', [('foo', [[], [('bar baz', [('', '#id1')])], None])])
+    assert index[2] == ('P', [('Python', [[], [('Sphinx reST', [('', '#id2')])], None])])
+    assert index[3] == ('R', [('reST', [[], [('Python Sphinx', [('', '#id2')])], None])])
+    assert index[4] == ('S', [('Sphinx', [[], [('reST, Python', [('', '#id2')])], None])])
 
 
 def test_create_see_index():
@@ -105,9 +104,9 @@ def test_create_see_index():
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 3
-    assert index[0] == (u'D', [(u'docutils', [[], [(u'see reStructuredText', [])], None])])
-    assert index[1] == (u'P', [(u'Python', [[], [(u'see interpreter', [])], None])])
-    assert index[2] == (u'S', [(u'Sphinx', [[], [(u'see documentation tool', [])], None])])
+    assert index[0] == ('D', [('docutils', [[], [('see reStructuredText', [])], None])])
+    assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
+    assert index[2] == ('S', [('Sphinx', [[], [('see documentation tool', [])], None])])
 
 
 def test_create_seealso_index():
@@ -123,12 +122,9 @@ def test_create_seealso_index():
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 3
-    assert index[0] == (u'D',
-                        [(u'docutils', [[], [(u'see also reStructuredText', [])], None])])
-    assert index[1] == (u'P',
-                        [(u'Python', [[], [(u'see also interpreter', [])], None])])
-    assert index[2] == (u'S',
-                        [(u'Sphinx', [[], [(u'see also documentation tool', [])], None])])
+    assert index[0] == ('D', [('docutils', [[], [('see also reStructuredText', [])], None])])
+    assert index[1] == ('P', [('Python', [[], [('see also interpreter', [])], None])])
+    assert index[2] == ('S', [('Sphinx', [[], [('see also documentation tool', [])], None])])
 
 
 def test_create_index_by_key():
@@ -137,11 +133,11 @@ def test_create_index_by_key():
         'index': [
             ('single', 'docutils', 'id1', '', None),
             ('single', 'Python', 'id2', '', None),
-            ('single', u'スフィンクス', 'id3', '', u'ス'),
+            ('single', 'スフィンクス', 'id3', '', 'ス'),
         ],
     })
     index = IndexEntries(env).create_index(dummy_builder)
     assert len(index) == 3
-    assert index[0] == (u'D', [(u'docutils', [[('', '#id1')], [], None])])
-    assert index[1] == (u'P', [(u'Python', [[('', '#id2')], [], None])])
-    assert index[2] == (u'ス', [(u'スフィンクス', [[('', '#id3')], [], u'ス'])])
+    assert index[0] == ('D', [('docutils', [[('', '#id1')], [], None])])
+    assert index[1] == ('P', [('Python', [[('', '#id2')], [], None])])
+    assert index[2] == ('ス', [('スフィンクス', [[('', '#id3')], [], 'ス'])])

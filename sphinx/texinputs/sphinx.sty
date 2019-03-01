@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2018/11/06 v1.8.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2019/01/12 v1.8.4 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -82,11 +82,26 @@
 % User interface to set-up whitespace before and after tables:
 \newcommand*\sphinxtablepre {0pt}%
 \newcommand*\sphinxtablepost{\medskipamount}%
+% Space from caption baseline to top of table or frame of literal-block
 \newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
 % as one can not use \baselineskip from inside longtable (it is zero there)
 % we need \sphinxbaselineskip, which defaults to \baselineskip
 \def\sphinxbaselineskip{\baselineskip}%
-% These commands are inserted by the table templates
+% The following is to ensure that, whether tabular(y) or longtable:
+% - if a caption is on top of table:
+%   a) the space between its last baseline and the top rule of table is
+%      exactly \sphinxbelowcaptionspace
+%   b) the space from last baseline of previous text to first baseline of
+%      caption is exactly \parskip+\baselineskip+ height of a strut.
+%   c) the caption text will wrap at width \LTcapwidth (4in)
+% - make sure this works also if "caption" package is loaded by user
+%   (with its width or margin option taking place of \LTcapwidth role)
+% TODO: obtain same for caption of literal block: a) & c) DONE, b) TO BE DONE
+%
+% To modify space below such top caption, adjust \sphinxbelowcaptionspace
+% To add or remove space above such top caption, adjust \sphinxtablepre:
+%   notice that \abovecaptionskip, \belowcaptionskip, \LTpre are **ignored**
+% A. Table with longtable
 \def\sphinxatlongtablestart
    {\par
     \vskip\parskip
@@ -95,48 +110,76 @@
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
    }%
-\def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+% Compatibility with caption package
+\def\sphinxthelongtablecaptionisattop{%
+    \spx@ifcaptionpackage{\noalign{\vskip-\belowcaptionskip}}{}%
+}%
+% Achieves exactly \sphinxbelowcaptionspace below longtable caption
 \def\sphinxlongtablecapskipadjust
-   {\dimexpr-\dp\strutbox-\sphinxbaselineskip+\sphinxbelowcaptionspace\relax}%
-% Now for tables not using longtable
-\def\sphinxattablestart
-   {\par
-    \vskip\dimexpr\sphinxtablepre\relax
-   }%
+   {\dimexpr-\dp\strutbox
+            -\spx@ifcaptionpackage{\abovecaptionskip}{\sphinxbaselineskip}%
+            +\sphinxbelowcaptionspace\relax}%
+\def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+% B. Table with tabular or tabulary
+\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax}%
 \let\sphinxattableend\sphinxatlongtableend
-% longtable's wraps captions to a maximal width of \LTcapwidth
-% so we do the same for all tables
+% This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%
    \vskip\parskip
    \vbox{}% force baselineskip for good positioning by capstart of hyperanchor
+   % hyperref puts the anchor 6pt above this baseline; in case of caption
+   % this baseline will be \ht\strutbox above first baseline of caption
    \def\@captype{#1}%
    \capstart
-% move back vertically to compensate space inserted by next paragraph
+% move back vertically, as tabular (or its caption) will compensate
    \vskip-\baselineskip\vskip-\parskip
 }%
-% use \LTcapwidth (default is 4in) to wrap caption (if line width is bigger)
-\newcommand\sphinxcaption[2][\LTcapwidth]{%
+\def\sphinxthecaptionisattop{% locate it after \sphinxcapstartof
+    \spx@ifcaptionpackage
+      {\caption@setposition{t}%
+       \vskip\baselineskip\vskip\parskip % undo those from \sphinxcapstartof
+       \vskip-\belowcaptionskip          % anticipate caption package skip
+       % caption package uses a \vbox, not a \vtop, so "single line" case
+       % gives different result from "multi-line" without this:
+       \nointerlineskip
+      }%
+      {}%
+}%
+\def\sphinxthecaptionisatbottom{% (not finalized; for template usage)
+    \spx@ifcaptionpackage{\caption@setposition{b}}{}%
+}%
+% The aim of \sphinxcaption is to apply to tabular(y) the maximal width
+% of caption as done by longtable
+\def\sphinxtablecapwidth{\LTcapwidth}%
+\newcommand\sphinxcaption{\@dblarg\spx@caption}%
+\long\def\spx@caption[#1]#2{%
    \noindent\hb@xt@\linewidth{\hss
-      \vtop{\@tempdima\dimexpr#1\relax
+      \vtop{\@tempdima\dimexpr\sphinxtablecapwidth\relax
 % don't exceed linewidth for the caption width
             \ifdim\@tempdima>\linewidth\hsize\linewidth\else\hsize\@tempdima\fi
-% longtable ignores \abovecaptionskip/\belowcaptionskip, so add hooks here
-% to uniformize control of caption distance to tables
-            \abovecaptionskip\sphinxabovecaptionskip
-            \belowcaptionskip\sphinxbelowcaptionskip
-            \caption[{#2}]%
+% longtable ignores \abovecaptionskip/\belowcaptionskip, so do the same here
+            \abovecaptionskip\sphinxabovecaptionskip % \z@skip
+            \belowcaptionskip\sphinxbelowcaptionskip % \z@skip
+            \caption[{#1}]%
                {\strut\ignorespaces#2\ifhmode\unskip\@finalstrut\strutbox\fi}%
            }\hss}%
    \par\prevdepth\dp\strutbox
 }%
-\def\spx@abovecaptionskip{\abovecaptionskip}
-\newcommand*\sphinxabovecaptionskip{\z@skip}
-\newcommand*\sphinxbelowcaptionskip{\z@skip}
-
-\newcommand\sphinxaftercaption
-{% this default definition serves with a caption *above* a table, to make sure
- % its last baseline is \sphinxbelowcaptionspace above table top
- \nobreak
+\def\sphinxabovecaptionskip{\z@skip}% Do not use! Flagged for removal
+\def\sphinxbelowcaptionskip{\z@skip}% Do not use! Flagged for removal
+% This wrapper of \abovecaptionskip is used in sphinxVerbatim for top
+% caption, and with another value in sphinxVerbatimintable
+% TODO: To unify space above caption of a code-block with the one above
+%       caption of a table/longtable, \abovecaptionskip must not be used
+%       This auxiliary will get renamed and receive a different meaning
+%       in future.
+\def\spx@abovecaptionskip{\abovecaptionskip}%
+% Achieve \sphinxbelowcaptionspace below a caption located above a tabular
+% or a tabulary
+\newcommand\sphinxaftertopcaption
+{%
+   \spx@ifcaptionpackage
+     {\par\prevdepth\dp\strutbox\nobreak\vskip-\abovecaptionskip}{\nobreak}%
    \vskip\dimexpr\sphinxbelowcaptionspace\relax
    \vskip-\baselineskip\vskip-\parskip
 }%
@@ -165,6 +208,9 @@
 % For highlighted code.
 \RequirePackage{fancyvrb}
 \define@key{FV}{hllines}{\def\sphinx@verbatim@checkifhl##1{\in@{, ##1,}{#1}}}
+% sphinxVerbatim must be usable by third party without requiring hllines set-up
+\def\sphinxresetverbatimhllines{\def\sphinx@verbatim@checkifhl##1{\in@false}}
+\sphinxresetverbatimhllines
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
@@ -174,7 +220,13 @@
 % For floating figures in the text. Better to load after float.
 \RequirePackage{wrapfig}
 % Separate paragraphs by space by default.
-\RequirePackage{parskip}
+\IfFileExists{parskip-2001-04-09.sty}% since September 2018 TeXLive update
+% new parskip.sty, but let it rollback to old one.
+% hopefully TeX installation not broken and LaTeX kernel not too old
+   {\RequirePackage{parskip}[=v1]}
+% standard one from 1989. Admittedly \section of article/book gives possibly
+% anomalous spacing, but we can't require September 2018 release for some time.
+   {\RequirePackage{parskip}}
 % For parsed-literal blocks.
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
@@ -655,25 +707,79 @@
 
 %% GRAPHICS
 %
-% \sphinxincludegraphics defined to resize images larger than the line width,
-% except if height or width option present.
+% \sphinxincludegraphics resizes images larger than the TeX \linewidth (which
+% is adjusted in indented environments), or taller than a certain maximal
+% height (usually \textheight and this is reduced in the environments which use
+% framed.sty to avoid infinite loop if image too tall).
 %
-% If scale is present, rescale before fitting to line width. (since 1.5)
-\newbox\spx@image@box
-\newcommand*{\sphinxincludegraphics}[2][]{%
-  \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
-  \ifin@ % height or width present
-    \includegraphics[#1]{#2}%
-  \else % no height nor width (but #1 may be "scale=...")
+% In case height or width options are present the rescaling is done
+% (since 2.0), in a way keeping the width:height ratio either native from
+% image or from the width and height options if both were present.
+%
+\newdimen\spx@image@maxheight
+\AtBeginDocument{\spx@image@maxheight\textheight}
+
+% box scratch register
+\newdimen\spx@image@box
+\newcommand*{\sphinxsafeincludegraphics}[2][]{%
+    % #1 contains possibly width=, height=, but no scale= since 1.8.4
     \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
+    \in@false % use some handy boolean flag
     \ifdim \wd\spx@image@box>\linewidth
-      \setbox\spx@image@box\box\voidb@x % clear memory
-      \includegraphics[#1,width=\linewidth]{#2}%
+      \in@true % flag to remember to adjust options and set box dimensions
+      % compute height which results from rescaling width to \linewidth
+      % and keep current aspect ratio. multiply-divide in \numexpr uses
+      % temporarily doubled precision, hence no overflow. (of course we
+      % assume \ht is not a few sp's below \maxdimen...(about 16384pt).
+      \edef\spx@image@rescaledheight % with sp units
+           {\the\numexpr\ht\spx@image@box
+                        *\linewidth/\wd\spx@image@box sp}%
+      \ifdim\spx@image@rescaledheight>\spx@image@maxheight
+        % the rescaled height will be too big, so it is height which decides
+        % the rescaling factor
+        \def\spx@image@requiredheight{\spx@image@maxheight}% dimen register
+        \edef\spx@image@requiredwidth % with sp units
+         {\the\numexpr\wd\spx@image@box
+                      *\spx@image@maxheight/\ht\spx@image@box sp}%
+        % TODO: decide if this commented-out block could be needed due to
+        % rounding in numexpr operations going up
+        % \ifdim\spx@image@requiredwidth>\linewidth
+        %     \def\spx@image@requiredwidth{\linewidth}% dimen register
+        % \fi
+      \else
+        \def\spx@image@requiredwidth{\linewidth}% dimen register
+        \let\spx@image@requiredheight\spx@image@rescaledheight% sp units
+      \fi
     \else
+      % width is ok, let's check height
+      \ifdim\ht\spx@image@box>\spx@image@maxheight
+        \in@true
+        \edef\spx@image@requiredwidth % with sp units
+            {\the\numexpr\wd\spx@image@box
+                         *\spx@image@maxheight/\ht\spx@image@box sp}%
+        \def\spx@image@requiredheight{\spx@image@maxheight}% dimen register
+      \fi
+    \fi % end of check of width and height
+    \ifin@
+      \setbox\spx@image@box
+      \hbox{\includegraphics
+            [%#1,% contained only width and/or height and overruled anyhow
+            width=\spx@image@requiredwidth,height=\spx@image@requiredheight]%
+            {#2}}%
+      % \includegraphics does not set box dimensions to the exactly
+      % requested ones, see https://github.com/latex3/latex2e/issues/112
+      \wd\spx@image@box\spx@image@requiredwidth
+      \ht\spx@image@box\spx@image@requiredheight
+      \leavevmode\box\spx@image@box
+    \else
+      % here we do not modify the options, no need to adjust width and height
+      % on output, they will be computed exactly as with "draft" option
+      \setbox\spx@image@box\box\voidb@x % clear memory
       \includegraphics[#1]{#2}%
     \fi
-  \fi
-}
+}%
+% Use the "safe" one by default (2.0)
+\def\sphinxincludegraphics{\sphinxsafeincludegraphics}
 
 
 %% FIGURE IN TABLE
@@ -683,8 +789,22 @@
   \sphinxsetvskipsforfigintablecaption
   \begin{minipage}{#1}%
 }{\end{minipage}}
-% store original \caption macro for use with figures in longtable and tabulary
-\AtBeginDocument{\let\spx@originalcaption\caption}
+% store the original \caption macro for usage with figures inside longtable
+% and tabulary cells. Make sure we get the final \caption in presence of
+% caption package, whether the latter was loaded before or after sphinx.
+\AtBeginDocument{%
+    \let\spx@originalcaption\caption
+    \@ifpackageloaded{caption}
+      {\let\spx@ifcaptionpackage\@firstoftwo
+       \caption@AtBeginDocument*{\let\spx@originalcaption\caption}%
+% in presence of caption package, drop our own \sphinxcaption whose aim was to
+% ensure same width of caption to all kinds of tables (tabular(y), longtable),
+% because caption package has its own width (or margin) option
+       \def\sphinxcaption{\caption}%
+      }%
+      {\let\spx@ifcaptionpackage\@secondoftwo}%
+}
+% tabulary expands twice contents, we need to prevent double counter stepping
 \newcommand*\sphinxfigcaption
   {\ifx\equation$%$% this is trick to identify tabulary first pass
        \firstchoice@false\else\firstchoice@true\fi
@@ -999,8 +1119,6 @@
   \let\normalsize\footnotesize\let\@parboxrestore\relax
   \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
 }
-% needed to create wrapper environments of fancyvrb's Verbatim
-\newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
 \newcommand*{\sphinxverbatimsmallskipamount}{\smallskipamount}
 % serves to implement line highlighting and line wrapping
 \newcommand\sphinxFancyVerbFormatLine[1]{%
@@ -1049,17 +1167,28 @@
        \vskip\spx@abovecaptionskip
        \def\sphinxVerbatim@Before
            {\sphinxVerbatim@Title\nointerlineskip
-            \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace\relax}%
+            \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
+                 % if no frame (code-blocks inside table cells), remove
+                 % the "verbatimsep" whitespace from the top (better visually)
+                 \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+                 % caption package adds \abovecaptionskip vspace, remove it
+                 \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
      \else
        \vskip\sphinxverbatimsmallskipamount
        \def\sphinxVerbatim@After
-          {\nointerlineskip\kern\dp\strutbox\sphinxVerbatim@Title}%
+          {\nointerlineskip\kern\dimexpr\dp\strutbox
+            \ifspx@opt@verbatimwithframe\else-\sphinxverbatimsep\fi
+            \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
+           \sphinxVerbatim@Title}%
      \fi
      \def\@captype{literalblock}%
      \capstart
      % \sphinxVerbatimTitle must reset color
      \setbox\sphinxVerbatim@TitleBox
             \hbox{\begin{minipage}{\linewidth}%
+     % caption package may detect wrongly if top or bottom, so we help it
+                    \spx@ifcaptionpackage
+                      {\caption@setposition{\spx@opt@literalblockcappos}}{}%
                     \sphinxVerbatimTitle
                   \end{minipage}}%
   \fi
@@ -1094,8 +1223,7 @@
     \let\sphinxVerbatimFormatLine\sphinxVerbatimFormatLineNoWrap
   \fi
   \let\FancyVerbFormatLine\sphinxFancyVerbFormatLine
-  % workaround to fancyvrb's check of \@currenvir
-  \let\VerbatimEnvironment\sphinxVerbatimEnvironment
+  \VerbatimEnvironment
   % workaround to fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % The list environment is needed to control perfectly the vertical space.
@@ -1142,8 +1270,7 @@
 }
 \newenvironment {sphinxVerbatimNoFrame}
   {\spx@opt@verbatimwithframefalse
-   % needed for fancyvrb as literal code will end in \end{sphinxVerbatimNoFrame}
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimNoFrame}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 \newenvironment {sphinxVerbatimintable}
@@ -1156,7 +1283,7 @@
    \let\caption\sphinxfigcaption
    % reduce above caption skip
    \def\spx@abovecaptionskip{\sphinxverbatimsmallskipamount}%
-   \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
+   \VerbatimEnvironment
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 
@@ -1268,6 +1395,11 @@
 % could nest if LaTeX writer authorized it
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
+   \advance\spx@image@maxheight
+   -\dimexpr2\sphinxshadowrule
+           +2\sphinxshadowsep
+           +\sphinxshadowsize
+           +\baselineskip\relax
    % configure framed.sty not to add extra vertical spacing
    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
@@ -1350,6 +1482,10 @@
 \newenvironment{sphinxheavybox}{\par
    \setlength{\FrameRule}{\spx@notice@border}%
    \setlength{\FrameSep}{\dimexpr.6\baselineskip-\FrameRule\relax}
+   \advance\spx@image@maxheight
+   -\dimexpr2\FrameRule
+           +2\FrameSep
+           +\baselineskip\relax % will happen again if nested, needed indeed!
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.

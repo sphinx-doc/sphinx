@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.inspect
     ~~~~~~~~~~~~~~~~~~~
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import builtins
 import enum
@@ -16,16 +14,17 @@ import inspect
 import re
 import sys
 import typing
+import warnings
 from functools import partial
+from io import StringIO
 
-from six import StringIO, string_types
-
+from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.util import logging
-from sphinx.util.pycompat import NoneType
+from sphinx.util.typing import NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Tuple, Type  # NOQA
+    from typing import Any, Callable, Mapping, List, Tuple, Type  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +52,7 @@ def getargspec(func):
         raise TypeError(
             "can't compute signature for built-in type {}".format(func))
 
-    sig = inspect.signature(func)  # type: ignore
+    sig = inspect.signature(func)
 
     args = []
     varargs = None
@@ -71,19 +70,19 @@ def getargspec(func):
         kind = param.kind
         name = param.name
 
-        if kind is inspect.Parameter.POSITIONAL_ONLY:  # type: ignore
+        if kind is inspect.Parameter.POSITIONAL_ONLY:
             args.append(name)
-        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:  # type: ignore
+        elif kind is inspect.Parameter.POSITIONAL_OR_KEYWORD:
             args.append(name)
             if param.default is not param.empty:
                 defaults += (param.default,)  # type: ignore
-        elif kind is inspect.Parameter.VAR_POSITIONAL:  # type: ignore
+        elif kind is inspect.Parameter.VAR_POSITIONAL:
             varargs = name
-        elif kind is inspect.Parameter.KEYWORD_ONLY:  # type: ignore
+        elif kind is inspect.Parameter.KEYWORD_ONLY:
             kwonlyargs.append(name)
             if param.default is not param.empty:
                 kwdefaults[name] = param.default
-        elif kind is inspect.Parameter.VAR_KEYWORD:  # type: ignore
+        elif kind is inspect.Parameter.VAR_KEYWORD:
             varkw = name
 
         if param.annotation is not param.empty:
@@ -97,23 +96,19 @@ def getargspec(func):
         # compatibility with 'func.__defaults__'
         defaults = None
 
-    return inspect.FullArgSpec(args, varargs, varkw, defaults,  # type: ignore
+    return inspect.FullArgSpec(args, varargs, varkw, defaults,
                                kwonlyargs, kwdefaults, annotations)
 
 
 def isenumclass(x):
     # type: (Type) -> bool
     """Check if the object is subclass of enum."""
-    if enum is None:
-        return False
     return inspect.isclass(x) and issubclass(x, enum.Enum)
 
 
 def isenumattribute(x):
     # type: (Any) -> bool
     """Check if the object is attribute of enum."""
-    if enum is None:
-        return False
     return isinstance(x, enum.Enum)
 
 
@@ -128,17 +123,14 @@ def isclassmethod(obj):
     """Check if the object is classmethod."""
     if isinstance(obj, classmethod):
         return True
-    elif inspect.ismethod(obj):
-        if getattr(obj, 'im_self', None):  # py2
-            return True
-        elif getattr(obj, '__self__', None):  # py3
-            return True
+    elif inspect.ismethod(obj) and obj.__self__ is not None:
+        return True
 
     return False
 
 
 def isstaticmethod(obj, cls=None, name=None):
-    # type: (Any, Any, unicode) -> bool
+    # type: (Any, Any, str) -> bool
     """Check if the object is staticmethod."""
     if isinstance(obj, staticmethod):
         return True
@@ -179,7 +171,7 @@ def isbuiltin(obj):
 
 
 def safe_getattr(obj, name, *defargs):
-    # type: (Any, unicode, unicode) -> object
+    # type: (Any, str, str) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
@@ -202,9 +194,9 @@ def safe_getattr(obj, name, *defargs):
 
 
 def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
-    # type: (Any, Callable[[unicode], bool], Callable) -> List[Tuple[unicode, Any]]
+    # type: (Any, Callable[[str], bool], Callable) -> List[Tuple[str, Any]]
     """A version of inspect.getmembers() that uses safe_getattr()."""
-    results = []  # type: List[Tuple[unicode, Any]]
+    results = []  # type: List[Tuple[str, Any]]
     for key in dir(object):
         try:
             value = attr_getter(object, key, None)
@@ -217,7 +209,7 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
 
 
 def object_description(object):
-    # type: (Any) -> unicode
+    # type: (Any) -> str
     """A repr() implementation that returns text safe to use in reST context."""
     if isinstance(object, dict):
         try:
@@ -255,7 +247,7 @@ def object_description(object):
 
 
 def is_builtin_class_method(obj, attr_name):
-    # type: (Any, unicode) -> bool
+    # type: (Any, str) -> bool
     """If attr_name is implemented at builtin class, return True.
 
         >>> is_builtin_class_method(int, '__init__')
@@ -288,6 +280,9 @@ class Parameter:
         self.default = default
         self.annotation = self.empty
 
+        warnings.warn('sphinx.util.inspect.Parameter is deprecated.',
+                      RemovedInSphinx30Warning, stacklevel=2)
+
 
 class Signature:
     """The Signature object represents the call signature of a callable object and
@@ -307,7 +302,7 @@ class Signature:
         self.partialmethod_with_noargs = False
 
         try:
-            self.signature = inspect.signature(subject)  # type: ignore
+            self.signature = inspect.signature(subject)
         except IndexError:
             # Until python 3.6.4, cpython has been crashed on inspection for
             # partialmethods not having any arguments.
@@ -319,7 +314,7 @@ class Signature:
                 raise
 
         try:
-            self.annotations = typing.get_type_hints(subject)  # type: ignore
+            self.annotations = typing.get_type_hints(subject)
         except Exception:
             # get_type_hints() does not support some kind of objects like partial,
             # ForwardRef and so on.  For them, it raises an exception. In that case,
@@ -341,7 +336,7 @@ class Signature:
 
     @property
     def parameters(self):
-        # type: () -> Dict
+        # type: () -> Mapping
         if self.partialmethod_with_noargs:
             return {}
         else:
@@ -354,12 +349,12 @@ class Signature:
             if self.has_retval:
                 return self.signature.return_annotation
             else:
-                return inspect.Parameter.empty  # type: ignore
+                return inspect.Parameter.empty
         else:
             return None
 
     def format_args(self):
-        # type: () -> unicode
+        # type: () -> str
         args = []
         last_kind = None
         for i, param in enumerate(self.parameters.values()):
@@ -381,8 +376,7 @@ class Signature:
                               param.KEYWORD_ONLY):
                 arg.write(param.name)
                 if param.annotation is not param.empty:
-                    if isinstance(param.annotation, string_types) and \
-                            param.name in self.annotations:
+                    if isinstance(param.annotation, str) and param.name in self.annotations:
                         arg.write(': ')
                         arg.write(self.format_annotation(self.annotations[param.name]))
                     else:
@@ -391,10 +385,10 @@ class Signature:
                 if param.default is not param.empty:
                     if param.annotation is param.empty:
                         arg.write('=')
-                        arg.write(object_description(param.default))  # type: ignore
+                        arg.write(object_description(param.default))
                     else:
                         arg.write(' = ')
-                        arg.write(object_description(param.default))  # type: ignore
+                        arg.write(object_description(param.default))
             elif param.kind == param.VAR_POSITIONAL:
                 arg.write('*')
                 arg.write(param.name)
@@ -405,7 +399,7 @@ class Signature:
             args.append(arg.getvalue())
             last_kind = param.kind
 
-        if self.return_annotation is inspect.Parameter.empty:  # type: ignore
+        if self.return_annotation is inspect.Parameter.empty:
             return '(%s)' % ', '.join(args)
         else:
             if 'return' in self.annotations:
@@ -424,8 +418,8 @@ class Signature:
 
         Displaying complex types from ``typing`` relies on its private API.
         """
-        if isinstance(annotation, string_types):
-            return annotation  # type: ignore
+        if isinstance(annotation, str):
+            return annotation
         elif isinstance(annotation, typing.TypeVar):  # type: ignore
             return annotation.__name__
         elif not annotation:
@@ -577,7 +571,7 @@ class Signature:
 
 
 def getdoc(obj, attrgetter=safe_getattr, allow_inherited=False):
-    # type: (Any, Callable, bool) -> unicode
+    # type: (Any, Callable, bool) -> str
     """Get the docstring for the object.
 
     This tries to obtain the docstring for some kind of objects additionally:

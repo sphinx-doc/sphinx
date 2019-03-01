@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.collectors.asset
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     The image collector for sphinx.environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -37,15 +36,15 @@ class ImageCollector(EnvironmentCollector):
     """Image files collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.images.purge_doc(docname)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process and rewrite image URIs."""
         docname = app.env.docname
 
@@ -54,7 +53,7 @@ class ImageCollector(EnvironmentCollector):
             # choose the best image from these candidates.  The special key * is
             # set if there is only single candidate to be used by a writer.
             # The special key ? is set for nonlocal URIs.
-            candidates = {}  # type: Dict[unicode, unicode]
+            candidates = {}  # type: Dict[str, str]
             node['candidates'] = candidates
             imguri = node['uri']
             if imguri.startswith('data:'):
@@ -95,8 +94,8 @@ class ImageCollector(EnvironmentCollector):
                 app.env.images.add_file(docname, imgpath)
 
     def collect_candidates(self, env, imgpath, candidates, node):
-        # type: (BuildEnvironment, unicode, Dict[unicode, unicode], nodes.Node) -> None
-        globbed = {}  # type: Dict[unicode, List[unicode]]
+        # type: (BuildEnvironment, str, Dict[str, str], nodes.Node) -> None
+        globbed = {}  # type: Dict[str, List[str]]
         for filename in glob(imgpath):
             new_imgpath = relative_path(path.join(env.srcdir, 'dummy'),
                                         filename)
@@ -104,7 +103,7 @@ class ImageCollector(EnvironmentCollector):
                 mimetype = guess_mimetype(filename)
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
-            except (OSError, IOError) as err:
+            except OSError as err:
                 logger.warning(__('image file %s not readable: %s') % (filename, err),
                                location=node, type='image', subtype='not_readable')
         for key, files in globbed.items():
@@ -115,15 +114,15 @@ class DownloadFileCollector(EnvironmentCollector):
     """Download files collector for sphinx.environment."""
 
     def clear_doc(self, app, env, docname):
-        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        # type: (Sphinx, BuildEnvironment, str) -> None
         env.dlfiles.purge_doc(docname)
 
     def merge_other(self, app, env, docnames, other):
-        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        # type: (Sphinx, BuildEnvironment, Set[str], BuildEnvironment) -> None
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app, doctree):
-        # type: (Sphinx, nodes.Node) -> None
+        # type: (Sphinx, nodes.document) -> None
         """Process downloadable file paths. """
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']

@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.environment.adapters.indexentries
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Index entries adapters for sphinx.environment.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import bisect
 import re
 import unicodedata
 from itertools import groupby
-
-from six import text_type
 
 from sphinx.locale import _, __
 from sphinx.util import split_into, logging
@@ -34,18 +31,18 @@ class IndexEntries:
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, Any]]]]  # NOQA
+        # type: (Builder, bool, Pattern) -> List[Tuple[str, List[Tuple[str, Any]]]]
         """Create the real index from the collected index entries."""
         from sphinx.environment import NoUri
 
-        new = {}  # type: Dict[unicode, List]
+        new = {}  # type: Dict[str, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):
-            # type: (unicode, unicode, unicode, bool, Dict, unicode) -> None
+            # type: (str, str, str, bool, Dict, str) -> None
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
-            word = text_type(word)
+            word = str(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}, key]
@@ -96,13 +93,13 @@ class IndexEntries:
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry):
-            # type: (Tuple[unicode, List]) -> Tuple[unicode, unicode]
+            # type: (Tuple[str, List]) -> Tuple[str, str]
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
                 key = category_key
             lckey = unicodedata.normalize('NFD', key.lower())
-            if lckey.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+            if lckey.startswith('\N{RIGHT-TO-LEFT MARK}'):
                 lckey = lckey[1:]
             if lckey[0:1].isalpha() or lckey.startswith('_'):
                 lckey = chr(127) + lckey
@@ -119,8 +116,8 @@ class IndexEntries:
             #   func()
             #     (in module foo)
             #     (in module bar)
-            oldkey = ''  # type: unicode
-            oldsubitems = None  # type: Dict[unicode, List]
+            oldkey = ''
+            oldsubitems = None  # type: Dict[str, List]
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]
@@ -143,13 +140,13 @@ class IndexEntries:
 
         # group the entries by letter
         def keyfunc2(item):
-            # type: (Tuple[unicode, List]) -> unicode
+            # type: (Tuple[str, List]) -> str
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
             v[1] = sorted((si, se) for (si, (se, void, void)) in v[1].items())
             if v[2] is None:
                 # now calculate the key
-                if k.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+                if k.startswith('\N{RIGHT-TO-LEFT MARK}'):
                     k = k[1:]
                 letter = unicodedata.normalize('NFD', k[0])[0].upper()
                 if letter.isalpha() or letter == '_':

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_napoleon_docstring
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -6,7 +5,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

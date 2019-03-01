@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.math
     ~~~~~~~~~~~~~~~~
 
     Utility functions for math.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,11 +16,11 @@ if False:
 
 
 def get_node_equation_number(writer, node):
-    # type: (HTMLTranslator, nodes.Node) -> unicode
+    # type: (HTMLTranslator, nodes.math_block) -> str
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = u"%s/%s" % (writer.docnames[-1], figtype)
+            key = "%s/%s" % (writer.docnames[-1], figtype)
         else:
             key = figtype
 
@@ -33,9 +32,9 @@ def get_node_equation_number(writer, node):
 
 
 def wrap_displaymath(text, label, numbering):
-    # type: (unicode, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def is_equation(part):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return part.strip()
 
     if label is None:

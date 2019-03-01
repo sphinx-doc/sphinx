@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.images
     ~~~~~~~~~~~~~~~~~~
 
     Image utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import base64
 import imghdr
@@ -19,17 +17,13 @@ from os import path
 from typing import NamedTuple
 
 import imagesize
-from six import text_type
 
 from sphinx.deprecation import RemovedInSphinx30Warning
 
 try:
-    from PIL import Image        # check for the Python Imaging Library
+    from PIL import Image
 except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
+    Image = None
 
 if False:
     # For type annotation
@@ -42,21 +36,21 @@ mime_suffixes = OrderedDict([
     ('.pdf', 'application/pdf'),
     ('.svg', 'image/svg+xml'),
     ('.svgz', 'image/svg+xml'),
-])  # type: Dict[unicode, unicode]
+])
 
-DataURI = NamedTuple('DataURI', [('mimetype', text_type),
-                                 ('charset', text_type),
+DataURI = NamedTuple('DataURI', [('mimetype', str),
+                                 ('charset', str),
                                  ('data', bytes)])
 
 
 def get_image_size(filename):
-    # type: (unicode) -> Tuple[int, int]
+    # type: (str) -> Tuple[int, int]
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
             size = None
 
-        if size is None and Image:  # fallback to PIL
+        if size is None and Image:  # fallback to Pillow
             im = Image.open(filename)
             size = im.size
             try:
@@ -70,7 +64,7 @@ def get_image_size(filename):
 
 
 def guess_mimetype_for_stream(stream, default=None):
-    # type: (IO, unicode) -> unicode
+    # type: (IO, str) -> str
     imgtype = imghdr.what(stream)  # type: ignore
     if imgtype:
         return 'image/' + imgtype
@@ -79,11 +73,13 @@ def guess_mimetype_for_stream(stream, default=None):
 
 
 def guess_mimetype(filename='', content=None, default=None):
-    # type: (unicode, bytes, unicode) -> unicode
+    # type: (str, bytes, str) -> str
     _, ext = path.splitext(filename.lower())
     if ext in mime_suffixes:
         return mime_suffixes[ext]
     elif content:
+        # TODO: When the content argument is removed, make filename a required
+        # argument.
         warnings.warn('The content argument of guess_mimetype() is deprecated.',
                       RemovedInSphinx30Warning, stacklevel=2)
         return guess_mimetype_for_stream(BytesIO(content), default=default)
@@ -95,7 +91,7 @@ def guess_mimetype(filename='', content=None, default=None):
 
 
 def get_image_extension(mimetype):
-    # type: (unicode) -> unicode
+    # type: (str) -> str
     for ext, _mimetype in mime_suffixes.items():
         if mimetype == _mimetype:
             return ext
@@ -104,13 +100,13 @@ def get_image_extension(mimetype):
 
 
 def parse_data_uri(uri):
-    # type: (unicode) -> DataURI
+    # type: (str) -> DataURI
     if not uri.startswith('data:'):
         return None
 
     # data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-    mimetype = u'text/plain'
-    charset = u'US-ASCII'
+    mimetype = 'text/plain'
+    charset = 'US-ASCII'
 
     properties, data = uri[5:].split(',', 1)
     for prop in properties.split(';'):
@@ -126,10 +122,10 @@ def parse_data_uri(uri):
 
 
 def test_svg(h, f):
-    # type: (bytes, IO) -> unicode
+    # type: (bytes, IO) -> str
     """An additional imghdr library helper; test the header is SVG's or not."""
     try:
-        if '<svg' in h.decode('utf-8').lower():
+        if '<svg' in h.decode().lower():
             return 'svg+xml'
     except UnicodeDecodeError:
         pass
@@ -139,4 +135,4 @@ def test_svg(h, f):
 
 # install test_svg() to imghdr
 # refs: https://docs.python.org/3.6/library/imghdr.html#imghdr.tests
-imghdr.tests.append(test_svg)  # type: ignore
+imghdr.tests.append(test_svg)

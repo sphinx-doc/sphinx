@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.transforms.post_transforms.code
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     transforms for code-blocks.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +13,6 @@ from typing import NamedTuple
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
-from six import text_type
 
 from sphinx import addnodes
 from sphinx.ext import doctest
@@ -26,7 +24,7 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
-HighlightSetting = NamedTuple('HighlightSetting', [('language', text_type),
+HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
                                                    ('lineno_threshold', int)])
 
 
@@ -40,7 +38,8 @@ class HighlightLanguageTransform(SphinxTransform):
     """
     default_priority = 400
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         visitor = HighlightLanguageVisitor(self.document,
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
@@ -51,10 +50,10 @@ class HighlightLanguageTransform(SphinxTransform):
 
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document, default_language):
-        # type: (nodes.document, unicode) -> None
+        # type: (nodes.document, str) -> None
         self.default_setting = HighlightSetting(default_language, sys.maxsize)
         self.settings = []  # type: List[HighlightSetting]
-        super(HighlightLanguageVisitor, self).__init__(document)
+        super().__init__(document)
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
@@ -90,7 +89,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         if 'language' not in node:
             node['language'] = setting.language
             node['force_highlighting'] = False
-        else:
+        elif 'force_highlighting' not in node:
             node['force_highlighting'] = True
         if 'linenos' not in node:
             lines = node.astext().count('\n')
@@ -105,7 +104,8 @@ class TrimDoctestFlagsTransform(SphinxTransform):
     """
     default_priority = HighlightLanguageTransform.default_priority + 1
 
-    def apply(self):
+    def apply(self, **kwargs):
+        # type: (Any) -> None
         if not self.config.trim_doctest_flags:
             return
 
@@ -139,7 +139,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
 
 def setup(app):
-    # type: (Sphinx) -> Dict[unicode, Any]
+    # type: (Sphinx) -> Dict[str, Any]
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

@@ -1,13 +1,15 @@
-# -*- coding: utf-8 -*-
 """
     test_application
     ~~~~~~~~~~~~~~~~
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from unittest.mock import Mock
+
 import pytest
 from docutils import nodes
 
@@ -42,7 +44,7 @@ def test_events(app, status, warning):
 
 
 def test_emit_with_nonascii_name_node(app, status, warning):
-    node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
+    node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
@@ -59,6 +61,8 @@ def test_extension_in_blacklist(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='add_source_parser')
+@pytest.mark.filterwarnings('ignore:The config variable "source_parsers"')
+@pytest.mark.filterwarnings('ignore:app.add_source_parser\\(\\) does not support suffix')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
 
@@ -112,3 +116,22 @@ def test_add_is_parallel_allowed(app, status, warning):
             "for parallel reading, assuming it isn't - please ") in warning.getvalue()
     app.extensions.pop('write_serial')
     warning.truncate(0)  # reset warnings
+
+
+@pytest.mark.sphinx('dummy', testroot='root')
+def test_build_specific(app):
+    app.builder.build = Mock()
+    filenames = [app.srcdir / 'index.txt',                      # normal
+                 app.srcdir / 'images',                         # without suffix
+                 app.srcdir / 'notfound.txt',                   # not found
+                 app.srcdir / 'img.png',                        # unknown suffix
+                 '/index.txt',                                  # external file
+                 app.srcdir / 'subdir',                         # directory
+                 app.srcdir / 'subdir/includes.txt',            # file on subdir
+                 app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
+    app.build(False, filenames)
+
+    expected = ['index', 'img.png', 'subdir/includes', 'subdir/excluded']
+    app.builder.build.assert_called_with(expected,
+                                         method='specific',
+                                         summary='4 source files given on command line')

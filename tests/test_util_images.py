@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     test_util_images
     ~~~~~~~~~~~~~~~~
 
     Test images util.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import pytest
 
@@ -34,6 +32,7 @@ def test_get_image_size(testroot):
     assert get_image_size(testroot / TXT_FILENAME) is None
 
 
+@pytest.mark.filterwarnings('ignore:The content argument')
 def test_guess_mimetype(testroot):
     # guess by filename
     assert guess_mimetype('img.png') == 'image/png'

@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.logging
     ~~~~~~~~~~~~~~~~~~~
 
     Logging utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import logging
 import logging.handlers
@@ -49,12 +47,12 @@ VERBOSITY_MAP.update({
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
-COLOR_MAP.update({
-    logging.ERROR: 'darkred',
-    logging.WARNING: 'red',
-    logging.DEBUG: 'darkgray',
-})
+COLOR_MAP = defaultdict(lambda: 'blue',
+                        {
+                            logging.ERROR: 'darkred',
+                            logging.WARNING: 'red',
+                            logging.DEBUG: 'darkgray'
+                        })
 
 
 def getLogger(name):
@@ -100,7 +98,7 @@ class SphinxLogRecord(logging.LogRecord):
 
     def getMessage(self):
         # type: () -> str
-        message = super(SphinxLogRecord, self).getMessage()
+        message = super().getMessage()
         location = getattr(self, 'location', None)
         if location:
             message = '%s: %s%s' % (location, self.prefix, message)
@@ -123,20 +121,20 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def log(self, level, msg, *args, **kwargs):  # type: ignore
-        # type: (Union[int, str], unicode, Any, Any) -> None
+    def log(self, level, msg, *args, **kwargs):
+        # type: (Union[int, str], str, Any, Any) -> None
         if isinstance(level, int):
-            super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
+            super().log(level, msg, *args, **kwargs)
         else:
             levelno = LEVEL_NAMES[level]
-            super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
+            super().log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
+        # type: (str, Any, Any) -> None
         self.log(VERBOSE, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
-        # type: (unicode, Dict) -> Tuple[unicode, Dict]
+        # type: (str, Dict) -> Tuple[str, Dict]
         extra = kwargs.setdefault('extra', {})
         if 'type' in kwargs:
             extra['type'] = kwargs.pop('type')
@@ -171,7 +169,7 @@ class NewLineStreamHandler(logging.StreamHandler):
             if getattr(record, 'nonl', False):
                 # skip appending terminator when nonl=True
                 self.terminator = ''
-            super(NewLineStreamHandler, self).emit(record)
+            super().emit(record)
         finally:
             self.terminator = '\n'
             self.release()
@@ -182,7 +180,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
     def __init__(self):
         # type: () -> None
-        super(MemoryHandler, self).__init__(-1)
+        super().__init__(-1)
 
     def shouldFlush(self, record):
         # type: (logging.LogRecord) -> bool
@@ -289,7 +287,7 @@ def skip_warningiserror(skip=True):
 
 @contextmanager
 def prefixed_warnings(prefix):
-    # type: (unicode) -> Generator
+    # type: (str) -> Generator
     """Prepend prefix to all records for a while.
 
     For example::
@@ -360,7 +358,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
-    # type: (unicode, unicode, List[unicode]) -> bool
+    # type: (str, str, List[str]) -> bool
     """Check the warning is suppressed or not."""
     if type is None:
         return False
@@ -385,7 +383,7 @@ class WarningSuppressor(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningSuppressor, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -411,7 +409,7 @@ class WarningIsErrorFilter(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(WarningIsErrorFilter, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
@@ -446,14 +444,14 @@ class MessagePrefixFilter(logging.Filter):
     """Prepend prefix to all records."""
 
     def __init__(self, prefix):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.prefix = prefix
-        super(MessagePrefixFilter, self).__init__()
+        super().__init__()
 
     def filter(self, record):
         # type: (logging.LogRecord) -> bool
         if self.prefix:
-            record.msg = self.prefix + ' ' + record.msg  # type: ignore
+            record.msg = self.prefix + ' ' + record.msg
         return True
 
 
@@ -468,7 +466,7 @@ class SphinxLogRecordTranslator(logging.Filter):
     def __init__(self, app):
         # type: (Sphinx) -> None
         self.app = app
-        super(SphinxLogRecordTranslator, self).__init__()
+        super().__init__()
 
     def filter(self, record):  # type: ignore
         # type: (SphinxWarningLogRecord) -> bool
@@ -519,13 +517,13 @@ def get_node_location(node):
 class ColorizeFormatter(logging.Formatter):
     def format(self, record):
         # type: (logging.LogRecord) -> str
-        message = super(ColorizeFormatter, self).format(record)
+        message = super().format(record)
         color = getattr(record, 'color', None)
         if color is None:
             color = COLOR_MAP.get(record.levelno)
 
         if color:
-            return colorize(color, message)  # type: ignore
+            return colorize(color, message)
         else:
             return message
 
@@ -538,7 +536,7 @@ class SafeEncodingWriter:
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         try:
             self.stream.write(data)
         except UnicodeEncodeError:
@@ -559,7 +557,7 @@ class LastMessagesWriter:
         self.app = app
 
     def write(self, data):
-        # type: (unicode) -> None
+        # type: (str) -> None
         self.app.messagelog.append(data)
 
 

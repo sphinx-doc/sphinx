@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_util_nodes
     ~~~~~~~~~~~~~~~
 
     Tests uti.nodes functions.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from textwrap import dedent
@@ -80,6 +79,10 @@ def test_NodeMatcher():
 
     # mismatched
     matcher = NodeMatcher(nodes.title)
+    assert len(doctree.traverse(matcher)) == 0
+
+    # search with Any does not match to Text node
+    matcher = NodeMatcher(blah=Any)
     assert len(doctree.traverse(matcher)) == 0
 
 

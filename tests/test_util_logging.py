@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     test_util_logging
     ~~~~~~~~~~~~~~~~~
 
     Test logging util.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
 
 import codecs
 import os
@@ -304,7 +302,7 @@ def test_output_with_unencodable_char(app, status, warning):
     # info with UnicodeEncodeError
     status.truncate(0)
     status.seek(0)
-    logger.info(u"unicode \u206d...")
+    logger.info("unicode \u206d...")
     assert status.getvalue() == "unicode ?...\n"
 
 

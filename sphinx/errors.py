@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.errors
     ~~~~~~~~~~~~~
@@ -6,7 +5,7 @@
     Contains SphinxError and a few subclasses (in an extra module to avoid
     circular import problems).
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -53,8 +52,8 @@ class ExtensionError(SphinxError):
     category = 'Extension error'
 
     def __init__(self, message, orig_exc=None):
-        # type: (unicode, Exception) -> None
-        super(ExtensionError, self).__init__(message)
+        # type: (str, Exception) -> None
+        super().__init__(message)
         self.message = message
         self.orig_exc = orig_exc
 
@@ -67,7 +66,7 @@ class ExtensionError(SphinxError):
 
     def __str__(self):
         # type: () -> str
-        parent_str = super(ExtensionError, self).__str__()
+        parent_str = super().__str__()
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
         return parent_str

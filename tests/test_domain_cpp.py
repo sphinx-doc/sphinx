@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_domain_cpp
     ~~~~~~~~~~~~~~~
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,12 +12,12 @@ import re
 import sys
 
 import pytest
-from six import text_type
 
 import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.util import docutils
 
 
 def parse(name, string):
@@ -27,7 +26,7 @@ def parse(name, string):
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
     parser.allowFallbackExpressionParsing = False
-    ast = parser.parse_declaration(name)
+    ast = parser.parse_declaration(name, name)
     parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
@@ -40,10 +39,10 @@ def check(name, input, idDict, output=None):
     if output is None:
         output = input
     ast = parse(name, input)
-    res = text_type(ast)
+    res = str(ast)
     if res != output:
         print("")
-        print("Input:    ", text_type(input))
+        print("Input:    ", input)
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
@@ -74,13 +73,13 @@ def check(name, input, idDict, output=None):
         res.append(idExpected[i] == idActual[i])
 
     if not all(res):
-        print("input:    %s" % text_type(input).rjust(20))
+        print("input:    %s" % input.rjust(20))
         for i in range(1, _max_id + 1):
             if res[i]:
                 continue
             print("Error in id version %d." % i)
-            print("result:   %s" % str(idActual[i]))
-            print("expected: %s" % str(idExpected[i]))
+            print("result:   %s" % idActual[i])
+            print("expected: %s" % idExpected[i])
         print(rootSymbol.dump(0))
         raise DefinitionError("")
 
@@ -106,9 +105,12 @@ def test_fundamental_types():
 
 
 def test_expressions():
-    def exprCheck(expr, id):
+    def exprCheck(expr, id, id4=None):
         ids = 'IE1CIA%s_1aE'
-        check('class', 'template<> C<a[%s]>' % expr, {2: ids % expr, 3: ids % id})
+        idDict = {2: ids % expr, 3: ids % id}
+        if id4 is not None:
+            idDict[4] = ids % id4
+        check('class', 'template<> C<a[%s]>' % expr, idDict)
     # primary
     exprCheck('nullptr', 'LDnE')
     exprCheck('true', 'L1E')
@@ -124,8 +126,20 @@ def test_expressions():
                 expr = i + l + u
                 exprCheck(expr, 'L' + expr + 'E')
     for suffix in ['', 'f', 'F', 'l', 'L']:
-        expr = '5.0' + suffix
-        exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                '5e42', '5e+42', '5e-42',
+                '5.', '5.e42', '5.e+42', '5.e-42',
+                '.5', '.5e42', '.5e+42', '.5e-42',
+                '5.0', '5.0e42','5.0e+42', '5.0e-42']:
+            expr = e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
+        for e in [
+                'ApF', 'Ap+F', 'Ap-F',
+                'A.', 'A.pF', 'A.p+F', 'A.p-F',
+                '.A', '.ApF', '.Ap+F', '.Ap-F',
+                'A.B', 'A.BpF','A.Bp+F', 'A.Bp-F']:
+            expr = "0x" + e + suffix
+            exprCheck(expr, 'L' + expr + 'E')
     exprCheck('"abc\\"cba"', 'LA8_KcE')  # string
     exprCheck('this', 'fpT')
     # character literals
@@ -143,7 +157,9 @@ def test_expressions():
             exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
-    exprCheck('(... + Ns)', '(... + Ns)')
+    exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
+    exprCheck('(Ns + ...)', '(Ns + ...)', id4='frpl2Ns')
+    exprCheck('(Ns + ... + 0)', '(Ns + ... + 0)', id4='fLpl2NsL0E')
     exprCheck('(5)', 'L5E')
     exprCheck('C', '1C')
     # postfix
@@ -179,6 +195,7 @@ def test_expressions():
     exprCheck('new int[42]', 'nw_AL42E_iE')
     exprCheck('new int()', 'nw_ipiE')
     exprCheck('new int(5, 42)', 'nw_ipiL5EL42EE')
+    exprCheck('::new int', 'nw_iE')
     # delete-expression
     exprCheck('delete p', 'dl1p')
     exprCheck('delete [] p', 'da1p')
@@ -232,7 +249,7 @@ def test_expressions():
     # a < expression that starts with something that could be a template
     exprCheck('A < 42', 'lt1AL42E')
     check('function', 'template<> void f(A<B, 2> &v)',
-          {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE"})
+          {2: "IE1fR1AI1BX2EE", 3: "IE1fR1AI1BXL2EEE", 4: "IE1fvR1AI1BXL2EEE"})
     exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
     check('class', "template<int T = 42> A", {2: "I_iE1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2: "1A"})
@@ -319,6 +336,8 @@ def test_member_definitions():
 
 
 def test_function_definitions():
+    check('function', 'void f(volatile int)', {1: "f__iV", 2: "1fVi"})
+    check('function', 'void f(std::size_t)', {1: "f__std::s", 2: "1fNSt6size_tE"})
     check('function', 'operator bool() const', {1: "castto-b-operatorC", 2: "NKcvbEv"})
     check('function', 'A::operator bool() const',
           {1: "A::castto-b-operatorC", 2: "NK1AcvbEv"})
@@ -416,7 +435,7 @@ def test_function_definitions():
     check('function', 'virtual void f()', {1: "f", 2: "1fv"})
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
-          {1: "result__i.std::error_categoryCR", 2: "6resultiRNSt14error_categoryE"})
+          {1: "result__i.std::error_categoryCR", 2: "6resultiRKNSt14error_categoryE"})
     check("function", "int *f()", {1: "f", 2: "1fv"})
     # tests derived from issue #1753 (skip to keep sanity)
     check("function", "f(int (&array)[10])", {2: "1fRA10_i", 3: "1fRAL10E_i"})
@@ -467,6 +486,10 @@ def test_function_definitions():
     check('function', 'int C::* f(int, double)', {2: '1fid'})
     check('function', 'void f(int C::* *)', {2: '1fPM1Ci'})
 
+    # exceptions from return type mangling
+    check('function', 'template<typename T> C()', {2: 'I0E1Cv'})
+    check('function', 'template<typename T> operator int()', {1: None, 2: 'I0Ecviv'})
+
 
 def test_operators():
     check('function', 'void operator new [  ] ()',
@@ -504,11 +527,12 @@ def test_class_definitions():
     check('class', 'A', {1: "A", 2: "1A"})
     check('class', 'A::B::C', {1: "A::B::C", 2: "N1A1B1CE"})
     check('class', 'A : B', {1: "A", 2: "1A"})
-    check('class', 'A : private B', {1: "A", 2: "1A"}, output='A : B')
+    check('class', 'A : private B', {1: "A", 2: "1A"})
     check('class', 'A : public B', {1: "A", 2: "1A"})
     check('class', 'A : B, C', {1: "A", 2: "1A"})
     check('class', 'A : B, protected C, D', {1: "A", 2: "1A"})
-    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : virtual B')
+    check('class', 'A : virtual private B', {1: 'A', 2: '1A'}, output='A : private virtual B')
+    check('class', 'A : private virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, virtual C', {1: 'A', 2: '1A'})
     check('class', 'A : public virtual B', {1: 'A', 2: '1A'})
     check('class', 'A : B, C...', {1: 'A', 2: '1A'})
@@ -540,13 +564,14 @@ def test_anon_definitions():
     check('union', '@a', {3: "Ut1_a"})
     check('enum', '@a', {3: "Ut1_a"})
     check('class', '@1', {3: "Ut1_1"})
+    check('class', '@a::A', {3: "NUt1_a1AE"})
 
 
 def test_templates():
     check('class', "A<T>", {2: "IE1AI1TE"}, output="template<> A<T>")
     # first just check which objects support templating
     check('class', "template<> A", {2: "IE1A"})
-    check('function', "template<> void A()", {2: "IE1Av"})
+    check('function', "template<> void A()", {2: "IE1Av", 4: "IE1Avv"})
     check('member', "template<> A a", {2: "IE1a"})
     check('type', "template<> a = A", {2: "IE1a"})
     with pytest.raises(DefinitionError):
@@ -584,6 +609,10 @@ def test_templates():
           "std::basic_ostream<Char, Traits> &os, "
           "const c_string_view_base<const Char, Traits> &str)",
           {2: "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
+              "RK18c_string_view_baseIK4Char6TraitsE",
+           4: "I00Els"
+              "RNSt13basic_ostreamI4Char6TraitsEE"
+              "RNSt13basic_ostreamI4Char6TraitsEE"
               "RK18c_string_view_baseIK4Char6TraitsE"})
 
     # template introductions
@@ -607,9 +636,11 @@ def test_templates():
     check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
           {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE'})
     check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
-          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv'})
+          {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv',
+           4: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEvv'})
     check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
-          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv'})
+          {2: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv',
+           4: 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEvv'})
     check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
           {2: 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE'})
     check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
@@ -636,7 +667,8 @@ def test_template_args():
           "template<typename F> "
           "void allow(F *f, typename func<F, B, G != 1>::type tt)",
           {2: "I0E5allowP1FN4funcI1F1BXG != 1EE4typeE",
-           3: "I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE"})
+           3: "I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE",
+           4: "I0E5allowvP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
@@ -678,6 +710,9 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           {1: 'f', 2: '1fv'},
           output='__attribute__(()) static inline void f()')
+    check('function', '[[attr1]] [[attr2]] void f()',
+          {1: 'f', 2: '1fv'},
+          output='[[attr1]] [[attr2]] void f()')
     # position: declarator
     check('member', 'int *[[attr]] i', {1: 'i__iP', 2:'1i'})
     check('member', 'int *const [[attr]] volatile i', {1: 'i__iPVC', 2: '1i'},
@@ -700,12 +735,14 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     # TODO: properly check for the warnings we expect
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
@@ -741,13 +778,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={
-    'add_function_parentheses': False})
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))

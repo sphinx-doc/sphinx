@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     test_build_html
     ~~~~~~~~~~~~~~~
@@ -10,22 +9,22 @@
 """
 
 import os
-from subprocess import Popen, PIPE
+import subprocess
+from subprocess import CalledProcessError, PIPE
 from xml.etree import ElementTree
 
 import pytest
+
+from sphinx.util import docutils
 
 
 # check given command is runnable
 def runnable(command):
     try:
-        p = Popen(command, stdout=PIPE, stderr=PIPE)
-    except OSError:
-        # command not found
-        return False
-    else:
-        p.communicate()
-        return p.returncode == 0
+        subprocess.run(command, stdout=PIPE, stderr=PIPE, check=True)
+        return True
+    except (OSError, CalledProcessError):
+        return False  # command not found or exit with non-zero
 
 
 class EPUBElementTree:
@@ -73,7 +72,7 @@ def test_build_epub(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
@@ -97,7 +96,7 @@ def test_build_epub(app):
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
-    assert metadata.find("./dc:title").text == 'Python  documentation'
+    assert metadata.find("./dc:title").text == 'Python'
     assert metadata.find("./dc:description").text == 'unknown'
     assert metadata.find("./dc:creator").text == 'unknown'
     assert metadata.find("./dc:contributor").text == 'unknown'
@@ -177,7 +176,7 @@ def test_nested_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -189,7 +188,7 @@ def test_nested_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests’s documentation!")
+                                     "Welcome to Sphinx Tests’s documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -210,7 +209,7 @@ def test_nested_toc(app):
     toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
     assert len(toc) == 4
     assert navinfo(toc[0]) == ('index.xhtml',
-                               u"Welcome to Sphinx Tests’s documentation!")
+                               "Welcome to Sphinx Tests’s documentation!")
     assert toc[0].findall("./xhtml:ol") == []
 
     # nav.xhtml / nested toc
@@ -232,8 +231,7 @@ def test_escaped_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == ('need <b>"escaped"</b> '
-                                                        'project  documentation')
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -245,7 +243,7 @@ def test_escaped_toc(app):
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
     assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
-                                     u"Welcome to Sphinx Tests's documentation!")
+                                     "Welcome to Sphinx Tests's documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
@@ -254,7 +252,7 @@ def test_escaped_toc(app):
     assert len(navchildren) == 4
     assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', '<foo>')
     assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
 
     # nav.xhtml / nav
@@ -274,7 +272,7 @@ def test_escaped_toc(app):
     tocchildren = toc[1].findall("./xhtml:ol/xhtml:li")
     assert len(tocchildren) == 3
     assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
-    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', u'foo “1”')
+    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo “1”')
     assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
 
     grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
@@ -354,6 +352,8 @@ def test_epub_css_files(app):
             'href="https://example.com/custom.css" />' not in content)
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('epub', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
@@ -370,6 +370,12 @@ def test_html_download_role(app, status, warning):
             '/_static/sphinxheader.png]</span></p></li>' in content)
 
 
+@pytest.mark.sphinx('epub', testroot='toctree-duplicated')
+def test_duplicated_toctree_entry(app, status, warning):
+    app.build()
+    assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
+
+
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
                     reason='Skipped because DO_EPUBCHECK is not set')
 @pytest.mark.sphinx('epub')
@@ -378,10 +384,10 @@ def test_run_epubcheck(app):
 
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
     if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        p = Popen(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                  stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            print(stdout)
-            print(stderr)
-            assert False, 'epubcheck exited with return code %s' % p.returncode
+        try:
+            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+                           stdout=PIPE, stderr=PIPE, check=True)
+        except CalledProcessError as exc:
+            print(exc.stdout)
+            print(exc.stderr)
+            assert False, 'epubcheck exited with return code %s' % exc.returncode

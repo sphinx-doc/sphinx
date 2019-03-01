@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.parallel
     ~~~~~~~~~~~~~~~~~~~~
 
     Parallel building utilities.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import absolute_import
 
 import os
 import time
@@ -135,7 +133,7 @@ class ParallelTasks:
 
 
 def make_chunks(arguments, nproc, maxbatch=10):
-    # type: (Sequence[unicode], int, int) -> List[Any]
+    # type: (Sequence[str], int, int) -> List[Any]
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

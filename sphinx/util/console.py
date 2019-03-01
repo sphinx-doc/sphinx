@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     sphinx.util.console
     ~~~~~~~~~~~~~~~~~~~
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -26,6 +25,12 @@ if False:
 
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}  # type: Dict[str, str]
+
+
+def terminal_safe(s):
+    # type: (str) -> str
+    """safely encode a string for printing to the terminal."""
+    return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
 def get_terminal_width():
@@ -88,7 +93,7 @@ def coloron():
 
 
 def colorize(name, text, input_mode=False):
-    # type: (str, unicode, bool) -> unicode
+    # type: (str, str, bool) -> str
     def escseq(name):
         # Wrap escape sequence with ``\1`` and ``\2`` to let readline know
         # it is non-printable characters
@@ -112,7 +117,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
-        # type: (unicode) -> unicode
+        # type: (str) -> str
         return colorize(name, text)
     globals()[name] = inner
 

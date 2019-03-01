@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
     test_coverage
     ~~~~~~~~~~~~~
 
     Test the coverage builder.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

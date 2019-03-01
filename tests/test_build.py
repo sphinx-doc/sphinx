@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 """
     test_build
     ~~~~~~~~~~
 
     Test all builders.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
 import sys
 from textwrap import dedent
 
@@ -31,7 +29,7 @@ def request_session_head(url, **kwargs):
 @pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # If supported, build in a non-ASCII source dir
-    test_name = u'\u65e5\u672c\u8a9e'
+    test_name = '\u65e5\u672c\u8a9e'
     basedir = sphinx_test_tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
@@ -47,7 +45,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
             """))
 
         master_doc = srcdir / 'index.txt'
-        master_doc.write_text(master_doc.text() + dedent(u"""
+        master_doc.write_text(master_doc.text() + dedent("""
                               .. toctree::
 
                                  %(test_name)s/%(test_name)s
@@ -59,11 +57,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
 #       (html, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp', 'qthelp',
-        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
-    ],
+    ['dirhtml', 'singlehtml', 'text', 'changes', 'xml', 'pseudoxml', 'linkcheck'],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
@@ -74,12 +68,12 @@ def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
 
 
 def test_master_doc_not_found(tempdir, make_app):
-    (tempdir / 'conf.py').write_text('master_doc = "index"')
+    (tempdir / 'conf.py').write_text('')
     assert tempdir.listdir() == ['conf.py']
 
     app = make_app('dummy', srcdir=tempdir)
     with pytest.raises(SphinxError):
-        app.builder.build_all()
+        app.builder.build_all()  # no index.rst
 
 
 @pytest.mark.sphinx(buildername='text', testroot='circular')
@@ -111,7 +105,7 @@ def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -136,7 +130,7 @@ def test_image_glob(app, status, warning):
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+    doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
     sub = path('subdir')

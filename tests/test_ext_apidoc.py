@@ -1,22 +1,18 @@
-# -*- coding: utf-8 -*-
 """
     test_apidoc
     ~~~~~~~~~~~
 
     Test the sphinx.apidoc module.
 
-    :copyright: Copyright 2007-2018 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from __future__ import print_function
 
 from collections import namedtuple
 
 import pytest
 
 from sphinx.ext.apidoc import main as apidoc_main
-from sphinx.testing.util import remove_unicode_literals
 
 
 @pytest.fixture()
@@ -53,7 +49,6 @@ def apidoc_params(request):
 def test_simple(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
-    assert (outdir / 'autodoc_fodder.rst').isfile()
     assert (outdir / 'index.rst').isfile()
 
     app = make_app('text', srcdir=outdir)
@@ -268,24 +263,22 @@ def test_excludes_module_should_not_be_skipped(apidoc):
 @pytest.mark.apidoc(
     coderoot='test-root',
     options=[
-        '--doc-project', u'プロジェクト名',
-        '--doc-author', u'著者名',
-        '--doc-version', u'バージョン',
-        '--doc-release', u'リリース',
+        '--doc-project', 'プロジェクト名',
+        '--doc-author', '著者名',
+        '--doc-version', 'バージョン',
+        '--doc-release', 'リリース',
     ],
 )
 def test_multibyte_parameters(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
-    assert (outdir / 'autodoc_fodder.rst').isfile()
     assert (outdir / 'index.rst').isfile()
 
     conf_py = (outdir / 'conf.py').text()
-    conf_py_ = remove_unicode_literals(conf_py)
-    assert u"project = 'プロジェクト名'" in conf_py_
-    assert u"author = '著者名'" in conf_py_
-    assert u"version = 'バージョン'" in conf_py_
-    assert u"release = 'リリース'" in conf_py_
+    assert "project = 'プロジェクト名'" in conf_py
+    assert "author = '著者名'" in conf_py
+    assert "version = 'バージョン'" in conf_py
+    assert "release = 'リリース'" in conf_py
 
     app = make_app('text', srcdir=outdir)
     app.build()

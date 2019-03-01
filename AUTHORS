@@ -81,6 +81,7 @@ Other contributors, listed alphabetically, are:
 * Hong Xu -- svg support in imgmath extension and various bug fixes
 * Stephen Finucane -- setup command improvements and documentation
 * Daniel Pizetta -- inheritance diagram improvements
+* KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 
 Many thanks for all contributions!
 
