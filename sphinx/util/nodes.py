@@ -476,6 +476,12 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)  # type: ignore
 
 
+def copy_source_info(src, dst):
+    # type: (nodes.Element, nodes.Element) -> None
+    dst.source = get_node_source(src)
+    dst.line = get_node_line(src)
+
+
 NON_SMARTQUOTABLE_PARENT_NODES = (
     nodes.FixedTextElement,
     nodes.literal,
