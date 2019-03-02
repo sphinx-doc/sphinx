@@ -20,6 +20,7 @@ Bugs fixed
 * #3620: html: Defer searchindex.js rather than loading it via ajax
 * #6113: html: Table cells and list items have large margins
 * #5508: ``linenothreshold`` option for ``highlight`` directive was ignored
+* texinfo: ``make install-info`` causes syntax error
 
 Testing
 --------

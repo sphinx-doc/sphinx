@@ -17,15 +17,15 @@ html: $(addsuffix .html,$(ALLDOCS))
 pdf: $(addsuffix .pdf,$(ALLDOCS))
 
 install-info: info
-	for f in *.info; do \\
-	  cp -t $(infodir) "$$f" && \\
-	  $(INSTALL_INFO) --info-dir=$(infodir) "$$f" ; \\
+	for f in *.info; do \
+	  cp -t $(infodir) "$$f" && \
+	  $(INSTALL_INFO) --info-dir=$(infodir) "$$f" ; \
 	done
 
 uninstall-info: info
-	for f in *.info; do \\
-	  rm -f "$(infodir)/$$f"  ; \\
-	  $(INSTALL_INFO) --delete --info-dir=$(infodir) "$$f" ; \\
+	for f in *.info; do \
+	  rm -f "$(infodir)/$$f"  ; \
+	  $(INSTALL_INFO) --delete --info-dir=$(infodir) "$$f" ; \
 	done
 
 %.info: %.texi
