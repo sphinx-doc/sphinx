@@ -13,7 +13,7 @@ from typing import cast
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.environment import NoUri
+from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging

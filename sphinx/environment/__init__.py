@@ -17,7 +17,9 @@ from io import BytesIO
 from os import path
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx30Warning, RemovedInSphinx40Warning
+from sphinx.deprecation import (
+    RemovedInSphinx30Warning, RemovedInSphinx40Warning, deprecated_alias
+)
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.errors import SphinxError, BuildEnvironmentError, DocumentError, ExtensionError
 from sphinx.locale import __
@@ -76,11 +78,6 @@ versioning_conditions = {
     'none': False,
     'text': is_translatable,
 }  # type: Dict[str, Union[bool, Callable]]
-
-
-class NoUri(Exception):
-    """Raised by get_relative_uri if there is no URI available."""
-    pass
 
 
 class BuildEnvironment:
@@ -784,3 +781,13 @@ class BuildEnvironment:
         node['version'] = version
         node.line = lineno
         self.get_domain('changeset').note_changeset(node)  # type: ignore
+
+
+from sphinx.errors import NoUri  # NOQA
+
+
+deprecated_alias('sphinx.environment',
+                 {
+                     'NoUri': NoUri,
+                 },
+                 RemovedInSphinx30Warning)

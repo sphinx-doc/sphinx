@@ -234,6 +234,11 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.environment.NoUri``
+     - 2.1
+     - 4.0
+     - ``sphinx.errors.NoUri``
+
    * - ``sphinx.ext.autodoc.importer.MockFinder``
      - 2.1
      - 4.0

@@ -22,6 +22,7 @@ from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx30Warning
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import ws_re, logging, docname_join
@@ -838,8 +839,6 @@ class StandardDomain(Domain):
 
     def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, str, Builder, str, str, addnodes.pending_xref, nodes.Element) -> nodes.Element  # NOQA
-        from sphinx.environment import NoUri
-
         docname, labelid, lineno = self.data['citations'].get(target, ('', '', 0))
         if not docname:
             if 'ids' in node:
