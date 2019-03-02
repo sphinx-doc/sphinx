@@ -9,7 +9,6 @@
 """
 
 import re
-import sys
 
 import pytest
 
@@ -152,9 +151,8 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        if sys.maxunicode > 65535:
-            exprCheck(p + "'\\U0001f34c'", t + "127820")
-            exprCheck(p + "'\\U0001F34C'", t + "127820")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')

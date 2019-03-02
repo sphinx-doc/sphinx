@@ -90,7 +90,7 @@ It adds these directives:
 .. versionadded:: 1.6
    All three directives support a ``name`` option to set the label to graph.
 
-There are also these new config values:
+There are also these config values:
 
 .. confval:: graphviz_dot
 
