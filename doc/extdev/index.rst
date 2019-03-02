@@ -254,6 +254,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.ext.autosummary.AutoLink``
 
+   * - ``sphinx.util.node.find_source_node()``
+     - 2.1
+     - 4.0
+     - ``sphinx.util.node.get_node_source()``
+
    * - ``sphinx.util.i18n.find_catalog()``
      - 2.1
      - 4.0
