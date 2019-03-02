@@ -287,8 +287,12 @@ Bugs fixed
 * LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
 * #6026: LaTeX: A cross reference to definition list does not work
 * #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
+* #6067: LaTeX: images having a target are concatenated to next line
+* #6067: LaTeX: images having a target are not aligned even if specified
 * #6019: imgconverter: Including multipage PDF fails
 * #6047: autodoc: ``autofunction`` emits a warning for method objects
+* #6028: graphviz: Ensure the graphviz filenames are reproducible
+* #6068: doctest: ``skipif`` option may remove the code block from documentation
 
 Testing
 --------
