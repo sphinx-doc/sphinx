@@ -18,7 +18,8 @@ pdf: $(addsuffix .pdf,$(ALLDOCS))
 
 install-info: info
 	for f in *.info; do \
-	  cp -t $(infodir) "$$f" && \
+	  mkdir -p $(infodir) && \
+	  cp "$$f" $(infodir) && \
 	  $(INSTALL_INFO) --info-dir=$(infodir) "$$f" ; \
 	done
 
