@@ -35,7 +35,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -134,8 +134,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
     html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
-    # use html5 translator by default
-    default_html5_translator = True
 
     coverpage_name = COVERPAGE_NAME
     toctree_template = TOCTREE_TEMPLATE
@@ -212,6 +210,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
             for elem in doctree:
                 result = self.get_refnodes(elem, result)
         return result
+
+    def check_refnodes(self, nodes):
+        # type: (List[Dict[str, Any]]) -> None
+        appeared = set()  # type: Set[str]
+        for node in nodes:
+            if node['refuri'] in appeared:
+                logger.warning(__('duplicated ToC entry found: %s'), node['refuri'])
+            else:
+                appeared.add(node['refuri'])
 
     def get_toc(self):
         # type: () -> None
@@ -646,7 +653,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if incr:
             self.playorder += 1
         self.tocid += 1
-        return NavPoint(self.esc('navPoint%d' % self.tocid), self.playorder,
+        return NavPoint('navPoint%d' % self.tocid, self.playorder,
                         node['text'], node['refuri'], [])
 
     def build_navpoints(self, nodes):
@@ -726,6 +733,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         else:
             # 'includehidden'
             refnodes = self.refnodes
+        self.check_refnodes(refnodes)
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)

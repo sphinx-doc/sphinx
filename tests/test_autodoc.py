@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 import platform
 import sys
 from warnings import catch_warnings
@@ -517,13 +516,11 @@ def test_docstring_processing():
     app.disconnect(lid)
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_new_documenter():
-    logging.setup(app, app._status, app._warning)
-
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_new_documenter(app):
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
-        directivetype = 'data'
+        directivetype = 'integer'
         priority = 100
 
         @classmethod
@@ -535,17 +532,19 @@ def test_new_documenter():
 
     app.add_autodocumenter(MyDocumenter)
 
-    def assert_result_contains(item, objtype, name, **kw):
-        app._warning.truncate(0)
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        # print '\n'.join(directive.result)
-        assert app._warning.getvalue() == ''
-        assert item in directive.result
-        del directive.result[:]
-
-    options.members = ['integer']
-    assert_result_contains('.. py:data:: integer', 'module', 'target')
+    options = {"members": 'integer'}
+    actual = do_autodoc(app, 'module', 'target', options)
+    assert list(actual) == [
+        '',
+        '.. py:module:: target',
+        '',
+        '',
+        '.. py:integer:: integer',
+        '   :module: target',
+        '',
+        '   documentation for the integer',
+        '   '
+    ]
 
 
 @pytest.mark.usefixtures('setup_test')
@@ -583,23 +582,52 @@ def test_attrgetter_using():
         assert_getter_works('class', 'target.Class', Class, ['meth', 'inheritedmeth'])
 
 
-@pytest.mark.usefixtures('setup_test')
-def test_generate():
-    def assert_result_contains(item, objtype, name, **kw):
-        inst = app.registry.documenters[objtype](directive, name)
-        inst.generate(**kw)
-        assert item in directive.result
-        del directive.result[:]
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_py_module(app, warning):
+    # without py:module
+    actual = do_autodoc(app, 'method', 'Class.meth')
+    assert list(actual) == []
+    assert ("don't know which module to import for autodocumenting 'Class.meth'"
+            in warning.getvalue())
 
-    # test auto and given content mixing
-    directive.env.ref_context['py:module'] = 'target'
-    assert_result_contains('   Function.', 'method', 'Class.meth')
-    add_content = ViewList()
-    add_content.append('Content.', '', 0)
-    assert_result_contains('   Function.', 'method',
-                           'Class.meth', more_content=add_content)
-    assert_result_contains('   Content.', 'method',
-                           'Class.meth', more_content=add_content)
+    # with py:module
+    app.env.ref_context['py:module'] = 'target'
+    warning.truncate(0)
+
+    actual = do_autodoc(app, 'method', 'Class.meth')
+    assert list(actual) == [
+        '',
+        '.. py:method:: Class.meth()',
+        '   :module: target',
+        '',
+        '   Function.',
+        '   '
+    ]
+    assert ("don't know which module to import for autodocumenting 'Class.meth'"
+            not in warning.getvalue())
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_decorator(app):
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco1')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco1',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco1',
+        '   '
+    ]
+
+    actual = do_autodoc(app, 'decorator', 'target.decorator.deco2')
+    assert list(actual) == [
+        '',
+        '.. py:decorator:: deco2(condition, message)',
+        '   :module: target.decorator',
+        '',
+        '   docstring for deco2',
+        '   '
+    ]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -1343,9 +1371,22 @@ def test_autofunction_for_callable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autofunction_for_method(app):
+    actual = do_autodoc(app, 'function', 'target.callable.method')
+    assert list(actual) == [
+        '',
+        '.. py:function:: method(arg1, arg2)',
+        '   :module: target.callable',
+        '',
+        '   docstring of Callable.method().',
+        '   '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_mocked_module_imports(app, warning):
     # no autodoc_mock_imports
-    options = {"members": 'TestAutodoc,decoratedFunction'}
+    options = {"members": 'TestAutodoc,decoratedFunction,func'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
@@ -1382,6 +1423,12 @@ def test_mocked_module_imports(app, warning):
         '   :module: target.need_mocks',
         '',
         '   decoratedFunction docstring',
+        '   ',
+        '',
+        '.. py:function:: func(arg: missing_module.Class)',
+        '   :module: target.need_mocks',
+        '',
+        '   a function takes mocked object as an argument',
         '   '
     ]
     assert warning.getvalue() == ''
@@ -1507,6 +1554,12 @@ def test_autodoc_default_options(app):
 
     # with :members:
     app.config.autodoc_default_options = {'members': None}
+    actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
+    assert '   .. py:attribute:: EnumCls.val1' in actual
+    assert '   .. py:attribute:: EnumCls.val4' not in actual
+
+    # with :members: = True
+    app.config.autodoc_default_options = {'members': True}
     actual = do_autodoc(app, 'class', 'target.enum.EnumCls')
     assert '   .. py:attribute:: EnumCls.val1' in actual
     assert '   .. py:attribute:: EnumCls.val4' not in actual

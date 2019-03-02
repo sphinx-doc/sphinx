@@ -19,12 +19,11 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.io import read_doc
 from sphinx.locale import __
-from sphinx.util import i18n, import_object, logging, rst, status_iterator
+from sphinx.util import import_object, logging, rst, progress_message, status_iterator
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import find_catalog
-from sphinx.util.matching import Matcher
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
@@ -236,14 +235,10 @@ class Builder:
 
     def compile_all_catalogs(self):
         # type: () -> None
-        catalogs = i18n.find_catalog_source_files(
-            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language,
-            charset=self.config.source_encoding,
-            force_all=True,
-            excluded=Matcher(['**/.?**']))
-        message = __('all of %d po files') % len(catalogs)
-        self.compile_catalogs(catalogs, message)
+        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                 self.config.language, self.config.source_encoding)
+        message = __('all of %d po files') % len(list(repo.catalogs))
+        self.compile_catalogs(set(repo.catalogs), message)
 
     def compile_specific_catalogs(self, specified_files):
         # type: (List[str]) -> None
@@ -251,28 +246,25 @@ class Builder:
             # type: (str) -> str
             docname = self.env.path2doc(path.abspath(fpath))
             if docname:
-                return find_catalog(docname, self.config.gettext_compact)
+                return docname_to_domain(docname, self.config.gettext_compact)
             else:
                 return None
 
-        specified_domains = set(map(to_domain, specified_files))
-        specified_domains.discard(None)
-        catalogs = i18n.find_catalog_source_files(
-            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language,
-            domains=list(specified_domains),
-            charset=self.config.source_encoding,
-            excluded=Matcher(['**/.?**']))
+        catalogs = set()
+        domains = set(map(to_domain, specified_files))
+        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                 self.config.language, self.config.source_encoding)
+        for catalog in repo.catalogs:
+            if catalog.domain in domains and catalog.is_outdated():
+                catalogs.add(catalog)
         message = __('targets for %d po files that are specified') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     def compile_update_catalogs(self):
         # type: () -> None
-        catalogs = i18n.find_catalog_source_files(
-            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language,
-            charset=self.config.source_encoding,
-            excluded=Matcher(['**/.?**']))
+        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                 self.config.language, self.config.source_encoding)
+        catalogs = {c for c in repo.catalogs if c.is_outdated()}
         message = __('targets for %d po files that are out of date') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
@@ -298,8 +290,7 @@ class Builder:
                 logger.warning(__('file %r given on command line is not under the '
                                   'source directory, ignoring'), filename)
                 continue
-            if not (path.isfile(filename) or
-                    any(path.isfile(filename + suffix) for suffix in suffixes)):
+            if not path.isfile(filename):
                 logger.warning(__('file %r given on command line does not exist, '
                                   'ignoring'), filename)
                 continue
@@ -351,16 +342,14 @@ class Builder:
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            logger.info(bold(__('pickling environment... ')), nonl=True)
-            with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
-                pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
-            logger.info(__('done'))
+            with progress_message(__('pickling environment')):
+                with open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+                    pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
             self.app.phase = BuildPhase.CONSISTENCY_CHECK
-            logger.info(bold(__('checking consistency... ')), nonl=True)
-            self.env.check_consistency()
-            logger.info(__('done'))
+            with progress_message(__('checking consistency')):
+                self.env.check_consistency()
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
@@ -559,9 +548,8 @@ class Builder:
                     docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        logger.info(bold(__('preparing documents... ')), nonl=True)
-        self.prepare_writing(docnames)
-        logger.info(__('done'))
+        with progress_message(__('preparing documents')):
+            self.prepare_writing(docnames)
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process

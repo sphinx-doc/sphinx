@@ -22,7 +22,7 @@ from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.console import bold  # type: ignore
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import relpath, ensuredir, canon_path
 from sphinx.util.tags import Tags
@@ -140,7 +140,7 @@ class I18nBuilder(Builder):
 
     def write_doc(self, docname, doctree):
         # type: (str, nodes.document) -> None
-        catalog = self.catalogs[find_catalog(docname, self.config.gettext_compact)]
+        catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)

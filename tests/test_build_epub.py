@@ -15,6 +15,8 @@ from xml.etree import ElementTree
 
 import pytest
 
+from sphinx.util import docutils
+
 
 # check given command is runnable
 def runnable(command):
@@ -70,7 +72,7 @@ def test_build_epub(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
@@ -94,7 +96,7 @@ def test_build_epub(app):
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
-    assert metadata.find("./dc:title").text == 'Python  documentation'
+    assert metadata.find("./dc:title").text == 'Python'
     assert metadata.find("./dc:description").text == 'unknown'
     assert metadata.find("./dc:creator").text == 'unknown'
     assert metadata.find("./dc:contributor").text == 'unknown'
@@ -174,7 +176,7 @@ def test_nested_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -229,8 +231,7 @@ def test_escaped_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == ('need <b>"escaped"</b> '
-                                                        'project  documentation')
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'need <b>"escaped"</b> project'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -351,6 +352,8 @@ def test_epub_css_files(app):
             'href="https://example.com/custom.css" />' not in content)
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('epub', testroot='roles-download')
 def test_html_download_role(app, status, warning):
     app.build()
@@ -365,6 +368,12 @@ def test_html_download_role(app, status, warning):
             '<span class="pre">Sphinx</span> <span class="pre">logo</span></code>'
             '<span class="link-target"> [http://www.sphinx-doc.org/en/master'
             '/_static/sphinxheader.png]</span></p></li>' in content)
+
+
+@pytest.mark.sphinx('epub', testroot='toctree-duplicated')
+def test_duplicated_toctree_entry(app, status, warning):
+    app.build()
+    assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
 
 
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,

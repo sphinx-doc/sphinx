@@ -337,7 +337,7 @@ a tt:hover {
 }
 
 pre {
-    font-family: 'Consolas', 'DejaVu Sans Mono',
+    font-family: 'Consolas', 'Courier New', 'DejaVu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
     font-size: 13px;
     letter-spacing: 0.015em;
@@ -388,32 +388,29 @@ div.admonition, div.warning {
     padding: 0;
 }
 
-div.admonition p, div.warning p {
+div.admonition > p, div.warning > p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
 
-div.admonition pre, div.warning pre {
+div.admonition > pre, div.warning > pre {
     margin: 0.4em 1em 0.4em 1em;
 }
 
-div.admonition p.admonition-title,
-div.warning p.admonition-title {
-    margin-top: 1em;
-    padding-top: 0.5em;
+div.admonition > p.admonition-title,
+div.warning > p.admonition-title {
+    margin-top: 0.5em;
     font-weight: bold;
 }
 
 div.warning {
     border: 1px solid #940000;
-/*    background-color: #FFCCCF;*/
 }
 
-div.warning p.admonition-title {
-}
-
-div.admonition ul, div.admonition ol,
-div.warning ul, div.warning ol {
+div.admonition > ul,
+div.admonition > ol,
+div.warning > ul,
+div.warning > ol {
     margin: 0.1em 0.5em 0.5em 3em;
     padding: 0;
 }

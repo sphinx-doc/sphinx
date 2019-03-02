@@ -463,7 +463,7 @@ __ http://pygments.org/docs/lexers/
 
    This will produce line numbers for all code blocks longer than five lines.
 
-.. rst:directive:: .. code-block:: language
+.. rst:directive:: .. code-block:: [language]
 
    Example::
 
@@ -471,9 +471,11 @@ __ http://pygments.org/docs/lexers/
 
          Some Ruby code.
 
-   The directive's alias name :rst:dir:`sourcecode` works as well.  As with
-   :rst:dir:`highlight`\ 's ``language`` option, ``language`` can be any lexer
-   alias supported by Pygments.
+   The directive's alias name :rst:dir:`sourcecode` works as well.  This
+   directive takes a language name as an argument.  It can be any lexer alias
+   supported by Pygments.  If it is not given, the setting of
+   :rst:dir:`highlight` directive will be used.  If not set,
+   :confval:`highlight_language` will be used.
 
    **Additional options**
 
@@ -523,15 +525,18 @@ __ http://pygments.org/docs/lexers/
 
              some ruby code
 
-  .. versionchanged:: 1.1
-     The ``emphasize-lines`` option has been added.
+   .. versionchanged:: 1.1
+      The ``emphasize-lines`` option has been added.
 
-  .. versionchanged:: 1.3
-     The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
-     been added.
+   .. versionchanged:: 1.3
+      The ``lineno-start``, ``caption``, ``name`` and ``dedent`` options have
+      been added.
 
-  .. versionchanged:: 1.6.6
-     LaTeX supports the ``emphasize-lines`` option.
+   .. versionchanged:: 1.6.6
+      LaTeX supports the ``emphasize-lines`` option.
+
+   .. versionchanged:: 2.0
+      The ``language`` argument becomes optional.
 
 .. rst:directive:: .. literalinclude:: filename
 

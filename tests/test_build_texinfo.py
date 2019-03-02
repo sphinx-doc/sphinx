@@ -12,6 +12,7 @@ import os
 import re
 import subprocess
 from subprocess import CalledProcessError, PIPE
+from unittest.mock import Mock
 
 import pytest
 from test_build_html import ENV_WARNINGS
@@ -19,6 +20,7 @@ from test_build_html import ENV_WARNINGS
 from sphinx.builders.texinfo import default_texinfo_documents
 from sphinx.config import Config
 from sphinx.testing.util import strip_escseq
+from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
@@ -93,3 +95,20 @@ def test_default_texinfo_documents():
                  "Wolfgang Schäuble & G'Beckstein", 'stasi',
                  'One line description of project', 'Miscellaneous')]
     assert default_texinfo_documents(config) == expected
+
+
+@pytest.mark.sphinx('texinfo')
+def test_texinfo_escape_id(app, status, warning):
+    settings = Mock(title='',
+                    texinfo_dir_entry='',
+                    texinfo_elements={})
+    document = new_document('', settings)
+    translator = app.builder.create_translator(document, app.builder)
+
+    assert translator.escape_id('Hello world') == 'Hello world'
+    assert translator.escape_id('Hello    world') == 'Hello world'
+    assert translator.escape_id('Hello   Sphinx   world') == 'Hello Sphinx world'
+    assert translator.escape_id('Hello:world') == 'Hello world'
+    assert translator.escape_id('Hello(world)') == 'Hello world'
+    assert translator.escape_id('Hello world.') == 'Hello world'
+    assert translator.escape_id('.') == '.'

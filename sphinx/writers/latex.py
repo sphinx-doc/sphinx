@@ -30,7 +30,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _, __
 from sphinx.util import split_into, logging
 from sphinx.util.docutils import SphinxTranslator
-from sphinx.util.nodes import clean_astext
+from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 
@@ -1533,7 +1533,11 @@ class LaTeXTranslator(SphinxTranslator):
                     # in reverse order
         post = []   # type: List[str]
         include_graphics_options = []
-        is_inline = self.is_inline(node)
+        has_hyperlink = isinstance(node.parent, nodes.reference)
+        if has_hyperlink:
+            is_inline = self.is_inline(node.parent)
+        else:
+            is_inline = self.is_inline(node)
         if 'width' in attrs:
             if 'scale' in attrs:
                 w = self.latex_image_length(attrs['width'], attrs['scale'])
@@ -1575,7 +1579,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_parsed_literal:
             pre.append('{\\sphinxunactivateextrasandspace ')
             post.append('}')
-        if not is_inline:
+        if not is_inline and not has_hyperlink:
             pre.append('\n\\noindent')
             post.append('\n')
         pre.reverse()
@@ -1755,7 +1759,12 @@ class LaTeXTranslator(SphinxTranslator):
         if 'refuri' in node:
             return
         if node.get('refid'):
-            add_target(node['refid'])
+            prev_node = get_prev_node(node)
+            if isinstance(prev_node, nodes.reference) and node['refid'] == prev_node['refid']:
+                # a target for a hyperlink reference having alias
+                pass
+            else:
+                add_target(node['refid'])
         for id in node['ids']:
             add_target(id)
 
@@ -1858,6 +1867,8 @@ class LaTeXTranslator(SphinxTranslator):
             for id in node.get('ids'):
                 anchor = not self.in_caption
                 self.body += self.hypertarget(id, anchor=anchor)
+        if not self.is_inline(node):
+            self.body.append('\n')
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
@@ -1911,6 +1922,8 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_reference(self, node):
         # type: (nodes.Element) -> None
         self.body.append(self.context.pop())
+        if not self.is_inline(node):
+            self.body.append('\n')
 
     def visit_number_reference(self, node):
         # type: (nodes.Element) -> None

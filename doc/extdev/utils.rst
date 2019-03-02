@@ -18,5 +18,11 @@ components (e.g. :class:`.Config`, :class:`.BuildEnvironment` and so on) easily.
 .. autoclass:: sphinx.util.docutils.SphinxDirective
    :members:
 
+.. autoclass:: sphinx.util.docutils.SphinxRole
+   :members:
+
+.. autoclass:: sphinx.util.docutils.ReferenceRole
+   :members:
+
 .. autoclass:: sphinx.transforms.post_transforms.images.ImageConverter
    :members:

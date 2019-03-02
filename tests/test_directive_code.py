@@ -11,6 +11,7 @@
 import os
 
 import pytest
+from docutils import nodes
 
 from sphinx.config import Config
 from sphinx.directives.code import LiteralIncludeReader
@@ -552,3 +553,64 @@ def test_literalinclude_pydecorators(app, status, warning):
         '    pass\n'
     )
     assert actual == expect
+
+
+@pytest.mark.sphinx('dummy', testroot='directive-code')
+def test_code_block_highlighted(app, status, warning):
+    app.builder.build(['highlight'])
+    doctree = app.env.get_doctree('highlight')
+    codeblocks = doctree.traverse(nodes.literal_block)
+
+    assert codeblocks[0]['language'] == 'default'
+    assert codeblocks[1]['language'] == 'python2'
+    assert codeblocks[2]['language'] == 'python3'
+    assert codeblocks[3]['language'] == 'python2'
+
+
+@pytest.mark.sphinx('html', testroot='directive-code')
+def test_linenothreshold(app, status, warning):
+    app.builder.build(['linenothreshold'])
+    html = (app.outdir / 'linenothreshold.html').text()
+
+    lineos_head = '<td class="linenos"><div class="linenodiv"><pre>'
+    lineos_tail = '</pre></div></td>'
+
+    # code-block using linenothreshold
+    _, matched, html = html.partition(lineos_head +
+                                      '1\n'
+                                      '2\n'
+                                      '3\n'
+                                      '4\n'
+                                      '5\n'
+                                      '6' + lineos_tail)
+    assert matched
+
+    # code-block not using linenothreshold
+    html, matched, _ = html.partition(lineos_head +
+                                      '1\n'
+                                      '2' + lineos_tail)
+    assert not matched
+
+    # literal include using linenothreshold
+    _, matched, html = html.partition(lineos_head +
+                                      ' 1\n'
+                                      ' 2\n'
+                                      ' 3\n'
+                                      ' 4\n'
+                                      ' 5\n'
+                                      ' 6\n'
+                                      ' 7\n'
+                                      ' 8\n'
+                                      ' 9\n'
+                                      '10\n'
+                                      '11\n'
+                                      '12\n'
+                                      '13' + lineos_tail)
+    assert matched
+
+    # literal include not using linenothreshold
+    html, matched, _ = html.partition(lineos_head +
+                                      '1\n'
+                                      '2\n' 
+                                      '3' + lineos_tail)
+    assert not matched

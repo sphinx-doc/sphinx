@@ -9,7 +9,6 @@
 """
 
 import re
-import sys
 
 import pytest
 
@@ -17,6 +16,7 @@ import sphinx.domains.cpp as cppDomain
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol, _max_id, _id_prefix
+from sphinx.util import docutils
 
 
 def parse(name, string):
@@ -151,9 +151,8 @@ def test_expressions():
         exprCheck(p + "'\\x0A'", t + "10")
         exprCheck(p + "'\\u0a42'", t + "2626")
         exprCheck(p + "'\\u0A42'", t + "2626")
-        if sys.maxunicode > 65535:
-            exprCheck(p + "'\\U0001f34c'", t + "127820")
-            exprCheck(p + "'\\U0001F34C'", t + "127820")
+        exprCheck(p + "'\\U0001f34c'", t + "127820")
+        exprCheck(p + "'\\U0001F34C'", t + "127820")
 
     # TODO: user-defined lit
     exprCheck('(... + Ns)', '(... + Ns)', id4='flpl2Ns')
@@ -734,12 +733,14 @@ def test_build_domain_cpp_misuse_of_roles(app, status, warning):
     # TODO: properly check for the warnings we expect
 
 
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
@@ -775,13 +776,14 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={
-    'add_function_parentheses': False})
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))

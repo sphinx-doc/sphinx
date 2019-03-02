@@ -312,6 +312,41 @@ The following is a list of deprecated interfaces.
      - (will be) Removed
      - Alternatives
 
+   * - ``sphinx.ext.autodoc.importer.MockFinder``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.MockFinder``
+
+   * - ``sphinx.ext.autodoc.importer.MockLoader``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.MockLoader``
+
+   * - ``sphinx.ext.autodoc.importer.mock()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autodoc.mock.mock()``
+
+   * - ``sphinx.ext.autosummary.autolink_role()``
+     - 2.1
+     - 4.0
+     - ``sphinx.ext.autosummary.AutoLink``
+
+   * - ``sphinx.util.i18n.find_catalog()``
+     - 2.1
+     - 4.0
+     - ``sphinx.util.i18n.docname_to_domain()``
+
+   * - ``sphinx.util.i18n.find_catalog_files()``
+     - 2.1
+     - 4.0
+     - ``sphinx.util.i18n.CatalogRepository``
+
+   * - ``sphinx.util.i18n.find_catalog_source_files()``
+     - 2.1
+     - 4.0
+     - ``sphinx.util.i18n.CatalogRepository``
+
    * - ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
        ``autodoc.DocstringSignatureMixin.get_doc()``,
        ``autodoc.DocstringSignatureMixin._find_signature()``, and
@@ -353,6 +388,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``docutils.nodes.abbreviation``
 
+   * - ``sphinx.builders.applehelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.applehelp``
+
    * - ``sphinx.builders.devhelp``
      - 2.0
      - 4.0
@@ -363,10 +403,35 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.builders.epub3.validate_config_values()``
 
+   * - ``sphinx.builders.html.JSONHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.JSONHTMLBuilder``
+
+   * - ``sphinx.builders.html.PickleHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
+
+   * - ``sphinx.builders.html.SerializingHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.SerializingHTMLBuilder``
+
    * - ``sphinx.builders.html.SingleFileHTMLBuilder``
      - 2.0
      - 4.0
      - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder``
+
+   * - ``sphinx.builders.html.WebHTMLBuilder``
+     - 2.0
+     - 4.0
+     - ``sphinx.builders.serializinghtml.PickleHTMLBuilder``
+
+   * - ``sphinx.builders.htmlhelp``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.htmlhelp``
 
    * - ``sphinx.builders.htmlhelp.HTMLHelpBuilder.open_file()``
      - 2.0
@@ -443,6 +508,31 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinxcontrib.jsmath``
 
+   * - ``sphinx.roles.abbr_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.Abbreviation``
+
+   * - ``sphinx.roles.emph_literal_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.EmphasizedLiteral``
+
+   * - ``sphinx.roles.menusel_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.GUILabel`` or ``sphinx.roles.MenuSelection``
+
+   * - ``sphinx.roles.index_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.Index``
+
+   * - ``sphinx.roles.indexmarkup_role()``
+     - 2.0
+     - 4.0
+     - ``sphinx.roles.PEP`` or ``sphinx.roles.RFC``
+
    * - ``sphinx.testing.util.remove_unicode_literal()``
      - 2.0
      - 4.0
@@ -467,6 +557,11 @@ The following is a list of deprecated interfaces.
      - 2.0
      - 3.0
      - N/A
+
+   * - ``sphinx.util.jsonimpl``
+     - 2.0
+     - 4.0
+     - ``sphinxcontrib.serializinghtml.jsonimpl``
 
    * - ``sphinx.util.osutil.EEXIST``
      - 2.0
@@ -493,6 +588,11 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``os.walk()``
 
+   * - ``sphinx.util.pycompat.NoneType``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.typing.NoneType``
+
    * - ``sphinx.util.pycompat.TextIOWrapper``
      - 2.0
      - 4.0
@@ -512,6 +612,16 @@ The following is a list of deprecated interfaces.
      - 2.0
      - 4.0
      - ``textwrap.indent()``
+
+   * - ``sphinx.util.pycompat.sys_encoding``
+     - 2.0
+     - 4.0
+     - ``sys.getdefaultencoding()``
+
+   * - ``sphinx.util.pycompat.terminal_safe()``
+     - 2.0
+     - 4.0
+     - ``sphinx.util.console.terminal_safe()``
 
    * - ``sphinx.util.pycompat.u``
      - 2.0

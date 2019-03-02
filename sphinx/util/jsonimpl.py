@@ -9,11 +9,18 @@
 """
 
 import json
+import warnings
 from collections import UserString
+
+from sphinx.deprecation import RemovedInSphinx40Warning
 
 if False:
     # For type annotation
     from typing import Any, IO  # NOQA
+
+
+warnings.warn('sphinx.util.jsonimpl is deprecated',
+              RemovedInSphinx40Warning, stacklevel=2)
 
 
 class SphinxJSONEncoder(json.JSONEncoder):

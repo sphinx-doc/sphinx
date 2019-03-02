@@ -48,7 +48,7 @@ class _ModuleWrapper(object):
     def __getattr__(self, name):
         # type: (str) -> Any
         if name in self._objects:
-            warnings.warn("%s.%s is now deprecated. Please refer CHANGES to grasp"
+            warnings.warn("%s.%s is now deprecated. Please refer CHANGES to grasp "
                           "the changes of Sphinx API." % (self._modname, name),
                           self._warning, stacklevel=3)
             return self._objects[name]

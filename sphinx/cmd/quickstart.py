@@ -17,7 +17,6 @@ import time
 import warnings
 from collections import OrderedDict
 from os import path
-from urllib.parse import quote
 
 # try to import readline, unix specific enhancement
 try:
@@ -37,11 +36,10 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.locale import __
-from sphinx.util import texescape
 from sphinx.util.console import (  # type: ignore
     colorize, bold, red, turquoise, nocolor, color_terminal
 )
-from sphinx.util.osutil import ensuredir, make_filename
+from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if False:
@@ -375,25 +373,15 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
-    texescape.init()
-
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
-    d['PY3'] = True
-    d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = quote(d['project'].encode('idna'))
-    d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
     d.setdefault('extensions', [])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = d['author'].translate(texescape.tex_escape_map)
-    d['project_doc'] = d['project'] + ' Documentation'
-    d['project_doc_texescaped'] = (d['project'] + ' Documentation').\
-        translate(texescape.tex_escape_map)
 
     ensuredir(d['path'])
 
@@ -528,7 +516,7 @@ Makefile to be used with sphinx-build.
     group = parser.add_argument_group(__('Structure options'))
     group.add_argument('--sep', action='store_true', default=None,
                        help=__('if specified, separate source and build dirs'))
-    group.add_argument('--dot', metavar='DOT',
+    group.add_argument('--dot', metavar='DOT', default='_',
                        help=__('replacement for dot in _templates etc.'))
 
     group = parser.add_argument_group(__('Project basic options'))
@@ -542,9 +530,9 @@ Makefile to be used with sphinx-build.
                        help=__('release of project'))
     group.add_argument('-l', '--language', metavar='LANGUAGE', dest='language',
                        help=__('document language'))
-    group.add_argument('--suffix', metavar='SUFFIX',
+    group.add_argument('--suffix', metavar='SUFFIX', default='.rst',
                        help=__('source file suffix'))
-    group.add_argument('--master', metavar='MASTER',
+    group.add_argument('--master', metavar='MASTER', default='index',
                        help=__('master document name'))
     group.add_argument('--epub', action='store_true', default=False,
                        help=__('use epub'))
@@ -558,11 +546,11 @@ Makefile to be used with sphinx-build.
                        action='append', help=__('enable arbitrary extensions'))
 
     group = parser.add_argument_group(__('Makefile and Batchfile creation'))
-    group.add_argument('--makefile', action='store_true', dest='makefile', default=None,
+    group.add_argument('--makefile', action='store_true', dest='makefile', default=True,
                        help=__('create makefile'))
     group.add_argument('--no-makefile', action='store_false', dest='makefile',
                        help=__('do not create makefile'))
-    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=None,
+    group.add_argument('--batchfile', action='store_true', dest='batchfile', default=True,
                        help=__('create batchfile'))
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
@@ -604,6 +592,13 @@ def main(argv=sys.argv[1:]):
     # delete None or False value
     d = dict((k, v) for k, v in d.items() if v is not None)
 
+    # handle use of CSV-style extension values
+    d.setdefault('extensions', [])
+    for ext in d['extensions'][:]:
+        if ',' in ext:
+            d['extensions'].remove(ext)
+            d['extensions'].extend(ext.split(','))
+
     try:
         if 'quiet' in d:
             if not set(['project', 'author']).issubset(d):
@@ -632,13 +627,6 @@ def main(argv=sys.argv[1:]):
         print()
         print('[Interrupted.]')
         return 130  # 128 + SIGINT
-
-    # handle use of CSV-style extension values
-    d.setdefault('extensions', [])
-    for ext in d['extensions'][:]:
-        if ',' in ext:
-            d['extensions'].remove(ext)
-            d['extensions'].extend(ext.split(','))
 
     for variable in d.get('variables', []):
         try:

@@ -1,5 +1,65 @@
-Release 2.0.0 (in development)
+Release 2.1.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+* Ignore filenames without file extension given to ``Builder.build_specific()``
+  API directly
+
+Deprecated
+----------
+
+* ``sphinx.ext.autodoc.importer.MockFinder``
+* ``sphinx.ext.autodoc.importer.MockLoader``
+* ``sphinx.ext.autodoc.importer.mock()``
+* ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.util.i18n.find_catalog()``
+* ``sphinx.util.i18n.find_catalog_files()``
+* ``sphinx.util.i18n.find_catalog_source_files()``
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 2.0.0 beta2 (in development)
+====================================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+* #6096: html: Anchor links are not added to figures
+* #3620: html: Defer searchindex.js rather than loading it via ajax
+* #6113: html: Table cells and list items have large margins
+* #5508: ``linenothreshold`` option for ``highlight`` directive was ignored
+* texinfo: ``make install-info`` causes syntax error
+* texinfo: ``make install-info`` fails on macOS
+
+Testing
+--------
+
+Release 2.0.0 beta1 (in development)
+====================================
 
 Dependencies
 ------------
@@ -21,8 +81,11 @@ Dependencies
 * The sphinxcontrib-websupport package is no longer a dependency
 * Some packages are separated to sub packages:
 
+  - sphinxcontrib.applehelp
   - sphinxcontrib.devhelp
+  - sphinxcontrib.htmlhelp
   - sphinxcontrib.jsmath
+  - sphinxcontrib.serializinghtml
   - sphinxcontrib.qthelp
 
 Incompatible changes
@@ -58,9 +121,17 @@ Incompatible changes
   from LaTeX preamble now get overwritten.  Use ``\sphinxtableofcontentshook``
   to insert custom user definitions.  See :ref:`latex-macros`.
 * quickstart: Simplify generated ``conf.py``
+* #4148: quickstart: some questions are removed.  They are still able to specify
+  via command line options
 * websupport: unbundled from sphinx core. Please use sphinxcontrib-websupport
 * C++, the visibility of base classes is now always rendered as present in the
   input. That is, ``private`` is now shown, where it was ellided before.
+* LaTeX: graphics inclusion of oversized images rescales to not exceed
+  the text width and height, even if width and/or height option were used.
+  (refs: #5956)
+* epub: ``epub_title`` defaults to the :confval:`project` option
+* #4550: All tables and figures without ``align`` option are displayed to center
+* #4587: html: Output HTML5 by default
 
 Deprecated
 ----------
@@ -71,6 +142,10 @@ Deprecated
   ``EpubBuilder.build_container()``, ``EpubBuilder.bulid_content()``,
   ``EpubBuilder.build_toc()`` and ``EpubBuilder.build_epub()``
 * The arguments of ``Epub3Builder.build_navigation_doc()``
+* The config variables
+
+  - :confval:`html_experimental_html5_writer`
+
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
   ``autodoc.DocstringSignatureMixin._find_signature()``, and
@@ -104,21 +179,30 @@ Deprecated
 * ``sphinx.io.SphinxFileInput.supported``
 * ``sphinx.io.SphinxRSTFileInput``
 * ``sphinx.registry.SphinxComponentRegistry.add_source_input()``
+* ``sphinx.roles.abbr_role()``
+* ``sphinx.roles.emph_literal_role()``
+* ``sphinx.roles.menusel_role()``
+* ``sphinx.roles.index_role()``
+* ``sphinx.roles.indexmarkup_role()``
 * ``sphinx.testing.util.remove_unicode_literal()``
 * ``sphinx.util.attrdict``
 * ``sphinx.util.force_decode()``
 * ``sphinx.util.get_matching_docs()``
 * ``sphinx.util.inspect.Parameter``
+* ``sphinx.util.jsonimpl``
 * ``sphinx.util.osutil.EEXIST``
 * ``sphinx.util.osutil.EINVAL``
 * ``sphinx.util.osutil.ENOENT``
 * ``sphinx.util.osutil.EPIPE``
 * ``sphinx.util.osutil.walk()``
 * ``sphinx.util.PeekableIterator``
+* ``sphinx.util.pycompat.NoneType``
 * ``sphinx.util.pycompat.TextIOWrapper``
 * ``sphinx.util.pycompat.UnicodeMixin``
 * ``sphinx.util.pycompat.htmlescape``
 * ``sphinx.util.pycompat.indent``
+* ``sphinx.util.pycompat.sys_encoding``
+* ``sphinx.util.pycompat.terminal_safe()``
 * ``sphinx.util.pycompat.u``
 * ``sphinx.writers.latex.ExtBabel``
 * ``sphinx.writers.latex.LaTeXTranslator._make_visit_admonition()``
@@ -150,6 +234,11 @@ Features added
 
 * #4182: autodoc: Support :confval:`suppress_warnings`
 * #5533: autodoc: :confval:`autodoc_default_options` supports ``member-order``
+* #5394: autodoc: Display readable names in type annotations for mocked objects
+* #5459: autodoc: :confval:`autodoc_default_options` accepts ``True`` as a value
+* #1148: autodoc: Add :rst:dir:`autodecorator` directive for decorators
+* #5635: autosummary: Add :confval:`autosummary_mock_imports` to mock external
+  libraries on importing targets
 * #4018: htmlhelp: Add :confval:`htmlhelp_file_suffix` and
   :confval:`htmlhelp_link_suffix`
 * #5559: text: Support complex tables (colspan and rowspan)
@@ -166,6 +255,19 @@ Features added
 * C++: add ``cpp:struct`` to complement ``cpp:class``.
 * #1341 the HTML search considers words that contain a search term of length
   three or longer a match.
+* #4611: epub: Show warning for duplicated ToC entries
+* #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
+  omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
+* #4587: html: Add :confval:`html4_writer` to use old HTML4 writer
+* #6016: HTML search: A placeholder for the search summary prevents search
+  result links from changing their position when the search terminates.  This
+  makes navigating search results easier.
+* #5196: linkcheck also checks remote images exist
+* #5924: githubpages: create CNAME file for custom domains when
+  :confval:`html_baseurl` set
+* #4261: autosectionlabel: restrict the labeled sections by new config value;
+  :confval:`autosectionlabel_maxdepth`
+
 
 Bugs fixed
 ----------
@@ -196,7 +298,7 @@ Testing
 
 * Stop to use ``SPHINX_TEST_TEMPDIR`` envvar
 
-Release 1.8.4 (in development)
+Release 1.8.5 (in development)
 ==============================
 
 Dependencies
@@ -213,6 +315,26 @@ Features added
 
 Bugs fixed
 ----------
+
+* LaTeX: Remove extraneous space after author names on PDF title page (refs: #6004)
+* #6026: LaTeX: A cross reference to definition list does not work
+* #6046: LaTeX: ``TypeError`` is raised when invalid latex_elements given
+* #6067: LaTeX: images having a target are concatenated to next line
+* #6067: LaTeX: images having a target are not aligned even if specified
+* #6019: imgconverter: Including multipage PDF fails
+* #6047: autodoc: ``autofunction`` emits a warning for method objects
+* #6028: graphviz: Ensure the graphviz filenames are reproducible
+* #6068: doctest: ``skipif`` option may remove the code block from documentation
+
+Testing
+--------
+
+Release 1.8.4 (released Feb 03, 2019)
+=====================================
+
+Bugs fixed
+----------
+
 * #3707: latex: no bold checkmark (✔) available.
 * #5605: with the documentation language set to Chinese, English words could not
   be searched.
@@ -231,10 +353,10 @@ Bugs fixed
 * #5966: mathjax has not been loaded on incremental build
 * #5960: LaTeX: modified PDF layout since September 2018 TeXLive update of
   :file:`parskip.sty`
+* #5948: LaTeX: duplicated labels are generated for sections
 * #5958: versionadded directive causes crash with Python 3.5.0
-
-Testing
---------
+* #5995: autodoc: autodoc_mock_imports conflict with metaclass on Python 3.7
+* #5871: texinfo: a section title ``.`` is not allowed
 
 Release 1.8.3 (released Dec 26, 2018)
 =====================================

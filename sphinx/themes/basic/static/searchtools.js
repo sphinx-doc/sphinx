@@ -75,16 +75,6 @@ var Search = {
       }
   },
 
-  loadIndex : function(url) {
-    $.ajax({type: "GET", url: url, data: null,
-            dataType: "script", cache: true,
-            complete: function(jqxhr, textstatus) {
-              if (textstatus != "success") {
-                document.getElementById("searchindexloader").src = url;
-              }
-            }});
-  },
-
   setIndex : function(index) {
     var q;
     this._index = index;
@@ -130,7 +120,7 @@ var Search = {
     this.out = $('#search-results');
     this.title = $('<h2>' + _('Searching') + '</h2>').appendTo(this.out);
     this.dots = $('<span></span>').appendTo(this.title);
-    this.status = $('<p style="display: none"></p>').appendTo(this.out);
+    this.status = $('<p class="search-summary">&nbsp;</p>').appendTo(this.out);
     this.output = $('<ul class="search"/>').appendTo(this.out);
 
     $('#search-progress').text(_('Preparing search...'));

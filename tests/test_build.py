@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
 import sys
 from textwrap import dedent
 
@@ -58,11 +57,7 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
 #       (html, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
     "buildername",
-    [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'pickle', 'json', 'text', 'htmlhelp',
-        'applehelp', 'changes', 'xml', 'pseudoxml', 'linkcheck',
-    ],
+    ['dirhtml', 'singlehtml', 'text', 'changes', 'xml', 'pseudoxml', 'linkcheck'],
 )
 @mock.patch('sphinx.builders.linkcheck.requests.head',
             side_effect=request_session_head)
@@ -110,7 +105,7 @@ def test_image_glob(app, status, warning):
     app.builder.build_all()
 
     # index.rst
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
 
     assert isinstance(doctree[0][1], nodes.image)
     assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
@@ -135,7 +130,7 @@ def test_image_glob(app, status, warning):
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
-    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+    doctree = app.env.get_doctree('subdir/index')
 
     assert isinstance(doctree[0][1], nodes.image)
     sub = path('subdir')

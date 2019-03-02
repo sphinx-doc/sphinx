@@ -8,7 +8,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import pickle
 import re
 
 import pytest
@@ -18,7 +17,8 @@ from docutils.transforms.universal import SmartQuotes
 
 from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.testing.util import assert_node
+from sphinx.roles import XRefRole
+from sphinx.testing.util import Struct, assert_node
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, HTMLTranslator
@@ -35,6 +35,7 @@ def settings(app):
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
     settings.contentsname = 'dummy'
+    settings.rfc_base_url = 'http://tools.ietf.org/html/'
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
     yield settings
@@ -42,10 +43,26 @@ def settings(app):
 
 
 @pytest.fixture
-def parse(settings):
-    def parse_(rst):
-        document = utils.new_document(b'test data', settings)
+def new_document(settings):
+    def create():
+        document = utils.new_document('test data', settings)
         document['file'] = 'dummy'
+        return document
+
+    return create
+
+
+@pytest.fixture
+def inliner(new_document):
+    document = new_document()
+    document.reporter.get_source_and_line = lambda line=1: ('dummy.rst', line)
+    return Struct(document=document, reporter=document.reporter)
+
+
+@pytest.fixture
+def parse(new_document):
+    def parse_(rst):
+        document = new_document()
         parser = RstParser()
         parser.parse(rst, document)
         SmartQuotes(document, startnode=None).apply()
@@ -133,30 +150,55 @@ def get_verifier(verify, verify_re):
 
 @pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
     (
+        # pep role
+        'verify',
+        ':pep:`8`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008"><strong>PEP 8</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8@\\spxentry{PEP 8}}\\sphinxhref{http://www.python.org/dev/peps/pep-0008}'
+         '{\\sphinxstylestrong{PEP 8}}')
+    ),
+    (
+        # pep role with anchor
+        'verify',
+        ':pep:`8#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="pep reference external" '
+         'href="http://www.python.org/dev/peps/pep-0008#id1">'
+         '<strong>PEP 8#id1</strong></a></p>'),
+        ('\\index{Python Enhancement Proposals@\\spxentry{Python Enhancement Proposals}'
+         '!PEP 8\\#id1@\\spxentry{PEP 8\\#id1}}\\sphinxhref'
+         '{http://www.python.org/dev/peps/pep-0008\\#id1}'
+         '{\\sphinxstylestrong{PEP 8\\#id1}}')
+    ),
+    (
+        # rfc role
+        'verify',
+        ':rfc:`2324`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html"><strong>RFC 2324</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324@\\spxentry{RFC 2324}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html}'
+         '{\\sphinxstylestrong{RFC 2324}}')
+    ),
+    (
+        # rfc role with anchor
+        'verify',
+        ':rfc:`2324#id1`',
+        ('<p><span class="target" id="index-0"></span><a class="rfc reference external" '
+         'href="http://tools.ietf.org/html/rfc2324.html#id1">'
+         '<strong>RFC 2324#id1</strong></a></p>'),
+        ('\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
+         '\\sphinxhref{http://tools.ietf.org/html/rfc2324.html\\#id1}'
+         '{\\sphinxstylestrong{RFC 2324\\#id1}}')
+    ),
+    (
         # correct interpretation of code with whitespace
         'verify_re',
         '``code   sample``',
         ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
          'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
         r'\\sphinxcode{\\sphinxupquote{code   sample}}',
-    ),
-    (
-        # correct interpretation of code with whitespace
-        'verify_re',
-        ':samp:`code   sample`',
-        ('<p><code class="(samp )?docutils literal notranslate"><span class="pre">'
-         'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
-        r'\\sphinxcode{\\sphinxupquote{code   sample}}',
-    ),
-    (
-        # interpolation of braces in samp and file roles (HTML only)
-        'verify',
-        ':samp:`a{b}c`',
-        ('<p><code class="samp docutils literal notranslate">'
-         '<span class="pre">a</span>'
-         '<em><span class="pre">b</span></em>'
-         '<span class="pre">c</span></code></p>'),
-        '\\sphinxcode{\\sphinxupquote{a\\sphinxstyleemphasis{b}c}}',
     ),
     (
         # interpolation of arrows in menuselection
@@ -180,6 +222,13 @@ def get_verifier(verify, verify_re):
         ('<p><span class="guilabel"><span class="accelerator">F</span>oo '
          '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
         r'\sphinxguilabel{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+    ),
+    (
+        # no ampersands in guilabel
+        'verify',
+        ':guilabel:`Foo`',
+        '<p><span class="guilabel">Foo</span></p>',
+        r'\sphinxguilabel{Foo}',
     ),
     (
         # non-interpolation of dashes in option role
@@ -263,11 +312,103 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier(rst, html_expected, latex_expected)
 
 
+def test_samp_role(parse):
+    # no braces
+    text = ':samp:`a{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "b"],
+                                                              "c")])
+    # nested braces
+    text = ':samp:`a{{b}}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, ("a",
+                                                              [nodes.emphasis, "{b"],
+                                                              "}c")])
+
+    # half-opened braces
+    text = ':samp:`a{bc`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{bc"])
+
+    # escaped braces
+    text = ':samp:`a\\\\{b}c`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "a{b}c"])
+
+    # no braces (whitespaces are keeped as is)
+    text = ':samp:`code   sample`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, nodes.literal, "code   sample"])
+
+
+def test_download_role(parse):
+    # implicit
+    text = ':download:`sphinx.rst`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, addnodes.download_reference,
+                             nodes.literal, "sphinx.rst"])
+    assert_node(doctree[0][0], refdoc='dummy', refdomain='', reftype='download',
+                refexplicit=False, reftarget='sphinx.rst', refwarn=False)
+    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+
+    # explicit
+    text = ':download:`reftitle <sphinx.rst>`'
+    doctree = parse(text)
+    assert_node(doctree[0], [nodes.paragraph, addnodes.download_reference,
+                             nodes.literal, "reftitle"])
+    assert_node(doctree[0][0], refdoc='dummy', refdomain='', reftype='download',
+                refexplicit=True, reftarget='sphinx.rst', refwarn=False)
+    assert_node(doctree[0][0][0], classes=['xref', 'download'])
+
+
+def test_XRefRole(inliner):
+    role = XRefRole()
+
+    # implicit
+    doctrees, errors = role('ref', 'rawtext', 'text', 5, inliner, {}, [])
+    assert len(doctrees) == 1
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
+    assert errors == []
+
+    # explicit
+    doctrees, errors = role('ref', 'rawtext', 'title <target>', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'title'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='target',
+                refexplicit=True, refwarn=False)
+
+    # bang
+    doctrees, errors = role('ref', 'rawtext', '!title <target>', 5, inliner, {}, [])
+    assert_node(doctrees[0], [nodes.literal, 'title <target>'])
+
+    # refdomain
+    doctrees, errors = role('test:doc', 'rawtext', 'text', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='test', reftype='doc', reftarget='text',
+                refexplicit=False, refwarn=False)
+
+    # fix_parens
+    role = XRefRole(fix_parens=True)
+    doctrees, errors = role('ref', 'rawtext', 'text()', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'text()'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
+
+    # lowercase
+    role = XRefRole(lowercase=True)
+    doctrees, errors = role('ref', 'rawtext', 'TEXT', 5, inliner, {}, [])
+    assert_node(doctrees[0], [addnodes.pending_xref, nodes.literal, 'TEXT'])
+    assert_node(doctrees[0], refdoc='dummy', refdomain='', reftype='ref', reftarget='text',
+                refexplicit=False, refwarn=False)
+
+
 @pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
-    rst = pickle.loads((app.doctreedir / 'restructuredtext.doctree').bytes())
-    md = pickle.loads((app.doctreedir / 'markdown.doctree').bytes())
+    rst = app.env.get_doctree('restructuredtext')
+    md = app.env.get_doctree('markdown')
 
     # rst_prolog
     assert_node(rst[0], nodes.paragraph)
@@ -290,7 +431,7 @@ def test_rst_prolog(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
 def test_keep_warnings_is_True(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 2
     assert_node(doctree[0][1], nodes.system_message)
@@ -300,7 +441,7 @@ def test_keep_warnings_is_True(app, status, warning):
                     confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 1
 
@@ -308,7 +449,7 @@ def test_keep_warnings_is_False(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 5
 
@@ -328,7 +469,7 @@ def test_default_role1(app, status, warning):
     app.builder.build_all()
 
     # default-role: pep
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], addnodes.index)
@@ -336,7 +477,7 @@ def test_default_role1(app, status, warning):
     assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
 
     # no default-role
-    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    doctree = app.env.get_doctree('foo')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], nodes.title_reference)
@@ -349,7 +490,7 @@ def test_default_role2(app, status, warning):
     app.builder.build_all()
 
     # default-role directive is stronger than configratuion
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], addnodes.index)
@@ -357,7 +498,7 @@ def test_default_role2(app, status, warning):
     assert_node(doctree[0][1][2], nodes.reference, classes=["pep"])
 
     # default_role changes the default behavior
-    doctree = pickle.loads((app.doctreedir / 'foo.doctree').bytes())
+    doctree = app.env.get_doctree('foo')
     assert_node(doctree[0], nodes.section)
     assert_node(doctree[0][1], nodes.paragraph)
     assert_node(doctree[0][1][0], nodes.inline, classes=["guilabel"])

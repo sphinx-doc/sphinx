@@ -22,8 +22,8 @@ from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util import status_iterator
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util import progress_message, status_iterator
+from sphinx.util.console import darkgreen  # type: ignore
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
@@ -113,28 +113,27 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            logger.info(__("processing %s..."), targetname, nonl=True)
-            doctree = self.assemble_doctree(
-                docname, toctree_only,
-                appendices=(self.config.texinfo_appendices or []))
-            logger.info(__("writing... "), nonl=True)
-            self.post_process_images(doctree)
-            docwriter = TexinfoWriter(self)
-            settings = OptionParser(
-                defaults=self.env.settings,
-                components=(docwriter,),
-                read_config_files=True).get_default_values()  # type: Any
-            settings.author = author
-            settings.title = title
-            settings.texinfo_filename = targetname[:-5] + '.info'
-            settings.texinfo_elements = self.config.texinfo_elements
-            settings.texinfo_dir_entry = direntry or ''
-            settings.texinfo_dir_category = category or ''
-            settings.texinfo_dir_description = description or ''
-            settings.docname = docname
-            doctree.settings = settings
-            docwriter.write(doctree, destination)
-            logger.info(__("done"))
+            with progress_message(__("processing %s") % targetname):
+                appendices = self.config.texinfo_appendices or []
+                doctree = self.assemble_doctree(docname, toctree_only, appendices=appendices)
+
+            with progress_message(__("writing")):
+                self.post_process_images(doctree)
+                docwriter = TexinfoWriter(self)
+                settings = OptionParser(
+                    defaults=self.env.settings,
+                    components=(docwriter,),
+                    read_config_files=True).get_default_values()  # type: Any
+                settings.author = author
+                settings.title = title
+                settings.texinfo_filename = targetname[:-5] + '.info'
+                settings.texinfo_elements = self.config.texinfo_elements
+                settings.texinfo_dir_entry = direntry or ''
+                settings.texinfo_dir_category = category or ''
+                settings.texinfo_dir_description = description or ''
+                settings.docname = docname
+                doctree.settings = settings
+                docwriter.write(doctree, destination)
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (str, bool, List[str]) -> nodes.document
@@ -182,16 +181,7 @@ class TexinfoBuilder(Builder):
     def finish(self):
         # type: () -> None
         self.copy_image_files()
-
-        logger.info(bold(__('copying Texinfo support files... ')), nonl=True)
-        # copy Makefile
-        fn = path.join(self.outdir, 'Makefile')
-        logger.info(fn, nonl=True)
-        try:
-            copy_asset_file(os.path.join(template_dir, 'Makefile'), fn)
-        except OSError as err:
-            logger.warning(__("error writing file %s: %s"), fn, err)
-        logger.info(__(' done'))
+        self.copy_support_files()
 
     def copy_image_files(self):
         # type: () -> None
@@ -207,6 +197,15 @@ class TexinfoBuilder(Builder):
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
+
+    def copy_support_files(self):
+        # type: () -> None
+        try:
+            with progress_message(__('copying Texinfo support files')):
+                logger.info('Makefile ', nonl=True)
+                copy_asset_file(os.path.join(template_dir, 'Makefile'), self.outdir)
+        except OSError as err:
+            logger.warning(__("error writing file Makefile: %s"), err)
 
 
 def default_texinfo_documents(config):

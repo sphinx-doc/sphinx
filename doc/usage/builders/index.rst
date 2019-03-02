@@ -28,6 +28,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
+.. module:: sphinx.builders.dirhtml
 .. class:: DirectoryHTMLBuilder
 
    This is a subclass of the standard HTML builder.  Its output is a directory
@@ -45,6 +46,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. versionadded:: 0.6
 
+.. module:: sphinx.builders.singlehtml
 .. class:: SingleFileHTMLBuilder
 
    This is an HTML builder that combines the whole project in one output file.
@@ -91,7 +93,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. _Qt help: https://doc.qt.io/qt-4.8/qthelp-framework.html
 
-.. module:: sphinx.builders.applehelp
+.. module:: sphinxcontrib.applehelp
 .. class:: AppleHelpBuilder
 
    This builder produces an Apple Help Book based on the same output as the
@@ -116,6 +118,10 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 2.0
+
+      Moved to sphinxcontrib.applehelp from sphinx.builders package.
 
 .. module:: sphinxcontrib.devhelp
 .. class:: DevhelpBuilder
@@ -293,7 +299,7 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
    .. versionadded:: 1.1
 
 
-.. currentmodule:: sphinx.builders.html
+.. currentmodule:: sphinxcontrib.serializinghtml
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API

@@ -285,12 +285,29 @@ def find_source_node(node):
     return None
 
 
+def get_node_line(node):
+    # type: (nodes.Element) -> int
+    for pnode in traverse_parent(node):
+        if pnode.line:
+            return pnode.line
+    return None
+
+
 def traverse_parent(node, cls=None):
     # type: (nodes.Element, Any) -> Iterable[nodes.Element]
     while node:
         if cls is None or isinstance(node, cls):
             yield node
         node = node.parent
+
+
+def get_prev_node(node):
+    # type: (nodes.Node) -> nodes.Node
+    pos = node.parent.index(node)
+    if pos > 0:
+        return node.parent[pos - 1]
+    else:
+        return None
 
 
 def traverse_translatable_index(doctree):

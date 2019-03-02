@@ -23,9 +23,8 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
+from sphinx.util.console import red, nocolor, color_terminal, terminal_safe  # type: ignore
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.pycompat import terminal_safe
 
 if False:
     # For type annotation
