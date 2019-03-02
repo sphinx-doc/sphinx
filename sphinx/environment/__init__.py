@@ -311,10 +311,6 @@ class BuildEnvironment:
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for version, changes in other.versionchanges.items():
-            self.versionchanges.setdefault(version, []).extend(
-                change for change in changes if change[1] in docnames)
-
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
