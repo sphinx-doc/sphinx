@@ -26,6 +26,8 @@ Bugs fixed
 Testing
 --------
 
+* Add a helper function: ``sphinx.testing.restructuredtext.parse()``
+
 Release 2.0.0 beta1 (in development)
 ====================================
 
