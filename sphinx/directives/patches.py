@@ -132,7 +132,7 @@ class MathDirective(SphinxDirective):
                                 label=self.options.get('label'),
                                 nowrap='nowrap' in self.options)
         ret = [node]  # type: List[nodes.Node]
-        set_source_info(self, node)
+        self.set_source_info(node)
         self.add_target(ret)
         return ret
 

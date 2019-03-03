@@ -23,7 +23,6 @@ from docutils import nodes
 
 import sphinx
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
@@ -47,7 +46,7 @@ class IfConfig(SphinxDirective):
         # type: () -> List[nodes.Node]
         node = ifconfig()
         node.document = self.state.document
-        set_source_info(self, node)
+        self.set_source_info(node)
         node['expr'] = self.arguments[0]
         self.state.nested_parse(self.content, self.content_offset,
                                 node, match_titles=True)

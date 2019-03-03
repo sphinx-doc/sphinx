@@ -25,6 +25,8 @@ Deprecated
 Features added
 --------------
 
+* Add a helper method ``SphinxDirective.set_source_info()``
+
 Bugs fixed
 ----------
 
