@@ -6734,7 +6734,7 @@ class CPPNamespacePopObject(SphinxDirective):
 
 
 class AliasNode(nodes.Element):
-    def __init__(self, sig, warnEnv):
+    def __init__(self, sig, warnEnv=None):
         """
         :param sig: The name or function signature to alias.
         :param warnEnv: An object which must have the following attributes:
@@ -6743,18 +6743,27 @@ class AliasNode(nodes.Element):
         """
         super().__init__()
         self.sig = sig
-        env = warnEnv.env
-        if 'cpp:parent_symbol' not in env.temp_data:
-            root = env.domaindata['cpp']['root_symbol']
-            env.temp_data['cpp:parent_symbol'] = root
-        self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
-        try:
-            parser = DefinitionParser(sig, warnEnv, warnEnv.env.config)
-            self.ast, self.isShorthand = parser.parse_xref_object()
-            parser.assert_end()
-        except DefinitionError as e:
-            warnEnv.warn(e)
-            self.ast = None
+        if warnEnv:
+            env = warnEnv.env
+            if 'cpp:parent_symbol' not in env.temp_data:
+                root = env.domaindata['cpp']['root_symbol']
+                env.temp_data['cpp:parent_symbol'] = root
+            self.parentKey = env.temp_data['cpp:parent_symbol'].get_lookup_key()
+            try:
+                parser = DefinitionParser(sig, warnEnv, warnEnv.env.config)
+                self.ast, self.isShorthand = parser.parse_xref_object()
+                parser.assert_end()
+            except DefinitionError as e:
+                warnEnv.warn(e)
+                self.ast = None
+                self.isShorthand = None
+
+    def copy(self):
+        newnode = self.__class__(self.sig)
+        newnode.parentKey = self.parentKey
+        newnode.ast = self.ast
+        newnode.isShorthand = self.isShorthand
+        return newnode
 
 
 class AliasTransform(SphinxTransform):
