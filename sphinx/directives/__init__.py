@@ -19,18 +19,6 @@ from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util.docutils import SphinxDirective
 
-# import all directives sphinx provides
-from sphinx.directives.code import (  # noqa
-    Highlight, CodeBlock, LiteralInclude
-)
-from sphinx.directives.other import (  # noqa
-    TocTree, Author, Index, VersionChange, SeeAlso,
-    TabularColumns, Centered, Acks, HList, Only, Include, Class
-)
-from sphinx.directives.patches import (  # noqa
-    Figure, Meta
-)
-
 if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
@@ -44,6 +32,19 @@ if False:
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
 strip_backslash_re = re.compile(r'\\(.)')
+
+
+def optional_int(argument):
+    """
+    Check for an integer argument or None value; raise ``ValueError`` if not.
+    """
+    if argument is None:
+        return None
+    else:
+        value = int(argument)
+        if value < 0:
+            raise ValueError('negative value; must be positive or zero')
+        return value
 
 
 class ObjectDescription(SphinxDirective):
@@ -242,6 +243,18 @@ class DefaultDomain(SphinxDirective):
         #             break
         self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
         return []
+
+# import all directives sphinx provides (for compatibility)
+from sphinx.directives.code import (  # noqa
+    Highlight, CodeBlock, LiteralInclude
+)
+from sphinx.directives.other import (  # noqa
+    TocTree, Author, Index, VersionChange, SeeAlso,
+    TabularColumns, Centered, Acks, HList, Only, Include, Class
+)
+from sphinx.directives.patches import (  # noqa
+    Figure, Meta
+)
 
 
 def setup(app):
