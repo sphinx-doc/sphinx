@@ -18,8 +18,8 @@ from docutils.io import FileOutput
 from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util import progress_message, status_iterator

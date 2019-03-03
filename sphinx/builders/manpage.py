@@ -15,7 +15,7 @@ from docutils.io import FileOutput
 
 from sphinx import addnodes
 from sphinx.builders import Builder
-from sphinx.environment import NoUri
+from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util import progress_message

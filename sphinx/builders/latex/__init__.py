@@ -23,9 +23,8 @@ from sphinx.builders.latex.transforms import (
 )
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM
-from sphinx.environment import NoUri
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.errors import SphinxError
+from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import texescape, logging, progress_message, status_iterator
