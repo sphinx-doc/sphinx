@@ -165,6 +165,7 @@ class MathDirective(SphinxDirective):
     option_spec = {
         'label': directives.unchanged,
         'name': directives.unchanged,
+        'class': directives.class_option,
         'nowrap': directives.flag,
     }
 
@@ -175,6 +176,7 @@ class MathDirective(SphinxDirective):
             latex = self.arguments[0] + '\n\n' + latex
         label = self.options.get('label', self.options.get('name'))
         node = nodes.math_block(latex, latex,
+                                classes=self.options.get('class', []),
                                 docname=self.env.docname,
                                 number=None,
                                 label=label,
