@@ -31,6 +31,91 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
+   * - ``sphinx.directives.Acks``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Acks``
+
+   * - ``sphinx.directives.Author``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Author``
+
+   * - ``sphinx.directives.Centered``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Centered``
+
+   * - ``sphinx.directives.Class``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Class``
+
+   * - ``sphinx.directives.CodeBlock``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.code.CodeBlock``
+
+   * - ``sphinx.directives.Figure``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.patches.Figure``
+
+   * - ``sphinx.directives.HList``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.HList``
+
+   * - ``sphinx.directives.Highlight``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.code.Highlight``
+
+   * - ``sphinx.directives.Include``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Include``
+
+   * - ``sphinx.directives.Index``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Index``
+
+   * - ``sphinx.directives.LiteralInclude``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.code.LiteralInclude``
+
+   * - ``sphinx.directives.Meta``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.patches.Meta``
+
+   * - ``sphinx.directives.Only``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.Only``
+
+   * - ``sphinx.directives.SeeAlso``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.SeeAlso``
+
+   * - ``sphinx.directives.TabularColumns``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.TabularColumns``
+
+   * - ``sphinx.directives.TocTree``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.TocTree``
+
+   * - ``sphinx.directives.VersionChange``
+     - 2.1
+     - 4.0
+     - ``sphinx.directives.other.VersionChange``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
      - 4.0
