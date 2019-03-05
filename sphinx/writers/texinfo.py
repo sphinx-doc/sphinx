@@ -1355,8 +1355,9 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(attrs.get('width', ''))
         height = self.tex_image_length(attrs.get('height', ''))
         alt = self.escape_arg(attrs.get('alt', ''))
+        filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
-                         (name, width, height, alt, ext[1:]))
+                         (filename, width, height, alt, ext[1:]))
 
     def depart_image(self, node):
         # type: (nodes.Element) -> None
