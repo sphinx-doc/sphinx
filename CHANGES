@@ -22,6 +22,7 @@ Bugs fixed
 * #5508: ``linenothreshold`` option for ``highlight`` directive was ignored
 * texinfo: ``make install-info`` causes syntax error
 * texinfo: ``make install-info`` fails on macOS
+* #5391: A cross reference in heading is rendered as literal
 
 Testing
 --------
