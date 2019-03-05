@@ -459,17 +459,24 @@ class PyClassmember(PyObject):
     Description of a class member (methods, attributes).
     """
 
+    option_spec = PyObject.option_spec.copy()
+    option_spec.update(abstract=directives.flag)
+
     def needs_arglist(self):
         # type: () -> bool
         return self.objtype.endswith('method')
 
     def get_signature_prefix(self, sig):
         # type: (str) -> str
+        prefix = ''
+        if 'abstract' in self.options:
+            prefix += 'abstract '
+
         if self.objtype == 'staticmethod':
-            return 'static '
+            prefix += 'static '
         elif self.objtype == 'classmethod':
-            return 'classmethod '
-        return ''
+            prefix += 'classmethod '
+        return prefix
 
     def get_index_text(self, modname, name_cls):
         # type: (str, str) -> str
