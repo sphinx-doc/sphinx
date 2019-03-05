@@ -1,4 +1,5 @@
 import enum
+from abc import ABCMeta, abstractmethod
 from io import StringIO
 
 from sphinx.util import save_traceback  # NOQA
@@ -134,6 +135,46 @@ class Class(Base):
     def __special2__(self):
         # undocumented special method
         pass
+
+
+class AbstractBase(metaclass=ABCMeta):
+    @property
+    @abstractmethod
+    def value(self):
+        """Some value"""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def statmeth():
+        """Some static method"""
+        pass
+
+    @classmethod
+    @abstractmethod
+    def classmeth(cls):
+        """Some classmethod"""
+        pass
+
+    @abstractmethod
+    def fourth_meth(self):
+        """Some other method not to be overridden."""
+        pass
+
+
+class AbstractInherited(AbstractBase):
+    @property
+    def value(self):
+        """My implementation of value"""
+        return len(type(self).__name__)
+
+    @staticmethod
+    def statmeth():
+        return 5
+
+    @classmethod
+    def classmeth(cls):
+        return cls()
 
 
 class CustomDict(dict):

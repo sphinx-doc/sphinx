@@ -943,6 +943,92 @@ def test_autodoc_inner_class(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodoc_abstract(app):
+    # default (no-members)
+    actual = do_autodoc(app, 'class', 'target.AbstractBase')
+    assert list(filter(lambda l: '::' in l, actual)) == [
+        '.. py:class:: AbstractBase',
+    ]
+
+    # members
+    options = {'members': None, 'inherited-members': None,
+               'member-order': 'bysource'}
+    actual = do_autodoc(app, 'class', 'target.AbstractBase', options)
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: AbstractBase',
+        '   :module: target',
+        '',
+        '   ',
+        '   .. py:attribute:: AbstractBase.value',
+        '      :module: target',
+        '      :abstract:',
+        '   ',
+        '      Some value',
+        '      ',
+        '   ',
+        '   .. py:staticmethod:: AbstractBase.statmeth()',
+        '      :module: target',
+        '      :abstract:',
+        '   ',
+        '      Some static method',
+        '      ',
+        '   ',
+        '   .. py:classmethod:: AbstractBase.classmeth()',
+        '      :module: target',
+        '      :abstract:',
+        '   ',
+        '      Some classmethod',
+        '      ',
+        '   ',
+        '   .. py:method:: AbstractBase.fourth_meth()',
+        '      :module: target',
+        '      :abstract:',
+        '   ',
+        '      Some other method not to be overridden.',
+        '      ',
+    ]
+
+    actual = do_autodoc(app, 'class', 'target.AbstractInherited', options)
+
+    from pprint import pprint
+    pprint(list(actual))
+
+    assert list(actual) == [
+        '',
+        '.. py:class:: AbstractInherited',
+        '   :module: target',
+        '',
+        '   ',
+        '   .. py:attribute:: AbstractInherited.value',
+        '      :module: target',
+        '   ',
+        '      My implementation of value',
+        '      ',
+        '   ',
+        '   .. py:staticmethod:: AbstractInherited.statmeth()',
+        '      :module: target',
+        '   ',
+        '      Some static method',
+        '      ',
+        '   ',
+        '   .. py:classmethod:: AbstractInherited.classmeth()',
+        '      :module: target',
+        '   ',
+        '      Some classmethod',
+        '      ',
+        '   ',
+        '   .. py:method:: AbstractInherited.fourth_meth()',
+        '      :module: target',
+        '      :abstract:',
+        '   ',
+        '      Some other method not to be overridden.',
+        '      '
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_descriptor(app):
     actual = do_autodoc(app, 'attribute', 'target.Class.descr')
     assert list(actual) == [
